@@ -4541,7 +4541,7 @@ public void testBug260381() throws JavaModelException {
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
 		" * @author Myself\n" + 
-		" * @version {@code $Revision: 1.47.2.2 $ $Date: 2010/02/12 18:34:18 $ $Author: oliviert $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
+		" * @version {@code $Revision: 1.47.2.3 $ $Date: 2010/02/22 11:18:44 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
 		" */\n" + 
 		"public class X01 {\n" + 
 		"}\n";
@@ -4553,7 +4553,7 @@ public void testBug260381b() throws JavaModelException {
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
 		" * @author Myself\n" + 
-		" * @version <code>$Revision: 1.47.2.2 $ $Date: 2010/02/12 18:34:18 $ $Author: oliviert $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
+		" * @version <code>$Revision: 1.47.2.3 $ $Date: 2010/02/22 11:18:44 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
 		" */\n" + 
 		"public class X01b {\n" + 
 		"}\n";
@@ -4587,7 +4587,7 @@ public void testBug260381d() throws JavaModelException {
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
 		" * @author Myself\n" + 
-		" *  @see Object <code>$Revision: 1.47.2.2 $ $Date: 2010/02/12 18:34:18 $ $Author: oliviert $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
+		" *  @see Object <code>$Revision: 1.47.2.3 $ $Date: 2010/02/22 11:18:44 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
 		" */\n" + 
 		"public class X02 {\n" + 
 		"}\n";
@@ -4597,7 +4597,7 @@ public void testBug260381d() throws JavaModelException {
 		" * \n" + 
 		" * @author Myself\n" + 
 		" * @see Object\n" + 
-		" *      <code>$Revision: 1.47.2.2 $ $Date: 2010/02/12 18:34:18 $ $Author: oliviert $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
+		" *      <code>$Revision: 1.47.2.3 $ $Date: 2010/02/22 11:18:44 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $</code>\n" + 
 		" */\n" + 
 		"public class X02 {\n" + 
 		"}\n"
@@ -4608,7 +4608,7 @@ public void testBug260381e() throws JavaModelException {
 		"/**\n" + 
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
-		" * {@code $Revision: 1.47.2.2 $ $Date: 2010/02/12 18:34:18 $ $Author: oliviert $\n" + 
+		" * {@code $Revision: 1.47.2.3 $ $Date: 2010/02/22 11:18:44 $ $Author: ffusier $\n" + 
 		" * $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
 		" */\n" + 
 		"public class X03 {\n" + 
@@ -4620,7 +4620,7 @@ public void testBug260381f() throws JavaModelException {
 		"/**\n" + 
 		" * Literal inline tag should also be untouched by the formatter\n" + 
 		" * \n" + 
-		" * @version {@literal $Revision: 1.47.2.2 $ $Date: 2010/02/12 18:34:18 $ $Author: oliviert $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
+		" * @version {@literal $Revision: 1.47.2.3 $ $Date: 2010/02/22 11:18:44 $ $Author: ffusier $ $Source: /cvsroot/eclipse/org.eclipse.jdt.core.tests.model/src/org/eclipse/jdt/core/tests/formatter/FormatterCommentsBugsTest.java,v $}\n" + 
 		" */\n" + 
 		"public class X04 {\n" + 
 		"\n" + 
@@ -5411,6 +5411,133 @@ public void testBug267658b() throws JavaModelException {
 		"	 * @test bug\n" + 
 		"	 */\n" + 
 		"	int field;\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @bug 270209: [format] Condensed block comment formatting
+ * @test Verify that block and javadoc comments are formatted in condensed
+ * 		mode when the corresponding preferences is set
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=270209"
+ */
+public void testBug270209_Block01() throws JavaModelException {
+	this.formatterPrefs.comment_condensed_block_comment = true;
+	String source = 
+		"public interface X01 {\n" + 
+		"\n" + 
+		"/* Instead of like this.  I use these a lot and\n" + 
+		" * this can take up a lot of space. */\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X01 {\n" + 
+		"\n" + 
+		"	/* Instead of like this. I use these a lot and this can take up a lot of\n" + 
+		"	 * space. */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug270209_Block02() throws JavaModelException {
+	this.formatterPrefs.comment_condensed_block_comment = true;
+	String source = 
+		"public interface X02 {\n" + 
+		"\n" + 
+		"/*\n" + 
+		" * Instead of like this.  I use these a lot and\n" + 
+		" * this can take up a lot of space.\n" + 
+		" */\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X02 {\n" + 
+		"\n" + 
+		"	/* Instead of like this. I use these a lot and this can take up a lot of\n" + 
+		"	 * space. */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug270209_Block03() throws JavaModelException {
+	this.formatterPrefs.comment_condensed_block_comment = true;
+	String source = 
+		"public interface X03 {\n" + 
+		"\n" + 
+		"/*\n" + 
+		" * \n" + 
+		" * Instead of like this.  I use these a lot and\n" + 
+		" * this can take up a lot of space.\n" + 
+		" * \n" + 
+		" */\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X03 {\n" + 
+		"\n" + 
+		"	/* Instead of like this. I use these a lot and this can take up a lot of\n" + 
+		"	 * space. */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug270209_Javadoc01() throws JavaModelException {
+	this.formatterPrefs.comment_condensed_javadoc_comment = true;
+	String source = 
+		"public interface X01 {\n" + 
+		"\n" + 
+		"/** Instead of like this.  I use these a lot and\n" + 
+		" * this can take up a lot of space. */\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X01 {\n" + 
+		"\n" + 
+		"	/** Instead of like this. I use these a lot and this can take up a lot of\n" + 
+		"	 * space. */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug270209_Javadoc02() throws JavaModelException {
+	this.formatterPrefs.comment_condensed_javadoc_comment = true;
+	String source = 
+		"public interface X02 {\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * Instead of like this.  I use these a lot and\n" + 
+		" * this can take up a lot of space.\n" + 
+		" */\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X02 {\n" + 
+		"\n" + 
+		"	/** Instead of like this. I use these a lot and this can take up a lot of\n" + 
+		"	 * space. */\n" + 
+		"	void foo();\n" + 
+		"}\n"
+	);
+}
+public void testBug270209_Javadoc03() throws JavaModelException {
+	this.formatterPrefs.comment_condensed_javadoc_comment = true;
+	String source = 
+		"public interface X03 {\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * \n" + 
+		" * Instead of like this.  I use these a lot and\n" + 
+		" * this can take up a lot of space.\n" + 
+		" * \n" + 
+		" */\n" + 
+		"void foo();\n" + 
+		"}\n";
+	formatSource(source,
+		"public interface X03 {\n" + 
+		"\n" + 
+		"	/** Instead of like this. I use these a lot and this can take up a lot of\n" + 
+		"	 * space. */\n" + 
+		"	void foo();\n" + 
 		"}\n"
 	);
 }
