@@ -240,6 +240,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	void formatSource(String source, String formattedOutput) {
 		formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, true /*repeat formatting twice*/);
 	}
+
+	void formatSource(String source, String formattedOutput, int kind) {
+		formatSource(source, formattedOutput, kind, 0, true /*repeat formatting twice*/);
+	}
 	
 	void formatSource(String source, String formattedOutput, boolean repeat) {
 		formatSource(source, formattedOutput, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, repeat);

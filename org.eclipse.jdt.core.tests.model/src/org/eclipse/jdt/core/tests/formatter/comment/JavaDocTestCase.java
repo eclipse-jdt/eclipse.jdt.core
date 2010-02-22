@@ -19,22 +19,13 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
-import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
-import org.eclipse.jdt.internal.formatter.comment.JavaDocLine;
-import org.eclipse.jdt.internal.formatter.comment.MultiCommentLine;
 import org.eclipse.text.edits.TextEdit;
 
-public class JavaDocTestCase extends CommentTestCase {
+public class JavaDocTestCase extends MultiLineTestCase {
 
 	static {
 //		TESTS_NAMES = new String[] { "test109636_2" } ;
 	}
-
-	protected static final String INFIX= MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
-
-	protected static final String POSTFIX= MultiCommentLine.MULTI_COMMENT_END_PREFIX;
-
-	protected static final String PREFIX= JavaDocLine.JAVADOC_START_PREFIX;
 
 	public static Test suite() {
 		return buildTestSuite(JavaDocTestCase.class);
@@ -698,7 +689,7 @@ public class JavaDocTestCase extends CommentTestCase {
 
 		String expected = "/**" + DELIMITER +
 				" * <pre>" + DELIMITER +
-				(DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT ? " * " +  DELIMITER : "") +
+				" * " +  DELIMITER +
 				" * </pre>" + DELIMITER +
 				" * " +  DELIMITER +
 				" * " + DELIMITER +
@@ -876,23 +867,8 @@ public class JavaDocTestCase extends CommentTestCase {
 				" * </code>" + DELIMITER +
 				" */";
 
-		String expected = DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT
-			? input // do not change as <code> is an immutable tag
-			:	"/**" + DELIMITER +
-				" * <code>" + DELIMITER +
-				" * <pre>" + DELIMITER +
-				" * setLeadingComment(&quot;/* traditional comment &#42;/&quot;); // correct" + DELIMITER +
-				" * setLeadingComment(&quot;missing comment delimiters&quot;); // wrong" + DELIMITER +
-				" * setLeadingComment(&quot;/* unterminated traditional comment &quot;); // wrong" + DELIMITER +
-				" * setLeadingComment(&quot;/* broken\\n traditional comment &#42;/&quot;); // correct" + DELIMITER +
-				" * setLeadingComment(&quot;// end-of-line comment\\n&quot;); // correct" + DELIMITER +
-				" * setLeadingComment(&quot;// end-of-line comment without line terminator&quot;); // correct" + DELIMITER +
-				" * setLeadingComment(&quot;// broken\\n end-of-line comment\\n&quot;); // wrong" + DELIMITER +
-				" * </pre>" + DELIMITER +
-				" * </code>" + DELIMITER +
-				" */";
 		String result=testFormat(input, options);
-		assertEquals(expected, result);
+		assertEquals(input, result);
 	}
 
 	public void test109636_2() {
@@ -940,37 +916,35 @@ public class JavaDocTestCase extends CommentTestCase {
 	}
 
 	public void test109636_4() {
-		if (DefaultCodeFormatter.ENABLE_NEW_COMMENTS_FORMAT) {
-			Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 
-			String input =
-					"/**" + DELIMITER +
-					" * <pre>" + DELIMITER +
-					" * setLeadingComment(\"/&#42; traditional comment &#42;/\");  // correct" + DELIMITER +
-					" * setLeadingComment(\"missing comment delimiters\");  // wrong" + DELIMITER +
-					" * setLeadingComment(\"/&#42; unterminated traditional comment \");  // wrong" + DELIMITER +
-					" * setLeadingComment(\"/&#42; broken\\n traditional comment &#42;/\");  // correct" + DELIMITER +
-					" * setLeadingComment(\"// end-of-line comment\\n\");  // correct" + DELIMITER +
-					" * setLeadingComment(\"// end-of-line comment without line terminator\");  // correct" + DELIMITER +
-					" * setLeadingComment(\"// broken\\n end-of-line comment\\n\");  // wrong" + DELIMITER +
-					" * </pre>" + DELIMITER +
-					" */";
+		String input =
+				"/**" + DELIMITER +
+				" * <pre>" + DELIMITER +
+				" * setLeadingComment(\"/&#42; traditional comment &#42;/\");  // correct" + DELIMITER +
+				" * setLeadingComment(\"missing comment delimiters\");  // wrong" + DELIMITER +
+				" * setLeadingComment(\"/&#42; unterminated traditional comment \");  // wrong" + DELIMITER +
+				" * setLeadingComment(\"/&#42; broken\\n traditional comment &#42;/\");  // correct" + DELIMITER +
+				" * setLeadingComment(\"// end-of-line comment\\n\");  // correct" + DELIMITER +
+				" * setLeadingComment(\"// end-of-line comment without line terminator\");  // correct" + DELIMITER +
+				" * setLeadingComment(\"// broken\\n end-of-line comment\\n\");  // wrong" + DELIMITER +
+				" * </pre>" + DELIMITER +
+				" */";
 
-			String expected =
-					"/**" + DELIMITER +
-					" * <pre>" + DELIMITER +
-					" * setLeadingComment(&quot;/* traditional comment &#42;/&quot;); // correct" + DELIMITER +
-					" * setLeadingComment(&quot;missing comment delimiters&quot;); // wrong" + DELIMITER +
-					" * setLeadingComment(&quot;/* unterminated traditional comment &quot;); // wrong" + DELIMITER +
-					" * setLeadingComment(&quot;/* broken\\n traditional comment &#42;/&quot;); // correct" + DELIMITER +
-					" * setLeadingComment(&quot;// end-of-line comment\\n&quot;); // correct" + DELIMITER +
-					" * setLeadingComment(&quot;// end-of-line comment without line terminator&quot;); // correct" + DELIMITER +
-					" * setLeadingComment(&quot;// broken\\n end-of-line comment\\n&quot;); // wrong" + DELIMITER +
-					" * </pre>" + DELIMITER +
-					" */";
-			String result=testFormat(input, options);
-			assertEquals(expected, result);
-		}
+		String expected =
+				"/**" + DELIMITER +
+				" * <pre>" + DELIMITER +
+				" * setLeadingComment(&quot;/* traditional comment &#42;/&quot;); // correct" + DELIMITER +
+				" * setLeadingComment(&quot;missing comment delimiters&quot;); // wrong" + DELIMITER +
+				" * setLeadingComment(&quot;/* unterminated traditional comment &quot;); // wrong" + DELIMITER +
+				" * setLeadingComment(&quot;/* broken\\n traditional comment &#42;/&quot;); // correct" + DELIMITER +
+				" * setLeadingComment(&quot;// end-of-line comment\\n&quot;); // correct" + DELIMITER +
+				" * setLeadingComment(&quot;// end-of-line comment without line terminator&quot;); // correct" + DELIMITER +
+				" * setLeadingComment(&quot;// broken\\n end-of-line comment\\n&quot;); // wrong" + DELIMITER +
+				" * </pre>" + DELIMITER +
+				" */";
+		String result=testFormat(input, options);
+		assertEquals(expected, result);
 	}
 
 	/**

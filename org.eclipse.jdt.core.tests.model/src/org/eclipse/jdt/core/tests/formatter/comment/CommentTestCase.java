@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.tests.model.SuiteOfTestCases;
 
 public abstract class CommentTestCase extends SuiteOfTestCases {
+
 	public static Test buildTestSuite(Class evaluationTestClass) {
 		return buildTestSuite(evaluationTestClass, null); //$NON-NLS-1$
 	}

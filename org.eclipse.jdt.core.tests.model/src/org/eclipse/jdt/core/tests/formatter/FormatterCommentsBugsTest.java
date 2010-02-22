@@ -2200,8 +2200,6 @@ public void testBug236230d() throws JavaModelException {
 		"	  return null;\n" +
 		"  }\n" +
 		"}\n";
-	// TODO (frederic) line comment should be formatted when F_INCLUDE_COMMENTS
-	// flag will work for all snippet kinds
 	formatSource(source,
 		"/**\n" +
 		" * Need a javadoc comment before to get the exception.\n" +
@@ -2213,7 +2211,7 @@ public void testBug236230d() throws JavaModelException {
 		"	 * If there is an authority, it is:\n" +
 		"	 * \n" +
 		"	 * <pre>\n" +
-		"	 * //class	body		snippet\n" +
+		"	 * // class body snippet\n" + 
 		"	 * public class X {\n" +
 		"	 * }\n" +
 		"	 * </pre>\n" +
@@ -2261,6 +2259,142 @@ public void testBug236230f() throws JavaModelException {
 		"	static final String JAVA_VERSION = System.getProperty(\"java.version\");\n" +
 		"\n" +
 		"}\n"
+	);
+}
+
+/**
+ * @bug 236406: [formatter] Formatting qualified invocations can be broken when the Line Wrapping policy forces element to be on a new line
+ * @test Verify that wrapping policies forcing the first element to be on a new line are working again...
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=236406"
+ */
+public void testBug236406_CDB1() {
+	String source = 
+		"/**        Javadoc		comment    	    */void foo1() {System.out.println();}\n" +
+		"//        Line		comment    	    \n" +
+		"void foo2() {System.out.println();}\n" +
+		"/*        Block		comment    	    */\n" +
+		"void foo3() {\n" +
+		"/*        statement Block		comment    	    */\n" +
+		"System.out.println();}\n";
+	formatSource(source,
+		"/**        Javadoc		comment    	    */\n" + 
+		"void foo1() {\n" + 
+		"	System.out.println();\n" + 
+		"}\n" + 
+		"\n" + 
+		"//        Line		comment    	    \n" + 
+		"void foo2() {\n" + 
+		"	System.out.println();\n" + 
+		"}\n" + 
+		"\n" + 
+		"/*        Block		comment    	    */\n" +
+		"void foo3() {\n" +
+		"	/*        statement Block		comment    	    */\n" + 
+		"	System.out.println();\n" + 
+		"}",
+		CodeFormatter.K_CLASS_BODY_DECLARATIONS
+	);
+}
+public void testBug236406_CDB2() {
+	String source = 
+		"/**        Javadoc		comment    	    */void foo1() {System.out.println();}\n" +
+		"//        Line		comment    	    \n" +
+		"void foo2() {System.out.println();}\n" +
+		"/*        Block		comment    	    */\n" +
+		"void foo3() {\n" +
+		"/*        statement Block		comment    	    */\n" +
+		"System.out.println();}\n";
+	formatSource(source,
+		"/** Javadoc comment */\n" + 
+		"void foo1() {\n" + 
+		"	System.out.println();\n" + 
+		"}\n" + 
+		"\n" + 
+		"// Line comment\n" + 
+		"void foo2() {\n" + 
+		"	System.out.println();\n" + 
+		"}\n" + 
+		"\n" + 
+		"/* Block comment */\n" +
+		"void foo3() {\n" + 
+		"	/* statement Block comment */\n" + 
+		"	System.out.println();\n" + 
+		"}",
+		CodeFormatter.K_CLASS_BODY_DECLARATIONS | CodeFormatter.F_INCLUDE_COMMENTS
+	);
+}
+public void testBug236406_EX1() {
+	String source = 
+		"//        Line		comment    	    \n" +
+		"i = \n" +
+		"/**        Javadoc		comment    	    */\n" +
+		"1     +     (/*      Block		comment*/++a)\n";
+	formatSource(source,
+		"//        Line		comment    	    \n" + 
+		"i =\n" + 
+		"/**        Javadoc		comment    	    */\n" + 
+		"1 + (/*      Block		comment*/++a)",
+		CodeFormatter.K_EXPRESSION
+	);
+}
+public void testBug236406_EX2() {
+	String source = 
+		"//        Line		comment    	    \n" +
+		"i = \n" +
+		"/**        Javadoc		comment    	    */\n" +
+		"1     +     (/*      Block		comment*/++a)\n";
+	formatSource(source,
+		"// Line comment\n" + 
+		"i =\n" + 
+		"/** Javadoc comment */\n" + 
+		"1 + (/* Block comment */++a)",
+		CodeFormatter.K_EXPRESSION | CodeFormatter.F_INCLUDE_COMMENTS
+	);
+}
+public void testBug236406_ST1() {
+	String source = 
+		"/**        Javadoc		comment    	    */foo1();\n" +
+		"//        Line		comment    	    \n" +
+		"foo2();\n" +
+		"/*        Block		comment    	    */\n" +
+		"foo3(); {\n" +
+		"/*        indented Block		comment    	    */\n" +
+		"System.out.println();}\n";
+	formatSource(source,
+		"/**        Javadoc		comment    	    */\n" + 
+		"foo1();\n" + 
+		"//        Line		comment    	    \n" + 
+		"foo2();\n" + 
+		"/*        Block		comment    	    */\n" + 
+		"foo3();\n" + 
+		"{\n" + 
+		"	/*        indented Block		comment    	    */\n" + 
+		"	System.out.println();\n" + 
+		"}",
+		CodeFormatter.K_STATEMENTS
+	);
+}
+public void testBug236406_ST2() {
+	String source = 
+		"/**        Javadoc		comment    	    */foo1();\n" +
+		"//        Line		comment    	    \n" +
+		"foo2();\n" +
+		"/*        Block		comment    	    */\n" +
+		"foo3(); {\n" +
+		"/*        indented Block		comment    	    */\n" +
+		"System.out.println();}\n";
+	formatSource(source,
+		"/** Javadoc comment */\n" + 
+		"foo1();\n" + 
+		"// Line comment\n" + 
+		"foo2();\n" + 
+		"/* Block comment */\n" + 
+		"foo3();\n" + 
+		"{\n" + 
+		"	/* indented Block comment */\n" + 
+		"	System.out.println();\n" + 
+		"}",
+		CodeFormatter.K_STATEMENTS | CodeFormatter.F_INCLUDE_COMMENTS
 	);
 }
 
