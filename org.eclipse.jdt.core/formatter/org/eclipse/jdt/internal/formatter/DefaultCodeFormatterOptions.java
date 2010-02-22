@@ -128,6 +128,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_new_line_after_annotation_on_member;
 	public boolean insert_new_line_after_annotation_on_parameter;
 	public boolean insert_new_line_after_annotation_on_local_variable;
+	public boolean insert_new_line_after_label;
 	public boolean insert_new_line_after_opening_brace_in_array_initializer;
 	public boolean insert_new_line_at_end_of_file_if_missing;
 	public boolean insert_new_line_before_catch_in_try_statement;
@@ -142,7 +143,6 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_new_line_in_empty_enum_declaration;
 	public boolean insert_new_line_in_empty_method_body;
 	public boolean insert_new_line_in_empty_type_declaration;
-	public boolean insert_new_line_after_label;
 	public boolean insert_space_after_and_in_type_parameter;
 	public boolean insert_space_after_assignment_operator;
 	public boolean insert_space_after_at_in_annotation;
