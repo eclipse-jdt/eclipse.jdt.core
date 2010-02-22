@@ -152,6 +152,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			"}";
 		
 		File packageDir = new File(rootDir, "p");
+		packageDir.mkdir();
 		File file = new File(packageDir, "X.java");
 		Writer writer = null;
 		try {
@@ -262,6 +263,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			"}";
 		
 		File packageDir = new File(rootDir, "p");
+		packageDir.mkdir();
 		File file = new File(packageDir, "X.java");
 		Writer writer = null;
 		try {
