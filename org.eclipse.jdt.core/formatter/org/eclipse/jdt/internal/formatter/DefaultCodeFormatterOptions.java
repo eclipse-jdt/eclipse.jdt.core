@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Brock Janiczak - Contribution for bug 150741
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -127,6 +128,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_new_line_after_annotation_on_member;
 	public boolean insert_new_line_after_annotation_on_parameter;
 	public boolean insert_new_line_after_annotation_on_local_variable;
+	public boolean insert_new_line_after_label;
 	public boolean insert_new_line_after_opening_brace_in_array_initializer;
 	public boolean insert_new_line_at_end_of_file_if_missing;
 	public boolean insert_new_line_before_catch_in_try_statement;
@@ -141,7 +143,6 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_new_line_in_empty_enum_declaration;
 	public boolean insert_new_line_in_empty_method_body;
 	public boolean insert_new_line_in_empty_type_declaration;
-	public boolean insert_new_line_after_label;
 	public boolean insert_space_after_and_in_type_parameter;
 	public boolean insert_space_after_assignment_operator;
 	public boolean insert_space_after_at_in_annotation;
