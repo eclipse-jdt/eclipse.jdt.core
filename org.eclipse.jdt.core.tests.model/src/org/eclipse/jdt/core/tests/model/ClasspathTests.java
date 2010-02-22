@@ -6026,7 +6026,7 @@ public void testBug300136() throws Exception {
 	}	
 }
 /**
- * Additional test for bug 300136 - Test that the the errors are reported when the 
+ * Additional test for bug 300136 - Test that the errors are reported when the 
  * optional attribute is not used.
  * 
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=300136"
@@ -6068,6 +6068,53 @@ public void testBug300136a() throws Exception {
 		deleteProject("P");
 		JavaCore.removeClasspathVariable("INVALID_LIB", null);
 	}	
+}
+/**
+ * @bug 294360:Duplicate entries in Classpath Resolution when importing dependencies from parent project  
+ * Test that duplicate entries are not added to the resolved classpath
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=294360"
+ * @throws Exception
+ */ 
+public void testBug294360a() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addExternalLibrary(p, getExternalResourcePath("lib.jar"), new String[0], 
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n",
+				},
+				JavaCore.VERSION_1_4);
+		IClasspathEntry[] classpath = new IClasspathEntry[2];
+		classpath[0] = JavaCore.newLibraryEntry(new Path(getExternalResourcePath("lib.jar")), null, null);
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", getExternalResourcePath("lib.jar")}));
+		classpath[1] = JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"));
+		setClasspath(p, classpath);
+
+		StringBuffer buffer = new StringBuffer(
+						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+						"<classpath>\n" +
+						"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +
+						"	<classpathentry kind=\"lib\" path=\""+ getExternalResourcePath("lib.jar") + "\">\n" +
+						"    	<attributes>\n" + 
+						"   	 <attribute name=\"optional\" value=\"true\"/>\n" +
+						"    	</attributes>\n" +
+						"	</classpathentry>\n" +						
+						"	<classpathentry kind=\"output\" path=\"\"/>\n" +
+						"</classpath>\n");
+		
+		editFile(
+			"/P/.classpath",
+			buffer.toString()
+		);		
+
+		IClasspathEntry[] resolvedClasspath = p.getResolvedClasspath(true);
+		assertClasspathEquals(resolvedClasspath, 
+				""+ getExternalPath() + "lib.jar[CPE_LIBRARY][K_BINARY][isExported:false]");
+	} finally {
+		deleteProject("P");
+		deleteExternalResource("lib.jar");
+	}
 }
 
 }
