@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -551,7 +552,22 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (!avoidSecondary) {
 			scope.problemReporter().invalidField(this, this.actualReceiverType);
 		}
-		return null;
+		if (fieldBinding instanceof ProblemFieldBinding) {
+			ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) fieldBinding;
+			FieldBinding closestMatch = problemFieldBinding.closestMatch;
+			switch(problemFieldBinding.problemId()) {
+				case ProblemReasons.InheritedNameHidesEnclosingName :
+				case ProblemReasons.NotVisible :
+				case ProblemReasons.NonStaticReferenceInConstructorInvocation :
+				case ProblemReasons.NonStaticReferenceInStaticContext :
+					if (closestMatch != null) {
+						fieldBinding = closestMatch;
+					}
+			}
+		}
+		if (!fieldBinding.isValidBinding()) {
+			return null;
+		}
 	}
 	// handle indirect inheritance thru variable secondary bound
 	// receiver may receive generic cast, as part of implicit conversion
