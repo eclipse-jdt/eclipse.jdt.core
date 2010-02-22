@@ -605,6 +605,32 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
+	 * FORMATTER / Option to control whether block comments are condensed or not
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.condensed_block_comment"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.6
+	 */
+	public final static String FORMATTER_COMMENT_CONDENSED_BLOCK_COMMENT = "org.eclipse.jdt.core.formatter.comment.condensed_block_comment"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether javadoc comments are condensed or not
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.condensed_javadoc_comment"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.6
+	 */
+	public final static String FORMATTER_COMMENT_CONDENSED_JAVADOC_COMMENT = "org.eclipse.jdt.core.formatter.comment.condensed_javadoc_comment"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
 	 * FORMATTER / Option to control whether comments are formatted
 	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.format_comments"
 	 *     - possible values:   { TRUE, FALSE }

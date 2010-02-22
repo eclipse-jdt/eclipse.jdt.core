@@ -99,6 +99,8 @@ public class DefaultCodeFormatterOptions {
 
 	public boolean comment_clear_blank_lines_in_javadoc_comment;
 	public boolean comment_clear_blank_lines_in_block_comment;
+	public boolean comment_condensed_block_comment;
+	public boolean comment_condensed_javadoc_comment;
 	public boolean comment_format_javadoc_comment;
 	public boolean comment_format_line_comment;
 	public boolean comment_format_block_comment;
@@ -367,6 +369,8 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_SWITCH, this.brace_position_for_switch);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT, this.comment_clear_blank_lines_in_block_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, this.comment_clear_blank_lines_in_javadoc_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CONDENSED_BLOCK_COMMENT, this.comment_condensed_block_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CONDENSED_JAVADOC_COMMENT, this.comment_condensed_javadoc_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT, this.comment_format_javadoc_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT, this.comment_format_line_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT, this.comment_format_block_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -1088,6 +1092,14 @@ public class DefaultCodeFormatterOptions {
 			} catch(ClassCastException e) {
 				this.comment_line_length = 80;
 			}
+		}
+		final Object commentCondensedBlockCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CONDENSED_BLOCK_COMMENT);
+		if (commentCondensedBlockCommentOption != null) {
+			this.comment_condensed_block_comment = DefaultCodeFormatterConstants.TRUE.equals(commentCondensedBlockCommentOption);
+		}
+		final Object commentCondensedJavadocCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CONDENSED_JAVADOC_COMMENT);
+		if (commentCondensedJavadocCommentOption != null) {
+			this.comment_condensed_javadoc_comment = DefaultCodeFormatterConstants.TRUE.equals(commentCondensedJavadocCommentOption);
 		}
 		final Object indentStatementsCompareToBlockOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BLOCK);
 		if (indentStatementsCompareToBlockOption != null) {

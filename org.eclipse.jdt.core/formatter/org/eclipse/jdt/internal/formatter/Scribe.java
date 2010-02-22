@@ -1628,6 +1628,7 @@ public class Scribe implements IJavaDocTagConstants {
 		boolean firstWord = true;
 		boolean clearBlankLines = this.formatter.preferences.comment_clear_blank_lines_in_block_comment;
 		boolean joinLines = this.formatter.preferences.join_lines_in_comments;
+		boolean condensed = this.formatter.preferences.comment_condensed_block_comment;
 		int scannerLine = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, 0, this.maxLines);
 		int firstLine = scannerLine;
 		int lineNumber = scannerLine;
@@ -1687,10 +1688,12 @@ public class Scribe implements IJavaDocTagConstants {
 							this.column += tokensBuffer.length();
 						}
 						// end of comment
-						if (multiLines || hasMultiLines) {
-					    	buffer.append(this.lineSeparator);
-					    	this.column = 1;
-					    	printIndentationIfNecessary(buffer);
+						if (!condensed) {
+							if (multiLines || hasMultiLines) {
+						    	buffer.append(this.lineSeparator);
+						    	this.column = 1;
+						    	printIndentationIfNecessary(buffer);
+							}
 						}
 						buffer.append(' ');
 						this.column += BLOCK_FOOTER_LENGTH + 1;
@@ -1736,7 +1739,7 @@ public class Scribe implements IJavaDocTagConstants {
 			int max;
 			lineNumber = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 			if (lastTextLine == -1) {
-				linesGap = lineNumber - firstLine;
+				linesGap = condensed ? 0 : lineNumber - firstLine;
 				max = 0;
 			} else {
 				linesGap = lineNumber - lastTextLine;
@@ -1874,7 +1877,11 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	private void printBlockCommentHeaderLine(StringBuffer buffer) {
-	    if (buffer.length() == 0) {
+		if (this.formatter.preferences.comment_condensed_block_comment) {
+			buffer.insert(0, ' ');
+			this.column++;
+		}
+	    else if (buffer.length() == 0) {
 	    	buffer.append(this.lineSeparator);
 	    	this.column = 1;
 	    	printIndentationIfNecessary(buffer);
@@ -3276,7 +3283,7 @@ public class Scribe implements IJavaDocTagConstants {
 			printJavadocBlock(previousBlock);
 
 			// format the header and footer empty spaces
-			int newLines = this.line > currentLine || javadoc.isMultiLine() ? 1 : 0;
+			int newLines = (!this.formatter.preferences.comment_condensed_javadoc_comment && (this.line > currentLine || javadoc.isMultiLine())) ? 1 : 0;
 			printJavadocGapLines(javadoc.textStart, firstBlockStart-1, newLines, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, false, null);
 			printJavadocGapLines(previousBlock.sourceEnd+1, javadoc.textEnd, newLines, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, true, null);
 		}
