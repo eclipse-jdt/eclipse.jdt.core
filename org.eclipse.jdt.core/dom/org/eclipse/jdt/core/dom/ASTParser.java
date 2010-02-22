@@ -309,7 +309,7 @@ public class ASTParser {
 	 * 
 	 * @param classpathEntries the given classpath entries to be used to resolve bindings
 	 * @param sourcepathEntries the given sourcepath entries to be used to resolve bindings
-	 * @param encodings the encodings of the corresponding sourcepath entries or <code>null</code> if the plafform encoding
+	 * @param encodings the encodings of the corresponding sourcepath entries or <code>null</code> if the platform encoding
 	 * can be used.
 	 * @param includeRunningVMBootclasspath <code>true</code> if the bootclasspath of the running VM must be prepended to the
 	 * given classpath and <code>false</code> if the bootclasspath of the running VM should be ignored.

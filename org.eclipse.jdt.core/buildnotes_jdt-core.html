@@ -49,6 +49,33 @@ Eclipse SDK 3.6M6 - %date% - 3.6.0 M6
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A36">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>In order to get bindings outside of the Eclipse environment, the following method has been added on the ASTParser class.
+<br>See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=206391">206391</a> for details.<br>
+<pre>
+	/**
+	 * Set the environment that can be used when no IJavaProject are available.
+	 * 
+	 * The user has to be sure to include all required types on the classpaths for binary types
+	 * or on the sourcepaths for source types to resolve the given source code.
+	 * All classpath and sourcepath entries are absolute paths.
+	 * If sourcepaths contain units using a specific encoding (not the platform encoding), then the
+	 * given encodings must be set. If the given encodings is set, its length must
+	 * match the length of the sourcepaths parameter or an IllegalArgumentException will be thrown.
+	 * If encodings is not null, the given sourcepathEntries must not be null.
+	 * 
+	 * @param classpathEntries the given classpath entries to be used to resolve bindings
+	 * @param sourcepathEntries the given sourcepath entries to be used to resolve bindings
+	 * @param encodings the encodings of the corresponding sourcepath entries or null if the platform encoding
+	 * can be used.
+	 * @param includeRunningVMBootclasspath true if the bootclasspath of the running VM must be prepended to the
+	 * given classpath and false if the bootclasspath of the running VM should be ignored.
+	 * @throws IllegalArgumentException if the size of the given encodings is not equals to the size of the given
+	 * sourcepathEntries
+	 * @since 3.6
+	 */
+	public void setEnvironment(String[] classpathEntries, String[] sourcepathEntries, String[] encodings, boolean includeRunningVMBootclasspath);
+</pre>
+</li>
 <li>
 Added two new formatter preferences to condense block and javadoc comments.
 <p>
@@ -138,7 +165,7 @@ This new preference is controlled with the option:</p>
 <pre>
 public class X {
 	void foo() {
-		LABEL:for (int i = 0; i < 10; i++) {
+		LABEL:for (int i = 0; i &lt; 10; i++) {
 		}
 	}
 }
@@ -148,7 +175,7 @@ formatted with this preference activated, will produce the following output:
 public class X {
 	void foo() {
 		LABEL:
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i &lt; 10; i++) {
 		}
 	}
 }
