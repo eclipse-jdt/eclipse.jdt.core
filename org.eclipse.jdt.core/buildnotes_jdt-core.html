@@ -49,6 +49,39 @@ Eclipse SDK 3.6M6 - %date% - 3.6.0 M6
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A36">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>
+Added a new formatter preferences to align annotation arguments (ie. element-value pairs).
+<p>
+This new preference is controlled with the option:</p>
+<code>DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ANNOTATION</code>
+<pre>
+/**
+ * FORMATTER / Option for alignment of arguments in annotation
+ *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_arguments_in_annotation"
+ *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+ *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+ * 
+ * @see #createAlignmentValue(boolean, int, int)
+ * @since 3.6
+ */
+</pre>
+<p>For example, the following snippet:</p>
+<pre>
+@MyAnnot(value1 = "this is an example", value2 = "of an annotation", value3 = "with several arguments", value4 = "which may need to be wrapped")
+public class Test {
+}
+</pre>
+formatted with this preference activated, will produce the following output
+while using the <code>Eclipse [built-in]</code> profile:
+<pre>
+@MyAnnot(value1 = "this is an example", value2 = "of an annotation",
+		value3 = "with several arguments",
+		value4 = "which may need to be wrapped")
+public class Test {
+}
+</pre>
+See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=282030">282030</a> for more details.
+</li>
 <li>In order to get bindings outside of the Eclipse environment, the following method has been added on the ASTParser class.
 <br>See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=206391">206391</a> for details.<br>
 <pre>
@@ -184,7 +217,9 @@ See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=150741">150741</a
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=270209">270209</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=282030">282030</a>
+[formatter] Java annotation formatting
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=270209">270209</a>
 [format] Condensed block comment formatting
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=236406">236406</a>
 [formatter] The comments flags should work for all kind of snippet

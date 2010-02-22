@@ -4262,14 +4262,32 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		MemberValuePair[] memberValuePairs = annotation.memberValuePairs;
 		if (memberValuePairs != null) {
 			int length = memberValuePairs.length;
-			for (int i = 0; i < length - 1; i++) {
-				memberValuePairs[i].traverse(this, scope);
-				this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_annotation);
-				if (this.preferences.insert_space_after_comma_in_annotation) {
-					this.scribe.space();
+			Alignment annotationAlignment = this.scribe.createAlignment(
+					"annotationMemberValuePairs",//$NON-NLS-1$
+					this.preferences.alignment_for_arguments_in_annotation,
+					length,
+					this.scribe.scanner.currentPosition);
+			this.scribe.enterAlignment(annotationAlignment);
+			boolean ok = false;
+			do {
+				try {
+					for (int i = 0; i < length; i++) {
+						if (i > 0) {
+							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_annotation);
+							this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
+						}
+						this.scribe.alignFragment(annotationAlignment, i);
+						if (i > 0 && this.preferences.insert_space_after_comma_in_annotation) {
+							this.scribe.space();
+						}
+						memberValuePairs[i].traverse(this, scope);
+					}
+					ok = true;
+				} catch (AlignmentException e) {
+					this.scribe.redoAlignment(e);
 				}
-			}
-			memberValuePairs[length - 1].traverse(this, scope);
+			} while (!ok);
+			this.scribe.exitAlignment(annotationAlignment, true);
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_annotation);
 		return false;

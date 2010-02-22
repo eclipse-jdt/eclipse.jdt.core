@@ -582,6 +582,360 @@ public void testBug252556() {
 }
 
 /**
+ * @bug 281655: [formatter] "Never join lines" does not work for annotations.
+ * @test Verify that "Never join lines" now works for annotations and also that
+ * 		element-value pairs are well wrapped using the new formatter option
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=281655"
+ */
+public void testBug281655() throws JavaModelException {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
+		"        activationConfig = { \n" + 
+		"            @ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
+		"propertyValue = \"0/10 * * * * ?\") \n" + 
+		"        })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\",\n" + 
+		"		activationConfig = {\n" + 
+		"			@ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
+		"					propertyValue = \"0/10 * * * * ?\")\n" + 
+		"		})\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+public void testBug281655a() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_NO_ALIGNMENT;
+	String source =
+		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
+		"        activationConfig = { \n" + 
+		"            @ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
+		"propertyValue = \"0/10 * * * * ?\") \n" + 
+		"        })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", activationConfig = { @ActivationConfigProperty(propertyName = \"cronTrigger\", propertyValue = \"0/10 * * * * ?\") })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+public void testBug281655b() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_SPLIT;
+	String source =
+		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
+		"        activationConfig = { \n" + 
+		"            @ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
+		"propertyValue = \"0/10 * * * * ?\") \n" + 
+		"        })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MessageDriven(\n" + 
+		"		mappedName = \"filiality/SchedulerMQService\",\n" + 
+		"		activationConfig = { @ActivationConfigProperty(\n" + 
+		"				propertyName = \"cronTrigger\", propertyValue = \"0/10 * * * * ?\") })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+public void testBug281655c() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
+	String source =
+		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
+		"        activationConfig = { \n" + 
+		"            @ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
+		"propertyValue = \"0/10 * * * * ?\") \n" + 
+		"        })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MessageDriven(\n" + 
+		"		mappedName = \"filiality/SchedulerMQService\",\n" + 
+		"		activationConfig = { @ActivationConfigProperty(\n" + 
+		"				propertyName = \"cronTrigger\", propertyValue = \"0/10 * * * * ?\") })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+public void testBug281655d() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_ONE_PER_LINE_SPLIT;
+	String source =
+		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
+		"        activationConfig = { \n" + 
+		"            @ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
+		"propertyValue = \"0/10 * * * * ?\") \n" + 
+		"        })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MessageDriven(\n" + 
+		"		mappedName = \"filiality/SchedulerMQService\",\n" + 
+		"		activationConfig = { @ActivationConfigProperty(\n" + 
+		"				propertyName = \"cronTrigger\",\n" + 
+		"				propertyValue = \"0/10 * * * * ?\") })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+public void testBug281655e() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_NEXT_SHIFTED_SPLIT;
+	String source =
+		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
+		"        activationConfig = { \n" + 
+		"            @ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
+		"propertyValue = \"0/10 * * * * ?\") \n" + 
+		"        })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MessageDriven(\n" + 
+		"		mappedName = \"filiality/SchedulerMQService\",\n" + 
+		"			activationConfig = { @ActivationConfigProperty(\n" + 
+		"					propertyName = \"cronTrigger\",\n" + 
+		"						propertyValue = \"0/10 * * * * ?\") })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+public void testBug281655f() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_NEXT_PER_LINE_SPLIT;
+	String source =
+		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
+		"        activationConfig = { \n" + 
+		"            @ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
+		"propertyValue = \"0/10 * * * * ?\") \n" + 
+		"        })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\",\n" + 
+		"		activationConfig = { @ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
+		"				propertyValue = \"0/10 * * * * ?\") })\n" + 
+		"@RunAs(\"admin\")\n" + 
+		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
+		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @bug 282030: [formatter] Java annotation formatting
+ * @test Verify that element-value pairs are well wrapped using the new formatter option
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=282030"
+ */
+public void testBug282030() throws JavaModelException {
+	String source =
+		"@DeclareParents(value =\n" + 
+		"\"com.apress.springrecipes.calculator.ArithmeticCalculatorImpl\", defaultImpl =\n" + 
+		"MaxCalculatorImpl.class) \n" + 
+		"public class X {\n" + 
+		"}\n";
+	formatSource(source,
+		"@DeclareParents(\n" + 
+		"		value = \"com.apress.springrecipes.calculator.ArithmeticCalculatorImpl\",\n" + 
+		"		defaultImpl = MaxCalculatorImpl.class)\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+public void testBug282030a() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_NO_ALIGNMENT;
+	String source =
+		"@MyAnnot(value1 = \"this is an example\", value2 = \"of an annotation\", value3 = \"with several arguments\", value4 = \"which may need to be wrapped\")\n" + 
+		"public class Test {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MyAnnot(value1 = \"this is an example\", value2 = \"of an annotation\", value3 = \"with several arguments\", value4 = \"which may need to be wrapped\")\n" + 
+		"public class Test {\n" + 
+		"}\n"
+	);
+}
+public void testBug282030b() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_SPLIT;
+	String source =
+		"@MyAnnot(value1 = \"this is an example\", value2 = \"of an annotation\", value3 = \"with several arguments\", value4 = \"which may need to be wrapped\")\n" + 
+		"public class Test {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MyAnnot(value1 = \"this is an example\", value2 = \"of an annotation\",\n" + 
+		"		value3 = \"with several arguments\",\n" + 
+		"		value4 = \"which may need to be wrapped\")\n" + 
+		"public class Test {\n" + 
+		"}\n"
+	);
+}
+public void testBug282030c() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
+	String source =
+		"@MyAnnot(value1 = \"this is an example\", value2 = \"of an annotation\", value3 = \"with several arguments\", value4 = \"which may need to be wrapped\")\n" + 
+		"public class Test {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MyAnnot(\n" + 
+		"		value1 = \"this is an example\", value2 = \"of an annotation\",\n" + 
+		"		value3 = \"with several arguments\",\n" + 
+		"		value4 = \"which may need to be wrapped\")\n" + 
+		"public class Test {\n" + 
+		"}\n"
+	);
+}
+public void testBug282030d() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_ONE_PER_LINE_SPLIT;
+	String source =
+		"@MyAnnot(value1 = \"this is an example\", value2 = \"of an annotation\", value3 = \"with several arguments\", value4 = \"which may need to be wrapped\")\n" + 
+		"public class Test {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MyAnnot(\n" + 
+		"		value1 = \"this is an example\",\n" + 
+		"		value2 = \"of an annotation\",\n" + 
+		"		value3 = \"with several arguments\",\n" + 
+		"		value4 = \"which may need to be wrapped\")\n" + 
+		"public class Test {\n" + 
+		"}\n"
+	);
+}
+public void testBug282030e() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_NEXT_SHIFTED_SPLIT;
+	String source =
+		"@MyAnnot(value1 = \"this is an example\", value2 = \"of an annotation\", value3 = \"with several arguments\", value4 = \"which may need to be wrapped\")\n" + 
+		"public class Test {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MyAnnot(\n" + 
+		"		value1 = \"this is an example\",\n" + 
+		"			value2 = \"of an annotation\",\n" + 
+		"			value3 = \"with several arguments\",\n" + 
+		"			value4 = \"which may need to be wrapped\")\n" + 
+		"public class Test {\n" + 
+		"}\n"
+	);
+}
+public void testBug282030f() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_NEXT_PER_LINE_SPLIT;
+	String source =
+		"@MyAnnot(value1 = \"this is an example\", value2 = \"of an annotation\", value3 = \"with several arguments\", value4 = \"which may need to be wrapped\")\n" + 
+		"public class Test {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MyAnnot(value1 = \"this is an example\",\n" + 
+		"		value2 = \"of an annotation\",\n" + 
+		"		value3 = \"with several arguments\",\n" + 
+		"		value4 = \"which may need to be wrapped\")\n" + 
+		"public class Test {\n" + 
+		"}\n"
+	);
+}
+public void testBug282030g1() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_ONE_PER_LINE_SPLIT;
+	String source =
+		"@MyAnnot1(member1 = \"sample1\", member2 = \"sample2\")\n" + 
+		"public class X {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MyAnnot1(member1 = \"sample1\", member2 = \"sample2\")\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+public void testBug282030g2() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_FORCE;
+	String source =
+		"@MyAnnot1(member1 = \"sample1\", member2 = \"sample2\")\n" + 
+		"public class X {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MyAnnot1(\n" +
+		"		member1 = \"sample1\",\n" +
+		"		member2 = \"sample2\")\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+public void testBug282030h1() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_ONE_PER_LINE_SPLIT;
+	String source =
+		"@MyAnnot1(name = \"sample1\", \n" + 
+		"                value = { \n" + 
+		"                        @MyAnnot2(name = \"sample2\",\n" + 
+		"value = \"demo\") \n" + 
+		"                })\n" + 
+		"public class X {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MyAnnot1(name = \"sample1\", value = { @MyAnnot2(\n" + 
+		"		name = \"sample2\",\n" + 
+		"		value = \"demo\") })\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+public void testBug282030h2() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_FORCE;
+	String source =
+		"@MyAnnot1(name = \"sample1\", \n" + 
+		"                value = { \n" + 
+		"                        @MyAnnot2(name = \"sample2\",\n" + 
+		"value = \"demo\") \n" + 
+		"                })\n" + 
+		"public class X {\n" + 
+		"}\n";
+	formatSource(source,
+		"@MyAnnot1(\n" +
+		"		name = \"sample1\",\n" +
+		"		value = { @MyAnnot2(\n" +
+		"				name = \"sample2\",\n" + 
+		"				value = \"demo\") })\n" + 
+		"public class X {\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 283467: [formatter] wrong indentation with 'Never join lines' selected
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=283467"
  */

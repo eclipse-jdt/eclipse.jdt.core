@@ -87,6 +87,17 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ENUM_CONSTANT = JavaCore.PLUGIN_ID + ".formatter.alignment_for_arguments_in_enum_constant";	 //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option for alignment of arguments in annotation
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_arguments_in_annotation"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.6
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ANNOTATION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_arguments_in_annotation";	 //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option for alignment of arguments in explicit constructor call
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_arguments_in_explicit_constructor_call"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
