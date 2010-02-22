@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,27 +10,25 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
-import org.eclipse.jdt.core.ICompilationUnit;
-
 /**
  * An AST requestor handles ASTs for compilation units passed to
- * {@link ASTParser#createASTs(ICompilationUnit[], String[], ASTRequestor, org.eclipse.core.runtime.IProgressMonitor) ASTParser.createASTs}.
+ * {@link ASTParser#createASTs(String[], String[], String[], FileASTRequestor, org.eclipse.core.runtime.IProgressMonitor) ASTParser.createASTs}.
  * <p>
- * {@link #acceptAST(ICompilationUnit, CompilationUnit) ASTRequestor.acceptAST} is called for each of the
- * compilation units passed to {@link ASTParser#createASTs(ICompilationUnit[], String[], ASTRequestor, org.eclipse.core.runtime.IProgressMonitor) ASTParser.createASTs}.
+ * {@link FileASTRequestor#acceptAST(String, CompilationUnit) FileASTRequestor.acceptAST} is called for each of the
+ * compilation units passed to {@link ASTParser#createASTs(String[], String[], String[], FileASTRequestor, org.eclipse.core.runtime.IProgressMonitor) ASTParser.createASTs}.
  * After all the compilation units have been processed,
- * {@link #acceptBinding(String, IBinding) ASTRequestor.acceptBindings} is called for each
- * of the binding keys passed to {@link ASTParser#createASTs(ICompilationUnit[], String[], ASTRequestor, org.eclipse.core.runtime.IProgressMonitor) ASTParser.createASTs}.
+ * {@link #acceptBinding(String, IBinding) FileASTRequestor.acceptBinding} is called for each
+ * of the binding keys passed to {@link ASTParser#createASTs(String[], String[], String[], FileASTRequestor, org.eclipse.core.runtime.IProgressMonitor) ASTParser.createASTs}.
  * </p>
  * <p>
  * This class is intended to be subclassed by clients.
  * AST requestors are serially reusable, but neither reentrant nor thread-safe.
  * </p>
  *
- * @see ASTParser#createASTs(ICompilationUnit[], String[], ASTRequestor, org.eclipse.core.runtime.IProgressMonitor)
- * @since 3.1
+ * @see ASTParser#createASTs(String[], String[], String[], FileASTRequestor, org.eclipse.core.runtime.IProgressMonitor)
+ * @since 3.6
  */
-public abstract class ASTRequestor {
+public abstract class FileASTRequestor {
 
 	/**
 	 * The compilation unit resolver used to resolve bindings, or
@@ -41,13 +39,6 @@ public abstract class ASTRequestor {
 	CompilationUnitResolver compilationUnitResolver = null;
 
 	/**
-	 * Creates a new instance.
-	 */
-	protected ASTRequestor() {
-		// do nothing
-	}
-
-	/**
 	 * Accepts an AST corresponding to the compilation unit.
 	 * That is, <code>ast</code> is an AST for <code>source</code>.
 	 * <p>
@@ -55,10 +46,10 @@ public abstract class ASTRequestor {
 	 * Clients should override to process the resulting AST.
 	 * </p>
 	 *
-	 * @param source the compilation unit the ast is coming from
-	 * @param ast the requested abtract syntax tree
+	 * @param sourceFilePath the compilation unit the given ast is coming from
+	 * @param ast the requested abstract syntax tree
 	 */
-	public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+	public void acceptAST(String sourceFilePath, CompilationUnit ast) {
 		// do nothing
 	}
 

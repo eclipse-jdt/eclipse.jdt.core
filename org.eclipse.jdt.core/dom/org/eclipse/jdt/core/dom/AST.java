@@ -286,7 +286,7 @@ public final class AST {
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		BindingResolver resolver = null;
 		if (isResolved) {
-			resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope, workingCopy.owner, new DefaultBindingResolver.BindingTables(), false);
+			resolver = new DefaultBindingResolver(compilationUnitDeclaration.scope, workingCopy.owner, new DefaultBindingResolver.BindingTables(), false, true);
 			((DefaultBindingResolver) resolver).isRecoveringBindings = (reconcileFlags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0;
 			ast.setFlag(AST.RESOLVED_BINDINGS);
 		} else {

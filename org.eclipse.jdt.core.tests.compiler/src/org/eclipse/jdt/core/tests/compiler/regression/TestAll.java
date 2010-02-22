@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.core.tests.dom.StandAloneASTParserTest;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -101,6 +102,7 @@ public static Test suite() {
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
+	all.addTest(new TestSuite(StandAloneASTParserTest.class));
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {
 		ArrayList tests_1_3 = (ArrayList)standardTests.clone();
