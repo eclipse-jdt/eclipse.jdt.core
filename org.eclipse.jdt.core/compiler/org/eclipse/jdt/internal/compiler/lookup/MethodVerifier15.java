@@ -130,8 +130,11 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 				problemReporter().unsafeReturnTypeOverride(concreteMethod, originalInherited, this.type);
 
 		// check whether bridge method is already defined above for interface methods
+		// skip generation of bridge method for current class & method if an equivalent
+		// bridge will be/would have been generated in the context of the super class since
+		// the bridge itself will be inherited. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=298362
 		if (originalInherited.declaringClass.isInterface()) {
-			if ((concreteMethod.declaringClass == this.type.superclass && this.type.superclass.isParameterizedType())
+			if ((concreteMethod.declaringClass == this.type.superclass && this.type.superclass.isParameterizedType() && !areMethodsCompatible(concreteMethod, originalInherited))
 				|| this.type.superclass.erasure().findSuperTypeOriginatingFrom(originalInherited.declaringClass) == null)
 					this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
 		}

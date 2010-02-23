@@ -10731,4 +10731,101 @@ public void test204a() {
 		"Name clash: The method put(K, V) of type OverrideBug<K,V> has the same erasure as put(K, V) of type Map<K,V> but does not override it\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=298362
+public void test205() {
+	this.runConformTest(
+		new String[] {
+			"Tester.java",
+			"import java.lang.reflect.Method;\n" +
+			"\n" +
+			"public class Tester {\n" +
+			"\n" +
+			" public static interface Converter<T> {\n" +
+			"   T convert(String input);\n" +
+			" }\n" +
+			"\n" +
+			" public static abstract class EnumConverter<T extends Enum<T>> implements Converter<Enum<T>> {\n" +
+			"   public final T convert(String input) {\n" +
+			"     return null;\n" +
+			"   }\n" +
+			" }\n" +
+			"\n" +
+			" public static class SomeEnumConverter extends EnumConverter<Thread.State> {\n" +
+			" }\n" +
+			"\n" +
+			" public static void main(String[] args) throws Exception {\n" +
+			"   Method m = SomeEnumConverter.class.getMethod(\"convert\", String.class);\n" +
+			"   System.out.println(m.getGenericReturnType());\n" +
+			" }\n" +
+			"\n" +
+			"}\n"
+
+		},
+		"T");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=298362 (variation)
+public void test206() {
+	this.runConformTest(
+		new String[] {
+			"Tester.java",
+			"import java.lang.reflect.Method;\n" +
+			"\n" +
+			"public class Tester {\n" +
+			"\n" +
+			" public static interface Converter<T> {\n" +
+			"   T convert(String input);\n" +
+			" }\n" +
+			"\n" +
+			" public static abstract class EnumConverter<T extends Enum<T>> implements Converter<T> {\n" +
+			"   public final T convert(String input) {\n" +
+			"     return null;\n" +
+			"   }\n" +
+			" }\n" +
+			"\n" +
+			" public static class SomeEnumConverter extends EnumConverter<Thread.State> {\n" +
+			" }\n" +
+			"\n" +
+			" public static void main(String[] args) throws Exception {\n" +
+			"   Method m = SomeEnumConverter.class.getMethod(\"convert\", String.class);\n" +
+			"   System.out.println(m.getGenericReturnType());\n" +
+			" }\n" +
+			"\n" +
+			"}\n"
+
+		},
+		"T");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=298362 (variation)
+// Note that this test prints "T" with javac5 and "class java.lang.Object with javac 6,7
+public void test207() {
+	this.runConformTest(
+		new String[] {
+			"Tester.java",
+			"import java.lang.reflect.Method;\n" +
+			"\n" +
+			"public class Tester {\n" +
+			"\n" +
+			" public static interface Converter<T> {\n" +
+			"   T convert(String input);\n" +
+			" }\n" +
+			"\n" +
+			" public static abstract class EnumConverter<T extends Enum<T>, K> implements Converter<T> {\n" +
+			"   public final T convert(K input) {\n" +
+			"     return null;\n" +
+			"   }\n" +
+			" }\n" +
+			"\n" +
+			" public static class SomeEnumConverter extends EnumConverter<Thread.State, String> {\n" +
+			" }\n" +
+			"\n" +
+			" public static void main(String[] args) throws Exception {\n" +
+			"   Method m = SomeEnumConverter.class.getMethod(\"convert\", String.class);\n" +
+			"   System.out.println(m.getGenericReturnType());\n" +
+			" }\n" +
+			"\n" +
+			"}\n"
+
+		},
+		"class java.lang.Object");
+}
 }
