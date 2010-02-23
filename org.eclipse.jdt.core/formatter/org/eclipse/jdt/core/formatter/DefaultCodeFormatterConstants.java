@@ -197,6 +197,17 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER = JavaCore.PLUGIN_ID + ".formatter.alignment_for_expressions_in_array_initializer";	 //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option for alignment of method declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_method_declaration"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_NO_SPLIT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.6
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_METHOD_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_method_declaration";	 //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option for alignment of multiple fields
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_multiple_fields"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call

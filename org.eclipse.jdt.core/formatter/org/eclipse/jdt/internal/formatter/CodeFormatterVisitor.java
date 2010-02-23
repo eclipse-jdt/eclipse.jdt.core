@@ -4126,84 +4126,109 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			return false;
 		}
 
-        /*
-         * Print comments to get proper line number
-         */
-        this.scribe.printComment();
-        int line = this.scribe.line;
-
-        this.scribe.printModifiers(methodDeclaration.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
-
-		if (this.scribe.line > line) {
-        	// annotations introduced new line, but this is not a line wrapping
-			// see 158267
-			line = this.scribe.line;
-		}
-		this.scribe.space();
-
-		TypeParameter[] typeParameters = methodDeclaration.typeParameters;
-		if (typeParameters != null) {
-			this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_type_parameters);
-			if (this.preferences.insert_space_after_opening_angle_bracket_in_type_parameters) {
-				this.scribe.space();
-			}
-			int length = typeParameters.length;
-			for (int i = 0; i < length - 1; i++) {
-				typeParameters[i].traverse(this, methodDeclaration.scope);
-				this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_type_parameters);
-				if (this.preferences.insert_space_after_comma_in_type_parameters) {
-					this.scribe.space();
-				}
-			}
-			typeParameters[length - 1].traverse(this, methodDeclaration.scope);
-			if (isClosingGenericToken()) {
-				this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_type_parameters);
-			}
-			if (this.preferences.insert_space_after_closing_angle_bracket_in_type_parameters) {
-				this.scribe.space();
-			}
-		}
-
 		/*
-		 * Print the method return type
+		 * Print comments to get proper line number
 		 */
-		final TypeReference returnType = methodDeclaration.returnType;
+		this.scribe.printComment();
+		int line = this.scribe.line;
+
+		// Create alignment
+		Alignment methodDeclAlignment = this.scribe.createAlignment(
+				"methodDeclaration",//$NON-NLS-1$
+				this.preferences.alignment_for_method_declaration,
+				Alignment.R_INNERMOST,
+				3,
+				this.scribe.scanner.currentPosition);
+		this.scribe.enterAlignment(methodDeclAlignment);
+		boolean ok = false;
 		final MethodScope methodDeclarationScope = methodDeclaration.scope;
+		do {
+			try {
 
-		if (returnType != null) {
-			returnType.traverse(this, methodDeclarationScope);
-		}
-		/*
-		 * Print the method name
-		 */
-		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
+				this.scribe.printModifiers(methodDeclaration.annotations, this, ICodeFormatterConstants.ANNOTATION_ON_MEMBER);
+				int fragmentIndex = 0;
+				this.scribe.alignFragment(methodDeclAlignment, fragmentIndex);
 
-		formatMethodArguments(
-			methodDeclaration,
-			this.preferences.insert_space_before_opening_paren_in_method_declaration,
-			this.preferences.insert_space_between_empty_parens_in_method_declaration,
-			this.preferences.insert_space_before_closing_paren_in_method_declaration,
-			this.preferences.insert_space_after_opening_paren_in_method_declaration,
-			this.preferences.insert_space_before_comma_in_method_declaration_parameters,
-			this.preferences.insert_space_after_comma_in_method_declaration_parameters,
-			this.preferences.alignment_for_parameters_in_method_declaration);
+				if (this.scribe.line > line) {
+					// annotations introduced new line, but this is not a line wrapping
+					// see 158267
+					line = this.scribe.line;
+				}
+				this.scribe.space();
 
-		/*
-		 * Check for extra dimensions
-		 */
-		int extraDimensions = getDimensions();
-		if (extraDimensions != 0) {
-			 for (int i = 0; i < extraDimensions; i++) {
-			 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
-			 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
-			 }
-		}
+				TypeParameter[] typeParameters = methodDeclaration.typeParameters;
+				if (typeParameters != null) {
+					this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_type_parameters);
+					if (this.preferences.insert_space_after_opening_angle_bracket_in_type_parameters) {
+						this.scribe.space();
+					}
+					int length = typeParameters.length;
+					for (int i = 0; i < length - 1; i++) {
+						typeParameters[i].traverse(this, methodDeclaration.scope);
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_type_parameters);
+						if (this.preferences.insert_space_after_comma_in_type_parameters) {
+							this.scribe.space();
+						}
+					}
+					typeParameters[length - 1].traverse(this, methodDeclaration.scope);
+					if (isClosingGenericToken()) {
+						this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_type_parameters);
+					}
+					if (this.preferences.insert_space_after_closing_angle_bracket_in_type_parameters) {
+						this.scribe.space();
+					}
+					this.scribe.alignFragment(methodDeclAlignment, ++fragmentIndex);
+				}
 
-		formatThrowsClause(
-			methodDeclaration,
-			this.preferences.insert_space_before_comma_in_method_declaration_throws,
-			this.preferences.insert_space_after_comma_in_method_declaration_throws,
-			this.preferences.alignment_for_throws_clause_in_method_declaration);
+				/*
+				 * Print the method return type
+				 */
+				final TypeReference returnType = methodDeclaration.returnType;
+		
+				if (returnType != null) {
+					returnType.traverse(this, methodDeclarationScope);
+				}
+				this.scribe.alignFragment(methodDeclAlignment, ++fragmentIndex);
+
+				/*
+				 * Print the method name
+				 */
+				this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
+
+				// Format arguments
+				formatMethodArguments(
+					methodDeclaration,
+					this.preferences.insert_space_before_opening_paren_in_method_declaration,
+					this.preferences.insert_space_between_empty_parens_in_method_declaration,
+					this.preferences.insert_space_before_closing_paren_in_method_declaration,
+					this.preferences.insert_space_after_opening_paren_in_method_declaration,
+					this.preferences.insert_space_before_comma_in_method_declaration_parameters,
+					this.preferences.insert_space_after_comma_in_method_declaration_parameters,
+					this.preferences.alignment_for_parameters_in_method_declaration);
+
+				/*
+				 * Check for extra dimensions
+				 */
+				int extraDimensions = getDimensions();
+				if (extraDimensions != 0) {
+					 for (int i = 0; i < extraDimensions; i++) {
+					 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+					 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
+					 }
+				}
+
+				// Format throws
+				formatThrowsClause(
+					methodDeclaration,
+					this.preferences.insert_space_before_comma_in_method_declaration_throws,
+					this.preferences.insert_space_after_comma_in_method_declaration_throws,
+					this.preferences.alignment_for_throws_clause_in_method_declaration);
+				ok = true;
+			} catch (AlignmentException e) {
+				this.scribe.redoAlignment(e);
+			}
+		} while (!ok);
+		this.scribe.exitAlignment(methodDeclAlignment, true);
 
 		if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract() && ((methodDeclaration.modifiers & ExtraCompilerModifiers.AccSemicolonBody) == 0)) {
 			/*
@@ -4249,6 +4274,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		return false;
 	}
+
 	public boolean visit(NormalAnnotation annotation, BlockScope scope) {
 		this.scribe.printNextToken(TerminalTokens.TokenNameAT);
 		if (this.preferences.insert_space_after_at_in_annotation) {

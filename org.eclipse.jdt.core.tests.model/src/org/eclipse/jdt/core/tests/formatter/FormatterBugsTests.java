@@ -977,6 +977,252 @@ public void testBug283467() throws JavaModelException {
 }
 
 /**
+ * @bug 284789: [formatter] Does not line-break method declaration exception with parameters
+ * @test Verify that the new preference to split method declaration works properly
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=284789"
+ */
+public void testBug284789() throws JavaModelException {
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_SPLIT;
+	String source =
+		"public class Test {\n" + 
+		"public synchronized List<FantasticallyWonderfulContainer<FantasticallyWonderfulClass>> getMeTheFantasticContainer() {\n" + 
+		"	return null;\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	public synchronized\n" + 
+		"			List<FantasticallyWonderfulContainer<FantasticallyWonderfulClass>>\n" + 
+		"			getMeTheFantasticContainer() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug284789_01a() throws JavaModelException {
+	// default is no wrapping for method declaration
+	String source =
+		"class X01 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X01 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug284789_01b() throws JavaModelException {
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_SPLIT;
+	String source =
+		"class X01 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X01 {\n" + 
+		"	public final synchronized java.lang.String\n" + 
+		"			a_method_which_have_a_very_long_name() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug284789_01c() throws JavaModelException {
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
+	String source =
+		"class X01 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X01 {\n" + 
+		"	public final synchronized\n" + 
+		"			java.lang.String a_method_which_have_a_very_long_name() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug284789_01d() throws JavaModelException {
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_ONE_PER_LINE_SPLIT;
+	String source =
+		"class X01 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X01 {\n" + 
+		"	public final synchronized\n" + 
+		"			java.lang.String\n" + 
+		"			a_method_which_have_a_very_long_name() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug284789_01e() throws JavaModelException {
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
+	String source =
+		"class X01 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X01 {\n" + 
+		"	public final synchronized\n" + 
+		"			java.lang.String\n" + 
+		"				a_method_which_have_a_very_long_name() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug284789_01f() throws JavaModelException {
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_NEXT_PER_LINE_SPLIT;
+	String source =
+		"class X01 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X01 {\n" + 
+		"	public final synchronized java.lang.String\n" + 
+		"			a_method_which_have_a_very_long_name() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug284789_02a() throws JavaModelException {
+	// default is no wrapping for method declaration
+	String source =
+		"class X02 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(String first, String second, String third) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X02 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(\n" + 
+		"			String first, String second, String third) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug284789_02b() throws JavaModelException {
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_SPLIT;
+	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+	String source =
+		"class X02 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(String first, String second, String third) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X02 {\n" + 
+		"	public final synchronized java.lang.String\n" + 
+		"			a_method_which_have_a_very_long_name(String first, String second,\n" + 
+		"					String third) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug284789_02c() throws JavaModelException {
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
+	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT;
+	String source =
+		"class X02 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(String first, String second, String third) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X02 {\n" + 
+		"	public final synchronized\n" + 
+		"			java.lang.String a_method_which_have_a_very_long_name(\n" + 
+		"					String first, String second, String third) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug284789_02d() throws JavaModelException {
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_ONE_PER_LINE_SPLIT;
+	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_ONE_PER_LINE_SPLIT;
+	String source =
+		"class X02 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(String first, String second, String third) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X02 {\n" + 
+		"	public final synchronized\n" + 
+		"			java.lang.String\n" + 
+		"			a_method_which_have_a_very_long_name(\n" + 
+		"					String first,\n" + 
+		"					String second,\n" + 
+		"					String third) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug284789_02e() throws JavaModelException {
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
+	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
+	String source =
+		"class X02 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(String first, String second, String third) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X02 {\n" + 
+		"	public final synchronized\n" + 
+		"			java.lang.String\n" + 
+		"				a_method_which_have_a_very_long_name(\n" + 
+		"						String first,\n" + 
+		"							String second,\n" + 
+		"							String third) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug284789_02f() throws JavaModelException {
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_NEXT_PER_LINE_SPLIT;
+	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_NEXT_PER_LINE_SPLIT;
+	String source =
+		"class X02 {\n" + 
+		"	public final synchronized java.lang.String a_method_which_have_a_very_long_name(String first, String second, String third) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"class X02 {\n" + 
+		"	public final synchronized java.lang.String\n" + 
+		"			a_method_which_have_a_very_long_name(String first,\n" + 
+		"					String second,\n" + 
+		"					String third) {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 285565: [formatter] wrong indentation with 'Never join lines' selected
  * @test Test to make sure that use either formatter or {@link IndentManipulation}
  * 	API methods an indentation set to zero does not thrown any exception.
