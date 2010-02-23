@@ -46,7 +46,7 @@ public SourceElementParserTest(String testName, char[] source) {
 	this.source = source;
 }
 static {
-	TESTS_NUMBERS = new int[] { 81 };
+//	TESTS_NUMBERS = new int[] { 81 };
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(SourceElementParserTest.class);
