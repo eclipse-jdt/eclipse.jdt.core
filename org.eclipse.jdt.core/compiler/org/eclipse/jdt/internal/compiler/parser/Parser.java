@@ -7742,11 +7742,17 @@ protected void consumeTypeHeaderNameWithTypeParameters() {
 
 	this.listTypeParameterLength = 0;
 
-	if (this.currentElement != null) { // is recovering
-		RecoveredType recoveredType = (RecoveredType) this.currentElement;
-		recoveredType.pendingTypeParameters = null;
-
-		this.lastCheckPoint = typeDecl.bodyStart;
+	if (this.currentElement != null) {
+		// is recovering
+		if (this.currentElement instanceof RecoveredType) {
+			RecoveredType recoveredType = (RecoveredType) this.currentElement;
+			recoveredType.pendingTypeParameters = null;
+			this.lastCheckPoint = typeDecl.bodyStart;
+		} else {
+			this.lastCheckPoint = typeDecl.bodyStart;
+			this.currentElement = this.currentElement.add(typeDecl, 0);
+			this.lastIgnoredToken = -1;
+		}
 	}
 }
 protected void consumeTypeImportOnDemandDeclarationName() {

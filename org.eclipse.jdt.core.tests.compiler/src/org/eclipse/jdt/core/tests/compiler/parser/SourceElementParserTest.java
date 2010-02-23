@@ -11,9 +11,11 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
+import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
@@ -44,7 +46,7 @@ public SourceElementParserTest(String testName, char[] source) {
 	this.source = source;
 }
 static {
-//	TESTS_NUMBERS = new int[] { 99662 };
+	TESTS_NUMBERS = new int[] { 81 };
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(SourceElementParserTest.class);
@@ -227,7 +229,7 @@ public void enterType(TypeInfo typeInfo) {
 	if (typeInfo.typeParameters != null) {
 		for (int i = 0, length = typeInfo.typeParameters.length; i < length; i++) {
 			TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
-			addTypeParameter(typeParameterInfo);
+			addTypeParameterToType(typeParameterInfo);
 		}
 	}
 }
@@ -279,11 +281,11 @@ protected void enterAbtractMethod(MethodInfo methodInfo) {
 	if (methodInfo.typeParameters != null) {
 		for (int i = 0, length = methodInfo.typeParameters.length; i < length; i++) {
 			TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
-			addTypeParameter(typeParameterInfo);
+			addTypeParameterToMethod(typeParameterInfo);
 		}
 	}
 }
-public void addTypeParameter(TypeParameterInfo typeParameterInfo) {
+public void addTypeParameterToMethod(TypeParameterInfo typeParameterInfo) {
 	if (this.currentMethod.typeParameterNames == null) {
 		this.currentMethod.typeParameterNames = new char[][] {typeParameterInfo.name};
 		this.currentMethod.typeParameterBounds = new char[][][] {typeParameterInfo.bounds};
@@ -293,6 +295,18 @@ public void addTypeParameter(TypeParameterInfo typeParameterInfo) {
 		this.currentMethod.typeParameterNames[length] = typeParameterInfo.name;
 		System.arraycopy(this.currentMethod.typeParameterBounds, 0, this.currentMethod.typeParameterBounds = new char[length+1][][],0, length);
 		this.currentMethod.typeParameterBounds[length] = typeParameterInfo.bounds;
+	}
+}
+public void addTypeParameterToType(TypeParameterInfo typeParameterInfo) {
+	if (this.currentType.typeParameterNames == null) {
+		this.currentType.typeParameterNames = new char[][] {typeParameterInfo.name};
+		this.currentType.typeParameterBounds = new char[][][] {typeParameterInfo.bounds};
+	} else {
+		int length = this.currentType.typeParameterNames.length;
+		System.arraycopy(this.currentType.typeParameterNames, 0, this.currentType.typeParameterNames = new char[length+1][],0, length);
+		this.currentMethod.typeParameterNames[length] = typeParameterInfo.name;
+		System.arraycopy(this.currentType.typeParameterBounds, 0, this.currentType.typeParameterBounds = new char[length+1][][],0, length);
+		this.currentType.typeParameterBounds[length] = typeParameterInfo.bounds;
 	}
 }
 public void exitType(int declarationEnd) {
@@ -317,19 +331,25 @@ protected void exitAbstractMethod(int declarationEnd) {
 public void fullParse(String s, String testName) {
 	this.fullParse(s, testName, false);
 }
-public void fullParse(String s, String testName, boolean recordLocalDeclaration) {
+public void fullParse(String s, String testName, Map options) {
+	this.fullParse(s, testName, false, options);
+}
+public void fullParse(String s, String testName, boolean recordLocalDeclaration, Map options) {
 	this.source = s.toCharArray();
 	reset();
 	SourceElementParser parser =
 		new SourceElementParser(
 			this, new DefaultProblemFactory(Locale.getDefault()),
-			new CompilerOptions(getCompilerOptions()),
+			new CompilerOptions(options),
 			recordLocalDeclaration/*don't record local declarations*/,
 			true/*optimize string literals*/);
 
 	ICompilationUnit sourceUnit = new CompilationUnit(this.source, testName, null);
 
 	parser.parseCompilationUnit(sourceUnit, true, null);
+}
+public void fullParse(String s, String testName, boolean recordLocalDeclaration) {
+	this.fullParse(s, testName, recordLocalDeclaration, getCompilerOptions());
 }
 public void reset() {
 	this.currentType = null;
@@ -5271,6 +5291,83 @@ public void _test80() {
 
 	String testName = "test80: full parse";
 	fullParse(s,testName, true);
+	assertEquals(
+		"Invalid source " + testName,
+		expectedUnitToString,
+		this.currentType.toString());
+}
+public void test81() {
+
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+	options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	
+	String s =
+		"import java.util.Collection;\n" + 
+		"\n" + 
+		"public class X {\n" + 
+		"	public abstract class AbstractData {}\n" + 
+		"	\n" + 
+		"	public interface IScalarData<T extends AbstractData> {}\n" + 
+		"\n" + 
+		"	private static interface ValueObjectPropertyIterator {\n" + 
+		"		public <T extends AbstractData> void iterateOnValueObjectProperty(IScalarData<T> scalarObject, T valueObject, Class<?> valueObjectType, final String name, final Class<?> scalarType) throws Exception;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	private static <T extends AbstractData> void iterateOnValueObjectProperties(IScalarData<T> scalarObject, T valueObject, ValueObjectPropertyIterator valueObjectPropertyIterator) {}\n" + 
+		"	\n" + 
+		"	public static <T extends AbstractData> void loadScalarFromValueObject(IScalarData<T> scalarObject, T valueObject) {\n" + 
+		"		iterateOnValueObjectProperties(scalarObject, valueObject, new ValueObjectPropertyIterator() {\n" + 
+		"			public <T extends AbstractData> void iterateOnValueObjectProperty(IScalarData<T> scalarObject, T valueObject, Class<?> valueObjectType, String name, Class<?> scalarType) throws Exception {\n" + 
+		"				if (true) {\n" + 
+		"					if (true) {\n" + 
+		"						if (true) {\n" + 
+		"							final Collection<IScalarData<AbstractData>> lazyCollection = createLazyCollection(\n" + 
+		"									name, scalarType, null, null,\n" + 
+		"									new CollectionProviderForTargetCollection<IScalarData<AbstractData>>() {\n" + 
+		"										@Override\n" + 
+		"										public Collection<IScalarData<AbstractData>> provideCollection(\n" + 
+		"												final Collection<IScalarData<AbstractData> targetCollection, final Class<IScalarData<AbstractData>> scalarCollectionType) {\n" + 
+		"											return null;\n" + 
+		"										}\n" + 
+		"									});\n" + 
+		"						}\n" + 
+		"					}\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"\n" + 
+		"			abstract class CollectionProviderForTargetCollection<S> {\n" + 
+		"				abstract public Collection<S> provideCollection(Collection<S> targetCollection, Class<S> scalarCollectionType);\n" + 
+		"			}\n" + 
+		"\n" + 
+		"			private <S> Collection<S> createLazyCollection(String name,\n" + 
+		"					Class<?> scalarType, final Collection<AbstractData> valueObjectCollection,\n" + 
+		"					final Class<S> scalarCollectionType, CollectionProviderForTargetCollection<S> collectionProvider) {\n" + 
+		"				return null;\n" + 
+		"			}\n" + 
+		"		});\n" + 
+		"	}\n" + 
+		"}";
+
+	String expectedUnitToString =
+		"import java.util.Collection;\n" + 
+		"public class X {\n" + 
+		"	public abstract class AbstractData {\n" + 
+		"		java.lang.Object(0)\n" + 
+		"	}\n" + 
+		"	public interface IScalarData {\n" + 
+		"	}\n" + 
+		"	private static interface ValueObjectPropertyIterator {\n" + 
+		"		public void iterateOnValueObjectProperty(IScalarData<T> scalarObject, T valueObject, Class<?> valueObjectType, String name, Class<?> scalarType, ) throws Exception, {}\n" + 
+		"	}\n" + 
+		"	java.lang.Object(0)\n" + 
+		"	private static void iterateOnValueObjectProperties(IScalarData<T> scalarObject, T valueObject, ValueObjectPropertyIterator valueObjectPropertyIterator, ) {}\n" + 
+		"	public static void loadScalarFromValueObject(IScalarData<T> scalarObject, T valueObject, ) {}\n" + 
+		"}";
+
+	String testName = "test81: full parse";
+	fullParse(s,testName, options);
 	assertEquals(
 		"Invalid source " + testName,
 		expectedUnitToString,
