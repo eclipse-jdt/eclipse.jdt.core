@@ -33,6 +33,8 @@ public final class SourceType {
 	private int numberOfFields;
 	private char[] source;
 	SourceType parent;
+	char[][] typeParameterNames;
+	char[][][] typeParameterBounds;
 
 	// Buffering.
 	private char[] qualifiedName;
