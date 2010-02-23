@@ -616,32 +616,6 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Option to control whether block comments are condensed or not
-	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.condensed_block_comment"
-	 *     - possible values:   { TRUE, FALSE }
-	 *     - default:           FALSE
-	 * </pre>
-	 * @see #TRUE
-	 * @see #FALSE
-	 * @since 3.6
-	 */
-	public final static String FORMATTER_COMMENT_CONDENSED_BLOCK_COMMENT = "org.eclipse.jdt.core.formatter.comment.condensed_block_comment"; //$NON-NLS-1$
-
-	/**
-	 * <pre>
-	 * FORMATTER / Option to control whether javadoc comments are condensed or not
-	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.condensed_javadoc_comment"
-	 *     - possible values:   { TRUE, FALSE }
-	 *     - default:           FALSE
-	 * </pre>
-	 * @see #TRUE
-	 * @see #FALSE
-	 * @since 3.6
-	 */
-	public final static String FORMATTER_COMMENT_CONDENSED_JAVADOC_COMMENT = "org.eclipse.jdt.core.formatter.comment.condensed_javadoc_comment"; //$NON-NLS-1$
-
-	/**
-	 * <pre>
 	 * FORMATTER / Option to control whether comments are formatted
 	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.format_comments"
 	 *     - possible values:   { TRUE, FALSE }
@@ -795,6 +769,32 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.1
 	 */
 	public final static String FORMATTER_COMMENT_LINE_LENGTH = "org.eclipse.jdt.core.formatter.comment.line_length"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether block comments will have new lines at boundaries
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.new_lines_at_block_boundaries"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.6
+	 */
+	public final static String FORMATTER_COMMENT_NEW_LINES_AT_BLOCK_BOUNDARIES = "org.eclipse.jdt.core.formatter.comment.new_lines_at_block_boundaries"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether javadoc comments will have new lines at boundaries
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.new_lines_at_javadoc_boundaries"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.6
+	 */
+	public final static String FORMATTER_COMMENT_NEW_LINES_AT_JAVADOC_BOUNDARIES = "org.eclipse.jdt.core.formatter.comment.new_lines_at_javadoc_boundaries"; //$NON-NLS-1$
 
 	/**
 	 * <pre>

@@ -113,14 +113,14 @@ See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=282030">282030</a
 Added two new formatter preferences to condense block and javadoc comments.
 <p>
 These new preferences are controlled respectively with the options:</p>
-<code>DefaultCodeFormatterConstants.FORMATTER_COMMENT_CONDENSED_BLOCK_COMMENT</code><br>
-<code>DefaultCodeFormatterConstants.FORMATTER_COMMENT_CONDENSED_JAVADOC_COMMENT</code>
+<code>DefaultCodeFormatterConstants.FORMATTER_COMMENT_NEW_LINES_AT_BLOCK_BOUNDARIES</code><br>
+<code>DefaultCodeFormatterConstants.FORMATTER_COMMENT_NEW_LINES_AT_JAVADOC_BOUNDARIES</code>
 <pre>
 /**
- * FORMATTER / Option to control whether block comments are condensed or not
- *     - option id:         "org.eclipse.jdt.core.formatter.comment.condensed_block_comment"
+ * FORMATTER / Option to control whether block comments will have new lines at boundaries
+ *     - option id:         "org.eclipse.jdt.core.formatter.comment.new_lines_at_block_boundaries"
  *     - possible values:   { TRUE, FALSE }
- *     - default:           FALSE
+ *     - default:           TRUE
  * 
  * @see #TRUE
  * @see #FALSE
@@ -128,10 +128,10 @@ These new preferences are controlled respectively with the options:</p>
  */
 
 /**
- * FORMATTER / Option to control whether javadoc comments are condensed or not
- *     - option id:         "org.eclipse.jdt.core.formatter.comment.condensed_javadoc_comment"
+ * FORMATTER / Option to control whether javadoc comments will have new lines at boundaries
+ *     - option id:         "org.eclipse.jdt.core.formatter.comment.new_lines_at_javadoc_boundaries"
  *     - possible values:   { TRUE, FALSE }
- *     - default:           FALSE
+ *     - default:           TRUE
  * 
  * @see #TRUE
  * @see #FALSE
