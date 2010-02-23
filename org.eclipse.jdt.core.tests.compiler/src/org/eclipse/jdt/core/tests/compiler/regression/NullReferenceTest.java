@@ -11181,4 +11181,222 @@ public void testBug299900b() {
 		"Potential null pointer access: The variable bar may be null at this location\n" + 
 		"----------\n");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253896
+// Test whether Null pointer access warnings are being reported correctly when auto-unboxing
+public void testBug253896a() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public void foo() {\n" +
+				"    Integer f1 = null;\n" +
+				"	 if(f1 == 1)\n" +
+				" 	 	System.out.println(\"f1 is 1\");\n" +
+				"    Integer f2 = null;\n" +
+				"	 int abc = (f2 != 1)? 1 : 0;\n" +
+				"    Float f3 = null;\n" +
+				"	 if(f3 == null)\n" +
+				" 	 	System.out.println(\"f3 is null\");\n" +
+				"    Byte f4 = null;\n" +
+				"	 if(f4 != null)\n" +
+				" 	 	System.out.println(\"f4 is not null\");\n" +
+				"  }\n" +
+				"}"},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	if(f1 == 1)\n" + 
+			"	   ^^\n" + 
+			"Null pointer access: The variable f1 can only be null at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	int abc = (f2 != 1)? 1 : 0;\n" + 
+			"	           ^^\n" + 
+			"Null pointer access: The variable f2 can only be null at this location\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	if(f3 == null)\n" + 
+			"	   ^^\n" + 
+			"Redundant null check: The variable f3 can only be null at this location\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 12)\n" + 
+			"	if(f4 != null)\n" + 
+			"	   ^^\n" + 
+			"Null comparison always yields false: The variable f4 can only be null at this location\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 13)\n" + 
+			"	System.out.println(\"f4 is not null\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253896
+// To test whether null pointer access and potential null pointer access warnings are correctly reported when auto-unboxing
+public void testBug253896b() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public void foo(Integer i1, Integer i2) {\n" +
+				"	 if(i1 == null && i2 == null){\n" +
+				"		if(i1 == 1)\n" +
+				" 	 	System.out.println(i1);}\n" +	//i1 is definitely null here
+				"	 else {\n" +
+				"		if(i1 == 0) {}\n" +		//i1 may be null here.
+				"	 }\n" +
+				"  }\n" +
+				"}"},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	if(i1 == 1)\n" +
+			"	   ^^\n" +
+			"Null pointer access: The variable i1 can only be null at this location\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	if(i1 == 0) {}\n" +
+			"	   ^^\n" +
+			"Potential null pointer access: The variable i1 may be null at this location\n" +
+			"----------\n");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253896
+// Test whether Null pointer access warnings are being reported correctly when auto-unboxing inside loops
+public void testBug253896c() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public void foo() {\n" +
+				"	 Integer a = null;\n" +
+				"	 Integer outer2 = null;\n" +
+				"	 while (true) {\n" +
+				"    	Integer f1 = null;\n" +
+				"	 	if(f1 == 1)\n" +
+				" 	 		System.out.println(\"f1 is 1\");\n" +
+				"    	Integer f2 = null;\n" +
+				"	 	int abc = (f2 != 1)? 1 : 0;\n" +
+				"    	Float f3 = null;\n" +
+				"	 	if(f3 == null)\n" +
+				" 	 		System.out.println(\"f3 is null\");\n" +
+				"    	Byte f4 = null;\n" +
+				"	 	if(f4 != null)\n" +
+				" 	 		System.out.println(\"f4 is not null\");\n" +
+				"		if(a == 1) {}\n" +	// warn null reference in deferred check case
+				"		if(outer2 == 1) {}\n" +	// warn potential null reference in deferred check case
+				"		outer2 = 1;\n" +
+				"	 }\n" +
+				"  }\n" +
+				"}"},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	if(f1 == 1)\n" + 
+			"	   ^^\n" + 
+			"Null pointer access: The variable f1 can only be null at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	int abc = (f2 != 1)? 1 : 0;\n" + 
+			"	           ^^\n" + 
+			"Null pointer access: The variable f2 can only be null at this location\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
+			"	if(f3 == null)\n" + 
+			"	   ^^\n" + 
+			"Redundant null check: The variable f3 can only be null at this location\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 15)\n" + 
+			"	if(f4 != null)\n" + 
+			"	   ^^\n" + 
+			"Null comparison always yields false: The variable f4 can only be null at this location\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 16)\n" + 
+			"	System.out.println(\"f4 is not null\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 17)\n" + 
+			"	if(a == 1) {}\n" + 
+			"	   ^\n" + 
+			"Null pointer access: The variable a can only be null at this location\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 18)\n" + 
+			"	if(outer2 == 1) {}\n" + 
+			"	   ^^^^^^\n" + 
+			"Potential null pointer access: The variable outer2 may be null at this location\n" + 
+			"----------\n");
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253896
+// Test whether Null pointer access warnings are being reported correctly when auto-unboxing inside finally contexts
+public void testBug253896d() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public void foo(Integer param) {\n" +
+				"	 Integer outer = null;\n" +
+				"	 if (param == null) {}\n" +	//tainting param
+				"	 try {}\n" +
+				"	 finally {\n" +
+				"    	Integer f1 = null;\n" +
+				"	 	if(f1 == 1)\n" +
+				" 	 		System.out.println(\"f1 is 1\");\n" +
+				"    	Integer f2 = null;\n" +
+				"	 	int abc = (f2 != 1)? 1 : 0;\n" +
+				"    	Float f3 = null;\n" +
+				"	 	if(f3 == null)\n" +
+				" 	 		System.out.println(\"f3 is null\");\n" +
+				"    	Byte f4 = null;\n" +
+				"	 	if(f4 != null)\n" +
+				" 	 		System.out.println(\"f4 is not null\");\n" +
+				"		if(outer == 1) {}\n" +  // warn null reference in deferred check case
+				"		if(param == 1) {}\n" +
+				"	 }\n" +
+				"  }\n" +
+				"}"},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	if(f1 == 1)\n" + 
+			"	   ^^\n" + 
+			"Null pointer access: The variable f1 can only be null at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	int abc = (f2 != 1)? 1 : 0;\n" + 
+			"	           ^^\n" + 
+			"Null pointer access: The variable f2 can only be null at this location\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 13)\n" + 
+			"	if(f3 == null)\n" + 
+			"	   ^^\n" + 
+			"Redundant null check: The variable f3 can only be null at this location\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 16)\n" + 
+			"	if(f4 != null)\n" + 
+			"	   ^^\n" + 
+			"Null comparison always yields false: The variable f4 can only be null at this location\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 17)\n" + 
+			"	System.out.println(\"f4 is not null\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 18)\n" + 
+			"	if(outer == 1) {}\n" + 
+			"	   ^^^^^\n" + 
+			"Null pointer access: The variable outer can only be null at this location\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 19)\n" + 
+			"	if(param == 1) {}\n" + 
+			"	   ^^^^^\n" + 
+			"Potential null pointer access: The variable param may be null at this location\n" + 
+			"----------\n");
+	}
+}
 }
