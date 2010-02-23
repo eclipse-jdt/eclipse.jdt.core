@@ -768,6 +768,7 @@ public void testBug281655f() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=282030"
  */
 public void testBug282030() throws JavaModelException {
+	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_SPLIT;
 	String source =
 		"@DeclareParents(value =\n" + 
 		"\"com.apress.springrecipes.calculator.ArithmeticCalculatorImpl\", defaultImpl =\n" + 
@@ -783,7 +784,6 @@ public void testBug282030() throws JavaModelException {
 	);
 }
 public void testBug282030a() throws JavaModelException {
-	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_NO_ALIGNMENT;
 	String source =
 		"@MyAnnot(value1 = \"this is an example\", value2 = \"of an annotation\", value3 = \"with several arguments\", value4 = \"which may need to be wrapped\")\n" + 
 		"public class Test {\n" + 

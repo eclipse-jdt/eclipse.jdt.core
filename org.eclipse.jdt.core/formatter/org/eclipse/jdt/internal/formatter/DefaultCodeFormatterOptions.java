@@ -627,9 +627,9 @@ public class DefaultCodeFormatterOptions {
 			try {
 				this.alignment_for_arguments_in_annotation = Integer.parseInt((String) alignmentForArgumentsInAnnotationOption);
 			} catch (NumberFormatException e) {
-				this.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_SPLIT;
+				this.alignment_for_arguments_in_annotation = Alignment.M_NO_ALIGNMENT;
 			} catch (ClassCastException e) {
-				this.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_SPLIT;
+				this.alignment_for_arguments_in_annotation = Alignment.M_NO_ALIGNMENT;
 			}
 		}
 		final Object alignmentForArgumentsInEnumConstantOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ENUM_CONSTANT);
@@ -1980,7 +1980,7 @@ public class DefaultCodeFormatterOptions {
 
 	public void setDefaultSettings() {
 		this.alignment_for_arguments_in_allocation_expression = Alignment.M_COMPACT_SPLIT;
-		this.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_arguments_in_annotation = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_arguments_in_enum_constant = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_explicit_constructor_call = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_method_invocation = Alignment.M_COMPACT_SPLIT;
@@ -2247,7 +2247,7 @@ public class DefaultCodeFormatterOptions {
 
 	public void setJavaConventionsSettings() {
 		this.alignment_for_arguments_in_allocation_expression = Alignment.M_COMPACT_SPLIT;
-		this.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_arguments_in_annotation = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_arguments_in_enum_constant = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_explicit_constructor_call = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_method_invocation = Alignment.M_COMPACT_SPLIT;

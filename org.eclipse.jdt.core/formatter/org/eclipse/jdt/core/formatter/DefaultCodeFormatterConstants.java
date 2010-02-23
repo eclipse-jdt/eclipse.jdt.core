@@ -90,7 +90,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option for alignment of arguments in annotation
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_arguments_in_annotation"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
-	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 *     - default:           createAlignmentValue(false, WRAP_NO_SPLIT, INDENT_DEFAULT)
 	 * </pre>
 	 * @see #createAlignmentValue(boolean, int, int)
 	 * @since 3.6
