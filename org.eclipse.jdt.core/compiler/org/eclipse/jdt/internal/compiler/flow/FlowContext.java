@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 /**
@@ -569,12 +570,20 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 			if (flowInfo.isDefinitelyNull(local)) {
 				switch(checkType & CONTEXT_MASK) {
 					case FlowContext.IN_COMPARISON_NULL:
+						if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+							scope.problemReporter().localVariableNullReference(local, reference);
+							return;
+						}
 						if (!this.hideNullComparisonWarnings) {
 							scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 						}
 						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 						return;
 					case FlowContext.IN_COMPARISON_NON_NULL:
+						if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+							scope.problemReporter().localVariableNullReference(local, reference);
+							return;
+						}
 						if (!this.hideNullComparisonWarnings) {
 							scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
 						}
@@ -586,6 +595,21 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 					case FlowContext.IN_INSTANCEOF:
 						scope.problemReporter().localVariableNullInstanceof(local, reference);
 						return;
+				}
+			} else if (flowInfo.isPotentiallyNull(local)) {
+				switch(checkType & CONTEXT_MASK) {
+					case FlowContext.IN_COMPARISON_NULL:
+						if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+							scope.problemReporter().localVariablePotentialNullReference(local, reference);
+							return;
+						}
+						break;
+					case FlowContext.IN_COMPARISON_NON_NULL:
+						if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+							scope.problemReporter().localVariablePotentialNullReference(local, reference);
+							return;
+						}
+						break;
 				}
 			} else if (flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
 				return;

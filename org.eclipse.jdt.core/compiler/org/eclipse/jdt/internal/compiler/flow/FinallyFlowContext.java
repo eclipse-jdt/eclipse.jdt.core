@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 /**
@@ -114,11 +115,19 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					if (flowInfo.isDefinitelyNull(local)) {
 						switch(this.nullCheckTypes[i] & CONTEXT_MASK) {
 							case FlowContext.IN_COMPARISON_NULL:
+								if (((this.nullCheckTypes[i] & CHECK_MASK) == CAN_ONLY_NULL) && (expression.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+									scope.problemReporter().localVariableNullReference(local, expression);
+									continue;
+								}
 								if (!this.hideNullComparisonWarnings) {
 									scope.problemReporter().localVariableRedundantCheckOnNull(local, expression);
 								}
 								continue;
 							case FlowContext.IN_COMPARISON_NON_NULL:
+								if (((this.nullCheckTypes[i] & CHECK_MASK) == CAN_ONLY_NULL) && (expression.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+									scope.problemReporter().localVariableNullReference(local, expression);
+									continue;
+								}
 								if (!this.hideNullComparisonWarnings) {
 									scope.problemReporter().localVariableNullComparedToNonNull(local, expression);
 								}
@@ -129,6 +138,23 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 							case FlowContext.IN_INSTANCEOF:
 								scope.problemReporter().localVariableNullInstanceof(local, expression);
 								continue;
+						}
+					} else if (flowInfo.isPotentiallyNull(local)) {
+						switch(this.nullCheckTypes[i] & CONTEXT_MASK) {
+							case FlowContext.IN_COMPARISON_NULL:
+								this.nullReferences[i] = null;
+								if (((this.nullCheckTypes[i] & CHECK_MASK) == CAN_ONLY_NULL) && (expression.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+									scope.problemReporter().localVariablePotentialNullReference(local, expression);
+									continue;
+								}
+								break;
+							case FlowContext.IN_COMPARISON_NON_NULL:
+								this.nullReferences[i] = null;
+								if (((this.nullCheckTypes[i] & CHECK_MASK) == CAN_ONLY_NULL) && (expression.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+									scope.problemReporter().localVariablePotentialNullReference(local, expression);
+									continue;
+								}
+								break;
 						}
 					}
 					break;
@@ -214,12 +240,20 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						if (flowInfo.canOnlyBeNull(local)) {
 							switch(checkType & CONTEXT_MASK) {
 								case FlowContext.IN_COMPARISON_NULL:
+									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+										scope.problemReporter().localVariableNullReference(local, reference);
+										return;
+									}
 									if (!this.hideNullComparisonWarnings) {
 										scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 									}
 									flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 									return;
 								case FlowContext.IN_COMPARISON_NON_NULL:
+									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+										scope.problemReporter().localVariableNullReference(local, reference);
+										return;
+									}
 									if (!this.hideNullComparisonWarnings) {
 										scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
 									}
@@ -231,6 +265,21 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 								case FlowContext.IN_INSTANCEOF:
 									scope.problemReporter().localVariableNullInstanceof(local, reference);
 									return;
+							}
+						} else if (flowInfo.isPotentiallyNull(local)) {
+							switch(checkType & CONTEXT_MASK) {
+								case FlowContext.IN_COMPARISON_NULL:
+									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+										scope.problemReporter().localVariablePotentialNullReference(local, reference);
+										return;
+									}
+									break;
+								case FlowContext.IN_COMPARISON_NON_NULL:
+									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+										scope.problemReporter().localVariablePotentialNullReference(local, reference);
+										return;
+									}
+									break;
 							}
 						}
 						break;
@@ -273,12 +322,20 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						if (flowInfo.isDefinitelyNull(local)) {
 							switch(checkType & CONTEXT_MASK) {
 								case FlowContext.IN_COMPARISON_NULL:
+									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+										scope.problemReporter().localVariableNullReference(local, reference);
+										return;
+									}
 									if (!this.hideNullComparisonWarnings) {
 										scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 									}
 									flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 									return;
 								case FlowContext.IN_COMPARISON_NON_NULL:
+									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+										scope.problemReporter().localVariableNullReference(local, reference);
+										return;
+									}
 									if (!this.hideNullComparisonWarnings) {
 										scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
 									}
@@ -290,6 +347,21 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 								case FlowContext.IN_INSTANCEOF:
 									scope.problemReporter().localVariableNullInstanceof(local, reference);
 									return;
+							}
+						} else if (flowInfo.isPotentiallyNull(local)) {
+							switch(checkType & CONTEXT_MASK) {
+								case FlowContext.IN_COMPARISON_NULL:
+									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+										scope.problemReporter().localVariablePotentialNullReference(local, reference);
+										return;
+									}
+									break;
+								case FlowContext.IN_COMPARISON_NON_NULL:
+									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
+										scope.problemReporter().localVariablePotentialNullReference(local, reference);
+										return;
+									}
+									break;
 							}
 						}
 						break;
