@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2435,5 +2435,38 @@ public void testBug248312() throws CoreException{
 	"@Y(member_int2=<null>)\n",
 	annotations);
 }
+
+public void testBug246594() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"public class Z<T extends Object & I<? super T>> {\n" +
+		"}\n" +
+		"public interface I<T> {}"
+	);
+	IType type = this.workingCopy.getType("Z");
+	ITypeParameter[] typeParameters = type.getTypeParameters();
+	assertStringsEqual("Type parameter signature", "T:QObject;:QI<-QT;>;\n", type.getTypeParameterSignatures());
+	assertStringsEqual("Type parameter bounds signatures", 
+					"QObject;\n" +
+					"QI<-QT;>;\n", 
+					typeParameters[0].getBoundsSignatures());
+}
+public void testBug246594a() throws CoreException {
+	createWorkingCopy(
+		"package p;\n" +
+		"interface Collection<E> {\n" +
+		"public <T> boolean containsAll(Collection<T> c);\n" +
+		"public <T extends E & I<? super String>> boolean addAll(Collection<T> c);\n" +
+		"}" +
+		"public interface I<T> {}");
+	IMethod[] methods = this.workingCopy.getType("Collection").getMethods();//<T:TE;>
+	ITypeParameter[] typeParameters = methods[1].getTypeParameters();
+	assertStringsEqual("Type parameter bounds signatures", 
+			"QE;\n" +
+			"QI<-QString;>;\n", 
+			typeParameters[0].getBoundsSignatures());
+	
+}
+
 
 }

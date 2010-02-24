@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,7 +60,7 @@ public void setUpSuite() throws Exception {
 		"  <U extends Exception> X<T> foo(X<T> x) throws RuntimeException, U {\n" +
 		"    return null;\n" +
 		"  }\n" +
-		"  <K, V> V foo(K key, V value) throws Exception {\n" +
+		"  <K, V extends T> V foo(K key, V value) throws Exception {\n" +
 		"    return value;\n" +
 		"  }\n" +
 		"}",
@@ -1094,7 +1094,7 @@ public void testParameterTypeSignatures6() throws JavaModelException {
 	assertStringsEqual(
 		"Unexpected type parameters",
 		"K:Ljava.lang.Object;\n" +
-		"V:Ljava.lang.Object;\n",
+		"V:TT;\n",
 		method.getTypeParameterSignatures());
 }
 
@@ -1523,4 +1523,25 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 		"Ljava.util.Collection<Ljava.lang.String;>;",
 		field.getTypeSignature());
 }
+
+	public void testBug246594() throws JavaModelException {
+		IType type = this.jarRoot.getPackageFragment("generic").getClassFile(
+				"Z.class").getType();
+		ITypeParameter typeParam = type.getTypeParameter("T");
+		assertNotNull(typeParam);
+		assertStringsEqual("Type parameter bounds signatures",
+				"Ljava.lang.Object;\n" +
+				"Lgeneric.I<-TT;>;\n", 
+				typeParam.getBoundsSignatures());
+	}
+
+	public void testBug246594a() throws JavaModelException {
+		IType type = this.jarRoot.getPackageFragment("generic").getClassFile(
+				"X.class").getType();
+		IMethod method = type.getMethod("foo", new String[] { "TK;", "TV;" });
+		ITypeParameter typeParam = method.getTypeParameter("V");
+		assertStringsEqual("Type parameter bounds signatures", 
+							"TT;\n", typeParam.getBoundsSignatures());
+	}
+
 }
