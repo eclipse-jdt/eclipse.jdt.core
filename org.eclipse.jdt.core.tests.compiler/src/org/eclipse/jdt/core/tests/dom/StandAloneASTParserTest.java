@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -327,6 +328,8 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			ITypeBinding typeBinding = (ITypeBinding) bindings[0];
 			assertEquals("Wrong binding", "p.X", typeBinding.getQualifiedName());
 			assertNull("No java element", typeBinding.getJavaElement());
+			IPackageBinding packageBinding = typeBinding.getPackage();
+			assertNull("No java element", packageBinding.getJavaElement());
 			assertNotNull("No ast", units[0]);
 			assertEquals("No problem", 0, units[0].getProblems().length);
 			assertNotNull("No binding", bindings[1]);
