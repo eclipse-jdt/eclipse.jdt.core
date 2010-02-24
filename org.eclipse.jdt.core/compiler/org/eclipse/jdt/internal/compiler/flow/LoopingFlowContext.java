@@ -473,24 +473,32 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 					if (!this.hideNullComparisonWarnings) {
 						scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
 					}
-					flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+					}
 				} else {
 					if (!this.hideNullComparisonWarnings) {
 						scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
 					}
-					flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+					}
 				}
 			} else if (flowInfo.isDefinitelyNull(local)) {
 				if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL)) {
 					if (!this.hideNullComparisonWarnings) {
 						scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 					}
-					flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+					}
 				} else {
 					if (!this.hideNullComparisonWarnings) {
 						scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
 					}
-					flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+					}
 				}
 			} else if (this.upstreamNullFlowInfo.isDefinitelyNonNull(local) && !flowInfo.isPotentiallyNull(local)) {    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=291418
 				flowInfo.markAsDefinitelyNonNull(local);
@@ -525,7 +533,9 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 						if (!this.hideNullComparisonWarnings) {
 							scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 						}
-						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+						if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+							flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+						}
 						return;
 					case FlowContext.IN_COMPARISON_NON_NULL:
 						if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
@@ -535,7 +545,9 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 						if (!this.hideNullComparisonWarnings) {
 							scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
 						}
-						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+						if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+							flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+						}
 						return;
 					case FlowContext.IN_ASSIGNMENT:
 						scope.problemReporter().localVariableRedundantNullAssignment(local, reference);

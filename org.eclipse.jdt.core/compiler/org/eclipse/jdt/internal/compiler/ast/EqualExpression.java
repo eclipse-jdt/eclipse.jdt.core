@@ -47,6 +47,9 @@ public class EqualExpression extends BinaryExpression {
 					initsWhenTrue.markAsComparedEqualToNonNull(local); // from thereon it is set
 					initsWhenFalse.markAsComparedEqualToNull(local); // from thereon it is set
 				}
+				if (flowContext.hideNullComparisonWarnings) {
+					flowInfo.markedAsNullOrNonNullInAssertExpression(local);
+				}
 				break;
 			case FlowInfo.NON_NULL :
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {

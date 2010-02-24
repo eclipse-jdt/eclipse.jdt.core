@@ -39,7 +39,7 @@ public class FlowContext implements TypeConstants {
 	// preempt marks looping contexts
 	public final static FlowContext NotContinuableContext = new FlowContext(null, null);
 	public ASTNode associatedNode;
-		public FlowContext parent;
+	public FlowContext parent;
 	public NullInfoRegistry initsOnFinally;
 		// only used within try blocks; remembers upstream flow info mergedWith
 		// any null related operation happening within the try block
@@ -50,24 +50,23 @@ boolean deferNullDiagnostic, preemptNullDiagnostic;
  */
 public boolean hideNullComparisonWarnings = false;
 
-public static final int
-  CAN_ONLY_NULL_NON_NULL = 0x0000,
-  	// check against null and non null, with definite values -- comparisons
-  CAN_ONLY_NULL = 0x0001,
-  	// check against null, with definite values -- comparisons
-  CAN_ONLY_NON_NULL = 0x0002,
-	// check against non null, with definite values -- comparisons
-  MAY_NULL = 0x0003,
-	// check against null, with potential values -- NPE guard
-  CHECK_MASK = 0x00FF,
-  IN_COMPARISON_NULL = 0x0100,
-  IN_COMPARISON_NON_NULL = 0x0200,
-    // check happened in a comparison
-  IN_ASSIGNMENT = 0x0300,
-    // check happened in an assignment
-  IN_INSTANCEOF = 0x0400,
-    // check happened in an instanceof expression
-  CONTEXT_MASK = ~CHECK_MASK;
+public static final int CAN_ONLY_NULL_NON_NULL = 0x0000;
+//check against null and non null, with definite values -- comparisons
+public static final int CAN_ONLY_NULL = 0x0001;
+//check against null, with definite values -- comparisons
+public static final int CAN_ONLY_NON_NULL = 0x0002;
+//check against non null, with definite values -- comparisons
+public static final int MAY_NULL = 0x0003;
+// check against null, with potential values -- NPE guard
+public static final int CHECK_MASK = 0x00FF;
+public static final int IN_COMPARISON_NULL = 0x0100;
+public static final int IN_COMPARISON_NON_NULL = 0x0200;
+// check happened in a comparison
+public static final int IN_ASSIGNMENT = 0x0300;
+// check happened in an assignment
+public static final int IN_INSTANCEOF = 0x0400;
+// check happened in an instanceof expression
+public static final int CONTEXT_MASK = ~CHECK_MASK;
 
 public FlowContext(FlowContext parent, ASTNode associatedNode) {
 	this.parent = parent;
@@ -550,12 +549,16 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 					if (!this.hideNullComparisonWarnings) {
 						scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
 					}
-					flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+					}
 				} else {
 					if (!this.hideNullComparisonWarnings) {
 						scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
 					}
-					flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+					}
 				}
 				return;
 			}
@@ -577,7 +580,9 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 						if (!this.hideNullComparisonWarnings) {
 							scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 						}
-						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+						if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+							flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+						}
 						return;
 					case FlowContext.IN_COMPARISON_NON_NULL:
 						if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
@@ -587,7 +592,9 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 						if (!this.hideNullComparisonWarnings) {
 							scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
 						}
-						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+						if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+							flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+						}
 						return;
 					case FlowContext.IN_ASSIGNMENT:
 						scope.problemReporter().localVariableRedundantNullAssignment(local, reference);

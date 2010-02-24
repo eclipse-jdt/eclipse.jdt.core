@@ -8232,12 +8232,7 @@ public void test0953_assert_combined() {
 			"	    ^^\n" +
 			"Null comparison always yields false: The variable o1 cannot be null at this location\n" +
 			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" + 
-			"	if (o1 == null) { };\n" + 
-			"	                ^^^\n" + 
-			"Dead code\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" +
+			"2. ERROR in X.java (at line 5)\n" +
 			"	if (o2 == null) { };\n" +
 			"	    ^^\n" +
 			"Redundant null check: The variable o2 can only be null at this location\n" +
@@ -8286,11 +8281,6 @@ public void test0955_assert_combined() {
 		"	if (o == null) { };\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" + 
-		"	if (o == null) { };\n" + 
-		"	               ^^^\n" + 
-		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -8315,11 +8305,6 @@ public void test0956_assert_combined() {
 		"	if (o == null) { };\n" +
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
-		"	if (o == null) { };\n" +
-		"	               ^^^\n" +
-		"Dead code\n" +
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -8354,31 +8339,21 @@ public void test0957_assert() {
 		"	if (foo == null) {}\n" + 
 		"	    ^^^\n" + 
 		"Null comparison always yields false: The variable foo cannot be null at this location\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 5)\n" + 
-		"	if (foo == null) {}\n" + 
-		"	                 ^^\n" + 
-		"Dead code\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 8)\n" + 
+		"----------\n" +  
+		"2. ERROR in X.java (at line 8)\n" + 
 		"	if (foo2 == null) {}\n" + 
 		"	    ^^^^\n" + 
 		"Redundant null check: The variable foo2 can only be null at this location\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 11)\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
 		"	if (bar == null) {}\n" + 
 		"	    ^^^\n" + 
 		"Redundant null check: The variable bar can only be null at this location\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 14)\n" + 
+		"4. ERROR in X.java (at line 14)\n" + 
 		"	if (bar2 == null) {}\n" + 
 		"	    ^^^^\n" + 
 		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 14)\n" + 
-		"	if (bar2 == null) {}\n" + 
-		"	                  ^^\n" + 
-		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -8454,30 +8429,20 @@ public void test0959a_assert_loop() {
 		"	    ^^^\n" + 
 		"Null comparison always yields false: The variable foo cannot be null at this location\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 9)\n" + 
-		"	if (foo == null) {}\n" + 
-		"	                 ^^\n" + 
-		"Dead code\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 11)\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
 		"	if (foo2 == null) {}\n" + 
 		"	    ^^^^\n" + 
 		"Redundant null check: The variable foo2 can only be null at this location\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 13)\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
 		"	if (bar == null) {}\n" + 
 		"	    ^^^\n" + 
 		"Redundant null check: The variable bar can only be null at this location\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 15)\n" + 
+		"4. ERROR in X.java (at line 15)\n" + 
 		"	if (bar2 == null) {}\n" + 
 		"	    ^^^^\n" + 
 		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 15)\n" + 
-		"	if (bar2 == null) {}\n" + 
-		"	                  ^^\n" + 
-		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -8515,30 +8480,20 @@ public void test0959b_assert_loop() {
 		"	    ^^^\n" + 
 		"Null comparison always yields false: The variable foo cannot be null at this location\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
-		"	if (foo == null) {}\n" + 
-		"	                 ^^\n" + 
-		"Dead code\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
 		"	if (foo2 == null) {}\n" + 
 		"	    ^^^^\n" + 
 		"Redundant null check: The variable foo2 can only be null at this location\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 12)\n" + 
+		"3. ERROR in X.java (at line 12)\n" + 
 		"	if (bar == null) {}\n" + 
 		"	    ^^^\n" + 
 		"Redundant null check: The variable bar can only be null at this location\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 15)\n" + 
+		"4. ERROR in X.java (at line 15)\n" + 
 		"	if (bar2 == null) {}\n" + 
 		"	    ^^^^\n" + 
 		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 15)\n" + 
-		"	if (bar2 == null) {}\n" + 
-		"	                  ^^\n" + 
-		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -8579,30 +8534,20 @@ public void test0960_assert_finally() {
 		"	    ^^^\n" +
 		"Null comparison always yields false: The variable foo cannot be null at this location\n" +
 		"----------\n" +
-		"2. WARNING in X.java (at line 12)\n" +
-		"	if (foo == null) {}\n" +
-		"	                 ^^\n" +
-		"Dead code\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 14)\n" +
+		"2. ERROR in X.java (at line 14)\n" +
 		"	if (foo2 == null) {}\n" +
 		"	    ^^^^\n" +
 		"Redundant null check: The variable foo2 can only be null at this location\n" +
 		"----------\n" +
-		"4. ERROR in X.java (at line 16)\n" +
+		"3. ERROR in X.java (at line 16)\n" +
 		"	if (bar == null) {}\n" +
 		"	    ^^^\n" +
 		"Redundant null check: The variable bar can only be null at this location\n" +
 		"----------\n" +
-		"5. ERROR in X.java (at line 18)\n" +
+		"4. ERROR in X.java (at line 18)\n" +
 		"	if (bar2 == null) {}\n" +
 		"	    ^^^^\n" +
 		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" +
-		"----------\n" +
-		"6. WARNING in X.java (at line 18)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	                  ^^\n" +
-		"Dead code\n" +
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
