@@ -85,10 +85,30 @@ public class Test {
 </pre>
 See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=284789">284789</a> for more details.
 </li>
+<li>New API to fix bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=246594">246594</a>. See the bug for details.
+<pre>
+	/**
+	 * Returns the signatures for this type parameter's bounds. The type parameter may have 
+	 * been declared as part of a type or a method. The signatures represent only the individual 
+	 * bounds and do not include the type variable name or the <code>extends</code> keyword.  
+	 * The signatures may be either unresolved (for source types) or resolved (for binary types). 
+	 * See {@link Signature} for details.
+	 * 
+	 * @return the signatures for the bounds of this formal type parameter
+	 * @throws JavaModelException
+	 *             if this element does not exist or if an exception occurs while accessing its corresponding resource.
+	 * @see Signature
+	 * @since 3.6
+	 */
+	String[] getBoundsSignatures() throws JavaModelException;
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=253896">253896</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=246594">246594</a>
+[model] API request: ITypeParameter#getBoundsSignatures() or #getSignature()
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=253896">253896</a>
 [compiler][null] wrong &quot;Null comparison always yields false&quot; problem for auto-unboxing
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=284789">284789</a>
 [formatter] Does not line-break method declaration exception with parameters
