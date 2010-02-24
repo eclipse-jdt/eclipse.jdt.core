@@ -1378,7 +1378,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/*
 	 * List of IPath of jars that are known to not contain a chaining (through MANIFEST.MF) to another library
 	 */
-	private HashSet nonChainingJars;
+	private Set nonChainingJars;
 
 	/**
 	 * Update the classpath variable cache
@@ -2868,8 +2868,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	    }
 	}
 	
-	private HashSet loadNonChainingJarsCache() {
-		HashSet nonChainingJarsCache = new HashSet();
+	private Set loadNonChainingJarsCache() {
+		Set nonChainingJarsCache = Collections.synchronizedSet(new HashSet());
 		File nonChainingJarsFile = getNonChainingJarsFile();
 		DataInputStream in = null;
 		try {
@@ -2898,10 +2898,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return JavaCore.getPlugin().getStateLocation().append("nonChainingJarsCache").toFile(); //$NON-NLS-1$
 	}
 	
-	private HashSet getNonChainingJarsCache() throws CoreException {
+	private Set getNonChainingJarsCache() throws CoreException {
 		if (this.nonChainingJars != null)
 			return this.nonChainingJars;
-		HashSet result = new HashSet();
+		Set result = Collections.synchronizedSet(new HashSet());
 		IJavaProject[] projects = getJavaModel().getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {
 			IJavaProject javaProject = projects[i];
@@ -3716,12 +3716,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		DataOutputStream out = null;
 		try {
 			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-			HashSet nonChainingJarsCache = getNonChainingJarsCache();
-			out.writeInt(nonChainingJarsCache.size());
-			Iterator entries = nonChainingJarsCache.iterator();
-			while (entries.hasNext()) {
-				IPath path = (IPath) entries.next();
-				out.writeUTF(path.toPortableString());
+			Set nonChainingJarsCache = getNonChainingJarsCache();
+			synchronized (nonChainingJarsCache) {
+				out.writeInt(nonChainingJarsCache.size());
+				Iterator entries = nonChainingJarsCache.iterator();
+				while (entries.hasNext()) {
+					IPath path = (IPath) entries.next();
+					out.writeUTF(path.toPortableString());
+				}
 			}
 		} catch (IOException e) {
 			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving non-chaining jar cache", e); //$NON-NLS-1$
