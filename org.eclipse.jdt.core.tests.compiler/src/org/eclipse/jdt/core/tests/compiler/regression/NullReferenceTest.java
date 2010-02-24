@@ -10,10 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
 import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -30,13 +34,9 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//	TESTS_NAMES = new String[] { "test0572_if_statement" };
-//    	TESTS_NUMBERS = new int[] { 561 };
-//    	TESTS_NUMBERS = new int[] { 2999 };
-//    	TESTS_RANGE = new int[] { 2050, -1 };
-//  	TESTS_RANGE = new int[] { 1, 2049 };
-//  	TESTS_RANGE = new int[] { 449, 451 };
-//    	TESTS_RANGE = new int[] { 900, 999 };
+//		TESTS_NAMES = new String[] { "testBug303448a", "testBug303448b" };
+//		TESTS_NUMBERS = new int[] { 561 };
+//		TESTS_RANGE = new int[] { 1, 2049 };
 }
 
 public static Test suite() {
@@ -11342,6 +11342,258 @@ public void testBug253896d() {
 			"	   ^^^^^\n" + 
 			"Potential null pointer access: The variable param may be null at this location\n" + 
 			"----------\n");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
+//To check that code gen is not optimized for an if statement
+//where a local variable's definite nullness or otherwise is known because of
+//an earlier assert expression (inside finally context)
+public void testBug303448a() throws Exception {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public void foo() {\n" +
+				"		Object foo = null;\n" +
+				"		Object foo2 = null;\n" +
+				"		try {} \n" +
+				"		finally {\n" +
+				"		assert (foo != null && foo2 != null);\n" +
+				"		if (foo != null) {\n" +
+				"			System.out.println(\"foo is not null\");\n" +
+				"		} else {\n" +
+				"			System.out.println(\"foo is null\");\n" +
+				"		}\n" +
+				"		if (foo2 != null) {\n" +
+				"			System.out.println(\"foo2 is not null\");\n" +
+				"		} else {\n" +
+				"			System.out.println(\"foo2 is null\");\n" +
+				"		}\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"",
+			null,
+			true,
+			null,
+			options,
+			null); // custom requestor
+	
+		String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_5?
+				"  // Method descriptor #11 ()V\n" + 
+				"  // Stack: 2, Locals: 3\n" + 
+				"  public void foo();\n" + 
+				"     0  aconst_null\n" + 
+				"     1  astore_1 [foo]\n" + 
+				"     2  aconst_null\n" + 
+				"     3  astore_2 [foo2]\n" + 
+				"     4  getstatic X.$assertionsDisabled : boolean [38]\n" + 
+				"     7  ifne 26\n" + 
+				"    10  aload_1 [foo]\n" + 
+				"    11  ifnull 18\n" + 
+				"    14  aload_2 [foo2]\n" + 
+				"    15  ifnonnull 26\n" + 
+				"    18  new java.lang.AssertionError [49]\n" + 
+				"    21  dup\n" + 
+				"    22  invokespecial java.lang.AssertionError() [51]\n" + 
+				"    25  athrow\n" + 
+				"    26  aload_1 [foo]\n" + 
+				"    27  ifnull 41\n" + 
+				"    30  getstatic java.lang.System.out : java.io.PrintStream [52]\n" + 
+				"    33  ldc <String \"foo is not null\"> [58]\n" + 
+				"    35  invokevirtual java.io.PrintStream.println(java.lang.String) : void [60]\n" + 
+				"    38  goto 49\n" + 
+				"    41  getstatic java.lang.System.out : java.io.PrintStream [52]\n" + 
+				"    44  ldc <String \"foo is null\"> [65]\n" + 
+				"    46  invokevirtual java.io.PrintStream.println(java.lang.String) : void [60]\n" + 
+				"    49  aload_2 [foo2]\n" + 
+				"    50  ifnull 64\n" + 
+				"    53  getstatic java.lang.System.out : java.io.PrintStream [52]\n" + 
+				"    56  ldc <String \"foo2 is not null\"> [67]\n" + 
+				"    58  invokevirtual java.io.PrintStream.println(java.lang.String) : void [60]\n" + 
+				"    61  goto 72\n" + 
+				"    64  getstatic java.lang.System.out : java.io.PrintStream [52]\n" + 
+				"    67  ldc <String \"foo2 is null\"> [69]\n" + 
+				"    69  invokevirtual java.io.PrintStream.println(java.lang.String) : void [60]\n" + 
+				"    72  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 3]\n" + 
+				"        [pc: 2, line: 4]\n" + 
+				"        [pc: 4, line: 7]\n" + 
+				"        [pc: 26, line: 8]\n" + 
+				"        [pc: 30, line: 9]\n" + 
+				"        [pc: 41, line: 11]\n" + 
+				"        [pc: 49, line: 13]\n" + 
+				"        [pc: 53, line: 14]\n" + 
+				"        [pc: 64, line: 16]\n" + 
+				"        [pc: 72, line: 19]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 73] local: this index: 0 type: X\n" + 
+				"        [pc: 2, pc: 73] local: foo index: 1 type: java.lang.Object\n" + 
+				"        [pc: 4, pc: 73] local: foo2 index: 2 type: java.lang.Object\n"
+			: 	this.complianceLevel < ClassFileConstants.JDK1_6?
+						"  // Method descriptor #8 ()V\n" + 
+						"  // Stack: 2, Locals: 3\n" + 
+						"  public void foo();\n" + 
+						"     0  aconst_null\n" + 
+						"     1  astore_1 [foo]\n" + 
+						"     2  aconst_null\n" + 
+						"     3  astore_2 [foo2]\n" + 
+						"     4  getstatic X.$assertionsDisabled : boolean [16]\n" + 
+						"     7  ifne 26\n" + 
+						"    10  aload_1 [foo]\n" + 
+						"    11  ifnull 18\n" + 
+						"    14  aload_2 [foo2]\n" + 
+						"    15  ifnonnull 26\n" + 
+						"    18  new java.lang.AssertionError [26]\n" + 
+						"    21  dup\n" + 
+						"    22  invokespecial java.lang.AssertionError() [28]\n" + 
+						"    25  athrow\n" + 
+						"    26  aload_1 [foo]\n" + 
+						"    27  ifnull 41\n" + 
+						"    30  getstatic java.lang.System.out : java.io.PrintStream [29]\n" + 
+						"    33  ldc <String \"foo is not null\"> [35]\n" + 
+						"    35  invokevirtual java.io.PrintStream.println(java.lang.String) : void [37]\n" + 
+						"    38  goto 49\n" + 
+						"    41  getstatic java.lang.System.out : java.io.PrintStream [29]\n" + 
+						"    44  ldc <String \"foo is null\"> [43]\n" + 
+						"    46  invokevirtual java.io.PrintStream.println(java.lang.String) : void [37]\n" + 
+						"    49  aload_2 [foo2]\n" + 
+						"    50  ifnull 64\n" + 
+						"    53  getstatic java.lang.System.out : java.io.PrintStream [29]\n" + 
+						"    56  ldc <String \"foo2 is not null\"> [45]\n" + 
+						"    58  invokevirtual java.io.PrintStream.println(java.lang.String) : void [37]\n" + 
+						"    61  goto 72\n" + 
+						"    64  getstatic java.lang.System.out : java.io.PrintStream [29]\n" + 
+						"    67  ldc <String \"foo2 is null\"> [47]\n" + 
+						"    69  invokevirtual java.io.PrintStream.println(java.lang.String) : void [37]\n" + 
+						"    72  return\n" + 
+						"      Line numbers:\n" + 
+						"        [pc: 0, line: 3]\n" + 
+						"        [pc: 2, line: 4]\n" + 
+						"        [pc: 4, line: 7]\n" + 
+						"        [pc: 26, line: 8]\n" + 
+						"        [pc: 30, line: 9]\n" + 
+						"        [pc: 41, line: 11]\n" + 
+						"        [pc: 49, line: 13]\n" + 
+						"        [pc: 53, line: 14]\n" + 
+						"        [pc: 64, line: 16]\n" + 
+						"        [pc: 72, line: 19]\n" + 
+						"      Local variable table:\n" + 
+						"        [pc: 0, pc: 73] local: this index: 0 type: X\n" + 
+						"        [pc: 2, pc: 73] local: foo index: 1 type: java.lang.Object\n" + 
+						"        [pc: 4, pc: 73] local: foo2 index: 2 type: java.lang.Object\n"
+					:	"  // Method descriptor #8 ()V\n" + 
+						"  // Stack: 2, Locals: 3\n" + 
+						"  public void foo();\n" + 
+						"     0  aconst_null\n" + 
+						"     1  astore_1 [foo]\n" + 
+						"     2  aconst_null\n" + 
+						"     3  astore_2 [foo2]\n" + 
+						"     4  getstatic X.$assertionsDisabled : boolean [16]\n" + 
+						"     7  ifne 26\n" + 
+						"    10  aload_1 [foo]\n" + 
+						"    11  ifnull 18\n" + 
+						"    14  aload_2 [foo2]\n" + 
+						"    15  ifnonnull 26\n" + 
+						"    18  new java.lang.AssertionError [27]\n" + 
+						"    21  dup\n" + 
+						"    22  invokespecial java.lang.AssertionError() [29]\n" + 
+						"    25  athrow\n" + 
+						"    26  aload_1 [foo]\n" + 
+						"    27  ifnull 41\n" + 
+						"    30  getstatic java.lang.System.out : java.io.PrintStream [30]\n" + 
+						"    33  ldc <String \"foo is not null\"> [36]\n" + 
+						"    35  invokevirtual java.io.PrintStream.println(java.lang.String) : void [38]\n" + 
+						"    38  goto 49\n" + 
+						"    41  getstatic java.lang.System.out : java.io.PrintStream [30]\n" + 
+						"    44  ldc <String \"foo is null\"> [44]\n" + 
+						"    46  invokevirtual java.io.PrintStream.println(java.lang.String) : void [38]\n" + 
+						"    49  aload_2 [foo2]\n" + 
+						"    50  ifnull 64\n" + 
+						"    53  getstatic java.lang.System.out : java.io.PrintStream [30]\n" + 
+						"    56  ldc <String \"foo2 is not null\"> [46]\n" + 
+						"    58  invokevirtual java.io.PrintStream.println(java.lang.String) : void [38]\n" + 
+						"    61  goto 72\n" + 
+						"    64  getstatic java.lang.System.out : java.io.PrintStream [30]\n" + 
+						"    67  ldc <String \"foo2 is null\"> [48]\n" + 
+						"    69  invokevirtual java.io.PrintStream.println(java.lang.String) : void [38]\n" + 
+						"    72  return\n" + 
+						"      Line numbers:\n" + 
+						"        [pc: 0, line: 3]\n" + 
+						"        [pc: 2, line: 4]\n" + 
+						"        [pc: 4, line: 7]\n" + 
+						"        [pc: 26, line: 8]\n" + 
+						"        [pc: 30, line: 9]\n" + 
+						"        [pc: 41, line: 11]\n" + 
+						"        [pc: 49, line: 13]\n" + 
+						"        [pc: 53, line: 14]\n" + 
+						"        [pc: 64, line: 16]\n" + 
+						"        [pc: 72, line: 19]\n" + 
+						"      Local variable table:\n" + 
+						"        [pc: 0, pc: 73] local: this index: 0 type: X\n" + 
+						"        [pc: 2, pc: 73] local: foo index: 1 type: java.lang.Object\n" + 
+						"        [pc: 4, pc: 73] local: foo2 index: 2 type: java.lang.Object\n" + 
+						"      Stack map table: number of frames 6\n" + 
+						"        [pc: 18, append: {java.lang.Object, java.lang.Object}]\n" + 
+						"        [pc: 26, same]\n" + 
+						"        [pc: 41, same]\n" + 
+						"        [pc: 49, same]\n" + 
+						"        [pc: 64, same]\n" + 
+						"        [pc: 72, same]\n";
+		
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
+//To check that code gen is not optimized for an if statement
+//where a local variable's definite nullness or otherwise is known because of
+//an earlier assert expression (inside finally context)
+public void testBug303448b() throws Exception {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.print(\"start\");\n" +
+				"		Object foo = null;\n" +
+				"		assert (foo != null);\n" +
+				"		if (foo != null) {\n" +
+				"			System.out.println(\"foo is not null\");\n" +
+				"		}\n" +
+				"		System.out.print(\"end\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"startend",
+			null,
+			true,
+			null,
+			options,
+			null);
 	}
 }
 }
