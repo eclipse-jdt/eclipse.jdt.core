@@ -302,6 +302,39 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		assertEqualString(cu.getSource(), buf.toString());
 	}
 
+	public void testAddImports5() throws Exception {
+		getJavaProject("P").setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON, JavaCore.INSERT);
+		
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "java", "java.util", "com", "pack" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, true);
+		imports.setUseContextToFilterImplicitImports(true);
+		imports.addImport("java.util.Map");
+		imports.addImport("java.util.Set");
+		imports.addImport("java.util.Map.Entry");
+		imports.addImport("java.util.Collections");
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.util.* ;\n");
+		buf.append("import java.util.Map.Entry ;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
+
 	public void testAddImportsWithGroupsOfUnmatched1() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
