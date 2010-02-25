@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
  *     Stephan Herrmann  - Contribution for bug 236385
+ *     Stephan Herrmann  - Contribution for bug 295551
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -47,8 +48,8 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NAMES = new String[] { "test292_warn_options" };
-//		TESTS_NUMBERS = new int[] { 295 };
-//		TESTS_RANGE = new int[] { 107, -1 };
+//		TESTS_NUMBERS = new int[] { 298 };
+//		TESTS_RANGE = new int[] { 298, -1 };
 	}
 public BatchCompilerTest(String name) {
 	super(name);
@@ -1696,7 +1697,9 @@ public void test012b(){
         "      static-access        macro for indirectStatic and staticReceiver\n" +
         "      staticReceiver     + non-static reference to static member\n" +
         "      super                overriding a method without making a super invocation\n" +
-        "      suppress           + enable @SuppressWarnings\n" +
+        "      suppress           + enable @SuppressWarnings\n" + 
+        "                           When used with -err:, it can also silent optional\n" +
+        "                           errors and warnings\n" + 
         "      syncOverride         missing synchronized in synchr. method override\n" +
         "      syntheticAccess      synthetic access for innerclass\n" +
         "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" +
@@ -1843,6 +1846,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantSuperinterface\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.specialParameterHidingField\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarnings\" value=\"enabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.tasks\" value=\"warning\"/>\n" + 
@@ -11208,6 +11212,155 @@ public void test297(){
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
 		"invalid error configuration: \'-err\'\n",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+public void test298(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private int i;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "X.java\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -err:+unused,suppress -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+public void test299(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private int i;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "X.java\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -err:+unused -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private int i;\n" + 
+		"	            ^\n" + 
+		"The field X.i is never read locally\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+public void test300(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private int i;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "X.java\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+public void test301(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private int i;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "X.java\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -warn:-suppress -err:+unused -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private int i;\n" + 
+		"	            ^\n" + 
+		"The field X.i is never read locally\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+public void test302(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private int i;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "X.java\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -warn:-suppress -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private int i;\n" + 
+		"	            ^\n" + 
+		"The field X.i is never read locally\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+public void test303(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private int i;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "X.java\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -warn:+suppress -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private int i;\n" + 
+		"	            ^\n" + 
+		"The field X.i is never read locally\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+public void test304(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private int i;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR + File.separator + "X.java\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -err:+suppress,unused -warn:-suppress -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private int i;\n" + 
+		"	            ^\n" + 
+		"The field X.i is never read locally\n" + 
+		"----------\n" + 
+		"1 problem (1 error)",
 		true);
 }
 }

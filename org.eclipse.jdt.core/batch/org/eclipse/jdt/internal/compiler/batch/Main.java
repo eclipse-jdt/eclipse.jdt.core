@@ -11,6 +11,7 @@
  *     Tom Tromey - Contribution for bug 159641
  *     Benjamin Muskalla - Contribution for bug 239066
  *     Stephan Herrmann  - Contribution for bug 236385
+ *     Stephan Herrmann  - Contribution for bug 295551
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -3339,9 +3340,23 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				setSeverity(CompilerOptions.OPTION_ReportMissingSerialVersion, severity, isEnabling);
 				return;
 			} else if (token.equals("suppress")) {//$NON-NLS-1$
-				this.options.put(
-					CompilerOptions.OPTION_SuppressWarnings,
-					isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+				switch(severity) {
+					case ProblemSeverities.Warning :
+						this.options.put(
+								CompilerOptions.OPTION_SuppressWarnings,
+								isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+						this.options.put(
+								CompilerOptions.OPTION_SuppressOptionalErrors,
+								CompilerOptions.DISABLED);
+						break;
+					case ProblemSeverities.Error :
+						this.options.put(
+								CompilerOptions.OPTION_SuppressWarnings,
+								isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+						this.options.put(
+							CompilerOptions.OPTION_SuppressOptionalErrors,
+							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+				}
 				return;
 			} else if (token.equals("static-access")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, severity, isEnabling);
