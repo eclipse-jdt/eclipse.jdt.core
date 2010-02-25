@@ -44,11 +44,13 @@ public class FlowContext implements TypeConstants {
 		// only used within try blocks; remembers upstream flow info mergedWith
 		// any null related operation happening within the try block
 
-boolean deferNullDiagnostic, preemptNullDiagnostic;
-/**
- * used to hide null comparison related warnings inside assert statements 
- */
-public boolean hideNullComparisonWarnings = false;
+	public int tagBits;
+	public static final int DEFER_NULL_DIAGNOSTIC = 0x1;
+	public static final int PREEMPT_NULL_DIAGNOSTIC = 0x2;
+	/**
+	 * used to hide null comparison related warnings inside assert statements 
+	 */
+	public static final int HIDE_NULL_COMPARISON_WARNING = 0x4;
 
 public static final int CAN_ONLY_NULL_NON_NULL = 0x0000;
 //check against null and non null, with definite values -- comparisons
@@ -72,8 +74,9 @@ public FlowContext(FlowContext parent, ASTNode associatedNode) {
 	this.parent = parent;
 	this.associatedNode = associatedNode;
 	if (parent != null) {
-		this.deferNullDiagnostic =
-			parent.deferNullDiagnostic || parent.preemptNullDiagnostic;
+		if ((parent.tagBits & (FlowContext.DEFER_NULL_DIAGNOSTIC | FlowContext.PREEMPT_NULL_DIAGNOSTIC)) != 0) {
+			this.tagBits |= FlowContext.DEFER_NULL_DIAGNOSTIC;
+		}
 		this.initsOnFinally = parent.initsOnFinally;
 	}
 }
@@ -546,14 +549,14 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 		case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL:
 			if (flowInfo.isDefinitelyNonNull(local)) {
 				if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
-					if (!this.hideNullComparisonWarnings) {
+					if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
 						scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
 					}
 					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
 						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
 					}
 				} else {
-					if (!this.hideNullComparisonWarnings) {
+					if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
 						scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
 					}
 					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
@@ -577,7 +580,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 							scope.problemReporter().localVariableNullReference(local, reference);
 							return;
 						}
-						if (!this.hideNullComparisonWarnings) {
+						if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
 							scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 						}
 						if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
@@ -589,7 +592,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 							scope.problemReporter().localVariableNullReference(local, reference);
 							return;
 						}
-						if (!this.hideNullComparisonWarnings) {
+						if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
 							scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
 						}
 						if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
