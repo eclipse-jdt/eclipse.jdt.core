@@ -50087,4 +50087,64 @@ public void test294724() {
 		"Type safety: The expression of type Set needs unchecked conversion to conform to Set<SimpleExample.Data>\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=268798
+public void test268798() {
+	this.runNegativeTest(
+		new String[] {
+	    "GenericDemo.java",
+	    "import java.util.Collections;\n" +
+	    "import java.util.List;\n" +
+	    "public class GenericDemo {\n" +
+	    "  static class A implements Comparable {\n" +
+	    "    public int compareTo(Object o) {\n" +
+	    "      return 0;\n" +
+	    "    }\n" +
+	    "  }\n" +
+	    "  void someCode(List<A> list) {\n" +
+	    "    A min = Collections.min(list); \n" +
+	    "  }\n" +
+	    "}\n"
+	    },
+		"----------\n" + 
+		"1. WARNING in GenericDemo.java (at line 4)\n" + 
+		"	static class A implements Comparable {\n" + 
+		"	                          ^^^^^^^^^^\n" + 
+		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in GenericDemo.java (at line 10)\n" + 
+		"	A min = Collections.min(list); \n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation min(List<GenericDemo.A>) of the generic method min(Collection<? extends T>) of type Collections\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=268798
+public void test268798a() {
+	this.runNegativeTest(
+		new String[] {
+	    "Bug268798.java",
+	    "public class Bug268798 {\n" +
+	    "  interface SomeInterface<T> {\n" +
+	    "  }\n" +
+	    "  class A implements SomeInterface {\n" +
+	    "  }\n" +
+	    "  <T extends SomeInterface<? super T>> T someMethod() {\n" +
+	    "    return null;\n" +
+	    "  }\n" +
+	    "  void someCode() {\n" +
+	    "    A a = someMethod();\n" +
+	    "  }\n" +
+	    "}\n"
+	    },
+		"----------\n" + 
+		"1. WARNING in Bug268798.java (at line 4)\n" + 
+		"	class A implements SomeInterface {\n" + 
+		"	                   ^^^^^^^^^^^^^\n" + 
+		"Bug268798.SomeInterface is a raw type. References to generic type Bug268798.SomeInterface<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in Bug268798.java (at line 10)\n" + 
+		"	A a = someMethod();\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation someMethod() of the generic method someMethod() of type Bug268798\n" + 
+		"----------\n");
+}
 }
