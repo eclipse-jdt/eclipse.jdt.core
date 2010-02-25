@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann  - Contribution for bug 295551
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -217,16 +218,18 @@ public void finalizeProblems() {
 	nextProblem: for (int iProblem = 0, length = problemCount; iProblem < length; iProblem++) {
 		CategorizedProblem problem = problems[iProblem];
 		int problemID = problem.getID();
+		int irritant = ProblemReporter.getIrritant(problemID);
 		if (problem.isError()) {
 			if (problemID != IProblem.UnusedWarningToken) {
-			// tolerate unused warning tokens which were promoted as errors
+				// tolerate unused warning tokens which were promoted as errors
 				hasErrors = true;
 			}
-			continue;
+			if (irritant == 0 || !options.suppressOptionalErrors) {
+				continue;
+			}
 		}
 		int start = problem.getSourceStart();
 		int end = problem.getSourceEnd();
-		int irritant = ProblemReporter.getIrritant(problemID);
 		nextSuppress: for (int iSuppress = 0, suppressCount = this.suppressWarningsCount; iSuppress < suppressCount; iSuppress++) {
 			long position = this.suppressWarningScopePositions[iSuppress];
 			int startSuppress = (int) (position >>> 32);

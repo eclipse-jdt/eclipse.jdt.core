@@ -49,6 +49,25 @@ Eclipse SDK 3.6M6 - %date% - 3.6.0 M6
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A37">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>Added new configurable option to fix bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551">295551</a>:<br>
+<pre>
+/**
+ * Compiler option ID: Further Determining the Effect of @SuppressWarnings if also
+ * COMPILER_PB_SUPPRESS_WARNINGS is enabled.
+ * When enabled, the @SuppressWarnings annotation can additionally be used to suppress 
+ * optional compiler diagnostics that have been configured as ERROR.
+ * When disabled, all @SuppressWarnings annotations only affects warnings.
+ *
+ * Option id: "org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors"
+ * Possible values: { "enabled", "disabled" }
+ * Default: "disabled"
+ * 
+ * @since 3.6
+ * @category CompilerOptionID
+ */
+public static final String COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS = PLUGIN_ID + ".compiler.problem.suppressOptionalErrors";
+</pre>
+</li>
 <li>
 Added a new formatter preferences to align method declaration.
 <p>
@@ -106,7 +125,9 @@ See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=284789">284789</a
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=303810">303810</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551">295551</a>
+Add option to automatically promote all warnings to errors
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=303810">303810</a>
 Compact boolean fields on FlowContext
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=251227">251227</a>
 [compiler] Fup of bug 115814, comparing doubles should not be flagged

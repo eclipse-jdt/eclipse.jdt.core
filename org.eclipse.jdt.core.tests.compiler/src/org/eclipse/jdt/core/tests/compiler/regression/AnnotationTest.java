@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann  - Contribution for bug 295551
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -9303,5 +9304,103 @@ public void test279() {
 			testString,
 			expectedOutput,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+public void test280() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	String testFiles [] = new String[] {
+			"A.java",
+			"public class A {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private int i;\n" + // problem configured as warning but still suppressed
+			"}\n"
+			};
+	runConformTest(
+			testFiles,
+			null,
+			null,
+			true,
+			null,
+			customOptions,
+			null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+public void test281() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.DISABLED); // this option overrides the next
+	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	String testFiles [] = new String[] {
+			"A.java",
+			"public class A {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private int i;\n" +
+			"}\n"
+			};
+	String expectedErrorString = 
+			"----------\n" + 
+			"1. ERROR in A.java (at line 3)\n" + 
+			"	private int i;\n" + 
+			"	            ^\n" + 
+			"The field A.i is never read locally\n" + 
+			"----------\n";
+	runNegativeTest(
+			true,
+			testFiles,
+			null, 
+			customOptions,
+			expectedErrorString,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+public void test282() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	String testFiles [] = new String[] {
+			"A.java",
+			"import java.util.Map;\n" +
+			"public class A {\n" +
+			"	@SuppressWarnings({\"rawtypes\", \"unused\"})\n" + //suppress a warning and an error
+			"	private Map i;\n" + 
+			"}\n"
+			};
+	runConformTest(
+			testFiles,
+			null,
+			null,
+			true,
+			null,
+			customOptions,
+			null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
+public void test283() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	String testFiles [] = new String[] {
+			"A.java",
+			"public class A {\n" +
+			"	@SuppressWarnings(\"all\")\n" +
+			"	private void i;\n" + // cannot suppress mandatory error
+			"}\n"
+			};
+	String expectedErrorString = 
+			"----------\n" + 
+			"1. ERROR in A.java (at line 3)\n" + 
+			"	private void i;\n" + 
+			"	             ^\n" + 
+			"void is an invalid type for the variable i\n" + 
+			"----------\n";
+	runNegativeTest(
+			true,
+			testFiles,
+			null, 
+			customOptions,
+			expectedErrorString,
+			JavacTestOptions.SKIP);
 }
 }

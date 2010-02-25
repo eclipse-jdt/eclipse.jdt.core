@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
  *     Stephan Herrmann  - Contribution for bug 236385
+ *     Stephan Herrmann  - Contribution for bug 295551
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
@@ -112,6 +113,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportForbiddenReference =  "org.eclipse.jdt.core.compiler.problem.forbiddenReference"; //$NON-NLS-1$
 	public static final String OPTION_ReportDiscouragedReference =  "org.eclipse.jdt.core.compiler.problem.discouragedReference"; //$NON-NLS-1$
 	public static final String OPTION_SuppressWarnings =  "org.eclipse.jdt.core.compiler.problem.suppressWarnings"; //$NON-NLS-1$
+	public static final String OPTION_SuppressOptionalErrors = "org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnhandledWarningToken =  "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedWarningToken =  "org.eclipse.jdt.core.compiler.problem.unusedWarningToken"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedLabel =  "org.eclipse.jdt.core.compiler.problem.unusedLabel"; //$NON-NLS-1$
@@ -320,8 +322,10 @@ public class CompilerOptions {
 	public boolean reportMissingJavadocCommentsOverriding;
 	/** Indicate whether the JSR bytecode should be inlined to avoid its presence in classfile */
 	public boolean inlineJsrBytecode;
-	/** Indicate if @SuppressWarning annotation are activated */
+	/** Indicate if @SuppressWarning annotations are activated */
 	public boolean suppressWarnings;
+	/** Indicate if @SuppressWarning annotations should also suppress optional errors */
+	public boolean suppressOptionalErrors;
 	/** Specify if should treat optional error as fatal or just like warning */
 	public boolean treatOptionalErrorAsFatal;
 	/** Specify if parser should perform structural recovery in methods */
@@ -884,6 +888,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportPotentialNullReference, getSeverityString(PotentialNullReference));
 		optionsMap.put(OPTION_ReportRedundantNullCheck, getSeverityString(RedundantNullCheck));
 		optionsMap.put(OPTION_SuppressWarnings, this.suppressWarnings ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_SuppressOptionalErrors, this.suppressOptionalErrors ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnhandledWarningToken, getSeverityString(UnhandledWarningToken));
 		optionsMap.put(OPTION_ReportUnusedWarningToken, getSeverityString(UnusedWarningToken));
 		optionsMap.put(OPTION_ReportParameterAssignment, getSeverityString(ParameterAssignment));
@@ -1013,6 +1018,9 @@ public class CompilerOptions {
 
 		// suppress warning annotation
 		this.suppressWarnings = true;
+
+		// suppress also optional errors
+		this.suppressOptionalErrors = false;
 
 		// treat optional error as non fatal
 		this.treatOptionalErrorAsFatal = false;
@@ -1223,6 +1231,13 @@ public class CompilerOptions {
 				this.suppressWarnings = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.suppressWarnings = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_SuppressOptionalErrors)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.suppressOptionalErrors = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.suppressOptionalErrors = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_FatalOptionalError)) != null) {
@@ -1482,6 +1497,7 @@ public class CompilerOptions {
 		buf.append("\n\t- missing @Deprecated annotation: ").append(getSeverityString(MissingDeprecatedAnnotation)); //$NON-NLS-1$
 		buf.append("\n\t- incomplete enum switch: ").append(getSeverityString(IncompleteEnumSwitch)); //$NON-NLS-1$
 		buf.append("\n\t- suppress warnings: ").append(this.suppressWarnings ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- suppress optional errors: ").append(this.suppressOptionalErrors ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unhandled warning token: ").append(getSeverityString(UnhandledWarningToken)); //$NON-NLS-1$
 		buf.append("\n\t- unused warning token: ").append(getSeverityString(UnusedWarningToken)); //$NON-NLS-1$
 		buf.append("\n\t- unused label: ").append(getSeverityString(UnusedLabel)); //$NON-NLS-1$
