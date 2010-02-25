@@ -82,6 +82,7 @@
  *     IBM Corporation - added getOptionForConfigurableSeverity(int)
  *     Benjamin Muskalla - added COMPILER_PB_MISSING_SYNCHRONIZED_ON_INHERITED_METHOD
  *     Stephan Herrmann  - added COMPILER_PB_UNUSED_OBJECT_ALLOCATION
+ *     Stephan Herrmann  - added COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS
  *******************************************************************************/
 
 package org.eclipse.jdt.core;
@@ -1419,6 +1420,21 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_SUPPRESS_WARNINGS = PLUGIN_ID + ".compiler.problem.suppressWarnings"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Further Determining the Effect of <code>@SuppressWarnings</code> if also
+	 * {@link #COMPILER_PB_SUPPRESS_WARNINGS} is enabled.
+	 * <p>When enabled, the <code>@SuppressWarnings</code> annotation can additionally be used to suppress 
+	 * optional compiler diagnostics that have been configured as {@link #ERROR}.
+	 * <p>When disabled, all <code>@SuppressWarnings</code> annotations only affects warnings.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * </dl>
+	 * @since 3.6
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS = PLUGIN_ID + ".compiler.problem.suppressOptionalErrors"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Unhandled Warning Token for <code>@SuppressWarnings</code>.
 	 * <p>When enabled, the compiler will issue an error or a warning when encountering a token
