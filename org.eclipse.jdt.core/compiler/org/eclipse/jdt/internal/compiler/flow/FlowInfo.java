@@ -457,4 +457,20 @@ abstract public UnconditionalFlowInfo unconditionalInits();
  * @return a flow info carrying this unconditional flow info
  */
 abstract public UnconditionalFlowInfo unconditionalInitsWithoutSideEffect();
+
+/**
+ * Tell the flowInfo that a local variable got marked as non null or null
+ * due to comparison with null inside an assert expression.
+ * This is to prevent over-aggressive code generation for subsequent if statements
+ * where this variable is being checked against null
+ */
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
+abstract public void markedAsNullOrNonNullInAssertExpression(LocalVariableBinding local);
+
+/** 
+ * Returns true if the local variable being checked for was marked as null or not null
+ * inside an assert expression due to comparison against null.
+ */
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
+abstract public boolean isMarkedAsNullOrNonNullInAssertExpression(LocalVariableBinding local);
 }
