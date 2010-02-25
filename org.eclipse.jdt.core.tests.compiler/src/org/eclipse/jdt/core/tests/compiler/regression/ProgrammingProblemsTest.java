@@ -1559,4 +1559,28 @@ public void test0040() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=251227
+public void test0041() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(1.0 == 1.0);\n" +
+			"		System.out.println(1.0f == 1.0f);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	System.out.println(1.0 == 1.0);\n" + 
+		"	                   ^^^^^^^^^^\n" + 
+		"Comparing identical expressions\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	System.out.println(1.0f == 1.0f);\n" + 
+		"	                   ^^^^^^^^^^^^\n" + 
+		"Comparing identical expressions\n" + 
+		"----------\n");
+}
 }
