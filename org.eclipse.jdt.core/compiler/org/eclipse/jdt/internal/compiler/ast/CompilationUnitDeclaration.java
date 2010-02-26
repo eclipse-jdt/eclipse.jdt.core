@@ -16,7 +16,6 @@ import java.util.Comparator;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -214,17 +213,18 @@ public void finalizeProblems() {
 	int problemCount = this.compilationResult.problemCount;
 	IrritantSet[] foundIrritants = new IrritantSet[this.suppressWarningsCount];
 	CompilerOptions options = this.scope.compilerOptions();
-	boolean hasErrors = false;
+	boolean hasMandatoryErrors = false;
 	nextProblem: for (int iProblem = 0, length = problemCount; iProblem < length; iProblem++) {
 		CategorizedProblem problem = problems[iProblem];
 		int problemID = problem.getID();
 		int irritant = ProblemReporter.getIrritant(problemID);
 		if (problem.isError()) {
-			if (problemID != IProblem.UnusedWarningToken) {
-				// tolerate unused warning tokens which were promoted as errors
-				hasErrors = true;
+			if (irritant == 0) {
+				// tolerate unused warning tokens when mandatory errors
+				hasMandatoryErrors = true;
+				continue;
 			}
-			if (irritant == 0 || !options.suppressOptionalErrors) {
+			if (!options.suppressOptionalErrors) {
 				continue;
 			}
 		}
@@ -266,7 +266,7 @@ public void finalizeProblems() {
 		this.compilationResult.problemCount -= removed;
 	}
 	// flag SuppressWarnings which had no effect (only if no (mandatory) error got detected within unit
-	if (!hasErrors) {
+	if (!hasMandatoryErrors) {
 		int severity = options.getSeverity(CompilerOptions.UnusedWarningToken);
 		if (severity != ProblemSeverities.Ignore) {
 			boolean unusedWarningTokenIsWarning = (severity & ProblemSeverities.Error) == 0;

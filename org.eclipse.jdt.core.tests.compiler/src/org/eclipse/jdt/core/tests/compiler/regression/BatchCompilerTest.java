@@ -11246,12 +11246,17 @@ public void test299(){
 		+ " -proceedOnError -err:+unused -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	@SuppressWarnings(\"unused\")\n" + 
+		"	                  ^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
+		"----------\n" + 
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
 		"	private int i;\n" + 
 		"	            ^\n" + 
 		"The field X.i is never read locally\n" + 
 		"----------\n" + 
-		"1 problem (1 error)",
+		"2 problems (1 error, 1 warning)",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
@@ -11332,12 +11337,17 @@ public void test303(){
 		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -warn:+suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	@SuppressWarnings(\"unused\")\n" + 
+		"	                  ^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
+		"----------\n" + 
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
 		"	private int i;\n" + 
 		"	            ^\n" + 
 		"The field X.i is never read locally\n" + 
 		"----------\n" + 
-		"1 problem (1 error)",
+		"2 problems (1 error, 1 warning)",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
