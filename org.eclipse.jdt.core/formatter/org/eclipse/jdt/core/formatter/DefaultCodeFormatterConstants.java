@@ -652,6 +652,20 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.3
 	 */
 	public final static String FORMATTER_COMMENT_FORMAT_LINE_COMMENT = "org.eclipse.jdt.core.formatter.comment.format_line_comments"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to format line comments that start on the first column
+	 *     - option id:         "org.eclipse.jdt.core.formatter.format_line_comment_starting_on_first_column"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * Note that this option is ignored if the formatter is created with the mode {@link ToolFactory#M_FORMAT_NEW}.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @see ToolFactory#createCodeFormatter(Map, int)
+	 * @since 3.6
+	 */
+	public static final String FORMATTER_COMMENT_FORMAT_LINE_COMMENT_STARTING_ON_FIRST_COLUMN = JavaCore.PLUGIN_ID + ".formatter.format_line_comment_starting_on_first_column"; //$NON-NLS-1$
 
 	/**
 	 * <pre>
@@ -3157,7 +3171,12 @@ public class DefaultCodeFormatterConstants {
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           FALSE
 	 * </pre>
-	 * Note that this option is ignored if the formatter is created with the mode {@link ToolFactory#M_FORMAT_NEW}.
+	 * Note that:
+	 * <ul>
+	 * <li>this option is ignored if the formatter is created with the mode {@link ToolFactory#M_FORMAT_NEW}</li>
+	 * <li>even with this option activated, the formatter still can ignore line comments starting at first column
+	 * if the option {@link #FORMATTER_COMMENT_FORMAT_LINE_COMMENT_STARTING_ON_FIRST_COLUMN} is set to {@value #FALSE}</li>
+	 * </ul>
 	 * @see #TRUE
 	 * @see #FALSE
 	 * @see ToolFactory#createCodeFormatter(Map, int)
