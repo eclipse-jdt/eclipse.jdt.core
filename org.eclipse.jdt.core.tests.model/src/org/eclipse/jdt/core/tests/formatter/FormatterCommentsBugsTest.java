@@ -3621,6 +3621,58 @@ public void testBug241687() throws JavaModelException {
 }
 
 /**
+ * @bug 251133: [formatter] Automatic formatting single line comments is incoherent among tools
+ * @test Test the new formatter capability to completely ignore line comments starting at first column
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=251133"
+ */
+public void testBug251133_Line01() throws JavaModelException {
+	String source = 
+		"public class X01 {\n" + 
+		"//		int		a    =  	  1;\n" + 
+		"//    int     b	=	  	2;\n" + 
+		"}";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	// int a = 1;\n" + 
+		"	// int b = 2;\n" + 
+		"}"
+	);
+}
+public void testBug251133_Line02() throws JavaModelException {
+	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
+	String source = 
+		"public class X01 {\n" + 
+		"//		int		a    =  	  1;\n" + 
+		"//    int     b	=	  	2;\n" + 
+		"}";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"// int a = 1;\n" + 
+		"// int b = 2;\n" + 
+		"}"
+	);
+}
+public void testBug251133_Line03() throws JavaModelException {
+	this.formatterPrefs.comment_format_line_comment_starting_on_first_column = false;
+	String source = 
+		"public class X01 {\n" + 
+		"//		int		a    =  	  1;\n" + 
+		"//    int     b	=	  	2;\n" + 
+		"}";
+	formatSource(source);
+}
+public void testBug251133_Line04() throws JavaModelException {
+	this.formatterPrefs.never_indent_line_comments_on_first_column = false;
+	this.formatterPrefs.comment_format_line_comment_starting_on_first_column = false;
+	String source = 
+		"public class X01 {\n" + 
+		"//		int		a    =  	  1;\n" + 
+		"//    int     b	=	  	2;\n" + 
+		"}";
+	formatSource(source);
+}
+
+/**
  * @bug 256799: [formatter] Formatter wrongly adds space to //$FALL-THROUGH$
  * @test Ensure that the comment formatter preserve $FALL-THROUGH$ tag leading spaces
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=256799"

@@ -2406,11 +2406,14 @@ public class Scribe implements IJavaDocTagConstants {
 
     	// Print comment line indentation
     	int commentIndentationLevel;
+   		boolean onFirstColumn = isOnFirstColumn(start);
     	if (this.indentationLevel == 0) {
     		commentIndentationLevel = this.column - 1;
     	} else {
-    		if (this.formatter.preferences.never_indent_line_comments_on_first_column &&
-    			isOnFirstColumn(start)) {
+			if (onFirstColumn &&
+					(!this.formatter.preferences.comment_format_line_comment_starting_on_first_column ||
+					 this.formatter.preferences.never_indent_line_comments_on_first_column)
+    			) {
 	   			commentIndentationLevel = this.column - 1;
     		} else {
     			// Indentation may be specific for contiguous comment
@@ -2469,7 +2472,7 @@ public class Scribe implements IJavaDocTagConstants {
     	this.pendingSpace = false;
     	int previousStart = currentTokenStartPosition;
 
-		if (!isNlsTag && includesLineComments) {
+		if (!isNlsTag && includesLineComments && (!onFirstColumn || this.formatter.preferences.comment_format_line_comment_starting_on_first_column)) {
 			printLineComment(currentTokenStartPosition, currentTokenEndPosition-1);
 		} else {
 			// do nothing!?

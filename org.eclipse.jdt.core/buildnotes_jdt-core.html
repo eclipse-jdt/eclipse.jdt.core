@@ -122,6 +122,40 @@ See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=284789">284789</a
 	String[] getBoundsSignatures() throws JavaModelException;
 </pre>
 </li>
+<li>
+Added a new formatter preference to enable or disable the formatting of line
+comments that start on the first column.<br>
+Note that the indentation of line comments will also be disabled when activating
+this option, as otherwise the formatter could not produce stable outputs...
+<p>
+The default is to format these comments to have a backward compatible behavior.
+</p><p>
+This new preferences is controlled with the options:</p>
+<code>DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT_STARTING_ON_FIRST_COLUMN</code>
+<pre>
+/**
+ * FORMATTER / Option to format line comments that start on the first column
+ *     - option id:         "org.eclipse.jdt.core.formatter.format_line_comment_starting_on_first_column"
+ *     - possible values:   { TRUE, FALSE }
+ *     - default:           TRUE
+ * 
+ * Note that this option is ignored if the formatter is created with the mode {@link ToolFactory#M_FORMAT_NEW}.
+ * @see #TRUE
+ * @see #FALSE
+ * @see ToolFactory#createCodeFormatter(Map, int)
+ * @since 3.6
+ */
+</pre>
+<p>For example, the following snippet:</p>
+<pre>
+public class X01 {
+//    int	a  =   1;
+//    int	b  =   2;
+}
+</pre>
+will be untouched by the formatter if both options are activated.
+See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=251133">251133</a> for more details.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
