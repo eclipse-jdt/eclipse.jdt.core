@@ -1583,4 +1583,41 @@ public void test0041() {
 		"Comparing identical expressions\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=248897
+public void test0042() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+		return;
+	}
+	runTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" +
+				"    public static void main(String[]  args) {\n" +
+				"        final String var = \"Hello\";\n" +
+				"        final int local = 10;\n" +
+				"        @ZAnn(var + local)\n" +
+				"        class X {}\n" +
+				"        new X();\n" +
+				"    }\n" +
+				"}\n" +
+				"@interface ZAnn {\n" +
+				"    String value();\n" +
+				"}\n"
+				},
+			null /* errorOptions */,
+			new String[] {
+				CompilerOptions.OPTION_ReportUnusedLocal
+				} /* warningOptions */,
+			null /* ignoreOptions */,
+			false /* expectingCompilerErrors */,
+			"" /* expectedCompilerLog */,
+			"" /* expectedOutputString */,
+			false /* forceExecution */,
+			null /* classLib */,
+			true /* shouldFlushOutputDirectory */,
+			null /* vmArguments */,
+			null /* customOptions */,
+			null /* clientRequestor */,
+			true /* skipJavac */);
+}
 }

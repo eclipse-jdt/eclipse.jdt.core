@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -82,6 +83,16 @@ public class MemberValuePair extends ASTNode {
 			valueType = null; // no need to pursue
 		} else {
 			valueType = this.value.resolveType(scope);
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=248897
+			ASTVisitor visitor = new ASTVisitor() {
+				public boolean visit(SingleNameReference reference, BlockScope scop) {
+					if (reference.binding instanceof LocalVariableBinding) {
+						((LocalVariableBinding) reference.binding).useFlag = LocalVariableBinding.USED;
+					}
+					return true;
+				}
+			};
+			this.value.traverse(visitor, scope);
 		}
 		this.compilerElementPair = new ElementValuePair(this.name, this.value, this.binding);
 		if (valueType == null)
