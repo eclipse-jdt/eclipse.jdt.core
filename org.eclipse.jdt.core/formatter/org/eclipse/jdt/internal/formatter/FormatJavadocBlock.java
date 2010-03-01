@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.formatter.comment.IJavaDocTagConstants;
 
 /**
@@ -279,6 +280,19 @@ public boolean isHeaderLine() {
 }
 
 /**
+ * Returns whether the block is immutable or not.
+ * <p>
+ * Currently, only {@code} and {@literal} inline tags block are considered as
+ * immutable.
+ * </p>
+ * @return <code>true</code> if the block is immutable,
+ * 	<code>false</code> otherwise.
+ */
+public boolean isImmutable() {
+	return (this.flags & IMMUTABLE) == IMMUTABLE;
+}
+
+/**
  * Returns whether the block is a description or inlined in a description.
  * @see #isParamTag()
  *
@@ -311,9 +325,9 @@ public boolean isInParamTag() {
 }
 
 /**
- * Returns whether the text is on the same line of the tag.
+ * Returns whether the the tag is on one line only.
  *
- * @return <code>true</code> if the text is on the same line than the tag,
+ * @return <code>true</code> if the tag is on one line only,
  * 	<code>false</code> otherwise.
  */
 public boolean isOneLineTag() {
@@ -329,19 +343,6 @@ public boolean isOneLineTag() {
  */
 public boolean isParamTag() {
 	return (this.flags & PARAM_TAG) == PARAM_TAG;
-}
-
-/**
- * Returns whether the block is immutable or not.
- * <p>
- * Currently, only {@code} and {@literal} inline tags block are considered as
- * immutable.
- * </p>
- * @return <code>true</code> if the block is immutable,
- * 	<code>false</code> otherwise.
- */
-public boolean isImmutable() {
-	return (this.flags & IMMUTABLE) == IMMUTABLE;
 }
 
 void setHeaderLine(int javadocLineStart) {
@@ -365,6 +366,49 @@ protected void toString(StringBuffer buffer) {
 		buffer.append(" ("); //$NON-NLS-1$
 		this.reference.toString(buffer);
 		buffer.append(")\n"); //$NON-NLS-1$
+	}
+	StringBuffer flagsBuffer = new StringBuffer();
+	if (isDescription()) {
+		if (flagsBuffer.length() > 0) flagsBuffer.append(',');
+		flagsBuffer.append("description"); //$NON-NLS-1$
+	}
+	if (isFirst()) {
+		if (flagsBuffer.length() > 0) flagsBuffer.append(',');
+		flagsBuffer.append("first"); //$NON-NLS-1$
+	}
+	if (isHeaderLine()) {
+		if (flagsBuffer.length() > 0) flagsBuffer.append(',');
+		flagsBuffer.append("header line"); //$NON-NLS-1$
+	}
+	if (isImmutable()) {
+		if (flagsBuffer.length() > 0) flagsBuffer.append(',');
+		flagsBuffer.append("immutable"); //$NON-NLS-1$
+	}
+	if (isInDescription()) {
+		if (flagsBuffer.length() > 0) flagsBuffer.append(',');
+		flagsBuffer.append("in description"); //$NON-NLS-1$
+	}
+	if (isInlined()) {
+		if (flagsBuffer.length() > 0) flagsBuffer.append(',');
+		flagsBuffer.append("inlined"); //$NON-NLS-1$
+	}
+	if (isInParamTag()) {
+		if (flagsBuffer.length() > 0) flagsBuffer.append(',');
+		flagsBuffer.append("in param tag"); //$NON-NLS-1$
+	}
+	if (isOneLineTag()) {
+		if (flagsBuffer.length() > 0) flagsBuffer.append(',');
+		flagsBuffer.append("one line tag"); //$NON-NLS-1$
+	}
+	if (isParamTag()) {
+		if (flagsBuffer.length() > 0) flagsBuffer.append(',');
+		flagsBuffer.append("param tag"); //$NON-NLS-1$
+	}
+	if (flagsBuffer.length() > 0) {
+		if (inlined) buffer.append('\t');
+		buffer.append("	flags: "); //$NON-NLS-1$
+		buffer.append(flagsBuffer);
+		buffer.append('\n');
 	}
 	if (this.nodesPtr > -1) {
 		for (int i = 0; i <= this.nodesPtr; i++) {
@@ -390,6 +434,18 @@ public void toStringDebug(StringBuffer buffer, char[] source) {
 	}
 	for (int i=0; i<=this.nodesPtr; i++) {
 		this.nodes[i].toStringDebug(buffer, source);
+	}
+}
+
+void update(Scanner scanner) {
+	int blockEnd = scanner.getLineNumber(this.sourceEnd);
+	if (blockEnd == this.lineStart) {
+		this.flags |= FormatJavadocBlock.ONE_LINE_TAG;
+	}
+	for (int i=0; i<=this.nodesPtr; i++) {
+		if (!this.nodes[i].isText()) {
+			((FormatJavadocBlock)this.nodes[i]).update(scanner);
+		}
 	}
 }
 }

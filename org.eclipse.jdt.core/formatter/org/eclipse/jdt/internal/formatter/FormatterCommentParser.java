@@ -796,10 +796,7 @@ protected void updateDocComment() {
 		for (int i=0; i<length; i++) {
 			FormatJavadocBlock block = (FormatJavadocBlock) this.astStack[i];
 			block.clean();
-			int blockEnd = this.scanner.getLineNumber(block.sourceEnd);
-			if (block.lineStart == blockEnd) {
-				block.flags |= FormatJavadocBlock.ONE_LINE_TAG;
-			}
+			block.update(this.scanner);
 			formatJavadoc.blocks[i] = block;
 			if (i== 0) {
 				block.flags |= FormatJavadocBlock.FIRST;

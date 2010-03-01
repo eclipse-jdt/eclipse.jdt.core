@@ -50,7 +50,7 @@ public FormatJavadocText(int start, int end, int line, int htmlIndex, int htmlDe
  * child node.
  */
 void appendText(FormatJavadocText text) {
-	this.immutable = text.immutable;
+	text.immutable = this.immutable;
 	if (this.depth == text.depth) {
 		addSeparator(text);
 		this.sourceEnd = text.sourceEnd;
@@ -169,7 +169,6 @@ public boolean isHtmlTag() {
  *
  * @return <code>true</code> if the node is an immutable tag,
  *		<code>false</code> otherwise.
- *@deprecated Use {@link #isImmutable()} instead
  */
 public boolean isImmutableHtmlTag() {
 	return this.htmlTagIndex != -1 && (this.htmlTagIndex & JAVADOC_TAGS_ID_MASK) == JAVADOC_IMMUTABLE_TAGS_ID;
@@ -230,6 +229,9 @@ protected void toString(StringBuffer buffer) {
 	StringBuffer indentation = new StringBuffer();
 	for (int t=0; t<=this.depth; t++) indentation.append('\t');
 	buffer.append(indentation);
+	if (isImmutable()) {
+		buffer.append("immutable "); //$NON-NLS-1$
+	}
 	buffer.append("text"); //$NON-NLS-1$
 	super.toString(buffer);
 	buffer.append(" ("); //$NON-NLS-1$
