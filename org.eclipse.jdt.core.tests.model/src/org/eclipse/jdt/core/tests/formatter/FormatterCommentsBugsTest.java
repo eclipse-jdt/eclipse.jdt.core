@@ -5564,7 +5564,7 @@ public void testBug267658b() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=270209"
  */
 public void testBug270209_Block01() throws JavaModelException {
-	this.formatterPrefs.comment_condensed_block_comment = true;
+	this.formatterPrefs.comment_new_lines_at_block_boundaries = false;
 	String source = 
 		"public interface X01 {\n" + 
 		"\n" + 
@@ -5582,7 +5582,7 @@ public void testBug270209_Block01() throws JavaModelException {
 	);
 }
 public void testBug270209_Block02() throws JavaModelException {
-	this.formatterPrefs.comment_condensed_block_comment = true;
+	this.formatterPrefs.comment_new_lines_at_block_boundaries = false;
 	String source = 
 		"public interface X02 {\n" + 
 		"\n" + 
@@ -5602,7 +5602,7 @@ public void testBug270209_Block02() throws JavaModelException {
 	);
 }
 public void testBug270209_Block03() throws JavaModelException {
-	this.formatterPrefs.comment_condensed_block_comment = true;
+	this.formatterPrefs.comment_new_lines_at_block_boundaries = false;
 	String source = 
 		"public interface X03 {\n" + 
 		"\n" + 
@@ -5624,7 +5624,7 @@ public void testBug270209_Block03() throws JavaModelException {
 	);
 }
 public void testBug270209_Javadoc01() throws JavaModelException {
-	this.formatterPrefs.comment_condensed_javadoc_comment = true;
+	this.formatterPrefs.comment_new_lines_at_javadoc_boundaries = false;
 	String source = 
 		"public interface X01 {\n" + 
 		"\n" + 
@@ -5642,7 +5642,7 @@ public void testBug270209_Javadoc01() throws JavaModelException {
 	);
 }
 public void testBug270209_Javadoc02() throws JavaModelException {
-	this.formatterPrefs.comment_condensed_javadoc_comment = true;
+	this.formatterPrefs.comment_new_lines_at_javadoc_boundaries = false;
 	String source = 
 		"public interface X02 {\n" + 
 		"\n" + 
@@ -5662,7 +5662,7 @@ public void testBug270209_Javadoc02() throws JavaModelException {
 	);
 }
 public void testBug270209_Javadoc03() throws JavaModelException {
-	this.formatterPrefs.comment_condensed_javadoc_comment = true;
+	this.formatterPrefs.comment_new_lines_at_javadoc_boundaries = false;
 	String source = 
 		"public interface X03 {\n" + 
 		"\n" + 
