@@ -68,8 +68,8 @@ public void test002() {
 			"class X {\n" +
 			"	String s2 = \"test1\"; //$NON-NLS-1$\n" +
 			"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" +
-			"	\n" +
-			"	@SuppressWarnings(\"nls\")\n" +
+			"\n" +
+			"\n" +
 			"	void foo() {\n" +
 			"		String s4 = null;\n" +
 			"		String s5 = \"test3\";\n" +
@@ -112,8 +112,8 @@ public void test003() {
 			"class X {\n" +
 			"	String s2 = \"test1\"; //$NON-NLS-1$\n" +
 			"	String s3 = \"test2\"; //$NON-NLS-1$//$NON-NLS-2$\n" +
-			"	\n" +
-			"	@SuppressWarnings(\"nls\")\n" +
+			"\n" +
+			"\n" +
 			"	void foo() {\n" +
 			"		String s4 = null;\n" +
 			"		String s5 = null;//$NON-NLS-1$\n" +
@@ -184,7 +184,7 @@ public void test005() {
 		new String[] {
 			"X.java",
 			"class X {\n" +
-			"	@SuppressWarnings(\"nls\")\n" +
+			"\n" +
 			"	void foo() {\n" +
 			"		String s6 = \"SUCCESS\";\n" +
 			"		System.out.println(s6);\n" +
