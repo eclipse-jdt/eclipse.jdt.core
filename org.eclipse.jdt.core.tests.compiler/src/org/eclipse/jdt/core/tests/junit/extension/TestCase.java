@@ -664,7 +664,6 @@ private static File createMemLogFile() {
 		if (ALL_TESTS_LOG) stream.print("\tTest");
 		stream.print("\tUsed\tTotal\tMax");
 		stream.println();
-		stream.close();
 		System.out.println("Log file " + logFile.getPath() + " opened.");
 		return logFile;
 	} catch (FileNotFoundException e) {
