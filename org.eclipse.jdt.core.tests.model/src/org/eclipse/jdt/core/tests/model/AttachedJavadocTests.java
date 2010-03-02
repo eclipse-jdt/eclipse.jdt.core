@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -546,5 +546,38 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull(field);
 		String javadoc = field.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 		assertNull("Should have no javadoc", javadoc); //$NON-NLS-1$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304316
+	public void test025() throws JavaModelException {
+		IClasspathEntry[] savedEntries = null;
+		try {
+			IClasspathEntry[] entries = this.project.getRawClasspath();
+			savedEntries = (IClasspathEntry[]) entries.clone();
+			final String path = "http:/java.sun.com/javaee/5/docs/api/"; //$NON-NLS-1$
+			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, path);
+			for (int i = 0, max = entries.length; i < max; i++) {
+				final IClasspathEntry entry = entries[i];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY
+						&& entry.getContentKind() == IPackageFragmentRoot.K_BINARY
+						&& "/AttachedJavadocProject/lib/test6.jar".equals(entry.getPath().toString())) { //$NON-NLS-1$
+					entries[i] = JavaCore.newLibraryEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), new IClasspathAttribute[] { attribute }, entry.isExported());
+				}
+			}
+			this.project.setRawClasspath(entries, null);
+			IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
+			assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+			IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
+			assertNotNull(classFile);
+			IType type = classFile.getType();
+			IField field = type.getField("f"); //$NON-NLS-1$
+			assertNotNull(field);
+			String javadoc = field.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+			assertNull("Should not have a javadoc", javadoc); //$NON-NLS-1$
+		} finally {
+			// restore classpath
+			if (savedEntries != null) {
+				this.project.setRawClasspath(savedEntries, null);
+			}
+		}
 	}
 }
