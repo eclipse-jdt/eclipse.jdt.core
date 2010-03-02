@@ -4587,6 +4587,33 @@ public final class JavaCore extends Plugin {
 			false, // no access rules to combine
 			extraAttributes);
 	}
+	
+	/**
+	 * Returns an array of classpath entries that are referenced directly or indirectly 
+	 * by a given classpath entry. For the entry kind {@link IClasspathEntry#CPE_LIBRARY}, 
+	 * the method returns the libraries that are included in the Class-Path section of 
+	 * the MANIFEST.MF file. If a referenced JAR file has further references to other library 
+	 * entries, they are processed recursively and added to the list. For entry kinds other 
+	 * than {@link IClasspathEntry#CPE_LIBRARY}, this method returns an empty array.
+	 * <p> 
+	 * If a referenced entry has already been stored 
+	 * in the given project's .classpath, the stored attributes are populated in the corresponding
+	 * referenced entry. For more details on storing referenced entries see
+	 * see {@link IJavaProject#setRawClasspath(IClasspathEntry[], IClasspathEntry[], IPath, 
+	 * IProgressMonitor)}. 
+	 * </p>
+	 * 
+	 * @param libraryEntry the library entry whose referenced entries are sought 
+	 * @param project project where the persisted referenced entries to be retrieved from
+	 * @return an array of classpath entries that are referenced directly or indirectly by the given entry. 
+	 * 			If not applicable, returns an empty array.
+	 * @since 3.6
+	 */
+	public static IClasspathEntry[] getReferencedClasspathEntries(IClasspathEntry libraryEntry, IJavaProject project) {
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		return manager.getReferencedClasspathEntries(libraryEntry, project);
+	}
+	
 	/**
 	 * Removed the given classpath variable. Does nothing if no value was
 	 * set for this classpath variable.
