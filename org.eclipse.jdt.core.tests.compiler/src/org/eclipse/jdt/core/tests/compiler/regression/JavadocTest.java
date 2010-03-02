@@ -458,7 +458,6 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			boolean shouldFlushOutputDirectory) {
 		String testName = null;
 		Process compileProcess = null;
-		Process execProcess = null;
 		try {
 			// Init test name
 			testName = testName();
@@ -589,7 +588,6 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		}
 		catch (InterruptedException e1) {
 			if (compileProcess != null) compileProcess.destroy();
-			if (execProcess != null) execProcess.destroy();
 			System.out.println(testName+": Sun javadoc compilation was aborted!");
 			javacFullLog.println("JAVAC_WARNING: Sun javadoc compilation was aborted!");
 			e1.printStackTrace(javacFullLog);
