@@ -77,6 +77,7 @@ public class ClasspathEntry implements IClasspathEntry {
 
 	public static final String TAG_CLASSPATH = "classpath"; //$NON-NLS-1$
 	public static final String TAG_CLASSPATHENTRY = "classpathentry"; //$NON-NLS-1$
+	public static final String TAG_REFERENCED_ENTRY = "referencedentry"; //$NON-NLS-1$
 	public static final String TAG_OUTPUT = "output"; //$NON-NLS-1$
 	public static final String TAG_KIND = "kind"; //$NON-NLS-1$
 	public static final String TAG_PATH = "path"; //$NON-NLS-1$
@@ -141,7 +142,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	private IPath[] exclusionPatterns;
 	private char[][] fullExclusionPatternChars;
 	private final static char[][] UNINIT_PATTERNS = new char[][] { "Non-initialized yet".toCharArray() }; //$NON-NLS-1$
-	private final static ClasspathEntry[] NO_ENTRIES = new ClasspathEntry[0];
+	public final static ClasspathEntry[] NO_ENTRIES = new ClasspathEntry[0];
 	private final static IPath[] NO_PATHS = new IPath[0];
 	private final static IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 
@@ -197,6 +198,11 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * a non-<code>null</code> value.
 	 */
 	public IPath sourceAttachmentRootPath;
+	
+	/**
+	 * See {@link IClasspathEntry#getReferencingEntry()}
+	 */
+	public IClasspathEntry referencingEntry;
 
 	/**
 	 * Specific output location (for this source entry)
@@ -215,11 +221,40 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public boolean isExported;
 
-	/*
+	/**
 	 * The extra attributes
 	 */
-	IClasspathAttribute[] extraAttributes;
+	public IClasspathAttribute[] extraAttributes;
 
+	public ClasspathEntry(
+			int contentKind,
+			int entryKind,
+			IPath path,
+			IPath[] inclusionPatterns,
+			IPath[] exclusionPatterns,
+			IPath sourceAttachmentPath,
+			IPath sourceAttachmentRootPath,
+			IPath specificOutputLocation,
+			boolean isExported,
+			IAccessRule[] accessRules,
+			boolean combineAccessRules,
+			IClasspathAttribute[] extraAttributes) {
+
+		this(	contentKind, 
+				entryKind, 
+				path, 
+				inclusionPatterns, 
+				exclusionPatterns, 
+				sourceAttachmentPath, 
+				sourceAttachmentRootPath, 
+				specificOutputLocation,
+				null,
+				isExported,
+				accessRules,
+				combineAccessRules,
+				extraAttributes);
+	}
+	
 	/**
 	 * Creates a class path entry of the specified kind with the given path.
 	 */
@@ -232,6 +267,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		IPath sourceAttachmentPath,
 		IPath sourceAttachmentRootPath,
 		IPath specificOutputLocation,
+		IClasspathEntry referencingEntry,
 		boolean isExported,
 		IAccessRule[] accessRules,
 		boolean combineAccessRules,
@@ -242,7 +278,8 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.path = path;
 		this.inclusionPatterns = inclusionPatterns;
 		this.exclusionPatterns = exclusionPatterns;
-
+		this.referencingEntry = referencingEntry;
+		
 		int length;
 		if (accessRules != null && (length = accessRules.length) > 0) {
 			AccessRule[] rules = new AccessRule[length];
@@ -489,7 +526,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	/**
 	 * Returns the XML encoding of the class path.
 	 */
-	public void elementEncode(XMLWriter writer, IPath projectPath, boolean indent, boolean newLine, Map unknownElements) {
+	public void elementEncode(XMLWriter writer, IPath projectPath, boolean indent, boolean newLine, Map unknownElements, boolean isReferencedEntry) {
 		HashMap parameters = new HashMap();
 
 		parameters.put(TAG_KIND, ClasspathEntry.kindToString(this.entryKind));
@@ -553,12 +590,15 @@ public class ClasspathEntry implements IClasspathEntry {
 		boolean hasRestrictions = getAccessRuleSet() != null; // access rule set is null if no access rules
 		ArrayList unknownChildren = unknownXmlElements != null ? unknownXmlElements.children : null;
 		boolean hasUnknownChildren = unknownChildren != null;
+		
+		/* close tag if no extra attributes, no restriction and no unknown children */
+		String tagName = isReferencedEntry ? TAG_REFERENCED_ENTRY : TAG_CLASSPATHENTRY; 
 		writer.printTag(
-			TAG_CLASSPATHENTRY,
+			tagName,
 			parameters,
 			indent,
 			newLine,
-			!hasExtraAttributes && !hasRestrictions && !hasUnknownChildren/*close tag if no extra attributes, no restriction and no unknown children*/);
+			!hasExtraAttributes && !hasRestrictions && !hasUnknownChildren);
 
 		if (hasExtraAttributes)
 			encodeExtraAttributes(writer, indent, newLine);
@@ -570,7 +610,7 @@ public class ClasspathEntry implements IClasspathEntry {
 			encodeUnknownChildren(writer, indent, newLine, unknownChildren);
 
 		if (hasExtraAttributes || hasRestrictions || hasUnknownChildren)
-			writer.endTag(TAG_CLASSPATHENTRY, indent, true/*insert new line*/);
+			writer.endTag(tagName, indent, true/*insert new line*/);
 	}
 
 	void encodeExtraAttributes(XMLWriter writer, boolean indent, boolean newLine) {
@@ -1178,6 +1218,11 @@ public class ClasspathEntry implements IClasspathEntry {
 		return this.sourceAttachmentRootPath;
 	}
 
+
+	public IClasspathEntry getReferencingEntry() {
+		return this.referencingEntry;
+	}
+
 	/**
 	 * Returns the hash code for this classpath entry
 	 */
@@ -1380,6 +1425,7 @@ public class ClasspathEntry implements IClasspathEntry {
 							getSourceAttachmentPath(),
 							getSourceAttachmentRootPath(),
 							getOutputLocation(),
+							this.getReferencingEntry(),
 							this.isExported,
 							getAccessRules(),
 							this.combineAccessRules,
@@ -1397,19 +1443,21 @@ public class ClasspathEntry implements IClasspathEntry {
 			return NO_ENTRIES;
 		ClasspathEntry[] result = new ClasspathEntry[length];
 		for (int i = 0; i < length; i++) {
+			// Chained(referenced) libraries can have their own attachment path. Hence, set them to null
 			result[i] = new ClasspathEntry(
-									getContentKind(),
-									getEntryKind(),
-									paths[i],
-									this.inclusionPatterns,
-									this.exclusionPatterns,
-									getSourceAttachmentPath(),
-									getSourceAttachmentRootPath(),
-									getOutputLocation(),
-									this.isExported,
-									getAccessRules(),
-									this.combineAccessRules,
-									this.extraAttributes);
+					getContentKind(),
+					getEntryKind(),
+					paths[i],
+					this.inclusionPatterns,
+					this.exclusionPatterns,
+					null,
+					null,
+					getOutputLocation(),
+					this,
+					this.isExported,
+					getAccessRules(),
+					this.combineAccessRules,
+					NO_EXTRA_ATTRIBUTES);
 		}
 		return result;
 	}

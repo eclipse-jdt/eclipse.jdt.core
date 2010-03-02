@@ -156,10 +156,124 @@ public class X01 {
 will be untouched by the formatter if both options are activated.
 See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=251133">251133</a> for more details.
 </li>
+<li>New API to fix bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=252431">252431</a>. See the bug for details.
+<pre>
+org.eclipse.jdt.core.IClasspathEntry
+	/**
+	 * Returns the classpath entry that is making a reference to this classpath entry. For entry kinds 
+	 * {@link #CPE_LIBRARY}, the return value is the entry that is representing the JAR that includes 
+	 * <code>this</code> in the MANIFEST.MF file's Class-Path section. For entry kinds other than 
+	 * {@link #CPE_LIBRARY}, this returns <code>null</code>. For those entries that are on the raw classpath already, 
+	 * this returns <code>null</code>.
+	 *
+	 * It is possible that multiple library entries refer to the same entry
+	 * via the MANIFEST.MF file. In those cases, this method returns the first classpath entry 
+	 * that appears in the raw classpath. However, this does not mean that the other referencing 
+	 * entries do not relate to their referenced entries. 
+	 * See {@link JavaCore#getReferencedClasspathEntries(IClasspathEntry, IJavaProject)} for 
+	 * more details.
+	 * 
+	 * @return the classpath entry that is referencing this entry or <code>null</code> if 
+	 * 		not applicable.
+	 * @since 3.6
+	 */
+	IClasspathEntry getReferencingEntry();
+
+
+org.eclipse.jdt.core.IJavaProject
+	/**
+	 * Works similar to {@link #setRawClasspath(IClasspathEntry[], IPath, IProgressMonitor)} and 
+	 * additionally allows persisting the given array of referenced entries for this project.
+	 * The referenced entries and their attributes are stored in the .classpath file of this 
+	 * project. For details on referenced entries, see 
+	 * {@link JavaCore#getReferencedClasspathEntries(IClasspathEntry, IJavaProject)}
+	 * and {@link IClasspathEntry#getReferencingEntry()}.
+	 * 
+	 * Since the referenced entries are stored in the .classpath file, clients can store additional 
+	 * information that belong to these entries and retrieve them across sessions, though the referenced
+	 * entries themselves may not be present in the raw classpath. By passing a <code>null</code>
+	 * referencedEntries, clients can choose not to modify the already persisted referenced entries,
+	 * which is fully equivalent to {@link #setRawClasspath(IClasspathEntry[], IPath, IProgressMonitor)}.
+	 * If an empty array is passed as referencedEntries, the already persisted referenced entries, 
+	 * if any, will be cleared. 
+	 * 
+	 * If there are duplicates of a referenced entry or if any of the <code>referencedEntries</code> 
+	 * is already present in the raw classpath(<code>entries</code>) those referenced entries will 
+	 * be excluded and not be persisted.
+	 *
+	 * @param entries a list of classpath entries
+	 * @param referencedEntries the list of referenced classpath entries to be persisted
+	 * @param outputLocation the default output location
+	 * @param monitor the given progress monitor
+	 * @exception JavaModelException if the classpath could not be set. Reasons include:
+	 *  	This Java element does not exist (ELEMENT_DOES_NOT_EXIST)
+	 *  	The classpath is being modified during resource change event notification (CORE_EXCEPTION)
+	 *  	The classpath failed the validation check as defined by {@link JavaConventions#validateClasspath(IJavaProject, IClasspathEntry[], IPath)}
+	 * @see IClasspathEntry
+	 * @see #getReferencedClasspathEntries()
+	 * @since 3.6
+	 */
+	void setRawClasspath(IClasspathEntry[] entries, IClasspathEntry[] referencedEntries, IPath outputLocation,
+			IProgressMonitor monitor) throws JavaModelException;
+
+	/**
+	 * Returns the list of referenced classpath entries stored in the .classpath file of <code>this</code> 
+	 * java project. Clients can store the referenced classpath entries using 
+	 * {@link #setRawClasspath(IClasspathEntry[], IClasspathEntry[], IPath, IProgressMonitor)}
+	 * If the client has not stored any referenced entries for this project, an empty array is returned.
+	 *
+	 * @throws JavaModelException
+	 * @return an array of referenced classpath entries stored for this java project or an empty array if none
+	 * 			stored earlier.
+	 * @since 3.6
+	 */
+	IClasspathEntry[] getReferencedClasspathEntries() throws JavaModelException;
+	
+
+org.eclipse.jdt.core.IPackageFragmentRoot
+	/**
+	 * Returns the first resolved classpath entry that corresponds to this package fragment root.
+	 * A resolved classpath entry is said to correspond to a root if the path of the resolved
+	 * entry is equal to the root's path.
+	 * 
+	 * @return the first resolved classpath entry that corresponds to this package fragment root
+	 * @throws JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource. 
+	 * @since 3.6
+	 */
+	IClasspathEntry getResolvedClasspathEntry() throws JavaModelException;
+	
+
+org.eclipse.jdt.core.JavaCore
+	/**
+	 * Returns an array of classpath entries that are referenced directly or indirectly 
+	 * by a given classpath entry. For the entry kind {@link IClasspathEntry#CPE_LIBRARY}, 
+	 * the method returns the libraries that are included in the Class-Path section of 
+	 * the MANIFEST.MF file. If a referenced JAR file has further references to other library 
+	 * entries, they are processed recursively and added to the list. For entry kinds other 
+	 * than {@link IClasspathEntry#CPE_LIBRARY}, this method returns an empty array.
+	 *
+	 * If a referenced entry has already been stored 
+	 * in the given project's .classpath, the stored attributes are populated in the corresponding
+	 * referenced entry. For more details on storing referenced entries see
+	 * see {@link IJavaProject#setRawClasspath(IClasspathEntry[], IClasspathEntry[], IPath, 
+	 * IProgressMonitor)}. 
+	 * 
+	 * @param libraryEntry the library entry whose referenced entries are sought 
+	 * @param project project where the persisted referenced entries to be retrieved from
+	 * @return an array of classpath entries that are referenced directly or indirectly by the given entry. 
+	 * 			If not applicable, returns an empty array.
+	 * @since 3.6
+	 */
+	public static IClasspathEntry[] getReferencedClasspathEntries(IClasspathEntry libraryEntry, IJavaProject project);	
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=251133">251133</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=252431">252431</a>
+New API is needed to better identify referenced jars in the Class-Path: entry
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=251133">251133</a>
 [formatter] Automatic formatting single line comments is incoherent among tools
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=248897">248897</a>
 [1.5][compiler] Wrong warning 'The local variable 'var' is never read'.
