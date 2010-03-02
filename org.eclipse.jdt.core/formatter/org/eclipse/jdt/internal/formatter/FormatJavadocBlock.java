@@ -358,7 +358,11 @@ protected void toString(StringBuffer buffer) {
 	boolean inlined = (this.flags & INLINED) != 0;
 	if (inlined) buffer.append("	{"); //$NON-NLS-1$
 	buffer.append('@');
-	buffer.append(TAG_NAMES[this.tagValue]);
+	if (this.tagValue == TAG_OTHERS_VALUE) {
+		buffer.append("others_tag"); //$NON-NLS-1$
+	} else {
+		buffer.append(TAG_NAMES[this.tagValue]);
+	}
 	super.toString(buffer);
 	if (this.reference == null) {
 		buffer.append('\n');

@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.formatter.align.Alignment;
 
 /**
@@ -115,6 +116,9 @@ public class DefaultCodeFormatterOptions {
 	public boolean comment_insert_empty_line_before_root_tags;
 	public boolean comment_insert_new_line_for_parameter;
 	public int comment_line_length;
+
+	public char[] disabling_tag;
+	public char[] enabling_tag;
 
 	public boolean indent_statements_compare_to_block;
 	public boolean indent_statements_compare_to_body;
@@ -612,6 +616,8 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, Integer.toString(this.tab_size));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_USE_TABS_ONLY_FOR_LEADING_INDENTATIONS, this.use_tabs_only_for_leading_indentations ?  DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_BINARY_OPERATOR, this.wrap_before_binary_operator ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, this.disabling_tag == null ? Util.EMPTY_STRING : new String(this.disabling_tag));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, this.enabling_tag == null ? Util.EMPTY_STRING : new String(this.enabling_tag));
 		return options;
 	}
 
@@ -1948,6 +1954,28 @@ public class DefaultCodeFormatterOptions {
 		final Object wrapBeforeBinaryOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_BINARY_OPERATOR);
 		if (wrapBeforeBinaryOperatorOption != null) {
 			this.wrap_before_binary_operator = DefaultCodeFormatterConstants.TRUE.equals(wrapBeforeBinaryOperatorOption);
+		}
+		final Object disableTagOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG);
+		if (disableTagOption != null) {
+			if (disableTagOption instanceof String) {
+				String stringValue = (String) disableTagOption;
+				if (stringValue.trim().length() == 0) {
+					this.disabling_tag = null;
+				} else {
+					this.disabling_tag = stringValue.toCharArray();
+				}
+			}
+		}
+		final Object enableTagOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG);
+		if (enableTagOption != null) {
+			if (enableTagOption instanceof String) {
+				String stringValue = (String) enableTagOption;
+				if (stringValue.trim().length() == 0) {
+					this.enabling_tag = null;
+				} else {
+					this.enabling_tag = stringValue.toCharArray();
+				}
+			}
 		}
 	}
 

@@ -856,6 +856,143 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_CONTINUATION_INDENTATION_FOR_ARRAY_INITIALIZER = JavaCore.PLUGIN_ID + ".formatter.continuation_indentation_for_array_initializer";	//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to define the tag to put in a comment to disable the formatting.
+	 * See the {@link #FORMATTER_ENABLING_TAG} option to re-enable it.
+	 *     - option id:         "org.eclipse.jdt.core.formatter.disabling_tag"
+	 *     - default:           <code>null</code>
+	 * </pre>
+	 * 
+	 * <p>
+	 * Note that:
+	 * <ol>
+	 * <li>As soon as the formatter encounters the defined disabling tag, it stops to
+	 * format the code from the beginning of the comment including this tag. If it
+	 * was already disabled, the tag has no special effect.
+	 * <p>
+	 * For example, the second defined enabling tag &quot;<b>disable-formatter</b>&quot;
+	 * in the following snippet is not necessary as the formatter was already disabled
+	 * since the first one:
+	 * <pre>
+	 * class X {
+	 * // disable-formatter
+	 * void foo1() {}
+	 * // disable-formatter
+	 * void foo2() {}
+	 * void bar1() {}
+	 * void bar2() {}
+	 * }
+	 * </pre>
+	 * </li>
+	 * <li>If no enabling tag is found by the formatter after the disabling tag, then
+	 * the end of the snippet won't be formatted.<br>
+	 * For example, when a disabling tag is put at the beginning of the code, then
+	 * the entire content of a compilation unit is not formatted:
+	 * <pre>
+	 * // disable-formatter
+	 * class X {
+	 * void foo1() {}
+	 * void foo2() {}
+	 * void bar1() {}
+	 * void bar2() {}
+	 * }
+	 * </pre>
+	 * </li>
+	 * <li>If a mix of disabling and enabling tags is done in the same comment, then
+	 * the formatter will only take into account the last encountered tag in the
+	 * comment.
+	 * <p>For example, in the following snippet, the formatter will be disabled after
+	 * the comment:</p>
+	 * <pre>
+	 * class X {
+	 * &#47;&#42;
+	 * &nbsp;&#42; This is a comment with a mix of disabling and enabling tags:
+	 * &nbsp;&#42;  - <b>disable-formatter</b>
+	 * &nbsp;&#42;  - <b>enable-formatter</b>
+	 * &nbsp;&#42;  - <b>disable-formatter</b>
+	 * &nbsp;&#42; The formatter will stop to format from the beginning of this comment...
+	 * &nbsp;&#42;&#47;
+	 * void foo() {}
+	 * void bar() {}
+	 * }
+	 * </pre>
+	 * </li>
+	 * <li>The tag cannot include newline characters but it can have white spaces.<br>
+	 * E.g. "<b>format: off</b>" is a valid disabling tag</li>
+	 * </ol>
+	 * </p>
+	 * @since 3.6
+	 */
+	public static final String FORMATTER_DISABLING_TAG = JavaCore.PLUGIN_ID + ".formatter.disabling_tag";	//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to define the tag to put in a comment to re-enable the
+	 * formatting after it has been disabled (see {@link #FORMATTER_DISABLING_TAG})
+	 *     - option id:         "org.eclipse.jdt.core.formatter.enabling_tag"
+	 *     - default:           <code>null</code>
+	 * </pre>
+	 * 
+	 * <p>
+	 * Note that:
+	 * <ol>
+	 * <li>As soon as the formatter encounters the defined enabling tag, it re-starts
+	 * to format the code just after the comment including this tag. If it was already
+	 * active, i.e. already re-enabled or never disabled, the tag has no special effect.
+	 * <p>
+	 * For example, the defined enabling tag &quot;<b>enable-formatter</b>&quot;
+	 * in the following snippet is not necessary as the formatter has never been
+	 * disabled:
+	 * <pre>
+	 * class X {
+	 * void foo1() {}
+	 * void foo2() {}
+	 * // enable-formatter
+	 * void bar1() {}
+	 * void bar2() {}
+	 * }
+	 * </pre>
+	 * Or, in the following other snippet, the second enabling tag is not necessary as
+	 * the formatting will have been re-enabled by the first one:
+	 * <pre>
+	 * class X {
+	 * // disable-formatter
+	 * void foo1() {}
+	 * void foo2() {}
+	 * // enable-formatter
+	 * void bar1() {}
+	 * // enable-formatter
+	 * void bar2() {}
+	 * }
+	 * </pre>
+	 * </li>
+	 * <li>If a mix of disabling and enabling tags is done in the same comment, then
+	 * the formatter will only take into account the last encountered tag in the
+	 * comment.
+	 * <p>For example, in the following snippet, the formatter will be re-enabled after
+	 * the comment:</p>
+	 * <pre>
+	 * // disable-formatter
+	 * class X {
+	 * &#47;&#42;
+	 * &nbsp;&#42; This is a comment with a mix of disabling and enabling tags:
+	 * &nbsp;&#42;  - <b>enable-formatter</b>
+	 * &nbsp;&#42;  - <b>disable-formatter</b>
+	 * &nbsp;&#42;  - <b>enable-formatter</b>
+	 * &nbsp;&#42; The formatter will restart to format after this comment...
+	 * &nbsp;&#42;&#47;
+	 * void foo() {}
+	 * void bar() {}
+	 * }
+	 * </pre>
+	 * <li>The tag cannot include newline characters but it can have white spaces.<br>
+	 * E.g. "<b>format: on</b>" is a valid enabling tag</li>
+	 * </li>
+	 * </ol>
+	 * </p>
+	 * @since 3.6
+	 */
+	public static final String FORMATTER_ENABLING_TAG = JavaCore.PLUGIN_ID + ".formatter.enabling_tag";	//$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to indent body declarations compare to its enclosing annotation declaration header
 	 *     - option id:         "org.eclipse.jdt.core.formatter.indent_body_declarations_compare_to_annotation_declaration_header"
 	 *     - possible values:   { TRUE, FALSE }

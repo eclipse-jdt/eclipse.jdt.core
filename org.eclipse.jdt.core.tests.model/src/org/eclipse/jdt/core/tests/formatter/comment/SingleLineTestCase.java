@@ -48,7 +48,7 @@ public class SingleLineTestCase extends CommentTestCase {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "5"); //$NON-NLS-1$
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT, DefaultCodeFormatterConstants.FALSE);
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, DefaultCodeFormatterConstants.FALSE);
-		String expected = PREFIX + "test" + DELIMITER + PREFIX + "test" + DELIMITER + PREFIX + DELIMITER + PREFIX + "test";
+		String expected = PREFIX + "test" + DELIMITER + PREFIX + "test" + DELIMITER + "//" + DELIMITER + PREFIX + "test";
 		assertEquals(expected, testFormat("//test\t\ttest" + DELIMITER + PREFIX + DELIMITER + "//\t\ttest")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 	}
 
@@ -192,10 +192,10 @@ public class SingleLineTestCase extends CommentTestCase {
 	public void testMultipleComments2() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "12"); //$NON-NLS-1$
 		String expected = "// test test" + DELIMITER +
-			"// test" + DELIMITER +
-			"// " + DELIMITER +
-			"// test test" + DELIMITER +
-			"// test test";
+				"// test" + DELIMITER +
+				"//" + DELIMITER +
+				"// test test" + DELIMITER +
+				"// test test";
 		assertEquals(expected, testFormat("//test test\ttest" + DELIMITER + PREFIX + DELIMITER + PREFIX + "test test test test")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 	}
 

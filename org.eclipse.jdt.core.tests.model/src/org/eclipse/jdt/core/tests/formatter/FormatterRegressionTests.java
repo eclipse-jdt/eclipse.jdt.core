@@ -220,17 +220,17 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		assertSourceEquals("Different number of length", Util.convertToIndependantLineDelimiter(expectedContents), actualContents);
 	}
 
+	void assertLineEquals(String actualContents, String originalSource, String expectedContents) {
+		String outputSource = expectedContents == null ? originalSource : expectedContents;
+		assertLineEquals(actualContents, originalSource, outputSource, false /* do not check null */);
+	}
+
 	DefaultCodeFormatter codeFormatter() {
 		if (this.formatterOptions == null) {
 			this.formatterOptions = JAVA_PROJECT.getOptions(true);
 		}
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.formatterPrefs, this.formatterOptions);
 		return codeFormatter;
-	}
-	
-	void assertLineEquals(String actualContents, String originalSource, String expectedContents) {
-		String outputSource = expectedContents == null ? originalSource : expectedContents;
-		assertLineEquals(actualContents, originalSource, outputSource, false /* do not check null */);
 	}
 
 	void formatSource(String source) {
@@ -279,11 +279,11 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			}
 			assertLineEquals(result, newSource, formattedOutput);
 		} else {
-			formatSource(source, formattedOutput, kind, indentationLevel, false, 0, -1, null, repeat);
+			formatSource(source, formattedOutput, kind, indentationLevel, 0, -1, null, repeat);
 		}
 	}
 	
-	void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean checkNull, int offset, int length, String lineSeparator, boolean repeat) {
+	void formatSource(String source, String formattedOutput, int kind, int indentationLevel, int offset, int length, String lineSeparator, boolean repeat) {
 		DefaultCodeFormatter codeFormatter = codeFormatter();
 		String result;
 		if (length == -1) {
@@ -291,7 +291,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		} else {
 			result = runFormatter(codeFormatter, source, kind, indentationLevel, offset, length, lineSeparator, repeat);
 		}
-		assertLineEquals(result, source, formattedOutput);
+		if (lineSeparator == null) {
+			assertLineEquals(result, source, formattedOutput);
+		} else {
+			// Do not convert line delimiter while comparing result when a specific one is specified
+			assertNotNull("Error(s) occured while formatting", result);
+			String outputSource = formattedOutput == null ? source : formattedOutput;
+			assertSourceEquals("Different number of length", outputSource, result, false/*do not convert line delimiter*/);
+		}
 	}
 
 

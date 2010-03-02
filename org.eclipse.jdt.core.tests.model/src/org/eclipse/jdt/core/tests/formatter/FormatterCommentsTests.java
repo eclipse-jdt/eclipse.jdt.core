@@ -258,7 +258,7 @@ void formatUnit(String packageName, String unitName, int kind, int indentationLe
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getCompilationUnit(JAVA_PROJECT.getElementName() , "", "test."+packageName, unitName); //$NON-NLS-1$ //$NON-NLS-2$
 	String outputSource = getOutputSource(this.workingCopies[0]);
-	formatSource(this.workingCopies[0].getSource(), outputSource, kind, indentationLevel, checkNull, offset, length, lineSeparator, true);
+	formatSource(this.workingCopies[0].getSource(), outputSource, kind, indentationLevel, offset, length, lineSeparator, true);
 }
 
 /**

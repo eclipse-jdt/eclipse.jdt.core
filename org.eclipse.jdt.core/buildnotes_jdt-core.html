@@ -48,9 +48,168 @@ Eclipse SDK 3.6M6 - %date% - 3.6.0 M6
 <br>Project org.eclipse.jdt.core v_A38
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A38">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>
+Added two new preferences to allow to disable the formatter in a section of the code.
+These two preference define respectively the tag which disables the formatting
+and the tag which re-enable it.
+<p>
+These new preferences are controlled with the options:</p>
+<code>DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG</code>
+<code>DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG</code>
+<pre>
+/**
+ * FORMATTER / Option to define the tag to put in a comment to disable the formatting.
+ * See the {@link #FORMATTER_ENABLING_TAG} option to re-enable it.
+ *     - option id:         "org.eclipse.jdt.core.formatter.disabling_tag"
+ *     - default:           <code>null</code>
+ * 
+ * Note that:
+ * 
+ * 1. As soon as the formatter encounters the defined disabling tag, it stops to
+ *    format the code from the beginning of the comment including this tag. If it
+ *    was already disabled, the tag has no special effect.
+ *    For example, the second defined enabling tag &quot;<b>disable-formatter</b>&quot;
+ *    in the following snippet is not necessary as the formatter was already disabled
+ *    since the first one:
+ *     class X {
+ *     // disable-formatter
+ *     void foo1() {}
+ *     // disable-formatter
+ *     void foo2() {}
+ *     void bar1() {}
+ *     void bar2() {}
+ *     }
+ *
+ * 2. If no enabling tag is found by the formatter after the disabling tag, then
+ *    the end of the snippet won't be formatted.
+ *    For example, when a disabling tag is put at the beginning of the code, then
+ *    the entire content of a compilation unit is not formatted:
+ *     // disable-formatter
+ *     class X {
+ *     void foo1() {}
+ *     void foo2() {}
+ *     void bar1() {}
+ *     void bar2() {}
+ *     }
+ * 
+ * 3. If a mix of disabling and enabling tags is done in the same comment, then
+ *    the formatter will only take into account the last encountered tag in the
+ *    comment.
+ *    For example, in the following snippet, the formatter will be disabled after
+ *    the comment:
+ *     class X {
+ *     &#47;&#42;
+ *     &nbsp;&#42; This is a comment with a mix of disabling and enabling tags:
+ *     &nbsp;&#42;  - <b>disable-formatter</b>
+ *     &nbsp;&#42;  - <b>enable-formatter</b>
+ *     &nbsp;&#42;  - <b>disable-formatter</b>
+ *     &nbsp;&#42; The formatter will stop to format from the beginning of this comment...
+ *     &nbsp;&#42;&#47;
+ *     void foo() {}
+ *     void bar() {}
+ *     }
+ * 
+ * 4. The tag cannot include newline characters but it can have white spaces.
+ *    E.g. "<b>format: off</b>" is a valid disabling tag
+ * 
+ * @since 3.6
+ */
+
+/**
+ * FORMATTER / Option to define the tag to put in a comment to re-enable the
+ * formatting after it has been disabled (see {@link #FORMATTER_DISABLING_TAG})
+ *     - option id:         "org.eclipse.jdt.core.formatter.enabling_tag"
+ *     - default:           <code>null</code>
+ * 
+ * Note that:
+ * 
+ * 1. As soon as the formatter encounters the defined enabling tag, it re-starts
+ *    to format the code just after the comment including this tag. If it was already
+ *    active, i.e. already re-enabled or never disabled, the tag has no special effect.
+ *    For example, the defined enabling tag &quot;<b>enable-formatter</b>&quot;
+ *    in the following snippet is not necessary as the formatter has never been
+ *    disabled:
+ *     class X {
+ *     void foo1() {}
+ *     void foo2() {}
+ *     // enable-formatter
+ *     void bar1() {}
+ *     void bar2() {}
+ *     }
+ * 
+ *    Or, in the following other snippet, the second enabling tag is not necessary as
+ *    the formatting will have been re-enabled by the first one:
+ *     class X {
+ *     // disable-formatter
+ *     void foo1() {}
+ *     void foo2() {}
+ *     // enable-formatter
+ *     void bar1() {}
+ *     // enable-formatter
+ *     void bar2() {}
+ *     }
+ * 
+ * 2. If a mix of disabling and enabling tags is done in the same comment, then
+ *    the formatter will only take into account the last encountered tag in the
+ *    comment.
+ *    For example, in the following snippet, the formatter will be re-enabled after
+ *    the comment:
+ *     // disable-formatter
+ *     class X {
+ *     &#47;&#42;
+ *     &nbsp;&#42; This is a comment with a mix of disabling and enabling tags:
+ *     &nbsp;&#42;  - <b>enable-formatter</b>
+ *     &nbsp;&#42;  - <b>disable-formatter</b>
+ *     &nbsp;&#42;  - <b>enable-formatter</b>
+ *     &nbsp;&#42; The formatter will restart to format after this comment...
+ *     &nbsp;&#42;&#47;
+ *     void foo() {}
+ *     void bar() {}
+ *     }
+ * 
+ * 3. The tag cannot include newline characters but it can have white spaces.
+ *    E.g. "<b>format: on</b>" is a valid enabling tag
+ * 
+ * @since 3.6
+ */
+</pre>
+<p>For example, the following snippet:</p>
+<pre>
+public class Test {
+/* disable-formatter */
+void     foo(    )      {	
+				//      unformatted       area  	  
+}
+/* enable-formatter */
+void     bar(    )      {	
+				//      formatted       area  	  
+}
+}
+</pre>
+formatted with disabling tags = &quot;disable-formatter&quot; and enabling tags
+= &quot;enable-formatter&quot; produces the following output:
+<pre>
+public class Test {
+
+/* disable-formatter *	
+void     foo(    )      {
+				//      unformatted       area  	  
+}
+/* enable-formatter *
+	void bar() {
+		// formatted area
+	}
+}
+</pre>
+See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=27079">27079</a> for more details.
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=304316">304316</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=27079">27079</a>
+Tags for disabling/enabling code formatter (feature)
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=304316">304316</a>
 NPE when javadoc URL is invalid
 
 <a name="v_A37"></a>
