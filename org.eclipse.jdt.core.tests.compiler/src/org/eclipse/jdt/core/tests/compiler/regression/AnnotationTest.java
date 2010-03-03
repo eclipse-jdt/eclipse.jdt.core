@@ -4065,7 +4065,11 @@ public class AnnotationTest extends AbstractComparableTest {
     		"	class S implements Serializable {\n" +
     		"	      ^\n" +
     		"The serializable class S does not declare a static final serialVersionUID field of type long\n" +
-    		"----------\n");
+    		"----------\n",
+    		null,
+    		true,
+    		null,
+    		"java.lang.Error");
     }
     // check @SuppressWarning support
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89436

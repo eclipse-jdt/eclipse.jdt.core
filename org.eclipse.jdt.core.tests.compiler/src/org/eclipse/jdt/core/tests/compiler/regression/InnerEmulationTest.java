@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class InnerEmulationTest extends AbstractRegressionTest {
 static {
 //		TESTS_NAMES = new String[] { "Bug58069" };
-//		TESTS_NUMBERS = new int[] { 155 };
+//		TESTS_NUMBERS = new int[] { 23, 24 };
 //		TESTS_RANGE = new int[] { 144, -1 };
 }
 public InnerEmulationTest(String name) {
@@ -1001,10 +1001,11 @@ public void test022() {
  * No need for protected access emulation
  */
 public void test023() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			/* X.java */
 			"p/X.java",
+			"package p; \n" +
 			"public class X extends q.Y { \n" +
 			"	void bar(){ Object o = someObject; } \n"+
 			"	public static void main(String[] argv){ \n" +
@@ -1019,14 +1020,14 @@ public void test023() {
 			"	protected Object someObject; \n" +
 			"}\n"
 		},
-		""	// no problem log: not even a synthetic access emulation one
+		"SUCCESS"
 	);
 }
 /**
  * No need for protected access emulation
  */
 public void test024() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			/* X.java */
 			"p/X.java",
@@ -1045,7 +1046,7 @@ public void test024() {
 			"	protected Object foo(){ return null;} \n" +
 			"}\n"
 		},
-		""	// no problem log: not even a synthetic access emulation one
+		"SUCCESS"
 	);
 }
 

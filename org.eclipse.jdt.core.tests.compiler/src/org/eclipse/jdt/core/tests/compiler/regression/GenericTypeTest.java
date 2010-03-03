@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test0788" };
-//		TESTS_NUMBERS = new int[] { 1459 };
+//		TESTS_NUMBERS = new int[] { 1455 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -6467,7 +6467,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n",
 			// runtime results
 			null /* do not check output string */,
-			null /* do not check error string */,
+			"java.lang.IndexOutOfBoundsException" /* do not check error string */,
 			// javac options
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);
 	}
@@ -45671,10 +45671,11 @@ public void test1340() {
 			new String[] {
 				"Derived_A.java", // =================
 				"import java.util.Map;\n" +
+				"import java.util.HashMap;\n" +
 				"class Base_A {}\n" +
 				"public class Derived_A extends Base_A {\n" +
 				"	public Map<Object, Base_B> getMap() {\n" +
-				"		return null;\n" +
+				"		return new HashMap<Object, Base_B>();\n" +
 				"	}\n" +
 				"}\n", // =================
 				"Derived_B.java", // =================
@@ -49795,8 +49796,8 @@ public void test1454() {
 public void test1455() {
 	this.runNegativeTest(
 		new String[] {
-			"X.java",
-			"class Outer<E> {\n" +
+			"Outer.java",
+			"public class Outer<E> {\n" +
 			"  Inner inner;\n" +
 			"  class Inner {\n" +
 			"    E e;\n" +
@@ -49819,7 +49820,7 @@ public void test1455() {
 			"}"
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 8)\n" + 
+		"1. WARNING in Outer.java (at line 8)\n" + 
 		"	Inner that = (Inner) other;\n" + 
 		"	             ^^^^^^^^^^^^^\n" + 
 		"Type safety: Unchecked cast from Object to Outer<E>.Inner\n" + 

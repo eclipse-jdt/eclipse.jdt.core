@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class NullReferenceTest extends AbstractRegressionTest {
 
 public NullReferenceTest(String name) {
-    super(name);
+	super(name);
 }
 
 	// Static initializer to specify tests subset using TESTS_* static variables
@@ -34,17 +34,17 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug303448a", "testBug303448b" };
+//		TESTS_NAMES = new String[] { "testBug304416" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
 
 public static Test suite() {
-    return buildAllCompliancesTestSuite(testClass());
+	return buildAllCompliancesTestSuite(testClass());
 }
 
 public static Class testClass() {
-    return NullReferenceTest.class;
+	return NullReferenceTest.class;
 }
 
 // Conditionally augment problem detection settings
@@ -11595,5 +11595,45 @@ public void testBug303448b() throws Exception {
 			options,
 			null);
 	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=304416
+public void testBug304416() throws Exception {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String s = null;\n" + 
+			"		String s2 = null;\n" + 
+			"		if (s != null && s2 != null) {\n" + 
+			"			System.out.println(s);\n" + 
+			"			System.out.println(s2);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);
+/*	String expectedOutput =
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  aconst_null\n" + 
+		"     1  astore_1 [s]\n" + 
+		"     2  aconst_null\n" + 
+		"     3  astore_2 [s2]\n" + 
+		"     4  aload_1 [s]\n" + 
+		"     5  ifnull 12\n" + 
+		"     8  aload_2 [s2]\n" + 
+		"     9  ifnull 12\n" + 
+		"    12  return\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);*/
 }
 }

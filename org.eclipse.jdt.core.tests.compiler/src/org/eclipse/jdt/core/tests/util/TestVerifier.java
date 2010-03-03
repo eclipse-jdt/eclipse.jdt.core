@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,8 +49,9 @@ private boolean checkBuffers(String outputString, String errorString,
 			didMatchExpectation = false;
 		}
 	}
+	String trimmedErrorString = errorString.trim();
 	if (expectedErrorStringStart != null) {
-		platformIndependantString = Util.convertToIndependantLineDelimiter(errorString.trim());
+		platformIndependantString = Util.convertToIndependantLineDelimiter(trimmedErrorString);
 		if (expectedErrorStringStart.length() == 0 && platformIndependantString.length() > 0 ||
 				!platformIndependantString.startsWith(Util.convertToIndependantLineDelimiter(expectedErrorStringStart))) {
 			/*
@@ -71,6 +72,17 @@ private boolean checkBuffers(String outputString, String errorString,
 					+ "---[END]---\n";
 			didMatchExpectation = false;
 		}
+	} else if (trimmedErrorString.length() != 0){
+		platformIndependantString = Util.convertToIndependantLineDelimiter(trimmedErrorString);
+		System.out.println(Util.displayString(platformIndependantString, 2));
+		this.failureReason =
+			"Unexpected error running resulting class file for "
+				+ sourceFileName
+				+ ":\n"
+				+ "--[START]--\n"
+				+ errorString
+				+ "---[END]---\n";
+		didMatchExpectation = false;
 	}
 	return didMatchExpectation;
 }
@@ -387,7 +399,7 @@ private void launchAndRun(String className, String[] classpaths, String[] progra
 						TestVerifier.this.outputBuffer.append((char) c);
 						c = input.read();
 					}
-				} catch(IOException ioEx) {
+				} catch(IOException e) {
 				}
 			}
 		});
@@ -400,7 +412,7 @@ private void launchAndRun(String className, String[] classpaths, String[] progra
 						TestVerifier.this.errorBuffer.append((char) c);
 						c = errorStream.read();
 					}
-				} catch(IOException ioEx) {
+				} catch(IOException e) {
 				}
 			}
 		});
