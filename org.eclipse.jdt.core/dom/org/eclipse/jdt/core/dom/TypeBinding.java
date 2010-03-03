@@ -81,13 +81,13 @@ class TypeBinding implements ITypeBinding {
 		if (this.annotations != null) {
 			return this.annotations;
 		}
-		if (!(this.binding instanceof ParameterizedTypeBinding)
-				&& (this.binding.isAnnotationType()
-						|| this.binding.isClass()
-						|| this.binding.isEnum()
-						|| this.binding.isInterface())) {
-			org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding refType =
-				(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding) this.binding;
+		org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding refType = null;
+		if (this.binding instanceof ParameterizedTypeBinding) {
+			refType = ((ParameterizedTypeBinding) this.binding).genericType();
+		} else if (this.binding.isAnnotationType() || this.binding.isClass() || this.binding.isEnum() || this.binding.isInterface()) {
+			refType = (org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding) this.binding;
+		}
+		if (refType != null) {
 			org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations = refType.getAnnotations();
 			int length = internalAnnotations == null ? 0 : internalAnnotations.length;
 			if (length != 0) {

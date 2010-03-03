@@ -99,14 +99,8 @@ class MethodBinding implements IMethodBinding {
 		if (this.annotations != null) {
 			return this.annotations;
 		}
-		int length = 0;
-		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations = null;
-		if (this.binding.original() == this.binding) {
-			internalAnnotations = this.binding.getAnnotations();
-			if (internalAnnotations != null) {
-				length = internalAnnotations.length;
-			}
-		}
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations = this.binding.getAnnotations();
+		int length = internalAnnotations == null ? 0 : internalAnnotations.length;
 		if (length != 0) {
 			IAnnotationBinding[] tempAnnotations = new IAnnotationBinding[length];
 			int convertedAnnotationCount = 0;

@@ -10957,7 +10957,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) getASTNode(unit, 0, 0);
 		binding = fieldDeclaration.getType().resolveBinding();
 		annotations = binding.getAnnotations();
-		assertEquals("Wrong size", 0, annotations.length);
+		assertEquals("Wrong size", 1, annotations.length);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304122
 	public void test343() throws JavaModelException {
@@ -10987,7 +10987,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		MethodInvocation expression = (MethodInvocation) statement.getExpression();
 		binding = expression.resolveMethodBinding();
 		annotations = binding.getAnnotations();
-		assertEquals("Wrong size", 0, annotations.length);
+		assertEquals("Wrong size", 1, annotations.length);
 		binding = binding.getMethodDeclaration();
 		annotations = binding.getAnnotations();
 		assertEquals("Wrong size", 1, annotations.length);
