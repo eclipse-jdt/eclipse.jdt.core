@@ -11623,7 +11623,7 @@ public void testBug304416() throws Exception {
 		null,
 		options,
 		null);
-/*	String expectedOutput =
+	String expectedOutput =
 		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  aconst_null\n" + 
 		"     1  astore_1 [s]\n" + 
@@ -11634,6 +11634,6 @@ public void testBug304416() throws Exception {
 		"     8  aload_2 [s2]\n" + 
 		"     9  ifnull 12\n" + 
 		"    12  return\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);*/
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 }
