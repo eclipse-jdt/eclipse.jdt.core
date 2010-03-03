@@ -3625,7 +3625,7 @@ public void testBug241687() throws JavaModelException {
  * @test Test the new formatter capability to completely ignore line comments starting at first column
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=251133"
  */
-public void testBug251133_Line01() throws JavaModelException {
+public void testBug251133() throws JavaModelException {
 	String source = 
 		"public class X01 {\n" + 
 		"//		int		a    =  	  1;\n" + 
@@ -3638,36 +3638,103 @@ public void testBug251133_Line01() throws JavaModelException {
 		"}"
 	);
 }
-public void testBug251133_Line02() throws JavaModelException {
-	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
+public void testBug251133a() throws JavaModelException {
+	this.formatterPrefs.comment_format_line_comment = true;
+	this.formatterPrefs.comment_format_line_comment_starting_on_first_column = true;
+	this.formatterPrefs.never_indent_line_comments_on_first_column = false;
 	String source = 
-		"public class X01 {\n" + 
-		"//		int		a    =  	  1;\n" + 
-		"//    int     b	=	  	2;\n" + 
+		"public class X {\n" + 
+		"//		first	  	column  	  comment		\n" + 
 		"}";
 	formatSource(source,
-		"public class X01 {\n" + 
-		"// int a = 1;\n" + 
-		"// int b = 2;\n" + 
+		"public class X {\n" + 
+		"	// first column comment\n" + 
 		"}"
 	);
 }
-public void testBug251133_Line03() throws JavaModelException {
-	this.formatterPrefs.comment_format_line_comment_starting_on_first_column = false;
+public void testBug251133b() throws JavaModelException {
+	this.formatterPrefs.comment_format_line_comment = true;
+	this.formatterPrefs.comment_format_line_comment_starting_on_first_column = true;
+	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
 	String source = 
-		"public class X01 {\n" + 
-		"//		int		a    =  	  1;\n" + 
-		"//    int     b	=	  	2;\n" + 
+		"public class X {\n" + 
+		"//		first	  	column  	  comment		\n" + 
+		"}";
+	formatSource(source,
+		"public class X {\n" + 
+		"// first column comment\n" + 
+		"}"
+	);
+}
+public void testBug251133c() throws JavaModelException {
+	this.formatterPrefs.comment_format_line_comment = true;
+	this.formatterPrefs.comment_format_line_comment_starting_on_first_column = false;
+	this.formatterPrefs.never_indent_line_comments_on_first_column = false;
+	String source = 
+		"public class X {\n" + 
+		"//		first	  	column  	  comment		\n" + 
 		"}";
 	formatSource(source);
 }
-public void testBug251133_Line04() throws JavaModelException {
-	this.formatterPrefs.never_indent_line_comments_on_first_column = false;
+public void testBug251133d() throws JavaModelException {
+	this.formatterPrefs.comment_format_line_comment = true;
 	this.formatterPrefs.comment_format_line_comment_starting_on_first_column = false;
+	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
 	String source = 
-		"public class X01 {\n" + 
-		"//		int		a    =  	  1;\n" + 
-		"//    int     b	=	  	2;\n" + 
+		"public class X {\n" + 
+		"//		first	  	column  	  comment		\n" + 
+		"}";
+	formatSource(source);
+}
+public void testBug251133e() throws JavaModelException {
+	this.formatterPrefs.comment_format_line_comment = false;
+	this.formatterPrefs.comment_format_line_comment_starting_on_first_column = true;
+	this.formatterPrefs.never_indent_line_comments_on_first_column = false;
+	String source = 
+		"public class X {\n" + 
+		"//		first	  	column  	  comment		\n" + 
+		"}";
+	formatSource(source,
+		"public class X {\n" + 
+		"	//		first	  	column  	  comment		\n" + 
+		"}"
+	);
+}
+public void testBug251133f() throws JavaModelException {
+	this.formatterPrefs.comment_format_line_comment = false;
+	this.formatterPrefs.comment_format_line_comment_starting_on_first_column = true;
+	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
+	String source = 
+		"public class X {\n" + 
+		"//		first	  	column  	  comment		\n" + 
+		"}";
+	formatSource(source,
+		"public class X {\n" + 
+		"//		first	  	column  	  comment		\n" + 
+		"}"
+	);
+}
+public void testBug251133g() throws JavaModelException {
+	this.formatterPrefs.comment_format_line_comment = false;
+	this.formatterPrefs.comment_format_line_comment_starting_on_first_column = false;
+	this.formatterPrefs.never_indent_line_comments_on_first_column = false;
+	String source = 
+		"public class X {\n" + 
+		"//		first	  	column  	  comment		\n" + 
+		"}";
+	formatSource(source,
+		"public class X {\n" + 
+		"	//		first	  	column  	  comment		\n" + 
+		"}"
+	);
+}
+public void testBug251133h() throws JavaModelException {
+	this.formatterPrefs.comment_format_line_comment = false;
+	this.formatterPrefs.comment_format_line_comment_starting_on_first_column = false;
+	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
+	String source = 
+		"public class X {\n" + 
+		"//		first	  	column  	  comment		\n" + 
 		"}";
 	formatSource(source);
 }

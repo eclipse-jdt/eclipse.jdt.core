@@ -2470,7 +2470,7 @@ public class Scribe implements IJavaDocTagConstants {
     		commentIndentationLevel = this.column - 1;
     	} else {
 			if (onFirstColumn &&
-					(!this.formatter.preferences.comment_format_line_comment_starting_on_first_column ||
+					((includesLineComments && !this.formatter.preferences.comment_format_line_comment_starting_on_first_column) ||
 					 this.formatter.preferences.never_indent_line_comments_on_first_column)
     			) {
 	   			commentIndentationLevel = this.column - 1;
