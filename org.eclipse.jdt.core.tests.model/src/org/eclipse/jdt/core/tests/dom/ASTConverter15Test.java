@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 341 };
+//		TESTS_NUMBERS = new int[] { 342, 343 };
 //		TESTS_RANGE = new int[] { 325, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -10935,5 +10935,61 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		IMethodBinding methodBinding1 = ((MethodInvocation) ((ExpressionStatement) methodDeclaration.getBody().statements().get(0)).getExpression()).resolveMethodBinding();
 		IMethodBinding methodBinding2 = ((MethodInvocation) ((ExpressionStatement) methodDeclaration.getBody().statements().get(1)).getExpression()).resolveMethodBinding();
 		assertTrue("Bindings differ", methodBinding1 == methodBinding2);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304122
+	public void test342() throws JavaModelException {
+		String contents =
+			"@Deprecated\n" +
+			"public class X<T> {\n" +
+			"	X<String> field;\n" +
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		CompilationUnit unit= (CompilationUnit) buildAST(
+			contents,
+			this.workingCopy,
+			true,
+			true,
+			true);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(unit, 0);
+		ITypeBinding binding = typeDeclaration.resolveBinding();
+		IAnnotationBinding[] annotations = binding.getAnnotations();
+		assertEquals("Wrong size", 1, annotations.length);
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) getASTNode(unit, 0, 0);
+		binding = fieldDeclaration.getType().resolveBinding();
+		annotations = binding.getAnnotations();
+		assertEquals("Wrong size", 0, annotations.length);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304122
+	public void test343() throws JavaModelException {
+		String contents =
+			"public class X {\n" +
+			"	@Deprecated\n" +
+			"	<T> Object foo(T t) {\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"	public static Object bar() {\n" +
+			"		return new X().<String>foo(\"Hello\");\n" +
+			"	}\n" +
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		CompilationUnit unit= (CompilationUnit) buildAST(
+			contents,
+			this.workingCopy,
+			true,
+			true,
+			true);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+		IMethodBinding binding = methodDeclaration.resolveBinding();
+		IAnnotationBinding[] annotations = binding.getAnnotations();
+		assertEquals("Wrong size", 1, annotations.length);
+		methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 1);
+		ReturnStatement statement = (ReturnStatement) methodDeclaration.getBody().statements().get(0);
+		MethodInvocation expression = (MethodInvocation) statement.getExpression();
+		binding = expression.resolveMethodBinding();
+		annotations = binding.getAnnotations();
+		assertEquals("Wrong size", 0, annotations.length);
+		binding = binding.getMethodDeclaration();
+		annotations = binding.getAnnotations();
+		assertEquals("Wrong size", 1, annotations.length);
 	}
 }
