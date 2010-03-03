@@ -6408,7 +6408,7 @@ public void testBug170637() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runConformTest(
 		new String[] {
-			"src/JavaDocTest.java",
+			"JavaDocTest.java",
 			"public interface JavaDocTest\n" + 
 			"{\n" + 
 			"  /**\n" + 
@@ -7174,7 +7174,7 @@ public void testBug190970a() {
 	this.runConformTest(
 		true,
 		new String[] {
-			"pkg/X.java",
+			"X.java",
 			"public class X {\n" +
 			"private int unused1;\n" +
 			"\n" +
@@ -7187,12 +7187,12 @@ public void testBug190970a() {
 		null,
 		customOptions,
 		"----------\n" +
-		"1. WARNING in pkg\\X.java (at line 2)\n" +
+		"1. WARNING in X.java (at line 2)\n" +
 		"	private int unused1;\n" +
 		"	            ^^^^^^^\n" +
 		"The field X.unused1 is never read locally\n" +
 		"----------\n" +
-		"2. WARNING in pkg\\X.java (at line 7)\n" +
+		"2. WARNING in X.java (at line 7)\n" +
 		"	private int unused2;\n" +
 		"	            ^^^^^^^\n" +
 		"The field X.unused2 is never read locally\n" +
@@ -7949,7 +7949,7 @@ public void testBug233887() {
 public void testBug237937() {
 	runConformTest(
 		new String[] {
-			"src/Link.java",
+			"Link.java",
 			"/**\n" + 
 			" * @see <a href=\"http://www.eclipse.org/\">http://www.eclipse.org</a>\n" + 
 			" * @see <a href=\"http://www.eclipse.org/\">//</a>\n" + 
@@ -7968,7 +7968,7 @@ public void testBug246712() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runConformTest(
 		new String[] {
-			"src/X.java",
+			"X.java",
 			"public class X {\n" + 
 			"\n" + 
 			"	/**\n" + 
@@ -7981,7 +7981,7 @@ public void testBug246712() {
 			"		return \"X\";\n" + 
 			"	}\n" + 
 			"}\n",
-			"src/Y.java",
+			"Y.java",
 			"public class Y extends X {\n" + 
 			"\n" + 
 			"	/**\n" + 
@@ -8003,7 +8003,7 @@ public void testBug246712b() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runConformTest(
 		new String[] {
-			"src/X.java",
+			"X.java",
 			"/**\n" + 
 			" * @author {@link String}\n" + 
 			" * @since {@link String}\n" + 
@@ -8033,7 +8033,7 @@ public void testBug246715() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runConformTest(
 		new String[] {
-			"src/X.java",
+			"X.java",
 			"public class X {\n" + 
 			"\n" + 
 			"	final static int WAIT_YES = 0;\n" + 

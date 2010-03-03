@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class MethodVerifyTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 121 };
+//		TESTS_NUMBERS = new int[] { 184 };
 //		TESTS_RANGE = new int[] { 190, -1};
 	}
 
@@ -8088,7 +8088,11 @@ public void test127() {
 		"	Enum<?> foo() {\n" +
 		"	^^^^\n" +
 		"Type safety: The return type Enum<?> for foo() from the type X.B needs unchecked conversion to conform to U from the type X.A<T>\n" +
-		"----------\n");
+		"----------\n",
+		null,
+		true,
+		null,
+		"java.lang.ClassCastException");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 public void test128() {
@@ -8275,7 +8279,7 @@ public void test133() {
 public void test134() {
 	this.runNegativeTest(
 		new String[] {
-			"X.java",
+			"A.java",
 			"interface I {\n" +
 			"  <T extends Exception & Cloneable> T foo(Number n);\n" +
 			"}\n" +
@@ -8287,7 +8291,7 @@ public void test134() {
 			"}"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
+		"1. WARNING in A.java (at line 5)\n" +
 		"	A foo(Number n);\n" +
 		"	^\n" +
 		"Type safety: The return type A for foo(Number) from the type J needs unchecked conversion to conform to T from the type I\n" +
@@ -10015,7 +10019,7 @@ public void test183() {
 public void test184() {
 	this.runNegativeTest(
 		new String[] {
-			"X.java",
+			"A.java",
 			"class A<U extends Number> {\n" +
 			"	<T extends A<Number>> T a() { return null; }\n" +
 			"	<T extends Number> U num() { return null; }\n" +
@@ -10047,42 +10051,42 @@ public void test184() {
 			"}"
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 6)\n" + 
+		"1. WARNING in A.java (at line 6)\n" + 
 		"	<T extends Integer> T z() { return null; }\n" + 
 		"	           ^^^^^^^\n" + 
 		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 9)\n" + 
+		"2. WARNING in A.java (at line 9)\n" + 
 		"	@Override A a() { return null; }\n" + 
 		"	          ^\n" + 
 		"A is a raw type. References to generic type A<U> should be parameterized\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 9)\n" + 
+		"3. WARNING in A.java (at line 9)\n" + 
 		"	@Override A a() { return null; }\n" + 
 		"	          ^\n" + 
 		"Type safety: The return type A for a() from the type B needs unchecked conversion to conform to T from the type A<U>\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 11)\n" + 
+		"4. WARNING in A.java (at line 11)\n" + 
 		"	@Override Integer x() { return 1; }\n" + 
 		"	          ^^^^^^^\n" + 
 		"Type safety: The return type Integer for x() from the type B needs unchecked conversion to conform to T from the type A<U>\n" + 
 		"----------\n" + 
-		"5. WARNING in X.java (at line 12)\n" + 
+		"5. WARNING in A.java (at line 12)\n" + 
 		"	@Override Integer y() { return 1; }\n" + 
 		"	          ^^^^^^^\n" + 
 		"Type safety: The return type Integer for y() from the type B needs unchecked conversion to conform to T from the type A<U>\n" + 
 		"----------\n" + 
-		"6. WARNING in X.java (at line 13)\n" + 
+		"6. WARNING in A.java (at line 13)\n" + 
 		"	@Override Integer z() { return 1; }\n" + 
 		"	          ^^^^^^^\n" + 
 		"Type safety: The return type Integer for z() from the type B needs unchecked conversion to conform to T from the type A<U>\n" + 
 		"----------\n" + 
-		"7. WARNING in X.java (at line 15)\n" + 
+		"7. WARNING in A.java (at line 15)\n" + 
 		"	class C extends A {\n" + 
 		"	                ^\n" + 
 		"A is a raw type. References to generic type A<U> should be parameterized\n" + 
 		"----------\n" + 
-		"8. WARNING in X.java (at line 16)\n" + 
+		"8. WARNING in A.java (at line 16)\n" + 
 		"	@Override A a() { return null; }\n" + 
 		"	          ^\n" + 
 		"A is a raw type. References to generic type A<U> should be parameterized\n" + 

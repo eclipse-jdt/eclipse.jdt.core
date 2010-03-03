@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1222,7 +1222,8 @@ public void test038() {
 		"----------\n",
 		null,
 		true,
-		customOptions);
+		customOptions,
+		"java.lang.ClassNotFoundException");
 }
 
 /*
@@ -3194,7 +3195,11 @@ public void test099() {
 		"	Object bar(I i) throws CloneNotSupportedException { return i.clone(); }\n" +
 		"	                                                           ^^^^^^^^^\n" +
 		"Access to enclosing method clone() from the type Object is emulated by a synthetic accessor method\n" +
-		"----------\n"
+		"----------\n",
+		null,
+		true,
+		null,
+		"java.lang.ClassFormatError"
 		// no compile errors but generates ClassFormatError if run
 	);
 }

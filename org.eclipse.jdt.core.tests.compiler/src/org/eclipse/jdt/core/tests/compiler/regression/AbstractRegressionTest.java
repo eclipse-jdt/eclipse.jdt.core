@@ -1166,7 +1166,7 @@ protected static class JavacTestOptions {
 
 	protected void runConformTest(String[] testFiles, String expectedOutputString) {
 		runTest(
-	 		// test directory preparation
+			// test directory preparation
 			true /* flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -1866,6 +1866,39 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 			// javac options
 			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
+	protected void runNegativeTest(
+			String[] testFiles,
+			String expectedCompilerLog,
+			String[] classLibraries,
+			boolean shouldFlushOutputDirectory,
+			Map customOptions,
+			String expectedErrorString) {
+			runTest(
+		 		// test directory preparation
+				shouldFlushOutputDirectory /* should flush output directory */,
+				testFiles /* test files */,
+				// compiler options
+				classLibraries /* class libraries */,
+				customOptions /* custom options */,
+				false /* do not perform statements recovery */,
+				new Requestor( /* custom requestor */
+						false,
+						null /* no custom requestor */,
+						false,
+						false),
+				// compiler results
+				expectedCompilerLog == null || /* expecting compiler errors */
+					expectedCompilerLog.indexOf("ERROR") != -1,
+				expectedCompilerLog /* expected compiler log */,
+				// runtime options
+				false /* do not force execution */,
+				null /* no vm arguments */,
+				// runtime results
+				null /* do not check output string */,
+				expectedErrorString /* do not check error string */,
+				// javac options
+				JavacTestOptions.DEFAULT /* default javac test options */);
+		}
 	protected void runNegativeTest(
 		String[] testFiles,
 		String expectedProblemLog,
