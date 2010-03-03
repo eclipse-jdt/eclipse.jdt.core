@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -95,10 +95,10 @@ public interface IBinding {
 	 * </li>
 	 * <li>Type bindings - these are annotations on a class, interface, enum,
 	 * or annotation type declaration. The result is the same regardless of
-	 * whether the type is parameterized.</li>
+	 * whether the type is generic.</li>
 	 * <li>Method bindings - these are annotations on a method or constructor
 	 * declaration. The result is the same regardless of whether the method is
-	 * parameterized.</li>
+	 * generic.</li>
 	 * <li>Variable bindings - these are annotations on a field, enum constant,
 	 * or formal parameter declaration.</li>
 	 * <li>Annotation bindings - an empty array is always returned</li>
