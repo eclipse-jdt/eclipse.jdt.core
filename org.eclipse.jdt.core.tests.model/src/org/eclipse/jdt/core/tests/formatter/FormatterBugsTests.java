@@ -5275,4 +5275,102 @@ public void testBug302552_LW5() {
 	);
 }
 
+/**
+ * @bug 304529: [formatter] NPE when either the disabling or the enabling tag is not defined
+ * @test Verify that having an empty disabling or enabling is now accepted by the formatter
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304529"
+ */
+public void testBug304529() {
+	this.formatterPrefs.disabling_tag = "off".toCharArray();
+	this.formatterPrefs.enabling_tag = null;
+	String source =
+		"/* off */\n" + 
+		"public class X01 {\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       area\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug304529b() {
+	this.formatterPrefs.disabling_tag = null;
+	this.formatterPrefs.enabling_tag = "on".toCharArray();
+	String source =
+		"/* on */\n" + 
+		"public class X01 {\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      formatted       area\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"/* on */\n" + 
+		"public class X01 {\n" + 
+		"	void foo() {\n" + 
+		"		// formatted area\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug304529c() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, "off");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, "");
+	String source =
+		"/* off */\n" + 
+		"public class X01 {\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       area\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug304529d() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, "");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, "on");
+	String source =
+		"/* on */\n" + 
+		"public class X01 {\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      formatted       area\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"/* on */\n" + 
+		"public class X01 {\n" + 
+		"	void foo() {\n" + 
+		"		// formatted area\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug304529e() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, "off");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, "on");
+	String source =
+		"public class X01 {\n" + 
+		"/* off */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       area\n" + 
+		"}\n" + 
+		"/* on */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       area\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"/* off */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       area\n" + 
+		"}\n" + 
+		"/* on */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted area\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
 }

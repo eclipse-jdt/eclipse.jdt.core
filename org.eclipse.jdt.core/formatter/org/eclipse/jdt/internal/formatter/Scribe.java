@@ -1298,8 +1298,14 @@ public class Scribe implements IJavaDocTagConstants {
 		this.disablingTag = preferences.disabling_tag;
 		this.enablingTag = preferences.enabling_tag;
 		char[][] taskTags;
-		if (this.disablingTag == null && this.enablingTag == null) {
-			taskTags = null;
+		if (this.disablingTag == null) {
+			if (this.enablingTag == null) {
+				taskTags = null;
+			} else {
+				taskTags = new char[][] { this.enablingTag };
+			}
+		} else if (this.enablingTag == null) {
+			taskTags = new char[][] { this.disablingTag };
 		} else {
 			taskTags = new char[][] { this.disablingTag, this.enablingTag };
 		}
@@ -4742,10 +4748,10 @@ public class Scribe implements IJavaDocTagConstants {
 	 */
 	private void setEditsEnabled(int count, int previous) {
 		for (int i=previous; i<count; i++) {
-			if (CharOperation.equals(this.scanner.foundTaskTags[i], this.disablingTag)) {
+			if (this.disablingTag != null && CharOperation.equals(this.scanner.foundTaskTags[i], this.disablingTag)) {
 				this.editsEnabled = false;
 			}
-			if (CharOperation.equals(this.scanner.foundTaskTags[i], this.enablingTag)) {
+			if (this.enablingTag != null && CharOperation.equals(this.scanner.foundTaskTags[i], this.enablingTag)) {
 				this.editsEnabled = true;
 			}
 		}
