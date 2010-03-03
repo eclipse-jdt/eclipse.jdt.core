@@ -167,8 +167,7 @@ public class MirrorUtilTestAnnotationProcessor extends BaseProcessor
 			ProcessorTestStatus.fail(ENV_KEYS[EC_CPVARFILE] + " was not in options map");
 		} else {
 			file = new File(name);
-			//Temporarily disabled due to https://bugs.eclipse.org/bugs/show_bug.cgi?id=208454 
-			//ProcessorTestStatus.assertTrue(ENV_KEYS[EC_CPVARFILE] + " was not found", file != null && file.exists());
+			ProcessorTestStatus.assertTrue(ENV_KEYS[EC_CPVARFILE] + " was not found", file != null && file.exists());
 		}
 		
 		name = options.get(ENV_KEYS[EC_PROJFILE]);
