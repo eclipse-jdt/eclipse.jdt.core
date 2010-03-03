@@ -858,8 +858,8 @@ public class DefaultCodeFormatterConstants {
 	 * <pre>
 	 * FORMATTER / Option to define the tag to put in a comment to disable the formatting.
 	 * See the {@link #FORMATTER_ENABLING_TAG} option to re-enable it.
-	 *     - option id:         "org.eclipse.jdt.core.formatter.disabling_tag"
-	 *     - default:           <code>null</code>
+	 *     - default:           &quot;&quot;
+	 *     - possible values:   String, with constraints mentioned below
 	 * </pre>
 	 * 
 	 * <p>
@@ -917,7 +917,8 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * </li>
 	 * <li>The tag cannot include newline characters but it can have white spaces.<br>
-	 * E.g. "<b>format: off</b>" is a valid disabling tag</li>
+	 * E.g. "<b>format: off</b>" is a valid disabling tag.<br>
+	 * In the future, newlines may be used to support multiple disabling tags.</li>
 	 * </ol>
 	 * </p>
 	 * @since 3.6
@@ -928,7 +929,8 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to define the tag to put in a comment to re-enable the
 	 * formatting after it has been disabled (see {@link #FORMATTER_DISABLING_TAG})
 	 *     - option id:         "org.eclipse.jdt.core.formatter.enabling_tag"
-	 *     - default:           <code>null</code>
+	 *     - default:           &quot;&quot;
+	 *     - possible values:   String, with constraints mentioned below
 	 * </pre>
 	 * 
 	 * <p>
@@ -984,7 +986,8 @@ public class DefaultCodeFormatterConstants {
 	 * }
 	 * </pre>
 	 * <li>The tag cannot include newline characters but it can have white spaces.<br>
-	 * E.g. "<b>format: on</b>" is a valid enabling tag</li>
+	 * E.g. "<b>format: on</b>" is a valid enabling tag<br>
+	 * In the future, newlines may be used to support multiple disabling tags.</li>
 	 * </li>
 	 * </ol>
 	 * </p>

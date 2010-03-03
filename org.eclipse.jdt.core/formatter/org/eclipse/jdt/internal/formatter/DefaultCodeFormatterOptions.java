@@ -1962,7 +1962,21 @@ public class DefaultCodeFormatterOptions {
 				if (stringValue.trim().length() == 0) {
 					this.disabling_tag = null;
 				} else {
-					this.disabling_tag = stringValue.toCharArray();
+					int idx = stringValue.indexOf('\r');
+					if (idx == 0) {
+						this.disabling_tag = null;
+					} else {
+						String tag = idx < 0 ? stringValue : stringValue.substring(0, idx);
+						idx = stringValue.indexOf('\n');
+						if (idx == 0) {
+							this.disabling_tag = null;
+						} else {
+							if (idx > 0) {
+								tag = tag.substring(0, idx);
+							}
+							this.disabling_tag = tag.toCharArray();
+						}
+					}
 				}
 			}
 		}
@@ -1973,7 +1987,21 @@ public class DefaultCodeFormatterOptions {
 				if (stringValue.trim().length() == 0) {
 					this.enabling_tag = null;
 				} else {
-					this.enabling_tag = stringValue.toCharArray();
+					int idx = stringValue.indexOf('\r');
+					if (idx == 0) {
+						this.enabling_tag = null;
+					} else {
+						String tag = idx < 0 ? stringValue : stringValue.substring(0, idx);
+						idx = stringValue.indexOf('\n');
+						if (idx == 0) {
+							this.enabling_tag = null;
+						} else {
+							if (idx > 0) {
+								tag = tag.substring(0, idx);
+							}
+							this.enabling_tag = tag.toCharArray();
+						}
+					}
 				}
 			}
 		}
