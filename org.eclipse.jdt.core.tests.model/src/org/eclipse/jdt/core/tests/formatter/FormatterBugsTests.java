@@ -15,6 +15,7 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
@@ -63,6 +64,573 @@ public void setUpSuite() throws Exception {
 		JAVA_PROJECT = setUpJavaProject("FormatterBugs", "1.5"); //$NON-NLS-1$
 	}
 	super.setUpSuite();
+}
+
+/**
+ * @bug 27079: [formatter] Tags for disabling/enabling code formatter (feature)
+ * @test Ensure that the formatter does not format code between specific javadoc comments
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=27079"
+ */
+public void testBug027079a() throws JavaModelException {
+	String source =
+		"public class X01 {\n" + 
+		"\n" + 
+		"/* disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"/* enable-formatter */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"\n" + 
+		"	/* disable-formatter */\n" + 
+		"	void foo() {\n" + 
+		"		// unformatted comment\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	/* enable-formatter */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug027079a1() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
+	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
+	String source =
+		"public class X01 {\n" + 
+		"\n" + 
+		"/* disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"/* enable-formatter */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"\n" + 
+		"/* disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"/* enable-formatter */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug027079a2() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
+	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
+	String source =
+		"public class X01 {\n" + 
+		"\n" + 
+		"/** disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"/** enable-formatter */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"\n" + 
+		"/** disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"/** enable-formatter */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug027079a3() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
+	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
+	String source =
+		"public class X01 {\n" + 
+		"\n" + 
+		"// disable-formatter\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"// enable-formatter\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"\n" + 
+		"// disable-formatter\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"// enable-formatter\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug027079a4() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
+	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
+	String source =
+		"public class X01 {\n" + 
+		"\n" + 
+		"// disable-formatter\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment  	  \n" + 
+		"}\n" + 
+		"// enable-formatter \n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment  	  \n" + 
+		"				/* disable-formatter *//*      unformatted		comment  	  *//* enable-formatter */\n" + 
+		"}\n" + 		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"\n" + 
+		"// disable-formatter\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment  	  \n" + 
+		"}\n" + 
+		"// enable-formatter \n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"		/* disable-formatter *//*      unformatted		comment  	  *//* enable-formatter */\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug027079b() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
+	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
+	String source =
+		"public class X02 {\n" + 
+		"void foo() {\n" + 
+		"/* disable-formatter */\n" + 
+		"				/*       unformatted		comment  	  */\n" + 
+		"	String test1= \"this\"+\n" + 
+		"					\"is\"+\n" + 
+		"			\"a specific\"+\n" + 
+		"		\"line wrapping \";\n" + 
+		"\n" + 
+		"/* enable-formatter */\n" + 
+		"				/*       formatted		comment  	  */\n" + 
+		"	String test2= \"this\"+\n" + 
+		"					\"is\"+\n" + 
+		"			\"a specific\"+\n" + 
+		"		\"line wrapping \";\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X02 {\n" + 
+		"	void foo() {\n" + 
+		"/* disable-formatter */\n" + 
+		"				/*       unformatted		comment  	  */\n" + 
+		"	String test1= \"this\"+\n" + 
+		"					\"is\"+\n" + 
+		"			\"a specific\"+\n" + 
+		"		\"line wrapping \";\n" + 
+		"\n" + 
+		"/* enable-formatter */\n" + 
+		"		/* formatted comment */\n" + 
+		"		String test2 = \"this\" + \"is\" + \"a specific\" + \"line wrapping \";\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug027079c() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
+	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
+	String source =
+		"public class X03 {\n" + 
+		"void foo() {\n" + 
+		"/* disable-formatter */\n" + 
+		"	bar(\n" + 
+		"				/**       unformatted		comment  	  */\n" + 
+		"				\"this\"  ,\n" + 
+		"					\"is\",\n" + 
+		"			\"a specific\",\n" + 
+		"		\"line wrapping \"\n" + 
+		"	);\n" + 
+		"\n" + 
+		"/* enable-formatter */\n" + 
+		"	bar(\n" + 
+		"				/**       formatted		comment  	  */\n" + 
+		"				\"this\"  ,\n" + 
+		"					\"is\",\n" + 
+		"			\"a specific\",\n" + 
+		"		\"line wrapping \"\n" + 
+		"	);\n" + 
+		"}\n" + 
+		"void bar(String... str) {}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X03 {\n" + 
+		"	void foo() {\n" + 
+		"/* disable-formatter */\n" + 
+		"	bar(\n" + 
+		"				/**       unformatted		comment  	  */\n" + 
+		"				\"this\"  ,\n" + 
+		"					\"is\",\n" + 
+		"			\"a specific\",\n" + 
+		"		\"line wrapping \"\n" + 
+		"	);\n" + 
+		"\n" + 
+		"/* enable-formatter */\n" + 
+		"		bar(\n" + 
+		"		/** formatted comment */\n" + 
+		"		\"this\", \"is\", \"a specific\", \"line wrapping \");\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	void bar(String... str) {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug027079c2() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
+	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
+	String source =
+		"public class X03b {\n" + 
+		"void foo() {\n" + 
+		"	bar(\n" + 
+		"// disable-formatter\n" + 
+		"				/**       unformatted		comment  	  */\n" + 
+		"				\"this\"  ,\n" + 
+		"					\"is\",\n" + 
+		"			\"a specific\",\n" + 
+		"		\"line wrapping \"\n" + 
+		"// enable-formatter\n" + 
+		"	);\n" + 
+		"	bar(\n" + 
+		"				/**       formatted		comment  	  */\n" + 
+		"				\"this\"  ,\n" + 
+		"					\"is\",\n" + 
+		"			\"a specific\",\n" + 
+		"		\"line wrapping \"\n" + 
+		"	);\n" + 
+		"}\n" + 
+		"void bar(String... str) {}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X03b {\n" + 
+		"	void foo() {\n" + 
+		"		bar(\n" + 
+		"// disable-formatter\n" + 
+		"				/**       unformatted		comment  	  */\n" + 
+		"				\"this\"  ,\n" + 
+		"					\"is\",\n" + 
+		"			\"a specific\",\n" + 
+		"		\"line wrapping \"\n" + 
+		"// enable-formatter\n" + 
+		"		);\n" + 
+		"		bar(\n" + 
+		"		/** formatted comment */\n" + 
+		"		\"this\", \"is\", \"a specific\", \"line wrapping \");\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	void bar(String... str) {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug027079d() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
+	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
+	String source =
+		"public class X04 {\r\n" + 
+		"\r\n" + 
+		"/* disable-formatter */\r\n" + 
+		"void     foo(    )      {	\r\n" + 
+		"				//      unformatted       comment  	  \r\n" + 
+		"}\r\n" + 
+		"/* enable-formatter */\r\n" + 
+		"void     bar(    )      {	\r\n" + 
+		"				//      formatted       comment  	  \r\n" + 
+		"}\r\n" + 
+		"}\r\n";
+	formatSource(source,
+		"public class X04 {\n" + 
+		"\n" + 
+		"/* disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment  	  \n" + 
+		"}\n" + 
+		"/* enable-formatter */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n",
+		CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS,
+		0 /* indentation level */,
+		0 /* offset */,
+		-1 /* length (all) */,
+		"\n",
+		true/*repeat*/);
+}
+public void testBug027079d2() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
+	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
+	String source =
+		"public class X04b {\n" + 
+		"\n" + 
+		"/* disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment  	  \n" + 
+		"}\n" + 
+		"/* enable-formatter */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment  	  \n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X04b {\r\n" + 
+		"\r\n" + 
+		"/* disable-formatter */\r\n" + 
+		"void     foo(    )      {	\r\n" + 
+		"				//      unformatted       comment  	  \r\n" + 
+		"}\r\n" + 
+		"/* enable-formatter */\r\n" + 
+		"	void bar() {\r\n" + 
+		"		// formatted comment\r\n" + 
+		"	}\r\n" + 
+		"}\r\n",
+		CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS,
+		0 /* indentation level */,
+		0 /* offset */,
+		-1 /* length (all) */,
+		"\r\n",
+		true/*repeat*/);
+}
+public void testBug027079d3() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
+	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
+	String source =
+		"public class X04c {\r\n" + 
+		"\r\n" + 
+		"/* disable-formatter */\r\n" + 
+		"void     foo(    )      {	\r\n" + 
+		"				//      unformatted       comment  	  \r\n" + 
+		"}\r\n" + 
+		"/* enable-formatter */\r\n" + 
+		"void     bar(    )      {	\r\n" + 
+		"				//      formatted       comment  	  \r\n" + 
+		"}\r\n" + 
+		"}\r\n";
+	formatSource(source,
+		"public class X04c {\r\n" + 
+		"\r\n" + 
+		"/* disable-formatter */\r\n" + 
+		"void     foo(    )      {	\r\n" + 
+		"				//      unformatted       comment  	  \r\n" + 
+		"}\r\n" + 
+		"/* enable-formatter */\r\n" + 
+		"	void bar() {\r\n" + 
+		"		// formatted comment\r\n" + 
+		"	}\r\n" + 
+		"}\r\n",
+		CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS,
+		0 /* indentation level */,
+		0 /* offset */,
+		-1 /* length (all) */,
+		"\r\n",
+		true/*repeat*/);
+}
+public void testBug027079d4() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
+	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
+	String source =
+		"public class X04d {\n" + 
+		"\n" + 
+		"/* disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment  	  \n" + 
+		"}\n" + 
+		"/* enable-formatter */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment  	  \n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X04d {\n" + 
+		"\n" + 
+		"/* disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment  	  \n" + 
+		"}\n" + 
+		"/* enable-formatter */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n",
+		CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS,
+		0 /* indentation level */,
+		0 /* offset */,
+		-1 /* length (all) */,
+		"\n",
+		true/*repeat*/);
+}
+public void testBug027079e() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "format: off".toCharArray();
+	this.formatterPrefs.enabling_tag = "format: on".toCharArray();
+	String source =
+		"public class X05 {\n" + 
+		"\n" + 
+		"/* format: off */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"/* format: on */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X05 {\n" + 
+		"\n" + 
+		"/* format: off */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"/* format: on */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug027079f() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "format: off".toCharArray();
+	this.formatterPrefs.enabling_tag = "format: on".toCharArray();
+	String source =
+		"public class X06 {\n" + 
+		"\n" + 
+		"// format: off\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"// format: on\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X06 {\n" + 
+		"\n" + 
+		"// format: off\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"// format: on\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug027079f2() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "format: off".toCharArray();
+	this.formatterPrefs.enabling_tag = "format: on".toCharArray();
+	String source =
+		"public class X06b {\n" + 
+		"\n" + 
+		"/** format: off */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"/** format: on */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X06b {\n" + 
+		"\n" + 
+		"/** format: off */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"/** format: on */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug027079f3() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "    format:  	  off    ".toCharArray();
+	this.formatterPrefs.enabling_tag = "	format:	  	on	".toCharArray();
+	String source =
+		"public class X06c {\n" + 
+		"\n" + 
+		"/*    format:  	  off    */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"// 	format:	  	on	\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X06c {\n" + 
+		"\n" + 
+		"/*    format:  	  off    */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"// 	format:	  	on	\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug027079f4() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "    format:  	  off    ".toCharArray();
+	this.formatterPrefs.enabling_tag = "	format:	  	on	".toCharArray();
+	String source =
+		"public class X06d {\n" + 
+		"\n" + 
+		"/* format: off */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      formatted       comment\n" + 
+		"}\n" + 
+		"/* format: on */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X06d {\n" + 
+		"\n" + 
+		"	/* format: off */\n" + 
+		"	void foo() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	/* format: on */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
 }
 
 /**

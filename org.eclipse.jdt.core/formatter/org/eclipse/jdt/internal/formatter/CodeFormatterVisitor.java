@@ -755,7 +755,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		final char[] compilationUnitSource = string.toCharArray();
 
 		this.localScanner.setSource(compilationUnitSource);
-		this.scribe.initializeScanner(compilationUnitSource);
+		this.scribe.resetScanner(compilationUnitSource);
 
 		if (nodes == null) {
 			return null;
@@ -792,7 +792,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		final char[] compilationUnitSource = string.toCharArray();
 
 		this.localScanner.setSource(compilationUnitSource);
-		this.scribe.initializeScanner(compilationUnitSource);
+		this.scribe.resetScanner(compilationUnitSource);
 
 		this.lastLocalDeclarationSourceStart = -1;
 		try {
@@ -821,7 +821,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		final char[] compilationUnitSource = string.toCharArray();
 
 		this.localScanner.setSource(compilationUnitSource);
-		this.scribe.initializeScanner(compilationUnitSource);
+		this.scribe.resetScanner(compilationUnitSource);
 
 		if (constructorDeclaration == null) {
 			return null;
@@ -865,7 +865,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		final char[] compilationUnitSource = string.toCharArray();
 
 		this.localScanner.setSource(compilationUnitSource);
-		this.scribe.initializeScanner(compilationUnitSource);
+		this.scribe.resetScanner(compilationUnitSource);
 
 		if (expression == null) {
 			return null;

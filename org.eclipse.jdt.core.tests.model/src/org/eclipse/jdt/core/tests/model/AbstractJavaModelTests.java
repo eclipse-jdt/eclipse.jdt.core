@@ -725,11 +725,21 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * The line separators in 'actual' are converted to '\n' before the comparison.
 	 */
 	protected void assertSourceEquals(String message, String expected, String actual) {
+		assertSourceEquals(message, expected, actual, true/*convert line delimiter*/);
+	}
+	/*
+	 * Asserts that the given actual source is equal to the expected one.
+	 * Note that if the line separators in 'actual' are converted to '\n' before the comparison,
+	 * 'expected' is assumed to have the same '\n' line separator.
+	 */
+	protected void assertSourceEquals(String message, String expected, String actual, boolean convert) {
 		if (actual == null) {
 			assertEquals(message, expected, null);
 			return;
 		}
-		actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual);
+		if (convert) {
+			actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual);
+		}
 		if (!actual.equals(expected)) {
 			System.out.println("Expected source in "+getName()+" should be:");
 			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 2));
