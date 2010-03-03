@@ -1959,23 +1959,15 @@ public class DefaultCodeFormatterOptions {
 		if (disableTagOption != null) {
 			if (disableTagOption instanceof String) {
 				String stringValue = (String) disableTagOption;
-				if (stringValue.trim().length() == 0) {
+				int idx = stringValue.indexOf('\n');
+				if (idx == 0) {
 					this.disabling_tag = null;
 				} else {
-					int idx = stringValue.indexOf('\r');
-					if (idx == 0) {
+					String tag = idx < 0 ? stringValue.trim() : stringValue.substring(0, idx).trim();
+					if (tag.length() == 0) {
 						this.disabling_tag = null;
 					} else {
-						String tag = idx < 0 ? stringValue : stringValue.substring(0, idx);
-						idx = stringValue.indexOf('\n');
-						if (idx == 0) {
-							this.disabling_tag = null;
-						} else {
-							if (idx > 0) {
-								tag = tag.substring(0, idx);
-							}
-							this.disabling_tag = tag.toCharArray();
-						}
+					this.disabling_tag = tag.toCharArray();
 					}
 				}
 			}
@@ -1984,23 +1976,15 @@ public class DefaultCodeFormatterOptions {
 		if (enableTagOption != null) {
 			if (enableTagOption instanceof String) {
 				String stringValue = (String) enableTagOption;
-				if (stringValue.trim().length() == 0) {
+				int idx = stringValue.indexOf('\n');
+				if (idx == 0) {
 					this.enabling_tag = null;
 				} else {
-					int idx = stringValue.indexOf('\r');
-					if (idx == 0) {
+					String tag = idx < 0 ? stringValue.trim() : stringValue.substring(0, idx).trim();
+					if (tag.length() == 0) {
 						this.enabling_tag = null;
 					} else {
-						String tag = idx < 0 ? stringValue : stringValue.substring(0, idx);
-						idx = stringValue.indexOf('\n');
-						if (idx == 0) {
-							this.enabling_tag = null;
-						} else {
-							if (idx > 0) {
-								tag = tag.substring(0, idx);
-							}
-							this.enabling_tag = tag.toCharArray();
-						}
+					this.enabling_tag = tag.toCharArray();
 					}
 				}
 			}

@@ -858,13 +858,27 @@ public class DefaultCodeFormatterConstants {
 	 * <pre>
 	 * FORMATTER / Option to define the tag to put in a comment to disable the formatting.
 	 * See the {@link #FORMATTER_ENABLING_TAG} option to re-enable it.
-	 *     - default:           &quot;&quot;
 	 *     - possible values:   String, with constraints mentioned below
+	 *     - default:           ""
 	 * </pre>
 	 * 
 	 * <p>
 	 * Note that:
 	 * <ol>
+	 * <li>The tag name will be trimmed. Hence if it does contain white spaces
+	 * at the beginning or at the end, they will not be taken into account while
+	 * searching for the tag in the comments</li>
+	 * <li>If a tag is starting with a letter or digit, then it cannot be leaded by
+	 * another letter or digit to be recognized
+	 * (<code>"ToDisableFormatter"</code> will not be recognized as a disabling tag
+	 * <code>"DisableFormatter"</code>, but <code>"To:DisableFormatter"</code>
+	 * will be detected for either tag <code>"DisableFormatter"</code> or
+	 * <code>":DisableFormatter"</code>).<br>
+	 * Respectively, a tag ending with a letter or digit cannot be followed by a letter
+	 * or digit to be recognized (<code>"DisableFormatter1"</code> will not be
+	 * recognized as a disabling tag <code>"DisableFormatter"</code>, but
+	 * <code>"DisableFormatter:1"</code> will be detected either for tag
+	 * <code>"DisableFormatter"</code> or <code>"DisableFormatter:"</code>)</li>
 	 * <li>As soon as the formatter encounters the defined disabling tag, it stops to
 	 * format the code from the beginning of the comment including this tag. If it
 	 * was already disabled, the tag has no special effect.
@@ -916,7 +930,8 @@ public class DefaultCodeFormatterConstants {
 	 * }
 	 * </pre>
 	 * </li>
-	 * <li>The tag cannot include newline characters but it can have white spaces.<br>
+	 * <li>The tag cannot include newline character (i.e. '\n') but it can have white
+	 * spaces.<br>
 	 * E.g. "<b>format: off</b>" is a valid disabling tag.<br>
 	 * In the future, newlines may be used to support multiple disabling tags.</li>
 	 * </ol>
@@ -929,13 +944,27 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to define the tag to put in a comment to re-enable the
 	 * formatting after it has been disabled (see {@link #FORMATTER_DISABLING_TAG})
 	 *     - option id:         "org.eclipse.jdt.core.formatter.enabling_tag"
-	 *     - default:           &quot;&quot;
 	 *     - possible values:   String, with constraints mentioned below
+	 *     - default:           ""
 	 * </pre>
 	 * 
 	 * <p>
 	 * Note that:
 	 * <ol>
+	 * <li>The tag name will be trimmed. Hence if it does contain white spaces
+	 * at the beginning or at the end, they will not be taken into account while
+	 * searching for the tag in the comments</li>
+	 * <li>If a tag is starting with a letter or digit, then it cannot be leaded by
+	 * another letter or digit to be recognized
+	 * (<code>"ReEnableFormatter"</code> will not be recognized as an enabling tag
+	 * <code>"EnableFormatter"</code>, but <code>"Re:EnableFormatter"</code>
+	 * will be detected for either tag <code>"EnableFormatter"</code> or
+	 * <code>":EnableFormatter"</code>).<br>
+	 * Respectively, a tag ending with a letter or digit cannot be followed by a letter
+	 * or digit to be recognized (<code>"EnableFormatter1"</code> will not be
+	 * recognized as an enabling tag <code>"EnableFormatter"</code>, but
+	 * <code>"EnableFormatter:1"</code> will be detected either for tag
+	 * <code>"EnableFormatter"</code> or <code>"EnableFormatter:"</code>)</li>
 	 * <li>As soon as the formatter encounters the defined enabling tag, it re-starts
 	 * to format the code just after the comment including this tag. If it was already
 	 * active, i.e. already re-enabled or never disabled, the tag has no special effect.
@@ -985,9 +1014,10 @@ public class DefaultCodeFormatterConstants {
 	 * void bar() {}
 	 * }
 	 * </pre>
-	 * <li>The tag cannot include newline characters but it can have white spaces.<br>
+	 * <li>The tag cannot include newline character (i.e. '\n') but it can have white
+	 * spaces.<br>
 	 * E.g. "<b>format: on</b>" is a valid enabling tag<br>
-	 * In the future, newlines may be used to support multiple disabling tags.</li>
+	 * In the future, newlines may be used to support multiple enabling tags.</li>
 	 * </li>
 	 * </ol>
 	 * </p>
