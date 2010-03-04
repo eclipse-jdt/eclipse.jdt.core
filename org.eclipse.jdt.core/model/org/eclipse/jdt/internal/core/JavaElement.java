@@ -751,6 +751,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			}
 			try {
 				stream = new BufferedInputStream(connection.getInputStream());
+			} catch (IllegalArgumentException e) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304316
+				return null;
 			} catch (NullPointerException e) {
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304316
 				return null;
