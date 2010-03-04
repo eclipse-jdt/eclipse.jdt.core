@@ -6427,5 +6427,157 @@ public void testBug252341c() throws Exception {
 		deleteProject("P");
 	}
 }
+/**
+ * @bug 304081:IJavaProject#isOnClasspath(IJavaElement) returns false for type from referenced JAR
+ * When the JAR, which a variable classpath entry resolves to, references other JAR via
+ * MANIFEST, test that {@link IJavaProject#isOnClasspath(IJavaElement)} returns true
+ * for the referenced classpath entries. 
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304081"
+ * @throws Exception
+ */
+public void testBug304081() throws Exception {
+	File libDir = null;
+	try {
+
+		IJavaProject proj = this.createJavaProject("P", new String[] {}, "bin");
+		IPath libPath = proj.getResource().getLocation();
+		JavaCore.setClasspathVariable("MyVar", libPath, null);
+		libDir = new File(libPath.toPortableString());
+		IClasspathEntry[] classpath = new IClasspathEntry[1];
+		File libJar = new File(libDir, "variable.jar");
+		libJar.createNewFile();
+		
+		addLibrary(proj, "variable.jar", null, new String[0], 
+				new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib1.jar\n",
+			},
+			JavaCore.VERSION_1_4); 
+
+		createFile("/P/lib1.jar", "");
+		
+		classpath[0] = JavaCore.newVariableEntry(new Path(
+				"/MyVar/variable.jar"), null, null);
+		
+		proj.setRawClasspath(classpath, null);
+		waitForAutoBuild();
+		IProject project = getWorkspaceRoot().getProject("P");
+		IResource resource = project.getFile("variable.jar");
+		assertTrue(proj.isOnClasspath(resource));
+		IJavaElement element = proj.getPackageFragmentRoot(resource);
+		assertTrue(proj.isOnClasspath(element));
+
+		resource = project.getFile("lib1.jar");
+		assertTrue(proj.isOnClasspath(resource));
+		element = proj.getPackageFragmentRoot(resource);
+		assertTrue(proj.isOnClasspath(element));
+	} finally {
+		this.deleteProject("P");
+		JavaCore.removeClasspathVariable("MyVar", null);
+	}
+}
+/**
+ * Additional tests for 304081
+ * When the JAR, which is in the raw classpath, references other JAR via
+ * MANIFEST, test that {@link IJavaProject#isOnClasspath(IJavaElement)} returns true
+ * for the referenced classpath entries. 
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304081"
+ * @throws Exception
+ */
+public void testBug304081a() throws Exception {
+	try {
+
+		IJavaProject proj = this.createJavaProject("P", new String[] {}, "bin");
+		IClasspathEntry[] classpath = new IClasspathEntry[1];
+
+		addLibrary(proj, "library.jar", null, new String[0], 
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Class-Path: lib1.jar\n",
+				},
+				JavaCore.VERSION_1_4);
+		createFile("/P/lib1.jar", "");	
+		classpath[0] = JavaCore.newLibraryEntry(new Path("/P/library.jar"), null, null);
+		
+		proj.setRawClasspath(classpath, null);
+		waitForAutoBuild();
+		IProject project = getWorkspaceRoot().getProject("P");
+		IResource resource = project.getFile("library.jar");
+		assertTrue(proj.isOnClasspath(resource));
+		IJavaElement element = proj.getPackageFragmentRoot(resource);
+		assertTrue(proj.isOnClasspath(element));
+
+		resource = project.getFile("lib1.jar");
+		assertTrue(proj.isOnClasspath(resource));
+		element = proj.getPackageFragmentRoot(resource);
+		assertTrue(proj.isOnClasspath(element));
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
+ * Additional tests for 304081
+ * When the JAR, which is part of a classpath container, references other JAR via
+ * MANIFEST, test that {@link IJavaProject#isOnClasspath(IJavaElement)} returns true
+ * for the referenced classpath entries. 
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304081"
+ * @throws Exception
+ */
+public void testBug304081b() throws Exception {
+	File libDir = null;
+	try {
+
+		IJavaProject proj = this.createJavaProject("P", new String[] {}, "bin");
+		IClasspathEntry[] classpath = new IClasspathEntry[1];
+		libDir = new File(proj.getResource().getLocation().toPortableString());
+		File libJar = new File(libDir, "container.jar");
+		
+		addLibrary(proj, "container.jar", null, new String[0], 
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Class-Path: lib1.jar\n",
+				},
+				JavaCore.VERSION_1_4);
+		createFile("/P/lib1.jar", "");
+		
+		ClasspathContainerInitializer initializer= JavaCore.getClasspathContainerInitializer(JavaCore.USER_LIBRARY_CONTAINER_ID);
+		String libraryName = "TestUserLibrary";
+		IPath containerPath = new Path(JavaCore.USER_LIBRARY_CONTAINER_ID);
+		UserLibraryClasspathContainer containerSuggestion = new UserLibraryClasspathContainer(libraryName);
+		initializer.requestClasspathContainerUpdate(containerPath.append(libraryName), null, containerSuggestion);
+
+		IEclipsePreferences preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
+		String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"TestUserLibrary";
+		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
+		propertyValue.append(" path=\"" + libJar.getAbsolutePath());
+		propertyValue.append("\"/>\r\n</userlibrary>\r\n");
+		preferences.put(propertyName, propertyValue.toString());
+		preferences.flush();	
+		
+		classpath[0] = JavaCore.newContainerEntry(containerSuggestion.getPath());
+		
+		proj.setRawClasspath(classpath, null);
+		waitForAutoBuild();
+		IProject project = getWorkspaceRoot().getProject("P");
+		IResource resource = project.getFile("container.jar");
+		assertTrue(proj.isOnClasspath(resource));
+		IJavaElement element = proj.getPackageFragmentRoot(resource);
+		assertTrue(proj.isOnClasspath(element));
+
+		resource = project.getFile("lib1.jar");
+		assertTrue(proj.isOnClasspath(resource));
+		element = proj.getPackageFragmentRoot(resource);
+		assertTrue(proj.isOnClasspath(element));
+		
+	} finally {
+		this.deleteProject("P");
+	}
+}
 
 }

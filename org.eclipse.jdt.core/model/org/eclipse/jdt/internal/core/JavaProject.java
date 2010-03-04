@@ -2158,45 +2158,20 @@ public class JavaProject
 		if (isSource)
 			return false;
 
-		// then look at resolved entries
-		for (int i = 0; i < length; i++) {
-			IClasspathEntry rawEntry = rawClasspath[i];
-			switch (rawEntry.getEntryKind()) {
-				case IClasspathEntry.CPE_CONTAINER:
-					IClasspathContainer container;
-					try {
-						container = JavaCore.getClasspathContainer(rawEntry.getPath(), this);
-					} catch (JavaModelException e) {
-						break;
-					}
-					if (container == null)
-						break;
-					IClasspathEntry[] containerEntries = container.getClasspathEntries();
-					if (containerEntries == null)
-						break;
-					// container was bound
-					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
-						IClasspathEntry resolvedEntry = containerEntries[j];
-						if (resolvedEntry == null) {
-							if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-								JavaModelManager.getJavaModelManager().verbose_missbehaving_container(this, rawEntry.getPath(), containerEntries);
-							}
-							return false;
-						}
-						if (isOnClasspathEntry(elementPath, isFolderPath, isPackageFragmentRoot, resolvedEntry))
-							return true;
-					}
-					break;
-				case IClasspathEntry.CPE_VARIABLE:
-					IClasspathEntry resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
-					if (resolvedEntry == null)
-						break;
-					if (isOnClasspathEntry(elementPath, isFolderPath, isPackageFragmentRoot, resolvedEntry))
-						return true;
-					break;
-			}
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304081
+		// All the resolved classpath entries need to be considered, including the referenced classpath entries
+		IClasspathEntry[] resolvedClasspath = null;
+		try {
+			resolvedClasspath = getResolvedClasspath();
+		} catch (JavaModelException e) {
+			return false; // Perhaps, not a Java project
 		}
 
+		for (int index = 0; index < resolvedClasspath.length; index++) {
+			if (isOnClasspathEntry(elementPath, isFolderPath, isPackageFragmentRoot, resolvedClasspath[index]))
+				return true;
+		}
+		
 		return false;
 	}
 
