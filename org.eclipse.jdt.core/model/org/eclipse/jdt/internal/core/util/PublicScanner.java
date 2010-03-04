@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -365,10 +365,9 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 			continue;
 		}
 		// trim the message
+		// we don't trim the beginning of the message to be able to show it after the task tag
 		while (CharOperation.isWhitespace(src[end]) && msgStart <= end)
 			end--;
-		while (CharOperation.isWhitespace(src[msgStart]) && msgStart <= end)
-			msgStart++;
 		// update the end position of the task
 		this.foundTaskPositions[i][1] = end;
 		// get the message source
@@ -1487,7 +1486,8 @@ public int getNextToken() throws InvalidInputException {
 								boolean isUnicode = false;
 								while (this.currentCharacter != '\r' && this.currentCharacter != '\n') {
 									if (this.currentPosition >= this.eofPosition) {
-										this.currentPosition++;
+										this.lastCommentLinePosition = this.currentPosition;
+										this.currentPosition ++;
 										// this avoids duplicating the code in the catch(IndexOutOfBoundsException e)
 										throw new IndexOutOfBoundsException();
 									}
@@ -1947,7 +1947,8 @@ public final void jumpOverMethodBody() {
 								boolean isUnicode = false;
 								while (this.currentCharacter != '\r' && this.currentCharacter != '\n') {
 									if (this.currentPosition >= this.eofPosition) {
-										this.currentPosition++;
+										this.lastCommentLinePosition = this.currentPosition;
+										this.currentPosition ++;
 										// this avoids duplicating the code inside the catch(IndexOutOfBoundsException e) below
 										throw new IndexOutOfBoundsException();
 									}
@@ -3659,36 +3660,26 @@ public String toString() {
 	if (this.currentPosition <= 0)
 		return "NOT started!\n\n"+ new String(this.source); //$NON-NLS-1$
 
-	char front[] = new char[this.startPosition];
-	System.arraycopy(this.source, 0, front, 0, this.startPosition);
-
-	int middleLength = (this.currentPosition - 1) - this.startPosition + 1;
-	char middle[];
-	if (middleLength > -1) {
-		middle = new char[middleLength];
-		System.arraycopy(
-			this.source,
-			this.startPosition,
-			middle,
-			0,
-			middleLength);
+	StringBuffer buffer = new StringBuffer();
+	if (this.startPosition < 1000) {
+		buffer.append(this.source, 0, this.startPosition);
 	} else {
-		middle = CharOperation.NO_CHAR;
+		buffer.append("<source beginning>\n...\n"); //$NON-NLS-1$
+		int line = Util.getLineNumber(this.startPosition-1000, this.lineEnds, 0, this.linePtr);
+		int lineStart = getLineStart(line);
+		buffer.append(this.source, lineStart, this.startPosition-lineStart);
 	}
 
-	char end[] = new char[this.eofPosition - (this.currentPosition - 1)];
-	System.arraycopy(
-		this.source,
-		(this.currentPosition - 1) + 1,
-		end,
-		0,
-		this.eofPosition - (this.currentPosition - 1) - 1);
+	buffer.append("\n===============================\nStarts here -->"); //$NON-NLS-1$
+	int middleLength = (this.currentPosition - 1) - this.startPosition + 1;
+	if (middleLength > -1) {
+		buffer.append(this.source, this.startPosition, middleLength);
+	}
+	buffer.append("<-- Ends here\n===============================\n"); //$NON-NLS-1$
 
-	return new String(front)
-		+ "\n===============================\nStarts here -->" //$NON-NLS-1$
-		+ new String(middle)
-		+ "<-- Ends here\n===============================\n" //$NON-NLS-1$
-		+ new String(end);
+	buffer.append(this.source, (this.currentPosition - 1) + 1, this.eofPosition - (this.currentPosition - 1) - 1);
+
+	return buffer.toString();
 }
 public String toStringAction(int act) {
 	switch (act) {

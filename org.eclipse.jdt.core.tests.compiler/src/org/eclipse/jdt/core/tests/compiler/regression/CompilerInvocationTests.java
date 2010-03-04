@@ -188,9 +188,9 @@ public void test003_task_tags_options() {
 			"  }\n" +
 			"}\n"},
 		null,
-		"[FIXME,message contents,HIGH]\n" +
-		"[TODO,message contents,NORMAL]\n" +
-		"[XXX,message contents,NORMAL]\n");
+		"[FIXME, message contents,HIGH]\n" +
+		"[TODO, message contents,NORMAL]\n" +
+		"[XXX, message contents,NORMAL]\n");
 }
 // effect of cancelling priorities
 // reactivate when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=143402 is fixed
@@ -206,9 +206,9 @@ public void _test004_task_tags_options() {
 			"  }\n" +
 			"}\n"},
 		customOptions,
-		"[FIXME,message contents,NORMAL]\n" +
-		"[TODO,message contents,NORMAL]\n" +
-		"[XXX,message contents,NORMAL]\n");
+		"[FIXME, message contents,NORMAL]\n" +
+		"[TODO, message contents,NORMAL]\n" +
+		"[XXX, message contents,NORMAL]\n");
 }
 // effect of cancelling priorities
 // reactivate when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=143402 is fixed
@@ -261,9 +261,9 @@ public void test007_task_tags_options() {
 			"  }\n" +
 			"}\n"},
 		customOptions,
-		"[FIXME,message contents,NORMAL]\n" +
-		"[TODO,message contents,NORMAL]\n" +
-		"[XXX,message contents,NORMAL]\n");
+		"[FIXME, message contents,NORMAL]\n" +
+		"[TODO, message contents,NORMAL]\n" +
+		"[XXX, message contents,NORMAL]\n");
 }
 // effect of changing priorities
 // reactivate when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=143402 is fixed

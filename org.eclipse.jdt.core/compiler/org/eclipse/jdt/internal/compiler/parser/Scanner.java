@@ -368,10 +368,9 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 			continue;
 		}
 		// trim the message
+		// we don't trim the beginning of the message to be able to show it after the task tag
 		while (CharOperation.isWhitespace(src[end]) && msgStart <= end)
 			end--;
-		while (CharOperation.isWhitespace(src[msgStart]) && msgStart <= end)
-			msgStart++;
 		// update the end position of the task
 		this.foundTaskPositions[i][1] = end;
 		// get the message source

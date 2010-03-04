@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -208,7 +208,7 @@ public void test0103() throws JavaModelException {
 	);
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
-	expectingSpecificProblemFor(classTest1, new Problem("p1", "TODO : marker only", classTest1, 38, 55, -1, IMarker.SEVERITY_ERROR));
+	expectingSpecificProblemFor(classTest1, new Problem("p1", "TODO: marker only", classTest1, 38, 55, -1, IMarker.SEVERITY_ERROR));
 	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
 }
 
