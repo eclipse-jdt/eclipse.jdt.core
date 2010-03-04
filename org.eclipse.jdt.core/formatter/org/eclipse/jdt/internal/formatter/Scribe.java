@@ -2692,7 +2692,9 @@ public class Scribe implements IJavaDocTagConstants {
 					if (newLineString == null) {
 						StringBuffer newLineBuffer = new StringBuffer(this.lineSeparator);
 						this.column = 1;
-						printIndentationIfNecessary(newLineBuffer);
+						if (!this.formatter.preferences.never_indent_line_comments_on_first_column) {
+							printIndentationIfNecessary(newLineBuffer);
+						}
 					    newLineBuffer.append(LINE_COMMENT_PREFIX);
 						this.column += LINE_COMMENT_PREFIX_LENGTH;
 						newLineString = newLineBuffer.toString();
