@@ -659,7 +659,11 @@ public class DefaultCodeFormatterConstants {
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           TRUE
 	 * </pre>
-	 * Note that this option is ignored if the formatter is created with the mode {@link ToolFactory#M_FORMAT_NEW}.
+	 * Note that this option is ignored if either the
+	 * {@link #FORMATTER_COMMENT_FORMAT_LINE_COMMENT} option has been set to
+	 * {@link #FALSE} or the formatter is created with the mode
+	 * {@link ToolFactory#M_FORMAT_NEW}.
+	 * 
 	 * @see #TRUE
 	 * @see #FALSE
 	 * @see ToolFactory#createCodeFormatter(Map, int)
