@@ -1163,9 +1163,12 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			NodeMarker curr= (NodeMarker) markers.get(i);
 
 			int offset= curr.offset;
-			if (offset != currPos) {
+			if (offset >= currPos) {
 				String insertStr= formatted.substring(currPos, offset);
 				doTextInsert(insertOffset, insertStr, editGroup); // insert until the marker's begin
+			} else {
+				// already processed
+				continue;
 			}
 
 			Object data= curr.data;
