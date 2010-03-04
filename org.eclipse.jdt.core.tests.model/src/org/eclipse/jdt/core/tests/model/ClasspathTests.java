@@ -89,7 +89,7 @@ public ClasspathTests(String name) {
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
-//	TESTS_NAMES = new String[] {"testBug304081"};
+//	TESTS_NAMES = new String[] {"testClasspathValidation42"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -4881,7 +4881,7 @@ public void testNoResourceChange05() throws CoreException {
  */
 public void testNoResourceChange06() throws CoreException {
 	ILogListener listener = new ILogListener(){
-		private final StringBuffer buffer = new StringBuffer();
+		private StringBuffer buffer = new StringBuffer();
 		public void logging(IStatus status, String plugin) {
 			this.buffer.append(status);
 			this.buffer.append('\n');
@@ -6534,6 +6534,7 @@ public void testBug304081b() throws Exception {
 
 		IJavaProject proj = this.createJavaProject("P", new String[] {}, "bin");
 		IClasspathEntry[] classpath = new IClasspathEntry[1];
+		libDir = new File(proj.getResource().getLocation().toPortableString());
 		File libJar = new File(libDir, "container.jar");
 		
 		addLibrary(proj, "container.jar", null, new String[0], 
