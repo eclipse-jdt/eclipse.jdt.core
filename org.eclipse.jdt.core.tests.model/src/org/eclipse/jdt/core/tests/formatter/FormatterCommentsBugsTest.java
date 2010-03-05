@@ -6203,4 +6203,40 @@ public void testBug300379b() {
 	    "}\n");
 }
 
+/**
+ * @bug 304705: [formatter] Unexpected indentation of wrapped line comments when 'Never indent line comment on first column' preference is checked
+ * @test Verify that wrapped line comments are also put at first column
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304705"
+ */
+public void testBug304705() {
+	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
+	String source = 
+		"public interface Example {\n" + 
+		"// This is a long comment    with	whitespace     that should be split in multiple line comments in case the line comment formatting is enabled\n" + 
+		"	int foo();\n" + 
+	    "}\n";
+	formatSource(source, 
+		"public interface Example {\n" + 
+		"// This is a long comment with whitespace that should be split in multiple line\n" + 
+		"// comments in case the line comment formatting is enabled\n" + 
+		"	int foo();\n" + 
+	    "}\n");
+}
+public void testBug304705b() {
+	this.formatterPrefs.never_indent_block_comments_on_first_column = true;
+	String source = 
+		"public interface Example {\n" + 
+		"/* This is a long comment    with	whitespace     that should be split in multiple line comments in case the line comment formatting is enabled */\n" + 
+		"	int foo();\n" + 
+	    "}\n";
+	formatSource(source, 
+		"public interface Example {\n" + 
+		"/*\n" + 
+		" * This is a long comment with whitespace that should be split in multiple line\n" + 
+		" * comments in case the line comment formatting is enabled\n" + 
+		" */\n" + 
+		"	int foo();\n" + 
+	    "}\n");
+}
+
 }
