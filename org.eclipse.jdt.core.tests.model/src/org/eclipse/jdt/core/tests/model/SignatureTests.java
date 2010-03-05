@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ static {
 	// Prefix for tests names to run
 //	TESTS_PREFIX =  "testGetTypeErasure";
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_NAMES = new String[] { "testGetSimpleName" };
+//	TESTS_NAMES = new String[] { "testToStringMethod13" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	TESTS_NUMBERS = new int[] { 8 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -267,6 +267,14 @@ public void testGetParameterCount17() {
 		Signature.getParameterCount(methodSig));
 }
 /*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=267432
+ */
+public void testGetParameterCount19() {
+	String methodSig= "<TYPE:Ljava/lang/Object;>(Ljava/lang/Object;Ljava/lang/Class<TTYPE;>;)TTYPE;";
+	assertEquals("Signature#getParameterCount is not correct", 2,
+		Signature.getParameterCount(methodSig));
+}
+/*
  * Ensures that a signature with a '? extends ?' wildcard can be decoded.
  * (regression test for bug 92370 [1.5] IAE in Signature.getParameterCount(..) for method proposal on capture type receiver)
  */
@@ -280,9 +288,9 @@ public void testGetParameterCount18() {
  */
 public void testGetParameterTypes() {
 	String methodSig = "(QString;QObject;I)I";
-	String[] types= Signature.getParameterTypes(methodSig);
-	assertEquals("Signature#getParameterTypes is not correct1", 3, types.length);
-	assertEquals("Signature#getParameterTypes is not correct2", "QObject;", types[1]);
+	String[] parameterTypes = Signature.getParameterTypes(methodSig);
+	assertEquals("Signature#getParameterTypes is not correct1", 3, parameterTypes.length);
+	assertEquals("Signature#getParameterTypes is not correct2", "QObject;", parameterTypes[1]);
 	try {
 		Signature.getParameterTypes("");
 		assertTrue("Signature#getParameterTypes is not correct: exception", false);
@@ -292,60 +300,75 @@ public void testGetParameterTypes() {
 
 	// primitive types
 	methodSig = "(BCDFIJSVZ)V";
+	parameterTypes = Signature.getParameterTypes(methodSig);
 	assertEquals("Signature#getParameterTypes 4", 9,
-			Signature.getParameterTypes(methodSig).length);
+			parameterTypes.length);
 	assertEquals("Signature#getParameterTypes 4", "B",
-			Signature.getParameterTypes(methodSig)[0]);
+			parameterTypes[0]);
 	assertEquals("Signature#getParameterTypes 4", "C",
-			Signature.getParameterTypes(methodSig)[1]);
+			parameterTypes[1]);
 	assertEquals("Signature#getParameterTypes 4", "D",
-			Signature.getParameterTypes(methodSig)[2]);
+			parameterTypes[2]);
 	assertEquals("Signature#getParameterTypes 4", "F",
-			Signature.getParameterTypes(methodSig)[3]);
+			parameterTypes[3]);
 	assertEquals("Signature#getParameterTypes 4", "I",
-			Signature.getParameterTypes(methodSig)[4]);
+			parameterTypes[4]);
 	assertEquals("Signature#getParameterTypes 4", "J",
-			Signature.getParameterTypes(methodSig)[5]);
+			parameterTypes[5]);
 	assertEquals("Signature#getParameterTypes 4", "S",
-			Signature.getParameterTypes(methodSig)[6]);
+			parameterTypes[6]);
 	assertEquals("Signature#getParameterTypes 4", "V",
-			Signature.getParameterTypes(methodSig)[7]);
+			parameterTypes[7]);
 	assertEquals("Signature#getParameterTypes 4", "Z",
-			Signature.getParameterTypes(methodSig)[8]);
+			parameterTypes[8]);
 
 	// array types
 	methodSig = "([I[[J[[[B[Qstring;[Tv;[Lstring;)V";
+	parameterTypes = Signature.getParameterTypes(methodSig);
 	assertEquals("Signature#getParameterTypes 5", 6,
-			Signature.getParameterTypes(methodSig).length);
+			parameterTypes.length);
 	assertEquals("Signature#getParameterTypes 5", "[I",
-			Signature.getParameterTypes(methodSig)[0]);
+			parameterTypes[0]);
 	assertEquals("Signature#getParameterTypes 5", "[[J",
-			Signature.getParameterTypes(methodSig)[1]);
+			parameterTypes[1]);
 	assertEquals("Signature#getParameterTypes 5", "[[[B",
-			Signature.getParameterTypes(methodSig)[2]);
+			parameterTypes[2]);
 	assertEquals("Signature#getParameterTypes 5", "[Qstring;",
-			Signature.getParameterTypes(methodSig)[3]);
+			parameterTypes[3]);
 	assertEquals("Signature#getParameterTypes 5", "[Tv;",
-			Signature.getParameterTypes(methodSig)[4]);
+			parameterTypes[4]);
 	assertEquals("Signature#getParameterTypes 5", "[Lstring;",
-			Signature.getParameterTypes(methodSig)[5]);
+			parameterTypes[5]);
 
 	// resolved types
 	methodSig = "(La;)V";
-	assertEquals("Signature#getParameterTypes 6", 1,
-			Signature.getParameterTypes(methodSig).length);
-	assertEquals("Signature#getParameterTypes 6", "La;",
-			Signature.getParameterTypes(methodSig)[0]);
+	parameterTypes = Signature.getParameterTypes(methodSig);
+	assertEquals("Signature#getParameterTypes 6", 1, parameterTypes.length);
+	assertEquals("Signature#getParameterTypes 6", "La;", parameterTypes[0]);
+	
 	methodSig = "(La<TE;>;)V";
+	parameterTypes = Signature.getParameterTypes(methodSig);
 	assertEquals("Signature#getParameterTypes 6", 1,
-			Signature.getParameterTypes(methodSig).length);
+			parameterTypes.length);
 	assertEquals("Signature#getParameterTypes 6", "La<TE;>;",
-			Signature.getParameterTypes(methodSig)[0]);
-	methodSig = "(La/b/c<TE;>.d<TF;>;)V";
+			parameterTypes[0]);
+
+	methodSig = "(La.b.c<TE;>.d<TF;>;)V";
+	parameterTypes = Signature.getParameterTypes(methodSig);
 	assertEquals("Signature#getParameterTypes 6", 1,
-			Signature.getParameterTypes(methodSig).length);
-	assertEquals("Signature#getParameterTypes 6", "La/b/c<TE;>.d<TF;>;",
-			Signature.getParameterTypes(methodSig)[0]);
+			parameterTypes.length);
+	assertEquals("Signature#getParameterTypes 6", "La.b.c<TE;>.d<TF;>;",
+			parameterTypes[0]);
+
+	// signature with type variable
+	methodSig = "<TYPE:Ljava.lang.Object;>(Ljava.lang.Object;Ljava.lang.Class<TTYPE;>;)TTYPE;";
+	parameterTypes = Signature.getParameterTypes(methodSig);
+	assertEquals("Signature#getParameterTypes 7", 2,
+			parameterTypes.length);
+	assertEquals("Signature#getParameterTypes 7", "Ljava.lang.Object;",
+			parameterTypes[0]);
+	assertEquals("Signature#getParameterTypes 7", "Ljava.lang.Class<TTYPE;>;",
+			parameterTypes[1]);
 }
 /**
  * @see Signature
@@ -1070,7 +1093,6 @@ public void testToStringMethod12() {
 	}
 	assertTrue("Should get an exception", false);
 }
-
 /**
  * Test the toString() signature of an inner type.
  */
