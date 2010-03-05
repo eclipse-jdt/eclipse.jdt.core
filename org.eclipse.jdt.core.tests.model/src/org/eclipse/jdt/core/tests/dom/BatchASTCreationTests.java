@@ -32,8 +32,11 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class BatchASTCreationTests extends AbstractASTTests {
@@ -104,10 +107,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test056" };
-//		TESTS_NUMBERS = new int[] { 78, 79, 80 };
+//		TESTS_NAMES = new String[] { "test072a" };
+//		TESTS_NUMBERS = new int[] { 72 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
-		}
+	}
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
@@ -1692,7 +1695,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	 * is not null
 	 * (regression test for bug 129804 Local variable bindings from ASTParser#createASTs(.., String[], .., ..) have no declaring method)
 	 */
-	public void _test072() throws CoreException {
+	public void test072() throws CoreException {
 		IVariableBinding[] bindings = createVariableBindings(
 			new String[] {
 				"/P/X.java",
@@ -1709,6 +1712,49 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		assertBindingEquals(
 			"LX;.m()V",
 			bindings[0].getDeclaringMethod());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=152060
+	public void test072a() throws CoreException, IOException {
+		try {
+			IJavaProject project = createJavaProject("P072a", new String[] {"src"}, Util.getJavaClassLibs(), "bin", "1.5");
+			createFile("/P072a/src/X.java",
+					"public class X {\n" +
+					"    void m() {\n" +
+					"        Object o;\n" +
+					"    }\n" +
+					"}");
+			final ICompilationUnit compilationUnits[] = new ICompilationUnit[1];
+			compilationUnits[0] = getCompilationUnit("P072a", "src", "", "X.java");
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setResolveBindings(true);
+			parser.setProject(project);
+			final String[] keys = new String[] { "LX;.m()V#o" };
+			final ASTNode[] nodes = new ASTNode[1];
+			BindingRequestor bindingRequestor = new BindingRequestor() {
+				public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+					if (compilationUnits[0].equals(source)) {
+						nodes[0] = ast;
+					}
+				}
+			};
+			parser.createASTs(
+					compilationUnits,
+					keys,
+					bindingRequestor,
+					null);
+			IBinding[] bindings = bindingRequestor.getBindings(keys);
+			IBinding binding = bindings[0];
+			assertNotNull("Should not be null", binding);
+			assertEquals("Not a type binding", IBinding.VARIABLE, binding.getKind());
+			MethodDeclaration declaration = ((TypeDeclaration)((CompilationUnit) nodes[0]).types().get(0)).getMethods()[0];
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) ((VariableDeclarationStatement) declaration.getBody().statements().get(0)).fragments().get(0);
+			IVariableBinding resolveBinding = fragment.resolveBinding();
+			assertTrue("Not equals", binding.isEqualTo(resolveBinding));
+			assertNotNull("No java element", resolveBinding.getJavaElement());
+			assertNotNull("No java element", binding.getJavaElement());
+		} finally {
+			deleteProject("P072a");
+		}
 	}
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159631
@@ -1936,30 +1982,30 @@ public void test079() throws CoreException, IOException {
 				"    }\n" +
 				"    public void extra() {\n" +
 				"    }\n" +
-				"}");
+		"}");
 		ICompilationUnit compilationUnits[] = new ICompilationUnit[1];
 		compilationUnits[0] = getCompilationUnit("P079", "src", "test", "Test.java");
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
 		parser.setProject(project);
-       	final IBinding[] bindings = new IBinding[1];
+		final IBinding[] bindings = new IBinding[1];
 		final String key = "Ltest/Test~ExtraIterator<>;";
 		parser.createASTs(
-			compilationUnits,
-			new String[] {
-				key
-			},
-			new ASTRequestor() {
-                public void acceptAST(ICompilationUnit source, CompilationUnit localAst) {
-                	// do nothing
-                }
-                public void acceptBinding(String bindingKey, IBinding binding) {
-                	if (key.equals(bindingKey)) {
-                		bindings[0] = binding;
-                 	}
-                }
-			},
-			null);
+				compilationUnits,
+				new String[] {
+						key
+				},
+				new ASTRequestor() {
+					public void acceptAST(ICompilationUnit source, CompilationUnit localAst) {
+						// do nothing
+					}
+					public void acceptBinding(String bindingKey, IBinding binding) {
+						if (key.equals(bindingKey)) {
+							bindings[0] = binding;
+						}
+					}
+				},
+				null);
 		IBinding binding = bindings[0];
 		assertNotNull("Should not be null", binding);
 		assertEquals("Not a type binding", IBinding.TYPE, binding.getKind());
