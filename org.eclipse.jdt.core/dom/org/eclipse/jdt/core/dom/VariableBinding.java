@@ -14,10 +14,13 @@ package org.eclipse.jdt.core.dom;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.util.IModifierConstants;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -127,7 +130,22 @@ class VariableBinding implements IVariableBinding {
 		if (!isField()) {
 			ASTNode node = this.resolver.findDeclaringNode(this);
 			while (true) {
-				if (node == null) break;
+				if (node == null) {
+					if (this.binding instanceof LocalVariableBinding) {
+						LocalVariableBinding localVariableBinding = (LocalVariableBinding) this.binding;
+						BlockScope blockScope = localVariableBinding.declaringScope;
+						if (blockScope != null) {
+							ReferenceContext referenceContext = blockScope.referenceContext();
+							if (referenceContext instanceof Initializer) {
+								return null;
+							}
+							if (referenceContext instanceof AbstractMethodDeclaration) {
+								return this.resolver.getMethodBinding(((AbstractMethodDeclaration) referenceContext).binding);
+							}
+						}
+					}
+					return null;
+				}
 				switch(node.getNodeType()) {
 					case ASTNode.INITIALIZER :
 						return null;
