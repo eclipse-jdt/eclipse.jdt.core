@@ -876,10 +876,26 @@ public abstract class Scope {
 		ReferenceBinding memberType = enclosingType.getMemberType(typeName);
 		if (memberType != null) {
 			unitScope.recordTypeReference(memberType);
-			if (enclosingReceiverType == null
-				? memberType.canBeSeenBy(getCurrentPackage())
-				: memberType.canBeSeenBy(enclosingType, enclosingReceiverType))
+			if (enclosingReceiverType == null) {
+				if (memberType.canBeSeenBy(getCurrentPackage())) {
 					return memberType;
+				}
+				// maybe some type in the compilation unit is extending some class in some package
+				// and the selection is for some protected inner class of that superclass
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235658
+				if (this instanceof CompilationUnitScope) {
+					TypeDeclaration[] types = ((CompilationUnitScope)this).referenceContext.types;
+					if (types != null) {
+						for (int i = 0, max = types.length; i < max; i++) {
+							if (memberType.canBeSeenBy(enclosingType, types[i].binding)) {
+								return memberType;
+							}
+						}
+					}
+				}
+			} else if (memberType.canBeSeenBy(enclosingType, enclosingReceiverType)) {
+				return memberType;
+			}
 			return new ProblemReferenceBinding(new char[][]{typeName}, memberType, ProblemReasons.NotVisible);
 		}
 		return null;
