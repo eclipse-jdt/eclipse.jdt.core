@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,20 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.*;
+import junit.framework.Test;
 
-import junit.framework.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 
 public class ResolveTests extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
@@ -2544,6 +2554,37 @@ public void testInvalidMethod2() throws JavaModelException {
 		"Unexpected elements",
 		"",
 		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235658
+// To verify that "open declaration" works for a protected interface, which is
+// an inner type of an extending class's superclass.
+public void testInterfaceX() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Bug.java",
+		"package test;\n"+
+		"public class Bug {\n" +
+		"  void foo() {}\n" +
+		"  protected interface Proto {}\n" +
+		"}\n");
+
+	this.workingCopies[1] = getWorkingCopy(
+		"/Resolve/src/Type.java",
+		"import test.Bug;\n"+
+		"import test.Bug.*;\n"+
+		"class Type extends Bug implements Proto {\n" +
+		"}\n");
+
+	String str = this.workingCopies[1].getSource();
+	int start = str.lastIndexOf("Proto");
+	int length = "Proto".length();
+	IJavaElement[] elements =  this.workingCopies[1].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"Proto [in Bug [in [Working copy] Bug.java [in test [in src [in Resolve]]]]]",
+			elements
 	);
 }
 
