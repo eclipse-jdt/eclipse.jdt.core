@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -11453,4 +11454,83 @@ public void testBug296343() throws Exception {
 	}	
 }
 
+/**
+ * @bug 304841: [search] NPE in IndexSelector.initializeIndexLocations
+ * @test Ensure that no NPE occurs when searching for a reference in a CU without primary type
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304841"
+ */
+public void testBug304841() throws Exception {
+	boolean autoBuild = getWorkspace().isAutoBuilding();
+	IWorkspaceDescription preferences = getWorkspace().getDescription();
+	try {
+		// ensure that the workspace auto-build is ON
+		preferences.setAutoBuilding(true);
+		getWorkspace().setDescription(preferences);
+		
+		// create test case
+		IJavaProject project = createJavaProject("P");
+		createFolder("/P/p");
+		createFile(
+			"/P/p/Hello.java",
+			"package p;\n" + 
+			"class One {\n" + 
+			"}\n" + 
+			"class Two {\n" + 
+			"}\n"
+		);
+		createFile(
+			"/P/p/Ref.java",
+			"package p;\n" + 
+			"class Three {\n" + 
+			"	Two two;\n" + 
+			"}\n"
+		);
+		waitUntilIndexesReady();
+		
+		// perform search
+		final ICompilationUnit cu = getCompilationUnit("/P/p/Hello.java");
+		IType type = cu.getType("Two");
+		SearchPattern pattern = SearchPattern.createPattern(type, REFERENCES);
+		MatchLocator.setFocus(pattern, type);
+		new SearchEngine().search(
+			pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			SearchEngine.createJavaSearchScope(new IJavaElement[] { project }),
+			this.resultCollector,
+			null
+		);
+		assertSearchResults(
+			"p/Ref.java p.Three.two [Two] EXACT_MATCH"
+		);
+	} finally {
+		preferences.setAutoBuilding(autoBuild);
+		getWorkspace().setDescription(preferences);
+		deleteProject("P");
+	}
+}
+public void testBug304841b() throws Exception {
+	boolean autoBuild = getWorkspace().isAutoBuilding();
+	IWorkspaceDescription preferences = getWorkspace().getDescription();
+	try {
+		// ensure that the workspace auto-build is ON
+		preferences.setAutoBuilding(true);
+		getWorkspace().setDescription(preferences);
+		
+		// perform search
+		IType type = getClassFile("/JavaSearchBugs/lib/Bug148380.class").getType();
+		SearchPattern pattern = SearchPattern.createPattern(type, REFERENCES);
+		MatchLocator.setFocus(pattern, type);
+		new SearchEngine().search(
+			pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchScope(),
+			this.resultCollector,
+			null
+		);
+		assertSearchResults(""); // No expected results, only verify that no CCE occurs
+	} finally {
+		preferences.setAutoBuilding(autoBuild);
+		getWorkspace().setDescription(preferences);
+	}
+}
 }
