@@ -194,14 +194,16 @@ private void initializeIndexLocations() {
 			char[][] focusQualifiedName = null;
 			if (isAutoBuilding && focus instanceof IJavaProject) {
 				IJavaElement javaElement = this.pattern.focus;
-				while (javaElement != null && !(javaElement instanceof ICompilationUnit) && !(javaElement instanceof IClassFile)) {
+				while (javaElement != null && !(javaElement instanceof ITypeRoot)) {
 					javaElement = javaElement.getParent();
 				}
 				if (javaElement != null) {
-					ICompilationUnit compilationUnit = (ICompilationUnit) javaElement;
-					char[][] qualifiedName = CharOperation.splitOn('.', compilationUnit.findPrimaryType().getFullyQualifiedName().toCharArray());
-					char[][][] qualifiedNames = ReferenceCollection.internQualifiedNames(new char[][][] {qualifiedName});
-					focusQualifiedName = qualifiedNames[0];
+					IType primaryType = ((ITypeRoot) javaElement).findPrimaryType();
+					if (primaryType != null) {
+						char[][] qualifiedName = CharOperation.splitOn('.', primaryType.getFullyQualifiedName().toCharArray());
+						char[][][] qualifiedNames = ReferenceCollection.internQualifiedNames(new char[][][] {qualifiedName});
+						focusQualifiedName = qualifiedNames[0];
+					}
 				}
 			}
 
