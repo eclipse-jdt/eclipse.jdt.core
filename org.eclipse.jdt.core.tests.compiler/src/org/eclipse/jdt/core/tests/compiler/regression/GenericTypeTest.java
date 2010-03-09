@@ -2124,8 +2124,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" +
 			"1. ERROR in X.java (at line 9)\n" +
 			"	super(xt.t);\n" +
-			"	      ^^^^\n" +
-			"xt.t cannot be resolved or is not a field\n" +
+			"	         ^\n" +
+			"t cannot be resolved or is not a field\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 12)\n" +
 			"	X x = new X();\n" +
@@ -36692,8 +36692,8 @@ public void test1085() {
 		"----------\n" + 
 		"7. ERROR in Y.java (at line 9)\n" + 
 		"	E e2 = e2.e;\n" + 
-		"	       ^^^^\n" + 
-		"e2.e cannot be resolved or is not a field\n" + 
+		"	          ^\n" + 
+		"e cannot be resolved or is not a field\n" + 
 		"----------\n");
 }
 

@@ -2485,8 +2485,8 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in p1\\A.java (at line 7)\n" + 
 			"	int v2 = b.fooC;\n" + 
-			"	         ^^^^^^\n" + 
-			"b.fooC cannot be resolved or is not a field\n" + 
+			"	           ^^^^\n" + 
+			"fooC cannot be resolved or is not a field\n" + 
 			"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=256375

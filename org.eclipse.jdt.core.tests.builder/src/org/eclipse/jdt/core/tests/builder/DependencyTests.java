@@ -390,7 +390,7 @@ public class DependencyTests extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, xPath});
 		expectingSpecificProblemFor(cPath, new Problem("C", "i cannot be resolved to a variable", cPath, 50, 51, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "c.i cannot be resolved or is not a field", xPath, 55, 58, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "i cannot be resolved or is not a field", xPath, 57, 58, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$

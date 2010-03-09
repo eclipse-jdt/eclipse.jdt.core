@@ -3283,14 +3283,17 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 						(int) nameRef.sourcePositions[index-1]);
 					return;
 			}
-			id = IProblem.UndefinedField;
-/* also need to check that the searchedType is the receiver type
-			if (searchedType.isHierarchyInconsistent())
-				severity = SecondaryError;
-*/
-			break;
-		case ProblemReasons.NotVisible :
 			String fieldName = new String(nameRef.tokens[index]);
+			String[] arguments = new String[] {fieldName };
+			this.handle(
+					id,
+					arguments,
+					arguments,
+					nodeSourceStart(field, nameRef),
+					nodeSourceEnd(field, nameRef));
+			return;
+		case ProblemReasons.NotVisible :
+			fieldName = new String(nameRef.tokens[index]);
 			this.handle(
 				IProblem.NotVisibleField,
 				new String[] {fieldName, new String(field.declaringClass.readableName())},
