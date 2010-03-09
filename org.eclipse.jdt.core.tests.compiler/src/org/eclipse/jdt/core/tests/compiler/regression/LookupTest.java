@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -651,8 +651,8 @@ public void test019() {
 		"----------\n" +
 		"1. ERROR in p1\\A.java (at line 17)\n" +
 		"	System.out.println(foo.rating + bar.other);	\n" +
-		"	                                ^^^^^^^^^\n" +
-		"bar.other cannot be resolved or is not a field\n" +
+		"	                                    ^^^^^\n" +
+		"other cannot be resolved or is not a field\n" +
 		"----------\n"
 	);
 }
@@ -688,8 +688,8 @@ public void test020() {
 		"----------\n" +
 		"2. ERROR in p1\\A.java (at line 13)\n" +
 		"	System.out.println(foo.rating + bar.other);	\n" +
-		"	                                ^^^^^^^^^\n" +
-		"bar.other cannot be resolved or is not a field\n" +
+		"	                                    ^^^^^\n" +
+		"other cannot be resolved or is not a field\n" +
 		"----------\n");
 }
 /**
@@ -2886,8 +2886,8 @@ public void test086() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 5)\n" +
 		"	System.out.println(y.length);\n" +
-		"	                   ^^^^^^^^\n" +
-		"y.length cannot be resolved or is not a field\n" +
+		"	                     ^^^^^^\n" +
+		"length cannot be resolved or is not a field\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422 - variation

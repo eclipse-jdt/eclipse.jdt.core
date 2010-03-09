@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class FieldAccessTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 5, 6 };
+//		TESTS_NUMBERS = new int[] { 21 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 
@@ -618,6 +618,32 @@ public void test020() {
 		"	public void bar(int field) {System.out.println(field);}\n" +
 		"	                    ^^^^^\n" +
 		"The parameter field is hiding a field from type X\n" +
+		"----------\n",
+		null,
+		true,
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=303830
+public void test021() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public void bar() {\n" + 
+			"		ArrayList myList = new ArrayList();\n" + 
+			"		int len = myList.length;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	int len = myList.length;\n" + 
+		"	                 ^^^^^^\n" + 
+		"length cannot be resolved or is not a field\n" + 
 		"----------\n",
 		null,
 		true,
