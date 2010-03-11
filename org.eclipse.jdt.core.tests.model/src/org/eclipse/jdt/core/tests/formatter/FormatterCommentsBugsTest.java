@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 
@@ -6236,6 +6237,47 @@ public void testBug304705b() {
 		" * comments in case the line comment formatting is enabled\n" + 
 		" */\n" + 
 		"	int foo();\n" + 
+	    "}\n");
+}
+
+/**
+ * @bug 305281: [formatter] Turning off formatting changes comment's formatting
+ * @test Verify that turning off formatting in a javadoc does not screw up its indentation
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=305281"
+ */
+public void testBug305281() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, "format: OFF");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, "format: ON");
+	String source = 
+		"public class test {\n" + 
+		"\n" + 
+		"    /**\n" + 
+		"     * @param args\n" + 
+		"     * format: OFF\n" + 
+		"     */\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        do {\n" + 
+		"            } while (false);\n" + 
+		"        for (;;) {\n" + 
+		"        }\n" + 
+		"        // format: ON\n" + 
+		"    }\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"     * @param args\n" + 
+		"     * format: OFF\n" + 
+		"     */\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        do {\n" + 
+		"            } while (false);\n" + 
+		"        for (;;) {\n" + 
+		"        }\n" + 
+		"        // format: ON\n" + 
+		"	}\n" + 
 	    "}\n");
 }
 
