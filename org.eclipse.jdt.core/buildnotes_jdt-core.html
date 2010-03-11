@@ -44,7 +44,7 @@
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.6M6 - %date% - 3.6.0 M6
+Eclipse SDK 3.6M6 - March 11, 2010 - 3.6.0 M6
 <br>Project org.eclipse.jdt.core v_A39
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A39">cvs</a>).
 <h2>What's new in this drop</h2>
@@ -382,7 +382,11 @@ This new preferences is controlled with the options:</p>
  *     - possible values:   { TRUE, FALSE }
  *     - default:           TRUE
  * 
- * Note that this option is ignored if the formatter is created with the mode {@link ToolFactory#M_FORMAT_NEW}.
+ * Note that this option is ignored if either the
+ * {@link #FORMATTER_COMMENT_FORMAT_LINE_COMMENT} option has been set to
+ * {@link #FALSE} or the formatter is created with the mode
+ * {@link ToolFactory#M_FORMAT_NEW}.
+ * 
  * @see #TRUE
  * @see #FALSE
  * @see ToolFactory#createCodeFormatter(Map, int)
@@ -672,70 +676,6 @@ public class X {
 	 * the beginning and at the end of the comment... */
 	void bar() {
 	}
-	}
-}
-</pre>
-See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=270209">270209</a> for more details.
-</li>
-<li>
-Added two new formatter preferences to condense block and javadoc comments.
-<p>
-These new preferences are controlled respectively with the options:</p>
-<code>DefaultCodeFormatterConstants.FORMATTER_COMMENT_CONDENSED_BLOCK_COMMENT</code><br>
-<code>DefaultCodeFormatterConstants.FORMATTER_COMMENT_CONDENSED_JAVADOC_COMMENT</code>
-<pre>
-/**
- * FORMATTER / Option to control whether block comments are condensed or not
- *     - option id:         "org.eclipse.jdt.core.formatter.comment.condensed_block_comment"
- *     - possible values:   { TRUE, FALSE }
- *     - default:           FALSE
- * 
- * @see #TRUE
- * @see #FALSE
- * @since 3.6
- */
-
-/**
- * FORMATTER / Option to control whether javadoc comments are condensed or not
- *     - option id:         "org.eclipse.jdt.core.formatter.comment.condensed_javadoc_comment"
- *     - possible values:   { TRUE, FALSE }
- *     - default:           FALSE
- * 
- * @see #TRUE
- * @see #FALSE
- * @since 3.6
- */
- </pre>
-<p>For example, when both of these options are used, the following snippet:</p>
-<pre>
-public class X {
-	/*
-	 * This block comment after formatting will no longer use a new line
-	 * at the beginning and at the end of the comment...
-	 */
-	void foo() {
-	}
-	/**
-	 * This javadoc comment after formatting will no longer use a new line
-	 * at the beginning and at the end of the comment...
-	 */
-	void bar() {
-	}
-}
-</pre>
-formatted with this preference activated, will produce the following output:
-<pre>
-public class X {
-	/* This block comment after formatting will no longer use a new line at the
-	 * beginning and at the end of the comment... */
-	void foo() {
-	}
-
-	/** This javadoc comment after formatting will no longer use a new line at
-	 * the beginning and at the end of the comment... */
-	void bar() {
-	}
-	}
 }
 </pre>
 See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=270209">270209</a> for more details.
@@ -748,7 +688,7 @@ See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=236406">236406</a
 <li>
 Added a new formatter preferences to insert a new line after a label.
 <p>
-This new preference is controlled with the option:<br>
+This new preference is controlled with the option:</p>
 <code>DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_LABEL</code>
 <pre>
 /**
@@ -762,8 +702,7 @@ This new preference is controlled with the option:<br>
  * @since 3.6
  */
 </pre>
-</p>
-For example, the following snippet:
+<p>For example, the following snippet:</p>
 <pre>
 public class X {
 	void foo() {
@@ -872,7 +811,6 @@ Eclipse hangs when attempting to refactor using the &quot;change method signatur
 [organize imports] Organize imports removes needed import statement.
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=302379">302379</a>
 [search] JavaSearchTests.testZIPArchive2() test failed in I20100209-0800
-
 
 <a name="v_A34"></a>
 <hr><h1>
