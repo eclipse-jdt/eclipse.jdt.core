@@ -2379,6 +2379,12 @@ public class Scribe implements IJavaDocTagConstants {
 					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
 						if (this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
 							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
+							if (!this.editsEnabled && this.editsIndex > 1) {
+								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
+								if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
+									printNewLinesBeforeDisablingComment();
+								}
+							}
 							previousFoundTaskCount = foundTaskCount;
 						}
 						if (trailing > NO_TRAILING_COMMENT) {
