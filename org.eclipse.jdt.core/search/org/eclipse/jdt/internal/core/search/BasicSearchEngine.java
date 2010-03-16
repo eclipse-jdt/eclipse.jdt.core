@@ -109,14 +109,6 @@ public class BasicSearchEngine {
 	}
 
 	/**
-	 * @see SearchEngine#createHierarchyScope(IJavaProject,IType,boolean,boolean,WorkingCopyOwner) for detailed comment.
-	 * @deprecated Will be removed shortly before 3.6M5. Use {@link #createHierarchyScope(IJavaProject, IType, boolean, boolean, WorkingCopyOwner)} instead.
-	 */
-	public static IJavaSearchScope createHierarchyScope(IJavaProject project, IType type, boolean onlySubtypes, boolean noMemberTypes, WorkingCopyOwner owner) throws JavaModelException {
-		return new HierarchyScope(project, type, owner, onlySubtypes, noMemberTypes, !onlySubtypes);
-	}
-
-	/**
 	 * @see SearchEngine#createStrictHierarchyScope(IJavaProject,IType,boolean,boolean,WorkingCopyOwner) for detailed comment.
 	 */
 	public static IJavaSearchScope createStrictHierarchyScope(IJavaProject project, IType type, boolean onlySubtypes, boolean includeFocusType, WorkingCopyOwner owner) throws JavaModelException {

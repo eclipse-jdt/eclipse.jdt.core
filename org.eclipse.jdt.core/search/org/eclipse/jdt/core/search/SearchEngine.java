@@ -190,37 +190,6 @@ public class SearchEngine {
 
 	/**
 	 * Returns a Java search scope limited to the hierarchy of the given type and to a given project.
-	 * The Java elements resulting from a search with this scope will be types in this hierarchy,
-	 * or members or enclosing types of the types in this hierarchy.
-	 * <p>
-	 * By default, hierarchy scopes include all direct and indirect supertypes and subtypes of the
-	 * focus type. This method, however, allows to restrict the hierarchy to true subtypes,
-	 * neither including supertypes nor the focus type itself.
-	 * </p>
-	 * <p>
-	 * By default, hierarchy scopes include also member types and enclosing types of those types
-	 * that actually span the hierarchy. This method, however, allows to inhibit this behavior,
-	 * by passing <code>true</code> to the parameter <code>noMemberTypes</code>.
-	 * </p>
-	 * 
-	 * @param project the project to which to constrain the search, or <code>null</code> if
-	 *        search should consider all types in the workspace 
-	 * @param type the focus of the hierarchy scope
-	 * @param onlySubtypes if true only subtypes of <code>type</code> are considered
-	 * @param noMemberTypes if true do not consider member or enclosing types of types in the given type hiearchy
-	 * @param owner the owner of working copies that take precedence over original compilation units, 
-	 *        or <code>null</code> if the primary working copy owner should be used
-	 * @return a new hierarchy scope
-	 * @exception JavaModelException if the hierarchy could not be computed on the given type
-	 * @deprecated Will be removed shortly before 3.6M5. Use {@link #createStrictHierarchyScope(IJavaProject, IType, boolean, boolean, WorkingCopyOwner)} instead.
-	 * @since 3.6
-	 */
-	public static IJavaSearchScope createHierarchyScope(IJavaProject project, IType type, boolean onlySubtypes, boolean noMemberTypes, WorkingCopyOwner owner) throws JavaModelException {
-		return BasicSearchEngine.createHierarchyScope(project, type, onlySubtypes, noMemberTypes, owner);
-	}
-
-	/**
-	 * Returns a Java search scope limited to the hierarchy of the given type and to a given project.
 	 * The Java elements resulting from a search with this scope will be types in this hierarchy.
 	 * <p>
 	 * Unlike the <code>createHierarchyScope</code> methods, this method creates <em>strict</em>
