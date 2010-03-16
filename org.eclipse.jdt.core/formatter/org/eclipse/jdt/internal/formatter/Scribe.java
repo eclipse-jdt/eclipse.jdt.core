@@ -2217,15 +2217,12 @@ public class Scribe implements IJavaDocTagConstants {
 							// then it becomes not a good idea to change the trailing flag
 							if (trailing == BASIC_TRAILING_COMMENT && hasLineComment) {
 								int currentCommentIndentation = getCurrentIndentation(whiteSpaces, 0);
-								int lastCommentIndentation = this.lastLineComment.currentIndentation;
-								if (this.tabLength > 0) {
-									if ((currentCommentIndentation % this.tabLength) == 0) {
-										lastCommentIndentation = (lastCommentIndentation / this.tabLength) * this.tabLength;
-									} else {
-										currentCommentIndentation = ((currentCommentIndentation / this.tabLength) + 1) * this.tabLength;
-									}
+								int relativeIndentation = currentCommentIndentation - this.lastLineComment.currentIndentation;
+								if (this.tabLength == 0) {
+									canChangeTrailing = relativeIndentation == 0;
+								} else {
+									canChangeTrailing = relativeIndentation > -this.tabLength;
 								}
-								canChangeTrailing = currentCommentIndentation >= lastCommentIndentation;
 							}
 							// if the trailing can be change, then look at the following tokens
 							if (canChangeTrailing) {
@@ -2494,15 +2491,15 @@ public class Scribe implements IJavaDocTagConstants {
 					int currentCommentIndentation = getCurrentIndentation(this.lastLineComment.leadingSpaces, 0);
 					// Keep the current comment indentation when over the previous contiguous line comment
 					// and the previous comment has not been reindented
-					int lastCommentIndentation = this.lastLineComment.currentIndentation;
-					if (this.tabLength > 0) {
-						if ((currentCommentIndentation % this.tabLength) == 0) {
-							lastCommentIndentation = (lastCommentIndentation / this.tabLength) * this.tabLength;
-						} else {
-							currentCommentIndentation = ((currentCommentIndentation / this.tabLength) + 1) * this.tabLength;
-						}
+					int relativeIndentation = currentCommentIndentation - this.lastLineComment.currentIndentation;
+					boolean similarCommentsIndentation = false;
+					if (this.tabLength == 0) {
+						similarCommentsIndentation = relativeIndentation == 0;
+					} else if (relativeIndentation > -this.tabLength) {
+						similarCommentsIndentation = this.formatter.preferences.comment_format_line_comment_starting_on_first_column ||
+							(currentCommentIndentation != 0 && this.lastLineComment.currentIndentation != 0);
 					}
-					if (currentCommentIndentation >= lastCommentIndentation && this.lastLineComment.indentation != this.indentationLevel) {
+					if (similarCommentsIndentation && this.lastLineComment.indentation != this.indentationLevel) {
 						int currentIndentationLevel = this.indentationLevel;
 						this.indentationLevel = this.lastLineComment.indentation ;
 						printIndentationIfNecessary();
