@@ -6281,4 +6281,62 @@ public void testBug305281() {
 	    "}\n");
 }
 
+/**
+ * @bug 305371: [formatter] Unexpected indentation of line comment
+ * @test Verify that comments with too different indentation are not considered as contiguous
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=305371"
+ */
+public void testBug305371() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT_STARTING_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.FALSE);
+	String source = 
+		"class X01 {\n" + 
+		"//  unformatted    comment    !\n" + 
+		"        //  formatted    comment    !\n" + 
+	    "}\n";
+	formatSource(source,
+		"class X01 {\n" + 
+		"//  unformatted    comment    !\n" + 
+		"	// formatted comment !\n" + 
+	    "}\n");
+}
+public void testBug305371b() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT_STARTING_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.FALSE);
+	String source = 
+		"class X02 {\n" + 
+		"        //  formatted    comment    !\n" + 
+		"//  unformatted    comment    !\n" + 
+	    "}\n";
+	formatSource(source,
+		"class X02 {\n" + 
+		"	// formatted comment !\n" + 
+		"//  unformatted    comment    !\n" + 
+	    "}\n");
+}
+public void testBug305371c() {
+	String source = 
+		"class X03 {\n" + 
+		"        //  formatted    comment    1\n" + 
+		"    //  formatted    comment    2\n" + 
+	    "}\n";
+	formatSource(source,
+		"class X03 {\n" + 
+		"	// formatted comment 1\n" + 
+		"	// formatted comment 2\n" + 
+	    "}\n");
+}
+public void testBug305371d() {
+	String source = 
+		"class X04 {\n" + 
+		"    //  formatted    comment    1\n" + 
+		"        //  formatted    comment    2\n" + 
+	    "}\n";
+	formatSource(source,
+		"class X04 {\n" + 
+		"	// formatted comment 1\n" + 
+		"	// formatted comment 2\n" + 
+	    "}\n");
+}
+
 }
