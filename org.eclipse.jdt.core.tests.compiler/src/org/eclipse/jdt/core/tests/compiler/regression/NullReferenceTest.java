@@ -11636,4 +11636,30 @@ public void testBug304416() throws Exception {
 		"    12  return\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=305590
+// To verify that a "instanceof always yields false" warning is not elicited in the
+// case when the expression has been assigned a non null value in the instanceof check.
+public void testBug305590() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  public void foo() {\n" +
+			"	 Object str = null;\n" +
+			"	 if ((str = \"str\") instanceof String) {}\n" + // shouldn't warn
+			"	 str = null;\n" +
+			"	 if ((str = \"str\") instanceof Number) {}\n" + // shouldn't warn
+			"	 str = null;\n" +
+			"	 if (str instanceof String) {}\n" + // should warn
+			"  }\n" +
+			"}"},
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	if (str instanceof String) {}\n" + 
+		"	    ^^^\n" + 
+		"instanceof always yields false: The variable str can only be null at this location\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
 }
