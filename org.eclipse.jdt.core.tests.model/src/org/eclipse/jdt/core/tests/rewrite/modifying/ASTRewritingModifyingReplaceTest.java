@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -233,6 +233,232 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 		buf.append("}\n");
 		buf.append("class Z {\n");
 		buf.append("\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=192233
+	public void test0007() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0007", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0007;\n");
+		buf.append("public class X {\n");
+		buf.append("    List/**/getUsers() {}\n");
+		buf.append("}\n");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false, AST.JLS3);
+
+		astRoot.recordModifications();
+
+		AST ast = astRoot.getAST();
+
+		List types = astRoot.types();
+		List list= ((TypeDeclaration) types.get(0)).bodyDeclarations();
+		MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
+
+		methodDecl.setReturnType2(ast.newPrimitiveType(PrimitiveType.VOID));
+
+		String preview = evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0007;\n");
+		buf.append("public class X {\n");
+		buf.append("    void getUsers() {}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=192233
+	public void test0008() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0008", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0008;\n");
+		buf.append("public class X {\n");
+		buf.append("    List /**/getUsers() {}\n");
+		buf.append("}\n");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false, AST.JLS3);
+
+		astRoot.recordModifications();
+
+		AST ast = astRoot.getAST();
+
+		List types = astRoot.types();
+		List list= ((TypeDeclaration) types.get(0)).bodyDeclarations();
+		MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
+
+		methodDecl.setReturnType2(ast.newPrimitiveType(PrimitiveType.VOID));
+
+		String preview = evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0008;\n");
+		buf.append("public class X {\n");
+		buf.append("    void getUsers() {}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=192233
+	public void test0009() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0009", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0009;\n");
+		buf.append("public class X {\n");
+		buf.append("    List/**/ getUsers() {}\n");
+		buf.append("}\n");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false, AST.JLS3);
+
+		astRoot.recordModifications();
+
+		AST ast = astRoot.getAST();
+
+		List types = astRoot.types();
+		List list= ((TypeDeclaration) types.get(0)).bodyDeclarations();
+		MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
+
+		methodDecl.setReturnType2(ast.newPrimitiveType(PrimitiveType.VOID));
+
+		String preview = evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0009;\n");
+		buf.append("public class X {\n");
+		buf.append("    void getUsers() {}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=192233
+	public void test0010() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0010", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0010;\n");
+		buf.append("public class X {\n");
+		buf.append("    void getUsers(List/**/list) {}\n");
+		buf.append("}\n");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false, AST.JLS3);
+
+		astRoot.recordModifications();
+
+		AST ast = astRoot.getAST();
+
+		List types = astRoot.types();
+		List list= ((TypeDeclaration) types.get(0)).bodyDeclarations();
+		MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
+		List parameters = methodDecl.parameters();
+		SingleVariableDeclaration variableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+		variableDeclaration.setType(ast.newPrimitiveType(PrimitiveType.INT));
+
+		String preview = evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0010;\n");
+		buf.append("public class X {\n");
+		buf.append("    void getUsers(int list) {}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=192233
+	public void test0011() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0011", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0011;\n");
+		buf.append("public class X {\n");
+		buf.append("    void getUsers(int i, List/**/list) {}\n");
+		buf.append("}\n");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false, AST.JLS3);
+
+		astRoot.recordModifications();
+
+		AST ast = astRoot.getAST();
+
+		List types = astRoot.types();
+		List list= ((TypeDeclaration) types.get(0)).bodyDeclarations();
+		MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
+		List parameters = methodDecl.parameters();
+		SingleVariableDeclaration variableDeclaration = (SingleVariableDeclaration) parameters.get(1);
+		variableDeclaration.setType(ast.newPrimitiveType(PrimitiveType.INT));
+
+		String preview = evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0011;\n");
+		buf.append("public class X {\n");
+		buf.append("    void getUsers(int i, int list) {}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=192233
+	public void test0012() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0012", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0012;\n");
+		buf.append("public class X {\n");
+		buf.append("    void getUsers(int i, List.../**/list) {}\n");
+		buf.append("}\n");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false, AST.JLS3);
+
+		astRoot.recordModifications();
+
+		AST ast = astRoot.getAST();
+
+		List types = astRoot.types();
+		List list= ((TypeDeclaration) types.get(0)).bodyDeclarations();
+		MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
+		List parameters = methodDecl.parameters();
+		SingleVariableDeclaration variableDeclaration = (SingleVariableDeclaration) parameters.get(1);
+		variableDeclaration.setType(ast.newPrimitiveType(PrimitiveType.INT));
+
+		String preview = evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0012;\n");
+		buf.append("public class X {\n");
+		buf.append("    void getUsers(int i, int.../**/list) {}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=192233
+	public void test0013() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0013", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0013;\n");
+		buf.append("public class X {\n");
+		buf.append("    List/**/list;\n");
+		buf.append("}\n");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false, AST.JLS3);
+
+		astRoot.recordModifications();
+
+		AST ast = astRoot.getAST();
+
+		List types = astRoot.types();
+		List list= ((TypeDeclaration) types.get(0)).bodyDeclarations();
+		FieldDeclaration fieldDeclaration= (FieldDeclaration) list.get(0);
+		fieldDeclaration.setType(ast.newPrimitiveType(PrimitiveType.INT));
+
+		String preview = evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0013;\n");
+		buf.append("public class X {\n");
+		buf.append("    int list;\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}

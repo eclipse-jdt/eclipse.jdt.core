@@ -1588,6 +1588,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		boolean returnTypeExists=  originalReturnType != null && originalReturnType.getStartPosition() != -1;
 		if (!isConstructorChange && returnTypeExists) {
 			rewriteRequiredNode(node, property);
+			ensureSpaceAfterReplace(node, property);
 			return;
 		}
 		// difficult cases: return type insert or remove
@@ -2158,6 +2159,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		pos= rewriteRequiredNode(node, FieldDeclaration.TYPE_PROPERTY);
+		ensureSpaceAfterReplace(node, FieldDeclaration.TYPE_PROPERTY);
 		rewriteNodeList(node, FieldDeclaration.FRAGMENTS_PROPERTY, pos, "", ", "); //$NON-NLS-1$ //$NON-NLS-2$
 		return false;
 	}
@@ -2638,6 +2640,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					}
 				}
 			}
+		}
+		if (!node.isVarargs()) {
+			ensureSpaceAfterReplace(node, SingleVariableDeclaration.TYPE_PROPERTY);
 		}
 
 		pos= rewriteRequiredNode(node, SingleVariableDeclaration.NAME_PROPERTY);
