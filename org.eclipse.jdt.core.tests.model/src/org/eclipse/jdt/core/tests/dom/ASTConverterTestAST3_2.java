@@ -7689,11 +7689,10 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
-			assertProblemsSize(
-					unit,
+			assertEquals(
+					"Wrong problem size",
 					2,
-					"Object.equ cannot be resolved to a type\n" + 
-					"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration");
+					unit.getProblems().length);
 			node = getASTNode(unit, 0, 0);
 			assertEquals("Not a field declaration statement", ASTNode.INITIALIZER, node.getNodeType());
 			Initializer initializer = (Initializer) node;
