@@ -82,10 +82,11 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 	}
 	public CompilationUnit createCU(
 		ICompilationUnit unit,
-		boolean resolveBindings) {
+		boolean resolveBindings,
+		int astLevel) {
 
 		try {
-			ASTParser c = ASTParser.newParser(AST_INTERNAL_JLS2);
+			ASTParser c = ASTParser.newParser(astLevel);
 			c.setSource(unit);
 			c.setResolveBindings(resolveBindings);
 			ASTNode result = c.createAST(null);
@@ -94,6 +95,12 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 			// convert ASTParser's complaints into old form
 			throw new IllegalArgumentException();
 		}
+	}
+
+	public CompilationUnit createCU(
+			ICompilationUnit unit,
+			boolean resolveBindings) {
+		return createCU(unit, resolveBindings, AST_INTERNAL_JLS2);
 	}
 
 	public CompilationUnit createCU(char[] source) {
