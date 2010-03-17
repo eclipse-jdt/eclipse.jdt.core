@@ -3060,6 +3060,67 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	}
 
+	public void testIfStatementReplaceElse5() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo(int i) {\n");
+		buf.append("        if (i == 0) {\n");
+		buf.append("            System.beep();\n");
+		buf.append("        } else {\n");
+		buf.append("            System.beep();\n");
+		buf.append("            System.beep();\n");
+		buf.append("        }\n");
+		buf.append("        // comment\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		AST ast= astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(ast);
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List statements= block.statements();
+		assertTrue("Number of statements not 1", statements.size() == 1);
+
+		{
+			// replace then statement by block , replace else with if statement (block)
+			IfStatement ifStatement= (IfStatement) statements.get(0);
+
+			Statement thenStatement= ifStatement.getThenStatement();
+			Statement elseStatement= ifStatement.getElseStatement();
+
+			Statement newElseStatement= (Statement) rewrite.createMoveTarget(thenStatement);
+			Statement newThenStatement= (Statement) rewrite.createMoveTarget(elseStatement);
+
+			rewrite.set(ifStatement, IfStatement.THEN_STATEMENT_PROPERTY, newThenStatement, null);
+			rewrite.set(ifStatement, IfStatement.ELSE_STATEMENT_PROPERTY, newElseStatement, null);
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo(int i) {\n");
+		buf.append("        if (i == 0) {\n");
+		buf.append("            System.beep();\n");
+		buf.append("            System.beep();\n");
+		buf.append("        }\n");
+		buf.append("        // comment\n");
+		buf.append("        else {\n");
+		buf.append("            System.beep();\n");
+		buf.append("        }\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+
+	}
+
 	public void testLabeledStatement() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();

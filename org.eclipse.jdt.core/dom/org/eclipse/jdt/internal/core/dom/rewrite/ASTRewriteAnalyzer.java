@@ -764,8 +764,22 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 				case RewriteEvent.REPLACED: {
 					ASTNode node= (ASTNode) event.getOriginalValue();
+					boolean insertNewLine = false;
 					if (endPos == -1) {
+						int previousEnd = node.getStartPosition() + node.getLength();
 						endPos= getExtendedEnd(node);
+						if (endPos != previousEnd) {
+							// check if the end is a comment
+							int token = TokenScanner.END_OF_FILE;
+							try {
+								token = getScanner().readNext(previousEnd, false);
+							} catch(CoreException e) {
+								// ignore
+							}
+							if (token == TerminalTokens.TokenNameCOMMENT_LINE) {
+								insertNewLine = true;
+							}
+						}
 					}
 					TextEditGroup editGroup= getEditGroup(event);
 					int nodeLen= endPos - offset;
@@ -775,7 +789,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					doTextRemoveAndVisit(offset, nodeLen, node, editGroup);
 
 					String prefix= strings[0];
-					doTextInsert(offset, prefix, editGroup);
+					String insertedPrefix = prefix;
+					if (insertNewLine) {
+						insertedPrefix = getLineDelimiter() + this.formatter.createIndentString(indent) + insertedPrefix.trim() + ' ';
+					}
+					doTextInsert(offset, insertedPrefix, editGroup);
 					String lineInPrefix= getCurrentLine(prefix, prefix.length());
 					if (prefix.length() != lineInPrefix.length()) {
 						// prefix contains a new line: update the indent to the one used in the prefix
@@ -793,7 +811,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		return pos;
 	}
-
 	private int rewriteOptionalQualifier(ASTNode parent, StructuralPropertyDescriptor property, int startPos) {
 		RewriteEvent event= getEvent(parent, property);
 		if (event != null) {
