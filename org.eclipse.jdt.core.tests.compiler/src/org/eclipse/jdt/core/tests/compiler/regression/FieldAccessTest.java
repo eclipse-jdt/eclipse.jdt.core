@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class FieldAccessTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 21 };
+//		TESTS_NUMBERS = new int[] { 22 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 
@@ -648,6 +648,36 @@ public void test021() {
 		null,
 		true,
 		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=303830
+public void test022() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static int NEW_FIELD;\n" + 
+			"}",
+			"Y.java",
+			"public class Y {\n" + 
+			"	void foo() {\n" + 
+			"		int i = X.OLD_FIELD;\n" + 
+			"	}\n" + 
+			"	void bar() {\n" + 
+			"		int j = X.OLD_FIELD;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 3)\n" + 
+		"	int i = X.OLD_FIELD;\n" + 
+		"	          ^^^^^^^^^\n" + 
+		"OLD_FIELD cannot be resolved or is not a field\n" + 
+		"----------\n" + 
+		"2. ERROR in Y.java (at line 6)\n" + 
+		"	int j = X.OLD_FIELD;\n" + 
+		"	          ^^^^^^^^^\n" + 
+		"OLD_FIELD cannot be resolved or is not a field\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return FieldAccessTest.class;

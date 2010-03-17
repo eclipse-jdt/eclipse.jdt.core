@@ -3199,8 +3199,14 @@ public void invalidField(NameReference nameRef, FieldBinding field) {
 						nameRef.sourceEnd);
 					return;
 			}
-			id = IProblem.UndefinedField;
-			break;
+			String[] arguments = new String[] {new String(field.readableName())};
+			this.handle(
+					id,
+					arguments,
+					arguments,
+					nodeSourceStart(field, nameRef),
+					nodeSourceEnd(field, nameRef));
+			return;
 		case ProblemReasons.NotVisible :
 			char[] name = field.readableName();
 			name = CharOperation.lastSegment(name, '.');

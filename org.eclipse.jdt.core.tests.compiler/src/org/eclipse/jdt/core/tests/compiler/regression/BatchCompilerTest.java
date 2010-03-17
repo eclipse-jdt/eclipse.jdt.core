@@ -9204,8 +9204,8 @@ public void test231_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		"----------\n" +  /* expectedErrOutputString */
 		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" +
 		"	System.out.println(X.CONST);\n" +
-		"	                   ^^^^^^^\n" +
-		"X.CONST cannot be resolved to a variable\n" +
+		"	                     ^^^^^\n" +
+		"CONST cannot be resolved or is not a field\n" +
 		"----------\n" +
 		"1 problem (1 error)",
 		false /* shouldFlushOutputDirectory */,
@@ -9447,12 +9447,12 @@ public void test235_classpath() throws IOException, InterruptedException {
 		sourceFilePath /* commandLine */
 		+ " -proc:none " + commonOptions,
 		"" /* expectedOutOutputString */,
-		"----------\n" + /* expectedErrOutputString */
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" +
-		"	System.out.println(X.CONST);\n" +
-		"	                   ^^^^^^^\n" +
-		"X.CONST cannot be resolved to a variable\n" +
-		"----------\n" +
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" + 
+		"	System.out.println(X.CONST);\n" + 
+		"	                     ^^^^^\n" + 
+		"CONST cannot be resolved or is not a field\n" + 
+		"----------\n" + 
 		"1 problem (1 error)",
 		false /* shouldFlushOutputDirectory */,
 		null /* progress */);
@@ -9729,61 +9729,61 @@ public void test240_jar_ref_in_jar(){
 public void test241_jar_ref_in_jar(){
 	createCascadedJars();
 	this.runNegativeTest(
-		new String[] {
-			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  int i = R.R2;\n" +
-			"  int j = R.R3;\n" +
-			"}",
-		},
-	  "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+			new String[] {
+					"src/p/X.java",
+					"package p;\n" +
+					"/** */\n" +
+					"public class X {\n" +
+					"  int i = R.R2;\n" +
+					"  int j = R.R3;\n" +
+					"}",
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib1.jar\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar\""
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-	  + " -1.5 -g -preserveAllLocals"
-	  + " -proceedOnError -referenceInfo"
-	  + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
-	  "",
-	  "----------\n" +
-	  "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" +
-	  "	int j = R.R3;\n" +
-	  "	        ^^^^\n" +
-	  "R.R3 cannot be resolved to a variable\n" +
-	  "----------\n" +
-	  "1 problem (1 error)",
-	  true);
+			+ " -1.5 -g -preserveAllLocals"
+			+ " -proceedOnError -referenceInfo"
+			+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+			"",
+			"----------\n" + 
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" + 
+			"	int j = R.R3;\n" + 
+			"	          ^^\n" + 
+			"R3 cannot be resolved or is not a field\n" + 
+			"----------\n" + 
+			"1 problem (1 error)",
+			true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // using only links, we adopt a depth first algorithm
 public void test242_jar_ref_in_jar(){
 	createCascadedJars();
 	this.runNegativeTest(
-		new String[] {
-			"src/p/X.java",
-			"package p;\n" +
-			"/** */\n" +
-			"public class X {\n" +
-			"  int i = R.R2;\n" +
-			"  int j = R.R3;\n" +
-			"}",
-		},
-	  "\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+			new String[] {
+					"src/p/X.java",
+					"package p;\n" +
+					"/** */\n" +
+					"public class X {\n" +
+					"  int i = R.R2;\n" +
+					"  int j = R.R3;\n" +
+					"}",
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
 			+ " -cp \"" + LIB_DIR + File.separator + "lib4.jar\""
 			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-	  + " -1.5 -g -preserveAllLocals"
-	  + " -proceedOnError -referenceInfo"
-	  + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
-	  "",
-	  "----------\n" +
-	  "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" +
-	  "	int j = R.R3;\n" +
-	  "	        ^^^^\n" +
-	  "R.R3 cannot be resolved to a variable\n" +
-	  "----------\n" +
-	  "1 problem (1 error)",
-	  true);
+			+ " -1.5 -g -preserveAllLocals"
+			+ " -proceedOnError -referenceInfo"
+			+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+			"",
+			"----------\n" + 
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" + 
+			"	int j = R.R3;\n" + 
+			"	          ^^\n" + 
+			"R3 cannot be resolved or is not a field\n" + 
+			"----------\n" + 
+			"1 problem (1 error)",
+			true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars
 // managing subdirectories and .. properly
