@@ -2587,5 +2587,25 @@ public void testInterfaceX() throws JavaModelException {
 			elements
 	);
 }
+public void test306078() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/A.java",
+		"public class A { private static final int X = 0; }");
 
+	this.workingCopies[1] = getWorkingCopy(
+		"/Resolve/src/B.java",
+		"public class B { int x = A.X; }");
+
+	String str = this.workingCopies[1].getSource();
+	int start = str.lastIndexOf("X");
+	int length = "X".length();
+	IJavaElement[] elements =  this.workingCopies[1].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"X [in A [in [Working copy] A.java [in <default> [in src [in Resolve]]]]]",
+			elements
+	);
+}
 }
