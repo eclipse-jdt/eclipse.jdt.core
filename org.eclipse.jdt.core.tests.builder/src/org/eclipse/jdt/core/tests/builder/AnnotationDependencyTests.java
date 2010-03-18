@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, Walter Harley and others.
+ * Copyright (c) 2009, 2010 Walter Harley and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Walter Harley (eclipse@cafewalter.com) - initial implementation
+ *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
@@ -259,7 +260,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 
 		env.addClass( this.srcRoot, "question", "package-info", deprecatedQuestion );
 		incrementalBuild( this.projectPath );
-		expectingOnlySpecificProblemFor(notypesPath, new Problem("", "The type SimpleAnnotation is deprecated", notypesPath, 1, 26, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$
+		expectingOnlySpecificProblemFor(notypesPath, new Problem("", "The type SimpleAnnotation is deprecated", notypesPath, 10, 26, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$
 
 		env.addClass( this.srcRoot, "question", "package-info", question );
 		incrementalBuild( this.projectPath );

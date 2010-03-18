@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,7 +76,7 @@ public class JavadocTestForMethod extends JavadocTest {
 			"----------\n"
 				+ "1. WARNING in X.java (at line 4)\n"
 				+ "	new Z().foo();\n"
-				+ "	^^^^^^^^^^^^^\n"
+				+ "	        ^^^^^\n"
 				+ "The method foo() from the type Z is deprecated\n"
 				+ "----------\n",
 				null, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
@@ -173,7 +173,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" +
 		"1. WARNING in X.java (at line 4)\n" +
 		"	new Z().foo(2);\n" +
-		"	^^^^^^^^^^^^^^\n" +
+		"	        ^^^^^^\n" +
 		"The method foo(int) from the type Z is deprecated\n" +
 		"----------\n"
 				);
@@ -210,7 +210,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" +
 		"1. WARNING in X.java (at line 4)\n" +
 		"	new Z().foo(2);\n" +
-		"	^^^^^^^^^^^^^^\n" +
+		"	        ^^^^^^\n" +
 		"The method foo(int) from the type Z is deprecated\n" +
 		"----------\n" +
 		"----------\n" +
@@ -278,7 +278,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" +
 		"1. WARNING in X.java (at line 4)\n" +
 		"	new Z().foo(2);\n" +
-		"	^^^^^^^^^^^^^^\n" +
+		"	        ^^^^^^\n" +
 		"The method foo(int) from the type Z is deprecated\n" +
 		"----------\n"
 				);
@@ -316,7 +316,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" +
 		"1. WARNING in X.java (at line 4)\n" +
 		"	new Z().foo(2);\n" +
-		"	^^^^^^^^^^^^^^\n" +
+		"	        ^^^^^^\n" +
 		"The method foo(int) from the type Z is deprecated\n" +
 		"----------\n" +
 		"----------\n" +
@@ -384,7 +384,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" +
 		"1. WARNING in X.java (at line 4)\n" +
 		"	new Z().foo(2);\n" +
-		"	^^^^^^^^^^^^^^\n" +
+		"	        ^^^^^^\n" +
 		"The method foo(int) from the type Z is deprecated\n" +
 		"----------\n"
 				);
@@ -421,7 +421,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" +
 		"1. WARNING in X.java (at line 4)\n" +
 		"	new Z().foo(2);\n" +
-		"	^^^^^^^^^^^^^^\n" +
+		"	        ^^^^^^\n" +
 		"The method foo(int) from the type Z is deprecated\n" +
 		"----------\n" +
 		"----------\n" +

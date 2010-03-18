@@ -30,7 +30,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test0788" };
+//		TESTS_NAMES = new String[] { "test1245" };
 //		TESTS_NUMBERS = new int[] { 1455 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -42628,6 +42628,11 @@ public void test1245() {
 		"	public class X<T extends Secondary.Private> {\n" +
 		"	                         ^^^^^^^^^^^^^^^^^\n" +
 		"The type Secondary.Private is not visible\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	static private class Private {}\n" + 
+		"	                     ^^^^^^^\n" + 
+		"The type Secondary.Private is never used locally\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100 - variation
