@@ -2657,8 +2657,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					}
 				}
 			}
-		}
-		if (!node.isVarargs()) {
+			if (!node.isVarargs()) {
+				ensureSpaceAfterReplace(node, SingleVariableDeclaration.TYPE_PROPERTY);
+			}
+		} else {
 			ensureSpaceAfterReplace(node, SingleVariableDeclaration.TYPE_PROPERTY);
 		}
 
