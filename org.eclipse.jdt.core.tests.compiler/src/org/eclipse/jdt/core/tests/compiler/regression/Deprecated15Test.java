@@ -13,9 +13,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
 import junit.framework.Test;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class Deprecated15Test extends AbstractRegressionTest {
 public Deprecated15Test(String name) {
@@ -84,22 +84,22 @@ public void test001() {
 		"7. WARNING in Y.java (at line 9)\n" +
 		"	p.X x;\n" +
 		"	^^^\n" +
-		"The type X is deprecated\n" +
+		"X is a raw type. References to generic type X<T> should be parameterized\n" +
 		"----------\n" +
 		"8. WARNING in Y.java (at line 9)\n" +
 		"	p.X x;\n" +
-		"	^^^\n" +
-		"X is a raw type. References to generic type X<T> should be parameterized\n" +
+		"	  ^\n" +
+		"The type X<T> is deprecated\n" +
 		"----------\n" +
 		"9. WARNING in Y.java (at line 10)\n" +
 		"	p.X[] xs = { x };\n" +
 		"	^^^\n" +
-		"The type X is deprecated\n" +
+		"X is a raw type. References to generic type X<T> should be parameterized\n" +
 		"----------\n" +
 		"10. WARNING in Y.java (at line 10)\n" +
 		"	p.X[] xs = { x };\n" +
-		"	^^^\n" +
-		"X is a raw type. References to generic type X<T> should be parameterized\n" +
+		"	  ^\n" +
+		"The type X<T> is deprecated\n" +
 		"----------\n",
 		null,
 		true,
@@ -138,17 +138,17 @@ public void test002() {
 		"----------\n" +
 		"1. ERROR in p\\M1.java (at line 4)\n" +
 		"	a.N1.N2.N3 m = null;\n" +
-		"	^^^^^^^\n" +
+		"	     ^^\n" +
 		"The type N1.N2 is deprecated\n" +
 		"----------\n" +
 		"2. ERROR in p\\M1.java (at line 4)\n" +
 		"	a.N1.N2.N3 m = null;\n" +
-		"	^^^^^^^^^^\n" +
+		"	        ^^\n" +
 		"The type N1.N2.N3 is deprecated\n" +
 		"----------\n" +
 		"3. ERROR in p\\M1.java (at line 5)\n" +
 		"	m.foo();\n" +
-		"	^^^^^^^\n" +
+		"	  ^^^^^\n" +
 		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);

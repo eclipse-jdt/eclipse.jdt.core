@@ -3359,7 +3359,12 @@ public void test073() {
 			"	^\n" +
 			"The type Foo.Private is not visible\n" +
 			"----------\n" +
-			"3. WARNING in X.java (at line 13)\n" +
+			"3. WARNING in X.java (at line 12)\n" +
+			"	private class Private {\n" + 
+			"	              ^^^^^^^\n" + 
+			"The type Foo.Private is never used locally\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 13)\n" +
 			"	private void foo(){}\n" +
 			"	             ^^^^^\n" +
 			"The method foo() from the type Foo.Private is never used locally\n" +

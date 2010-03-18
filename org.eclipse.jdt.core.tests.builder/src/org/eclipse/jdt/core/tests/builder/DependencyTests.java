@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
-import junit.framework.*;
+import junit.framework.Test;
 
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
@@ -1237,18 +1237,18 @@ public void test0100() throws JavaModelException {
 	expectingOnlyProblemsFor(new IPath[] {M1Path});
 	expectingSpecificProblemFor(M1Path,
 		new Problem("", "The type N1.N2.N3 is deprecated",
-			M1Path, 190, 200, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
+			M1Path, 198, 200, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 	expectingSpecificProblemFor(M1Path,
 		new Problem("",	"The method foo() from the type N1.N2.N3 is deprecated",
-			M1Path, 215, 222, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
+			M1Path, 217, 222, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 	M1Path = env.addClass(rootPath, "p", "M1", M1Contents);
 	incrementalBuild(projectPath);
 	expectingOnlyProblemsFor(new IPath[] {M1Path});
 	expectingSpecificProblemFor(M1Path,
 		new Problem("", "The type N1.N2.N3 is deprecated",
-			M1Path, 190, 200, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
+			M1Path, 198, 200, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 	expectingSpecificProblemFor(M1Path,
 		new Problem("",	"The method foo() from the type N1.N2.N3 is deprecated",
-			M1Path, 215, 222, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
+			M1Path, 217, 222, CategorizedProblem.CAT_DEPRECATION, IMarker.SEVERITY_WARNING));
 }
 }

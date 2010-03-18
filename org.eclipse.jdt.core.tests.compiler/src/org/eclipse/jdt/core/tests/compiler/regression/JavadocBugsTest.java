@@ -3386,7 +3386,7 @@ public void testBug74369deprecated() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 12)\n" +
 		"	new Y().bar();\n" +
-		"	^^^^^^^^^^^^^\n" +
+		"	        ^^^^^\n" +
 		"The method bar() from the type Y is deprecated\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError

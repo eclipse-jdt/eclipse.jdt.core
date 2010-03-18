@@ -164,7 +164,7 @@ public void test004() {
 		"----------\n" +
 		"2. WARNING in p\\Warning.java (at line 7)\n" +
 		"	dateObj.UTC(1,2,3,4,5,6);\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"	        ^^^^^^^^^^^^^^^^\n" +
 		"The method UTC(int, int, int, int, int, int) from the type Date is deprecated\n" +
 		"----------\n");
 }
@@ -197,7 +197,7 @@ public void test005() {
 		"----------\n" +
 		"1. WARNING in A.java (at line 1)\n" +
 		"	public class A extends X.Y {}\n" +
-		"	                       ^^^\n" +
+		"	                         ^\n" +
 		"The type X.Y is deprecated\n" +
 		"----------\n",// expected output
 		null,
@@ -549,12 +549,12 @@ public void test014() {
 		"----------\n" +
 		"5. WARNING in Y.java (at line 9)\n" +
 		"	p.X x;\n" +
-		"	^^^\n" +
+		"	  ^\n" +
 		"The type X is deprecated\n" +
 		"----------\n" +
 		"6. WARNING in Y.java (at line 10)\n" +
 		"	p.X[] xs = { x };\n" +
-		"	^^^\n" +
+		"	  ^\n" +
 		"The type X is deprecated\n" +
 		"----------\n");
 }
@@ -594,17 +594,17 @@ public void test015() {
 		"----------\n" + /* expected compiler log */
 		"1. ERROR in p\\M1.java (at line 4)\n" +
 		"	a.N1.N2.N3 m = null;\n" +
-		"	^^^^^^^\n" +
+		"	     ^^\n" +
 		"The type N1.N2 is deprecated\n" +
 		"----------\n" +
 		"2. ERROR in p\\M1.java (at line 4)\n" +
 		"	a.N1.N2.N3 m = null;\n" +
-		"	^^^^^^^^^^\n" +
+		"	        ^^\n" +
 		"The type N1.N2.N3 is deprecated\n" +
 		"----------\n" +
 		"3. ERROR in p\\M1.java (at line 5)\n" +
 		"	m.foo();\n" +
-		"	^^^^^^^\n" +
+		"	  ^^^^^\n" +
 		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		// javac options
@@ -646,17 +646,17 @@ public void test016() {
 		"----------\n" + /* expected compiler log */
 		"1. ERROR in p\\M1.java (at line 4)\n" +
 		"	a.N1.N2.N3 m = null;\n" +
-		"	^^^^^^^\n" +
+		"	     ^^\n" +
 		"The type N1.N2 is deprecated\n" +
 		"----------\n" +
 		"2. ERROR in p\\M1.java (at line 4)\n" +
 		"	a.N1.N2.N3 m = null;\n" +
-		"	^^^^^^^^^^\n" +
+		"	        ^^\n" +
 		"The type N1.N2.N3 is deprecated\n" +
 		"----------\n" +
 		"3. ERROR in p\\M1.java (at line 5)\n" +
 		"	m.foo();\n" +
-		"	^^^^^^^\n" +
+		"	  ^^^^^\n" +
 		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		// javac options
@@ -742,17 +742,17 @@ public void test018() {
 		"----------\n" + /* expected compiler log */
 		"1. ERROR in p\\M1.java (at line 4)\n" +
 		"	a.N1.N2.N3 m = null;\n" +
-		"	^^^^^^^\n" +
+		"	     ^^\n" +
 		"The type N1.N2 is deprecated\n" +
 		"----------\n" +
 		"2. ERROR in p\\M1.java (at line 4)\n" +
 		"	a.N1.N2.N3 m = null;\n" +
-		"	^^^^^^^^^^\n" +
+		"	        ^^\n" +
 		"The type N1.N2.N3 is deprecated\n" +
 		"----------\n" +
 		"3. ERROR in p\\M1.java (at line 5)\n" +
 		"	m.foo();\n" +
-		"	^^^^^^^\n" +
+		"	  ^^^^^\n" +
 		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		// javac options
@@ -795,6 +795,81 @@ public void test019() {
 		"	System.out.println(E01.y);\n" +
 		"	                       ^\n" +
 		"The field E01.y is deprecated\n" +
+		"----------\n",
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=300031
+public void test020() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */,
+		new String[] { /* test files */
+			"a.b.c.d/Deprecated.java",
+			"package a.b.c.d;\n" +
+			"public class Deprecated {\n" +
+			"	/** @deprecated */\n" +
+			"	public class Inner {\n" +
+			"		/** @deprecated */\n" +
+			"		public class Inn {\n" +
+			"		}\n" +
+			"	}\n" +
+			"	/** @deprecated */\n" +
+			"	public Deprecated foo(){ return null;}\n" +
+			"	/** @deprecated */\n" +
+			"	public Deprecated goo(){ return null;}\n" +
+			"	/** @deprecated */\n" +
+			"	public static Deprecated bar(){ return null;}\n" +
+			"}\n",
+			"a.b.c.d.e/T.java",
+			"package a.b.c.d.e;\n" +
+			"import a.b.c.d.Deprecated;\n" +
+			"public class T {\n" +
+			"	a.b.c.d.Deprecated f;\n" +
+			"	a.b.c.d.Deprecated.Inner.Inn g;\n" +
+			"	Deprecated.Inner i;\n" +
+			"	public void m() {\n" +
+			"		f.foo().goo();\n" +
+			"		a.b.c.d.Deprecated.bar();\n" +
+			"	}\n" +
+			"}"
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + /* expected compiler log */
+		"1. ERROR in a.b.c.d.e\\T.java (at line 5)\n" + 
+		"	a.b.c.d.Deprecated.Inner.Inn g;\n" + 
+		"	                   ^^^^^\n" + 
+		"The type Deprecated.Inner is deprecated\n" + 
+		"----------\n" + 
+		"2. ERROR in a.b.c.d.e\\T.java (at line 5)\n" + 
+		"	a.b.c.d.Deprecated.Inner.Inn g;\n" + 
+		"	                         ^^^\n" + 
+		"The type Deprecated.Inner.Inn is deprecated\n" + 
+		"----------\n" + 
+		"3. ERROR in a.b.c.d.e\\T.java (at line 6)\n" + 
+		"	Deprecated.Inner i;\n" + 
+		"	           ^^^^^\n" + 
+		"The type Deprecated.Inner is deprecated\n" + 
+		"----------\n" + 
+		"4. ERROR in a.b.c.d.e\\T.java (at line 8)\n" + 
+		"	f.foo().goo();\n" + 
+		"	  ^^^^^\n" + 
+		"The method foo() from the type Deprecated is deprecated\n" + 
+		"----------\n" + 
+		"5. ERROR in a.b.c.d.e\\T.java (at line 8)\n" + 
+		"	f.foo().goo();\n" + 
+		"	        ^^^^^\n" + 
+		"The method goo() from the type Deprecated is deprecated\n" + 
+		"----------\n" + 
+		"6. ERROR in a.b.c.d.e\\T.java (at line 9)\n" + 
+		"	a.b.c.d.Deprecated.bar();\n" + 
+		"	                   ^^^^^\n" + 
+		"The method bar() from the type Deprecated is deprecated\n" + 
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);

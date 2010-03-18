@@ -97,7 +97,7 @@ public class QualifiedTypeReference extends TypeReference {
 				scope.problemReporter().illegalAccessFromTypeVariable((TypeVariableBinding) this.resolvedType, this);
 				return null;
 			}
-			if (i < last && isTypeUseDeprecated(this.resolvedType, scope)) {
+			if (i <= last && isTypeUseDeprecated(this.resolvedType, scope)) {
 				reportDeprecatedType(this.resolvedType, scope, i);
 			}
 			if (isClassScope)
