@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Internal class for converting internal compiler ASTs into public ASTs.
@@ -1219,80 +1220,94 @@ class ASTConverter {
 	}
 
 	public CompilationUnit convert(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration unit, char[] source) {
-		if(unit.compilationResult.recoveryScannerData != null) {
-			RecoveryScanner recoveryScanner = new RecoveryScanner(this.scanner, unit.compilationResult.recoveryScannerData.removeUnused());
-			this.scanner = recoveryScanner;
-			this.docParser.scanner = this.scanner;
-		}
-		this.compilationUnitSource = source;
-		this.compilationUnitSourceLength = source.length;
-		this.scanner.setSource(source, unit.compilationResult);
-		CompilationUnit compilationUnit = new CompilationUnit(this.ast);
-		compilationUnit.setStatementsRecoveryData(unit.compilationResult.recoveryScannerData);
-
-		// Parse comments
-		int[][] comments = unit.comments;
-		if (comments != null) {
-			buildCommentsTable(compilationUnit, comments);
-		}
-
-		// handle the package declaration immediately
-		// There is no node corresponding to the package declaration
-		if (this.resolveBindings) {
-			recordNodes(compilationUnit, unit);
-		}
-		if (unit.currentPackage != null) {
-			PackageDeclaration packageDeclaration = convertPackage(unit);
-			compilationUnit.setPackage(packageDeclaration);
-		}
-		org.eclipse.jdt.internal.compiler.ast.ImportReference[] imports = unit.imports;
-		if (imports != null) {
-			int importLength = imports.length;
-			for (int i = 0; i < importLength; i++) {
-				compilationUnit.imports().add(convertImport(imports[i]));
+		try {
+			if(unit.compilationResult.recoveryScannerData != null) {
+				RecoveryScanner recoveryScanner = new RecoveryScanner(this.scanner, unit.compilationResult.recoveryScannerData.removeUnused());
+				this.scanner = recoveryScanner;
+				this.docParser.scanner = this.scanner;
 			}
-		}
-
-		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = unit.types;
-		if (types != null) {
-			int typesLength = types.length;
-			for (int i = 0; i < typesLength; i++) {
-				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration declaration = types[i];
-				if (CharOperation.equals(declaration.name, TypeConstants.PACKAGE_INFO_NAME)) {
-					continue;
+			this.compilationUnitSource = source;
+			this.compilationUnitSourceLength = source.length;
+			this.scanner.setSource(source, unit.compilationResult);
+			CompilationUnit compilationUnit = new CompilationUnit(this.ast);
+			compilationUnit.setStatementsRecoveryData(unit.compilationResult.recoveryScannerData);
+	
+			// Parse comments
+			int[][] comments = unit.comments;
+			if (comments != null) {
+				buildCommentsTable(compilationUnit, comments);
+			}
+	
+			// handle the package declaration immediately
+			// There is no node corresponding to the package declaration
+			if (this.resolveBindings) {
+				recordNodes(compilationUnit, unit);
+			}
+			if (unit.currentPackage != null) {
+				PackageDeclaration packageDeclaration = convertPackage(unit);
+				compilationUnit.setPackage(packageDeclaration);
+			}
+			org.eclipse.jdt.internal.compiler.ast.ImportReference[] imports = unit.imports;
+			if (imports != null) {
+				int importLength = imports.length;
+				for (int i = 0; i < importLength; i++) {
+					compilationUnit.imports().add(convertImport(imports[i]));
 				}
-				ASTNode type = convert(declaration);
-				if (type == null) {
-					compilationUnit.setFlags(compilationUnit.getFlags() | ASTNode.MALFORMED);
+			}
+	
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = unit.types;
+			if (types != null) {
+				int typesLength = types.length;
+				for (int i = 0; i < typesLength; i++) {
+					org.eclipse.jdt.internal.compiler.ast.TypeDeclaration declaration = types[i];
+					if (CharOperation.equals(declaration.name, TypeConstants.PACKAGE_INFO_NAME)) {
+						continue;
+					}
+					ASTNode type = convert(declaration);
+					if (type == null) {
+						compilationUnit.setFlags(compilationUnit.getFlags() | ASTNode.MALFORMED);
+					} else {
+						compilationUnit.types().add(type);
+					}
+				}
+			}
+			compilationUnit.setSourceRange(unit.sourceStart, unit.sourceEnd - unit.sourceStart  + 1);
+	
+			int problemLength = unit.compilationResult.problemCount;
+			if (problemLength != 0) {
+				CategorizedProblem[] resizedProblems = null;
+				final CategorizedProblem[] problems = unit.compilationResult.getProblems();
+				final int realProblemLength=problems.length;
+				if (realProblemLength == problemLength) {
+					resizedProblems = problems;
 				} else {
-					compilationUnit.types().add(type);
+					System.arraycopy(problems, 0, (resizedProblems = new CategorizedProblem[realProblemLength]), 0, realProblemLength);
 				}
+				ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(resizedProblems);
+				compilationUnit.accept(syntaxErrorPropagator);
+				ASTRecoveryPropagator recoveryPropagator =
+					new ASTRecoveryPropagator(resizedProblems, unit.compilationResult.recoveryScannerData);
+				compilationUnit.accept(recoveryPropagator);
+				compilationUnit.setProblems(resizedProblems);
 			}
-		}
-		compilationUnit.setSourceRange(unit.sourceStart, unit.sourceEnd - unit.sourceStart  + 1);
-
-		int problemLength = unit.compilationResult.problemCount;
-		if (problemLength != 0) {
-			CategorizedProblem[] resizedProblems = null;
-			final CategorizedProblem[] problems = unit.compilationResult.getProblems();
-			final int realProblemLength=problems.length;
-			if (realProblemLength == problemLength) {
-				resizedProblems = problems;
-			} else {
-				System.arraycopy(problems, 0, (resizedProblems = new CategorizedProblem[realProblemLength]), 0, realProblemLength);
+			if (this.resolveBindings) {
+				lookupForScopes();
 			}
-			ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(resizedProblems);
-			compilationUnit.accept(syntaxErrorPropagator);
-			ASTRecoveryPropagator recoveryPropagator =
-				new ASTRecoveryPropagator(resizedProblems, unit.compilationResult.recoveryScannerData);
-			compilationUnit.accept(recoveryPropagator);
-			compilationUnit.setProblems(resizedProblems);
+			compilationUnit.initCommentMapper(this.scanner);
+			return compilationUnit;
+		} catch(RuntimeException e) {
+			StringBuffer message = new StringBuffer("Exception occurred during compilation unit conversion:");  //$NON-NLS-1$
+			String lineDelimiter = Util.findLineSeparator(source);
+			if (lineDelimiter == null) lineDelimiter = System.getProperty("line.separator");//$NON-NLS-1$
+			message.append(lineDelimiter);
+			message.append("----------------------------------- SOURCE BEGIN -------------------------------------"); //$NON-NLS-1$
+			message.append(lineDelimiter);
+			message.append(source);
+			message.append(lineDelimiter);
+			message.append("----------------------------------- SOURCE END -------------------------------------"); //$NON-NLS-1$
+			Util.log(e, message.toString());
+			throw e;
 		}
-		if (this.resolveBindings) {
-			lookupForScopes();
-		}
-		compilationUnit.initCommentMapper(this.scanner);
-		return compilationUnit;
 	}
 
 	public Assignment convert(org.eclipse.jdt.internal.compiler.ast.CompoundAssignment expression) {
