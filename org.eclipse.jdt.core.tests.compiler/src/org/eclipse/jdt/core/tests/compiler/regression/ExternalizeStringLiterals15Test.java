@@ -21,7 +21,7 @@ public class ExternalizeStringLiterals15Test extends AbstractRegressionTest {
 
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 6 };
+//	TESTS_NUMBERS = new int[] { 7 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public ExternalizeStringLiterals15Test(String name) {
@@ -41,14 +41,14 @@ public void test001() {
 			"import static java.lang.annotation.RetentionPolicy.*;\n" +
 			"import java.lang.annotation.Retention;\n" +
 			"import java.lang.annotation.Target;\n" +
-			"@Target({TYPE, FIELD, METHOD,\r\n" +
-			"         PARAMETER, CONSTRUCTOR,\r\n" +
-			"         LOCAL_VARIABLE, PACKAGE})\r\n" +
-			"@Retention(CLASS)\r\n" +
-			"public @interface X\r\n" +
-			"{\r\n" +
-			"    String[] value() default {};\r\n" +
-			"    String justification() default \"\";\r\n" +
+			"@Target({TYPE, FIELD, METHOD,\n" +
+			"         PARAMETER, CONSTRUCTOR,\n" +
+			"         LOCAL_VARIABLE, PACKAGE})\n" +
+			"@Retention(CLASS)\n" +
+			"public @interface X\n" +
+			"{\n" +
+			"    String[] value() default {};\n" +
+			"    String justification() default \"\";\n" +
 			"}"
 		},
 		"",
@@ -221,6 +221,53 @@ public void test006() {
 		null,
 		customOptions,
 		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=237245
+public void test007() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	@Annot({\n" + 
+			"		@A(name = \"name\", //$NON-NLS-1$\n" +
+			" 		value = \"Test\") //$NON-NLS-1$\n" + 
+			"	})\n" + 
+			"	@X2(\"\") //$NON-NLS-1$\n" + 
+			"	void foo() {\n" + 
+			"	}\n" + 
+			"}\n" +
+			"@interface Annot {\n" + 
+			"	A[] value();\n" + 
+			"}\n" +
+			"@interface A {\n" + 
+			"	String name();\n" + 
+			"	String value();\n" + 
+			"}\n" +
+			"@interface X2 {\n" + 
+			"	String value();\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	@A(name = \"name\", //$NON-NLS-1$\n" + 
+		"	                  ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	value = \"Test\") //$NON-NLS-1$\n" + 
+		"	                ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	@X2(\"\") //$NON-NLS-1$\n" + 
+		"	        ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
 }
 public static Class testClass() {
 	return ExternalizeStringLiterals15Test.class;
