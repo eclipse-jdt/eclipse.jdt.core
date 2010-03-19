@@ -1877,22 +1877,24 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 
 		// Replace block comment text
-		if (hasTokens || multiLines) {
-			StringBuffer replacement = new StringBuffer();
-			if (hasTextOnFirstLine == 1) {
-				if ((hasMultiLines || multiLines)) {
-					int col = this.column;
-					replacement.append(this.lineSeparator);
-					this.column = 1;
-					printIndentationIfNecessary(replacement);
-					replacement.append(BLOCK_LINE_PREFIX);
-			    	this.column = col;
-				} else {
-					replacement.append(' ');
+		if (this.nlsTagCounter == 0 || !multiLines) {
+			if (hasTokens || multiLines) {
+				StringBuffer replacement = new StringBuffer();
+				if (hasTextOnFirstLine == 1) {
+					if ((hasMultiLines || multiLines)) {
+						int col = this.column;
+						replacement.append(this.lineSeparator);
+						this.column = 1;
+						printIndentationIfNecessary(replacement);
+						replacement.append(BLOCK_LINE_PREFIX);
+				    	this.column = col;
+					} else {
+						replacement.append(' ');
+					}
 				}
+				replacement.append(buffer);
+				addReplaceEdit(editStart, editEnd, replacement.toString());
 			}
-			replacement.append(buffer);
-			addReplaceEdit(editStart, editEnd, replacement.toString());
 		}
 
 		// Reset

@@ -6339,4 +6339,79 @@ public void testBug305371d() {
 	    "}\n");
 }
 
+/**
+ * @bug 305830: [formatter] Turning off formatting changes comment's formatting
+ * @test Verify that turning off formatting in a javadoc does not screw up its indentation
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=305830"
+ */
+public void testBug305830() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "40");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "40");
+	String source = 
+		"public class X01 {\n" + 
+		"void foo() {\n" + 
+		"bar(\"a non-nls string\", 0 /*a    comment*/); //$NON-NLS-1$\n" + 
+		"}\n" + 
+		"void bar(String string, int i) {\n" + 
+		"}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	void foo() {\n" + 
+		"		bar(\"a non-nls string\", 0 /*a    comment*/); //$NON-NLS-1$\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	void bar(String string, int i) {\n" + 
+		"	}\n" + 
+	    "}\n"
+	);
+}
+public void testBug305830b() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "40");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "40");
+	String source = 
+		"public class X02 {\n" + 
+		"void foo() {\n" + 
+		"bar(\"str\", 0 /*a    comment*/); //$NON-NLS-1$\n" + 
+		"}\n" + 
+		"void bar(String string, int i) {\n" + 
+		"}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X02 {\n" + 
+		"	void foo() {\n" + 
+		"		bar(\"str\", 0 /* a comment */); //$NON-NLS-1$\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	void bar(String string, int i) {\n" + 
+		"	}\n" + 
+	    "}\n"
+	);
+}
+public void testBug305830c() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "40");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "40");
+	String source = 
+		"public class X03 {\n" + 
+		"void foo() {\n" + 
+		"bar(\"str\", 0 /*              a						comment                            */); //$NON-NLS-1$\n" + 
+		"}\n" + 
+		"void bar(String string, int i) {\n" + 
+		"}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X03 {\n" + 
+		"	void foo() {\n" + 
+		"		bar(\"str\", 0 /* a comment */); //$NON-NLS-1$\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	void bar(String string, int i) {\n" + 
+		"	}\n" + 
+	    "}\n"
+	);
+}
+
 }
