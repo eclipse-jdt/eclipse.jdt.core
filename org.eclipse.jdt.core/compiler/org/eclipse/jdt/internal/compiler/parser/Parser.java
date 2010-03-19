@@ -3680,13 +3680,6 @@ protected void consumeEnumConstantHeaderName() {
    enumConstant.modifiers = this.intStack[this.intPtr--];
    enumConstant.declarationSourceStart = enumConstant.modifiersSourceStart;
 
-	// Store secondary info
-	if ((enumConstant.bits & ASTNode.IsMemberType) == 0 && (enumConstant.bits & ASTNode.IsLocalType) == 0) {
-		if (this.compilationUnit != null && !CharOperation.equals(enumConstant.name, this.compilationUnit.getMainTypeName())) {
-			enumConstant.bits |= ASTNode.IsSecondaryType;
-		}
-	}
-
 	// consume annotations
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -3817,6 +3810,14 @@ protected void consumeEnumHeaderName() {
 	if (enumDeclaration.modifiersSourceStart >= 0) {
 		enumDeclaration.declarationSourceStart = enumDeclaration.modifiersSourceStart;
 	}
+
+	// Store secondary info
+	if ((enumDeclaration.bits & ASTNode.IsMemberType) == 0 && (enumDeclaration.bits & ASTNode.IsLocalType) == 0) {
+		if (this.compilationUnit != null && !CharOperation.equals(enumDeclaration.name, this.compilationUnit.getMainTypeName())) {
+			enumDeclaration.bits |= ASTNode.IsSecondaryType;
+		}
+	}
+
 	// consume annotations
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -3896,6 +3897,14 @@ protected void consumeEnumHeaderNameWithTypeParameters() {
 	if (enumDeclaration.modifiersSourceStart >= 0) {
 		enumDeclaration.declarationSourceStart = enumDeclaration.modifiersSourceStart;
 	}
+
+	// Store secondary info
+	if ((enumDeclaration.bits & ASTNode.IsMemberType) == 0 && (enumDeclaration.bits & ASTNode.IsLocalType) == 0) {
+		if (this.compilationUnit != null && !CharOperation.equals(enumDeclaration.name, this.compilationUnit.getMainTypeName())) {
+			enumDeclaration.bits |= ASTNode.IsSecondaryType;
+		}
+	}
+
 	// consume annotations
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
 		System.arraycopy(

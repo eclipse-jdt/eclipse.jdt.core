@@ -1289,4 +1289,40 @@ public void testBug302455() throws CoreException, InterruptedException {
 		deleteProject("P");
 	}
 }
+
+/**
+ * @bug 306477: Indexer(?) fails to recognise enum as a type
+ * @test Ensure that enum secondary type are well indexed
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=306477"
+ */
+public void testBug306477() throws Exception {
+	try {
+		// create test case
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFolder("/P/p");
+		createFile(
+			"/P/p/Alice.java",
+			"package p;\n" + 
+			"class Alice {\n" + 
+			"	Object j = Bob.CHARLIE;\n" + 
+			"}\n"
+		);
+		createFile(
+			"/P/p/Misc.java",
+			"package p;\n" + 
+			"enum Bob {\n" + 
+			"	CHARLIE;\n" + 
+			"}\n"
+		);
+		
+		// find secondary enum
+		IType type = project.findType("p.Bob", new NullProgressMonitor());
+		assertElementEquals("We should have found the secondary enum 'Bob'!",
+			"Bob [in Misc.java [in p [in <project root> [in P]]]]",
+			type
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
 }
