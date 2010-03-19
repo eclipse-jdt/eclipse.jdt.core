@@ -919,7 +919,7 @@ public void testBlockComments13() throws JavaModelException {
 		"public class X13 {\r\n" + 
 		"\r\n" + 
 		"protected void handleWarningToken(String token, boolean isEnabling) {\r\n" + 
-		"	if (token.equals(\"pkgDefaultMethod___\") || token.equals(\"packageDefaultMethod___\")/*backward compatible*/ ) { //$NON-NLS-1$ //$NON-NLS-2$\r\n" + 
+		"	if (token.equals(\"pkgDefaultMethod___\") || token.equals(\"packageDefaultMethod___\")/*_backward_ _compatible_*/ ) {\r\n" + 
 		"	}\r\n" + 
 		"}\r\n" + 
 		"}\r\n";
@@ -927,19 +927,19 @@ public void testBlockComments13() throws JavaModelException {
 	// 1) split comment block starts one tab before to avoid possible words over the max line length
 	//		note that in this peculiar this was not necessary as even the first word is over the max line length!
 	formatSource(source,
-		"package test.comments.block;\r\n" + 
-		"\r\n" + 
-		"public class X13 {\r\n" + 
-		"\r\n" + 
-		"	protected void handleWarningToken(String token, boolean isEnabling) {\r\n" + 
-		"		if (token.equals(\"pkgDefaultMethod___\") || token.equals(\"packageDefaultMethod___\")/*\r\n" + 
-		"																						 * backward\r\n" + 
-		"																						 * compatible\r\n" + 
-		"																						 */) { //$NON-NLS-1$ //$NON-NLS-2$\r\n" + 
-		"		}\r\n" + 
-		"	}\r\n" + 
-		"}\r\n",
-		false /* do not repeat */
+		"package test.comments.block;\n" + 
+		"\n" + 
+		"public class X13 {\n" + 
+		"\n" + 
+		"	protected void handleWarningToken(String token, boolean isEnabling) {\n" + 
+		"		if (token.equals(\"pkgDefaultMethod___\")\n" + 
+		"				|| token.equals(\"packageDefaultMethod___\")/*\n" + 
+		"														 * _backward_\n" + 
+		"														 * _compatible_\n" + 
+		"														 */) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
 	);
 }
 public void testBlockComments14() throws JavaModelException {
