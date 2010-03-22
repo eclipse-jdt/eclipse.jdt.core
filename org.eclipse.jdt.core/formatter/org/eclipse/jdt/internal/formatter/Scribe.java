@@ -1706,7 +1706,7 @@ public class Scribe implements IJavaDocTagConstants {
 					isTokenStar = true;
 					lineNumber = Util.getLineNumber(this.scanner.currentPosition, this.lineEnds, scannerLine>1 ? scannerLine-2 : 0, this.maxLines);
 					if (lineNumber == firstLine && previousToken == SKIP_FIRST_WHITESPACE_TOKEN) {
-						editStart = this.scanner.getCurrentTokenStartPosition();
+						buffer.append(' ');
 					}
 					previousToken = token;
 					if (this.scanner.currentCharacter == '/') {
@@ -1888,7 +1888,7 @@ public class Scribe implements IJavaDocTagConstants {
 						printIndentationIfNecessary(replacement);
 						replacement.append(BLOCK_LINE_PREFIX);
 				    	this.column = col;
-					} else {
+					} else if (buffer.length()==0 || buffer.charAt(0)!=' ') {
 						replacement.append(' ');
 					}
 				}

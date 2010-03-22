@@ -6146,6 +6146,21 @@ public void testBug287833c() {
 }
 
 /**
+ * @bug 295825: [formatter] Commentaries are running away after formatting are used
+ * @test Verify that block comment stay unchanged when text starts with a star
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=295825"
+ */
+public void testBug295825() {
+	String source = 
+		"public class A {\n" + 
+		"	/* * command */\n" + 
+		"	void method() {\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source);
+}
+
+/**
  * @bug 300379: [formatter] Fup of bug 287833
  * @test Verify that the leading '{' is not deleted while formatting
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=300379"
