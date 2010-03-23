@@ -12,11 +12,13 @@ package org.eclipse.jdt.core.tests.formatter;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -392,11 +394,51 @@ protected static Test suite(File inputDir, String profile, Map directories) {
             }
 		};
 		File[] allFiles = (File[]) directories.get(inputDir);
+		File listFile = new File(inputDir.getParentFile(), inputDir.getName()+".lst");
+		BufferedWriter listFileWriter = null;
 		if (allFiles == null) {
-			System.out.print("Get all files from "+inputDir+"...");
-			allFiles = ModelTestsUtil.getAllFiles(inputDir, filter);
-			directories.put(inputDir, allFiles);
-			System.out.println("done");
+			if (CLEAN || !listFile.exists()) {
+				// Get the files list
+				System.out.print("Get all files from "+inputDir+"...");
+				allFiles = ModelTestsUtil.getAllFiles(inputDir, filter);
+				directories.put(inputDir, allFiles);
+				System.out.println("done");
+				// Delete the files list
+				if (listFile.exists()) {
+					listFile.delete();
+				}
+				// Initialize the files list writer
+				listFileWriter = new BufferedWriter(new FileWriter(listFile));
+				listFileWriter.write(Integer.toString(allFiles.length));
+				listFileWriter.newLine();
+			} else {
+				System.out.print("Get all files from stored list in "+listFile.getPath()+"...");
+				BufferedReader listFileReader = new BufferedReader(new InputStreamReader(new FileInputStream(listFile.getAbsolutePath())));
+				try {
+					// First line is the number of files
+					String line = listFileReader.readLine();
+					int maxFiles = Integer.parseInt(line);
+					// Following lines are the files path
+					allFiles = new File[maxFiles];
+					for (int i=0; i<maxFiles; i++) {
+						allFiles[i] = new File(inputDir, listFileReader.readLine());
+						if (!allFiles[i].exists()) {
+							throw new IOException("Cannot find file "+allFiles[i]);
+						}
+					}
+				}
+				catch (NumberFormatException nfe) {
+					nfe.printStackTrace();
+					return null;
+				}
+				catch (IOException ioe) {
+					ioe.printStackTrace();
+					return null;
+				}
+				finally {
+					listFileReader.close();
+				}
+			}
 		}
 		int[] maxFiles = new int[2];
 		maxFiles[0] = allFiles.length;
@@ -409,11 +451,23 @@ protected static Test suite(File inputDir, String profile, Map directories) {
 //		}
 
 		// Add one test per found file
-		for (int i=0; i<maxFiles[0]; i++) {
-			if (CLEAN) {
-				suite.addTest(new FormatterMassiveRegressionTests(inputDir, allFiles[i], i, profiles, false/*do not compare while cleaning*/));
-			} else {
-				suite.addTest(new FormatterMassiveRegressionTests(inputDir, allFiles[i], i, profiles, CAN_COMPARE));
+		try {
+			final int inputDirPathLength = inputDir.getPath().length()+1;
+			for (int i=0; i<maxFiles[0]; i++) {
+				if (CLEAN) {
+					suite.addTest(new FormatterMassiveRegressionTests(inputDir, allFiles[i], i, profiles, false/*do not compare while cleaning*/));
+				} else {
+					suite.addTest(new FormatterMassiveRegressionTests(inputDir, allFiles[i], i, profiles, CAN_COMPARE));
+				}
+				if (listFileWriter != null) {
+					listFileWriter.write(allFiles[i].getPath().substring(inputDirPathLength));
+					listFileWriter.newLine();
+				}
+			}
+		}
+		finally {
+			if (listFileWriter != null) {
+				listFileWriter.close();
 			}
 		}
     } catch (Exception e) {
