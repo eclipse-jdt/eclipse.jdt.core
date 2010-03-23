@@ -2048,55 +2048,94 @@ public class Scribe implements IJavaDocTagConstants {
 			throw new AbortFormatting(e);
 		}
 	}
+
 	/*
 	 * prints a code snippet
 	 */
-	private void printCodeSnippet(int startPosition, int endPosition) {
+	private void printCodeSnippet(int startPosition, int endPosition, int linesGap) {
 		String snippet = new String(this.scanner.source, startPosition, endPosition - startPosition + 1);
-
+	
 		// 1 - strip content prefix (@see JavaDocRegion#preprocessCodeSnippet)
-		ILineTracker tracker= new DefaultLineTracker();
-		String contentPrefix= IJavaDocTagConstants.JAVADOC_STAR;
-
+		int firstLine = Util.getLineNumber(startPosition, this.lineEnds, 0, this.maxLines) - 1;
+		int lastLine = Util.getLineNumber(endPosition, this.lineEnds, firstLine>1 ? firstLine-2 : 0, this.maxLines) - 1;
 		StringBuffer inputBuffer= new StringBuffer();
-		inputBuffer.setLength(0);
-		inputBuffer.append(snippet);
-		tracker.set(snippet);
-		for (int lines= tracker.getNumberOfLines() - 1; lines > 0; lines--) {
-			int lineOffset;
-			try {
-				lineOffset= tracker.getLineOffset(lines);
-			} catch (BadLocationException e) {
-				// should not happen
-				CommentFormatterUtil.log(e);
-				return;
+		if (firstLine == lastLine && linesGap == 0) {
+			inputBuffer.append(snippet);
+		} else {
+			boolean hasCharsAfterStar = false;
+			if (linesGap == 0) {
+				inputBuffer.append(this.scanner.source, startPosition, this.lineEnds[firstLine]+1-startPosition);
+				firstLine++;
 			}
-			int prefixOffset = inputBuffer.indexOf(contentPrefix, lineOffset);
-			if (prefixOffset >= 0 && inputBuffer.substring(lineOffset, prefixOffset).trim().length() == 0) {
-				int offsetEnd = prefixOffset + 1;
-				char ch = inputBuffer.charAt(offsetEnd);
-				switch (ch) {
-					case '\n':
-					case '\r':
-						break;
-					case ' ':
-					case '\t':
-					case '\u000c' :    /* FORM FEED               */
-						offsetEnd++;
-						break;
-					default:
-						if (ScannerHelper.isWhitespace(ch)) {
-							offsetEnd++;
-						}
-						break;
+			int initialLength = inputBuffer.length();
+			for (int currentLine=firstLine; currentLine<=lastLine; currentLine++) {
+				this.scanner.resetTo(this.lineEnds[currentLine-1]+1, this.lineEnds[currentLine]);
+				int lineStart = this.scanner.currentPosition;
+				boolean hasStar = false;
+				loop: while (!this.scanner.atEnd()) {
+					char ch = (char) this.scanner.getNextChar();
+					switch (ch) {
+						case ' ':
+						case '\t' :
+						case '\u000c' :
+							break;
+						case '\r' :
+						case '\n' :
+							break loop;
+						case '*':
+							hasStar = true;
+							break loop;
+						default:
+							if (ScannerHelper.isWhitespace(ch)) {
+								break;
+							}
+							break loop;
+					}
 				}
-				inputBuffer.delete(lineOffset, offsetEnd);
+				if (hasStar) {
+					lineStart = this.scanner.currentPosition;
+					if (!hasCharsAfterStar && !this.scanner.atEnd()) {
+						char ch = (char) this.scanner.getNextChar();
+						boolean atEnd = this.scanner.atEnd();
+						switch (ch) {
+							case ' ':
+							case '\t' :
+							case '\u000c' :
+								break;
+							case '\r' :
+							case '\n' :
+								atEnd = true;
+								break;
+							default:
+								if (!ScannerHelper.isWhitespace(ch)) {
+									if (hasStar) {
+										// A non whitespace character is just after the star
+										// then we need to restart from the beginning without
+										// consuming the space after the star
+										hasCharsAfterStar = true;
+										currentLine = firstLine-1;
+										inputBuffer.setLength(initialLength);
+										continue;
+									}
+								}
+								break;
+						}
+						if (!hasCharsAfterStar && !atEnd) {
+							// Until then, there's always a whitespace after each star
+							// of the comment, hence we need to consume it as it will
+							// be rewritten while reindenting the snippet lines
+							lineStart = this.scanner.currentPosition;
+						}
+					}
+				}
+				int end = currentLine == lastLine ? endPosition : this.lineEnds[currentLine];
+				inputBuffer.append(this.scanner.source, lineStart, end+1-lineStart);
 			}
 		}
-
+	
 		// 2 - convert HTML to Java (@see JavaDocRegion#convertHtml2Java)
 		HTMLEntity2JavaReader reader= new HTMLEntity2JavaReader(new StringReader(inputBuffer.toString()));
-		char[] buf= new char[snippet.length()]; // html2text never gets longer, only shorter!
+		char[] buf= new char[inputBuffer.length()]; // html2text never gets longer, only shorter!
 		String convertedSnippet;
 		try {
 			int read= reader.read(buf);
@@ -2106,7 +2145,7 @@ public class Scribe implements IJavaDocTagConstants {
 			CommentFormatterUtil.log(e);
 			return;
 		}
-
+	
 		// 3 - format snippet (@see JavaDocRegion#formatCodeSnippet)
 		// include comments in case of line comments are present in the snippet
 		String formattedSnippet = convertedSnippet;
@@ -2122,7 +2161,7 @@ public class Scribe implements IJavaDocTagConstants {
 			// 3.b - valid code formatted
 			// 3.b.i - get the result
 			formattedSnippet = CommentFormatterUtil.evaluateFormatterEdit(convertedSnippet, edit, null);
-
+	
 			// 3.b.ii- convert back to HTML (@see JavaDocRegion#convertJava2Html)
 			Java2HTMLEntityReader javaReader= new Java2HTMLEntityReader(new StringReader(formattedSnippet));
 			buf= new char[256];
@@ -2141,29 +2180,38 @@ public class Scribe implements IJavaDocTagConstants {
 				return;
 			}
 		}
-
+	
 		// 4 - add the content prefix (@see JavaDocRegion#postprocessCodeSnippet)
 		StringBuffer outputBuffer = new StringBuffer();
-		tracker = new DefaultLineTracker();
+		ILineTracker tracker = new DefaultLineTracker();
 		this.column = 1;
 		printIndentationIfNecessary(outputBuffer); // append indentation
 		outputBuffer.append(BLOCK_LINE_PREFIX);
 		String linePrefix = outputBuffer.toString();
 		outputBuffer.setLength(0);
-		outputBuffer.append(formattedSnippet);
-		tracker.set(outputBuffer.toString());
-		for (int lines=tracker.getNumberOfLines() - 1; lines > 0; lines--) {
-			try {
-				outputBuffer.insert(tracker.getLineOffset(lines), linePrefix);
-			} catch (BadLocationException e) {
-				// should not happen
-				CommentFormatterUtil.log(e);
-				return;
+		String replacement = formattedSnippet;
+		tracker.set(formattedSnippet);
+		int numberOfLines = tracker.getNumberOfLines();
+		if (numberOfLines > 1) {
+			int lastLineOffset = -1;
+			for (int i=0; i<numberOfLines-1; i++) {
+				if (i>0) outputBuffer.append(linePrefix);
+				try {
+					lastLineOffset = tracker.getLineOffset(i+1);
+					outputBuffer.append(formattedSnippet.substring(tracker.getLineOffset(i), lastLineOffset));
+				} catch (BadLocationException e) {
+					// should not happen
+					CommentFormatterUtil.log(e);
+					return;
+				}
 			}
+			outputBuffer.append(linePrefix);
+			outputBuffer.append(formattedSnippet.substring(lastLineOffset));
+			replacement = outputBuffer.toString();
 		}
-
+	
 		// 5 - replace old text with the formatted snippet
-		addReplaceEdit(startPosition, endPosition, outputBuffer.toString());
+		addReplaceEdit(startPosition, endPosition, replacement);
 	}
 
 	void printComment() {
@@ -3905,7 +3953,6 @@ public class Scribe implements IJavaDocTagConstants {
     				if (this.formatter.preferences.comment_format_source) {
 						if (textStart < end) addReplaceEdit(textStart, end, buffer.toString());
 						// See whether there's a space before the code
-						boolean needLeadingSpace = false;
 						if (linesGap > 0) {
 							int lineStart = this.scanner.getLineStart(startLine);
 							if (nextStart > lineStart) { // if code starts at the line, then no leading space is needed
@@ -3915,19 +3962,9 @@ public class Scribe implements IJavaDocTagConstants {
 									if (token == TerminalTokens.TokenNameWHITESPACE) {
 										// skip indentation
 										token = this.scanner.getNextToken();
-										needLeadingSpace = false; // there may be no star after
-									} else {
-										needLeadingSpace = true;
 									}
 									if (token == TerminalTokens.TokenNameMULTIPLY) {
 										nextStart = this.scanner.currentPosition;
-										// skip javadoc comment star
-										token = this.scanner.getNextToken();
-										needLeadingSpace = true;
-									}
-									if (token == TerminalTokens.TokenNameWHITESPACE) {
-										needLeadingSpace = false;
-										nextStart++;
 									}
 								}
 								catch (InvalidInputException iie) {
@@ -3938,14 +3975,10 @@ public class Scribe implements IJavaDocTagConstants {
 						// Format gap lines before code
 						int newLines = linesGap;
 						if (newLines == 0) newLines=1;
-						this.needSpace = needLeadingSpace;
+						this.needSpace = false;
 						printJavadocGapLines(end+1, nextStart-1, newLines, false/* clear first blank lines inside <pre> tag as done by old formatter */, false, null);
-						if (this.needSpace) {
-							addInsertEdit(nextStart, " "); //$NON-NLS-1$
-							this.needSpace = false;
-						}
 						// Format the code
-						printCodeSnippet(nextStart, codeEnd);
+						printCodeSnippet(nextStart, codeEnd, linesGap);
 						// Format the gap lines after the code
 						nextStart = (int) text.separators[max];
 	    				printJavadocGapLines(codeEnd+1, nextStart-1, 1, false/* clear blank lines inside <pre> tag as done by old formatter */, false, null);

@@ -6355,6 +6355,125 @@ public void testBug305371d() {
 }
 
 /**
+ * @bug 305518: [formatter] Line inside <pre> tag is wrongly indented by one space when starting just after the star
+ * @test Verify formatting of a <pre> tag section keep lines right indented
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=305518"
+ */
+public void testBug305518() {
+	String source = 
+		"public interface Test {\n" + 
+		"/**\n" + 
+		" * <pre>\n" + 
+		" *    A\n" + 
+		" *   / \\\n" + 
+		" *  B   C\n" + 
+		" * / \\ / \\\n" + 
+		" *D  E F  G\n" + 
+		" * </pre>\n" + 
+		" */\n" + 
+		"public void foo();\n" + 
+	    "}\n";
+	formatSource(source,
+		"public interface Test {\n" + 
+		"	/**\n" + 
+		"	 * <pre>\n" + 
+		"	 *     A\n" + 
+		"	 *    / \\\n" + 
+		"	 *   B   C\n" + 
+		"	 *  / \\ / \\\n" + 
+		"	 * D  E F  G\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"	public void foo();\n" + 
+	    "}\n");
+}
+public void testBug305518_wksp2_01() {
+	String source = 
+		"public class X01 {\n" + 
+		"/**\n" + 
+		"	<P> This is an example of starting and shutting down the Network Server in the example\n" + 
+		"	above with the API.\n" + 
+		"	<PRE>\n" + 
+		"	\n" + 
+		"	NetworkServerControl serverControl = new NetworkServerControl(InetAddress.getByName(\"myhost\"),1621)\n" + 
+		"\n" + 
+		"	serverControl.shutdown();\n" + 
+		"	</PRE>\n" + 
+		"\n" + 
+		"	\n" + 
+		"*/\n" + 
+		"public void foo() {}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	/**\n" + 
+		"	 * <P>\n" + 
+		"	 * This is an example of starting and shutting down the Network Server in\n" + 
+		"	 * the example above with the API.\n" + 
+		"	 * \n" + 
+		"	 * <PRE>\n" + 
+		"	 * \n" + 
+		"	 * 	NetworkServerControl serverControl = new NetworkServerControl(InetAddress.getByName(\"myhost\"),1621)\n" + 
+		"	 * \n" + 
+		"	 * 	serverControl.shutdown();\n" + 
+		"	 * </PRE>\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+	    "}\n");
+}
+public void testBug305518_wksp2_02() {
+	String source = 
+		"public class X02 {\n" + 
+		"/**\n" + 
+		" * Represents namespace name:\n" + 
+		" * <pre>e.g.<pre>MyNamespace;\n" + 
+		" *MyProject\\Sub\\Level;\n" + 
+		" *namespace\\MyProject\\Sub\\Level;\n" + 
+		" */\n" + 
+		"public void foo() {}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X02 {\n" + 
+		"	/**\n" + 
+		"	 * Represents namespace name:\n" + 
+		"	 * \n" + 
+		"	 * <pre>e.g.\n" + 
+		"	 * \n" + 
+		"	 * <pre>\n" + 
+		"	 * MyNamespace;\n" + 
+		"	 * MyProject\\Sub\\Level;\n" + 
+		"	 * namespace\\MyProject\\Sub\\Level;\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+	    "}\n");
+}
+public void testBug305518_wksp2_03() {
+	String source = 
+		"public class X03 {\n" + 
+		"/**\n" + 
+		"* <PRE>\n" + 
+		"*  String s = ... ; // get string from somewhere\n" + 
+		"*  byte [] compressed = UnicodeCompressor.compress(s);\n" + 
+		"* </PRE>\n" + 
+		" */\n" + 
+		"public void foo() {}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X03 {\n" + 
+		"	/**\n" + 
+		"	 * <PRE>\n" + 
+		"	 *  String s = ... ; // get string from somewhere\n" + 
+		"	 *  byte [] compressed = UnicodeCompressor.compress(s);\n" + 
+		"	 * </PRE>\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+	    "}\n");
+}
+
+/**
  * @bug 305830: [formatter] Turning off formatting changes comment's formatting
  * @test Verify that turning off formatting in a javadoc does not screw up its indentation
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=305830"
