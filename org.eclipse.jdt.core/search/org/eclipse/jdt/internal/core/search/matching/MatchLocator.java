@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -436,48 +436,48 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 		// fall thru if its a constructor with a synthetic argument... find it the slower way
 		ClassFileReader reader = classFileReader(type);
 		if (reader != null) {
-			IBinaryMethod[] methods = reader.getMethods();
-			if (methods != null) {
-				// build arguments names
-				boolean firstIsSynthetic = false;
-				if (reader.isMember() && method.isConstructor() && !Flags.isStatic(reader.getModifiers())) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=48261
-					firstIsSynthetic = true;
-					argCount++;
-				}
-				char[][] argumentTypeNames = new char[argCount][];
-				for (int i = 0; i < argCount; i++) {
-					char[] typeName = null;
-					if (i == 0 && firstIsSynthetic) {
-						typeName = type.getDeclaringType().getFullyQualifiedName().toCharArray();
-					} else if (arguments != null) {
-						TypeReference typeRef = arguments[firstIsSynthetic ? i - 1 : i].type;
-						typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
-						for (int k = 0, dim = typeRef.dimensions(); k < dim; k++)
-							typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
-					}
-					if (typeName == null) {
-						// invalid type name
-						return null;
-					}
-					argumentTypeNames[i] = typeName;
-				}
-
-				// return binary method
-				IMethod binaryMethod = createBinaryMethodHandle(type, method.selector, argumentTypeNames);
-				if (binaryMethod == null) {
-					// when first attempt fails, try with similar matches if any...
-					PossibleMatch similarMatch = this.currentPossibleMatch.getSimilarMatch();
-					while (similarMatch != null) {
-						type = ((ClassFile)similarMatch.openable).getType();
-						binaryMethod = createBinaryMethodHandle(type, method.selector, argumentTypeNames);
-						if (binaryMethod != null) {
-							return binaryMethod;
-						}
-						similarMatch = similarMatch.getSimilarMatch();
-					}
-				}
-				return binaryMethod;
+			// build arguments names
+			boolean firstIsSynthetic = false;
+			if (reader.isMember() && method.isConstructor() && !Flags.isStatic(reader.getModifiers())) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=48261
+				firstIsSynthetic = true;
+				argCount++;
 			}
+			char[][] argumentTypeNames = new char[argCount][];
+			for (int i = 0; i < argCount; i++) {
+				char[] typeName = null;
+				if (i == 0 && firstIsSynthetic) {
+					typeName = type.getDeclaringType().getFullyQualifiedName().toCharArray();
+				} else if (arguments != null) {
+					TypeReference typeRef = arguments[firstIsSynthetic ? i - 1 : i].type;
+					typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
+					for (int k = 0, dim = typeRef.dimensions(); k < dim; k++)
+						typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
+				}
+				if (typeName == null) {
+					// invalid type name
+					return null;
+				}
+				argumentTypeNames[i] = typeName;
+			}
+			// return binary method
+			IMethod binaryMethod = createBinaryMethodHandle(type, method.selector, argumentTypeNames);
+			if (binaryMethod == null) {
+				// when first attempt fails, try with similar matches if any...
+				PossibleMatch similarMatch = this.currentPossibleMatch.getSimilarMatch();
+				while (similarMatch != null) {
+					type = ((ClassFile)similarMatch.openable).getType();
+					binaryMethod = createBinaryMethodHandle(type, method.selector, argumentTypeNames);
+					if (binaryMethod != null) {
+						return binaryMethod;
+					}
+					similarMatch = similarMatch.getSimilarMatch();
+				}
+			}
+			return binaryMethod;
+		}
+		if (BasicSearchEngine.VERBOSE) {
+			System.out.println("Not able to createHandle for the method " + //$NON-NLS-1$
+					CharOperation.charToString(method.selector) + " May miss some results");  //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -2145,7 +2145,9 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 		if (enclosingElement == null) {
 			enclosingElement = createHandle(method, parent);
 		}
-		reportMatching(typeParameters, enclosingElement, parent, method.binding, nodeSet);
+		if (enclosingElement != null) {
+			reportMatching(typeParameters, enclosingElement, parent, method.binding, nodeSet);
+		}
 	}
 
 	// report annotations
@@ -2153,7 +2155,9 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 		if (enclosingElement == null) {
 			enclosingElement = createHandle(method, parent);
 		}
-		reportMatching(method.annotations, enclosingElement, null, method.binding, nodeSet, true, true);
+		if (enclosingElement != null) {
+			reportMatching(method.annotations, enclosingElement, null, method.binding, nodeSet, true, true);
+		}
 	}
 
 	// references in this method

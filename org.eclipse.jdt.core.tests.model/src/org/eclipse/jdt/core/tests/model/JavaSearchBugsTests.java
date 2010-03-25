@@ -11533,4 +11533,37 @@ public void testBug304841b() throws Exception {
 		getWorkspace().setDescription(preferences);
 	}
 }
+
+/**
+ * @bug 288174: [search] NPE while searching for annotation references in
+ *      rt.jar of JRE 6.0
+ * @test Ensure that no NPE occurs when searching for both ANNOTATION_TYPE
+ *       and TYPE references from an inner enum declared in a binary type.
+ *       This same test also ensures that there is no NPE even if the source
+ *       has a method that does not exist in the class file.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=306196"
+ */
+public void testBug306196() throws Exception {
+	final String libPath = "/JavaSearchBugs/lib/b306196.jar";
+	addLibraryEntry(JAVA_PROJECT, libPath, false);
+	try {
+		IPackageFragmentRoot root = getPackageFragmentRoot(libPath);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { root });
+		SearchPattern leftPattern = createPattern("*", ANNOTATION_TYPE, REFERENCES, false);
+		SearchPattern rightPattern = createPattern("*", TYPE, REFERENCES, false);
+		new SearchEngine().search(SearchPattern.createOrPattern( leftPattern, rightPattern),
+				new SearchParticipant[] { SearchEngine.getDefaultSearchParticipant() }, scope,
+				this.resultCollector, null);
+		assertSearchResults("lib/b306196.jar java.lang.String pkg.<anonymous>.aFunc(java.lang.Object) EXACT_MATCH\n"
+				+ "lib/b306196.jar java.lang.String pkg.<anonymous>.aFunc(java.lang.Object) EXACT_MATCH\n"
+				+ "lib/b306196.jar java.lang.String pkg.<anonymous>.aFunc(java.lang.Object) EXACT_MATCH\n"
+				+ "lib/b306196.jar java.lang.String pkg.<anonymous>.aFunc(java.lang.Object) EXACT_MATCH\n"
+				+ "lib/b306196.jar java.lang.String pkg.<anonymous>.aFunc(java.lang.Object) EXACT_MATCH\n"
+				+ "lib/b306196.jar java.lang.String pkg.<anonymous>.aFunc(java.lang.Object) EXACT_MATCH\n"
+				+ "lib/b306196.jar java.lang.String pkg.B306196$anEnum.aFunc(java.lang.Object) EXACT_MATCH\n"
+				+ "lib/b306196.jar java.lang.String pkg.B306196$anEnum.aFunc(java.lang.Object) EXACT_MATCH");
+	} finally {
+		removeClasspathEntry(JAVA_PROJECT, new Path(libPath));
+	}
+}
 }
