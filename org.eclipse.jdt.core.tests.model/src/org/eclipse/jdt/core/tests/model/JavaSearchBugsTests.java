@@ -11535,7 +11535,7 @@ public void testBug304841b() throws Exception {
 }
 
 /**
- * @bug 288174: [search] NPE while searching for annotation references in
+ * @bug 306196: [search] NPE while searching for annotation references in
  *      rt.jar of JRE 6.0
  * @test Ensure that no NPE occurs when searching for both ANNOTATION_TYPE
  *       and TYPE references from an inner enum declared in a binary type.
