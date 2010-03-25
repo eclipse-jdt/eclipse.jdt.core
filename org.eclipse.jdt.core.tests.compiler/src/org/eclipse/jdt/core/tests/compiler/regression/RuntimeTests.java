@@ -176,8 +176,7 @@ public void test0600_reflection() {
 			"  }\n" +
 			"}\n"},
 		"",
-		"SUCCESS\n" +
-		"FAILURE: IllegalAccessException",
+		this.complianceLevel <= ClassFileConstants.JDK1_5 ? "SUCCESS\n" + "FAILURE: IllegalAccessException" : "SUCCESS\n" + "SUCCESS",
 		"",
 		JavacTestOptions.EclipseJustification.EclipseBug126712
 	);
