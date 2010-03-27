@@ -1295,7 +1295,7 @@ class ASTConverter {
 			}
 			compilationUnit.initCommentMapper(this.scanner);
 			return compilationUnit;
-		} catch(RuntimeException e) {
+		} catch(IllegalArgumentException e) {
 			StringBuffer message = new StringBuffer("Exception occurred during compilation unit conversion:");  //$NON-NLS-1$
 			String lineDelimiter = Util.findLineSeparator(source);
 			if (lineDelimiter == null) lineDelimiter = System.getProperty("line.separator");//$NON-NLS-1$
