@@ -6579,5 +6579,67 @@ public void testBug304081b() throws Exception {
 		this.deleteProject("P");
 	}
 }
+/**
+ * @bug 302949: FUP of 302949
+ * Test that 
+ * 1) non-chaining jars are cached during classpath resolution and can be retrieved later on
+ * 2) A full save (after resetting the non chaining jars cache) caches the non-chaining jars information
+ * 3) when a project is deleted, the non-chaining jar cache is reset.
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=305122"
+ * @throws Exception
+ */
+public void testBug305122() throws Exception {
+	try {
+
+		IJavaProject proj = this.createJavaProject("P", new String[] {}, "bin");
+		IClasspathEntry[] classpath = new IClasspathEntry[2];
+
+		addLibrary(proj, "nonchaining.jar", null, new String[0], 
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n",
+				},
+				JavaCore.VERSION_1_4);
+		addLibrary(proj, "chaining.jar", null, new String[0], 
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Class-Path: chained.jar\n",
+				},
+				JavaCore.VERSION_1_4);
+
+		classpath[0] = JavaCore.newLibraryEntry(new Path("/P/nonchaining.jar"), null, null);
+		classpath[1] = JavaCore.newLibraryEntry(new Path("/P/chaining.jar"), null, null);
+		createFile("/P/chained.jar", "");
+		
+		proj.setRawClasspath(classpath, null);
+		waitForAutoBuild();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		assertTrue("Non chaining Jar", manager.isNonChainingJar(classpath[0].getPath()));
+		assertFalse("Chaining Jar", manager.isNonChainingJar(classpath[1].getPath()));
+		
+		((JavaProject)proj).resetResolvedClasspath();
+		proj.getResolvedClasspath(true);
+		manager = JavaModelManager.getJavaModelManager();
+		assertTrue("Non chaining Jar", manager.isNonChainingJar(classpath[0].getPath()));
+		assertFalse("Chaining Jar", manager.isNonChainingJar(classpath[1].getPath()));
+
+		((JavaProject)proj).resetResolvedClasspath();
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		workspace.save(true, null);
+		assertTrue("Non chaining Jar", manager.isNonChainingJar(classpath[0].getPath()));
+		assertFalse("Chaining Jar", manager.isNonChainingJar(classpath[1].getPath()));
+		
+		this.deleteProject("P");
+		assertFalse("Chaining Jar", manager.isNonChainingJar(classpath[0].getPath()));
+		assertFalse("Chaining Jar", manager.isNonChainingJar(classpath[1].getPath()));
+		
+	} finally {
+		IProject proj = this.getProject("P");
+		if ( proj != null && proj.exists())
+			this.deleteProject("P");
+	}
+}
 
 }
