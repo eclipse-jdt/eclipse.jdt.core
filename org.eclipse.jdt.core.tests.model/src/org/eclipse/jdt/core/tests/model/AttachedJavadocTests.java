@@ -20,6 +20,7 @@ import junit.framework.Test;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathAttribute;
@@ -580,4 +581,111 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			}
 		}
 	}
+	/**
+	 * @bug 304394: IJavaElement#getAttachedJavadoc(IProgressMonitor) should support referenced entries
+	 * Test that javadoc is picked up from the referenced classpath entry when the javadoc location is added
+	 * to that entry
+	 * 
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304394"
+	 * @throws Exception
+	 */
+	public void testBug304394() throws Exception {
+		setJavadocLocationAttribute("specialDoc");
+		IClasspathEntry[] savedEntries = null;
+		try {
+			IClasspathEntry[] entries = this.project.getRawClasspath();
+			savedEntries = (IClasspathEntry[]) entries.clone();
+			IClasspathEntry chainedJar = null;
+			int max = entries.length;
+			for (int i = 0; i < max; i++) {
+				final IClasspathEntry entry = entries[i];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY
+						&& entry.getContentKind() == IPackageFragmentRoot.K_BINARY
+						&& "/AttachedJavadocProject/lib/test6.jar".equals(entry.getPath().toString())) { //$NON-NLS-1$
+
+					chainedJar = entries[i];
+					addLibrary(this.project, "/lib/chaining.jar", null, new String[0], 
+							new String[] {
+								"META-INF/MANIFEST.MF",
+								"Manifest-Version: 1.0\n" +
+								"Class-Path: test6.jar\n",
+							},
+							JavaCore.VERSION_1_4);
+					IPath jarPath = this.project.getPath().append("lib").append("chaining.jar");
+					entries[i] = JavaCore.newLibraryEntry(jarPath, entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath());
+					break;
+				}
+			}
+			
+			this.project.setRawClasspath(entries, new IClasspathEntry[]{chainedJar}, this.project.getOutputLocation(), null);
+			waitForAutoBuild();
+			
+			IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
+			IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
+			IType type = classFile.getType();
+			IMethod method = type.getMethod("foo", new String[] {"I", "J", "Ljava.lang.String;"}); //$NON-NLS-1$
+			String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+			assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
+		} finally {
+			// restore classpath
+			if (savedEntries != null) {
+				this.project.setRawClasspath(savedEntries, null);
+			}
+			removeLibrary(this.project, "/lib/chaining.jar", null);
+		}
+	}
+	/**
+	 * Additional test for bug 304394.
+	 * Test that javadoc is picked up from the raw classpath entry when the referenced entry doesn't 
+	 * contain the javadoc location attrribute.
+	 * 
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304394"
+	 * @throws Exception
+	 */
+	public void testBug304394a() throws Exception {
+		setJavadocLocationAttribute("specialDoc");
+		IClasspathEntry[] savedEntries = null;
+		try {
+			IClasspathEntry[] entries = this.project.getRawClasspath();
+			savedEntries = (IClasspathEntry[]) entries.clone();
+			IClasspathEntry chainedJar = null;
+			int max = entries.length;
+			for (int i = 0; i < max; i++) {
+				final IClasspathEntry entry = entries[i];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY
+						&& entry.getContentKind() == IPackageFragmentRoot.K_BINARY
+						&& "/AttachedJavadocProject/lib/test6.jar".equals(entry.getPath().toString())) { //$NON-NLS-1$
+
+					chainedJar = entries[i];
+					addLibrary(this.project, "/lib/chaining.jar", null, new String[0], 
+							new String[] {
+								"META-INF/MANIFEST.MF",
+								"Manifest-Version: 1.0\n" +
+								"Class-Path: test6.jar\n",
+							},
+							JavaCore.VERSION_1_4);
+					IPath jarPath = this.project.getPath().append("lib").append("chaining.jar");
+					entries[i] = JavaCore.newLibraryEntry(jarPath, entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.getAccessRules(), entry.getExtraAttributes(), entry.isExported());
+					break;
+				}
+			}
+			
+			chainedJar = JavaCore.newLibraryEntry(chainedJar.getPath(), null, null, null, null, chainedJar.isExported());
+			this.project.setRawClasspath(entries, new IClasspathEntry[]{chainedJar}, this.project.getOutputLocation(), null);
+			waitForAutoBuild();
+			
+			IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
+			IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
+			IType type = classFile.getType();
+			IMethod method = type.getMethod("foo", new String[] {"I", "J", "Ljava.lang.String;"}); //$NON-NLS-1$
+			String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+			assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
+		} finally {
+			// restore classpath
+			if (savedEntries != null) {
+				this.project.setRawClasspath(savedEntries, null);
+			}
+			removeLibrary(this.project, "/lib/chaining.jar", null);
+		}
+	}	
 }
