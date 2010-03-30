@@ -132,10 +132,6 @@ public class CompletionParser extends AssistParser {
 	// a pointer in the expression stack to the qualifier of a invocation
 	int qualifier;
 
-	// last modifiers info
-	int lastModifiers = ClassFileConstants.AccDefault;
-	int lastModifiersStart = -1;
-
 	// used to find if there is unused modifiers when building completion inside a method or an initializer
 	boolean hasUnusedModifiers;
 

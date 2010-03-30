@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,9 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 public abstract class AssistParser extends Parser {
 	public ASTNode assistNode;
 	public boolean isOrphanCompletionNode;
-
+	// last modifiers info
+	protected int lastModifiers = ClassFileConstants.AccDefault;
+	protected int lastModifiersStart = -1;
 	/* recovery */
 	int[] blockStarts = new int[30];
 
@@ -1269,7 +1271,11 @@ public void parseBlockStatements(ConstructorDeclaration cd, CompilationUnitDecla
 	//convert bugs into parse error
 
 	initialize();
-
+	// set the lastModifiers to reflect the modifiers of the constructor whose
+	// block statements are being parsed
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=202634
+	this.lastModifiers = cd.modifiers;
+	this.lastModifiersStart = cd.modifiersSourceStart;
 	// simulate goForConstructorBody except that we don't want to balance brackets because they are not going to be balanced
 	goForBlockStatementsopt();
 
@@ -1335,7 +1341,11 @@ public void parseBlockStatements(
 	CompilationUnitDeclaration unit) {
 
 	initialize();
-
+	// set the lastModifiers to reflect the modifiers of the initializer whose
+	// block statements are being parsed
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=202634
+	this.lastModifiers = initializer.modifiers;
+	this.lastModifiersStart = initializer.modifiersSourceStart;
 	// simulate goForInitializer except that we don't want to balance brackets because they are not going to be balanced
 	goForBlockStatementsopt();
 
@@ -1392,7 +1402,11 @@ public void parseBlockStatements(MethodDeclaration md, CompilationUnitDeclaratio
 		return;
 
 	initialize();
-
+	// set the lastModifiers to reflect the modifiers of the method whose
+	// block statements are being parsed
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=202634
+	this.lastModifiers = md.modifiers;
+	this.lastModifiersStart = md.modifiersSourceStart;
 	// simulate goForMethodBody except that we don't want to balance brackets because they are not going to be balanced
 	goForBlockStatementsopt();
 
