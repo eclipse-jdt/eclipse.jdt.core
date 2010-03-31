@@ -20974,4 +20974,34 @@ public void testBug307337() throws JavaModelException {
 			"enclosingElement=<anonymous #1> {key=Ltest/TestBug307337$64;} [in obj [in TestBug307337 [in [Working copy] TestBug307337.java [in test [in src [in Completion]]]]]]",
 			requestor.getContext());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
+// To verify that anonymous class in array initializer doesnt cause
+// grief to content assist
+public void testBug292087() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Try.java",
+		"package test;\n" +
+		"public class Try extends Thread{\n" +
+		"	public Runnable member[] = { new Runnable (){\n" +
+		"		public void run() {}\n" +
+		"		}\n" +
+		"	};\n" +
+		"	Tr\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Tr";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			// without the fix no proposals obtained.
+			"Tr[POTENTIAL_METHOD_DECLARATION]{Tr, Ltest.Try;, ()V, Tr, null, 14}\n" +
+			"transient[KEYWORD]{transient, null, null, transient, null, 14}\n" +
+			"Try[TYPE_REF]{Try, test, Ltest.Try;, null, null, 27}",
+			requestor.getResults());
+}
 }

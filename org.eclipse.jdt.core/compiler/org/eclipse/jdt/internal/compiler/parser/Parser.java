@@ -10332,10 +10332,13 @@ public void recoveryExitFromVariable() {
 			this.currentElement = this.currentElement.parent;
 		} else if(this.currentElement instanceof RecoveredField
 			&& !(this.currentElement instanceof RecoveredInitializer)) {
-
-			int end = ((RecoveredField)this.currentElement).fieldDeclaration.sourceEnd;
-			this.currentElement.updateSourceEndIfNecessary(end);
-			this.currentElement = this.currentElement.parent;
+			// Do not move focus to parent if we are still inside an array initializer
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087 
+			if (this.currentElement.bracketBalance <= 0) {
+				int end = ((RecoveredField)this.currentElement).fieldDeclaration.sourceEnd;
+				this.currentElement.updateSourceEndIfNecessary(end);
+				this.currentElement = this.currentElement.parent;
+			}
 		}
 	}
 }
