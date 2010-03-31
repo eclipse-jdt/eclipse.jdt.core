@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -207,8 +207,8 @@ public FieldDeclaration updatedFieldDeclaration(int depth, Set knownTypes){
 					TypeDeclaration anonymousType = recoveredType.updatedTypeDeclaration(depth + 1, knownTypes);
 					if (anonymousType != null) {
 						this.fieldDeclaration.initialization = anonymousType.allocation;
-						if(this.fieldDeclaration.declarationSourceEnd == 0) {
-							int end = anonymousType.declarationSourceEnd;
+						int end = anonymousType.declarationSourceEnd;
+						if (end > this.fieldDeclaration.declarationSourceEnd) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=307337
 							this.fieldDeclaration.declarationSourceEnd = end;
 							this.fieldDeclaration.declarationEnd = end;
 						}
