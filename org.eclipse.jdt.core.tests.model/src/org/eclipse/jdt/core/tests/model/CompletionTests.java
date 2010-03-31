@@ -20947,4 +20947,31 @@ public void testBug202634f() throws JavaModelException {
 			"this[KEYWORD]{this, null, null, this, null, replace[" + start1 + ", " + end1 +"], token[" + start1 + ", " + end1 + "], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE+ R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=307337
+public void testBug307337() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/TestBug307337.java",
+		"package test;\n" +
+		"public class TestBug307337 {\n" +
+		"    Object obj = new Object() {\n" +
+		"    TestBug307337\n" + 	
+		"     };\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	requestor.setRequireExtendedContext(true);
+	requestor.setComputeEnclosingElement(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "TestBug307337";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
+			"enclosingElement=<anonymous #1> {key=Ltest/TestBug307337$64;} [in obj [in TestBug307337 [in [Working copy] TestBug307337.java [in test [in src [in Completion]]]]]]",
+			requestor.getContext());
+}
 }
