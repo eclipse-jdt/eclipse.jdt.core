@@ -208,6 +208,7 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	private final int testIndex;
 
 	// Cleaning
+	private static boolean LIST = false;
 	private final static Map MAX_FILES = new HashMap();
 
 	// Formatting behavior
@@ -397,12 +398,11 @@ protected static Test suite(File inputDir, String profile, Map directories) {
 		File listFile = new File(inputDir.getParentFile(), inputDir.getName()+".lst");
 		BufferedWriter listFileWriter = null;
 		if (allFiles == null) {
-			if (CLEAN || !listFile.exists()) {
+			System.out.print("Get all files from ");
+			if (LIST || !listFile.exists()) {
 				// Get the files list
-				System.out.print("Get all files from "+inputDir+"...");
+				System.out.print(inputDir+"...");
 				allFiles = ModelTestsUtil.getAllFiles(inputDir, filter);
-				directories.put(inputDir, allFiles);
-				System.out.println("done");
 				// Delete the files list
 				if (listFile.exists()) {
 					listFile.delete();
@@ -412,7 +412,7 @@ protected static Test suite(File inputDir, String profile, Map directories) {
 				listFileWriter.write(Integer.toString(allFiles.length));
 				listFileWriter.newLine();
 			} else {
-				System.out.print("Get all files from stored list in "+listFile.getPath()+"...");
+				System.out.print("stored list in "+listFile.getPath()+"...");
 				BufferedReader listFileReader = new BufferedReader(new InputStreamReader(new FileInputStream(listFile.getAbsolutePath())));
 				try {
 					// First line is the number of files
@@ -439,6 +439,8 @@ protected static Test suite(File inputDir, String profile, Map directories) {
 					listFileReader.close();
 				}
 			}
+			directories.put(inputDir, allFiles);
+			System.out.println("done");
 		}
 		int[] maxFiles = new int[2];
 		maxFiles[0] = allFiles.length;
@@ -586,6 +588,8 @@ private static void initDirectories(File inputDir, int profiles, boolean verify)
 			String token = tokenizer.nextToken();
 			if (token.equals("clean")) {
 				CLEAN = true;
+			} else if (token.equals("list")) {
+				LIST = true;
 			} else if (token.equals("tmp")) {
 				if (JDT_CORE_HEAD) {
 					TEMP_OUTPUT = "HEAD";
