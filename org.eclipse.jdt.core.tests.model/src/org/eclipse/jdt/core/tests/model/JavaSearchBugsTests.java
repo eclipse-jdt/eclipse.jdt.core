@@ -60,6 +60,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests {
 // Debug
 static {
 //	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
+//	TESTS_NAMES = new String[] {"testBug306223"};
 }
 
 public JavaSearchBugsTests(String name) {
@@ -11565,5 +11566,213 @@ public void testBug306196() throws Exception {
 	} finally {
 		removeClasspathEntry(JAVA_PROJECT, new Path(libPath));
 	}
+}
+
+/**
+ * @bug 306223:  [search] Searching for annotation references report all type references
+ * @test Ensures the following - 
+ * 		 1. Search for annotation references does not report type references
+ * 		 2. Search for annotation references even report a non-annotation references to an annotation type
+ *		
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=306223"
+ */
+public void testBug306223a() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
+			"import b306223.MyAnnot;\n"+
+			"@MyAnnot\n" + 
+			"public class TestAnnot {\n" +
+				"MyAnnot annon;\n" +
+			    "String test;\n" +
+			    "void foo(String str) {\n" +
+			        "this.test = str;\n" +
+			    "}\n" +
+			"}\n"		
+		);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b306223/MyAnnot.java",
+			"@interface MyAnnot {}\n");
+	SearchPattern pattern = SearchPattern.createPattern(
+			"*",
+			ANNOTATION_TYPE,
+			REFERENCES,
+			EXACT_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+	new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+	getJavaSearchWorkingCopiesScope(),
+	this.resultCollector,
+	null);
+	assertSearchResults(
+			"src/b306223/Test.java [b306223.MyAnnot] EXACT_MATCH\n" + 
+			"src/b306223/Test.java b306223.TestAnnot [MyAnnot] EXACT_MATCH\n" + 
+			"src/b306223/Test.java b306223.TestAnnot.annon [MyAnnot] EXACT_MATCH"
+	);
+}
+/**
+ * This ensures that using ANNOTATION_TYPE_REFERENCE as fine grain constant reports only 
+ * annotations and not any other references to an annotation type
+ */
+public void testBug306223b() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
+			"import b306223.MyAnnot;\n"+
+			"@MyAnnot\n" + 
+			"public class TestAnnot {\n" +
+				"MyAnnot annon;\n" +
+			    "String test;\n" +
+			    "void foo(String str) {\n" +
+			        "this.test = str;\n" +
+			    "}\n" +
+			"}\n"		
+		);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b306223/MyAnnot.java",
+			"@interface MyAnnot {}\n");
+	SearchPattern pattern = SearchPattern.createPattern(
+			"*",
+			ANNOTATION_TYPE,
+			REFERENCES|ANNOTATION_TYPE_REFERENCE,
+			EXACT_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+	new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+	getJavaSearchWorkingCopiesScope(),
+	this.resultCollector,
+	null);
+	assertSearchResults(
+			"src/b306223/Test.java b306223.TestAnnot [MyAnnot] EXACT_MATCH"
+	);
+}
+
+/**
+ * This test ensures that search for enum references does not report type references.
+ */
+public void testBug306223c() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
+			"public class TestEnum {\n" +
+			"	String foo(MyEnum e) {\n" +
+			"		switch (e) {\n"+
+			"			case ONE:\n" +
+			"				return \"1\";\n" +
+			"			case TWO:\n" +
+			"				return \"2\";\n" +
+			"			default:\n" +
+			"				return \"-1\";\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+
+			"enum MyEnum {\n" +
+			"	ONE, TWO\n" +
+			"}\n"
+	);
+
+	SearchPattern pattern = SearchPattern.createPattern(
+			"*",
+			ENUM,
+			REFERENCES,
+			EXACT_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+	new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+	getJavaSearchWorkingCopiesScope(),
+	this.resultCollector,
+	null);
+	assertSearchResults(
+			"src/b306223/Test.java String b306223.TestEnum.foo(MyEnum) [MyEnum] EXACT_MATCH"
+	);
+}
+/**
+ * This test ensures that a reference search of ANNOTATION_TYPE should report POTENTIAL_MATCH
+ * for unknown references types.
+ */ 
+public void testBug306223d() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
+			"public class TestAnnot {\n" +
+				"Zork annon;\n" +
+			"}\n"		
+		);
+	SearchPattern pattern = SearchPattern.createPattern(
+			"*",
+			ANNOTATION_TYPE,
+			REFERENCES,
+			EXACT_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+	new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+	getJavaSearchWorkingCopiesScope(),
+	this.resultCollector,
+	null);
+	assertSearchResults(
+			"src/b306223/Test.java b306223.TestAnnot.annon [Zork] POTENTIAL_MATCH" 
+	);
+}
+/**
+ * This test ensures that an ANNOTATION_TYPE reference search for a non-existing
+ * type does not report any other references
+ */
+public void testONLY_Bug306223e() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
+			"public class Test {\n" +
+			"	Zork x;\n" +
+			"}\n"		
+		);
+	SearchPattern pattern = SearchPattern.createPattern(
+			"abc",
+			ANNOTATION_TYPE,
+			REFERENCES,
+			EXACT_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+		getJavaSearchWorkingCopiesScope(),
+		this.resultCollector,
+		null);
+	assertSearchResults("");
+}
+/**
+ * This test ensures that a TYPE reference search reports EXACT_MATCH
+ * for missing types
+ */
+public void testBug306223f() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
+			"public class Test {\n" +
+			"	Zork x;\n" +
+			"}\n"		
+		);
+	SearchPattern pattern = SearchPattern.createPattern(
+			"*",
+			TYPE,
+			REFERENCES,
+			EXACT_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+		getJavaSearchWorkingCopiesScope(),
+		this.resultCollector,
+		null);
+	assertSearchResults(
+		"src/b306223/Test.java b306223.Test.x [Zork] EXACT_MATCH"
+	);
+}
+/**
+ * This test ensures that a TYPE reference search for a non-existing
+ * type does not report any other references
+ */
+public void testBug306223g() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
+			"public class Test {\n" +
+			"	Zork x;\n" +
+			"}\n"		
+		);
+	SearchPattern pattern = SearchPattern.createPattern(
+			"abc",
+			TYPE,
+			REFERENCES,
+			EXACT_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+		new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+		getJavaSearchWorkingCopiesScope(),
+		this.resultCollector,
+		null);
+	assertSearchResults("");
 }
 }
