@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2222,15 +2222,15 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 		case IJavaSearchConstants.DECLARATIONS : // cannot search for explicit member types
 			return new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, indexSuffix, matchRule);
 		case IJavaSearchConstants.REFERENCES :
-			return new TypeReferencePattern(qualificationChars, typeChars, typeSignature, matchRule);
+			return new TypeReferencePattern(qualificationChars, typeChars, typeSignature, indexSuffix, matchRule);
 		case IJavaSearchConstants.IMPLEMENTORS :
 			return new SuperTypeReferencePattern(qualificationChars, typeChars, SuperTypeReferencePattern.ONLY_SUPER_INTERFACES, indexSuffix, matchRule);
 		case IJavaSearchConstants.ALL_OCCURRENCES :
 			return new OrPattern(
 				new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, indexSuffix, matchRule),// cannot search for explicit member types
-				new TypeReferencePattern(qualificationChars, typeChars, typeSignature, matchRule));
+				new TypeReferencePattern(qualificationChars, typeChars, typeSignature, indexSuffix, matchRule));
 		default:
-			return new TypeReferencePattern(qualificationChars, typeChars, typeSignature, limitTo, matchRule);
+			return new TypeReferencePattern(qualificationChars, typeChars, typeSignature, limitTo, indexSuffix, matchRule);
 	}
 }
 /**
