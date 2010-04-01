@@ -11708,7 +11708,7 @@ public void testBug306223d() throws CoreException {
  * This test ensures that an ANNOTATION_TYPE reference search for a non-existing
  * type does not report any other references
  */
-public void testONLY_Bug306223e() throws CoreException {
+public void testBug306223e() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
 			"public class Test {\n" +
