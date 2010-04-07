@@ -834,9 +834,9 @@ protected static class JavacTestOptions {
 		} else if (this.complianceLevel == ClassFileConstants.JDK1_5) {
 			buffer.append("\" -1.5");
 		} else if (this.complianceLevel == ClassFileConstants.JDK1_6) {
-			buffer.append("\" -1.6");
+			buffer.append("\" -1.6 -proc:none");
 		} else if (this.complianceLevel == ClassFileConstants.JDK1_7) {
-			buffer.append("\" -1.7");
+			buffer.append("\" -1.7 -proc:none");
 		}
 		buffer
 			.append(" -preserveAllLocals -nowarn -g -classpath \"")
