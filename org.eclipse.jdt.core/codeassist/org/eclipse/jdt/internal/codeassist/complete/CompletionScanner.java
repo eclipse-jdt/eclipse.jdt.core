@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
  *  n  means completion behind the n-th character
  */
 import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
@@ -791,7 +792,39 @@ public int getNextToken() throws InvalidInputException {
 					throw new InvalidInputException("Ctrl-Z"); //$NON-NLS-1$
 
 				default :
-					if (ScannerHelper.isJavaIdentifierStart(this.currentCharacter))
+					char c = this.currentCharacter;
+					if (c < ScannerHelper.MAX_OBVIOUS) {
+						if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_IDENT_START) != 0) {
+							return scanIdentifierOrKeyword();
+						} else if ((ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_DIGIT) != 0) {
+								return scanNumber(false);
+						} else {
+							return TokenNameERROR;
+						}
+					}
+					boolean isJavaIdStart;
+					if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
+						if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+							throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+						}
+						// Unicode 4 detection
+						char low = (char) getNextChar();
+						if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
+							// illegal low surrogate
+							throw new InvalidInputException(INVALID_LOW_SURROGATE);
+						}
+						isJavaIdStart = ScannerHelper.isJavaIdentifierStart(c, low);
+					}
+					else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
+						if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+							throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+						}
+						throw new InvalidInputException(INVALID_HIGH_SURROGATE);
+					} else {
+						// optimized case already checked
+						isJavaIdStart = Character.isJavaIdentifierStart(c);
+					}
+					if (isJavaIdStart)
 						return scanIdentifierOrKeyword();
 					if (ScannerHelper.isDigit(this.currentCharacter)) {
 						return scanNumber(false);

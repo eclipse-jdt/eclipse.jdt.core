@@ -13790,5 +13790,29 @@ public void test274466() throws JavaModelException {
 					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=307486
+public void testLabel() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/label/Test.java",
+		"package label;"+
+		"public class Test {\n" +
+		"  void foo() {\n" +
+		"    \ud842\udf9fabc :\n" +
+		"    while (true) {\n" + 
+		"        break \ud842\udf9fabc;\n" + 
+		"    }\n" + 
+		"  }\n" +
+		"}\n");
 
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "break";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length() + 1;
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"\ud842\udf9fabc[LABEL_REF]{\ud842\udf9fabc, null, null, \ud842\udf9fabc, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 }
