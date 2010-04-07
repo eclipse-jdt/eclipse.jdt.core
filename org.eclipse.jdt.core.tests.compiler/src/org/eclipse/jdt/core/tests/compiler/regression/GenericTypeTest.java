@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test1245" };
-//		TESTS_NUMBERS = new int[] { 1455 };
+//		TESTS_NUMBERS = new int[] { 1460 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -50151,6 +50151,33 @@ public void test268798a() {
 		"	A a = someMethod();\n" + 
 		"	      ^^^^^^^^^^^^\n" + 
 		"Type safety: Unchecked invocation someMethod() of the generic method someMethod() of type Bug268798\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=307885
+public void test1460() {
+	this.runNegativeTest(
+		new String[] {
+			"Test.java",
+			"class Test<A> {\n" + 
+			"    interface MyInt<K> {\n" + 
+			"        K getKey();\n" + 
+			"    }\n" + 
+			"    class MyEntry implements MyInt<A> {\n" + 
+			"        public A getKey() { return null; }\n" + 
+			"        @Override\n" + 
+			"        public boolean equals(Object o) {\n" + 
+			"            if(!(o instanceof MyEntry))\n" + 
+			"                return false;\n" + 
+			"            return true;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 9)\n" + 
+		"	if(!(o instanceof MyEntry))\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type Test<A>.MyEntry. Use the form Test.MyEntry instead since further generic type information will be erased at runtime\n" + 
 		"----------\n");
 }
 }
