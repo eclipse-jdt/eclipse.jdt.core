@@ -6641,5 +6641,50 @@ public void testBug305122() throws Exception {
 			this.deleteProject("P");
 	}
 }
+/**
+ * @bug 308150: JAR with invalid Class-Path entry in MANIFEST.MF crashes the project
+ * Test that an invalid referenced library entry in the Class-Path of the MANIFEST doesn't
+ * create any exceptions and is NOT added to the resolved classpath.
+ *  
+ *  @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=308150"
+ * @throws Exception
+ */
+public void testBug308150() throws Exception {
+	try {
+
+		IJavaProject proj = this.createJavaProject("P", new String[] {}, "bin");
+		IClasspathEntry[] classpath = new IClasspathEntry[2];
+
+		// The Class-Path references an entry that points to the workspace root (hence invalid)
+		addLibrary(proj, "invalid.jar", null, new String[0], 
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Class-Path: ../..\n",
+				},
+				JavaCore.VERSION_1_4);
+
+		addExternalLibrary(proj, getExternalResourcePath("invalid2.jar"), new String[0], 
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Class-Path: ../..\n",
+				},
+				JavaCore.VERSION_1_4);
+			refreshExternalArchives(proj);
+
+		classpath[0] = JavaCore.newLibraryEntry(new Path("/P/invalid.jar"), null, null);
+		classpath[1] = JavaCore.newLibraryEntry(new Path(getExternalResourcePath("invalid2.jar")), null, null);
+		proj.setRawClasspath(classpath, null);
+		waitForAutoBuild();
+		IClasspathEntry[] resolvedClasspath = proj.getResolvedClasspath(true);
+
+		assertClasspathEquals(resolvedClasspath, 
+				"/P/invalid.jar[CPE_LIBRARY][K_BINARY][isExported:false]\n" + 
+				""+ getExternalPath() + "invalid2.jar[CPE_LIBRARY][K_BINARY][isExported:false]");
+	} finally {
+		this.deleteProject("P");
+	}
+}
 
 }
