@@ -478,11 +478,20 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 	}
 	private boolean checkSelection(
-		char[] source,
-		int selectionStart,
-		int selectionEnd) {
+			char[] source,
+			int selectionStart,
+			int selectionEnd) {
 
-		Scanner scanner = new Scanner();
+		Scanner scanner =
+			new Scanner(
+				false /*comment*/,
+				false /*whitespace*/,
+				false /*nls*/,
+				this.compilerOptions.sourceLevel,
+				this.compilerOptions.complianceLevel,
+				null/*taskTag*/,
+				null/*taskPriorities*/,
+				true /*taskCaseSensitive*/);
 		scanner.setSource(source);
 
 		int lastIdentifierStart = -1;

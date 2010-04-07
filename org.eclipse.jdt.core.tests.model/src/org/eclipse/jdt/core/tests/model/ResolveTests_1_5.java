@@ -27,7 +27,7 @@ static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 	//TESTS_NAMES = new String[] { "test0095" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-	//TESTS_NUMBERS = new int[] { 13 };
+	//TESTS_NUMBERS = new int[] { 124 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 	//TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -2932,6 +2932,32 @@ public void test0123() throws Exception {
 	assertElementsEqual(
 			"Unexpected elements",
 			"bar(T) {key=Ltest/Test;.bar<T:Ljava/lang/Object;>(TT;)TT;%<Ljava/lang/Object;>} [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
+			elements,
+			true
+		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=308356
+public void test0124() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/Test.java",
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String str\ud842\udf9f = null;\n" + 
+			"	}\n" + 
+			"}");
+
+	String str = this.workingCopies[0].getSource();
+	String CONST1 = "String ";
+	int start = str.indexOf("String ");
+	start += CONST1.length();
+	int start2 = str.indexOf(" =");
+	int length = start2 - start + 1;
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"str\ud842\udf9f [in main(String[]) [in Test [in [Working copy] Test.java [in <default> [in src [in Resolve]]]]]]",
 			elements,
 			true
 		);
