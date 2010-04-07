@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.ServiceLoader;
 import java.util.Set;
 
+import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaCompiler;
@@ -65,6 +66,8 @@ public class CompilerToolTests extends TestCase {
 		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler3"));
 		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler4"));
 		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler5"));
+		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler6"));
+		suite.addTest(new CompilerToolTests("testCompilerOneClassWithEclipseCompiler7"));
 		suite.addTest(new CompilerToolTests("testCleanUp"));
 		return suite;
 	}
@@ -674,6 +677,125 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
 		PrintWriter err = new PrintWriter(errBuffer);
 		CompilerInvocationDiagnosticListener compilerInvocationDiagnosticListener = new CompilerInvocationDiagnosticListener(err);
+		CompilationTask task = Compiler.getTask(null, manager, compilerInvocationDiagnosticListener, options, null, units);
+		// check the classpath location
+		Boolean result = task.call();
+		err.flush();
+		err.close();
+		assertFalse(errBuffer.toString().isEmpty());
+		assertTrue(compilerInvocationDiagnosticListener.kind != CompilerInvocationDiagnosticListener.NONE);
+		if (!result.booleanValue()) {
+			assertFalse("Compilation did not fail", false);
+		}
+		// check that the .class file exist for X
+		assertTrue("delete failed", inputFile.delete());
+	}
+
+	public void testCompilerOneClassWithEclipseCompiler6() {
+		String tmpFolder = System.getProperty("java.io.tmpdir");
+		File packageFolder = new File(tmpFolder, "p");
+		if (!packageFolder.mkdirs()) {
+			return;
+		}
+		File inputFile = new File(packageFolder, "X.java");
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(inputFile));
+			writer.write(
+				"package p;\n" +
+				"public class X extends File {}");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		// System compiler
+		StandardJavaFileManager manager = Compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		List<File> files = new ArrayList<File>();
+		files.add(inputFile);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+	
+		List<String> options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder);
+		options.add("-sourcepath");
+		options.add(tmpFolder);
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter err = new PrintWriter(errBuffer);
+		CompilerInvocationDiagnosticListener compilerInvocationDiagnosticListener = new CompilerInvocationDiagnosticListener(err) {
+			@Override
+			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+				JavaFileObject source = diagnostic.getSource();
+				assertNotNull("No source", source);
+				super.report(diagnostic);
+			}
+		};
+		CompilationTask task = Compiler.getTask(null, manager, compilerInvocationDiagnosticListener, options, null, units);
+		// check the classpath location
+		Boolean result = task.call();
+		err.flush();
+		err.close();
+		assertFalse(errBuffer.toString().isEmpty());
+		assertTrue(compilerInvocationDiagnosticListener.kind != CompilerInvocationDiagnosticListener.NONE);
+		if (!result.booleanValue()) {
+			assertFalse("Compilation did not fail", false);
+		}
+		// check that the .class file exist for X
+		assertTrue("delete failed", inputFile.delete());
+		assertTrue("delete failed", packageFolder.delete());
+	}
+
+	public void testCompilerOneClassWithEclipseCompiler7() {
+		String tmpFolder = System.getProperty("java.io.tmpdir");
+		File inputFile = new File(tmpFolder, "X.java");
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(inputFile));
+			writer.write(
+				"package p;\n" +
+				"public class X extends File {}");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		// System compiler
+		StandardJavaFileManager manager = Compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		List<File> files = new ArrayList<File>();
+		files.add(inputFile);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+	
+		List<String> options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder);
+		options.add("-sourcepath");
+		options.add(tmpFolder);
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter err = new PrintWriter(errBuffer);
+		CompilerInvocationDiagnosticListener compilerInvocationDiagnosticListener = new CompilerInvocationDiagnosticListener(err) {
+			@Override
+			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+				JavaFileObject source = diagnostic.getSource();
+				assertNotNull("No source", source);
+				super.report(diagnostic);
+			}
+		};
 		CompilationTask task = Compiler.getTask(null, manager, compilerInvocationDiagnosticListener, options, null, units);
 		// check the classpath location
 		Boolean result = task.call();
