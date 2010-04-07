@@ -4321,7 +4321,14 @@ private void initializeForBlockStatements() {
 	this.qualifier = -1;
 	popUntilElement(K_SWITCH_LABEL);
 	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_SWITCH_LABEL) {
-		popUntilElement(K_BLOCK_DELIMITER);
+		if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_ARRAY_INITIALIZER) {
+			// if recovery is taking place in an array initializer, we should prevent popping
+			// up to the enclosing block until the array initializer is properly closed
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=249704
+			popUntilElement(K_ARRAY_INITIALIZER);
+		} else {
+			popUntilElement(K_BLOCK_DELIMITER);
+		}
 	}
 }
 public void initializeScanner(){
@@ -4606,7 +4613,13 @@ public void recoveryTokenCheck() {
 		case TokenNameRBRACE :
 			super.recoveryTokenCheck();
 			if(this.currentElement != oldElement && oldElement instanceof RecoveredBlock) {
-				popElement(K_BLOCK_DELIMITER);
+				if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_ARRAY_INITIALIZER) {
+					// When inside an array initializer, we should not prematurely pop the enclosing block
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=249704
+					popElement(K_ARRAY_INITIALIZER);
+				} else {
+					popElement(K_BLOCK_DELIMITER);
+				}
 			}
 			break;
 		case TokenNamecase :
