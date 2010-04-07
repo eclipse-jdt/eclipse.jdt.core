@@ -2141,7 +2141,12 @@ public void illegalGenericArray(TypeBinding leafComponentType, ASTNode location)
 public void illegalInstanceOfGenericType(TypeBinding checkedType, ASTNode location) {
 	TypeBinding erasedType = checkedType.leafComponentType().erasure();
 	StringBuffer recommendedFormBuffer = new StringBuffer(10);
-	recommendedFormBuffer.append(erasedType.sourceName());
+	if (erasedType instanceof ReferenceBinding) {
+		ReferenceBinding referenceBinding = (ReferenceBinding) erasedType;
+		recommendedFormBuffer.append(referenceBinding.qualifiedSourceName());
+	} else {
+		recommendedFormBuffer.append(erasedType.sourceName());
+	}
 	int count = erasedType.typeVariables().length;
 	if (count > 0) {
 		recommendedFormBuffer.append('<');
