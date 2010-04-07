@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class InnerEmulationTest extends AbstractRegressionTest {
 static {
 //		TESTS_NAMES = new String[] { "Bug58069" };
-//		TESTS_NUMBERS = new int[] { 23, 24 };
+		TESTS_NUMBERS = new int[] { 173, 174 };
 //		TESTS_RANGE = new int[] { 144, -1 };
 }
 public InnerEmulationTest(String name) {
@@ -7064,6 +7064,60 @@ public void test172() throws Exception {
 		"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" + 
 		"----------\n"
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
+public void test173() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",//=======================
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Comparator;\n" + 
+			"import java.util.List;\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		final List yourList = new ArrayList();\n" + 
+			"		final List myList = new ArrayList();\n" + 
+			"		new Comparator() {\n" + 
+			"			public int compare(Object o1, Object o2) {\n" + 
+			"				compare(yourList != null ? yourList : myList, yourList);\n" + 
+			"				return 0;\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
+public void test174() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",//=======================
+			"import java.util.Comparator;\n" + 
+			"public class X {\n" + 
+			"	public static class MyList {\n" +
+			"		int size;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		final MyList yourList = new MyList();\n" + 
+			"		final MyList myList = new MyList();\n" + 
+			"		new Comparator() {\n" + 
+			"			public int compare(Object o1, Object o2) {\n" +
+			"				return compare((MyList) o1, (MyList) o2);\n" + 
+			"			}\n" + 
+			"			public int compare(MyList o1, MyList o2) {\n" + 
+			"				return foo(yourList != null ? yourList.size : myList.size, yourList.size);\n" + 
+			"			}\n" + 
+			"			private int foo(int i, int j) {\n" + 
+			"				return i - j;\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS");
 }
 public static Class testClass() {
 	return InnerEmulationTest.class;
