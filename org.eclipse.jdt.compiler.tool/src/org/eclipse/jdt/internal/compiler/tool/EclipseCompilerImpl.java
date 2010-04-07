@@ -206,15 +206,9 @@ public class EclipseCompilerImpl extends Main {
 						}
 						@Override
 						public JavaFileObject getSource() {
-							try {
-								if (EclipseCompilerImpl.this.fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
-									return EclipseCompilerImpl.this.fileManager.getJavaFileForInput(
-											StandardLocation.SOURCE_PATH,
-											new String(originatingFileName),
-											JavaFileObject.Kind.SOURCE);
-								}
-							} catch (IOException e) {
-								// ignore
+							File f = new File(new String(originatingFileName));
+							if (f.exists()) {
+								return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, null);
 							}
 							return null;
 						}
@@ -282,15 +276,9 @@ public class EclipseCompilerImpl extends Main {
 						}
 						@Override
 						public JavaFileObject getSource() {
-							try {
-								if (EclipseCompilerImpl.this.fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
-									return EclipseCompilerImpl.this.fileManager.getJavaFileForInput(
-											StandardLocation.SOURCE_PATH,
-											new String(originatingFileName),
-											JavaFileObject.Kind.SOURCE);
-								}
-							} catch (IOException e) {
-								// ignore
+							File f = new File(new String(originatingFileName));
+							if (f.exists()) {
+								return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, null);
 							}
 							return null;
 						}
