@@ -21004,4 +21004,43 @@ public void testBug292087() throws JavaModelException {
 			"Try[TYPE_REF]{Try, test, Ltest.Try;, null, null, 27}",
 			requestor.getResults());
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=249704
+public void testBug249704() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Try.java",
+		"package test;\n" +
+		"import java.util.Arrays;\n" +
+		"public class Try {\n" +
+		"	Object obj = new Object() {\n" +
+		"		public void method() {\n" +
+		"			Object obj = new Object() {\n" +
+		"				int a = 1;\n" +
+		"				public void anotherMethod() {\n" +
+		"					try {}\n" +
+		"					catch (Throwable e) {}\n" +
+		"					Arrays.sort(new String[]{\"\"});\n" +
+		"				}\n" +
+		"			};\n" +
+		"			e\n" +
+		"		}\n" +
+		"	};\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "e";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			// without the fix no proposals obtained.
+			"Error[TYPE_REF]{Error, java.lang, Ljava.lang.Error;, null, null, 17}\n" +
+			"Exception[TYPE_REF]{Exception, java.lang, Ljava.lang.Exception;, null, null, 17}\n" +
+			"equals[METHOD_REF]{Try.this.equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 24}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 27}",
+			requestor.getResults());
+}
 }
