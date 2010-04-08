@@ -10,14 +10,25 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.*;
+import junit.framework.Test;
 
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.CorrectionEngine;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.search.*;
-
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.TypeNameRequestor;
 
 public class CodeCorrectionTests extends AbstractJavaModelTests {
 	public static boolean DEBUG = false;
@@ -54,7 +65,7 @@ public static String[] getProjectNames() {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	IJavaProject project = setUpJavaProject("CodeCorrection");
+	IJavaProject project = setUpJavaProject("CodeCorrection", "1.5");
 
 	// dummy query for waiting until the indexes are ready
 	SearchEngine engine = new SearchEngine();
@@ -649,6 +660,32 @@ public void testCorrectLocalVariable1() throws JavaModelException {
 	assertEquals(
 		"should have one suggestion",
 		"bar0",
+		requestor.getSuggestions());
+	assertEquals(
+		"a start of a suggestion is not correct",
+		""+start,
+		requestor.getStarts());
+	assertEquals(
+		"a end of a suggestion is not correct",
+		""+end,
+		requestor.getEnds());
+}
+public void testCorrectLocalVariable2() throws JavaModelException {
+	CorrectionEngine engine = new CorrectionEngine(JavaCore.getOptions());
+	CodeCorrectionTestsRequestor requestor = new CodeCorrectionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("CodeCorrection", "src", "", "CorrectLocalVariable2.java");
+	IMarker[] markers = getMarkers(cu);
+	assertTrue("should have one problem",markers.length == 1);
+	engine.computeCorrections(markers[0], null, 0, requestor);
+
+	String src = cu.getSource();
+	String error = "ba\\ud842\\udf9fr";
+	int start = src.lastIndexOf(error);
+	int end = start + error.length();
+
+	assertEquals(
+		"should have one suggestion",
+		"ba\ud842\udf9fr0",
 		requestor.getSuggestions());
 	assertEquals(
 		"a start of a suggestion is not correct",
