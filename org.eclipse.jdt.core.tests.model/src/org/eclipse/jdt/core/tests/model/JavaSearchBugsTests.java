@@ -10953,7 +10953,9 @@ public void testBug286379c() throws CoreException {
 	        return false;
         }
 	}
-
+	// print statement to debug random failures of this test
+	System.out.println("Forbidden reference at the start of the test is " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
+	
 	IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
 	TestResourceChangeListener changeListener = new TestResourceChangeListener();
 	try {
@@ -10995,9 +10997,13 @@ public void testBug286379c() throws CoreException {
 		// Wait to be sure that indexes are ready after the new resource was added
 		waitUntilIndexesReady();
 
+		// print statement to debug random failures of this test
+		System.out.println("Forbidden reference before first exit " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
 		// Restart to let the indexes to be refreshed
 		simulateExit();
-		simulateRestart();		
+		simulateRestart();
+		// print statement to debug random failures of this test
+		System.out.println("Forbidden reference after first restart " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
 		waitUntilIndexesReady();
 
 		// Search for the new type with new extension
@@ -11017,9 +11023,13 @@ public void testBug286379c() throws CoreException {
 		// Delete the file specification
 		javaContentType.removeFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
 		
+		// print statement to debug random failures of this test
+		System.out.println("Forbidden reference before second exit " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
 		// Restarting should update the index file to remove the references of any .torem files
 		simulateExit();
-		simulateRestart();		
+		simulateRestart();	
+		// print statement to debug random failures of this test
+		System.out.println("Forbidden reference after second restart " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
 		waitUntilIndexesReady();
 
 		// Search for the new type with new extension
