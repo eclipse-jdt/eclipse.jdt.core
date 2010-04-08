@@ -1674,8 +1674,10 @@ public class JavaProject
 					options.put(propertyName, propertyValue.trim());
 				}
 			}
+			Util.fixTaskTags(options);
 			return options;
 		}
+		Util.fixTaskTags(projectOptions);
 		return projectOptions;
 	}
 
