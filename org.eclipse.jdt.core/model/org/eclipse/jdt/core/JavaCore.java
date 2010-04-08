@@ -1336,7 +1336,9 @@ public final class JavaCore extends Plugin {
 	 * Compiler option ID: Defining the Automatic Task Priorities.
 	 * <p>In parallel with the Automatic Task Tags, this list defines the priorities (high, normal or low)
 	 *    of the task markers issued by the compiler.
-	 *    If the default is specified, the priority of each task marker is <code>"NORMAL"</code>.
+	 *    If the default is specified, the priority of each task marker is <code>"NORMAL"</code>.</p>
+	 * <p>Task Priorities and task tags must have the same length. If task priorities are set, then task tags should also
+	 * be set.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.taskPriorities"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "&lt;priority&gt;[,&lt;priority&gt;]*" }</code> where <code>&lt;priority&gt;</code> is one of <code>"HIGH"</code>, <code>"NORMAL"</code> or <code>"LOW"</code></dd>
@@ -1344,6 +1346,7 @@ public final class JavaCore extends Plugin {
 	 * </dl>
 	 * @since 2.1
 	 * @category CompilerOptionID
+	 * @see #COMPILER_TASK_TAGS
 	 */
 	public static final String COMPILER_TASK_PRIORITIES = PLUGIN_ID + ".compiler.taskPriorities"; //$NON-NLS-1$
 	/**
@@ -1351,15 +1354,17 @@ public final class JavaCore extends Plugin {
 	 * <p>When the tag list is not empty, the compiler will issue a task marker whenever it encounters
 	 *    one of the corresponding tags inside any comment in Java source code.
 	 * <p>Generated task messages will start with the tag, and range until the next line separator,
-	 *    comment ending, or tag.
+	 *    comment ending, or tag.</p>
 	 * <p>When a given line of code bears multiple tags, each tag will be reported separately.
 	 *    Moreover, a tag immediately followed by another tag will be reported using the contents of the
-	 *    next non-empty tag of the line, if any.
+	 *    next non-empty tag of the line, if any.</p>
 	 * <p>Note that tasks messages are trimmed. If a tag is starting with a letter or digit, then it cannot be leaded by
 	 *    another letter or digit to be recognized (<code>"fooToDo"</code> will not be recognized as a task for tag <code>"ToDo"</code>, but <code>"foo#ToDo"</code>
 	 *    will be detected for either tag <code>"ToDo"</code> or <code>"#ToDo"</code>). Respectively, a tag ending with a letter or digit cannot be followed
 	 *    by a letter or digit to be recognized (<code>"ToDofoo"</code> will not be recognized as a task for tag <code>"ToDo"</code>, but <code>"ToDo:foo"</code> will
-	 *    be detected either for tag <code>"ToDo"</code> or <code>"ToDo:"</code>).
+	 *    be detected either for tag <code>"ToDo"</code> or <code>"ToDo:"</code>).</p>
+	 * <p>Task Priorities and task tags must have the same length. If task tags are set, then task priorities should also
+	 * be set.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.taskTags"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "&lt;tag&gt;[,&lt;tag&gt;]*" }</code> where <code>&lt;tag&gt;</code> is a String without any wild-card or leading/trailing spaces</dd>
@@ -1367,6 +1372,7 @@ public final class JavaCore extends Plugin {
 	 * </dl>
 	 * @since 2.1
 	 * @category CompilerOptionID
+	 * @see #COMPILER_TASK_PRIORITIES
 	 */
 	public static final String COMPILER_TASK_TAGS = PLUGIN_ID + ".compiler.taskTags"; //$NON-NLS-1$
 	/**

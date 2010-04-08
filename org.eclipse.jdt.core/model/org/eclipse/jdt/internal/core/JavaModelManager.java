@@ -2061,6 +2061,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// backward compatibility
 		addDeprecatedOptions(options);
 
+		Util.fixTaskTags(options);
 		// store built map in cache
 		this.optionsCache = new Hashtable(options);
 
