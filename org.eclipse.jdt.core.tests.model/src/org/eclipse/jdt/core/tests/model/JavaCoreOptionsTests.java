@@ -28,10 +28,7 @@ public static Test suite() {
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
-//	TESTS_PREFIX =  "testBug100772_ProjectScope";
-//	TESTS_NAMES = new String[] { "testFindLineSeparator04" };
-//	TESTS_NUMBERS = new int[] { 100772 };
-//	TESTS_RANGE = new int[] { 83304, -1 };
+//	TESTS_NUMBERS = new int[] { 4 };
 }
 
 public JavaCoreOptionsTests(String name) {
