@@ -17,7 +17,7 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 /**
- * Tests IJavaModel API.
+ * Tests JavaCore options
  */
 public class JavaCoreOptionsTests extends ModifyingResourceTests {
 
