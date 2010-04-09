@@ -3601,8 +3601,8 @@ public class Util {
 			if (taskTags != null) {
 				Util.logRepeatedMessage(TASK_PRIORITIES_PROBLEM, IStatus.ERROR, "Inconsistent values for taskTags (not null) and task priorities (null)"); //$NON-NLS-1$
 				defaultOptionsMap.remove(JavaCore.COMPILER_TASK_TAGS);
-				return;
 			}
+			return;
 		} else if (taskTags == null) {
 			Util.logRepeatedMessage(TASK_PRIORITIES_PROBLEM, IStatus.ERROR, "Inconsistent values for taskTags (null) and task priorities (not null)"); //$NON-NLS-1$
 			defaultOptionsMap.remove(JavaCore.COMPILER_TASK_PRIORITIES);

@@ -4644,6 +4644,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			instancePreferences.flush();
 
 			// update cache
+			Util.fixTaskTags(cachedValue);
 			this.optionsCache = cachedValue;
 		} catch (BackingStoreException e) {
 			// ignore
