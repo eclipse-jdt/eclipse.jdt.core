@@ -183,6 +183,8 @@ private static Class[] getAllTestClasses() {
 		
 		// Util tests
 		UtilTests.class,
+		
+		JavaCoreOptionsTests.class,
 	};
 
 	Class[] deprecatedClasses = getDeprecatedJDOMTestClasses();
