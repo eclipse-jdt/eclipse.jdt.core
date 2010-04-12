@@ -1491,7 +1491,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		int pos= rewriteJavadoc(node, TypeDeclaration.JAVADOC_PROPERTY);
 
-		if (apiLevel == JLS2_INTERNAL) {
+		boolean isJLS2 = apiLevel == JLS2_INTERNAL;
+		if (isJLS2) {
 			rewriteModifiers(node, TypeDeclaration.MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, TypeDeclaration.MODIFIERS2_PROPERTY, pos);
@@ -1504,7 +1505,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			try {
 				int typeToken= isInterface ? TerminalTokens.TokenNameinterface : TerminalTokens.TokenNameclass;
 				int startPosition = node.getStartPosition();
-				if (apiLevel >= AST.JLS3) {
+				if (!isJLS2) {
 					List modifiers = node.modifiers();
 					final int size = modifiers.size();
 					if (size != 0) {
@@ -1527,13 +1528,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		// name
 		pos= rewriteRequiredNode(node, TypeDeclaration.NAME_PROPERTY);
 
-		if (apiLevel >= AST.JLS3) {
+		if (!isJLS2) {
 			pos= rewriteOptionalTypeParameters(node, TypeDeclaration.TYPE_PARAMETERS_PROPERTY, pos, "", false, true); //$NON-NLS-1$
 		}
 
 		// superclass
 		if (!isInterface || invertType) {
-			ChildPropertyDescriptor superClassProperty= (apiLevel == JLS2_INTERNAL) ? TypeDeclaration.SUPERCLASS_PROPERTY : TypeDeclaration.SUPERCLASS_TYPE_PROPERTY;
+			ChildPropertyDescriptor superClassProperty= isJLS2 ? TypeDeclaration.SUPERCLASS_PROPERTY : TypeDeclaration.SUPERCLASS_TYPE_PROPERTY;
 
 			RewriteEvent superClassEvent= getEvent(node, superClassProperty);
 
@@ -1567,7 +1568,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			}
 		}
 		// extended interfaces
-		ChildListPropertyDescriptor superInterfaceProperty= (apiLevel == JLS2_INTERNAL) ? TypeDeclaration.SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
+		ChildListPropertyDescriptor superInterfaceProperty= isJLS2 ? TypeDeclaration.SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
 
 		RewriteEvent interfaceEvent= getEvent(node, superInterfaceProperty);
 		if (interfaceEvent == null || interfaceEvent.getChangeKind() == RewriteEvent.UNCHANGED) {
