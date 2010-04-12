@@ -6157,7 +6157,12 @@ public void testBug252341a() throws Exception {
 
 		// Test referenced entries for a particular entry appear in the right order and the referencingEntry
 		// attribute has the correct value
-		IClasspathEntry[] chains = JavaCore.getReferencedClasspathEntries(rawClasspath[2], p);
+		IClasspathEntry[] chains = JavaCore.getReferencedClasspathEntries(rawClasspath[2], null);
+		assertClasspathEquals(chains, 
+				"/P/lib2.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" + 
+				"/P/lib3.jar[CPE_LIBRARY][K_BINARY][isExported:true]");
+
+		chains = JavaCore.getReferencedClasspathEntries(rawClasspath[2], p);
 		assertClasspathEquals(chains, 
 				"/P/lib2.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" + 
 				"/P/lib3.jar[CPE_LIBRARY][K_BINARY][isExported:true]");

@@ -1850,8 +1850,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public IClasspathEntry[] getReferencedClasspathEntries(IClasspathEntry libraryEntry, IJavaProject project) {
 		
 		IClasspathEntry[] referencedEntries = ((ClasspathEntry)libraryEntry).resolvedChainedLibraries();
-		PerProjectInfo perProjectInfo = getPerProjectInfo(project.getProject(), false);
 		
+		if (project == null)
+			return referencedEntries;
+		
+		PerProjectInfo perProjectInfo = getPerProjectInfo(project.getProject(), false);
 		if(perProjectInfo == null) 
 			return referencedEntries;
 		
