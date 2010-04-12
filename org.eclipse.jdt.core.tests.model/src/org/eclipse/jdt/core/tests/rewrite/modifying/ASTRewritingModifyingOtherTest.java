@@ -16,8 +16,12 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 	private static final Class THIS = ASTRewritingModifyingOtherTest.class;
@@ -186,49 +190,56 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=308754
+	public void test0005() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0005", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0005;\n");
+		buf.append("@A(X.class) public class C {}");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
-//	public void _test000X() throws Exception {
-//		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0004", false, null);
-//		StringBuffer buf= new StringBuffer();
-//		buf.append("package test0004;\n");
-//		buf.append("\n");
-//		buf.append("public class X {\n");
-//		buf.append("    void foo(){\n");
-//		buf.append("        //rien\n");
-//		buf.append("    \n");
-//		buf.append("    \n");
-//		buf.append("    \n");
-//		buf.append("    \n");
-//		buf.append("    }\n");
-//		buf.append("}\n");
-//		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-//
-//		CompilationUnit astRoot= parseCompilationUnit(cu, false);
-//
-//		astRoot.recordModifications();
-//
-//		AST a = astRoot.getAST();
-//
-//		Comment[] comments = astRoot.getCommentTable();
-//		Comment comment1 = comments[0];
-//		Comment comment2 = a.newBlockComment();
-//		comment2.setSourceRange(comment1.getStartPosition(), comment1.getLength() - 2);
-//		comments[0] = comment2;
-//
-//		String preview = evaluateRewrite(cu, astRoot);
-//
-//		buf= new StringBuffer();
-//		buf.append("package test0004;\n");
-//		buf.append("\n");
-//		buf.append("public class X {\n");
-//		buf.append("\n");
-//		buf.append("}\n");
-//		buf.append("class Y {\n");
-//		buf.append("\n");
-//		buf.append("}\n");
-//		buf.append("class Z {\n");
-//		buf.append("\n");
-//		buf.append("}\n");
-//		assertEqualString(preview, buf.toString());
-//	}
+		CompilationUnit astRoot= createCU(cu, true, AST.JLS3);
+		astRoot.recordModifications();
+		{
+			// change to interface
+			astRoot.accept(new ASTVisitor() {
+				public boolean visit(TypeDeclaration node) {
+					node.setInterface(true);
+					return false;
+				}
+			});
+		}
+		String preview= evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0005;\n");
+		buf.append("@A(X.class) public interface C {}");
+		assertEqualString(preview, buf.toString());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=308754
+	public void test0006() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0006", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0006;\n");
+		buf.append("public @A(X.class) class C {}");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, true, AST.JLS3);
+		astRoot.recordModifications();
+		{
+			// change to interface
+			astRoot.accept(new ASTVisitor() {
+				public boolean visit(TypeDeclaration node) {
+					node.setInterface(true);
+					return false;
+				}
+			});
+		}
+		String preview= evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0006;\n");
+		buf.append("public @A(X.class) interface C {}");
+		assertEqualString(preview, buf.toString());
+	}
 }

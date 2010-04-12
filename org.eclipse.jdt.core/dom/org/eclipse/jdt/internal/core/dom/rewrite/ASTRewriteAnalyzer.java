@@ -1503,7 +1503,16 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (invertType) {
 			try {
 				int typeToken= isInterface ? TerminalTokens.TokenNameinterface : TerminalTokens.TokenNameclass;
-				getScanner().readToToken(typeToken, node.getStartPosition());
+				int startPosition = node.getStartPosition();
+				if (apiLevel >= AST.JLS3) {
+					List modifiers = node.modifiers();
+					final int size = modifiers.size();
+					if (size != 0) {
+						ASTNode modifierNode = (ASTNode) modifiers.get(size - 1);
+						startPosition = modifierNode.getStartPosition() + modifierNode.getLength();
+					}
+				}
+				getScanner().readToToken(typeToken, startPosition);
 
 				String str= isInterface ? "class" : "interface"; //$NON-NLS-1$ //$NON-NLS-2$
 				int start= getScanner().getCurrentStartOffset();

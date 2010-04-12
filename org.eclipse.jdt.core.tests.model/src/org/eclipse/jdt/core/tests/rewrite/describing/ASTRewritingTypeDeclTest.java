@@ -153,7 +153,56 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=308754
+	public void testTypeDeclarationChange() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class C {}");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		{
+			// change to interface
+			TypeDeclaration type= findTypeDeclaration(astRoot, "C");
+
+			astRoot.recordModifications();
+			// change to interface
+			rewrite.set(type, TypeDeclaration.INTERFACE_PROPERTY, Boolean.TRUE, null);
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public interface C {}");
+		assertEqualString(preview, buf.toString());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=308754
+	public void testTypeDeclarationChange2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("@A(X.class) public class C {}");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		{
+			// change to interface
+			TypeDeclaration type= findTypeDeclaration(astRoot, "C");
+
+			astRoot.recordModifications();
+			// change to interface
+			rewrite.set(type, TypeDeclaration.INTERFACE_PROPERTY, Boolean.TRUE, null);
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("@A(X.class) public interface C {}");
+		assertEqualString(preview, buf.toString());
+	}
 	public void testTypeDeclChanges2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
