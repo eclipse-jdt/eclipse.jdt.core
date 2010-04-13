@@ -24,6 +24,7 @@ public class InstanceOfExpression extends OperatorExpression {
 public InstanceOfExpression(Expression expression, TypeReference type) {
 	this.expression = expression;
 	this.type = type;
+	type.bits |= IgnoreRawTypeCheck; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=282141
 	this.bits |= INSTANCEOF << OperatorSHIFT;
 	this.sourceStart = expression.sourceStart;
 	this.sourceEnd = type.sourceEnd;
