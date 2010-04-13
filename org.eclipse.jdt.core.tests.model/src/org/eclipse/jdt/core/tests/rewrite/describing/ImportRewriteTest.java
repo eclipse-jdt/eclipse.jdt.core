@@ -384,7 +384,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=309022
-	public void _testAddImports7() throws Exception {
+	public void testAddImports7() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append(

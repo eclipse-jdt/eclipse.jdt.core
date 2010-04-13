@@ -645,6 +645,14 @@ public final class ImportRewriteAnalyzer {
 						removeAndInsertNew(buffer, currPos, offset, stringsToInsert, resEdit);
 						stringsToInsert.clear();
 						currPos= offset + region.getLength();
+					} else if (doStarImport && !currDecl.isOnDemand()) {
+						String simpleName = currDecl.getTypeQualifiedName();
+						if (simpleName.indexOf('.') != -1) {
+							String str= getNewImportString(currDecl.getElementName(), isStatic, lineDelim);
+							if (stringsToInsert.indexOf(str) == -1) {
+								stringsToInsert.add(str);
+							}
+						}
 					}
 				}
 			}
