@@ -5325,11 +5325,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	} else 	if (t instanceof T) {\n" + 
 			"	       	    ^^^^^^^^^^^^^^\n" + 
 			"Cannot perform instanceof check against type parameter T. Use instead its erasure Object instead since further generic type information will be erased at runtime\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 12)\n" + 
-			"	} else if (t instanceof X) {\n" + 
-			"	                        ^\n" + 
-			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n",
 			null,
 			true,
@@ -26649,42 +26644,37 @@ public void test0830() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	boolean b = o instanceof X;\n" + 
-		"	                         ^\n" + 
-		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 5)\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
 		"	X x = (X) o;\n" + 
 		"	^\n" + 
 		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 5)\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
 		"	X x = (X) o;\n" + 
 		"	       ^\n" + 
 		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 6)\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
 		"	X<String> xs = (X<String>)o;\n" + 
 		"	               ^^^^^^^^^^^^\n" + 
 		"Type safety: Unchecked cast from Object to X<String>\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 7)\n" + 
+		"4. ERROR in X.java (at line 7)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n" + 
-		"6. WARNING in X.java (at line 10)\n" + 
+		"5. WARNING in X.java (at line 10)\n" + 
 		"	List l = (List) al;\n" + 
 		"	^^^^\n" + 
 		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n" + 
-		"7. WARNING in X.java (at line 10)\n" + 
+		"6. WARNING in X.java (at line 10)\n" + 
 		"	List l = (List) al;\n" + 
 		"	         ^^^^^^^^^\n" + 
 		"Unnecessary cast from ArrayList<String> to List\n" + 
 		"----------\n" + 
-		"8. WARNING in X.java (at line 10)\n" + 
+		"7. WARNING in X.java (at line 10)\n" + 
 		"	List l = (List) al;\n" + 
 		"	          ^^^^\n" + 
 		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
@@ -47867,12 +47857,7 @@ public void test1398()  throws Exception {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in A.java (at line 3)\n" + 
-		"	boolean b=null instanceof A; \n" + 
-		"	                          ^\n" + 
-		"A is a raw type. References to generic type A<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. ERROR in A.java (at line 4)\n" + 
+		"1. ERROR in A.java (at line 4)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
