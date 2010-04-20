@@ -13,6 +13,14 @@
 	schema="schema/annotationProcessorFactory.exsd"/>
 
 <!-- =================================================================================== -->
+<!-- Extension Point: .factorypath File Type                                             -->
+<!-- =================================================================================== -->
+
+<extension point="org.eclipse.team.core.fileTypes">
+    <fileTypes extension="factorypath" type="text"/>
+</extension>
+
+<!-- =================================================================================== -->
 <!-- Extension: Compilation Participant                                                  -->
 <!-- =================================================================================== -->
 <extension
