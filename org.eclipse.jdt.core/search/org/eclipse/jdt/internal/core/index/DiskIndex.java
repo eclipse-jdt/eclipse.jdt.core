@@ -132,11 +132,11 @@ SimpleSet addDocumentNames(String substring, MemoryIndex memoryIndex) throws IOE
 	}
 	return results;
 }
-private HashtableOfObject addQueryResult(HashtableOfObject results, char[] word, CategoryTable wordsToDocNumbers, MemoryIndex memoryIndex) throws IOException {
+private HashtableOfObject addQueryResult(HashtableOfObject results, char[] word, CategoryTable wordsToDocNumbers, MemoryIndex memoryIndex, boolean prevResults) throws IOException {
 	// must skip over documents which have been added/changed/deleted in the memory index
 	if (results == null)
 		results = new HashtableOfObject(13);
-	EntryResult result = (EntryResult) results.get(word);
+	EntryResult result = prevResults ? (EntryResult) results.get(word) : null;
 	if (memoryIndex == null) {
 		if (result == null)
 			results.putUnsafely(word, new EntryResult(word, wordsToDocNumbers));
@@ -161,6 +161,10 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 	if (this.categoryOffsets == null) return null; // file is empty
 
 	HashtableOfObject results = null; // initialized if needed
+	
+	// No need to check the results table for duplicacy while processing the 
+	// first category table or if the first category tables doesn't have any results.
+	boolean prevResults = false;
 	if (key == null) {
 		for (int i = 0, l = categories.length; i < l; i++) {
 			CategoryTable wordsToDocNumbers = readCategoryTable(categories[i], true); // cache if key is null since its a definite match
@@ -170,8 +174,9 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 					results = new HashtableOfObject(wordsToDocNumbers.elementSize);
 				for (int j = 0, m = words.length; j < m; j++)
 					if (words[j] != null)
-						results = addQueryResult(results, words[j], wordsToDocNumbers, memoryIndex);
+						results = addQueryResult(results, words[j], wordsToDocNumbers, memoryIndex, prevResults);
 			}
+			prevResults = results != null;
 		}
 		if (results != null && this.cachedChunks == null)
 			cacheDocumentNames();
@@ -181,7 +186,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 				for (int i = 0, l = categories.length; i < l; i++) {
 					CategoryTable wordsToDocNumbers = readCategoryTable(categories[i], false);
 					if (wordsToDocNumbers != null && wordsToDocNumbers.containsKey(key))
-						results = addQueryResult(results, key, wordsToDocNumbers, memoryIndex);
+						results = addQueryResult(results, key, wordsToDocNumbers, memoryIndex, prevResults);
+					prevResults = results != null;
 				}
 				break;
 			case SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE:
@@ -192,9 +198,10 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 						for (int j = 0, m = words.length; j < m; j++) {
 							char[] word = words[j];
 							if (word != null && key[0] == word[0] && CharOperation.prefixEquals(key, word))
-								results = addQueryResult(results, word, wordsToDocNumbers, memoryIndex);
+								results = addQueryResult(results, word, wordsToDocNumbers, memoryIndex, prevResults);
 						}
 					}
+					prevResults = results != null;
 				}
 				break;
 			default:
@@ -205,9 +212,10 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 						for (int j = 0, m = words.length; j < m; j++) {
 							char[] word = words[j];
 							if (word != null && Index.isMatch(key, word, matchRule))
-								results = addQueryResult(results, word, wordsToDocNumbers, memoryIndex);
+								results = addQueryResult(results, word, wordsToDocNumbers, memoryIndex, prevResults);
 						}
 					}
+					prevResults = results != null;
 				}
 		}
 	}
