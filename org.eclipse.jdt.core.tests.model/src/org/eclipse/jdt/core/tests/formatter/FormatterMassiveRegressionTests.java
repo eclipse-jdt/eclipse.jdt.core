@@ -522,6 +522,7 @@ private static String buildProfileString() {
 }
 
 private static int initProfiles(String profile) {
+	if (profile == null || profile.length() == 0) return 0;
 	StringTokenizer tokenizer = new StringTokenizer(profile, ",");
 	int profiles = 0;
 	while (tokenizer.hasMoreTokens()) {
