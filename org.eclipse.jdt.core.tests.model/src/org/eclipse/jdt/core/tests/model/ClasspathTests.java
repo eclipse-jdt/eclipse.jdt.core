@@ -4881,7 +4881,7 @@ public void testNoResourceChange05() throws CoreException {
  */
 public void testNoResourceChange06() throws CoreException {
 	ILogListener listener = new ILogListener(){
-		private StringBuffer buffer = new StringBuffer();
+		private final StringBuffer buffer = new StringBuffer();
 		public void logging(IStatus status, String plugin) {
 			this.buffer.append(status);
 			this.buffer.append('\n');
@@ -6525,66 +6525,6 @@ public void testBug304081a() throws Exception {
 	}
 }
 /**
- * Additional tests for 304081
- * When the JAR, which is part of a classpath container, references other JAR via
- * MANIFEST, test that {@link IJavaProject#isOnClasspath(IJavaElement)} returns true
- * for the referenced classpath entries. 
- * 
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304081"
- * @throws Exception
- */
-public void testBug304081b() throws Exception {
-	File libDir = null;
-	try {
-
-		IJavaProject proj = this.createJavaProject("P", new String[] {}, "bin");
-		IClasspathEntry[] classpath = new IClasspathEntry[1];
-		libDir = new File(proj.getResource().getLocation().toPortableString());
-		File libJar = new File(libDir, "container.jar");
-		
-		addLibrary(proj, "container.jar", null, new String[0], 
-				new String[] {
-					"META-INF/MANIFEST.MF",
-					"Manifest-Version: 1.0\n" +
-					"Class-Path: lib1.jar\n",
-				},
-				JavaCore.VERSION_1_4);
-		createFile("/P/lib1.jar", "");
-		
-		ClasspathContainerInitializer initializer= JavaCore.getClasspathContainerInitializer(JavaCore.USER_LIBRARY_CONTAINER_ID);
-		String libraryName = "TestUserLibrary";
-		IPath containerPath = new Path(JavaCore.USER_LIBRARY_CONTAINER_ID);
-		UserLibraryClasspathContainer containerSuggestion = new UserLibraryClasspathContainer(libraryName);
-		initializer.requestClasspathContainerUpdate(containerPath.append(libraryName), null, containerSuggestion);
-
-		IEclipsePreferences preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
-		String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"TestUserLibrary";
-		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
-		propertyValue.append(" path=\"" + libJar.getAbsolutePath());
-		propertyValue.append("\"/>\r\n</userlibrary>\r\n");
-		preferences.put(propertyName, propertyValue.toString());
-		preferences.flush();	
-		
-		classpath[0] = JavaCore.newContainerEntry(containerSuggestion.getPath());
-		
-		proj.setRawClasspath(classpath, null);
-		waitForAutoBuild();
-		IProject project = getWorkspaceRoot().getProject("P");
-		IResource resource = project.getFile("container.jar");
-		assertTrue(proj.isOnClasspath(resource));
-		IJavaElement element = proj.getPackageFragmentRoot(resource);
-		assertTrue(proj.isOnClasspath(element));
-
-		resource = project.getFile("lib1.jar");
-		assertTrue(proj.isOnClasspath(resource));
-		element = proj.getPackageFragmentRoot(resource);
-		assertTrue(proj.isOnClasspath(element));
-		
-	} finally {
-		this.deleteProject("P");
-	}
-}
-/**
  * @bug 302949: FUP of 302949
  * Test that 
  * 1) non-chaining jars are cached during classpath resolution and can be retrieved later on
@@ -6678,6 +6618,59 @@ public void testBug308150() throws Exception {
 				"/P/invalid.jar[CPE_LIBRARY][K_BINARY][isExported:false]");
 	} finally {
 		this.deleteProject("P");
+	}
+}
+/**
+ * @bug 305037: missing story for attributes of referenced JARs in classpath containers
+ * Test that attributes set on referenced libraries of variable entries via MANIFEST are persisted 
+ * and can be retrieved
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=305037"
+ * @throws Exception
+ */
+public void testBug305037() throws Exception {
+	File libDir = null;
+	try {
+
+		IJavaProject proj = this.createJavaProject("P", new String[] {}, "bin");
+		IPath libPath = proj.getResource().getLocation();
+		JavaCore.setClasspathVariable("MyVar", libPath, null);
+		libDir = new File(libPath.toPortableString());
+		IClasspathEntry[] classpath = new IClasspathEntry[1];
+		File libJar = new File(libDir, "variable.jar");
+		libJar.createNewFile();
+		
+		addLibrary(proj, "variable.jar", null, new String[0], 
+				new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib1.jar\n",
+			},
+			JavaCore.VERSION_1_4); 
+
+		createFile("/P/lib1.jar", "");
+		
+		classpath = proj.getResolvedClasspath(true);
+		assertClasspathEquals(classpath, 
+				"/P/lib1.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" + 
+				"/P/variable.jar[CPE_LIBRARY][K_BINARY][isExported:true]");
+		
+		IClasspathEntry[] chains = JavaCore.getReferencedClasspathEntries(classpath[1], null);
+		assertClasspathEquals(chains, "/P/lib1.jar[CPE_LIBRARY][K_BINARY][isExported:true]");
+		((ClasspathEntry)chains[0]).sourceAttachmentPath = new Path("/P/efg.zip");
+		((ClasspathEntry)chains[0]).sourceAttachmentRootPath = new Path("/src2");
+
+		IClasspathAttribute javadocLoc = JavaCore.newClasspathAttribute("javadoc_location", "/P/efg.zip");
+		((ClasspathEntry)chains[0]).extraAttributes = new IClasspathAttribute[]{javadocLoc};
+		
+		proj.setRawClasspath(proj.getRawClasspath(), chains, proj.getOutputLocation(), null);
+		classpath = proj.getResolvedClasspath(true);
+		assertClasspathEquals(classpath, 
+				"/P/lib1.jar[CPE_LIBRARY][K_BINARY][sourcePath:/P/efg.zip][rootPath:/src2][isExported:true][attributes:javadoc_location=/P/efg.zip]\n" + 
+				"/P/variable.jar[CPE_LIBRARY][K_BINARY][isExported:true]");
+	} finally {
+		this.deleteProject("P");
+		JavaCore.removeClasspathVariable("MyVar", null);
 	}
 }
 
