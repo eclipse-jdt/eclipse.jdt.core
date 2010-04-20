@@ -5373,4 +5373,59 @@ public void testBug304529e() {
 	);
 }
 
+/**
+ * @bug 309706: [formatter] doesn´t work when code has three semicolons side by side
+ * @test Verify that formatter does get puzzled by three consecutive semicolons
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=309706"
+ */
+public void testBug309706() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"    private int id;;;\n" + 
+		"\n" + 
+		"    private void dummy() {\n" + 
+		"\n" + 
+		"        if (true) {\n" + 
+		"                    System.out.println(\"bla\");\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	private int id;;;\n" + 
+		"\n" + 
+		"	private void dummy() {\n" + 
+		"\n" + 
+		"		if (true) {\n" + 
+		"			System.out.println(\"bla\");\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug309706b() {
+	String source =
+		"    private int id;;;\n" + 
+		"\n" + 
+		"    private void dummy() {\n" + 
+		"\n" + 
+		"        if (true) {\n" + 
+		"                    System.out.println(\"bla\");\n" + 
+		"        }\n" + 
+		"	}\n";
+	formatSource(source,
+		"private int id;;;\n" + 
+		"\n" + 
+		"private void dummy() {\n" + 
+		"\n" + 
+		"	if (true) {\n" + 
+		"		System.out.println(\"bla\");\n" + 
+		"	}\n" + 
+		"}",
+		CodeFormatter.K_CLASS_BODY_DECLARATIONS
+	);
+}
+
 }
