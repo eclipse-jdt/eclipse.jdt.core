@@ -334,6 +334,108 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("}\n");
 		assertEqualString(cu.getSource(), buf.toString());
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=306568
+	public void testAddImports6() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append(
+				"package pack1;\n" + 
+				"\n" + 
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class C {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        HashMap h;\n" + 
+				"\n" + 
+				"        Map.Entry e= null;\n" + 
+				"        Entry e2= null;\n" + 
+				"\n" + 
+				"        System.out.println(\"hello\");\n" + 
+				"    }\n" + 
+				"}");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "java", "java.util", "com", "pack" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, true);
+		imports.setUseContextToFilterImplicitImports(true);
+		imports.addImport("java.util.Map.Entry");
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append(
+				"package pack1;\n" + 
+				"\n" + 
+				"import java.util.*;\n" + 
+				"import java.util.Map.Entry;\n" + 
+				"\n" + 
+				"public class C {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        HashMap h;\n" + 
+				"\n" + 
+				"        Map.Entry e= null;\n" + 
+				"        Entry e2= null;\n" + 
+				"\n" + 
+				"        System.out.println(\"hello\");\n" + 
+				"    }\n" + 
+				"}");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=309022
+	public void testAddImports7() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append(
+				"package pack1;\n" + 
+				"\n" + 
+				"import java.util.*;\n" + 
+				"import java.util.Map.Entry;\n" + 
+				"\n" + 
+				"public class C {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        HashMap h;\n" + 
+				"\n" + 
+				"        Map.Entry e= null;\n" + 
+				"        Entry e2= null;\n" + 
+				"\n" + 
+				"        PrintWriter pw;\n" + 
+				"        System.out.println(\"hello\");\n" + 
+				"    }\n" + 
+				"}");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "java", "java.util", "com", "pack" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, true);
+		imports.setUseContextToFilterImplicitImports(true);
+		imports.addImport("java.io.PrintWriter");
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append(
+				"package pack1;\n" + 
+				"\n" + 
+				"import java.io.*;\n" + 
+				"\n" + 
+				"import java.util.*;\n" + 
+				"import java.util.Map.Entry;\n" + 
+				"\n" + 
+				"public class C {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        HashMap h;\n" + 
+				"\n" + 
+				"        Map.Entry e= null;\n" + 
+				"        Entry e2= null;\n" + 
+				"\n" + 
+				"        PrintWriter pw;\n" + 
+				"        System.out.println(\"hello\");\n" + 
+				"    }\n" + 
+				"}");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
 
 	public void testAddImportsWithGroupsOfUnmatched1() throws Exception {
 
