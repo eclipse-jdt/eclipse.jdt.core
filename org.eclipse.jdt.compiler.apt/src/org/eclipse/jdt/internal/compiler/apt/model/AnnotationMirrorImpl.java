@@ -352,12 +352,21 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 	private Object convertJDTArrayToReflectionArray(Object jdtValue, TypeBinding jdtType, Class<?> expectedType)
 	{
 		assert null != expectedType && expectedType.isArray();
-		if (!jdtType.isArrayType() || !(jdtValue instanceof Object[])) {
-			// TODO: wrap solo element into one-length array
+		if (!jdtType.isArrayType()) {
+			// the compiler says that the type binding isn't an array type; this probably means
+			// that there's some sort of syntax error.
 			return null;
 		}
+		Object[] jdtArray;
+		// See bug 261969: it's legal to pass a solo element for an array-typed value
+		if (jdtValue != null && !(jdtValue instanceof Object[])) {
+			// Create an array of the expected type
+			jdtArray = (Object[]) Array.newInstance(jdtValue.getClass(), 1);
+			jdtArray[0] = jdtValue;
+		} else {
+			jdtArray = (Object[])jdtValue;
+		}
 		TypeBinding jdtLeafType = jdtType.leafComponentType();
-		Object[] jdtArray = (Object[])jdtValue;
 		Class<?> expectedLeafType = expectedType.getComponentType();
         final int length = jdtArray.length;
         final Object returnArray = Array.newInstance(expectedLeafType, length);

@@ -137,6 +137,10 @@ public class ElementProc extends BaseProcessor {
 			return false;
 		}
 		
+		if (!bug261969()) {
+			return false;
+		}
+		
 		reportSuccess();
 		return false;
 	}
@@ -880,6 +884,7 @@ public class ElementProc extends BaseProcessor {
 			reportError(badValue + "AnnoAnnoChar");
 			return false;
 		}
+		
 		TypedAnnos.AnnoArrayInt annoArrayInt = annotatedElement.getAnnotation(TypedAnnos.AnnoArrayInt.class);
 		if (null == annoArrayInt) {
 			reportError(badValue + "AnnoArrayInt");
@@ -890,7 +895,17 @@ public class ElementProc extends BaseProcessor {
 			reportError(badValue + "AnnoArrayInt contents");
 			return false;
 		}
-		//TODO: AnnoArrayString
+		
+		TypedAnnos.AnnoArrayString annoArrayString = annotatedElement.getAnnotation(TypedAnnos.AnnoArrayString.class);
+		if (null == annoArrayString) {
+			reportError(badValue + "AnnoArrayString");
+			return false;
+		}
+		String[] arrayString = annoArrayString.value();
+		if (arrayString == null || arrayString.length != 2 || !"quux".equals(arrayString[1])) {
+			reportError(badValue + "AnnoArrayString contents");
+			return false;
+		}
 		//TODO: AnnoArrayAnnoChar
 		//TODO: AnnoArrayEnumConst
 		TypedAnnos.AnnoArrayType annoArrayType = annotatedElement.getAnnotation(TypedAnnos.AnnoArrayType.class);
@@ -912,6 +927,31 @@ public class ElementProc extends BaseProcessor {
 		}
 		catch (MirroredTypeException mte) {
 			// ignore, because javac incorrectly throws this; see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6519115
+		}
+		return true;
+	}
+	
+	/**
+	 * Regression test for bug 261969, retrieving annotation value for string[]-typed
+	 * annotation where the actual value is a non-arrayed string.
+	 * @return true if all tests passed
+	 */
+	private boolean bug261969() {
+		TypeElement annotatedElement = _elementUtils.getTypeElement("targets.model.pc.Bug261969.Annotated");
+		if (null == annotatedElement || annotatedElement.getKind() != ElementKind.CLASS) {
+			reportError("bug261969: couldn't get Bug261969.Annotated element");
+			return false;
+		}
+		final String badValue = "bug261969: unexpected value for ";
+		TypedAnnos.AnnoArrayString annoArrayString = annotatedElement.getAnnotation(TypedAnnos.AnnoArrayString.class);
+		if (null == annoArrayString) {
+			reportError(badValue + "AnnoArrayString");
+			return false;
+		}
+		String[] arrayString = annoArrayString.value();
+		if (arrayString == null || arrayString.length != 1 || !"foo".equals(arrayString[0])) {
+			reportError(badValue + "AnnoArrayString contents");
+			return false;
 		}
 		return true;
 	}
