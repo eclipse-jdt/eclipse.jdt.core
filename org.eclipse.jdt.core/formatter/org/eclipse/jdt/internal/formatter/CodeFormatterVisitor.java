@@ -1504,7 +1504,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						isChunkStart = memberAlignment.checkChunkStart(TYPE, i, this.scribe.scanner.currentPosition);
 						format((TypeDeclaration)member, null, isChunkStart, i == 0);
 					}
-					if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
+					while (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
 						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
 					}
@@ -2020,7 +2020,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 							isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_TYPE, i, this.scribe.scanner.currentPosition);
 							format((TypeDeclaration)member, typeDeclaration.scope, isChunkStart, i == 0);
 						}
-						if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
+						while (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
 							this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 							this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
 						}
