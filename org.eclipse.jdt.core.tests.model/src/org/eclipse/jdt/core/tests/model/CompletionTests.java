@@ -21043,4 +21043,58 @@ public void testBug249704() throws JavaModelException {
 			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 27}",
 			requestor.getResults());
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=244820
+// To verify that autocast works correctly even when the compilation unit
+// has some compilation errors.
+public void testBug244820() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;" +
+		"class MyString {\n" +
+		"	public String toWelcome() {\n" +
+		"		return \"welcome\";\n" +
+		"	}\n" +
+		"}\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	void foo() {\n" +
+		"	    Object chars= null;\n" +
+		"	    Object ch = null;\n" +
+		"		String lower = null;\n" +
+		"       if (ch instanceof MyString) {\n" +
+		"			ch.t; \n" +
+		"		}\n" +
+		"       if (ch instanceof MyString) {\n" +
+		"			return ch.t; \n" +
+		"		}\n" +
+		"       if (chars instanceof MyString) {\n" +
+		"			lower = chars.to; \n" +
+		"		}\n" +
+		"       if (ch instanceof MyString) {\n" +
+		"			String low = ch.t; \n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "lower = chars.to";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+	int start1 = str.lastIndexOf("to") + "".length();
+	int end1 = start1 + "to".length();
+	int start2 = str.lastIndexOf("chars.to");
+	int end2 = start2 + "chars.to".length();
+	int start3 = str.lastIndexOf("chars.");
+	int end3 = start3 + "chars".length();
+	
+	assertResults(
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, replace[" + start1 + ", " + end1 + "], token[" + start1 + ", " + end1 +"], " + relevance1 + "}\n" +
+			"toWelcome[METHOD_REF_WITH_CASTED_RECEIVER]{((MyString)chars).toWelcome(), Ltest.MyString;, ()Ljava.lang.String;, Ltest.MyString;, null, null, toWelcome, null, replace[" + start2 +", " + end2 + "], token[" + start1 + ", " + end1 + "], receiver[" + start3 + ", " + end3 + "], " + relevance1 + "}",
+			requestor.getResults());
+}
 }
