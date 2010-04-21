@@ -48,7 +48,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NAMES = new String[] { "test292_warn_options" };
-//		TESTS_NUMBERS = new int[] { 298 };
+//		TESTS_NUMBERS = new int[] { 12 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
 public BatchCompilerTest(String name) {
@@ -1552,6 +1552,12 @@ public void test012(){
         "                                      reported as errors\n" + 
         "    -err:-<warnings separated by ,>   disable specific warnings to be\n" + 
         "                                      reported as errors\n" + 
+        " \n" + 
+        " Setting warning or error options using properties file:\n" + 
+        "    -properties: <file>   set warnings/errors option based on the properties\n" + 
+        "                          file contents. This option can be used with -nowarn,\n" + 
+        "                          -err:.. or -warn:.. options, but the last one on the\n" + 
+        "                          command line sets the options to be used.\n" + 
         " \n" + 
         " Debug options:\n" +
         "    -g[:lines,vars,source] custom debug info\n" +
