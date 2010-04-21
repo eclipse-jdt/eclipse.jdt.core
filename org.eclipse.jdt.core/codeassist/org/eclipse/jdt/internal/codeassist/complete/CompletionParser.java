@@ -560,7 +560,8 @@ protected void attachOrphanCompletionNode(){
 			if(expression == this.assistNode
 				|| (expression instanceof Assignment	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=287939
 					&& ((Assignment)expression).expression == this.assistNode
-					&& (this.expressionPtr > 0 && this.expressionStack[this.expressionPtr - 1] instanceof InstanceOfExpression))
+					&& ((this.expressionPtr > 0 && this.expressionStack[this.expressionPtr - 1] instanceof InstanceOfExpression)
+						|| (this.elementPtr >= 0 && this.elementObjectInfoStack[this.elementPtr] instanceof InstanceOfExpression)))
 				|| (expression instanceof AllocationExpression
 					&& ((AllocationExpression)expression).type == this.assistNode)){
 				buildMoreCompletionContext(expression);
