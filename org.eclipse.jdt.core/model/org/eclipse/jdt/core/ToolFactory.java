@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,7 +86,7 @@ public class ToolFactory {
 	 * @return an instance of a code formatter
 	 * @see ICodeFormatter
 	 * @see ToolFactory#createDefaultCodeFormatter(Map)
-	 * @deprecated Use {@link #createCodeFormatter(Map)} instead. Extension point is discontinued
+	 * @deprecated The extension point has been deprecated, use {@link #createCodeFormatter(Map)} instead.
 	 */
 	public static ICodeFormatter createCodeFormatter(){
 
@@ -344,9 +344,7 @@ public class ToolFactory {
 	}
 
 	/**
-	 * Create an instance of the built-in code formatter. A code formatter implementation can be contributed via the
-	 * extension point "org.eclipse.jdt.core.codeFormatter". If unable to find a registered extension, the factory will
-	 * default to using the default code formatter.
+	 * Create an instance of the default code formatter.
 	 *
 	 * @param options - the options map to use for formatting with the default code formatter. Recognized options
 	 * 	are documented on <code>JavaCore#getDefaultOptions()</code>. If set to <code>null</code>, then use
@@ -355,7 +353,7 @@ public class ToolFactory {
 	 * @see ICodeFormatter
 	 * @see ToolFactory#createCodeFormatter()
 	 * @see JavaCore#getOptions()
-	 * @deprecated Use {@link #createCodeFormatter(Map)} instead
+	 * @deprecated Use {@link #createCodeFormatter(Map)} instead but note the different options
 	 */
 	public static ICodeFormatter createDefaultCodeFormatter(Map options){
 		if (options == null) options = JavaCore.getOptions();
