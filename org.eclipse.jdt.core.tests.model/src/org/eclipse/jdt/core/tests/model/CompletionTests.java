@@ -21186,4 +21186,83 @@ public void testBug308980b() throws JavaModelException {
 			"AClass[TYPE_REF]{AClass, test, Ltest.AClass;, null, null, 27}",
 			requestor.getResults());
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=261534
+// To verify that autocast works correctly even when instanceof expression
+// and completion node are in the same binary expression, related by &&
+public void testBug261534a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;" +
+		"class MyString {\n" +
+		"	public String toWelcome() {\n" +
+		"		return \"welcome\";\n" +
+		"	}\n" +
+		"}\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	void foo() {\n" +
+		"	Object chars= null;\n" +
+		"       if (chars instanceof MyString && chars.to) {\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "chars instanceof MyString && chars.to";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("to") + "".length();
+	int end1 = start1 + "to".length();
+	int start2 = str.lastIndexOf("chars.to");
+	int end2 = start2 + "chars.to".length();
+	int start3 = str.lastIndexOf("chars.");
+	int end3 = start3 + "chars".length();
+	
+	assertResults(
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, replace[" + start1 + ", " + end1 + "], token[" + start1 + ", " + end1 +"], " + relevance1 + "}\n" +
+			"toWelcome[METHOD_REF_WITH_CASTED_RECEIVER]{((MyString)chars).toWelcome(), Ltest.MyString;, ()Ljava.lang.String;, Ltest.MyString;, null, null, toWelcome, null, replace[" + start2 +", " + end2 + "], token[" + start1 + ", " + end1 + "], receiver[" + start3 + ", " + end3 + "], " + relevance1 + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=261534
+// Negative test - To verify that proposals from casted receiver are not obtained
+// when completion node is in an OR_OR_Expression along with an instanceof exp.
+public void testBug261534b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;" +
+		"class MyString {\n" +
+		"	public String toWelcome() {\n" +
+		"		return \"welcome\";\n" +
+		"	}\n" +
+		"}\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	void foo() {\n" +
+		"	Object chars= null;\n" +
+		"       if (chars instanceof MyString || chars.to) {\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "chars instanceof MyString || chars.to";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("to") + "".length();
+	int end1 = start1 + "to".length();
+	
+	assertResults(
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, replace[" + start1 + ", " + end1 + "], token[" + start1 + ", " + end1 +"], " + relevance1 + "}",
+			requestor.getResults());
+}
 }
