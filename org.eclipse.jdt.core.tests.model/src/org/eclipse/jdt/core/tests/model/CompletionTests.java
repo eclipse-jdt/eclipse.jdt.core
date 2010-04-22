@@ -21097,4 +21097,93 @@ public void testBug244820() throws JavaModelException {
 			"toWelcome[METHOD_REF_WITH_CASTED_RECEIVER]{((MyString)chars).toWelcome(), Ltest.MyString;, ()Ljava.lang.String;, Ltest.MyString;, null, null, toWelcome, null, replace[" + start2 +", " + end2 + "], token[" + start1 + ", " + end1 + "], receiver[" + start3 + ", " + end3 + "], " + relevance1 + "}",
 			requestor.getResults());
 }
+
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=308980
+public void testBug308980a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Try.java",
+		"package test;\n" +
+		"import java.util.Arrays;\n" +
+		"public class Try {\n" +
+		"	public static final AClass a1 = new JustTry(\n" +
+		"								new byte[][] {\n" +
+		"								{0x00,0x3C},\n" +
+		"								{0x04,0x2C}}) {\n" +
+		"									int justReturn (int a){\n" +
+		"										return a;\n" +
+		"									}\n" +
+		"								};\n" +
+		"   public static final AC" +
+		"}\n" +
+		"class AClass{\n" +
+		"	public byte[][] field1;\n" +
+		"	public AClass(byte[][] byteArray) {\n" +
+		"		field1 = byteArray;\n" +
+		"	}\n" +
+		"}\n" +
+		"abstract class JustTry extends AClass {\n" +
+		"	public byte[][] field1;\n" +
+		"	public JustTry (byte[][] byteArray){\n" +
+		"		field1 = byteArray;\n" +
+		"	}\n" +
+		"	abstract int justReturn(int a);\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "public static final AC";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"AClass[TYPE_REF]{AClass, test, Ltest.AClass;, null, null, 27}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=308980
+public void testBug308980b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Try.java",
+		"package test;\n" +
+		"import java.util.Arrays;\n" +
+		"public class Try {\n" +
+		"	public static final test.AClass a1 = new JustTry(\n" +
+		"								new byte[][] {\n" +
+		"								{0x00,0x3C},\n" +
+		"								{0x04,0x2C}}) {\n" +
+		"									int justReturn (int a){\n" +
+		"										return a;\n" +
+		"									}\n" +
+		"								};\n" +
+		"   public static final AC" +
+		"}\n" +
+		"class AClass{\n" +
+		"	public byte[][] field1;\n" +
+		"	public AClass(byte[][] byteArray) {\n" +
+		"		field1 = byteArray;\n" +
+		"	}\n" +
+		"}\n" +
+		"abstract class JustTry extends AClass {\n" +
+		"	public byte[][] field1;\n" +
+		"	public JustTry (byte[][] byteArray){\n" +
+		"		field1 = byteArray;\n" +
+		"	}\n" +
+		"	abstract int justReturn(int a);\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "public static final AC";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"AClass[TYPE_REF]{AClass, test, Ltest.AClass;, null, null, 27}",
+			requestor.getResults());
+}
 }

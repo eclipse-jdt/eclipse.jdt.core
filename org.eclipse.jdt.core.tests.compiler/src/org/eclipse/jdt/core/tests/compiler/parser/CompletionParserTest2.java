@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1839,7 +1839,7 @@ public void test0031_Diet(){
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
@@ -1848,6 +1848,7 @@ public void test0031_Diet(){
 		"public class X {\n" +
 		"  Object o;\n" +
 		"  {\n" +
+		"    <CompleteOnName:zzz>;\n" +
 		"  }\n" +
 		"  public X() {\n" +
 		"  }\n" +
@@ -2063,7 +2064,7 @@ public void test0034_Diet(){
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
@@ -2072,6 +2073,7 @@ public void test0034_Diet(){
 		"public class X {\n" +
 		"  Object o;\n" +
 		"  {\n" +
+		"    <CompleteOnName:zzz>;\n" +
 		"  }\n" +
 		"  public X() {\n" +
 		"  }\n" +
@@ -4115,16 +4117,14 @@ public void test0067_Diet(){
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 		"package p;\n" +
 		"public class X {\n" +
-		"  Object o;\n" +
-		"  {\n" +
-		"  }\n" +
+		"  Object o = new X[]{<CompleteOnName:zzz>};\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"}\n";
@@ -4150,16 +4150,13 @@ public void test0067_Method(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 			"package p;\n" +
 			"public class X {\n" +
-			"  Object o;\n" +
-			"  {\n" +
-			"    <CompleteOnName:zzz>;\n" +
-			"  }\n" +
+			"  Object o = new X[]{<CompleteOnName:zzz>};\n" +			
 			"  public X() {\n" +
 			"  }\n" +
 			"}\n";
@@ -4332,16 +4329,14 @@ public void test0070_Diet(){
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 		"package p;\n" +
 		"public class X {\n" +
-		"  Object o;\n" +
-		"  {\n" +
-		"  }\n" +
+		"  Object o = new X[]{<CompleteOnName:zzz>};\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"}\n";
@@ -4368,16 +4363,13 @@ public void test0070_Method(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 			"package p;\n" +
 			"public class X {\n" +
-			"  Object o;\n" +
-			"  {\n" +
-			"    <CompleteOnName:zzz>;\n" +
-			"  }\n" +
+			"  Object o = new X[]{<CompleteOnName:zzz>};\n" +
 			"  public X() {\n" +
 			"  }\n" +
 			"}\n";
@@ -4927,16 +4919,14 @@ public void test0079_Diet(){
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 		"package p;\n" +
 		"public class X {\n" +
-		"  int o;\n" +
-		"  {\n" +
-		"  }\n" +
+		"  int o = new int[]{<CompleteOnName:zzz>};\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"}\n";
@@ -4962,16 +4952,13 @@ public void test0079_Method(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 			"package p;\n" +
 			"public class X {\n" +
-			"  int o;\n" +
-			"  {\n" +
-			"    <CompleteOnName:zzz>;\n" +
-			"  }\n" +
+			"  int o = new int[]{<CompleteOnName:zzz>};\n" +
 			"  public X() {\n" +
 			"  }\n" +
 			"}\n";
@@ -5148,16 +5135,14 @@ public void test0082_Diet(){
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 		"package p;\n" +
 		"public class X {\n" +
-		"  int o;\n" +
-		"  {\n" +
-		"  }\n" +
+		"  int o = new int[]{<CompleteOnName:zzz>};\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"}\n";
@@ -5184,16 +5169,13 @@ public void test0082_Method(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "new int[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 			"package p;\n" +
 			"public class X {\n" +
-			"  int o;\n" +
-			"  {\n" +
-			"    <CompleteOnName:zzz>;\n" +
-			"  }\n" +
+			"  int o = new int[]{<CompleteOnName:zzz>};\n" +
 			"  public X() {\n" +
 			"  }\n" +
 			"}\n";
@@ -5381,16 +5363,14 @@ public void test0085_Diet(){
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 		"package p;\n" +
 		"public class X {\n" +
-		"  X o;\n" +
-		"  {\n" +
-		"  }\n" +
+		"  X o = new X[]{<CompleteOnName:zzz>};\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"}\n";
@@ -5416,16 +5396,13 @@ public void test0085_Method(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 			"package p;\n" +
 			"public class X {\n" +
-			"  X o;\n" +
-			"  {\n" +
-			"    <CompleteOnName:zzz>;\n" +
-			"  }\n" +
+			"  X o = new X[]{<CompleteOnName:zzz>};\n" +
 			"  public X() {\n" +
 			"  }\n" +
 			"}\n";
@@ -5601,16 +5578,14 @@ public void test0088_Diet(){
 	String completeBehind = "zzz";
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
-	String expectedCompletionNodeToString = "<NONE>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 		"package p;\n" +
 		"public class X {\n" +
-		"  X o;\n" +
-		"  {\n" +
-		"  }\n" +
+		"  X o = new X[]{<CompleteOnName:zzz>};\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"}\n";
@@ -5637,16 +5612,13 @@ public void test0088_Method(){
 	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "new X[]{<CompleteOnName:zzz>}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
 	String expectedUnitDisplayString =
 			"package p;\n" +
 			"public class X {\n" +
-			"  X o;\n" +
-			"  {\n" +
-			"    <CompleteOnName:zzz>;\n" +
-			"  }\n" +
+			"  X o = new X[]{<CompleteOnName:zzz>};\n" +
 			"  public X() {\n" +
 			"  }\n" +
 			"}\n";
