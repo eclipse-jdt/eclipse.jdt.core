@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3949,8 +3949,6 @@ public void test62() {
 		"  class Y {\n" +
 		"    public String s;\n" +
 		"    static int y;\n" +
-		"    {\n" +
-		"    }\n" +
 		"    public int i = 0;\n" +
 		"    Y() {\n" +
 		"    }\n" +
@@ -3970,9 +3968,6 @@ public void test62() {
 		"  class Y {\n" +
 		"    public String s;\n" +
 		"    static int y;\n" +
-		"    {\n" +
-		"      ;\n" +
-		"    }\n" +
 		"    public int i = 0;\n" +
 		"    Y() {\n" +
 		"      super();\n" +
@@ -3997,8 +3992,6 @@ public void test62() {
 		"  class Y {\n" +
 		"    public String s;\n" +
 		"    static int y;\n" +
-		"    {\n" +
-		"    }\n" +
 		"    public int i;\n" +
 		"    Y() {\n" +
 		"    }\n" +
@@ -6383,10 +6376,6 @@ public void test105() {
 	String expectedCompletionDietUnitToString =
 		"public class X {\n" +
 		"  static int B;\n" +
-		"  {\n" +
-		"  }\n" +
-		"  {\n" +
-		"  }\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"  <clinit>() {\n" +
@@ -6514,10 +6503,7 @@ public void test108() {
 	String expectedCompletionDietUnitToString =
 		"public class X {\n" +
 		"  int a;\n" +
-		"  {\n" +
-		"  }\n" +
-		"  {\n" +
-		"  }\n" +
+		"  int b;\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"}\n";
