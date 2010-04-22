@@ -21187,6 +21187,74 @@ public void testBug308980b() throws JavaModelException {
 			requestor.getResults());
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=267091
+// To verify that we get interface proposals after 'implements'
+public void testBug267091a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Try.java",
+		"package test;\n" +
+		"interface In{}\n" +
+		"interface Inn{\n" +
+		"	interface Inn2{}\n" +
+		"}\n" +
+		"class ABC {\n" +
+		"	interface ABCInterface;\n" +
+		"}\n" +
+		"public class Try implements {\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Try implements ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			// without the fix no proposals obtained.
+			"Inn.Inn2[TYPE_REF]{test.Inn.Inn2, test, Ltest.Inn$Inn2;, null, null, 44}\n" +
+			"ABC.ABCInterface[TYPE_REF]{ABCInterface, test, Ltest.ABC$ABCInterface;, null, null, 47}\n" +
+			"In[TYPE_REF]{In, test, Ltest.In;, null, null, 47}\n" +
+			"Inn[TYPE_REF]{Inn, test, Ltest.Inn;, null, null, 47}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=267091
+// To verify that we get type proposals after 'extends'
+public void testBug267091b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Try.java",
+		"package test;\n" +
+		"class In{}\n" +
+		"class Inn{\n" +
+		"	class Inn2{\n" +
+		"		class Inn3{\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n" +
+		"class ABC extends Inn{}\n" +
+		"public class Try extends {\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Try extends ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			// without the fix no proposals obtained.
+			"Inn.Inn2[TYPE_REF]{test.Inn.Inn2, test, Ltest.Inn$Inn2;, null, null, 44}\n" +
+			"Inn.Inn2.Inn3[TYPE_REF]{test.Inn.Inn2.Inn3, test, Ltest.Inn$Inn2$Inn3;, null, null, 44}\n" +
+			"ABC[TYPE_REF]{ABC, test, Ltest.ABC;, null, null, 47}\n" +
+			"In[TYPE_REF]{In, test, Ltest.In;, null, null, 47}\n" +
+			"Inn[TYPE_REF]{Inn, test, Ltest.Inn;, null, null, 47}",
+			requestor.getResults());
+}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=261534
 // To verify that autocast works correctly even when instanceof expression
 // and completion node are in the same binary expression, related by &&
