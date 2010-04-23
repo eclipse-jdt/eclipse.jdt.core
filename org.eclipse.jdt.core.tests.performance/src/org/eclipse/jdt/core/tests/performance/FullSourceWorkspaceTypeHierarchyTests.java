@@ -40,7 +40,7 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	}
 
 	static {
-//		TESTS_NAMES = new String[] { "testPerfClassWithPotentialSubinterfaces" };
+//		TESTS_NAMES = new String[] { "testPerSuperTypes" };
 	}
 	public static Test suite() {
         Test suite = buildSuite(testClass());
@@ -150,6 +150,36 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 		commitMeasurements();
 		assertPerformance();
 
+	}
+	
+	// Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=301438
+	public void testPerSuperTypes() throws CoreException {
+		assertNotNull("Parser not found!", PARSER_WORKING_COPY);
+
+		// Warm up
+		for (int i=0; i<10*WARMUP_COUNT; i++) { // More Warm up is required.
+			IType[] types = PARSER_WORKING_COPY.getType("Parser").newSupertypeHierarchy(null).getAllClasses();
+			if (i==0) {
+				System.out.println("  - "+INT_FORMAT.format(types.length)+" classes found in hierarchy.");
+			}
+		}
+
+		// Clean memory
+		runGc();
+
+		// Measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			runGc();
+			startMeasuring();
+			for (int j =0; j < 20; j++) {
+				PARSER_WORKING_COPY.getType("Parser").newSupertypeHierarchy(null).getAllClasses();
+			}
+			stopMeasuring();
+		}
+
+		// Commit
+		commitMeasurements();
+		assertPerformance();
 	}
 
 }
