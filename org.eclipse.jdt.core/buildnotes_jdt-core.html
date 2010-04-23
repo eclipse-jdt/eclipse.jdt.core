@@ -50,7 +50,9 @@ Eclipse SDK 3.6M7 - %date% - 3.6.0 M7
 <h2>What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=306172">306172</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=59891">59891</a>
+[formatter] improve lines wrapping in nested method calls
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=306172">306172</a>
 [perfs] Invalid test duration for FullSourceWorkspaceTypeHierarchyTests#testPerSuperTypes()
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=267091">267091</a>
 [content assist] After 'implements' interface members are not proposed
@@ -100,9 +102,7 @@ Eclipse SDK 3.6M7 - April 13, 2010
 <h2>What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=308476">308476</a>
-Test ClasspathTests#testBug308150 fails on all platforms
-<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=308754">308754</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=308754">308754</a>
 CompilationUnit.rewrite messes up .class-literal in annotation instead of changing class to interface
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=306519">306519</a>
 JavaCore#getReferencedClasspathEntries(IClasspathEntry, IJavaProject) should allow null project
@@ -110,10 +110,12 @@ JavaCore#getReferencedClasspathEntries(IClasspathEntry, IJavaProject) should all
 Possible problem to get corrections with surrogate characters
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=307295">307295</a>
 Task tags and task priorities
-<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=307486">307486</a>
-DBCS3.6: Fail to propose Ext-B labels with content assist in Java Editor
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=308476">308476</a>
+Test ClasspathTests#testBug308150 fails on all platforms
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=305043">305043</a>
 Internal error during classpath init
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=307486">307486</a>
+DBCS3.6: Fail to propose Ext-B labels with content assist in Java Editor
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=308256">308256</a>
 DiagnosticListener always supplies Diagnostic.getSource()==null
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=308356">308356</a>
@@ -137,14 +139,14 @@ Eclipse SDK 3.6M7 - April 6, 2010
 <h2>What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=306568">306568</a>
-[ImportRewrite] Add Import does not work for nested type when package is on-demand imported
-<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=306223">306223</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=306223">306223</a>
 [search] Searching for annotation references report all type references
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087">292087</a>
 anonymous class in array member initializer confuses content assist
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=307337">307337</a>
 [content assist] Default constructor should not be proposed for anonymous types
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=306568">306568</a>
+[ImportRewrite] Add Import does not work for nested type when package is on-demand imported
 
 <a name="v_A42"></a>
 <hr><h1>
@@ -156,14 +158,14 @@ Eclipse SDK 3.6M7 - March 30, 2010
 <h2>What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=306917">306917</a>
-Exception occurred during compilation unit conversion:
-<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=202634">202634</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=202634">202634</a>
 [codeassist] missing super proposal in specific source
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=304394">304394</a>
 IJavaElement#getAttachedJavadoc(IProgressMonitor) should support referenced entries
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=305122">305122</a>
 FUP of 302949
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=306917">306917</a>
+Exception occurred during compilation unit conversion:
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=306196">306196</a>
 [search] NPE while searching for annotation references in rt.jar of JRE 6.0
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658">288658</a>
@@ -227,7 +229,7 @@ Eclipse SDK 3.6M7 - March 16, 2010
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.6M6 - March 11, 2010 - 3.6.0 M6
+Eclipse SDK 3.6M6 - March 9, 2010 - 3.6.0 M6
 <br>Project org.eclipse.jdt.core v_A39
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A39">cvs</a>).
 <h2>What's new in this drop</h2>
@@ -942,7 +944,7 @@ Test failure caused by a timing issue in M20091118-0800
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.6M6 - February 17, 2010
+Eclipse SDK 3.6M6 - February 16, 2010
 <br>Project org.eclipse.jdt.core v_A35
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A35">cvs</a>).
 <h2>What's new in this drop</h2>
@@ -999,7 +1001,7 @@ Eclipse hangs when attempting to refactor using the &quot;change method signatur
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.6M6 - February 10, 2010
+Eclipse SDK 3.6M6 - February 9, 2010
 <br>Project org.eclipse.jdt.core v_A34
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A34">cvs</a>).
 <h2>What's new in this drop</h2>
@@ -1039,13 +1041,13 @@ classpathentry OPTIONAL attribute not honored for var entries
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=300723">300723</a>
 Fup of bug 235783
 
-<a name="v_A32"></a>
+<a name="v_A32a"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.6M5 - January 22, 2010 - 3.6.0 M5
-<br>Project org.eclipse.jdt.core v_A32
-(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A32">cvs</a>).
+Eclipse SDK 3.6M5 - January 21, 2010 - 3.6.0 M5
+<br>Project org.eclipse.jdt.core v_A32a
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A32a">cvs</a>).
 <h2>What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>
@@ -1064,7 +1066,7 @@ Organize imports deletes needed static import.
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.6M5 - January 19, 2010
+Eclipse SDK 3.6M5 - January 18, 2010
 <br>Project org.eclipse.jdt.core v_A31
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A31">cvs</a>).
 <h2>What's new in this drop</h2>
