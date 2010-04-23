@@ -4,16 +4,14 @@ public class A {
 		try {
 			IJavaProject javaProject = getJavaProject(configuration);
 			if ((javaProject == null) || !javaProject.exists()) {
-				abort(
-						PDEPlugin
-								.getResourceString("JUnitLaunchConfiguration.error.invalidproject"), null, IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT); //$NON-NLS-1$
+				abort(PDEPlugin
+						.getResourceString("JUnitLaunchConfiguration.error.invalidproject"), null, IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT); //$NON-NLS-1$
 			}
 			IType[] testTypes = getTestTypes(configuration, javaProject,
 					new SubProgressMonitor(monitor, 1));
 			if (testTypes.length == 0) {
-				abort(
-						PDEPlugin
-								.getResourceString("JUnitLaunchConfiguration.error.notests"), null, IJavaLaunchConfigurationConstants.ERR_UNSPECIFIED_MAIN_TYPE); //$NON-NLS-1$
+				abort(PDEPlugin
+						.getResourceString("JUnitLaunchConfiguration.error.notests"), null, IJavaLaunchConfigurationConstants.ERR_UNSPECIFIED_MAIN_TYPE); //$NON-NLS-1$
 			}
 			monitor.worked(1);
 
@@ -38,8 +36,8 @@ public class A {
 
 			setDefaultSourceLocator(launch, configuration);
 			launch.setAttribute(PORT_ATTR, Integer.toString(port));
-			launch.setAttribute(TESTTYPE_ATTR, testTypes[0]
-					.getHandleIdentifier());
+			launch.setAttribute(TESTTYPE_ATTR,
+					testTypes[0].getHandleIdentifier());
 			PDEPlugin.getDefault().getLaunchesListener().manage(launch);
 			launcher.getVMRunner(mode).run(runnerConfig, launch, monitor);
 			monitor.worked(1);

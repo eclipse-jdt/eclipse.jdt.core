@@ -7,7 +7,8 @@ public class A {
 				.someQuiteLongMessageSend("aaaaaaaaaaa", "bbbbbbbbbbbbb",
 						"cccccccc");
 		Alignment expressionsAlignment = this.scribe.createAlignment(
-				"expressions", Alignment.M_COMPACT_SPLIT
+				"expressions",
+				Alignment.M_COMPACT_SPLIT
 						+ someMessageSend(Alignment.M_COMPACT_SPLIT,
 								Alignment.M_COMPACT_SPLIT,
 								Alignment.M_COMPACT_SPLIT,

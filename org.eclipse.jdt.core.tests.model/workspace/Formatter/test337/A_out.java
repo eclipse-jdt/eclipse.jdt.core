@@ -110,8 +110,8 @@ public class ConfigurationActivator implements BundleActivator {
 	}
 	private IPlatform acquirePlatform() {
 		if (platformTracker == null) {
-			platformTracker = new ServiceTracker(context, IPlatform.class
-					.getName(), null);
+			platformTracker = new ServiceTracker(context,
+					IPlatform.class.getName(), null);
 			platformTracker.open();
 		}
 		IPlatform result = (IPlatform) platformTracker.getService();

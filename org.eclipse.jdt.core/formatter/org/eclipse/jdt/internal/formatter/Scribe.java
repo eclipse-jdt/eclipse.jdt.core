@@ -595,24 +595,24 @@ public class Scribe implements IJavaDocTagConstants {
 	    return INVALID_TOKEN;
     }
 
-	public Alignment createAlignment(String name, int mode, int count, int sourceRestart){
-		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart);
+	public Alignment createAlignment(int kind, int mode, int count, int sourceRestart){
+		return createAlignment(kind, mode, Alignment.R_INNERMOST, count, sourceRestart);
 	}
 
-	public Alignment createAlignment(String name, int mode, int count, int sourceRestart, boolean adjust){
-		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart, adjust);
+	public Alignment createAlignment(int kind, int mode, int count, int sourceRestart, boolean adjust){
+		return createAlignment(kind, mode, Alignment.R_INNERMOST, count, sourceRestart, adjust);
 	}
 
-	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart){
-		return createAlignment(name, mode, tieBreakRule, count, sourceRestart, this.formatter.preferences.continuation_indentation, false);
+	public Alignment createAlignment(int kind, int mode, int tieBreakRule, int count, int sourceRestart){
+		return createAlignment(kind, mode, tieBreakRule, count, sourceRestart, this.formatter.preferences.continuation_indentation, false);
 	}
 
-	public Alignment createAlignment(String name, int mode, int count, int sourceRestart, int continuationIndent, boolean adjust){
-		return createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart, continuationIndent, adjust);
+	public Alignment createAlignment(int kind, int mode, int count, int sourceRestart, int continuationIndent, boolean adjust){
+		return createAlignment(kind, mode, Alignment.R_INNERMOST, count, sourceRestart, continuationIndent, adjust);
 	}
 
-	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart, int continuationIndent, boolean adjust){
-		Alignment alignment = new Alignment(name, mode, tieBreakRule, this, count, sourceRestart, continuationIndent);
+	public Alignment createAlignment(int kind, int mode, int tieBreakRule, int count, int sourceRestart, int continuationIndent, boolean adjust){
+		Alignment alignment = new Alignment(kind, mode, tieBreakRule, this, count, sourceRestart, continuationIndent);
 		// adjust break indentation
 		if (adjust && this.memberAlignment != null) {
 			Alignment current = this.memberAlignment;
@@ -674,8 +674,8 @@ public class Scribe implements IJavaDocTagConstants {
 		return alignment;
 	}
 
-	public Alignment createMemberAlignment(String name, int mode, int count, int sourceRestart) {
-		Alignment mAlignment = createAlignment(name, mode, Alignment.R_INNERMOST, count, sourceRestart);
+	public Alignment createMemberAlignment(int kind, int mode, int count, int sourceRestart) {
+		Alignment mAlignment = createAlignment(kind, mode, Alignment.R_INNERMOST, count, sourceRestart);
 		mAlignment.breakIndentationLevel = this.indentationLevel;
 		return mAlignment;
 	}
@@ -722,13 +722,6 @@ public class Scribe implements IJavaDocTagConstants {
 		this.numberOfIndentations = current.location.numberOfIndentations;
 		this.formatter.lastLocalDeclarationSourceStart = alignment.location.lastLocalDeclarationSourceStart;
 		this.memberAlignment = current.enclosing;
-	}
-
-	public Alignment getAlignment(String name){
-		if (this.currentAlignment != null) {
-			return this.currentAlignment.getAlignment(name);
-		}
-		return null;
 	}
 
 	/**
@@ -1105,11 +1098,11 @@ public class Scribe implements IJavaDocTagConstants {
 						// skip
 					}
 					this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
-					boolean canUseAlignmentIndentation = (nextToken != TerminalTokens.TokenNameLBRACE || !this.currentAlignment.name.equals("localDeclarationAssignmentAlignment")); //$NON-NLS-1$
+					boolean canUseAlignmentIndentation = (nextToken != TerminalTokens.TokenNameLBRACE || this.currentAlignment.kind != Alignment.LOCAL_DECLARATION_ASSIGNMENT);
 					if (canUseAlignmentIndentation &&
 							(!this.formatBrace ||
-									this.currentAlignment.name.equals("array_initializer") || //$NON-NLS-1$
-									this.currentAlignment.name.equals("binaryExpressionAlignment")) && //$NON-NLS-1$
+									this.currentAlignment.kind == Alignment.ARRAY_INITIALIZER ||
+									this.currentAlignment.kind == Alignment.BINARY_EXPRESSION) &&
 							this.indentationLevel < this.currentAlignment.breakIndentationLevel) {
 						this.indentationLevel = this.currentAlignment.breakIndentationLevel;
 					}
@@ -1219,10 +1212,25 @@ public class Scribe implements IJavaDocTagConstants {
 		// look for outermost breakable one
 		int relativeDepth = 0, outerMostDepth = -1;
 		Alignment targetAlignment = this.currentAlignment;
+		int previousKind = -1;
+		boolean insideMessageArguments = false;
+		boolean insideMessageSend = false;
 		while (targetAlignment != null){
-			if (targetAlignment.tieBreakRule == Alignment.R_OUTERMOST && targetAlignment.couldBreak()){
+			boolean couldBreak = targetAlignment.tieBreakRule == Alignment.R_OUTERMOST ||
+				((insideMessageArguments || insideMessageSend) && targetAlignment.kind == Alignment.MESSAGE_ARGUMENTS
+						&& (!targetAlignment.wasReset() || previousKind != Alignment.MESSAGE_SEND));
+			if (couldBreak && targetAlignment.couldBreak()){
 				outerMostDepth = relativeDepth;
 			}
+			switch (targetAlignment.kind) {
+				case Alignment.MESSAGE_ARGUMENTS:
+					insideMessageArguments = true;
+					break;
+				case Alignment.MESSAGE_SEND:
+					insideMessageSend = true;
+					break;
+			}
+			previousKind = targetAlignment.kind;
 			targetAlignment = targetAlignment.enclosing;
 			relativeDepth++;
 		}
@@ -1232,14 +1240,41 @@ public class Scribe implements IJavaDocTagConstants {
 		// look for innermost breakable one
 		relativeDepth = 0;
 		targetAlignment = this.currentAlignment;
-		while (targetAlignment != null){
-			if (targetAlignment.couldBreak()){
-				throw new AlignmentException(AlignmentException.LINE_TOO_LONG, relativeDepth);
+		AlignmentException alignmentException = null;
+		int msgArgsDepth = -1;
+		while (targetAlignment != null) {
+			if (targetAlignment.kind == Alignment.MESSAGE_ARGUMENTS) {
+				msgArgsDepth = relativeDepth;
+			}
+			if (alignmentException == null) {
+				if (targetAlignment.couldBreak()) {
+					// do not throw the exception immediately to have a chance to reset
+					// previously broken alignments (see bug 203588)
+					alignmentException = new AlignmentException(AlignmentException.LINE_TOO_LONG, relativeDepth);
+				}
+			} else if (targetAlignment.wasSplit) {
+				// reset the nearest already broken outermost alignment.
+				// Note that it's not done twice to avoid infinite loop while raising
+				// the exception on an innermost alignment...
+				if (!targetAlignment.wasReset()) {
+					targetAlignment.reset();
+					if (msgArgsDepth > alignmentException.relativeDepth) {
+						alignmentException.relativeDepth = msgArgsDepth;
+					}
+					throw alignmentException;
+				}
 			}
 			targetAlignment = targetAlignment.enclosing;
 			relativeDepth++;
 		}
+		if (alignmentException != null) {
+			throw alignmentException;
+		}
 		// did not find any breakable location - proceed
+		if (this.currentAlignment != null) {
+			this.currentAlignment.blockAlign = false;
+			this.currentAlignment.tooLong = true;
+		}
 	}
 
 	/*
@@ -2560,7 +2595,7 @@ public class Scribe implements IJavaDocTagConstants {
 			   			commentIndentationLevel = this.column - 1;
 					}
 				} else {
-					if (this.currentAlignment != null && this.currentAlignment.name.equals("array_initializer") && //$NON-NLS-1$
+					if (this.currentAlignment != null && this.currentAlignment.kind == Alignment.ARRAY_INITIALIZER &&
 						this.indentationLevel < this.currentAlignment.breakIndentationLevel &&
 						this.lastLineComment.lines > 0)
 					{
