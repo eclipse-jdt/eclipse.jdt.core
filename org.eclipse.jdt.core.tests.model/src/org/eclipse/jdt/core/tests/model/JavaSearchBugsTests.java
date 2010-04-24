@@ -11785,4 +11785,52 @@ public void testBug306223g() throws CoreException {
 		null);
 	assertSearchResults("");
 }
+
+/**
+ * @bug 310213: [search] Reference to package is not found in qualified annotation
+ * @test Ensure that references to package are also found in qualified annotation
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=310213"
+ */
+public void testBug310213() throws CoreException {
+	boolean autoBuild = getWorkspace().isAutoBuilding();
+	IWorkspaceDescription preferences = getWorkspace().getDescription();
+	try {
+		// ensure that the workspace auto-build is ON
+		preferences.setAutoBuilding(true);
+		getWorkspace().setDescription(preferences);
+		
+		// create files
+		createFolder("/JavaSearchBugs/src/java/lang");
+		createFile("/JavaSearchBugs/src/java/lang/Throwable.java",
+			"package java.lang;\n" +
+			"public class Throwable{}\n"
+		);
+		createFolder("/JavaSearchBugs/src/b310213/test");
+		createFile("/JavaSearchBugs/src/b310213/test/Test.java",
+			"package b310213.test;\n" +
+			"public class Test extends Throwable {\n" +
+			"}"
+		);
+		waitUntilIndexesReady();
+		
+		// search
+		IType type = getCompilationUnit("/JavaSearchBugs/src/java/lang/Throwable.java").getType("Throwable");
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/b310213/test/Test.java b310213.test.Test [Throwable] EXACT_MATCH\n" + 
+			""+ getExternalJCLPathString("1.5") + " java.lang.Error EXACT_MATCH\n" + 
+			""+ getExternalJCLPathString("1.5") + " java.lang.Exception EXACT_MATCH\n" + 
+			""+ getExternalJCLPathString("1.5") + " void java.lang.Object.finalize() EXACT_MATCH"
+		);
+	}
+	finally {
+		// put back initial setup
+		preferences.setAutoBuilding(autoBuild);
+		getWorkspace().setDescription(preferences);
+
+		// delete files
+		deleteFolder("/JavaSearchBugs/src/b310213");
+		deleteFolder("/JavaSearchBugs/src/java");
+	}
+}
 }
