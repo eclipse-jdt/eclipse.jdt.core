@@ -6548,4 +6548,208 @@ public void testBug305830c() {
 	);
 }
 
+/**
+ * @bug 309835: [formatter] adds blank lines on each run
+ * @test Test that no line is added when the word exceeds the line width
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=309835"
+ */
+public void testBug309835() {
+	this.formatterPrefs.join_lines_in_comments = false;
+	this.formatterPrefs.comment_line_length = 120;
+	String source = 
+		"package org.eclipse.bug.test;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * @author Bug Reporter\n" + 
+		" *         ThisIsAVeryLongCommentWithoutSpaces_TheFormatterTriesToBreakTheLine_ButTheResultOfItIsThatANewLineIsAdded_____\n" + 
+		" * \n" + 
+		" *         Try to press Ctrl+Shift+F to format the code. If the unbreakable line is exactly 121 characters long,\n" + 
+		" *         a blank line is inserted on each formating.\n" + 
+		" *         Check project preferences to see the format settings\n" + 
+		" *         (max. line length 80 chars, max. comment line length 120 chars)\n" + 
+		" */\n" + 
+		"public class FormatterBug {\n" + 
+	    "}\n";
+	formatSource(source);
+}
+public void testBug309835b() {
+	this.formatterPrefs.comment_line_length = 120;
+	String source = 
+		"package org.eclipse.bug.test;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * @author Bug Reporter\n" + 
+		" *         ThisIsAVeryLongCommentWithoutSpaces_TheFormatterTriesToBreakTheLine_ButTheResultOfItIsThatANewLineIsAdded_____\n" + 
+		" * \n" + 
+		" *         Try to press Ctrl+Shift+F to format the code. If the unbreakable line is exactly 121 characters long,\n" + 
+		" *         a blank line is inserted on each formating.\n" + 
+		" *         Check project preferences to see the format settings\n" + 
+		" *         (max. line length 80 chars, max. comment line length 120 chars)\n" + 
+		" */\n" + 
+		"public class FormatterBug {\n" + 
+	    "}\n";
+	formatSource(source,
+		"package org.eclipse.bug.test;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * @author Bug Reporter\n" + 
+		" *         ThisIsAVeryLongCommentWithoutSpaces_TheFormatterTriesToBreakTheLine_ButTheResultOfItIsThatANewLineIsAdded_____\n" + 
+		" * \n" + 
+		" *         Try to press Ctrl+Shift+F to format the code. If the unbreakable line is exactly 121 characters long, a blank\n" + 
+		" *         line is inserted on each formating. Check project preferences to see the format settings (max. line length 80\n" + 
+		" *         chars, max. comment line length 120 chars)\n" + 
+		" */\n" + 
+		"public class FormatterBug {\n" + 
+	    "}\n"
+	);
+}
+public void testBug309835c() {
+	this.formatterPrefs.join_lines_in_comments = false;
+	String source = 
+		"package org.eclipse.bug.test;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * @author Bug Reporter\n" + 
+		" *         ThisIsAVeryLongCommentWithoutSpaces_TheFormatterTriesToBreakTheLine_ButTheResultOfItIsThatANewLineIsAdded_____\n" + 
+		" * \n" + 
+		" *         Try to press Ctrl+Shift+F to format the code. If the unbreakable line is exactly 121 characters long,\n" + 
+		" *         a blank line is inserted on each formating.\n" + 
+		" *         Check project preferences to see the format settings\n" + 
+		" *         (max. line length 80 chars, max. comment line length 120 chars)\n" + 
+		" */\n" + 
+		"public class FormatterBug {\n" + 
+	    "}\n";
+	formatSource(source,
+		"package org.eclipse.bug.test;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * @author Bug Reporter\n" + 
+		" *         ThisIsAVeryLongCommentWithoutSpaces_TheFormatterTriesToBreakTheLine_ButTheResultOfItIsThatANewLineIsAdded_____\n" + 
+		" * \n" + 
+		" *         Try to press Ctrl+Shift+F to format the code. If the unbreakable line\n" + 
+		" *         is exactly 121 characters long,\n" + 
+		" *         a blank line is inserted on each formating.\n" + 
+		" *         Check project preferences to see the format settings\n" + 
+		" *         (max. line length 80 chars, max. comment line length 120 chars)\n" + 
+		" */\n" + 
+		"public class FormatterBug {\n" + 
+	    "}\n"
+	);
+}
+public void testBug309835d() {
+	String source = 
+		"package org.eclipse.bug.test;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * @author Bug Reporter\n" + 
+		" *         ThisIsAVeryLongCommentWithoutSpaces_TheFormatterTriesToBreakTheLine_ButTheResultOfItIsThatANewLineIsAdded_____\n" + 
+		" * \n" + 
+		" *         Try to press Ctrl+Shift+F to format the code. If the unbreakable line is exactly 121 characters long,\n" + 
+		" *         a blank line is inserted on each formating.\n" + 
+		" *         Check project preferences to see the format settings\n" + 
+		" *         (max. line length 80 chars, max. comment line length 120 chars)\n" + 
+		" */\n" + 
+		"public class FormatterBug {\n" + 
+	    "}\n";
+	formatSource(source,
+		"package org.eclipse.bug.test;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * @author Bug Reporter\n" + 
+		" *         ThisIsAVeryLongCommentWithoutSpaces_TheFormatterTriesToBreakTheLine_ButTheResultOfItIsThatANewLineIsAdded_____\n" + 
+		" * \n" + 
+		" *         Try to press Ctrl+Shift+F to format the code. If the unbreakable line\n" + 
+		" *         is exactly 121 characters long, a blank line is inserted on each\n" + 
+		" *         formating. Check project preferences to see the format settings (max.\n" + 
+		" *         line length 80 chars, max. comment line length 120 chars)\n" + 
+		" */\n" + 
+		"public class FormatterBug {\n" + 
+	    "}\n"
+	);
+}
+public void testBug309835_wksp1_01() {
+	String source = 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * @param severity the severity to search for. Must be one of <code>FATAL\n" + 
+		"	 *  </code>, <code>ERROR</code>, <code>WARNING</code> or <code>INFO</code>\n" + 
+		"	 */\n" + 
+		"	public void foo(int severity) {\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * @param severity\n" + 
+		"	 *            the severity to search for. Must be one of <code>FATAL\n" + 
+		"	 *  </code>, <code>ERROR</code>, <code>WARNING</code> or <code>INFO</code>\n" + 
+		"	 */\n" + 
+		"	public void foo(int severity) {\n" + 
+		"	}\n" + 
+	    "}\n"
+	);
+}
+public void testBug309835_wksp1_02() {
+	String source = 
+		"public class X02 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * INTERNAL USE-ONLY\n" + 
+		"	 * Generate the byte for a problem method info that correspond to a boggus method.\n" + 
+		"	 *\n" + 
+		"	 * @param method org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration\n" + 
+		"	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.MethodBinding\n" + 
+		"	 */\n" + 
+		"	public void foo(int severity) {\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X02 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * INTERNAL USE-ONLY Generate the byte for a problem method info that\n" + 
+		"	 * correspond to a boggus method.\n" + 
+		"	 * \n" + 
+		"	 * @param method\n" + 
+		"	 *            org.eclipse.jdt.internal.compiler.ast.\n" + 
+		"	 *            AbstractMethodDeclaration\n" + 
+		"	 * @param methodBinding\n" + 
+		"	 *            org.eclipse.jdt.internal.compiler.nameloopkup.MethodBinding\n" + 
+		"	 */\n" + 
+		"	public void foo(int severity) {\n" + 
+		"	}\n" + 
+	    "}\n"
+	);
+}
+public void testBug309835_wksp2_01() {
+	String source = 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"     * Given a jar file, get the names of any AnnotationProcessorFactory\n" + 
+		"     * implementations it offers.  The information is based on the Sun\n" + 
+		"     * <a href=\"http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider\">\n" + 
+		"     * Jar Service Provider spec</a>: the jar file contains a META-INF/services\n" + 
+		"     */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Given a jar file, get the names of any AnnotationProcessorFactory\n" + 
+		"	 * implementations it offers. The information is based on the Sun <a href=\n" + 
+		"	 * \"http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider\"\n" + 
+		"	 * > Jar Service Provider spec</a>: the jar file contains a\n" + 
+		"	 * META-INF/services\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+	    "}\n"
+	);
+}
+
 }

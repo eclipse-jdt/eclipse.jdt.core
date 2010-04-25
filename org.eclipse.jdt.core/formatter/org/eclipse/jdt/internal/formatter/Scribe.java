@@ -4100,7 +4100,7 @@ public class Scribe implements IJavaDocTagConstants {
 				}
 			}
 			this.needSpace = idx > 0;
-			printJavadocTextLine(buffer, nextStart, end, block, idx==0 /*first text?*/, needIndentation, false /*not an html tag*/);
+			printJavadocTextLine(buffer, nextStart, end, block, idx==0 || (!joinLines && textOnNewLine)/*first text?*/, needIndentation, false /*not an html tag*/);
 			textOnNewLine = false;
 
 			// Replace with current buffer if there are several empty lines between text lines
@@ -4118,6 +4118,9 @@ public class Scribe implements IJavaDocTagConstants {
 					if (clearBlankLines) newLines = 1;
 					printJavadocGapLines(end+1, nextStart-1, newLines, this.formatter.preferences.comment_clear_blank_lines_in_javadoc_comment, false, null);
 					textOnNewLine = true;
+				}
+				else if (startLine > endLine) {
+					textOnNewLine = !joinLines;
 				}
 			}
 		}
@@ -4154,6 +4157,7 @@ public class Scribe implements IJavaDocTagConstants {
 		if (needIndentation && this.commentIndentation != null) {
 			buffer.append(this.commentIndentation);
 	    	this.column += this.commentIndentation.length();
+	    	firstColumn += this.commentIndentation.length();
 		}
 		if (this.column < firstColumn) {
 			this.column = firstColumn;
@@ -4246,7 +4250,7 @@ public class Scribe implements IJavaDocTagConstants {
 						tokensBufferLength = 0;
 						textOnNewLine = false;
 					}
-					if ((tokensBufferLength > 0 || tokenLength < maxColumn) && (!textOnNewLine || !firstText)) {
+					if ((tokensBufferLength > 0 || /*(firstColumn+tokenLength) < maxColumn || (insertSpace &&*/ this.column > firstColumn) && (!textOnNewLine || !firstText)) {
 						this.lastNumberOfNewLines++;
 						this.line++;
 						if (newLineString == null) {
@@ -4272,7 +4276,7 @@ public class Scribe implements IJavaDocTagConstants {
 						this.column += tokensString.length();
 						tokensBuffer.setLength(0);
 						tokensBufferLength = 0;
-			    	}
+		    		}
 					buffer.append(this.scanner.source, tokenStart, tokenLength);
 					this.column += tokenLength;
 					textOnNewLine = false;
