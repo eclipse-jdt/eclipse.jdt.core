@@ -202,7 +202,7 @@ private void initializeIndexLocations() {
 					if (primaryType != null) {
 						char[][] qualifiedName = CharOperation.splitOn('.', primaryType.getFullyQualifiedName().toCharArray());
 						char[][][] qualifiedNames = ReferenceCollection.internQualifiedNames(new char[][][] {qualifiedName});
-						focusQualifiedName = qualifiedNames[0];
+						focusQualifiedName =  qualifiedNames.length == 0 ? qualifiedName : qualifiedNames[0];
 					}
 				}
 			}
