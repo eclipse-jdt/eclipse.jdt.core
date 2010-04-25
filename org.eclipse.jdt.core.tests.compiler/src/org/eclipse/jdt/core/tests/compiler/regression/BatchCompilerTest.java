@@ -48,7 +48,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NAMES = new String[] { "test292_warn_options" };
-//		TESTS_NUMBERS = new int[] { 12 };
+//		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
 public BatchCompilerTest(String name) {
@@ -1522,11 +1522,12 @@ public void test012(){
         "                       specify location for endorsed ZIP archives\n" +
         "    -d <dir>           destination directory (if omitted, no directory is\n" +
         "                       created); this option can be overridden per source\n" +
-		"                       directory\n" +
-		"    -d none            generate no .class files\n" +
-        "    -encoding <enc>    specify custom encoding for all sources. Each\n" +
-        "                       file/directory can override it when suffixed with\n" +
-        "                       ''[''<enc>'']'' (e.g. X.java[utf8])\n" +
+        "                       directory\n" +
+        "    -d none            generate no .class files\n" +
+        "    -encoding <enc>    specify custom encoding for all sources. If multiple \n" + 
+        "                       encodings are specified, the last one will be used. Each\n" + 
+        "                       file/directory can override it when suffixed with\n" + 
+        "                       ''[''<enc>'']'' (e.g. X.java[utf8]).\n" + 
         " \n" +
         " Compliance options:\n" +
         "    -1.3               use 1.3 compliance (-source 1.3 -target 1.1)\n" +
@@ -1774,7 +1775,7 @@ public void test012b(){
 		String logContents = Util.fileContent(logFileName);
 		String expectedLogContents =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-			"<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.003 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_003.dtd\">\n" +
+			"<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.004 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_004.dtd\">\n" +
 			"<compiler copyright=\"{2}\" name=\"{1}\" version=\"{3}\">\n" +
 			"	<command_line>\n" +
 			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.java\"/>\n" +
@@ -11377,6 +11378,35 @@ public void test304(){
 		"The field X.i is never read locally\n" + 
 		"----------\n" + 
 		"1 problem (1 error)",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=310330
+public void test305(){
+	this.runConformTest(
+		new String[] {
+			"src/X.java",
+			"public class X {}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+		+ " -encoding UTF-8 -1.5 -g -encoding ISO-8859-1",
+		"Found encoding ISO-8859-1. A different encoding was specified: UTF-8\n" + 
+		"Multiple encoding specified: ISO-8859-1, UTF-8. The default encoding has been set to ISO-8859-1\n",
+		"",
+		true);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=310330
+public void test306(){
+	this.runConformTest(
+		new String[] {
+			"src/X.java",
+			"public class X {}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+		+ " -encoding UTF-8 -1.5 -encoding Cp1252 -g -encoding ISO-8859-1",
+		"Found encoding Cp1252. A different encoding was specified: UTF-8\n" + 
+		"Found encoding ISO-8859-1. Different encodings were specified: Cp1252, UTF-8\n" + 
+		"Multiple encoding specified: Cp1252, ISO-8859-1, UTF-8. The default encoding has been set to ISO-8859-1\n",
+		"",
 		true);
 }
 }
