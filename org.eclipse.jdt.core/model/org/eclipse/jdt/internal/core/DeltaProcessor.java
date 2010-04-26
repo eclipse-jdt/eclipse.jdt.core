@@ -1886,9 +1886,9 @@ public class DeltaProcessor {
 					// notification we see, implies that all projects are about to be refreshed.
 					 projects = ((IWorkspace) o).getRoot().getProjects(IContainer.INCLUDE_HIDDEN);
 				}
-				for (int i = 0; projects != null && i < projects.length; i++) {
-					JavaModelManager.getExternalManager().refreshReferences(projects[i], null);
-				}
+				//https://bugs.eclipse.org/bugs/show_bug.cgi?id=302295
+				// Refresh all project references together in a single job
+				JavaModelManager.getExternalManager().refreshReferences(projects, null);
 				return;
 
 			case IResourceChangeEvent.POST_CHANGE :

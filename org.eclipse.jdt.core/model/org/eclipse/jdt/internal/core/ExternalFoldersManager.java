@@ -46,7 +46,7 @@ public class ExternalFoldersManager {
 	 * Returns a set of external path to external folders referred to on the given classpath.
 	 * Returns null if none.
 	 */
-	public static HashSet 	getExternalFolders(IClasspathEntry[] classpath) {
+	public static HashSet getExternalFolders(IClasspathEntry[] classpath) {
 		if (classpath == null)
 			return null;
 		HashSet folders = null;
@@ -258,6 +258,36 @@ public class ExternalFoldersManager {
 	/*
 	 * Refreshes the external folders referenced on the classpath of the given source project
 	 */
+	public void refreshReferences(final IProject[] sourceProjects, IProgressMonitor monitor) {
+		IProject externalProject = getExternalFoldersProject();
+		try {
+			HashSet externalFolders = null;
+			for (int index = 0; index < sourceProjects.length; index++) {
+				if (sourceProjects[index].equals(externalProject))
+					continue;
+				if (!JavaProject.hasJavaNature(sourceProjects[index]))
+					continue;
+
+				HashSet foldersInProject = getExternalFolders(((JavaProject) JavaCore.create(sourceProjects[index])).getResolvedClasspath());
+				
+				if (foldersInProject == null || foldersInProject.size() == 0)
+					continue;
+				if (externalFolders == null)
+					externalFolders = new HashSet();
+				
+				externalFolders.addAll(foldersInProject);
+			}
+			if (externalFolders == null) 
+				return;
+
+			Iterator iterator = externalFolders.iterator();
+			Job refreshJob = new RefreshJob(iterator);
+			refreshJob.schedule();
+		} catch (CoreException e) {
+			Util.log(e, "Exception while refreshing external project"); //$NON-NLS-1$
+		}
+		return;
+	}
 	public void refreshReferences(IProject source, IProgressMonitor monitor) {
 		IProject externalProject = getExternalFoldersProject();
 		if (source.equals(externalProject))
@@ -268,25 +298,9 @@ public class ExternalFoldersManager {
 			HashSet externalFolders = getExternalFolders(((JavaProject) JavaCore.create(source)).getResolvedClasspath());
 			if (externalFolders == null)
 				return;
-			final Iterator iterator = externalFolders.iterator();
-			Job refreshJob = new Job(Messages.refreshing_external_folders) {
-				public boolean belongsTo(Object family) {
-					return family == ResourcesPlugin.FAMILY_MANUAL_REFRESH;
-				}
-				protected IStatus run(IProgressMonitor pm) {
-					try {
-						while (iterator.hasNext()) {
-							IPath externalPath = (IPath) iterator.next();
-							IFolder folder = getFolder(externalPath);
-							if (folder != null)
-								folder.refreshLocal(IResource.DEPTH_INFINITE, pm);
-						}
-					} catch (CoreException e) {
-						return e.getStatus();
-					}
-					return Status.OK_STATUS;
-				}
-			};
+			Iterator iterator = externalFolders.iterator();
+			
+			Job refreshJob = new RefreshJob(iterator);
 			refreshJob.schedule();
 		} catch (CoreException e) {
 			Util.log(e, "Exception while refreshing external project"); //$NON-NLS-1$
@@ -298,5 +312,31 @@ public class ExternalFoldersManager {
 		return (IFolder) getFolders().remove(externalFolderPath);
 	}
 
-
+	class RefreshJob extends Job {
+		Iterator externalFolders = null;
+		RefreshJob(Iterator externalFolders){
+			super(Messages.refreshing_external_folders);
+			this.externalFolders = externalFolders;
+		}
+		
+		public boolean belongsTo(Object family) {
+			return family == ResourcesPlugin.FAMILY_MANUAL_REFRESH;
+		}
+		
+		protected IStatus run(IProgressMonitor pm) {
+			try {
+				while (this.externalFolders.hasNext()) {
+					IPath externalPath = (IPath) this.externalFolders.next();
+					IFolder folder = getFolder(externalPath);
+					if (folder != null) {
+						folder.refreshLocal(IResource.DEPTH_INFINITE, pm);
+					}
+				}
+			} catch (CoreException e) {
+				return e.getStatus();
+			}
+			return Status.OK_STATUS;
+		}
+	}
+	
 }
