@@ -4966,7 +4966,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		ASTNode[] fragments = stringLiteral.literals;
 		int fragmentsSize = stringLiteral.counter;
 		Alignment binaryExpressionAlignment = this.scribe.createAlignment(
-				Alignment.BINARY_EXPRESSION,
+				Alignment.STRING_CONCATENATION,
 				this.preferences.alignment_for_binary_expression,
 				Alignment.R_OUTERMOST,
 				fragmentsSize,

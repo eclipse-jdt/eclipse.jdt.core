@@ -46,6 +46,7 @@ public class Alignment {
 	public static final int SUPER_INTERFACES = 21;
 	public static final int THROWS = 22;
 	public static final int TYPE_MEMBERS = 23;
+	public static final int STRING_CONCATENATION = 24;
 
 	// name of alignment
 	public String name;
@@ -74,6 +75,7 @@ public class Alignment {
 		"superInterfaces", //$NON-NLS-1$
 		"throws", //$NON-NLS-1$
 		"typeMembers", //$NON-NLS-1$
+		"stringConcatenation", //$NON-NLS-1$
 	};
 
 	// link to enclosing alignment
@@ -193,7 +195,7 @@ public class Alignment {
 	// location to align and break on.
 	public Alignment(int kind, int mode, int tieBreakRule, Scribe scribe, int fragmentCount, int sourceRestart, int continuationIndent){
 
-		Assert.isTrue(kind >=ALLOCATION && kind <=TYPE_MEMBERS);
+		Assert.isTrue(kind >=ALLOCATION && kind <=STRING_CONCATENATION);
 		this.kind = kind;
 		this.name = NAMES[kind];
 		this.location = new Location(scribe, sourceRestart);
