@@ -107,7 +107,7 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 					ClasspathChange classpathChange = affectedProject.getPerProjectInfo().resetResolvedClasspath();
 
 					// if needed, generate delta, update project ref, create markers, ...
-					classpathChanged(classpathChange);
+					classpathChanged(classpathChange, i==0/*refresh external linked folder only once*/);
 
 					if (this.canChangeResources) {
 						// touch project to force a build if needed

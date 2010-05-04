@@ -144,7 +144,7 @@ public class SetVariablesOperation extends ChangeClasspathOperation {
 						ClasspathChange classpathChange = affectedProject.getPerProjectInfo().resetResolvedClasspath();
 
 						// if needed, generate delta, update project ref, create markers, ...
-						classpathChanged(classpathChange);
+						classpathChanged(classpathChange, true/*refresh if external linked folder already exists*/);
 
 						if (this.canChangeResources) {
 							// touch project to force a build if needed
