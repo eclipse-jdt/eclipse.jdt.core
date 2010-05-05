@@ -71,7 +71,7 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 	Object[] names = intersectedNames.values;
 	for (int i = 0, l = names.length; i < l; i++)
 		if (names[i] != null)
-			acceptMatch((String) names[i], containerPath, separator, null/*no pattern*/, requestor, participant, scope); // AndPatterns cannot provide the decoded result
+			acceptMatch((String) names[i], containerPath, separator, null/*no pattern*/, requestor, participant, scope, progressMonitor); // AndPatterns cannot provide the decoded result
 }
 /**
  * Returns whether another query must be done.

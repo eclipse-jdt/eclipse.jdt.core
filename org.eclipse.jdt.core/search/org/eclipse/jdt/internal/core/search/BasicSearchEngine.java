@@ -651,7 +651,12 @@ public class BasicSearchEngine {
 			if (copies != null) {
 				for (int i = 0; i < copiesLength; i++) {
 					final ICompilationUnit workingCopy = copies[i];
-					if (!scope.encloses(workingCopy)) continue;
+					if (scope instanceof HierarchyScope) {
+						if (!((HierarchyScope)scope).encloses(workingCopy, progressMonitor)) continue;
+					} else {
+						if (!scope.encloses(workingCopy)) continue;
+					}
+					
 					final String path = workingCopy.getPath().toString();
 					if (workingCopy.isConsistent()) {
 						IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();
@@ -1140,7 +1145,11 @@ public class BasicSearchEngine {
 			if (copies != null) {
 				for (int i = 0; i < copiesLength; i++) {
 					final ICompilationUnit workingCopy = copies[i];
-					if (!scope.encloses(workingCopy)) continue;
+					if (scope instanceof HierarchyScope) {
+						if (!((HierarchyScope)scope).encloses(workingCopy, progressMonitor)) continue;
+					} else {
+						if (!scope.encloses(workingCopy)) continue;
+					}
 					final String path = workingCopy.getPath().toString();
 					if (workingCopy.isConsistent()) {
 						IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();

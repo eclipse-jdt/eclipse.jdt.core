@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.Index;
+import org.eclipse.jdt.internal.core.search.HierarchyScope;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.JavaSearchScope;
 import org.eclipse.jdt.internal.core.search.StringOperation;
@@ -275,6 +276,13 @@ public SearchPattern(int matchRule) {
  * @nooverride This method is not intended to be re-implemented or extended by clients.
  */
 public void acceptMatch(String relativePath, String containerPath, char separator, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope) {
+	acceptMatch(relativePath, containerPath, separator, pattern, requestor, participant, scope, null);
+}
+/**
+ * @noreference This method is not intended to be referenced by clients.
+ * @nooverride This method is not intended to be re-implemented or extended by clients.
+ */
+public void acceptMatch(String relativePath, String containerPath, char separator, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor monitor) {
 
 	if (scope instanceof JavaSearchScope) {
 		JavaSearchScope javaSearchScope = (JavaSearchScope) scope;
@@ -295,7 +303,9 @@ public void acceptMatch(String relativePath, String containerPath, char separato
 		buffer.append(separator);
 		buffer.append(relativePath);
 		String documentPath = buffer.toString();
-		if (scope.encloses(documentPath))
+		boolean encloses = (scope instanceof HierarchyScope) ? ((HierarchyScope)scope).encloses(documentPath, monitor)
+							: scope.encloses(documentPath);
+		if (encloses) 
 			if (!requestor.acceptIndexMatch(documentPath, pattern, participant, null))
 				throw new OperationCanceledException();
 
@@ -2304,7 +2314,7 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 				// TODO (kent) some clients may not need the document names
 				String[] names = entry.getDocumentNames(index);
 				for (int j = 0, n = names.length; j < n; j++)
-					acceptMatch(names[j], containerPath, separator, decodedResult, requestor, participant, scope);
+					acceptMatch(names[j], containerPath, separator, decodedResult, requestor, participant, scope, monitor);
 			}
 		}
 	} finally {
