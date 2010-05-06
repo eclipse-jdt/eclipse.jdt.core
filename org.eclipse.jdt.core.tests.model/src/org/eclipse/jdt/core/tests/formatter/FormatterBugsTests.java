@@ -6063,4 +6063,50 @@ public void testBug0311582b() {
 	);
 }
 
+/**
+ * @bug 311617: [formatter] Master switch to enable/disable on/off tags
+ * @test Ensure that the formatter does not take care of formatting tags by default
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311617"
+ */
+public void testBug0311617() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	String source =
+		"public class X01 {\n" + 
+		"\n" + 
+		"/* @formatter:off */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"/* @formatter:on */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"\n" + 
+		"/* @formatter:off */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"/* @formatter:on */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug0311617b() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_USE_ON_OFF_TAGS, DefaultCodeFormatterConstants.TRUE);
+	String source =
+		"/* @formatter:off */\n" + 
+		"public class X01 {\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       area\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source);
+}
+
 }
