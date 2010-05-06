@@ -106,7 +106,8 @@ public class Scribe implements IJavaDocTagConstants {
 	int blank_lines_between_import_groups = -1;
 
 	/** disabling */
-	boolean editsEnabled = true;
+	boolean editsEnabled;
+	boolean useTags;
 
 	/* Comments formatting */
 	private static final int INCLUDE_BLOCK_COMMENTS = CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_MULTI_LINE_COMMENT;
@@ -1382,21 +1383,23 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	private void initializeScanner(long sourceLevel, DefaultCodeFormatterOptions preferences) {
-		this.disablingTag = preferences.disabling_tag;
-		this.enablingTag = preferences.enabling_tag;
-		char[][] taskTags;
-		if (this.disablingTag == null) {
-			if (this.enablingTag == null) {
-				taskTags = null;
+		this.useTags = preferences.use_tags;
+		char[][] taskTags = null;
+		if (this.useTags) {
+			this.disablingTag = preferences.disabling_tag;
+			this.enablingTag = preferences.enabling_tag;
+			if (this.disablingTag == null) {
+				if (this.enablingTag != null) {
+					taskTags = new char[][] { this.enablingTag };
+				}
+			} else if (this.enablingTag == null) {
+				taskTags = new char[][] { this.disablingTag };
 			} else {
-				taskTags = new char[][] { this.enablingTag };
+				taskTags = new char[][] { this.disablingTag, this.enablingTag };
 			}
-		} else if (this.enablingTag == null) {
-			taskTags = new char[][] { this.disablingTag };
-		} else {
-			taskTags = new char[][] { this.disablingTag, this.enablingTag };
 		}
 		this.scanner = new Scanner(true, true, false/*nls*/, sourceLevel/*sourceLevel*/, taskTags, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+		this.editsEnabled = true;
 	}
 
 	private void initFormatterCommentParser() {
@@ -2453,7 +2456,7 @@ public class Scribe implements IJavaDocTagConstants {
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					case TerminalTokens.TokenNameCOMMENT_LINE :
-						if (this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
+						if (this.useTags && this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
 							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
 							if (!this.editsEnabled && this.editsIndex > 1) {
 								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
@@ -2478,12 +2481,12 @@ public class Scribe implements IJavaDocTagConstants {
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = true;
 						lines = 0;
-						if (!this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
+						if (this.useTags && !this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
 							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
 						}
 						break;
 					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-						if (this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
+						if (this.useTags && this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
 							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
 							if (!this.editsEnabled && this.editsIndex > 1) {
 								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
@@ -2515,12 +2518,12 @@ public class Scribe implements IJavaDocTagConstants {
 						hasLineComment = false;
 						hasComment = true;
 						lines = 0;
-						if (!this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
+						if (this.useTags && !this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
 							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
 						}
 						break;
 					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-						if (this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
+						if (this.useTags && this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
 							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
 							if (!this.editsEnabled && this.editsIndex > 1) {
 								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
@@ -2552,7 +2555,7 @@ public class Scribe implements IJavaDocTagConstants {
 						} else {
 							printBlockComment(true);
 						}
-						if (!this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
+						if (this.useTags && !this.editsEnabled && foundTaskCount > previousFoundTaskCount) {
 							setEditsEnabled(foundTaskCount, previousFoundTaskCount);
 						}
 						printNewLine();
