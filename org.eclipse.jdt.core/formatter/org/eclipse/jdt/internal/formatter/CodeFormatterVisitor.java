@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Brock Janiczak - Contribution for bug 150741
+ *     Nanda Firdausi - Contribution for bug 298844
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -3387,8 +3388,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.unIndent();
 				}
-			} else if (this.preferences.insert_new_line_in_empty_method_body) {
-				this.scribe.printNewLine();
+			} else {
+				if (this.preferences.insert_new_line_in_empty_method_body) {
+					this.scribe.printNewLine();
+				}
 				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.indent();
 				}
@@ -4321,8 +4324,10 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.unIndent();
 				}
-			} else if (this.preferences.insert_new_line_in_empty_method_body) {
-				this.scribe.printNewLine();
+			} else {
+				if (this.preferences.insert_new_line_in_empty_method_body) {
+					this.scribe.printNewLine();
+				}
 				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.indent();
 				}

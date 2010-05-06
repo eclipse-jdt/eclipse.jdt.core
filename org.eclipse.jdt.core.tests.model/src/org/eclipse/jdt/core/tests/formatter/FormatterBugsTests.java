@@ -5673,6 +5673,44 @@ public void testBug298243() {
 }
 
 /**
+ * @bug 298844: [formatter] New lines in empty method body wrong behavior
+ * @test Verify that comment is well indented inside empty constructor and method
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=298844"
+ */
+public void testBug298844a() {
+	this.formatterPrefs.insert_new_line_in_empty_method_body = false;
+	String source = 
+		"public class X01 {\n" + 
+		"public X01() {\n" + 
+		"// TODO Auto-generated constructor stub\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	public X01() {\n" + 
+		"		// TODO Auto-generated constructor stub\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug298844b() {
+	this.formatterPrefs.insert_new_line_in_empty_method_body = false;
+	String source = 
+		"public class X02 {\n" + 
+		"public void foo() {\n" + 
+		"	// TODO Auto-generated constructor stub\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X02 {\n" + 
+		"	public void foo() {\n" + 
+		"		// TODO Auto-generated constructor stub\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 302123: [formatter] AssertionFailedException occurs while formatting a source containing the specific javadoc comment...
  * @test Verify that no exception occurs while formatting source including the specific comment
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=302123"
