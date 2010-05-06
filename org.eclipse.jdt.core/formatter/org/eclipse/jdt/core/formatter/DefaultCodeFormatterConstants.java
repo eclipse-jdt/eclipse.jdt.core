@@ -860,15 +860,29 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_CONTINUATION_INDENTATION_FOR_ARRAY_INITIALIZER = JavaCore.PLUGIN_ID + ".formatter.continuation_indentation_for_array_initializer";	//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to use the disabling and enabling tags defined respectively by the {@link #FORMATTER_DISABLING_TAG} and the {@link #FORMATTER_ENABLING_TAG} options.
+	 *     - option id:         "org.eclipse.jdt.core.formatter.use_on_off_tags"
+	 *     - possible values:   TRUE / FALSE
+	 *     - default:           FALSE
+	 * </pre>
+	 * @since 3.6
+	 */
+	public static final String FORMATTER_USE_ON_OFF_TAGS = JavaCore.PLUGIN_ID + ".formatter.use_on_off_tags";	//$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to define the tag to put in a comment to disable the formatting.
-	 * See the {@link #FORMATTER_ENABLING_TAG} option to re-enable it.
+	 *     - option id:         "org.eclipse.jdt.core.formatter.disabling_tag"
 	 *     - possible values:   String, with constraints mentioned below
 	 *     - default:           ""
+	 * 
+	 * See the {@link #FORMATTER_ENABLING_TAG} option to re-enable it.
 	 * </pre>
 	 * 
 	 * <p>
 	 * Note that:
 	 * <ol>
+	 * <li>This tag is used by the formatter only if the 
+	 * {@link #FORMATTER_USE_ON_OFF_TAGS} option is set to {@link #TRUE}.</li>
 	 * <li>The tag name will be trimmed. Hence if it does contain white spaces
 	 * at the beginning or at the end, they will not be taken into account while
 	 * searching for the tag in the comments</li>
@@ -945,8 +959,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_DISABLING_TAG = JavaCore.PLUGIN_ID + ".formatter.disabling_tag";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to define the tag to put in a comment to re-enable the
-	 * formatting after it has been disabled (see {@link #FORMATTER_DISABLING_TAG})
+	 * FORMATTER / Option to define the tag to put in a comment to re-enable the formatting after it has been disabled (see {@link #FORMATTER_DISABLING_TAG})
 	 *     - option id:         "org.eclipse.jdt.core.formatter.enabling_tag"
 	 *     - possible values:   String, with constraints mentioned below
 	 *     - default:           ""
@@ -955,6 +968,8 @@ public class DefaultCodeFormatterConstants {
 	 * <p>
 	 * Note that:
 	 * <ol>
+	 * <li>This tag is used by the formatter only if the 
+	 * {@link #FORMATTER_USE_ON_OFF_TAGS} option is set to {@link #TRUE}.</li>
 	 * <li>The tag name will be trimmed. Hence if it does contain white spaces
 	 * at the beginning or at the end, they will not be taken into account while
 	 * searching for the tag in the comments</li>
