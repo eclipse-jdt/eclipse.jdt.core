@@ -725,7 +725,13 @@ protected IType createTypeHandle(String simpleTypeName) {
 	return classFile.getType();
 }
 protected boolean encloses(IJavaElement element) {
-	return element != null && this.scope.encloses(element);
+	if (element != null) {
+		if (this.scope instanceof HierarchyScope)
+			return ((HierarchyScope)this.scope).encloses(element, this.progressMonitor);
+		else 
+			return this.scope.encloses(element);
+	}
+	return false;
 }
 /* (non-Javadoc)
  * Return info about last type argument of a parameterized type reference.
