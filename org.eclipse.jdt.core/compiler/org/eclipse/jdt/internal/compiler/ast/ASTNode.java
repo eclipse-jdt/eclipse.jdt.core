@@ -590,7 +590,16 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						break;
 					case Binding.LOCAL :
 						LocalVariableBinding local = (LocalVariableBinding) recipient;
-						local.tagBits = ((LocalVariableBinding) annotationRecipient).tagBits;
+						long otherLocalTagBits = ((LocalVariableBinding) annotationRecipient).tagBits;
+						local.tagBits = otherLocalTagBits;
+						/*
+						 * Annotations are shared between two locals, but we still need to record
+						 * the suppress annotation range for the second local
+						 */
+						if ((otherLocalTagBits & TagBits.AnnotationSuppressWarnings) != 0) {
+							LocalDeclaration localDeclaration = local.declaration;
+							annotation.recordSuppressWarnings(scope, localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
+						}
 						break;
 				}
 				if (annotations != null) {
