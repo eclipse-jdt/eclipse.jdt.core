@@ -101,6 +101,7 @@ public void testBug027079a() throws JavaModelException {
 	);
 }
 public void testBug027079a1() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
@@ -130,6 +131,7 @@ public void testBug027079a1() throws JavaModelException {
 	);
 }
 public void testBug027079a2() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
@@ -159,6 +161,7 @@ public void testBug027079a2() throws JavaModelException {
 	);
 }
 public void testBug027079a3() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
@@ -188,6 +191,7 @@ public void testBug027079a3() throws JavaModelException {
 	);
 }
 public void testBug027079a4() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
@@ -218,6 +222,7 @@ public void testBug027079a4() throws JavaModelException {
 	);
 }
 public void testBug027079b() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
@@ -256,6 +261,7 @@ public void testBug027079b() throws JavaModelException {
 	);
 }
 public void testBug027079c() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
@@ -305,6 +311,7 @@ public void testBug027079c() throws JavaModelException {
 	);
 }
 public void testBug027079c2() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
@@ -352,6 +359,7 @@ public void testBug027079c2() throws JavaModelException {
 	);
 }
 public void testBug027079d() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
@@ -386,6 +394,7 @@ public void testBug027079d() throws JavaModelException {
 		true/*repeat*/);
 }
 public void testBug027079d2() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
@@ -420,6 +429,7 @@ public void testBug027079d2() throws JavaModelException {
 		true/*repeat*/);
 }
 public void testBug027079d3() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
@@ -454,6 +464,7 @@ public void testBug027079d3() throws JavaModelException {
 		true/*repeat*/);
 }
 public void testBug027079d4() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
@@ -488,6 +499,7 @@ public void testBug027079d4() throws JavaModelException {
 		true/*repeat*/);
 }
 public void testBug027079e() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "format: off".toCharArray();
 	this.formatterPrefs.enabling_tag = "format: on".toCharArray();
 	String source =
@@ -517,6 +529,7 @@ public void testBug027079e() throws JavaModelException {
 	);
 }
 public void testBug027079f() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "format: off".toCharArray();
 	this.formatterPrefs.enabling_tag = "format: on".toCharArray();
 	String source =
@@ -546,6 +559,7 @@ public void testBug027079f() throws JavaModelException {
 	);
 }
 public void testBug027079f2() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "format: off".toCharArray();
 	this.formatterPrefs.enabling_tag = "format: on".toCharArray();
 	String source =
@@ -575,6 +589,7 @@ public void testBug027079f2() throws JavaModelException {
 	);
 }
 public void testBug027079f3() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "    format:  	  off    ".toCharArray();
 	this.formatterPrefs.enabling_tag = "	format:	  	on	".toCharArray();
 	String source =
@@ -604,6 +619,7 @@ public void testBug027079f3() throws JavaModelException {
 	);
 }
 public void testBug027079f4() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "    format:  	  off    ".toCharArray();
 	this.formatterPrefs.enabling_tag = "	format:	  	on	".toCharArray();
 	String source =
@@ -5839,6 +5855,7 @@ public void testBug302552_LW5() {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304529"
  */
 public void testBug304529() {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "off".toCharArray();
 	this.formatterPrefs.enabling_tag = null;
 	String source =
@@ -5851,6 +5868,7 @@ public void testBug304529() {
 	formatSource(source);
 }
 public void testBug304529b() {
+	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = null;
 	this.formatterPrefs.enabling_tag = "on".toCharArray();
 	String source =
@@ -5871,6 +5889,7 @@ public void testBug304529b() {
 }
 public void testBug304529c() {
 	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_USE_ON_OFF_TAGS, DefaultCodeFormatterConstants.TRUE);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, "off");
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, "");
 	String source =
@@ -5884,6 +5903,7 @@ public void testBug304529c() {
 }
 public void testBug304529d() {
 	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_USE_ON_OFF_TAGS, DefaultCodeFormatterConstants.TRUE);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, "");
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, "on");
 	String source =
@@ -5904,6 +5924,7 @@ public void testBug304529d() {
 }
 public void testBug304529e() {
 	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_USE_ON_OFF_TAGS, DefaultCodeFormatterConstants.TRUE);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, "off");
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, "on");
 	String source =
@@ -5983,6 +6004,62 @@ public void testBug309706b() {
 		"	}\n" + 
 		"}",
 		CodeFormatter.K_CLASS_BODY_DECLARATIONS
+	);
+}
+
+/**
+ * @bug 311582: [formatter] Master switch to enable/disable on/off tags
+ * @test Ensure that the formatter does not take care of formatting tags by default
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311582"
+ */
+public void testBug0311582a() throws JavaModelException {
+	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
+	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
+	String source =
+		"public class X01 {\n" + 
+		"\n" + 
+		"/* disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment\n" + 
+		"}\n" + 
+		"/* enable-formatter */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"\n" + 
+		"	/* disable-formatter */\n" + 
+		"	void foo() {\n" + 
+		"		// unformatted comment\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	/* enable-formatter */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug0311582b() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, "off");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, "");
+	String source =
+		"/* off */\n" + 
+		"public class X01 {\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       area\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"/* off */\n" + 
+		"public class X01 {\n" + 
+		"	void foo() {\n" + 
+		"		// unformatted area\n" + 
+		"	}\n" + 
+		"}\n"
 	);
 }
 

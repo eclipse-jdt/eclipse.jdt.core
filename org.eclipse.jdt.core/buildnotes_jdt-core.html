@@ -48,6 +48,25 @@ Eclipse SDK 3.6RC1 - %date% - 3.6.0 RC1
 <br>Project org.eclipse.jdt.core v_A50
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A50">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>
+Added a new preference to switch on/off the usage of the disabling/enabling tags of the formatter.
+<p>
+This new preference is controlled with the option:</p>
+<code>DefaultCodeFormatterConstants.FORMATTER_USE_ON_OFF_TAGS</code>
+<pre>
+/**
+ * FORMATTER / Option to use the disabling and enabling tags defined respectively by the {@link #FORMATTER_DISABLING_TAG} and the {@link #FORMATTER_ENABLING_TAG} options.
+ *     - option id:         "org.eclipse.jdt.core.formatter.use_on_off_tags"
+ *     - possible values:   TRUE / FALSE
+ *     - default:           FALSE
+ * 
+ * @since 3.6
+ */
+</pre>
+See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=311582">311582</a> for more details.
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=307040">307040</a>
