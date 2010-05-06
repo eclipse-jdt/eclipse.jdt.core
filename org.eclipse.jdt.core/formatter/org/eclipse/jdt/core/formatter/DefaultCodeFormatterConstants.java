@@ -873,7 +873,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to define the tag to put in a comment to disable the formatting.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.disabling_tag"
 	 *     - possible values:   String, with constraints mentioned below
-	 *     - default:           ""
+	 *     - default:           "@formatter:off"
 	 * 
 	 * See the {@link #FORMATTER_ENABLING_TAG} option to re-enable it.
 	 * </pre>
@@ -962,7 +962,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to define the tag to put in a comment to re-enable the formatting after it has been disabled (see {@link #FORMATTER_DISABLING_TAG})
 	 *     - option id:         "org.eclipse.jdt.core.formatter.enabling_tag"
 	 *     - possible values:   String, with constraints mentioned below
-	 *     - default:           ""
+	 *     - default:           "@formatter:on"
 	 * </pre>
 	 * 
 	 * <p>

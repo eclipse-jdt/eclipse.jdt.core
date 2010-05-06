@@ -120,6 +120,8 @@ public class DefaultCodeFormatterOptions {
 	public boolean use_tags;
 	public char[] disabling_tag;
 	public char[] enabling_tag;
+	private final static char[] DEFAULT_DISABLING_TAG = "@formatter:off".toCharArray(); //$NON-NLS-1$
+	private final static char[] DEFAULT_ENABLING_TAG = "@formatter:on".toCharArray(); //$NON-NLS-1$
 
 	public boolean indent_statements_compare_to_block;
 	public boolean indent_statements_compare_to_body;
@@ -1973,7 +1975,7 @@ public class DefaultCodeFormatterOptions {
 					if (tag.length() == 0) {
 						this.disabling_tag = null;
 					} else {
-					this.disabling_tag = tag.toCharArray();
+						this.disabling_tag = tag.toCharArray();
 					}
 				}
 			}
@@ -1990,7 +1992,7 @@ public class DefaultCodeFormatterOptions {
 					if (tag.length() == 0) {
 						this.enabling_tag = null;
 					} else {
-					this.enabling_tag = tag.toCharArray();
+						this.enabling_tag = tag.toCharArray();
 					}
 				}
 			}
@@ -2306,6 +2308,8 @@ public class DefaultCodeFormatterOptions {
 		this.use_tabs_only_for_leading_indentations = false;
 		this.wrap_before_binary_operator = true;
 		this.use_tags = false;
+		this.disabling_tag = DEFAULT_DISABLING_TAG;
+		this.enabling_tag = DEFAULT_ENABLING_TAG;
 	}
 
 	public void setEclipseDefaultSettings() {
@@ -2578,5 +2582,7 @@ public class DefaultCodeFormatterOptions {
 		this.use_tabs_only_for_leading_indentations = false;
 		this.wrap_before_binary_operator = true;
 		this.use_tags = false;
+		this.disabling_tag = DEFAULT_DISABLING_TAG;
+		this.enabling_tag = DEFAULT_ENABLING_TAG;
 	}
 }
