@@ -3173,11 +3173,13 @@ public class Scribe implements IJavaDocTagConstants {
 				FormatJavadocBlock inlinedBlock = (FormatJavadocBlock)node;
 				if (isImmutableNode) {
 					text = (FormatJavadocText) inlinedBlock.getLastNode();
-		    		length += inlinedBlock.tagEnd - inlinedBlock.sourceStart + 1;  // tag length
-			    	if (nodeStart > (previousEnd+1)) {
-			    		length++; // include space between nodes
-			    	}
-					this.scanner.resetTo(text.sourceStart , node.sourceEnd);
+					if (text != null) {
+			    		length += inlinedBlock.tagEnd - inlinedBlock.sourceStart + 1;  // tag length
+				    	if (nodeStart > (previousEnd+1)) {
+				    		length++; // include space between nodes
+				    	}
+						this.scanner.resetTo(text.sourceStart , node.sourceEnd);
+					}
 				}
 			}
 	    	if (text != null) {
