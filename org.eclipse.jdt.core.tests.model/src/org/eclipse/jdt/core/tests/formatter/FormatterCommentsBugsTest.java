@@ -6753,4 +6753,48 @@ public void testBug309835_wksp2_01() {
 	);
 }
 
+/**
+ * @bug 311864: [formatter] NPE with empty {@code }
+ * @test Ensure that no NPE occurs while formatting an empty code inline tag.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311864"
+ */
+public void testBug0311864() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"/**\n" + 
+		"* Compares two property values. For font or color the <i>description</i> of\n" + 
+		"* the resource, {@link FontData} or {@link RGB}, is used for comparison.\n" + 
+		"*\n" + 
+		"* @param value1\n" + 
+		"* first property value\n" + 
+		"* @param value2\n" + 
+		"* second property value\n" + 
+		"* @return {@code true} if the values are equals; otherwise {@code}\n" + 
+		"*/\n" + 
+		"boolean foo(int value1, int value2) {\n" + 
+		"	return value1 > value2;\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Compares two property values. For font or color the <i>description</i> of\n" + 
+		"	 * the resource, {@link FontData} or {@link RGB}, is used for comparison.\n" + 
+		"	 * \n" + 
+		"	 * @param value1\n" + 
+		"	 *            first property value\n" + 
+		"	 * @param value2\n" + 
+		"	 *            second property value\n" + 
+		"	 * @return {@code true} if the values are equals; otherwise {@code}\n" + 
+		"	 */\n" + 
+		"	boolean foo(int value1, int value2) {\n" + 
+		"		return value1 > value2;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
 }
