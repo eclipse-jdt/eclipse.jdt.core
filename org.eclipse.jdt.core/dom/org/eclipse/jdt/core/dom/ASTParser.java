@@ -213,9 +213,13 @@ public class ASTParser {
 	 * declared on <code>AST</code>
 	 */
 	ASTParser(int level) {
-		if ((level != AST.JLS2_INTERNAL)
-			&& (level != AST.JLS3)) {
-			throw new IllegalArgumentException();
+		switch(level) {
+			case AST.JLS2_INTERNAL :
+			case AST.JLS3 :
+			case AST.JLS4 :
+				break;
+			default:
+				throw new IllegalArgumentException();
 		}
 		this.apiLevel = level;
 		initializeDefaults();
