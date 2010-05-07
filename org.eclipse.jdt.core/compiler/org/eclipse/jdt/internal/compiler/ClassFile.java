@@ -1273,11 +1273,21 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 
 		if (addStackMaps) {
-			attributesNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapTableAttribute(
+					this.codeStream.methodDeclaration.binding,
+					code_length,
+					codeAttributeOffset,
+					max_locals,
+					false);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			attributesNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapAttribute(
+					this.codeStream.methodDeclaration.binding,
+					code_length,
+					codeAttributeOffset,
+					max_locals,
+					false);
 		}
 
 		this.contents[codeAttributeAttributeOffset++] = (byte) (attributesNumber >> 8);
@@ -1408,11 +1418,21 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP_TABLE) != 0) {
-			attributesNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, true);
+			attributesNumber += generateStackMapTableAttribute(
+					null,
+					code_length,
+					codeAttributeOffset,
+					max_locals,
+					true);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			attributesNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, true);
+			attributesNumber += generateStackMapAttribute(
+					null,
+					code_length,
+					codeAttributeOffset,
+					max_locals,
+					true);
 		}
 
 		// update the number of attributes
@@ -1508,11 +1528,21 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contentsOffset = localContentsOffset;
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP_TABLE) != 0) {
-			attributesNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, true);
+			attributesNumber += generateStackMapTableAttribute(
+					null,
+					code_length,
+					codeAttributeOffset,
+					max_locals,
+					true);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			attributesNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, true);
+			attributesNumber += generateStackMapAttribute(
+					null,
+					code_length,
+					codeAttributeOffset,
+					max_locals,
+					true);
 		}
 
 		// update the number of attributes
@@ -1577,11 +1607,21 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP_TABLE) != 0) {
-			attributesNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapTableAttribute(
+					binding,
+					code_length,
+					codeAttributeOffset,
+					max_locals,
+					false);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			attributesNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapAttribute(
+					binding,
+					code_length,
+					codeAttributeOffset,
+					max_locals,
+					false);
 		}
 
 		// then we do the local variable attribute
@@ -1663,11 +1703,21 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP_TABLE) != 0) {
-			attributesNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapTableAttribute(
+					binding,
+					code_length,
+					codeAttributeOffset,
+					max_locals,
+					false);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			attributesNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapAttribute(
+					binding,
+					code_length,
+					codeAttributeOffset,
+					max_locals,
+					false);
 		}
 
 		// update the number of attributes// ensure first that there is enough space available inside the localContents array
@@ -1814,11 +1864,16 @@ public class ClassFile implements TypeConstants, TypeIds {
 			attributesNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic, true);
 		}
 		if (addStackMaps) {
-			attributesNumber += generateStackMapTableAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapTableAttribute(binding, code_length, codeAttributeOffset, max_locals, false);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
-			attributesNumber += generateStackMapAttribute(code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapAttribute(
+					binding,
+					code_length,
+					codeAttributeOffset,
+					max_locals,
+					false);
 		}
 
 		// update the number of attributes
@@ -3505,14 +3560,19 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contentsOffset = localContentsOffset;
 		return 1;
 	}
-	private int generateStackMapAttribute(int code_length, int codeAttributeOffset, int max_locals, boolean isClinit) {
+	private int generateStackMapAttribute(
+			MethodBinding methodBinding,
+			int code_length,
+			int codeAttributeOffset,
+			int max_locals,
+			boolean isClinit) {
 		int attributesNumber = 0;
 		int localContentsOffset = this.contentsOffset;
 		StackMapFrameCodeStream stackMapFrameCodeStream = (StackMapFrameCodeStream) this.codeStream;
 		stackMapFrameCodeStream.removeFramePosition(code_length);
 		if (stackMapFrameCodeStream.hasFramePositions()) {
 			ArrayList frames = new ArrayList();
-			traverse(isClinit ? null : this.codeStream.methodDeclaration.binding, max_locals, this.contents, codeAttributeOffset + 14, code_length, frames, isClinit);
+			traverse(isClinit ? null : methodBinding, max_locals, this.contents, codeAttributeOffset + 14, code_length, frames, isClinit);
 			int numberOfFrames = frames.size();
 			if (numberOfFrames > 1) {
 				int stackMapTableAttributeOffset = localContentsOffset;
@@ -3677,14 +3737,19 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return attributesNumber;
 	}
 
-	private int generateStackMapTableAttribute(int code_length, int codeAttributeOffset, int max_locals, boolean isClinit) {
+	private int generateStackMapTableAttribute(
+			MethodBinding methodBinding,
+			int code_length,
+			int codeAttributeOffset,
+			int max_locals,
+			boolean isClinit) {
 		int attributesNumber = 0;
 		int localContentsOffset = this.contentsOffset;
 		StackMapFrameCodeStream stackMapFrameCodeStream = (StackMapFrameCodeStream) this.codeStream;
 		stackMapFrameCodeStream.removeFramePosition(code_length);
 		if (stackMapFrameCodeStream.hasFramePositions()) {
 			ArrayList frames = new ArrayList();
-			traverse(isClinit ? null: this.codeStream.methodDeclaration.binding, max_locals, this.contents, codeAttributeOffset + 14, code_length, frames, isClinit);
+			traverse(isClinit ? null: methodBinding, max_locals, this.contents, codeAttributeOffset + 14, code_length, frames, isClinit);
 			int numberOfFrames = frames.size();
 			if (numberOfFrames > 1) {
 				int stackMapTableAttributeOffset = localContentsOffset;

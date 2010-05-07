@@ -41058,7 +41058,7 @@ public void test1203c() {
 	String[] sources =
 		new String[] {
 			"X.java",
-			"class X extends Y {\n" +
+			"public class X extends Y {\n" +
 			"	public static void main(String[] args) {\n" +
 			"		String s = \"\";\n" +
 			"		new X().<String> a(s);\n" + // fails before 7
@@ -41140,7 +41140,7 @@ public void test1203d() {
 	String[] sources =
 		new String[] {
 			"X.java",
-			"class X implements I {\n" +
+			"public class X implements I {\n" +
 			"	public static void main(String[] args) {\n" +
 			"		String s = \"\";\n" +
 			"		new X().<String> a(s);\n" + // fails before 7
