@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 IBM Corporation and others.
+ * Copyright (c) 2004, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2132,6 +2132,95 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"<null>",
 			element
 		);
+	}
+	/**
+	 * Test behavior when the binding key denotes a non existent type.
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=157847" 
+	 */
+	public void test157847a() throws CoreException {
+		String filePath = "/P/src/Bug157847A.java";
+		try {
+			String contents =
+				"public class Bug157847A<T> {\n" +
+				"	void add(Y<? extends T> l) {}\n" +
+				"}\n"+
+                "interface Y<T> {}\n";
+			createFile(filePath, contents);
+
+			BindingRequestor requestor = new BindingRequestor();
+			String[] bindingKeys = new String[] {"LBug157847A~ThisTypeDoesNotExist;"};
+			resolveASTs(
+				new ICompilationUnit[] {},
+				bindingKeys,
+				requestor,
+				getJavaProject("P"),
+				this.workingCopy.getOwner()
+			);
+			IBinding[] bindings = requestor.getBindings(bindingKeys);
+			assertTrue("Constructed non existing type", bindings.length == 0);
+		} finally {
+			deleteFile(filePath);
+		}
+	}
+	/**
+	 * Ensures that we don't create internally inconsistent wildcard
+	 * bindings of the form '? extends <null>' or '? super <null>'
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=157847" 
+	 */
+	public void test157847b() throws CoreException {
+		String filePath = "/P/src/Bug157847B.java";
+		try {
+			String contents =
+				"public class Bug157847B<T> {\n" +
+				"	void add(Y<? super T> l) {}\n" +
+				"}\n"+
+                "interface Y<T> {}\n";
+			createFile(filePath, contents);
+
+			BindingRequestor requestor = new BindingRequestor();
+			String[] bindingKeys = new String[] {"LBug157847B~Y<LBug157847B~Y;{0}-!LBug157847B;{0}*54;>;"};
+			resolveASTs(
+				new ICompilationUnit[] {},
+				bindingKeys,
+				requestor,
+				getJavaProject("P"),
+				this.workingCopy.getOwner()
+			);
+			IBinding[] bindings = requestor.getBindings(bindingKeys);
+			assertTrue("Constructed bogus wildcard", bindings.length == 0);
+		} finally {
+			deleteFile(filePath);
+		}
+	}
+	/**
+	 * Ensures that we don't create internally inconsistent wildcard
+	 * bindings of the form '? extends <null>' or '? super <null>'
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=157847" 
+	 */
+	public void test157847c() throws CoreException {
+		String filePath = "/P/src/Bug157847C.java";
+		try {
+			String contents =
+				"public class Bug157847C<T> {\n" +
+				"	void add(Y<? extends T> l) {}\n" +
+				"}\n"+
+                "interface Y<T> {}\n";
+			createFile(filePath, contents);
+
+			BindingRequestor requestor = new BindingRequestor();
+			String[] bindingKeys = new String[] {"LBug157847C~Y<LBug157847C~Y;{0}+!LBug157847C;{0}*54;>;"};
+			resolveASTs(
+				new ICompilationUnit[] {},
+				bindingKeys,
+				requestor,
+				getJavaProject("P"),
+				this.workingCopy.getOwner()
+			);
+			IBinding[] bindings = requestor.getBindings(bindingKeys);
+			assertTrue("Constructed bogus wildcard", bindings.length == 0);
+		} finally {
+			deleteFile(filePath);
+		}
 	}
 
 }
