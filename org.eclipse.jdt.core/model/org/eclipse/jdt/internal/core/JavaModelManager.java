@@ -451,7 +451,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/* whether an AbortCompilationUnit should be thrown when the source of a compilation unit cannot be retrieved */
 	public ThreadLocal abortOnMissingSource = new ThreadLocal();
 
-	private ExternalFoldersManager externalFoldersManager = new ExternalFoldersManager();
+	private ExternalFoldersManager externalFoldersManager = ExternalFoldersManager.getExternalFoldersManager();
 
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
