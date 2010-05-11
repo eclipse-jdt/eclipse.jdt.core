@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -39,9 +40,19 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class ExternalFoldersManager {
 	private static final String EXTERNAL_PROJECT_NAME = ".org.eclipse.jdt.core.external.folders"; //$NON-NLS-1$
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$
-	private HashMap folders;
+	private Map folders;
 	private int counter = 0;
+	/* Singleton instance */
+	private static ExternalFoldersManager MANAGER = new ExternalFoldersManager();
 
+	private ExternalFoldersManager() {
+		// Prevent instantiation
+	}
+	
+	public static ExternalFoldersManager getExternalFoldersManager() {
+		return MANAGER;
+	}
+	
 	/*
 	 * Returns a set of external path to external folders referred to on the given classpath.
 	 * Returns null if none.
@@ -92,8 +103,8 @@ public class ExternalFoldersManager {
 		return addFolder(externalFolderPath, getExternalFoldersProject());
 	}
 
-	private synchronized IFolder addFolder(IPath externalFolderPath, IProject externalFoldersProject) {
-		HashMap knownFolders = getFolders();
+	private IFolder addFolder(IPath externalFolderPath, IProject externalFoldersProject) {
+		Map knownFolders = getFolders();
 		Object existing = knownFolders.get(externalFolderPath);
 		if (existing != null) {
 			return (IFolder) existing;
@@ -129,25 +140,27 @@ public class ExternalFoldersManager {
 			project.delete(true, monitor);
 	}
 
-	private synchronized ArrayList getFoldersToCleanUp(IProgressMonitor monitor) throws CoreException {
+	private ArrayList getFoldersToCleanUp(IProgressMonitor monitor) throws CoreException {
 		DeltaProcessingState state = JavaModelManager.getDeltaState();
 		HashMap roots = state.roots;
 		HashMap sourceAttachments = state.sourceAttachments;
 		if (roots == null && sourceAttachments == null)
 			return null;
-		HashMap knownFolders = getFolders();
-		Iterator iterator = knownFolders.entrySet().iterator();
+		Map knownFolders = getFolders();
 		ArrayList result = null;
-		while (iterator.hasNext()) {
-			Map.Entry entry = (Map.Entry) iterator.next();
-			IPath path = (IPath) entry.getKey();
-			if ((roots != null && !roots.containsKey(path))
-					&& (sourceAttachments != null && !sourceAttachments.containsKey(path))) {
-				IFolder folder = (IFolder) entry.getValue();
-				if (folder != null) {
-					if (result == null)
-						result = new ArrayList();
-					result.add(folder);
+		synchronized (knownFolders) {
+			Iterator iterator = knownFolders.entrySet().iterator();
+			while (iterator.hasNext()) {
+				Map.Entry entry = (Map.Entry) iterator.next();
+				IPath path = (IPath) entry.getKey();
+				if ((roots != null && !roots.containsKey(path))
+						&& (sourceAttachments != null && !sourceAttachments.containsKey(path))) {
+					IFolder folder = (IFolder) entry.getValue();
+					if (folder != null) {
+						if (result == null)
+							result = new ArrayList();
+						result.add(folder);
+					}
 				}
 			}
 		}
@@ -222,13 +235,13 @@ public class ExternalFoldersManager {
 		project.create(desc, IResource.HIDDEN, monitor);
 	}
 
-	public synchronized IFolder getFolder(IPath externalFolderPath) {
+	public IFolder getFolder(IPath externalFolderPath) {
 		return (IFolder) getFolders().get(externalFolderPath);
 	}
 
-	private HashMap getFolders() {
+	private Map getFolders() {
 		if (this.folders == null) {
-			this.folders = new HashMap();
+			Map tempFolders = new HashMap();
 			IProject project = getExternalFoldersProject();
 			try {
 				if (!project.isAccessible()) {
@@ -237,7 +250,7 @@ public class ExternalFoldersManager {
 						openExternalFoldersProject(project, null/*no progress*/);
 					} else {
 						// if project doesn't exist, do not open and recreate it as it means that there are no external folders
-						return this.folders;
+						return this.folders = Collections.synchronizedMap(tempFolders);
 					}
 				}
 				IResource[] members = project.members();
@@ -245,12 +258,13 @@ public class ExternalFoldersManager {
 					IResource member = members[i];
 					if (member.getType() == IResource.FOLDER && member.isLinked() && member.getName().startsWith(LINKED_FOLDER_NAME)) {
 						IPath externalFolderPath = member.getLocation();
-						this.folders.put(externalFolderPath, member);
+						tempFolders.put(externalFolderPath, member);
 					}
 				}
 			} catch (CoreException e) {
 				Util.log(e, "Exception while initializing external folders"); //$NON-NLS-1$
 			}
+			this.folders = Collections.synchronizedMap(tempFolders);
 		}
 		return this.folders;
 	}
@@ -308,7 +322,7 @@ public class ExternalFoldersManager {
 		return;
 	}
 
-	public synchronized IFolder removeFolder(IPath externalFolderPath) {
+	public IFolder removeFolder(IPath externalFolderPath) {
 		return (IFolder) getFolders().remove(externalFolderPath);
 	}
 
