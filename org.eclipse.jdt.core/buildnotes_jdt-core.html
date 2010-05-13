@@ -452,18 +452,18 @@ These new preferences are controlled with the options:</p>
  *    For example, in the following snippet, the formatter will be disabled after
  *    the comment:
  *     class X {
- *     &#47;&#42;
- *     &nbsp;&#42; This is a comment with a mix of disabling and enabling tags:
- *     &nbsp;&#42;  - <b>disable-formatter</b>
- *     &nbsp;&#42;  - <b>enable-formatter</b>
- *     &nbsp;&#42;  - <b>disable-formatter</b>
- *     &nbsp;&#42; The formatter will stop to format from the beginning of this comment...
- *     &nbsp;&#42;&#47;
+ *     /*
+ *     &nbsp;* This is a comment with a mix of disabling and enabling tags:
+ *     &nbsp;*  - <b>disable-formatter</b>
+ *     &nbsp;*  - <b>enable-formatter</b>
+ *     &nbsp;*  - <b>disable-formatter</b>
+ *     &nbsp;* The formatter will stop to format from the beginning of this comment...
+ *     &nbsp;*/
  *     void foo() {}
  *     void bar() {}
  *     }
  * 
- * 6. The tag cannot include newline character (i.e. &#39;&#92;n&#39;) but it can have white spaces.
+ * 6. The tag cannot include newline character (i.e. '\n') but it can have white spaces.
  *    E.g. "<b>format: off</b>" is a valid disabling tag
  *    In the future, newlines may be used to support multiple disabling tags.
  * 
@@ -526,18 +526,18 @@ These new preferences are controlled with the options:</p>
  *    the comment:
  *     // disable-formatter
  *     class X {
- *     &#47;&#42;
- *     &nbsp;&#42; This is a comment with a mix of disabling and enabling tags:
- *     &nbsp;&#42;  - <b>enable-formatter</b>
- *     &nbsp;&#42;  - <b>disable-formatter</b>
- *     &nbsp;&#42;  - <b>enable-formatter</b>
- *     &nbsp;&#42; The formatter will restart to format after this comment...
- *     &nbsp;&#42;&#47;
+ *     /*
+ *     &nbsp;* This is a comment with a mix of disabling and enabling tags:
+ *     &nbsp;*  - <b>enable-formatter</b>
+ *     &nbsp;*  - <b>disable-formatter</b>
+ *     &nbsp;*  - <b>enable-formatter</b>
+ *     &nbsp;* The formatter will restart to format after this comment...
+ *     &nbsp;*/
  *     void foo() {}
  *     void bar() {}
  *     }
  * 
- * 5. The tag cannot include newline character (i.e. &#39;&#92;n&#39;) but it can have white spaces.
+ * 5. The tag cannot include newline character (i.e. '\n') but it can have white spaces.
  *    E.g. "<b>format: on</b>" is a valid enabling tag
  *    In the future, newlines may be used to support multiple enabling tags.
  * 
