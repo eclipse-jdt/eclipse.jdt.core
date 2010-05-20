@@ -3500,6 +3500,51 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_WRAP_BEFORE_BINARY_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_binary_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to wrap outer expressions in nested expressions
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_outer_expressions_when_nested"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * <p>
+	 * This option changes the formatter behavior when nested method calls are encountered.
+	 * Since 3.6, the formatter tries to wrap outermost method calls first to have a better output.</p>
+	 * <p>For example, let's say we are using the Eclipse built-in profile with a max line width=40+space for tab policy.
+	 * Then consider the following snippet:</p>
+	 * <pre>
+	 * public class X01 {
+	 *     void test() {
+	 *         foo(bar(1, 2, 3, 4), bar(5, 6, 7, 8));
+	 *     }
+	 * }
+	 * </pre>
+	 * <p>With this new strategy, the formatter will wrap the line earlier, between the arguments of the message call
+	 * for this example, and then it will allow to keep each nested call on a single line.</p>
+	 * <p>Hence, the output will be:</p>
+	 * <pre>
+	 * public class X01 {
+	 *     void test() {
+	 *         foo(bar(1, 2, 3, 4),
+	 *             bar(5, 6, 7, 8));
+	 *     }
+	 * }
+	 * </pre>
+	 * <p>
+	 * </p>
+	 * <p><b><u>Important notes</u></b>:</p>
+	 * <ol>
+	 * <li>This new behavior is automatically activated (ie. the default value for this preference is {@link #TRUE}).
+	 * If the backward compatibility regarding previous versions formatter behavior (ie. before 3.6 version) is necessary,
+	 * then the preference needs to be set to {@link #FALSE} to retrieve the previous formatter behavior.</li>
+	 * <li>The new strategy currently only applies to nested method calls, but might be extended to other nested expressions in future versions</li>
+	 * </ol>
+	 * 
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.6
+	 */
+	public static final String FORMATTER_WRAP_OUTER_EXPRESSIONS_WHEN_NESTED = JavaCore.PLUGIN_ID + ".formatter.wrap_outer_expressions_when_nested"; //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / The wrapping is done by indenting by one compare to the current indentation.
 	 * </pre>
 	 * @since 3.0

@@ -1258,6 +1258,38 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	public void handleLineTooLong() {
+		if (this.formatter.preferences.wrap_outer_expressions_when_nested) {
+			handleLineTooLongSmartly();
+			return;
+		}
+		// search for closest breakable alignment, using tiebreak rules
+		// look for outermost breakable one
+		int relativeDepth = 0, outerMostDepth = -1;
+		Alignment targetAlignment = this.currentAlignment;
+		while (targetAlignment != null){
+			if (targetAlignment.tieBreakRule == Alignment.R_OUTERMOST && targetAlignment.couldBreak()){
+				outerMostDepth = relativeDepth;
+			}
+			targetAlignment = targetAlignment.enclosing;
+			relativeDepth++;
+		}
+		if (outerMostDepth >= 0) {
+			throw new AlignmentException(AlignmentException.LINE_TOO_LONG, outerMostDepth);
+		}
+		// look for innermost breakable one
+		relativeDepth = 0;
+		targetAlignment = this.currentAlignment;
+		while (targetAlignment != null){
+			if (targetAlignment.couldBreak()){
+				throw new AlignmentException(AlignmentException.LINE_TOO_LONG, relativeDepth);
+			}
+			targetAlignment = targetAlignment.enclosing;
+			relativeDepth++;
+		}
+		// did not find any breakable location - proceed
+	}
+
+	private void handleLineTooLongSmartly() {
 		// search for closest breakable alignment, using tiebreak rules
 		// look for outermost breakable one
 		int relativeDepth = 0, outerMostDepth = -1;

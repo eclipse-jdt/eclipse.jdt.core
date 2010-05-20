@@ -1364,7 +1364,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 			startingPositionInCascade = 2;
 		}
-		int tieBreakRule = size-startingPositionInCascade > 2 ? Alignment.R_OUTERMOST : Alignment.R_INNERMOST;
+		int tieBreakRule = this.preferences.wrap_outer_expressions_when_nested && size-startingPositionInCascade > 2
+			? Alignment.R_OUTERMOST
+			: Alignment.R_INNERMOST;
 		Alignment cascadingMessageSendAlignment =
 			this.scribe.createAlignment(
 				Alignment.CASCADING_MESSAGE_SEND,
@@ -1676,7 +1678,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		Alignment messageAlignment) {
 
 		if (messageAlignment != null) {
-			if (messageAlignment.canAlign()) {
+			if (!this.preferences.wrap_outer_expressions_when_nested || messageAlignment.canAlign()) {
 				this.scribe.alignFragment(messageAlignment, 0);
 			}
 			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);

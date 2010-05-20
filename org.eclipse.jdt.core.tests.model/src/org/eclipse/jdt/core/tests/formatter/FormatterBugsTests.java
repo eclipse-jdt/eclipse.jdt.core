@@ -6050,7 +6050,7 @@ public void testBug309706b() {
  * @test Ensure that the formatter does not take care of formatting tags by default
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311582"
  */
-public void testBug0311582a() throws JavaModelException {
+public void testBug311582a() throws JavaModelException {
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
@@ -6080,7 +6080,7 @@ public void testBug0311582a() throws JavaModelException {
 		"}\n"
 	);
 }
-public void testBug0311582b() {
+public void testBug311582b() {
 	this.formatterPrefs = null;
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, "off");
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, "");
@@ -6106,7 +6106,7 @@ public void testBug0311582b() {
  * @test Ensure that the formatter does not take care of formatting tags by default
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311617"
  */
-public void testBug0311617() throws JavaModelException {
+public void testBug311617() throws JavaModelException {
 	this.formatterPrefs.use_tags = true;
 	String source =
 		"public class X01 {\n" + 
@@ -6134,7 +6134,7 @@ public void testBug0311617() throws JavaModelException {
 		"}\n"
 	);
 }
-public void testBug0311617b() {
+public void testBug311617b() {
 	this.formatterPrefs = null;
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_USE_ON_OFF_TAGS, DefaultCodeFormatterConstants.TRUE);
 	String source =
@@ -6145,6 +6145,551 @@ public void testBug0311617b() {
 		"}\n" + 
 		"}\n";
 	formatSource(source);
+}
+
+/**
+ * @bug 313524: [formatter] Add preference for improved lines wrapping in nested method calls
+ * @test Ensure that the formatter keep previous eclipse versions behavior when
+ * 		the "Try to keep nested expressions on one line" preference is set.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=313524"
+ */
+public void testBug313524_01() throws JavaModelException {
+	this.formatterPrefs.page_width = 40;
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X01 {\n" +
+		"	void test() {\n" + 
+		"		foo(bar(1, 2, 3, 4), bar(5, 6, 7, 8));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	void test() {\n" + 
+		"		foo(bar(1, 2, 3, 4), bar(5, 6,\n" + 
+		"				7, 8));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_01b() throws JavaModelException {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "40");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_OUTER_EXPRESSIONS_WHEN_NESTED, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+	String source =
+		"public class X01 {\n" +
+		"	void test() {\n" + 
+		"		foo(bar(1, 2, 3, 4), bar(5, 6, 7, 8));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	void test() {\n" + 
+		"		foo(bar(1, 2, 3, 4), bar(	5,\n" + 
+		"									6,\n" + 
+		"									7,\n" + 
+		"									8));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_02() throws JavaModelException {
+	this.formatterPrefs.page_width = 40;
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X02 {\n" +
+		"	void test() {\n" + 
+		"		foo(bar(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), bar(11, 12, 13, 14, 15, 16, 17, 18, 19, 20));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X02 {\n" + 
+		"	void test() {\n" + 
+		"		foo(bar(1, 2, 3, 4, 5, 6, 7, 8,\n" + 
+		"				9, 10), bar(11, 12, 13,\n" + 
+		"				14, 15, 16, 17, 18, 19,\n" + 
+		"				20));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_02b() throws JavaModelException {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "40");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_OUTER_EXPRESSIONS_WHEN_NESTED, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+	String source =
+		"public class X02 {\n" +
+		"	void test() {\n" + 
+		"		foo(bar(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), bar(11, 12, 13, 14, 15, 16, 17, 18, 19, 20));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X02 {\n" + 
+		"	void test() {\n" + 
+		"		foo(bar(1, 2, 3, 4, 5, 6, 7, 8,\n" + 
+		"				9, 10), bar(11, 12, 13,\n" + 
+		"							14, 15, 16,\n" + 
+		"							17, 18, 19,\n" + 
+		"							20));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_03() throws JavaModelException {
+	this.formatterPrefs.page_width = 40;
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X03 {\n" +
+		"	void test() {\n" + 
+		"		foo(bar(1, 2, 3, 4), bar(5, 6, 7, 8), bar(9, 10, 11, 12));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X03 {\n" + 
+		"	void test() {\n" + 
+		"		foo(bar(1, 2, 3, 4), bar(5, 6,\n" + 
+		"				7, 8), bar(9, 10, 11,\n" + 
+		"				12));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_03b() throws JavaModelException {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "40");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_OUTER_EXPRESSIONS_WHEN_NESTED, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+	String source =
+		"public class X03 {\n" +
+		"	void test() {\n" + 
+		"		foo(bar(1, 2, 3, 4), bar(5, 6, 7, 8), bar(9, 10, 11, 12));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X03 {\n" + 
+		"	void test() {\n" + 
+		"		foo(bar(1, 2, 3, 4), bar(	5,\n" + 
+		"									6,\n" + 
+		"									7,\n" + 
+		"									8),\n" + 
+		"			bar(9, 10, 11, 12));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=146175
+public void testBug313524_146175() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class FormatterDemo {\n" + 
+		"\n" + 
+		"    public void fooBar() {\n" + 
+		"        SomeOtherClass instanceOfOtherClass = new SomeOtherClass();\n" + 
+		"\n" + 
+		"        /* The following statement demonstrates the formatter issue */\n" + 
+		"        SomeOtherClass.someMethodInInnerClass(\n" + 
+		"            instanceOfOtherClass.anotherMethod(\"Value of paramter 1\"),\n" + 
+		"            instanceOfOtherClass.anotherMethod(\"Value of paramter 2\"));\n" + 
+		"\n" + 
+		"    }\n" + 
+		"\n" + 
+		"    private static class SomeOtherClass {\n" + 
+		"        public static void someMethodInInnerClass(\n" + 
+		"            String param1,\n" + 
+		"            String param2) {\n" + 
+		"        }\n" + 
+		"        public String anotherMethod(String par) {\n" + 
+		"            return par;\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class FormatterDemo {\n" + 
+		"\n" + 
+		"	public void fooBar() {\n" + 
+		"		SomeOtherClass instanceOfOtherClass = new SomeOtherClass();\n" + 
+		"\n" + 
+		"		/* The following statement demonstrates the formatter issue */\n" + 
+		"		SomeOtherClass.someMethodInInnerClass(instanceOfOtherClass\n" + 
+		"				.anotherMethod(\"Value of paramter 1\"), instanceOfOtherClass\n" + 
+		"				.anotherMethod(\"Value of paramter 2\"));\n" + 
+		"\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	private static class SomeOtherClass {\n" + 
+		"		public static void someMethodInInnerClass(String param1, String param2) {\n" + 
+		"		}\n" + 
+		"\n" + 
+		"		public String anotherMethod(String par) {\n" + 
+		"			return par;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=164093
+public void testBug313524_164093_01() throws JavaModelException {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "30");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_OUTER_EXPRESSIONS_WHEN_NESTED, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+	String source =
+		"public class Test {\n" + 
+		"    int someLongMethodName(int foo,  boolean bar, String yetAnotherArg) {\n" + 
+		"        return 0;\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	int someLongMethodName(	int foo,\n" + 
+		"							boolean bar,\n" + 
+		"							String yetAnotherArg) {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_164093_02() throws JavaModelException {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "55");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_OUTER_EXPRESSIONS_WHEN_NESTED, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SELECTOR_IN_METHOD_INVOCATION,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+	String source =
+		"public class X01 {\n" + 
+		"    void foo() {\n" + 
+		"           someIdentifier(someArg).someMethodName().someMethodName(foo, bar).otherMethod(arg0, arg1);\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"    void foo() {\n" + 
+		"        someIdentifier(someArg).someMethodName()\n" + 
+		"                               .someMethodName(foo,\n" + 
+		"                                       bar)\n" + 
+		"                               .otherMethod(arg0, arg1);\n" + 
+		"    }\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=203588
+public void testBug313524_203588() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class Test {\n" + 
+		"public void a()\n" + 
+		"{\n" + 
+		"  if(true)\n" + 
+		"  {\n" + 
+		"    allocation.add(idx_ta + 1, Double.valueOf(allocation.get(idx_ta).doubleValue() + q));\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	public void a() {\n" + 
+		"		if (true) {\n" + 
+		"			allocation.add(idx_ta + 1, Double.valueOf(allocation.get(idx_ta)\n" + 
+		"					.doubleValue()\n" + 
+		"					+ q));\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// wksp1
+public void testBug313524_wksp1_01() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X01 {\n" + 
+		"	private void reportError(String name) throws ParseError {\n" + 
+		"		throw new ParseError(MessageFormat.format(AntDTDSchemaMessages.getString(\"NfmParser.Ambiguous\"), new String[]{name})); //$NON-NLS-1$\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	private void reportError(String name) throws ParseError {\n" + 
+		"		throw new ParseError(MessageFormat.format(AntDTDSchemaMessages\n" + 
+		"				.getString(\"NfmParser.Ambiguous\"), new String[] { name })); //$NON-NLS-1$\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_wksp1_02() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X02 {\n" + 
+		"	private void parseBuildFile(Project project) {\n" + 
+		"		if (!buildFile.exists()) {\n" + 
+		"			throw new BuildException(MessageFormat.format(InternalAntMessages.getString(\"InternalAntRunner.Buildfile__{0}_does_not_exist_!_1\"), //$NON-NLS-1$\n" + 
+		"						 new String[]{buildFile.getAbsolutePath()}));\n" + 
+		"		}\n" + 
+		"		if (!buildFile.isFile()) {\n" + 
+		"			throw new BuildException(MessageFormat.format(InternalAntMessages.getString(\"InternalAntRunner.Buildfile__{0}_is_not_a_file_1\"), //$NON-NLS-1$\n" + 
+		"							new String[]{buildFile.getAbsolutePath()}));\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X02 {\n" + 
+		"	private void parseBuildFile(Project project) {\n" + 
+		"		if (!buildFile.exists()) {\n" + 
+		"			throw new BuildException(\n" + 
+		"					MessageFormat\n" + 
+		"							.format(InternalAntMessages\n" + 
+		"									.getString(\"InternalAntRunner.Buildfile__{0}_does_not_exist_!_1\"), //$NON-NLS-1$\n" + 
+		"							new String[] { buildFile.getAbsolutePath() }));\n" + 
+		"		}\n" + 
+		"		if (!buildFile.isFile()) {\n" + 
+		"			throw new BuildException(\n" + 
+		"					MessageFormat\n" + 
+		"							.format(InternalAntMessages\n" + 
+		"									.getString(\"InternalAntRunner.Buildfile__{0}_is_not_a_file_1\"), //$NON-NLS-1$\n" + 
+		"							new String[] { buildFile.getAbsolutePath() }));\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_wksp1_03() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X03 {\n" + 
+		"\n" + 
+		"	protected void foo() {\n" + 
+		"		printTargets(project, subNames, null, InternalAntMessages.getString(\"InternalAntRunner.Subtargets__5\"), 0); //$NON-NLS-1$\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X03 {\n" + 
+		"\n" + 
+		"	protected void foo() {\n" + 
+		"		printTargets(project, subNames, null, InternalAntMessages\n" + 
+		"				.getString(\"InternalAntRunner.Subtargets__5\"), 0); //$NON-NLS-1$\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_wksp1_04() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X04 {\n" + 
+		"	void foo() {\n" + 
+		"		if (AntUIPlugin.getDefault().getPreferenceStore().getBoolean(IAntUIPreferenceConstants.OUTLINE_LINK_WITH_EDITOR)) {\n" + 
+		"			synchronizeOutlinePage(node, true);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X04 {\n" + 
+		"	void foo() {\n" + 
+		"		if (AntUIPlugin.getDefault().getPreferenceStore().getBoolean(\n" + 
+		"				IAntUIPreferenceConstants.OUTLINE_LINK_WITH_EDITOR)) {\n" + 
+		"			synchronizeOutlinePage(node, true);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_wksp1_05() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X05 {\n" + 
+		"void foo() {\n" + 
+		"		if (false && AntUIPlugin.getDefault().getPreferenceStore().getBoolean(AntEditorPreferenceConstants.TEMPLATES_USE_CODEFORMATTER)) {\n" + 
+		"		}\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X05 {\n" + 
+		"	void foo() {\n" + 
+		"		if (false && AntUIPlugin.getDefault().getPreferenceStore().getBoolean(\n" + 
+		"				AntEditorPreferenceConstants.TEMPLATES_USE_CODEFORMATTER)) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// TODO Improve this formatting as it let the message send argument in one line over the max width
+public void testBug313524_wksp1_06() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X06 {\n" + 
+		"	public void launch() {\n" + 
+		"		try {\n" + 
+		"			if ((javaProject == null) || !javaProject.exists()) {\n" + 
+		"				abort(PDEPlugin________.getResourceString(\"JUnitLaunchConfig_____\"), null, IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT);\n" + 
+		"			}\n" + 
+		"		} catch (CoreException e) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X06 {\n" + 
+		"	public void launch() {\n" + 
+		"		try {\n" + 
+		"			if ((javaProject == null) || !javaProject.exists()) {\n" + 
+		"				abort(PDEPlugin________\n" + 
+		"						.getResourceString(\"JUnitLaunchConfig_____\"),\n" + 
+		"						null,\n" + 
+		"						IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT);\n" + 
+		"			}\n" + 
+		"		} catch (CoreException e) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_wksp1_07() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X07 {\n" + 
+		"	void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			configureAntObject(result, element, task, task.getTaskName(), InternalCoreAntMessages.getString(\"AntCorePreferences.No_library_for_task\")); //$NON-NLS-1$\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X07 {\n" + 
+		"	void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			configureAntObject(\n" + 
+		"					result,\n" + 
+		"					element,\n" + 
+		"					task,\n" + 
+		"					task.getTaskName(),\n" + 
+		"					InternalCoreAntMessages\n" + 
+		"							.getString(\"AntCorePreferences.No_library_for_task\")); //$NON-NLS-1$\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_wksp1_08() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X08 {\n" + 
+		"	public void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			IStatus status= new Status(IStatus.ERROR, AntCorePlugin.PI_ANTCORE, AntCorePlugin.ERROR_RUNNING_BUILD, MessageFormat.format(InternalCoreAntMessages.getString(\"AntRunner.Already_in_progess\"), new String[]{buildFileLocation}), null); //$NON-NLS-1$\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X08 {\n" + 
+		"	public void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			IStatus status = new Status(\n" + 
+		"					IStatus.ERROR,\n" + 
+		"					AntCorePlugin.PI_ANTCORE,\n" + 
+		"					AntCorePlugin.ERROR_RUNNING_BUILD,\n" + 
+		"					MessageFormat\n" + 
+		"							.format(InternalCoreAntMessages\n" + 
+		"									.getString(\"AntRunner.Already_in_progess\"), new String[] { buildFileLocation }), null); //$NON-NLS-1$\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_wksp1_09() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X09 {\n" + 
+		"	void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			String secondFileName = secondDirectoryAbsolutePath + File.separator + currentFile.substring(firstDirectoryAbsolutePath.length() + 1);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X09 {\n" + 
+		"	void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			String secondFileName = secondDirectoryAbsolutePath\n" + 
+		"					+ File.separator\n" + 
+		"					+ currentFile\n" + 
+		"							.substring(firstDirectoryAbsolutePath.length() + 1);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_wksp1_10() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X10 {\n" + 
+		"	void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			if (true) {\n" + 
+		"				throw new BuildException(InternalAntMessages.getString(\"InternalAntRunner.Could_not_load_the_version_information._10\")); //$NON-NLS-1$\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X10 {\n" + 
+		"	void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			if (true) {\n" + 
+		"				throw new BuildException(\n" + 
+		"						InternalAntMessages\n" + 
+		"								.getString(\"InternalAntRunner.Could_not_load_the_version_information._10\")); //$NON-NLS-1$\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_wksp1_11() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X11 {\n" + 
+		"	private void antFileNotFound() {\n" + 
+		"		reportError(AntLaunchConfigurationMessages.getString(\"AntLaunchShortcut.Unable\"), null); //$NON-NLS-1$	\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X11 {\n" + 
+		"	private void antFileNotFound() {\n" + 
+		"		reportError(AntLaunchConfigurationMessages\n" + 
+		"				.getString(\"AntLaunchShortcut.Unable\"), null); //$NON-NLS-1$	\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug313524_wksp1_12() throws JavaModelException {
+	this.formatterPrefs.wrap_outer_expressions_when_nested = false;
+	String source =
+		"public class X12 {\n" + 
+		"	void foo() {\n" + 
+		"        if (this.fTests.size() == 0) {\n" + 
+		"            this.addTest(TestSuite\n" + 
+		"                    .warning(\"No tests found in \" + theClass.getName())); //$NON-NLS-1$\n" + 
+		"        }\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X12 {\n" + 
+		"	void foo() {\n" + 
+		"		if (this.fTests.size() == 0) {\n" + 
+		"			this.addTest(TestSuite\n" +
+		"					.warning(\"No tests found in \" + theClass.getName())); //$NON-NLS-1$\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
 }
 
 }

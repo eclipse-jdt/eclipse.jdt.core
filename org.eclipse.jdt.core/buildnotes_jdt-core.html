@@ -48,9 +48,60 @@ Eclipse SDK 3.6RC2 - %date% - 3.6.0 RC2
 <br>Project org.eclipse.jdt.core v_A54
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A54">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>
+Added a new preference to force the formatter to try to keep nested expressions on one line.
+<p>
+This new preference is controlled with the option:</p>
+<code>DefaultCodeFormatterConstants.FORMATTER_KEEP_NESTED_EXPRESSIONS_ON_ONE_LINE</code>
+<pre>
+/**
+ * FORMATTER / Option to wrap outer expressions in nested expressions
+ *     - option id:         "org.eclipse.jdt.core.formatter.wrap_outer_expressions_when_nested"
+ *     - possible values:   { TRUE, FALSE }
+ *     - default:           TRUE
+ *
+ * This option changes the formatter behavior when nested method calls are encountered.
+ * Since 3.6, the formatter tries to wrap outermost method calls first to have a better output.
+ * For example, let's say we are using the Eclipse built-in profile with a max line width=40+space for tab policy.
+ * Then consider the following snippet:
+ *
+ * public class X01 {
+ *     void test() {
+ *         foo(bar(1, 2, 3, 4), bar(5, 6, 7, 8));
+ *     }
+ * }
+ *
+ * With this new strategy, the formatter will wrap the line earlier, between the arguments of the message call
+ * for this example, and then it will allow to keep each nested call on a single line.
+ * Hence, the output will be:
+ *
+ * public class X01 {
+ *     void test() {
+ *         foo(bar(1, 2, 3, 4),
+ *             bar(5, 6, 7, 8));
+ *     }
+ * }
+ *
+ * Important notes:
+ * 1. This new behavior is automatically activated (ie. the default value for this preference is {@link #TRUE}).
+ *    If the backward compatibility regarding previous versions formatter behavior (ie. before 3.6 version) is necessary,
+ *    then the preference needs to be set to {@link #FALSE} to retrieve the previous formatter behavior.
+ * 2. The new strategy currently only applies to nested method calls, but might be extended to other nested expressions in future versions
+ * 
+ * @see #TRUE
+ * @see #FALSE
+ * @since 3.6
+ */
+</pre>
+See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=313524">313524</a> for more details.
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=313109">313109</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=313524">313524</a>
+[formatter] Add preference for improved lines wrapping in nested method calls
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=313109">313109</a>
 @SuppressWarnings on multiple locals is marked unnecessary if any local is never used
 
 <a name="v_A53"></a>
