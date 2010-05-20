@@ -53,7 +53,7 @@ Eclipse SDK 3.6RC2 - May 20, 2010 - 3.6.0 RC2
 Added a new preference to force the formatter to try to keep nested expressions on one line.
 <p>
 This new preference is controlled with the option:</p>
-<code>DefaultCodeFormatterConstants.FORMATTER_KEEP_NESTED_EXPRESSIONS_ON_ONE_LINE</code>
+<code>DefaultCodeFormatterConstants.FORMATTER_WRAP_OUTER_EXPRESSIONS_WHEN_NESTED</code>
 <pre>
 /**
  * FORMATTER / Option to wrap outer expressions in nested expressions
@@ -85,7 +85,7 @@ This new preference is controlled with the option:</p>
  *
  * Important notes:
  * 1. This new behavior is automatically activated (ie. the default value for this preference is {@link #TRUE}).
- *    If the backward compatibility regarding previous versions formatter behavior (ie. before 3.6 version) is necessary,
+ *    If the backward compatibility regarding previous versions' formatter behavior (ie. before 3.6 version) is necessary,
  *    then the preference needs to be set to {@link #FALSE} to retrieve the previous formatter behavior.
  * 2. The new strategy currently only applies to nested method calls, but might be extended to other nested expressions in future versions
  * 

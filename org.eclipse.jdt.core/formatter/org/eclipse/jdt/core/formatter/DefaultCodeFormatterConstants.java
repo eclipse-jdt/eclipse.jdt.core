@@ -3533,7 +3533,7 @@ public class DefaultCodeFormatterConstants {
 	 * <p><b><u>Important notes</u></b>:</p>
 	 * <ol>
 	 * <li>This new behavior is automatically activated (ie. the default value for this preference is {@link #TRUE}).
-	 * If the backward compatibility regarding previous versions formatter behavior (ie. before 3.6 version) is necessary,
+	 * If the backward compatibility regarding previous versions' formatter behavior (ie. before 3.6 version) is necessary,
 	 * then the preference needs to be set to {@link #FALSE} to retrieve the previous formatter behavior.</li>
 	 * <li>The new strategy currently only applies to nested method calls, but might be extended to other nested expressions in future versions</li>
 	 * </ol>
