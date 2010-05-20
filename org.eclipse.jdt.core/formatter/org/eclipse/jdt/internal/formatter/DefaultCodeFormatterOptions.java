@@ -325,6 +325,7 @@ public class DefaultCodeFormatterOptions {
 	public int tab_char;
 	public boolean use_tabs_only_for_leading_indentations;
 	public boolean wrap_before_binary_operator;
+	public boolean wrap_outer_expressions_when_nested;
 
 	public int initial_indentation_level;
 	public String line_separator;
@@ -622,6 +623,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, this.disabling_tag == null ? Util.EMPTY_STRING : new String(this.disabling_tag));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, this.enabling_tag == null ? Util.EMPTY_STRING : new String(this.enabling_tag));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_USE_ON_OFF_TAGS, this.use_tags ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_OUTER_EXPRESSIONS_WHEN_NESTED, this.wrap_outer_expressions_when_nested ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		return options;
 	}
 
@@ -1997,6 +1999,10 @@ public class DefaultCodeFormatterOptions {
 				}
 			}
 		}
+		final Object wrapWrapOuterExpressionsWhenNestedOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_WRAP_OUTER_EXPRESSIONS_WHEN_NESTED);
+		if (wrapWrapOuterExpressionsWhenNestedOption != null) {
+			this.wrap_outer_expressions_when_nested = DefaultCodeFormatterConstants.TRUE.equals(wrapWrapOuterExpressionsWhenNestedOption);
+		}
 	}
 
 	/**
@@ -2310,6 +2316,7 @@ public class DefaultCodeFormatterOptions {
 		this.use_tags = false;
 		this.disabling_tag = DEFAULT_DISABLING_TAG;
 		this.enabling_tag = DEFAULT_ENABLING_TAG;
+		this.wrap_outer_expressions_when_nested = true;
 	}
 
 	public void setEclipseDefaultSettings() {
@@ -2584,5 +2591,6 @@ public class DefaultCodeFormatterOptions {
 		this.use_tags = false;
 		this.disabling_tag = DEFAULT_DISABLING_TAG;
 		this.enabling_tag = DEFAULT_ENABLING_TAG;
+		this.wrap_outer_expressions_when_nested = true;
 	}
 }
