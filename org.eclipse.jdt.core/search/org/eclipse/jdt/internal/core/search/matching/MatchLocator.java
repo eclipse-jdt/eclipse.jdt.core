@@ -1149,7 +1149,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			this.progressMonitor.beginTask("", searchDocuments.length); //$NON-NLS-1$
 		}
 
-		// initialize pattern for polymorphic search (ie. method reference pattern)
+		// initialize pattern for polymorphic search (i.e. method reference pattern)
 		this.patternLocator.initializePolymorphicSearch(this);
 
 		JavaProject previousJavaProject = null;
@@ -1833,7 +1833,7 @@ protected void reportAccurateParameterizedMethodReference(SearchMatch match, AST
 	if (match.getRule() == 0) return;
 	if (!encloses((IJavaElement)match.getElement())) return;
 
-	// If there's type arguments, look for end (ie. char '>') of last one.
+	// If there's type arguments, look for end (i.e. char '>') of last one.
 	int start = match.getOffset();
 	if (typeArguments != null && typeArguments.length > 0) {
 		boolean isErasureMatch= (this.pattern instanceof OrPattern) ? ((OrPattern)this.pattern).isErasureMatch() : ((JavaSearchPattern)this.pattern).isErasureMatch();
@@ -1889,7 +1889,7 @@ protected void reportAccurateParameterizedTypeReference(SearchMatch match, TypeR
 	if (match.getRule() == 0) return;
 	if (!encloses((IJavaElement)match.getElement())) return;
 
-	// If there's type arguments, look for end (ie. char '>') of last one.
+	// If there's type arguments, look for end (i.e. char '>') of last one.
 	int end = typeRef.sourceEnd;
 	if (typeArguments != null) {
 
@@ -2081,7 +2081,7 @@ protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryM
 }
 /**
  * Visit the given method declaration and report the nodes that match exactly the
- * search pattern (ie. the ones in the matching nodes set)
+ * search pattern (i.e. the ones in the matching nodes set)
  * Note that the method declaration has already been checked.
  */
 protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration type, IJavaElement parent, int accuracy, boolean typeInHierarchy, MatchingNodeSet nodeSet) throws CoreException {
@@ -2396,7 +2396,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 }
 /**
  * Visit the given field declaration and report the nodes that match exactly the
- * search pattern (ie. the ones in the matching nodes set)
+ * search pattern (i.e. the ones in the matching nodes set)
  */
 protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFields, TypeDeclaration type, IJavaElement parent, int accuracy, boolean typeInHierarchy, MatchingNodeSet nodeSet) throws CoreException {
 	IJavaElement enclosingElement = null;
@@ -2524,7 +2524,7 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 }
 /**
  * Visit the given type declaration and report the nodes that match exactly the
- * search pattern (ie. the ones in the matching nodes set)
+ * search pattern (i.e. the ones in the matching nodes set)
  */
 protected void reportMatching(TypeDeclaration type, IJavaElement parent, int accuracy, MatchingNodeSet nodeSet, int occurrenceCount) throws CoreException {
 	// create type handle

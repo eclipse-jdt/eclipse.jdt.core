@@ -1670,7 +1670,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/*
 	 * Return a new Java 6 annotation processor manager.  The manager will need to
 	 * be configured before it can be used.  Returns null if a manager cannot be
-	 * created, ie if the current VM does not support Java 6 annotation processing.
+	 * created, i.e. if the current VM does not support Java 6 annotation processing.
 	 */
 	public AbstractAnnotationProcessorManager createAnnotationProcessorManager() {
 		synchronized(this) {

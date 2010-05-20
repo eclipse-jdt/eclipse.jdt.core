@@ -755,7 +755,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 			}
 		}
 
-		// complete type bindings (ie. connect super types)
+		// complete type bindings (i.e. connect super types)
 		for (int i = 0; i < unitsIndex; i++) {
 			CompilationUnitDeclaration parsedUnit = parsedUnits[i];
 			if (parsedUnit != null) {
@@ -826,7 +826,7 @@ private void setEnvironment(LookupEnvironment lookupEnvironment, HierarchyBuilde
 }
 
 /*
- * Set the focus type (ie. the type that this resolver is computing the hierarch for.
+ * Set the focus type (i.e. the type that this resolver is computing the hierarch for.
  * Returns the binding of this focus type or null if it could not be found.
  */
 public ReferenceBinding setFocusType(char[][] compoundName) {

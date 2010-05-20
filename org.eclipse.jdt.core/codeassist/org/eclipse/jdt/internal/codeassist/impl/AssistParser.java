@@ -359,7 +359,7 @@ protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 }
 protected void consumeForceNoDiet() {
 	super.consumeForceNoDiet();
-	// if we are not in a method (ie. we are not in a local variable initializer)
+	// if we are not in a method (i.e. we are not in a local variable initializer)
 	// then we are entering a field initializer
 	if (!isInsideMethod()) {
 		if(topKnownElementKind(ASSIST_PARSER) != K_ENUM_CONSTANT_DELIMITER) {
@@ -580,7 +580,7 @@ protected void consumePackageDeclarationNameWithModifiers() {
 }
 protected void consumeRestoreDiet() {
 	super.consumeRestoreDiet();
-	// if we are not in a method (ie. we were not in a local variable initializer)
+	// if we are not in a method (i.e. we were not in a local variable initializer)
 	// then we are exiting a field initializer
 	if (!isInsideMethod()) {
 		popElement(K_FIELD_INITIALIZER_DELIMITER);
