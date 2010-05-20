@@ -765,13 +765,13 @@ protected void consumeToken(int token) {
 					case TokenNameIdentifier:
 						this.pushOnElementStack(K_SELECTOR, this.identifierPtr);
 						break;
-					case TokenNamethis: // explicit constructor invocation, eg. this(1, 2)
+					case TokenNamethis: // explicit constructor invocation, e.g. this(1, 2)
 						this.pushOnElementStack(K_SELECTOR, THIS_CONSTRUCTOR);
 						break;
-					case TokenNamesuper: // explicit constructor invocation, eg. super(1, 2)
+					case TokenNamesuper: // explicit constructor invocation, e.g. super(1, 2)
 						this.pushOnElementStack(K_SELECTOR, SUPER_CONSTRUCTOR);
 						break;
-					case TokenNameGREATER: // explicit constructor invocation, eg. Fred<X>[(]1, 2)
+					case TokenNameGREATER: // explicit constructor invocation, e.g. Fred<X>[(]1, 2)
 					case TokenNameRIGHT_SHIFT: // or fred<X<X>>[(]1, 2)
 					case TokenNameUNSIGNED_RIGHT_SHIFT: //or Fred<X<X<X>>>[(]1, 2)
 						if(this.identifierPtr > -1) {
@@ -1120,10 +1120,10 @@ protected int indexOfAssistIdentifier(){
 	return this.indexOfAssistIdentifier(false);
 }
 /*
- * Iterate the most recent group of awaiting identifiers (grouped for qualified name reference (eg. aa.bb.cc)
+ * Iterate the most recent group of awaiting identifiers (grouped for qualified name reference (e.g. aa.bb.cc)
  * so as to check whether one of them is the assist identifier.
  * If so, then answer the index of the assist identifier (0 being the first identifier of the set).
- *	eg. aa(0).bb(1).cc(2)
+ *	e.g. aa(0).bb(1).cc(2)
  * If no assist identifier was found, answers -1.
  */
 protected int indexOfAssistIdentifier(boolean useGenericsStack){

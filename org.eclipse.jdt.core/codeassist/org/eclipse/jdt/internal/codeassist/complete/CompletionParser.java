@@ -1459,8 +1459,8 @@ private boolean checkInvocation() {
 	boolean isEmptyNameCompletion = false;
 	boolean isEmptyAssistIdentifier = false;
 	if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SELECTOR_QUALIFIER
-		&& ((isEmptyNameCompletion = topExpression == this.assistNode && isEmptyNameCompletion()) // eg. it is something like "this.fred([cursor]" but it is not something like "this.fred(1 + [cursor]"
-			|| (isEmptyAssistIdentifier = this.indexOfAssistIdentifier() >= 0 && this.identifierStack[this.identifierPtr].length == 0))) { // eg. it is something like "this.fred(1 [cursor]"
+		&& ((isEmptyNameCompletion = topExpression == this.assistNode && isEmptyNameCompletion()) // e.g. it is something like "this.fred([cursor]" but it is not something like "this.fred(1 + [cursor]"
+			|| (isEmptyAssistIdentifier = this.indexOfAssistIdentifier() >= 0 && this.identifierStack[this.identifierPtr].length == 0))) { // e.g. it is something like "this.fred(1 [cursor]"
 
 		// pop empty name completion
 		if (isEmptyNameCompletion) {
@@ -1654,7 +1654,7 @@ private boolean checkNameCompletion() {
 	/*
 		We didn't find any other completion, but the completion identifier is on the identifier stack,
 		so it can only be a completion on name.
-		Note that we allow the completion on a name even if nothing is expected (eg. foo() b[cursor] would
+		Note that we allow the completion on a name even if nothing is expected (e.g. foo() b[cursor] would
 		be a completion on 'b'). This policy gives more to the user than he/she would expect, but this
 		simplifies the problem. To fix this, the recovery must be changed to work at a 'statement' granularity
 		instead of at the 'expression' granularity as it does right now.
@@ -1977,7 +1977,7 @@ public void completionIdentifierCheck(){
 	if (checkClassLiteralAccess()) return;
 	if (checkInstanceofKeyword()) return;
 
-	// if the completion was not on an empty name, it can still be inside an invocation (eg. this.fred("abc"[cursor])
+	// if the completion was not on an empty name, it can still be inside an invocation (e.g. this.fred("abc"[cursor])
 	// (NB: Put this check before checkNameCompletion() because the selector of the invocation can be on the identifier stack)
 	if (checkInvocation()) return;
 
@@ -3262,15 +3262,15 @@ protected void consumeToken(int token) {
 		switch (token) {
 			case TokenNameDOT:
 				switch (previous) {
-					case TokenNamethis: // eg. this[.]fred()
+					case TokenNamethis: // e.g. this[.]fred()
 						this.invocationType = EXPLICIT_RECEIVER;
 						break;
-					case TokenNamesuper: // eg. super[.]fred()
+					case TokenNamesuper: // e.g. super[.]fred()
 						this.invocationType = SUPER_RECEIVER;
 						break;
-					case TokenNameIdentifier: // eg. bar[.]fred()
+					case TokenNameIdentifier: // e.g. bar[.]fred()
 						if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_BETWEEN_NEW_AND_LEFT_BRACKET) {
-							if (this.identifierPtr != prevIdentifierPtr) { // if identifier has been consumed, eg. this.x[.]fred()
+							if (this.identifierPtr != prevIdentifierPtr) { // if identifier has been consumed, e.g. this.x[.]fred()
 								this.invocationType = EXPLICIT_RECEIVER;
 							} else {
 								this.invocationType = NAME_RECEIVER;
@@ -3280,21 +3280,21 @@ protected void consumeToken(int token) {
 				}
 				break;
 			case TokenNameIdentifier:
-				if (previous == TokenNameDOT) { // eg. foo().[fred]()
-					if (this.invocationType != SUPER_RECEIVER // eg. not super.[fred]()
-						&& this.invocationType != NAME_RECEIVER // eg. not bar.[fred]()
-						&& this.invocationType != ALLOCATION // eg. not new foo.[Bar]()
-						&& this.invocationType != QUALIFIED_ALLOCATION) { // eg. not fred().new foo.[Bar]()
+				if (previous == TokenNameDOT) { // e.g. foo().[fred]()
+					if (this.invocationType != SUPER_RECEIVER // e.g. not super.[fred]()
+						&& this.invocationType != NAME_RECEIVER // e.g. not bar.[fred]()
+						&& this.invocationType != ALLOCATION // e.g. not new foo.[Bar]()
+						&& this.invocationType != QUALIFIED_ALLOCATION) { // e.g. not fred().new foo.[Bar]()
 
 						this.invocationType = EXPLICIT_RECEIVER;
 						this.qualifier = this.expressionPtr;
 					}
 				}
-				if (previous == TokenNameGREATER) { // eg. foo().<X>[fred]()
-					if (this.invocationType != SUPER_RECEIVER // eg. not super.<X>[fred]()
-						&& this.invocationType != NAME_RECEIVER // eg. not bar.<X>[fred]()
-						&& this.invocationType != ALLOCATION // eg. not new foo.<X>[Bar]()
-						&& this.invocationType != QUALIFIED_ALLOCATION) { // eg. not fred().new foo.<X>[Bar]()
+				if (previous == TokenNameGREATER) { // e.g. foo().<X>[fred]()
+					if (this.invocationType != SUPER_RECEIVER // e.g. not super.<X>[fred]()
+						&& this.invocationType != NAME_RECEIVER // e.g. not bar.<X>[fred]()
+						&& this.invocationType != ALLOCATION // e.g. not new foo.<X>[Bar]()
+						&& this.invocationType != QUALIFIED_ALLOCATION) { // e.g. not fred().new foo.<X>[Bar]()
 
 						if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_METHOD_INVOCATION) {
 							this.invocationType = EXPLICIT_RECEIVER;
@@ -3306,20 +3306,20 @@ protected void consumeToken(int token) {
 			case TokenNamenew:
 				pushOnElementStack(K_BETWEEN_NEW_AND_LEFT_BRACKET);
 				this.qualifier = this.expressionPtr; // NB: even if there is no qualification, set it to the expression ptr so that the number of arguments are correctly computed
-				if (previous == TokenNameDOT) { // eg. fred().[new] X()
+				if (previous == TokenNameDOT) { // e.g. fred().[new] X()
 					this.invocationType = QUALIFIED_ALLOCATION;
-				} else { // eg. [new] X()
+				} else { // e.g. [new] X()
 					this.invocationType = ALLOCATION;
 				}
 				break;
 			case TokenNamethis:
-				if (previous == TokenNameDOT) { // eg. fred().[this]()
+				if (previous == TokenNameDOT) { // e.g. fred().[this]()
 					this.invocationType = QUALIFIED_ALLOCATION;
 					this.qualifier = this.expressionPtr;
 				}
 				break;
 			case TokenNamesuper:
-				if (previous == TokenNameDOT) { // eg. fred().[super]()
+				if (previous == TokenNameDOT) { // e.g. fred().[super]()
 					this.invocationType = QUALIFIED_ALLOCATION;
 					this.qualifier = this.expressionPtr;
 				}
@@ -3332,7 +3332,7 @@ protected void consumeToken(int token) {
 					this.qualifier = this.expressionPtr; // remenber the last expression so that arguments are correctly computed
 				}
 				switch (previous) {
-					case TokenNameIdentifier: // eg. fred[(]) or foo.fred[(])
+					case TokenNameIdentifier: // e.g. fred[(]) or foo.fred[(])
 						if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SELECTOR) {
 							int info = 0;
 							if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER,1) == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN &&
@@ -3352,7 +3352,7 @@ protected void consumeToken(int token) {
 						this.qualifier = -1;
 						this.invocationType = NO_RECEIVER;
 						break;
-					case TokenNamethis: // explicit constructor invocation, eg. this[(]1, 2)
+					case TokenNamethis: // explicit constructor invocation, e.g. this[(]1, 2)
 						if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SELECTOR) {
 							this.pushOnElementStack(K_SELECTOR_INVOCATION_TYPE, (this.invocationType == QUALIFIED_ALLOCATION) ? QUALIFIED_ALLOCATION : ALLOCATION);
 							this.pushOnElementStack(K_SELECTOR_QUALIFIER, this.qualifier);
@@ -3360,7 +3360,7 @@ protected void consumeToken(int token) {
 						this.qualifier = -1;
 						this.invocationType = NO_RECEIVER;
 						break;
-					case TokenNamesuper: // explicit constructor invocation, eg. super[(]1, 2)
+					case TokenNamesuper: // explicit constructor invocation, e.g. super[(]1, 2)
 						if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SELECTOR) {
 							this.pushOnElementStack(K_SELECTOR_INVOCATION_TYPE, (this.invocationType == QUALIFIED_ALLOCATION) ? QUALIFIED_ALLOCATION : ALLOCATION);
 							this.pushOnElementStack(K_SELECTOR_QUALIFIER, this.qualifier);
@@ -3368,7 +3368,7 @@ protected void consumeToken(int token) {
 						this.qualifier = -1;
 						this.invocationType = NO_RECEIVER;
 						break;
-					case TokenNameGREATER: // explicit constructor invocation, eg. Fred<X>[(]1, 2)
+					case TokenNameGREATER: // explicit constructor invocation, e.g. Fred<X>[(]1, 2)
 					case TokenNameRIGHT_SHIFT: // or fred<X<X>>[(]1, 2)
 					case TokenNameUNSIGNED_RIGHT_SHIFT: //or Fred<X<X<X>>>[(]1, 2)
 						if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SELECTOR) {
@@ -4359,7 +4359,7 @@ public void initializeScanner(){
 }
 /**
  * Returns whether the completion is just after an array type
- * eg. String[].[cursor]
+ * e.g. String[].[cursor]
  */
 private boolean isAfterArrayType() {
 	// TBD: The following relies on the fact that array dimensions are small: it says that if the
