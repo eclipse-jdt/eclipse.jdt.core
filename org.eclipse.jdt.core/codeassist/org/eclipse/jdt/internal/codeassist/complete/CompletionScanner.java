@@ -185,7 +185,7 @@ public int getNextToken() throws InvalidInputException {
 					this.startPosition == this.cursorLocation + 1){
 					// compute end of empty identifier.
 					// if the empty identifier is at the start of a next token the end of
-					// empty identifier is the end of the next token (eg. "<empty token>next").
+					// empty identifier is the end of the next token (e.g. "<empty token>next").
 					int temp = this.eofPosition;
 					this.eofPosition = this.source.length;
 				 	while(getNextCharAsJavaIdentifierPart()){/*empty*/}

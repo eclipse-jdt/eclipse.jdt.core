@@ -274,7 +274,7 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 			}
 		} else {  // https://bugs.eclipse.org/bugs/show_bug.cgi?id=308980
 			// in case an initializer bracket is opened in a non-array field
-			// eg. int field = {..
+			// e.g. int field = {..
 			this.bracketBalance++;
 			return null; // no update is necessary	(array initializer)
 		}

@@ -194,7 +194,7 @@ public void createPackageInfoType() {
  * Finds the matching type amoung this compilation unit types.
  * Returns null if no type with this name is found.
  * The type name is a compound name
- * eg. if we're looking for X.A.B then a type name would be {X, A, B}
+ * e.g. if we're looking for X.A.B then a type name would be {X, A, B}
  */
 public TypeDeclaration declarationOfType(char[][] typeName) {
 	for (int i = 0; i < this.types.length; i++) {

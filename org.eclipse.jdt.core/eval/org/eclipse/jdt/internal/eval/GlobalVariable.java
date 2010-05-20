@@ -45,7 +45,7 @@ public char[] getName() {
 }
 /**
  * Returns the dot separated fully qualified name of the type of this global variable,
- * or its simple representation if it is a primitive type (eg. int, boolean, etc.)
+ * or its simple representation if it is a primitive type (e.g. int, boolean, etc.)
  */
 public char[] getTypeName() {
 	return this.typeName;
