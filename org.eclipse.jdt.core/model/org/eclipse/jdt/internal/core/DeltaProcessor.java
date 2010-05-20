@@ -2336,7 +2336,7 @@ public class DeltaProcessor {
 	}
 
 	/*
-	 * Update the current delta (ie. add/remove/change the given element) and update the correponding index.
+	 * Update the current delta (i.e. add/remove/change the given element) and update the correponding index.
 	 * Returns whether the children of the given delta must be processed.
 	 * @throws a JavaModelException if the delta doesn't correspond to a java element of the given type.
 	 */

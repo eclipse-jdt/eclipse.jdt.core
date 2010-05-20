@@ -47,7 +47,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_NEXT_TYPEREF_IS_CLASS = COMPLETION_PARSER + 5; // whether the next type reference is a class
 	protected static final int K_NEXT_TYPEREF_IS_INTERFACE = COMPLETION_PARSER + 6; // whether the next type reference is an interface
 	protected static final int K_NEXT_TYPEREF_IS_EXCEPTION = COMPLETION_PARSER + 7; // whether the next type reference is an exception
-	protected static final int K_BETWEEN_NEW_AND_LEFT_BRACKET = COMPLETION_PARSER + 8; // whether we are between the keyword 'new' and the following left braket, ie. '[', '(' or '{'
+	protected static final int K_BETWEEN_NEW_AND_LEFT_BRACKET = COMPLETION_PARSER + 8; // whether we are between the keyword 'new' and the following left braket, i.e. '[', '(' or '{'
 	protected static final int K_INSIDE_THROW_STATEMENT = COMPLETION_PARSER + 9; // whether we are between the keyword 'throw' and the end of a throw statement
 	protected static final int K_INSIDE_RETURN_STATEMENT = COMPLETION_PARSER + 10; // whether we are between the keyword 'return' and the end of a return statement
 	protected static final int K_CAST_STATEMENT = COMPLETION_PARSER + 11; // whether we are between ')' and the end of a cast statement
@@ -1630,7 +1630,7 @@ private boolean checkLabelStatement() {
 	return false;
 }
 /**
- * Checks if the completion is on a member access (ie. in an identifier following a dot).
+ * Checks if the completion is on a member access (i.e. in an identifier following a dot).
  * Returns whether we found a completion node.
  */
 private boolean checkMemberAccess() {
