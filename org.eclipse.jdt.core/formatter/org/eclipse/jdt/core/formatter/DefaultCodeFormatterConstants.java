@@ -901,14 +901,14 @@ public class DefaultCodeFormatterConstants {
 	 * format the code from the beginning of the comment including this tag. If it
 	 * was already disabled, the tag has no special effect.
 	 * <p>
-	 * For example, the second defined enabling tag &quot;<b>disable-formatter</b>&quot;
+	 * For example, the second default enabling tag &quot;<b>@formatter:off</b>&quot;
 	 * in the following snippet is not necessary as the formatter was already disabled
 	 * since the first one:
 	 * <pre>
 	 * class X {
-	 * // disable-formatter
+	 * // @formatter:off
 	 * void foo1() {}
-	 * // disable-formatter
+	 * // @formatter:off
 	 * void foo2() {}
 	 * void bar1() {}
 	 * void bar2() {}
@@ -920,7 +920,7 @@ public class DefaultCodeFormatterConstants {
 	 * For example, when a disabling tag is put at the beginning of the code, then
 	 * the entire content of a compilation unit is not formatted:
 	 * <pre>
-	 * // disable-formatter
+	 * // @formatter:off
 	 * class X {
 	 * void foo1() {}
 	 * void foo2() {}
@@ -938,9 +938,9 @@ public class DefaultCodeFormatterConstants {
 	 * class X {
 	 * &#47;&#42;
 	 * &nbsp;&#42; This is a comment with a mix of disabling and enabling tags:
-	 * &nbsp;&#42;  - <b>disable-formatter</b>
-	 * &nbsp;&#42;  - <b>enable-formatter</b>
-	 * &nbsp;&#42;  - <b>disable-formatter</b>
+	 * &nbsp;&#42;  - <b>@formatter:off</b>
+	 * &nbsp;&#42;  - <b>@formatter:on</b>
+	 * &nbsp;&#42;  - <b>@formatter:off</b>
 	 * &nbsp;&#42; The formatter will stop to format from the beginning of this comment...
 	 * &nbsp;&#42;&#47;
 	 * void foo() {}
@@ -988,14 +988,14 @@ public class DefaultCodeFormatterConstants {
 	 * to format the code just after the comment including this tag. If it was already
 	 * active, i.e. already re-enabled or never disabled, the tag has no special effect.
 	 * <p>
-	 * For example, the defined enabling tag &quot;<b>enable-formatter</b>&quot;
+	 * For example, the default enabling tag &quot;<b>@formatter:on</b>&quot;
 	 * in the following snippet is not necessary as the formatter has never been
 	 * disabled:
 	 * <pre>
 	 * class X {
 	 * void foo1() {}
 	 * void foo2() {}
-	 * // enable-formatter
+	 * // @formatter:on
 	 * void bar1() {}
 	 * void bar2() {}
 	 * }
@@ -1004,12 +1004,12 @@ public class DefaultCodeFormatterConstants {
 	 * the formatting will have been re-enabled by the first one:
 	 * <pre>
 	 * class X {
-	 * // disable-formatter
+	 * // @formatter:off
 	 * void foo1() {}
 	 * void foo2() {}
-	 * // enable-formatter
+	 * // @formatter:on
 	 * void bar1() {}
-	 * // enable-formatter
+	 * // @formatter:on
 	 * void bar2() {}
 	 * }
 	 * </pre>
@@ -1020,13 +1020,13 @@ public class DefaultCodeFormatterConstants {
 	 * <p>For example, in the following snippet, the formatter will be re-enabled after
 	 * the comment:</p>
 	 * <pre>
-	 * // disable-formatter
+	 * // @formatter:off
 	 * class X {
 	 * &#47;&#42;
 	 * &nbsp;&#42; This is a comment with a mix of disabling and enabling tags:
-	 * &nbsp;&#42;  - <b>enable-formatter</b>
-	 * &nbsp;&#42;  - <b>disable-formatter</b>
-	 * &nbsp;&#42;  - <b>enable-formatter</b>
+	 * &nbsp;&#42;  - <b>@formatter:on</b>
+	 * &nbsp;&#42;  - <b>@formatter:off</b>
+	 * &nbsp;&#42;  - <b>@formatter:on</b>
 	 * &nbsp;&#42; The formatter will restart to format after this comment...
 	 * &nbsp;&#42;&#47;
 	 * void foo() {}
