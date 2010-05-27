@@ -6673,5 +6673,79 @@ public void testBug305037() throws Exception {
 		JavaCore.removeClasspathVariable("MyVar", null);
 	}
 }
+/**
+ * @bug 313965: Breaking change in classpath container API  
+ * Test that when the resolveReferencedLibrariesForContainers system property is set to true, the referenced libraries
+ * for JARs from containers are resolved.
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=313965"
+ * @throws Exception
+ */
+public void testBug313965() throws Exception {
+	try {
+		simulateExit();
+		// Use the literal attribute and not constant. Attribute once documented is not supposed to change.
+		System.setProperty("resolveReferencedLibrariesForContainers", "true");
+		simulateRestart();
+		IJavaProject p = this.createJavaProject("P", new String[] {}, "bin");
+		addLibrary(p, "lib.jar", null, new String[0], 
+				new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib1.jar\n",
+			},
+			JavaCore.VERSION_1_4); 
+		IClasspathEntry[] classpath = new IClasspathEntry[1];
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}));
+		classpath[0] = JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"));
+		setClasspath(p, classpath);
+		createFile("/P/lib1.jar", "");
+
+		IClasspathEntry[] resolvedClasspath = p.getResolvedClasspath(true);
+		assertClasspathEquals(resolvedClasspath, 
+				"/P/lib1.jar[CPE_LIBRARY][K_BINARY][isExported:false]\n" + 
+				"/P/lib.jar[CPE_LIBRARY][K_BINARY][isExported:false]");
+	} finally {
+		deleteProject("P");
+		ContainerInitializer.setInitializer(null);
+		simulateExit();
+		System.setProperty("resolveReferencedLibrariesForContainers", "");
+		simulateRestart();
+	}
+}
+/**
+ * @bug 313965: Breaking change in classpath container API  
+ * Test that when the resolveReferencedLibrariesForContainers system property is set to false (or default), 
+ * the referenced libraries for JARs from containers are NOT resolved or added to the project's classpath.
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=313965"
+ * @throws Exception
+ */
+public void testBug313965a() throws Exception {
+	try {
+		// Do not set the resolveReferencedLibrariesForContainers system property (the default value is false)
+		IJavaProject p = this.createJavaProject("P", new String[] {}, "bin");
+		addLibrary(p, "lib.jar", null, new String[0], 
+				new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib1.jar\n",
+			},
+			JavaCore.VERSION_1_4); 
+		IClasspathEntry[] classpath = new IClasspathEntry[1];
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}));
+		classpath[0] = JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"));
+		setClasspath(p, classpath);
+
+		createFile("/P/lib1.jar", "");
+
+		IClasspathEntry[] resolvedClasspath = p.getResolvedClasspath(true);
+		assertClasspathEquals(resolvedClasspath, 
+				"/P/lib.jar[CPE_LIBRARY][K_BINARY][isExported:false]");
+	} finally {
+		deleteProject("P");
+		ContainerInitializer.setInitializer(null);
+	}
+}
 
 }

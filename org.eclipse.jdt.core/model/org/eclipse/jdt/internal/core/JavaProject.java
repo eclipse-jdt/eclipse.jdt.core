@@ -2671,8 +2671,19 @@ public class JavaProject
 						if (cEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 							// resolve ".." in library path
 							cEntry = cEntry.resolvedDotDot();
-							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=305037
-							// responsibility of resolving chained (referenced) libraries lies with the container
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=313965
+							// Do not resolve if the system attribute is set to false	
+							if (resolveChainedLibraries
+									&& JavaModelManager.getJavaModelManager().resolveReferencedLibrariesForContainers
+									&& result.rawReverseMap.get(cEntry.getPath()) == null) {
+								// resolve Class-Path: in manifest
+								ClasspathEntry[] extraEntries = cEntry.resolvedChainedLibraries();
+								for (int k = 0, length2 = extraEntries.length; k < length2; k++) {
+									if (!rawLibrariesPath.contains(extraEntries[k].getPath())) {
+										addToResult(rawEntry, extraEntries[k], result, resolvedEntries, externalFoldersManager, referencedEntriesMap, false);
+									}
+								}
+							}
 						}
 						addToResult(rawEntry, cEntry, result, resolvedEntries, externalFoldersManager, referencedEntriesMap, false);
 					}

@@ -212,6 +212,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public static final String ANNOTATION_PROCESSOR_MANAGER_EXTPOINT_ID = "annotationProcessorManager" ;  //$NON-NLS-1$
 
 	/**
+	 * Name of the JVM parameter to specify whether or not referenced JAR should be resolved for container libraries.
+	 */
+	private static final String RESOLVE_REFERENCED_LIBRARIES_FOR_CONTAINERS = "resolveReferencedLibrariesForContainers"; //$NON-NLS-1$
+	
+	/**
 	 * Special value used for recognizing ongoing initialization and breaking initialization cycles
 	 */
 	public final static IPath VARIABLE_INITIALIZATION_IN_PROGRESS = new Path("Variable Initialization In Progress"); //$NON-NLS-1$
@@ -257,6 +262,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public static boolean PERF_VARIABLE_INITIALIZER = false;
 	public static boolean PERF_CONTAINER_INITIALIZER = false;
+	// Non-static, which will give it a chance to retain the default when and if JavaModelManager is restarted.
+	boolean resolveReferencedLibrariesForContainers = false;
 
 	public final static ICompilationUnit[] NO_WORKING_COPY = new ICompilationUnit[0];
 
@@ -1540,6 +1547,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (Platform.isRunning()) {
 			this.indexManager = new IndexManager();
 			this.nonChainingJars = loadNonChainingJarsCache();
+			String includeContainerReferencedLib = System.getProperty(RESOLVE_REFERENCED_LIBRARIES_FOR_CONTAINERS);
+			this.resolveReferencedLibrariesForContainers = TRUE.equalsIgnoreCase(includeContainerReferencedLib);
 		}
 	}
 
