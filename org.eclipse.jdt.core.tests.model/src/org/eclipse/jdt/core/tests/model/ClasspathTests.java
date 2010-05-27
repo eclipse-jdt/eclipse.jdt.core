@@ -6675,7 +6675,7 @@ public void testBug305037() throws Exception {
 }
 /**
  * @bug 313965: Breaking change in classpath container API  
- * Test that when the includeContainerReferencedLib system property is set to true, the referenced libraries
+ * Test that when the resolveReferencedLibrariesForContainers system property is set to true, the referenced libraries
  * for JARs from containers are resolved.
  * 
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=313965"
@@ -6715,7 +6715,7 @@ public void testBug313965() throws Exception {
 }
 /**
  * @bug 313965: Breaking change in classpath container API  
- * Test that when the includeContainerReferencedLib system property is set to false (or default), the referenced libraries
+ * Test that when the resolveReferencedLibrariesForContainers system property is set to false (or default), the referenced libraries
  * for JARs from containers are NOT resolved or added to the project's classpath.
  * 
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=313965"
