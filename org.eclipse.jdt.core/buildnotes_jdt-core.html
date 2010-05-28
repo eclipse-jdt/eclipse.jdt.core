@@ -772,6 +772,7 @@ See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=284789">284789</a
 </li>
 <li>New API to fix bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=246594">246594</a>. See the bug for details.
 <pre>
+org.eclipse.jdt.core.ITypeParameter
 	/**
 	 * Returns the signatures for this type parameter's bounds. The type parameter may have 
 	 * been declared as part of a type or a method. The signatures represent only the individual 
@@ -1014,9 +1015,10 @@ public class Test {
 </pre>
 See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=282030">282030</a> for more details.
 </li>
-<li>In order to get bindings outside of the Eclipse environment, the following method has been added on the ASTParser class.
+<li>In order to get bindings outside the Eclipse environment, the following methods has been added on the ASTParser class.
 <br>See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=206391">206391</a> for details.<br>
 <pre>
+org.eclipse.jdt.core.dom.ASTParser
 	/**
 	 * Set the environment that can be used when no IJavaProject are available.
 	 * 
@@ -1039,6 +1041,67 @@ See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=282030">282030</a
 	 * @since 3.6
 	 */
 	public void setEnvironment(String[] classpathEntries, String[] sourcepathEntries, String[] encodings, boolean includeRunningVMBootclasspath);
+	
+	/**
+	 * Creates ASTs for a batch of compilation units. When bindings are being resolved, processing a
+	 * batch of compilation units is more efficient because much of the work involved in resolving 
+	 * bindings can be shared. 
+	 *
+	 * When bindings are being resolved, all compilation units are resolved 
+	 * using the same environment, which must be set beforehand with 
+	 * {@link #setEnvironment(String[], String[], String[], boolean) setEnvironment}.
+	 * The compilation units are processed one at a time in no specified order. 
+	 * For each of the compilation units in turn,
+	 *  - {@link ASTParser#createAST(IProgressMonitor) ASTParser.createAST} is called to parse it 
+	 *           and create a corresponding AST. The calls to {@link ASTParser#createAST(IProgressMonitor) ASTParser.createAST} 
+	 *           all employ the same settings.</li>
+	 *  - {@link FileASTRequestor#acceptAST(String, CompilationUnit) FileASTRequestor.acceptAST} is called passing
+	 *           the compilation unit path and the corresponding AST to <code>requestor</code>. The compilation unit path is the same
+	 *           path that is passed into the given <code>sourceFilePaths</code> parameter.
+	 *
+	 * Note only ASTs from the given compilation units are reported
+	 * to the requestor. If additional compilation units are required to
+	 * resolve the original ones, the corresponding ASTs are <b>not</b>
+	 * reported to the requestor.
+	 * 
+	 * Note also the following parser parameters are used, regardless of what
+	 * may have been specified:
+	 *  - The {@linkplain #setKind(int) parser kind} is <code>K_COMPILATION_UNIT</code>
+	 *  - The {@linkplain #setSourceRange(int,int) source range} is <code>(0, -1)</code>
+	 *  - The {@linkplain #setFocalPosition(int) focal position} is not set
+	 *
+	 * The <code>bindingKeys</code> parameter specifies bindings keys
+	 * ({@link IBinding#getKey()}) that are to be looked up. These keys may
+	 * be for elements either inside or outside the set of compilation
+	 * units being processed. When bindings are being resolved,
+	 * the keys and corresponding bindings (or <code>null</code> if none) are
+	 * passed to {@link FileASTRequestor#acceptBinding(String, IBinding) FileASTRequestor.acceptBinding}. Note that binding keys
+	 * for elements outside the set of compilation units being processed are looked up
+	 * after all {@link FileASTRequestor#acceptAST(String, CompilationUnit) ASTRequestor.acceptAST}
+	 * callbacks have been made.
+	 * Binding keys for elements inside the set of compilation units being processed
+	 * are looked up and reported right after the corresponding
+	 * {@link FileASTRequestor#acceptAST(String, CompilationUnit) FileASTRequestor.acceptAST} callback has been made.
+	 * No {@link FileASTRequestor#acceptBinding(String, IBinding) FileASTRequestor.acceptBinding} callbacks are made unless
+	 * bindings are being resolved.
+	 *
+	 * A successful call to this method returns all settings to their
+	 * default values so the object is ready to be reused.
+	 * 
+	 * The given <code>encodings</code> are used to properly parse the given source units. If the platform encoding is sufficient,
+	 * then the given encodings can be set to <code>null</code>.
+	 *
+	 * @param sourceFilePaths the compilation units to create ASTs for
+	 * @param encodings the given encoding for the source units
+	 * @param bindingKeys the binding keys to create bindings for
+	 * @param requestor the AST requestor that collects abstract syntax trees and bindings
+	 * @param monitor the progress monitor used to report progress and request cancellation,
+	 *   or <code>null</code> if none
+	 * @exception IllegalStateException if the settings provided
+	 * are insufficient, contradictory, or otherwise unsupported
+	 * @since 3.6
+	 */
+	 public void createASTs(String[] sourceFilePaths, String[] encodings, String[] bindingKeys, FileASTRequestor requestor, IProgressMonitor monitor)
 </pre>
 </li>
 <li>
@@ -1070,7 +1133,7 @@ These new preferences are controlled respectively with the options:</p>
  * @since 3.6
  */
  </pre>
-<p>For example, when both of these options are used, the following snippet:</p>
+<p>For example, the following snippet:</p>
 <pre>
 public class X {
 	/*
@@ -1087,7 +1150,7 @@ public class X {
 	}
 }
 </pre>
-formatted with this preference activated, will produce the following output:
+formatted with both the options set to FALSE, will produce the following output:
 <pre>
 public class X {
 	/* This block comment after formatting will no longer use a new line at the
@@ -1158,7 +1221,7 @@ See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=150741">150741</a
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=270209">270209</a>
 [format] Condensed block comment formatting
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=236406">236406</a>
-[formatter] The comments flags should work for all kind of snippet
+[formatter] The comments flags should work for all kinds of snippet
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=294360">294360</a>
 Duplicate entries in Classpath Resolution when importing dependencies from parent project
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=206391">206391</a>
@@ -1714,33 +1777,6 @@ Eclipse SDK 3.6M3 - October 25, 2009
 <br>Project org.eclipse.jdt.core v_A16
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_A16">cvs</a>).
 <h2>What's new in this drop</h2>
-<ul>
-<li>New API added in <code>org.eclipse.jdt.core.JavaCore</code> in order to fix bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=263564">263564</a>:
-<pre>
-	/**
-	 * Returns an immutable map of all known configurable options with their original default values
-	 * as defined by JDT/Core.
-	 * 
-	 * The values of these options might be different from the values returned by getDefaultOptions()
-	 * as getDefaultOptions() returned the default options defined by an installation/product/configuration
-	 * (i.e. modified by the usage of a plugin_customization.ini file for example).
-	 * 
-	 * These options allow to configure the behaviour of the underlying components.
-	 * If the map is being modified, an UnsupportedOperationException> exception is thrown.
-	 * Helper constants have been defined on JavaCore for each of the option IDs
-	 * (categorized in Code assist option ID, Compiler option ID and Core option ID)
-	 * and some of their acceptable values (categorized in Option value). Some
-	 * options accept open value sets beyond the documented constant values.
-	 * Note: each release may add new options.
-	 *
-	 * @return an immutable map of all known configurable options with their original default values
-	 * as defined by JDT/Core
-	 * @since 3.6
-	 */
-	public static Map getOriginalDefaultOptions();
-</pre>
-</li>
-</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=293240">293240</a>
