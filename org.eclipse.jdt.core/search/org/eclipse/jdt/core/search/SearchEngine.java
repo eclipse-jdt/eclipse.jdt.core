@@ -199,13 +199,13 @@ public class SearchEngine {
 	 * <p>
 	 * By default, hierarchy scopes include all direct and indirect supertypes and subtypes of the
 	 * focus type. This method, however, allows to restrict the hierarchy to true subtypes,
-	 * not including supertypes. Also inclusion of the focus type itself is controled by a parameter. 
+	 * and exclude supertypes. Also, inclusion of the focus type itself is controlled by a parameter. 
 	 * </p>
 	 * 
 	 * @param project the project to which to constrain the search, or <code>null</code> if
 	 *        search should consider all types in the workspace 
 	 * @param type the focus of the hierarchy scope
-	 * @param onlySubtypes if true only subtypes of <code>type</code> are considered
+	 * @param onlySubtypes if <code>true</code> only subtypes of <code>type</code> are considered
 	 * @param includeFocusType if true the focus type <code>type</code> is included in the resulting scope, 
 	 * 		  otherwise it is excluded
 	 * @param owner the owner of working copies that take precedence over original compilation units, 
