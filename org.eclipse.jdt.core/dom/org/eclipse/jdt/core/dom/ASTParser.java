@@ -49,6 +49,12 @@ import org.eclipse.jdt.internal.core.util.Util;
  * char[] source = ...;
  * ASTParser parser = ASTParser.newParser(AST.JLS3);  // handles JDK 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6
  * parser.setSource(source);
+ * // In order to parse 1.5 code, some compiler options need to be set to 1.5
+ * Map options = JavaCore.getOptions();
+ * options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+ * options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+ * options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+ * parset.setCompilerOptions(options);
  * CompilationUnit result = (CompilationUnit) parser.createAST(null);
  * </pre>
  * Once a configured parser instance has been used to create an AST,
