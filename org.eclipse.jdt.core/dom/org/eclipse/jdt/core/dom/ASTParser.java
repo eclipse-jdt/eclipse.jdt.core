@@ -565,6 +565,12 @@ public class ASTParser {
 	 * <p>This source is not used when the AST is built using 
 	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
 	 *
+	 * <p>If this method is used, the user needs to specify compiler options explicitly using
+	 * {@link #setCompilerOptions(Map)} as 1.5 code will not be properly parsed without setting
+	 * the appropriate values for the compiler options: {@link JavaCore#COMPILER_SOURCE},
+	 * {@link JavaCore#COMPILER_CODEGEN_TARGET_PLATFORM}, and {@link JavaCore#COMPILER_COMPLIANCE}.</p>
+	 * <p>Otherwise the default values for the compiler options will be used to parse the given source.</p>
+	 *
 	 * @param source the source string to be parsed,
 	 * or <code>null</code> if none
 	 */
