@@ -51,10 +51,8 @@ import org.eclipse.jdt.internal.core.util.Util;
  * parser.setSource(source);
  * // In order to parse 1.5 code, some compiler options need to be set to 1.5
  * Map options = JavaCore.getOptions();
- * options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
- * options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
- * options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
- * parset.setCompilerOptions(options);
+ * JavaCore.setComplianceOptions(JavaCore.VERSION_1_5, options);
+ * parser.setCompilerOptions(options);
  * CompilationUnit result = (CompilationUnit) parser.createAST(null);
  * </pre>
  * Once a configured parser instance has been used to create an AST,
@@ -303,7 +301,7 @@ public class ASTParser {
 	}
 	
 	/**
-	 * Sets the environment that can be used when no {@link IJavaProject} are available.
+	 * Sets the environment to be used when no {@link IJavaProject} is available.
 	 * 
 	 * <p>The user has to make sure that all the required types are included either in the classpath or source paths. 
 	 * All the paths containing binary types must be included in the <code>classpathEntries</code> whereas all paths containing  
@@ -574,6 +572,7 @@ public class ASTParser {
 	 *
 	 * @param source the source string to be parsed,
 	 * or <code>null</code> if none
+	 * @see JavaCore#setComplianceOptions(String, Map)
 	 */
 	public void setSource(char[] source) {
 		this.rawSource = source;
