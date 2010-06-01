@@ -1524,10 +1524,11 @@ public void test012(){
         "                       created); this option can be overridden per source\n" +
         "                       directory\n" +
         "    -d none            generate no .class files\n" +
-        "    -encoding <enc>    specify custom encoding for all sources. If multiple \n" + 
-        "                       encodings are specified, the last one will be used. Each\n" + 
+        "    -encoding <enc>    specify default encoding for all source files. Each\n" + 
         "                       file/directory can override it when suffixed with\n" + 
         "                       ''[''<enc>'']'' (e.g. X.java[utf8]).\n" + 
+        "                       If multiple default encodings are specified, the last\n" + 
+        "                       one will be used.\n" + 
         " \n" +
         " Compliance options:\n" +
         "    -1.3               use 1.3 compliance (-source 1.3 -target 1.1)\n" +
