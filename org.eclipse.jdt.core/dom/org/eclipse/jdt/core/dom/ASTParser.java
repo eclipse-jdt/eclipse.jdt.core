@@ -303,14 +303,15 @@ public class ASTParser {
 	}
 	
 	/**
-	 * Set the environment that can be used when no IJavaProject are available.
+	 * Sets the environment that can be used when no {@link IJavaProject} are available.
 	 * 
-	 * <p>The user has to be sure to include all required types on the classpaths for binary types
-	 * or on the sourcepaths for source types to resolve the given source code.</p>
-	 * <p>All classpath and sourcepath entries are absolute paths.</p>
-	 * <p>If sourcepaths contain units using a specific encoding (not the platform encoding), then the
-	 * given <code>encodings</code> must be set. If the given <code>encodings</code> is set, its length must
-	 * match the length of the sourcepaths parameter or an IllegalArgumentException will be thrown.</p>
+	 * <p>The user has to make sure that all the required types are included either in the classpath or source paths. 
+	 * All the paths containing binary types must be included in the <code>classpathEntries</code> whereas all paths containing  
+	 * source types must be included in the <code>sourcepathEntries</code>.</p>
+	 * <p>All paths in the <code>classpathEntries</code> and <code>sourcepathEntries</code> are absolute paths.</p>
+	 * <p>If the source paths contain units using a specific encoding (other than the platform encoding), then the
+	 * given <code>encodings</code> must be set. When the <code>encodings</code> is set to non <code>null</code>, its length must
+	 * match the length of <code>sourcepathEntries</code> or an IllegalArgumentException will be thrown.</p>
 	 * <p>If <code>encodings</code> is not <code>null</code>, the given <code>sourcepathEntries</code> must not be <code>null</code>.</p>
 	 * 
 	 * @param classpathEntries the given classpath entries to be used to resolve bindings
