@@ -1567,8 +1567,8 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *			<li>{@link #R_EXACT_MATCH} | {@link #R_ERASURE_MATCH}: if a case
  *				insensitive and erasure match is requested.</li>
  *		</ul>
- * 	Note that {@link #R_ERASURE_MATCH} or {@link #R_EQUIVALENT_MATCH} has no effect
- * 	on non-generic types/methods search.
+ * 	<p>Note that {@link #R_ERASURE_MATCH} or {@link #R_EQUIVALENT_MATCH} has no effect
+ * 	on non-generic types/methods search.</p>
  * 	<p>
  * 	Note also that the default behavior for generic types/methods search is to find exact matches.</p>
  * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed
