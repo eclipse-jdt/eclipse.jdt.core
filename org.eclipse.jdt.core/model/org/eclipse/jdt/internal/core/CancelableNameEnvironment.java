@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 
-public class CancelableNameEnvironment extends SearchableEnvironment implements INameEnviromentWithProgress {
+public class CancelableNameEnvironment extends SearchableEnvironment implements INameEnvironmentWithProgress {
 	private IProgressMonitor monitor;
 
 	public CancelableNameEnvironment(JavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {

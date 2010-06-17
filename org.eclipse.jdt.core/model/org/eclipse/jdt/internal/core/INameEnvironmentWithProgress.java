@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
  * 
  * @since 3.6
  */
-public interface INameEnviromentWithProgress extends INameEnvironment {
+public interface INameEnvironmentWithProgress extends INameEnvironment {
 	
 	/**
 	 * Set the monitor for the given name environment. In order to be able to cancel this name environment calls,

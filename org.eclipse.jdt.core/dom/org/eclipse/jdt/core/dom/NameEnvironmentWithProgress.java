@@ -15,17 +15,17 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
-import org.eclipse.jdt.internal.core.INameEnviromentWithProgress;
+import org.eclipse.jdt.internal.core.INameEnvironmentWithProgress;
 import org.eclipse.jdt.internal.core.NameLookup;
 
 /**
- * Batch name environment that is cancelable using a monitor.
+ * Batch name environment that can be canceled using a monitor.
  * @since 3.6
  */
-class NameEnviromentWithProgress extends FileSystem implements INameEnviromentWithProgress {
+class NameEnvironmentWithProgress extends FileSystem implements INameEnvironmentWithProgress {
 	IProgressMonitor monitor;
 	
-	public NameEnviromentWithProgress(Classpath[] paths, String[] initialFileNames, IProgressMonitor monitor) {
+	public NameEnvironmentWithProgress(Classpath[] paths, String[] initialFileNames, IProgressMonitor monitor) {
 		super(paths, initialFileNames);
 		setMonitor(monitor);
 	}
