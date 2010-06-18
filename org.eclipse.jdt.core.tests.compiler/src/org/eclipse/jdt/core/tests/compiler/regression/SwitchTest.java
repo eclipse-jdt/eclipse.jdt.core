@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 IBM Corporation and others.
+ * Copyright (c) 2005, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,9 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class SwitchTest extends AbstractRegressionTest {
-
+static {
+//	TESTS_NUMBERS = new int[] { 22 };
+}
 public SwitchTest(String name) {
 	super(name);
 }
@@ -729,6 +731,103 @@ public void test018() {
 		}
 	}
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
+public void test019() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	this.runConformTest(new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		try {\n" +
+		"			switch((Integer) null) {};\n" + 
+		"			System.out.println(\"FAILED\");\n" + 
+		"		} catch(NullPointerException e) {\n" + 
+		"			System.out.println(\"SUCCESS\");\n" + 
+		"		}\n" +
+		"	}\n" +
+		"}\n",
+	},
+	"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
+public void test020() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	this.runConformTest(new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		try {\n" +
+		"			switch(foo()) {};\n" + 
+		"			System.out.println(\"FAILED\");\n" + 
+		"		} catch(NullPointerException e) {\n" + 
+		"			System.out.println(\"SUCCESS\");\n" + 
+		"		}\n" +
+		"	}" +
+		"	static Integer foo() {\n" +
+		"		return (Integer) null;\n" +
+		"	}\n" +
+		"}\n",
+	},
+	"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
+public void test021() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	this.runConformTest(new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		try {\n" +
+		"			switch((Character) null) {\n" + 
+		"				default: System.out.println(\"FAILED\");\n" + 
+		"			}\n" + 
+		"		} catch(NullPointerException e) {\n" + 
+		"			System.out.println(\"SUCCESS\");\n" + 
+		"		}\n" +
+		"	}\n" +
+		"}\n",
+	},
+	"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
+public void test022() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	this.runConformTest(new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		java.math.RoundingMode mode = null;\n" + 
+		"		try {\n" +
+		"			switch (mode) {}\n" + 
+		"			System.out.println(\"FAILED\");\n" + 
+		"		} catch(NullPointerException e) {\n" + 
+		"			System.out.println(\"SUCCESS\");\n" + 
+		"		}\n" +
+		"	}\n" +
+		"}\n",
+	},
+	"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
+public void test023() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	this.runConformTest(new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		java.math.RoundingMode mode = java.math.RoundingMode.FLOOR;\n" + 
+		"		try {\n" +
+		"			switch (mode) {\n" +
+		"				default: System.out.println(\"SUCCESS\");\n" + 
+		"			}\n" + 
+		"		} catch(NullPointerException e) {\n" + 
+		"			System.out.println(\"FAILED\");\n" + 
+		"		}\n" +
+		"	}\n" +
+		"}\n",
+	},
+	"SUCCESS");
 }
 public static Class testClass() {
 	return SwitchTest.class;
