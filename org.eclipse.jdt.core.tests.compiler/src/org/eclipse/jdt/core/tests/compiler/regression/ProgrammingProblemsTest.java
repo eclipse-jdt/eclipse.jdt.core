@@ -35,7 +35,7 @@ public ProgrammingProblemsTest(String name) {
   	// -Dcompliance=1.4 (for example) to lower it if needed
   	static {
 //    	TESTS_NAMES = new String[] { "test001" };
-//    	TESTS_NUMBERS = new int[] { 1 };
+//		TESTS_NUMBERS = new int[] { 43 };
 //  	TESTS_RANGE = new int[] { 1, -1 };
   	}
 
@@ -1619,5 +1619,23 @@ public void test0042() {
 			null /* customOptions */,
 			null /* clientRequestor */,
 			true /* skipJavac */);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=313825
+public void test0043() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"	void foo(int i) {\n" + 
+			"		foo((a));\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	foo((a));\n" + 
+		"	     ^\n" + 
+		"a cannot be resolved to a variable\n" + 
+		"----------\n");
 }
 }
