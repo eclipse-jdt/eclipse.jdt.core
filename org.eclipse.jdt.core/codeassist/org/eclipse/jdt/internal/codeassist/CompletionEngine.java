@@ -520,6 +520,7 @@ public final class CompletionEngine
 	boolean assistNodeIsConstructor;
 	boolean assistNodeIsSuperType;
 	boolean assistNodeIsExtendedType;
+	boolean assistNodeIsInterfaceExcludingAnnotation; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=310423
 	int  assistNodeInJavadoc = 0;
 	boolean assistNodeCanBeSingleMemberAnnotation = false;
 	
@@ -2780,6 +2781,7 @@ public final class CompletionEngine
 			this.assistNodeIsInterface = ref.isInterface();
 			this.assistNodeIsSuperType = ref.isSuperType();
 			this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
+			this.assistNodeIsInterfaceExcludingAnnotation = assistNodeIsInterfaceExcludingAnnotation(astNode, astNodeParent);
 
 			this.completionToken = ref.completionIdentifier;
 			long completionPosition = ref.sourcePositions[ref.tokens.length];
@@ -2838,6 +2840,22 @@ public final class CompletionEngine
 		} else if (astNodeParent instanceof Wildcard) {
 			Wildcard wildcard = (Wildcard) astNodeParent;
 			return (wildcard.bound == astNode && wildcard.kind == Wildcard.EXTENDS);
+		}
+		return false;
+	}
+	
+	private boolean assistNodeIsInterfaceExcludingAnnotation(ASTNode astNode, ASTNode astNodeParent) {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=310423, don't propose annotations for implements.
+		if (astNodeParent == null)
+			return false;
+		if (astNodeParent instanceof TypeDeclaration) {
+			TypeDeclaration typeDeclaration = (TypeDeclaration) astNodeParent;
+			TypeReference [] superInterfaces = typeDeclaration.superInterfaces;
+			int length = superInterfaces == null ? 0 : superInterfaces.length;
+			for (int i = 0; i < length; i++) {
+				if (superInterfaces[i] == astNode)
+					return true;
+			}
 		}
 		return false;
 	}
@@ -3041,6 +3059,7 @@ public final class CompletionEngine
 		this.assistNodeIsConstructor = ref.isConstructorType;
 		this.assistNodeIsSuperType = ref.isSuperType();
 		this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
+		this.assistNodeIsInterfaceExcludingAnnotation = assistNodeIsInterfaceExcludingAnnotation(astNode, astNodeParent);
 
 		this.completionToken = ref.completionIdentifier;
 		long completionPosition = ref.sourcePositions[ref.tokens.length];
@@ -3175,6 +3194,7 @@ public final class CompletionEngine
 		this.assistNodeIsConstructor = singleRef.isConstructorType;
 		this.assistNodeIsSuperType = singleRef.isSuperType();
 		this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
+		this.assistNodeIsInterfaceExcludingAnnotation = assistNodeIsInterfaceExcludingAnnotation(astNode, astNodeParent);
 
 		// can be the start of a qualified type name
 		if (qualifiedBinding == null) {
@@ -9291,6 +9311,7 @@ public final class CompletionEngine
 			typesFound.add(memberType);
 
 			if (this.assistNodeIsExtendedType && memberType.isFinal()) continue next;
+			if (this.assistNodeIsInterfaceExcludingAnnotation && memberType.isAnnotationType()) continue next;
 			if(!this.insideQualifiedReference) {
 				if(this.assistNodeIsClass) {
 					if(!memberType.isClass()) continue next;
@@ -9779,6 +9800,7 @@ public final class CompletionEngine
 								}
 
 								if (this.assistNodeIsExtendedType && localType.isFinal()) continue next;
+								if (this.assistNodeIsInterfaceExcludingAnnotation && localType.isAnnotationType()) continue next;
 								if(this.assistNodeIsClass) {
 									if(!localType.isClass()) continue next;
 								} else if(this.assistNodeIsInterface) {
@@ -10160,6 +10182,7 @@ public final class CompletionEngine
 				typesFound.add(sourceType);
 
 				if (this.assistNodeIsExtendedType && sourceType.isFinal()) continue next;
+				if (this.assistNodeIsInterfaceExcludingAnnotation && sourceType.isAnnotationType()) continue next;
 				if(this.assistNodeIsClass) {
 					if(!sourceType.isClass()) continue next;
 				} else if(this.assistNodeIsInterface) {
@@ -10293,6 +10316,8 @@ public final class CompletionEngine
 				int searchFor = IJavaSearchConstants.TYPE;
 				if(this.assistNodeIsClass) {
 					searchFor = IJavaSearchConstants.CLASS;
+				} else if (this.assistNodeIsInterfaceExcludingAnnotation) {
+					searchFor = IJavaSearchConstants.INTERFACE;
 				} else if(this.assistNodeIsInterface) {
 					searchFor = IJavaSearchConstants.INTERFACE_AND_ANNOTATION;
 				} else if(this.assistNodeIsEnum) {
@@ -10385,6 +10410,7 @@ public final class CompletionEngine
 					continue;
 
 			    if (this.assistNodeIsExtendedType && sourceType.isFinal()) continue;
+			    if (this.assistNodeIsInterfaceExcludingAnnotation && sourceType.isAnnotationType()) continue;
 				int accessibility = IAccessRule.K_ACCESSIBLE;
 				if(sourceType.hasRestrictedAccess()) {
 					AccessRestriction accessRestriction = this.lookupEnvironment.getAccessRestriction(sourceType);
@@ -10472,6 +10498,8 @@ public final class CompletionEngine
 			int searchFor = IJavaSearchConstants.TYPE;
 			if(this.assistNodeIsClass) {
 				searchFor = IJavaSearchConstants.CLASS;
+			} else if (this.assistNodeIsInterfaceExcludingAnnotation) {
+				searchFor = IJavaSearchConstants.INTERFACE;
 			} else if(this.assistNodeIsInterface) {
 				searchFor = IJavaSearchConstants.INTERFACE_AND_ANNOTATION;
 			} else if(this.assistNodeIsEnum) {
@@ -10578,6 +10606,7 @@ public final class CompletionEngine
 						}
 
 						if (this.assistNodeIsExtendedType && refBinding.isFinal()) continue next;
+						if (this.assistNodeIsInterfaceExcludingAnnotation && refBinding.isAnnotationType()) continue next;
 						if(this.assistNodeIsClass) {
 							if(!refBinding.isClass()) continue next;
 						} else if(this.assistNodeIsInterface) {
@@ -10708,6 +10737,7 @@ public final class CompletionEngine
 							typesFound.add(typeBinding);
 							
 							if (this.assistNodeIsExtendedType && typeBinding.isFinal()) continue;
+							if (this.assistNodeIsInterfaceExcludingAnnotation && typeBinding.isAnnotationType()) continue;
 							if(this.assistNodeIsClass) {
 								if(!typeBinding.isClass()) continue;
 							} else if(this.assistNodeIsInterface) {
@@ -10811,6 +10841,7 @@ public final class CompletionEngine
 							typesFound.add(typeBinding);
 
 							if (this.assistNodeIsExtendedType && typeBinding.isFinal()) continue;
+							if (this.assistNodeIsInterfaceExcludingAnnotation && typeBinding.isAnnotationType()) continue;
 							if(this.assistNodeIsClass) {
 								if(!typeBinding.isClass()) continue;
 							} else if(this.assistNodeIsInterface) {

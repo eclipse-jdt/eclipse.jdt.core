@@ -12,7 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.internal.codeassist.complete.*;
+import org.eclipse.jdt.internal.codeassist.complete.InvalidCursorLocation;
 
 public class CompletionParserTest extends AbstractCompletionTest {
 public CompletionParserTest(String testName) {
@@ -8629,6 +8629,60 @@ public void test017(){
 		str.toCharArray(),
 		cursorLocation,
 		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=310423
+// To verify that assist node parent is set to the the type declaration
+// when completion is requested after implements in a type declaration.
+public void testBug310423(){
+	String str =
+		"import java.lang.annotation.Annotation;\n" +
+		"interface In {}\n" +
+		"interface Inn {\n" +
+		"	interface Inn2 {}\n" +
+		"	@interface InAnnot {}\n" +
+		"}\n" +
+		"@interface InnAnnot {}\n"+
+		"public class Test implements In{\n" +
+		"}\n";
+
+	String testName = "";
+	String completeBehind = "In";
+	String expectedCompletionNodeToString = "<CompleteOnInterface:In>";
+	String expectedParentNodeToString = 
+		"public class Test implements <CompleteOnInterface:In> {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"}";
+	String completionIdentifier = "In";
+	String expectedReplacedSource = "In";
+	int cursorLocation = str.lastIndexOf("In") + completeBehind.length() - 1;
+	String expectedUnitDisplayString =
+		"import java.lang.annotation.Annotation;\n" + 
+		"interface In {\n" + 
+		"}\n" + 
+		"interface Inn {\n" + 
+		"  interface Inn2 {\n" + 
+		"  }\n" + 
+		"  @interface InAnnot {\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"@interface InnAnnot {\n" + 
+		"}\n" + 
+		"public class Test implements <CompleteOnInterface:In> {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" +
+		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,

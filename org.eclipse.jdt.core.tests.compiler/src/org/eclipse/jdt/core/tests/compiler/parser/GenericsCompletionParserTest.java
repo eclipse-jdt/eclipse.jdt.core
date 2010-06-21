@@ -461,7 +461,11 @@ public void test0015(){
 	String completeBehind = "Y<Z>.";
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnInterface:Y<Z>.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = 
+		"public class X implements I1, <CompleteOnInterface:Y<Z>.> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
 	String expectedUnitDisplayString =

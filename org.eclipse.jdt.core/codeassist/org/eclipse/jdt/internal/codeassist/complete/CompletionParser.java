@@ -2157,6 +2157,21 @@ protected void consumeClassHeaderExtends() {
 		}
 	}
 }
+protected void consumeClassHeaderImplements() {
+	super.consumeClassHeaderImplements();
+	if (this.assistNode != null && this.assistNodeParent == null) {
+		TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
+		if (typeDecl != null) {
+			TypeReference[] superInterfaces = typeDecl.superInterfaces;
+			int length = superInterfaces == null ? 0 : superInterfaces.length;
+			for (int i = 0; i < length; i++) {
+				if (superInterfaces[i] == this.assistNode) {
+					this.assistNodeParent = typeDecl;
+				}	
+			}
+		}
+	}
+}
 protected void consumeClassTypeElt() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
 	super.consumeClassTypeElt();

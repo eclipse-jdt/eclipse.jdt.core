@@ -6602,7 +6602,6 @@ public void test0205() throws JavaModelException {
 	            result.context);
 
 	    assertResults(
-	            "ZZType.ZZAnnotation[TYPE_REF]{p.ZZType.ZZAnnotation, p, Lp.ZZType$ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_INTERFACE + R_NON_RESTRICTED) + "}\n" +
 				"ZZType.ZZInterface[TYPE_REF]{p.ZZType.ZZInterface, p, Lp.ZZType$ZZInterface;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_INTERFACE + R_NON_RESTRICTED) + "}",
 	            result.proposals);
 	} finally {
@@ -13813,6 +13812,62 @@ public void testLabel() throws JavaModelException {
 
 	assertResults(
 			"\ud842\udf9fabc[LABEL_REF]{\ud842\udf9fabc, null, null, \ud842\udf9fabc, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=310423
+// Annotation types are not proposed after 'implements' in a Single type ref
+public void testBug310423a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/label/Test.java",
+		"import java.lang.annotation.Annotation;\n" +
+		"interface In {}\n" +
+		"interface Inn {\n" +
+		"	interface Inn2 {}\n" +
+		"	@interface IAnnot {}\n" +
+		"}\n" +
+		"@interface InnAnnot {}\n"+
+		"public class Test implements {\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "implements";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length() + 1;
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Inn.Inn2[TYPE_REF]{label.Inn.Inn2, label, Llabel.Inn$Inn2;, null, null, 44}\n" +
+			"In[TYPE_REF]{In, label, Llabel.In;, null, null, 47}\n" +
+			"Inn[TYPE_REF]{Inn, label, Llabel.Inn;, null, null, 47}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=310423
+// Annotation types are not proposed after 'implements' in a Qualified type ref
+public void testBug310423b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/label/Test.java",
+		"interface In{}\n" +
+		"interface Inn{\n" +
+		"	interface Inn2{}\n" +
+		"	interface Inn3{}\n" +
+		"	@interface IAnnot {}\n" +
+		"}"+
+		"public class Test implements Inn. {\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Inn.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length() + 1;
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Inn.Inn2[TYPE_REF]{Inn2, label, Llabel.Inn$Inn2;, null, null, 44}\n" +
+			"Inn.Inn3[TYPE_REF]{Inn3, label, Llabel.Inn$Inn3;, null, null, 44}",
 			requestor.getResults());
 }
 }
