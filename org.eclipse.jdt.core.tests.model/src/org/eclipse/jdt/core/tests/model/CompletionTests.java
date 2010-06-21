@@ -4894,7 +4894,6 @@ public void testCompletionEmptyTypeName2() throws JavaModelException {
 
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 		assertEquals(
-			"element:a    completion:a    relevance:"+(R_DEFAULT + R_RESOLVED + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:clone    completion:clone()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:finalize    completion:finalize()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
@@ -4912,7 +4911,6 @@ public void testCompletionEmptyTypeName2() throws JavaModelException {
 		assertEquals(
 			"element:A    completion:A    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:CompletionEmptyTypeName2    completion:CompletionEmptyTypeName2    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:a    completion:a    relevance:"+(R_DEFAULT + R_RESOLVED + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:clone    completion:clone()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:finalize    completion:finalize()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
@@ -4954,8 +4952,7 @@ public void testCompletionEmptyTypeName3() throws JavaModelException {
 			"element:toString    completion:toString()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:x    completion:x    relevance:"+(R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE+ R_NON_RESTRICTED),
+			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 			requestor.getResults());
 	} else {
 		assertEquals(
@@ -4974,8 +4971,7 @@ public void testCompletionEmptyTypeName3() throws JavaModelException {
 			"element:toString    completion:toString()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
 			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
-			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED)+"\n" +
-			"element:x    completion:x    relevance:"+(R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE+ R_NON_RESTRICTED),
+			"element:wait    completion:wait()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_VOID + R_NON_RESTRICTED),
 			requestor.getResults());
 	}
 }
@@ -8333,7 +8329,6 @@ public void testCompletionKeywordFalse5() throws JavaModelException {
 			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"test[FIELD_REF]{test, Ltest.Test;, Z, test, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
 			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
 			"false[KEYWORD]{false, null, null, false, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_TRUE_OR_FALSE + R_NON_RESTRICTED) + "}\n" +
 			"true[KEYWORD]{true, null, null, true, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_TRUE_OR_FALSE + R_NON_RESTRICTED) + "}",
@@ -21331,6 +21326,56 @@ public void testBug261534b() throws JavaModelException {
 	
 	assertResults(
 			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, replace[" + start1 + ", " + end1 + "], token[" + start1 + ", " + end1 +"], " + relevance1 + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=310427
+// To verify that we don't get proposals for the field in whose declaration
+// content assist is being invoked
+public void testBug310427a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"	private int myField1;\n" +
+		"   private int myField2 = myFiel;\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "private int myField2 = myFiel";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"myField1[FIELD_REF]{myField1, Ltest.Test;, I, myField1, null, 57}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=310427
+// To verify that we don't get proposals for the local variable in whose declaration
+// content assist is being invoked
+public void testBug310427b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"	public static void main() {\n" +
+		"		int myVar1 = 1;\n" +
+		"		int myVar2 = myVar;\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "int myVar2 = myVar";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"myVar1[LOCAL_VARIABLE_REF]{myVar1, null, I, myVar1, null, 57}",
 			requestor.getResults());
 }
 }

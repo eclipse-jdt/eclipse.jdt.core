@@ -5947,6 +5947,16 @@ public final class CompletionEngine
 
 			if (this.options.checkVisibility
 				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
+			
+			int ptr = this.uninterestingBindingsPtr;
+			// Cases where the binding is uninteresting eg. for completion occurring inside a field declaration,
+			// the field binding is uninteresting and shouldn't be proposed.
+			while (ptr >= 0) {
+				if (this.uninterestingBindings[ptr] == field) {
+					continue next;
+				}
+				ptr--;
+			}
 
 			boolean prefixRequired = false;
 
@@ -11312,6 +11322,16 @@ public final class CompletionEngine
 
 							if (local.isSecret())
 								continue next;
+							
+							int ptr = this.uninterestingBindingsPtr;
+							// Cases where the binding is uninteresting eg. for completion occurring inside a local var
+							// declaration, the local var binding is uninteresting and shouldn't be proposed.
+							while (ptr >= 0) {
+								if (this.uninterestingBindings[ptr] == local) {
+									continue next;
+								}
+								ptr--;
+							}
 
 							for (int f = 0; f < localsFound.size; f++) {
 								LocalVariableBinding otherLocal =
