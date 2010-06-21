@@ -6889,6 +6889,7 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 */
 	String[] arguments = new String[] {new String(binding.readableName())};
 	int end = nameRef.sourceEnd;
+	int sourceStart = nameRef.sourceStart;
 	if (nameRef instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) nameRef;
 		if (isRecoveredName(ref.tokens)) return;
@@ -6897,6 +6898,11 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 	} else {
 		SingleNameReference ref = (SingleNameReference) nameRef;
 		if (isRecoveredName(ref.token)) return;
+		int numberOfParens = (ref.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+		if (numberOfParens != 0) {
+			sourceStart = retrieveStartingPositionAfterOpeningParenthesis(sourceStart, end, numberOfParens);
+			end = retrieveEndingPositionAfterOpeningParenthesis(sourceStart, end, numberOfParens);
+		}
 	}
 	int problemId = (nameRef.bits & Binding.VARIABLE) != 0 && (nameRef.bits & Binding.TYPE) == 0
 		? IProblem.UnresolvedVariable
@@ -6905,7 +6911,7 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 		problemId,
 		arguments,
 		arguments,
-		nameRef.sourceStart,
+		sourceStart,
 		end);
 }
 public void unsafeCast(CastExpression castExpression, Scope scope) {
