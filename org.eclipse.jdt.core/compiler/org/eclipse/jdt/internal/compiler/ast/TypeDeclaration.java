@@ -1187,6 +1187,28 @@ public void resolve(BlockScope blockScope) {
 			ReferenceBinding existingType = (ReferenceBinding) existing;
 			if (existingType instanceof TypeVariableBinding) {
 				blockScope.problemReporter().typeHiding(this, (TypeVariableBinding) existingType);
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=312989, check for collision with enclosing type.
+				Scope outerScope = blockScope.parent;
+checkOuterScope:while (outerScope != null) {
+					Binding existing2 = outerScope.getType(this.name);
+					if (existing2 instanceof TypeVariableBinding && existing2.isValidBinding()) {
+						TypeVariableBinding tvb = (TypeVariableBinding) existingType;
+						Binding declaringElement = tvb.declaringElement;
+						if (declaringElement instanceof ReferenceBinding
+								&& CharOperation.equals(((ReferenceBinding) declaringElement).sourceName(), this.name)) {
+							blockScope.problemReporter().typeCollidesWithEnclosingType(this);
+							break checkOuterScope;
+						}
+					} else if (existing2 instanceof ReferenceBinding
+							&& existing2.isValidBinding()
+							&& outerScope.isDefinedInType((ReferenceBinding) existing2)) { 
+							blockScope.problemReporter().typeCollidesWithEnclosingType(this);
+							break checkOuterScope;
+					} else if (existing2 == null) {
+						break checkOuterScope;
+					}
+					outerScope = outerScope.parent;
+				}
 			} else if (existingType instanceof LocalTypeBinding
 						&& ((LocalTypeBinding) existingType).scope.methodScope() == blockScope.methodScope()) {
 					// dup in same method
