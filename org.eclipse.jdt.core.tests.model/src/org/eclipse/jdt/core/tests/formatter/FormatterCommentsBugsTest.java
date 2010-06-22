@@ -6758,7 +6758,7 @@ public void testBug309835_wksp2_01() {
  * @test Ensure that no NPE occurs while formatting an empty code inline tag.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311864"
  */
-public void testBug0311864() throws JavaModelException {
+public void testBug311864() throws JavaModelException {
 	this.formatterPrefs.use_tags = true;
 	String source =
 		"public class Test {\n" + 
@@ -6794,6 +6794,27 @@ public void testBug0311864() throws JavaModelException {
 		"		return value1 > value2;\n" + 
 		"	}\n" + 
 		"}\n"
+	);
+}
+
+/**
+ * @bug 315732: [formatter] NullPointerException (always) on inserting a custom template proposal into java code when "Use code formatter" is on
+ * @test Ensure that no NPE occurs when inserting the custom template
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=315732"
+ */
+public void testBug315732() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	String source =
+		"// ============================================================================\r\n" +
+		"// /*-*/\r\n" +
+		"// ============================================================================\r\n";
+	formatSource(source,
+		"	// ============================================================================\n" + 
+		"	// /*-*/\n" + 
+		"	// ============================================================================\n",
+		CodeFormatter.K_UNKNOWN,
+		1,
+		true
 	);
 }
 
