@@ -818,7 +818,20 @@ private static void setOutputDir(File inputDir, String dir, int profiles) {
 	}
 
 	// Compute the final output dir
-	OUTPUT_DIR = new File(new File(OUTPUT_DIR, ECLIPSE_VERSION), inputDir.getName());
+	File parent = new File(OUTPUT_DIR, ECLIPSE_VERSION);
+	if (!parent.exists()) {
+		try {
+			int version = Integer.parseInt(ECLIPSE_VERSION.substring(1));
+			File maintenance = new File(OUTPUT_DIR, "v"+(version-1));
+			if (maintenance.exists()) {
+				parent = maintenance;
+			}
+		}
+		catch (NumberFormatException nfe) {
+			// skip
+		}
+	}
+	OUTPUT_DIR = new File(parent, inputDir.getName());
 }
 
 private static void initFailures() {
