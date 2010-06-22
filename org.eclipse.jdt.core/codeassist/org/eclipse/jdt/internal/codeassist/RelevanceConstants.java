@@ -53,4 +53,5 @@ public interface RelevanceConstants {
 	int R_NO_PROBLEMS = 1;
 	int R_RESOLVED = 1;
 	int R_TARGET = 5;
+	int R_FINAL = 3; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
 }

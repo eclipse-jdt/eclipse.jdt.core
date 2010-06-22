@@ -523,6 +523,7 @@ public final class CompletionEngine
 	boolean assistNodeIsInterfaceExcludingAnnotation; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=310423
 	int  assistNodeInJavadoc = 0;
 	boolean assistNodeCanBeSingleMemberAnnotation = false;
+	boolean assistNodeIsInsideCase = false; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
 	
 	long targetedElement;
 	
@@ -2860,6 +2861,21 @@ public final class CompletionEngine
 		return false;
 	}
 	
+	private boolean assistNodeIsInsideCase(ASTNode astNode, ASTNode astNodeParent) {
+		// To find whether we're completing inside the case expression in a 
+		// switch case construct (https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346)
+		if (astNodeParent instanceof SwitchStatement) {
+			CaseStatement[] cases = ((SwitchStatement) astNodeParent).cases;
+			for (int i = 0, caseCount = ((SwitchStatement) astNodeParent).caseCount; i < caseCount; i++) {
+				CompletionNodeDetector detector = new CompletionNodeDetector(astNode, cases[i]);
+				if (detector.containsCompletionNode()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	private void completionOnQualifiedAllocationExpression(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
 		setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd, false);
 
@@ -2916,6 +2932,7 @@ public final class CompletionEngine
 			(CompletionOnQualifiedNameReference) astNode;
 		this.completionToken = ref.completionIdentifier;
 		long completionPosition = ref.sourcePositions[ref.sourcePositions.length - 1];
+		this.assistNodeIsInsideCase = assistNodeIsInsideCase(astNode, this.parser.assistNodeParent);
 
 		if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
 			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
@@ -3060,7 +3077,8 @@ public final class CompletionEngine
 		this.assistNodeIsSuperType = ref.isSuperType();
 		this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
 		this.assistNodeIsInterfaceExcludingAnnotation = assistNodeIsInterfaceExcludingAnnotation(astNode, astNodeParent);
-
+		this.assistNodeIsInsideCase = assistNodeIsInsideCase(astNode, astNodeParent);
+		
 		this.completionToken = ref.completionIdentifier;
 		long completionPosition = ref.sourcePositions[ref.tokens.length];
 
@@ -3120,6 +3138,7 @@ public final class CompletionEngine
 		CompletionOnSingleNameReference singleNameReference = (CompletionOnSingleNameReference) astNode;
 		this.completionToken = singleNameReference.token;
 		SwitchStatement switchStatement = astNodeParent instanceof SwitchStatement ? (SwitchStatement) astNodeParent : null;
+		this.assistNodeIsInsideCase = assistNodeIsInsideCase(astNode, astNodeParent);
 		if (switchStatement != null
 				&& switchStatement.expression.resolvedType != null
 				&& switchStatement.expression.resolvedType.isEnum()) {
@@ -3195,7 +3214,8 @@ public final class CompletionEngine
 		this.assistNodeIsSuperType = singleRef.isSuperType();
 		this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
 		this.assistNodeIsInterfaceExcludingAnnotation = assistNodeIsInterfaceExcludingAnnotation(astNode, astNodeParent);
-
+		this.assistNodeIsInsideCase = assistNodeIsInsideCase(astNode, astNodeParent);
+		
 		// can be the start of a qualified type name
 		if (qualifiedBinding == null) {
 			if (this.completionToken.length == 0 &&
@@ -4102,6 +4122,13 @@ public final class CompletionEngine
 	private int computeRelevanceForStatic(boolean onlyStatic, boolean isStatic) {
 		if(this.insideQualifiedReference && !onlyStatic && !isStatic) {
 			return R_NON_STATIC;
+		}
+		return 0;
+	}
+	
+	private int computeRelevanceForFinal(boolean onlyFinal, boolean isFinal) {
+		if (onlyFinal && isFinal) {
+			return R_FINAL;
 		}
 		return 0;
 	}
@@ -5968,6 +5995,11 @@ public final class CompletionEngine
 			if (this.options.checkVisibility
 				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
 			
+			// don't propose array types in case expression
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
+			if (this.assistNodeIsInsideCase && field.type instanceof ArrayBinding)
+				continue next;
+			
 			int ptr = this.uninterestingBindingsPtr;
 			// Cases where the binding is uninteresting eg. for completion occurring inside a field declaration,
 			// the field binding is uninteresting and shouldn't be proposed.
@@ -6064,6 +6096,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForExpectingType(field.type);
 			relevance += computeRelevanceForEnumConstant(field.type);
 			relevance += computeRelevanceForStatic(onlyStaticFields, field.isStatic());
+			relevance += computeRelevanceForFinal(this.assistNodeIsInsideCase, field.isFinal());
 			relevance += computeRelevanceForQualification(prefixRequired);
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 			if (onlyStaticFields && this.insideQualifiedReference) {
@@ -11353,6 +11386,11 @@ public final class CompletionEngine
 
 							if (local.isSecret())
 								continue next;
+												
+							// don't propose array types in case expression
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
+							if (this.assistNodeIsInsideCase && local.type instanceof ArrayBinding)
+								continue next;
 							
 							int ptr = this.uninterestingBindingsPtr;
 							// Cases where the binding is uninteresting eg. for completion occurring inside a local var
@@ -11380,6 +11418,7 @@ public final class CompletionEngine
 							relevance += computeRelevanceForEnumConstant(local.type);
 							relevance += computeRelevanceForQualification(false);
 							relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for local variable
+							relevance += computeRelevanceForFinal(this.assistNodeIsInsideCase, local.isFinal());
 							this.noProposal = false;
 							if(!this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
 								InternalCompletionProposal proposal =  createProposal(CompletionProposal.LOCAL_VARIABLE_REF, this.actualCompletionPosition);
