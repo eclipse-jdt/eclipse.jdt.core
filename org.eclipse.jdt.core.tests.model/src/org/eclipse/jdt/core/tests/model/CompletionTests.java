@@ -1897,7 +1897,7 @@ public void testCompletionAfterCase1() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"zzz[FIELD_REF]{zzz, LCompletionAfterCase1;, I, zzz, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}",
+			"zzz[FIELD_REF]{zzz, LCompletionAfterCase1;, I, zzz, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}",
 			requestor.getResults());
 }
 public void testCompletionAfterCase2() throws JavaModelException {
@@ -1921,7 +1921,7 @@ public void testCompletionAfterCase2() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"zzz[FIELD_REF]{zzz, LCompletionAfterCase2;, I, zzz, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}",
+			"zzz[FIELD_REF]{zzz, LCompletionAfterCase2;, I, zzz, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111882
@@ -1952,13 +1952,11 @@ public void testCompletionAfterCase3() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"ZZZ2[FIELD_REF]{ZZZ2, Ltest.CompletionAfterCase2;, J, ZZZ2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}\n" +
-			"ZZZ3[FIELD_REF]{ZZZ3, Ltest.CompletionAfterCase2;, D, ZZZ3, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}\n" +
-			"ZZZ4[FIELD_REF]{ZZZ4, Ltest.CompletionAfterCase2;, Ljava.lang.Object;, ZZZ4, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}\n" +
-			"ZZZ5[FIELD_REF]{ZZZ5, Ltest.CompletionAfterCase2;, [I, ZZZ5, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}\n" +
-			"ZZZ6[FIELD_REF]{ZZZ6, Ltest.CompletionAfterCase2;, [Ljava.lang.Object;, ZZZ6, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}\n" +
-			"ZZZ7[FIELD_REF]{ZZZ7, Ltest.CompletionAfterCase2;, S, ZZZ7, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}\n" +
-			"ZZZ1[FIELD_REF]{ZZZ1, Ltest.CompletionAfterCase2;, I, ZZZ1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}",
+			"ZZZ2[FIELD_REF]{ZZZ2, Ltest.CompletionAfterCase2;, J, ZZZ2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}\n" +
+			"ZZZ3[FIELD_REF]{ZZZ3, Ltest.CompletionAfterCase2;, D, ZZZ3, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}\n" +
+			"ZZZ4[FIELD_REF]{ZZZ4, Ltest.CompletionAfterCase2;, Ljava.lang.Object;, ZZZ4, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}\n" +
+			"ZZZ7[FIELD_REF]{ZZZ7, Ltest.CompletionAfterCase2;, S, ZZZ7, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}\n" +
+			"ZZZ1[FIELD_REF]{ZZZ1, Ltest.CompletionAfterCase2;, I, ZZZ1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111882
@@ -1995,13 +1993,11 @@ public void testCompletionAfterCase4() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"ZZZ2[FIELD_REF]{ZZZ2, Ltest.TestConstants;, J, ZZZ2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED+ R_NON_RESTRICTED) + "}\n" +
-			"ZZZ3[FIELD_REF]{ZZZ3, Ltest.TestConstants;, D, ZZZ3, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED+ R_NON_RESTRICTED) + "}\n" +
-			"ZZZ4[FIELD_REF]{ZZZ4, Ltest.TestConstants;, Ljava.lang.Object;, ZZZ4, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED+ R_NON_RESTRICTED) + "}\n" +
-			"ZZZ5[FIELD_REF]{ZZZ5, Ltest.TestConstants;, [I, ZZZ5, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED+ R_NON_RESTRICTED) + "}\n" +
-			"ZZZ6[FIELD_REF]{ZZZ6, Ltest.TestConstants;, [Ljava.lang.Object;, ZZZ6, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED+ R_NON_RESTRICTED) + "}\n" +
-			"ZZZ7[FIELD_REF]{ZZZ7, Ltest.TestConstants;, S, ZZZ7, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_QUALIFIED+ R_NON_RESTRICTED) + "}\n" +
-			"ZZZ1[FIELD_REF]{ZZZ1, Ltest.TestConstants;, I, ZZZ1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_QUALIFIED+ R_NON_RESTRICTED) + "}",
+			"ZZZ2[FIELD_REF]{ZZZ2, Ltest.TestConstants;, J, ZZZ2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}\n" +
+			"ZZZ3[FIELD_REF]{ZZZ3, Ltest.TestConstants;, D, ZZZ3, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}\n" +
+			"ZZZ4[FIELD_REF]{ZZZ4, Ltest.TestConstants;, Ljava.lang.Object;, ZZZ4, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}\n" +
+			"ZZZ7[FIELD_REF]{ZZZ7, Ltest.TestConstants;, S, ZZZ7, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_QUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}\n" +
+			"ZZZ1[FIELD_REF]{ZZZ1, Ltest.TestConstants;, I, ZZZ1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_QUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=222080
@@ -21376,6 +21372,86 @@ public void testBug310427b() throws JavaModelException {
 
 	assertResults(
 			"myVar1[LOCAL_VARIABLE_REF]{myVar1, null, I, myVar1, null, 57}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
+// To verify that array types aren't proposed inside case, and also
+// that finals have a higher priority in suggestions inside case expressions.
+public void testBug195346a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterCase2.java",
+		"package test;\n" +
+		"public class CompletionAfterCase2 {\n" +
+		"	static char[] AN_ARRAY = new char[10];\n" +
+		"	static int AN_INT_VALUE = 0;\n" +
+		"	static final int AN_INT_VALUE2 = 0;\n" +
+		"	static final char[] AN_ARRAY2 = {'a','b'};\n" +
+		"	static final int[] AN_INT_ARRAY = null;\n" +
+		"	static final Object[] ANOTHER_ARRAY = null;\n" +
+		"	void foo(int i, final int [] AN_ARRAY_PARAM){\n" +
+		"		final int AN_INT_VAR = 1;\n" +
+		"		final int[] AN_ARRAY_VAR = {1};\n" +
+		"		int AN_INT_VAR2 = 1;\n" +
+		"		switch(i) {\n" +
+		"			case AN\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "AN";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"AN_INT_VALUE[FIELD_REF]{AN_INT_VALUE, Ltest.CompletionAfterCase2;, I, AN_INT_VALUE, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+			"AN_INT_VAR2[LOCAL_VARIABLE_REF]{AN_INT_VAR2, null, I, AN_INT_VAR2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+			"AN_INT_VALUE2[FIELD_REF]{AN_INT_VALUE2, Ltest.CompletionAfterCase2;, I, AN_INT_VALUE2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE + R_FINAL) + "}\n" +
+			"AN_INT_VAR[LOCAL_VARIABLE_REF]{AN_INT_VAR, null, I, AN_INT_VAR, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE + R_FINAL) + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
+// To verify that array types aren't proposed inside case, and also
+// that finals have a higher priority in suggestions inside case expressions.
+public void testBug195346b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterCase2.java",
+		"package test;\n" +
+		"public class CompletionAfterCase2 {\n" +
+		"	class AN_INNER_CLASS {\n" +
+		"		static final int abc = 1;\n" +
+		"	}\n" +
+		"	static char[] AN_ARRAY = new char[10];\n" +
+		"	static int AN_INT_VALUE = 0;\n" +
+		"	static final int AN_INT_VALUE2 = 0;\n" +
+		"	static final char[] AN_ARRAY2 = {'a','b'};\n" +
+		"	static final int[] AN_INT_ARRAY = null;\n" +
+		"	static final Object[] ANOTHER_ARRAY = null;\n" +
+		"	void foo(int i, final int [] AN_ARRAY_PARAM){\n" +
+		"		final int AN_INT_VAR = 1;\n" +
+		"		final int[] AN_ARRAY_VAR = {1};\n" +
+		"		int AN_INT_VAR2 = 1;\n" +
+		"		switch(i) {\n" +
+		"			case CompletionAfterCase2.AN\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "AN";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"CompletionAfterCase2.AN_INNER_CLASS[TYPE_REF]{AN_INNER_CLASS, test, Ltest.CompletionAfterCase2$AN_INNER_CLASS;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"AN_INT_VALUE[FIELD_REF]{AN_INT_VALUE, Ltest.CompletionAfterCase2;, I, AN_INT_VALUE, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+			"AN_INT_VALUE2[FIELD_REF]{AN_INT_VALUE2, Ltest.CompletionAfterCase2;, I, AN_INT_VALUE2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE + R_FINAL) + "}",
 			requestor.getResults());
 }
 }
