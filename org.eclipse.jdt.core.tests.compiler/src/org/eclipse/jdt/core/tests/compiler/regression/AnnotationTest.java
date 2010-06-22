@@ -44,7 +44,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test127" };
+//		TESTS_NAMES = new String[] { "test293" };
 //		TESTS_NUMBERS = new int[] { 290, 291 };
 //		TESTS_RANGE = new int[] { 249, -1 };
 	}
@@ -9687,5 +9687,27 @@ public void test292() {
 		null,
 		options,
 		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=316456
+public void test293() {
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"@A(name = X.QUERY_NAME, query = X.QUERY)\n" +
+				"public class X {\n" +
+				"    public static final String QUERY_NAME = \"client.query.name\";\n" +
+				"    private static final String QUERY = \"from Client\";\n" +
+				"}\n" +
+				"@interface A{\n" +
+				"    String name();\n" +
+				"    String query();\n" +
+				"}\n" 
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	@A(name = X.QUERY_NAME, query = X.QUERY)\n" + 
+		"	                                  ^^^^^\n" + 
+		"The field X.QUERY is not visible\n" + 
+		"----------\n");
 }
 }

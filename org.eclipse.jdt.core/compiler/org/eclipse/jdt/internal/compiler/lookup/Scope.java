@@ -986,8 +986,10 @@ public abstract class Scope {
 
 		currentType.initializeForStaticImports();
 		FieldBinding field = currentType.getField(fieldName, needResolve);
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=316456
+		boolean insideTypeAnnotations = this instanceof MethodScope && ((MethodScope) this).insideTypeAnnotation;
 		if (field != null) {
-			if (invocationSite == null
+			if (invocationSite == null || insideTypeAnnotations
 				? field.canBeSeenBy(getCurrentPackage())
 				: field.canBeSeenBy(currentType, invocationSite, this))
 					return field;
