@@ -875,6 +875,7 @@ public class Scribe implements IJavaDocTagConstants {
 	}
 
 	int getCurrentIndentation(char[] whitespaces, int offset) {
+		if (whitespaces == null) return offset;
 		int length = whitespaces.length;
 		if (this.tabLength == 0) return length;
 		int indentation = offset;
