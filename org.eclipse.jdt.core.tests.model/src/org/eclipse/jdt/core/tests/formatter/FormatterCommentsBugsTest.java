@@ -6798,6 +6798,29 @@ public void testBug311864() throws JavaModelException {
 }
 
 /**
+ * @bug 315577: [formatter] NullPointerException (always) on inserting a custom template proposal into java code when "Use code formatter" is on
+ * @test Ensure that no NPE occurs when inserting the custom template
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=315577"
+ */
+public void testBug315577() throws JavaModelException {
+	String source =
+		"public class C {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * aaaa aaa aaa.<br>\n" + 
+		"	 * {@link C}: aaaa.<br>\n" + 
+		"	 * {@link C}: aaaa.<br>\n" + 
+		"	 * aaa {@link C}: aaaa.<br>\n" + 
+		"	 * {@link C}: aaaa<br>\n" + 
+		"	 * {@link C}: aaaa.<br>\n" + 
+		"	 */\n" + 
+		"	public C() {\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source);
+}
+
+/**
  * @bug 315732: [formatter] NullPointerException (always) on inserting a custom template proposal into java code when "Use code formatter" is on
  * @test Ensure that no NPE occurs when inserting the custom template
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=315732"

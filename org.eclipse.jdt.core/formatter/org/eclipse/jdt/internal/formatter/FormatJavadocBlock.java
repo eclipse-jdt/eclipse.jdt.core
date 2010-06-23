@@ -187,7 +187,7 @@ FormatJavadocText[] getTextHierarchy(FormatJavadocNode node, int htmlDepth) {
 		if (lastText.depth == htmlDepth || // found same html tag level => use it
 			lastText.htmlNodesPtr == -1) {	// no more sub-levels => add one
 			// Text breakage
-			if (lastText.isHtmlTag() && text != null) {
+			if (lastText.isHtmlTag()) {
 				// Set some lines before if previous was specific html tag
 				// The added text is concerned if the parent has no child yet or is top level and closing html tag
 				boolean setLinesBefore = lastText.separatorsPtr == -1 || (ptr == 0 && lastText.isClosingHtmlTag());
@@ -202,19 +202,19 @@ FormatJavadocText[] getTextHierarchy(FormatJavadocNode node, int htmlDepth) {
 				if (setLinesBefore) {
 					switch (lastText.getHtmlTagID()) {
 						case JAVADOC_CODE_TAGS_ID:
-							if (text.linesBefore < 2) {
-								text.linesBefore = 2;
+							if (node.linesBefore < 2) {
+								node.linesBefore = 2;
 							}
 							break;
 						case JAVADOC_SEPARATOR_TAGS_ID:
 				    	case JAVADOC_SINGLE_BREAK_TAG_ID:
-							if (text.linesBefore < 1) {
-								text.linesBefore = 1;
+							if (node.linesBefore < 1) {
+								node.linesBefore = 1;
 							}
 					}
 				}
 				// If adding an html tag on same html tag, then close previous one and leave
-				if (text.isHtmlTag() && !text.isClosingHtmlTag() && text.getHtmlTagIndex() == lastText.getHtmlTagIndex() && !lastText.isClosingHtmlTag()) {
+				if (text != null && text.isHtmlTag() && !text.isClosingHtmlTag() && text.getHtmlTagIndex() == lastText.getHtmlTagIndex() && !lastText.isClosingHtmlTag()) {
 					lastText.closeTag();
 					return textHierarchy;
 				}
