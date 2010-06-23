@@ -35,6 +35,10 @@ public LookupTest(String name) {
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());
 }
+
+static {
+//	TESTS_NAMES = new String [] { "test096" };
+}
 /**
  * Non-static member class
  */
@@ -3096,6 +3100,81 @@ public void test095() {
 	"	                       ^^^^^\n" + 
 	"The type p1.B1 is not visible\n" + 
 	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id= 317212
+public void test096() {
+	this.runNegativeTest(
+		new String[] {
+			"p0/B.java",//------------------------------
+			"package p0;\n" +
+			"public class B {\n" +
+			"    public static A m() {\n" +
+			"        return new A();\n" +
+			"    }\n" +
+			"}\n" +
+			"class A {\n" +
+			"        public class M {\n" +
+			"            public M() {}\n" +
+			"        }\n" +
+			"}\n",
+			"p1/C.java",//------------------------------
+			"package p1;\n" +
+			"import p0.B;\n" +
+			"public class C {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        B.m().new M();\n" +
+			"    }\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in p1\\C.java (at line 5)\n" + 
+		"	B.m().new M();\n" + 
+		"	^^^^^\n" + 
+		"The type p0.A is not visible\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id= 317212
+public void test097() {
+	this.runNegativeTest(
+		new String[] {
+			"B.java",//------------------------------
+			"public class B {\n" +
+			"    public static A m() {\n" +
+			"        return new B().new A();\n" +
+			"    }\n" +
+			"    private class A {\n" +
+			"        public class M {\n" +
+			"            public M() {}\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"class C {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        B.m().new M();\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in B.java (at line 3)\n" + 
+		"	return new B().new A();\n" + 
+		"	       ^^^^^^^^^^^^^^^\n" + 
+		"Access to enclosing constructor B.A() is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"2. WARNING in B.java (at line 6)\n" + 
+		"	public class M {\n" + 
+		"	             ^\n" + 
+		"The type B.A.M is never used locally\n" + 
+		"----------\n" + 
+		"3. WARNING in B.java (at line 7)\n" + 
+		"	public M() {}\n" + 
+		"	       ^^^\n" + 
+		"The constructor B.A.M() is never used locally\n" + 
+		"----------\n" + 
+		"4. ERROR in B.java (at line 13)\n" + 
+		"	B.m().new M();\n" + 
+		"	^^^^^\n" + 
+		"The type B$A is not visible\n" + 
+		"----------\n");
 }
 public static Class testClass() {	return LookupTest.class;
 }

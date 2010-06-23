@@ -227,6 +227,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		this.constant = Constant.NotAConstant;
 		TypeBinding enclosingInstanceType = null;
+		ReferenceBinding enclosingInstanceReference = null;
 		TypeBinding receiverType = null;
 		boolean hasError = false;
 		boolean enclosingInstanceContainsCast = false;
@@ -246,6 +247,14 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				hasError = true;
 			} else if (this.type instanceof QualifiedTypeReference) {
 				scope.problemReporter().illegalUsageOfQualifiedTypeReference((QualifiedTypeReference)this.type);
+				hasError = true;
+			} else if (!(enclosingInstanceReference = (ReferenceBinding) enclosingInstanceType).canBeSeenBy(scope)) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317212
+				enclosingInstanceType = new ProblemReferenceBinding(
+							enclosingInstanceReference.compoundName,
+							enclosingInstanceReference,
+							ProblemReasons.NotVisible);
+				scope.problemReporter().invalidType(this.enclosingInstance, enclosingInstanceType);
 				hasError = true;
 			} else {
 				receiverType = ((SingleTypeReference) this.type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingInstanceType);
