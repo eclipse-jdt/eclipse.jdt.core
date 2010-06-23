@@ -631,10 +631,17 @@ boolean detectInheritedNameClash(MethodBinding inherited, MethodBinding otherInh
 }
 boolean detectNameClash(MethodBinding current, MethodBinding inherited, boolean treatAsSynthetic) {
 	MethodBinding methodToCheck = inherited;
+	MethodBinding original = methodToCheck.original(); // can be the same as inherited
+	if (!current.areParameterErasuresEqual(original))
+		return false;
 	if (!treatAsSynthetic) {
 		// For a user method, see if current class overrides the inherited method. If it does,
 		// then any grievance we may have ought to be against the current class's method and
 		// NOT against any super implementations. https://bugs.eclipse.org/bugs/show_bug.cgi?id=293615
+		
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=315978 : we now defer this rather expensive
+		// check to just before reporting (the incorrect) name clash. In the event there is no name
+		// clash to report to begin with (the common case), no penalty needs to be paid.  
 		MethodBinding[] currentNamesakes = (MethodBinding[]) this.currentMethods.get(inherited.selector);
 		if (currentNamesakes.length > 1) { // we know it ought to at least one and that current is NOT the override
 			for (int i = 0, length = currentNamesakes.length; i < length; i++) {
@@ -646,7 +653,7 @@ boolean detectNameClash(MethodBinding current, MethodBinding inherited, boolean 
 			}
 		}
 	}
-	MethodBinding original = methodToCheck.original(); // can be the same as inherited
+	original = methodToCheck.original(); // can be the same as inherited
 	if (!current.areParameterErasuresEqual(original))
 		return false;
 	original = inherited.original();  // For error reporting use, inherited.original()
