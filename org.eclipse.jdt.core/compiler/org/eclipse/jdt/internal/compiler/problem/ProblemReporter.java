@@ -5119,6 +5119,10 @@ public void missingSynchronizedOnInheritedMethod(MethodBinding currentMethod, Me
 }
 public void missingTypeInConstructor(ASTNode location, MethodBinding constructor) {
 	List missingTypes = constructor.collectMissingTypes(null);
+	if (missingTypes == null) {
+		System.err.println("The constructor " + constructor + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
+		return;
+	}
 	TypeBinding missingType = (TypeBinding) missingTypes.get(0);
 	int start = location.sourceStart;
 	int end = location.sourceEnd;
@@ -5147,6 +5151,10 @@ public void missingTypeInConstructor(ASTNode location, MethodBinding constructor
 
 public void missingTypeInMethod(MessageSend messageSend, MethodBinding method) {
 	List missingTypes = method.collectMissingTypes(null);
+	if (missingTypes == null) {
+		System.err.println("The method " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
+		return;
+	}
 	TypeBinding missingType = (TypeBinding) missingTypes.get(0);
 	this.handle(
 			IProblem.MissingTypeInMethod,
