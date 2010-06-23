@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test1245" };
-//		TESTS_NUMBERS = new int[] { 1460 };
+//		TESTS_NUMBERS = new int[] { 1461 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -50163,6 +50163,325 @@ public void test1460() {
 		"	if(!(o instanceof MyEntry))\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot perform instanceof check against parameterized type Test<A>.MyEntry. Use the form Test.MyEntry instead since further generic type information will be erased at runtime\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=306464
+public void test1461() {
+	this.runNegativeTest(
+		new String[] {
+			"JoinImpl.java",
+			"import javax.persistence.criteria.Expression;\n" + 
+			"import javax.persistence.criteria.Fetch;\n" + 
+			"import javax.persistence.criteria.From;\n" + 
+			"import javax.persistence.criteria.Join;\n" + 
+			"import javax.persistence.criteria.JoinType;\n" + 
+			"import javax.persistence.criteria.Path;\n" + 
+			"import javax.persistence.metamodel.Attribute;\n" + 
+			"import javax.persistence.metamodel.Bindable;\n" + 
+			"import javax.persistence.metamodel.ManagedType;\n" + 
+			"import javax.persistence.metamodel.Metamodel;\n" + 
+			"public class JoinImpl<Z, X> extends FromImpl<Z, X> implements Join<Z, X>, Fetch<Z, X> {\n" + 
+			"}",
+			"FromImpl.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.HashSet;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Set;\n" + 
+			"import java.util.Stack;\n" + 
+			"\n" + 
+			"import javax.persistence.criteria.CollectionJoin;\n" + 
+			"import javax.persistence.criteria.Expression;\n" + 
+			"import javax.persistence.criteria.Fetch;\n" + 
+			"import javax.persistence.criteria.From;\n" + 
+			"import javax.persistence.criteria.Join;\n" + 
+			"import javax.persistence.criteria.JoinType;\n" + 
+			"import javax.persistence.criteria.ListJoin;\n" + 
+			"import javax.persistence.criteria.MapJoin;\n" + 
+			"import javax.persistence.criteria.Path;\n" + 
+			"import javax.persistence.criteria.SetJoin;\n" + 
+			"import javax.persistence.metamodel.Attribute;\n" + 
+			"import javax.persistence.metamodel.Bindable;\n" + 
+			"import javax.persistence.metamodel.CollectionAttribute;\n" + 
+			"import javax.persistence.metamodel.ListAttribute;\n" + 
+			"import javax.persistence.metamodel.ManagedType;\n" + 
+			"import javax.persistence.metamodel.MapAttribute;\n" + 
+			"import javax.persistence.metamodel.Metamodel;\n" + 
+			"import javax.persistence.metamodel.PluralAttribute;\n" + 
+			"import javax.persistence.metamodel.SingularAttribute;\n" + 
+			"import javax.persistence.metamodel.Attribute.PersistentAttributeType;\n" + 
+			"import javax.persistence.metamodel.PluralAttribute.CollectionType;\n" + 
+			"import javax.persistence.metamodel.Type.PersistenceType;\n" + 
+			"\n" + 
+			"import org.eclipse.persistence.internal.helper.ClassConstants;\n" + 
+			"import org.eclipse.persistence.internal.localization.ExceptionLocalization;\n" + 
+			"\n" + 
+			"public class FromImpl<Z, X>  extends PathImpl<X> implements javax.persistence.criteria.From<Z, X> {\n" + 
+			"\n" + 
+			"    protected Set<Join<X, ?>> joins;\n" + 
+			"    \n" + 
+			"    public Set<Join<X, ?>> getJoins() {\n" + 
+			"        return joins;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public void findJoins(AbstractQueryImpl query){\n" + 
+			"        Stack stack = new Stack();\n" + 
+			"        stack.push(this);\n" + 
+			"        while(!stack.isEmpty()){\n" + 
+			"            FromImpl currentJoin = (FromImpl) stack.pop();\n" + 
+			"            stack.addAll(currentJoin.getJoins());\n" + 
+			"            if (currentJoin.isLeaf){\n" + 
+			"                    query.addJoin(currentJoin);\n" + 
+			"                }\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in JoinImpl.java (at line 1)\n" + 
+		"	import javax.persistence.criteria.Expression;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in JoinImpl.java (at line 2)\n" + 
+		"	import javax.persistence.criteria.Fetch;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"3. ERROR in JoinImpl.java (at line 3)\n" + 
+		"	import javax.persistence.criteria.From;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"4. ERROR in JoinImpl.java (at line 4)\n" + 
+		"	import javax.persistence.criteria.Join;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"5. ERROR in JoinImpl.java (at line 5)\n" + 
+		"	import javax.persistence.criteria.JoinType;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"6. ERROR in JoinImpl.java (at line 6)\n" + 
+		"	import javax.persistence.criteria.Path;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"7. ERROR in JoinImpl.java (at line 7)\n" + 
+		"	import javax.persistence.metamodel.Attribute;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"8. ERROR in JoinImpl.java (at line 8)\n" + 
+		"	import javax.persistence.metamodel.Bindable;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"9. ERROR in JoinImpl.java (at line 9)\n" + 
+		"	import javax.persistence.metamodel.ManagedType;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"10. ERROR in JoinImpl.java (at line 10)\n" + 
+		"	import javax.persistence.metamodel.Metamodel;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"11. ERROR in JoinImpl.java (at line 11)\n" + 
+		"	public class JoinImpl<Z, X> extends FromImpl<Z, X> implements Join<Z, X>, Fetch<Z, X> {\n" + 
+		"	                                                              ^^^^\n" + 
+		"Join cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"12. ERROR in JoinImpl.java (at line 11)\n" + 
+		"	public class JoinImpl<Z, X> extends FromImpl<Z, X> implements Join<Z, X>, Fetch<Z, X> {\n" + 
+		"	                                                                          ^^^^^\n" + 
+		"Fetch cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in FromImpl.java (at line 7)\n" + 
+		"	import javax.persistence.criteria.CollectionJoin;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in FromImpl.java (at line 8)\n" + 
+		"	import javax.persistence.criteria.Expression;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"3. ERROR in FromImpl.java (at line 9)\n" + 
+		"	import javax.persistence.criteria.Fetch;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"4. ERROR in FromImpl.java (at line 10)\n" + 
+		"	import javax.persistence.criteria.From;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"5. ERROR in FromImpl.java (at line 11)\n" + 
+		"	import javax.persistence.criteria.Join;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"6. ERROR in FromImpl.java (at line 12)\n" + 
+		"	import javax.persistence.criteria.JoinType;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"7. ERROR in FromImpl.java (at line 13)\n" + 
+		"	import javax.persistence.criteria.ListJoin;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"8. ERROR in FromImpl.java (at line 14)\n" + 
+		"	import javax.persistence.criteria.MapJoin;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"9. ERROR in FromImpl.java (at line 15)\n" + 
+		"	import javax.persistence.criteria.Path;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"10. ERROR in FromImpl.java (at line 16)\n" + 
+		"	import javax.persistence.criteria.SetJoin;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"11. ERROR in FromImpl.java (at line 17)\n" + 
+		"	import javax.persistence.metamodel.Attribute;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"12. ERROR in FromImpl.java (at line 18)\n" + 
+		"	import javax.persistence.metamodel.Bindable;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"13. ERROR in FromImpl.java (at line 19)\n" + 
+		"	import javax.persistence.metamodel.CollectionAttribute;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"14. ERROR in FromImpl.java (at line 20)\n" + 
+		"	import javax.persistence.metamodel.ListAttribute;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"15. ERROR in FromImpl.java (at line 21)\n" + 
+		"	import javax.persistence.metamodel.ManagedType;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"16. ERROR in FromImpl.java (at line 22)\n" + 
+		"	import javax.persistence.metamodel.MapAttribute;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"17. ERROR in FromImpl.java (at line 23)\n" + 
+		"	import javax.persistence.metamodel.Metamodel;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"18. ERROR in FromImpl.java (at line 24)\n" + 
+		"	import javax.persistence.metamodel.PluralAttribute;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"19. ERROR in FromImpl.java (at line 25)\n" + 
+		"	import javax.persistence.metamodel.SingularAttribute;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"20. ERROR in FromImpl.java (at line 26)\n" + 
+		"	import javax.persistence.metamodel.Attribute.PersistentAttributeType;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"21. ERROR in FromImpl.java (at line 27)\n" + 
+		"	import javax.persistence.metamodel.PluralAttribute.CollectionType;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"22. ERROR in FromImpl.java (at line 28)\n" + 
+		"	import javax.persistence.metamodel.Type.PersistenceType;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The import javax.persistence cannot be resolved\n" + 
+		"----------\n" + 
+		"23. ERROR in FromImpl.java (at line 30)\n" + 
+		"	import org.eclipse.persistence.internal.helper.ClassConstants;\n" + 
+		"	       ^^^^^^^^^^^\n" + 
+		"The import org.eclipse cannot be resolved\n" + 
+		"----------\n" + 
+		"24. ERROR in FromImpl.java (at line 31)\n" + 
+		"	import org.eclipse.persistence.internal.localization.ExceptionLocalization;\n" + 
+		"	       ^^^^^^^^^^^\n" + 
+		"The import org.eclipse cannot be resolved\n" + 
+		"----------\n" + 
+		"25. ERROR in FromImpl.java (at line 33)\n" + 
+		"	public class FromImpl<Z, X>  extends PathImpl<X> implements javax.persistence.criteria.From<Z, X> {\n" + 
+		"	                                     ^^^^^^^^\n" + 
+		"PathImpl cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"26. ERROR in FromImpl.java (at line 33)\n" + 
+		"	public class FromImpl<Z, X>  extends PathImpl<X> implements javax.persistence.criteria.From<Z, X> {\n" + 
+		"	                                                            ^^^^^^^^^^^^^^^^^\n" + 
+		"javax.persistence cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"27. ERROR in FromImpl.java (at line 35)\n" + 
+		"	protected Set<Join<X, ?>> joins;\n" + 
+		"	              ^^^^\n" + 
+		"Join cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"28. ERROR in FromImpl.java (at line 37)\n" + 
+		"	public Set<Join<X, ?>> getJoins() {\n" + 
+		"	           ^^^^\n" + 
+		"Join cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"29. ERROR in FromImpl.java (at line 38)\n" + 
+		"	return joins;\n" + 
+		"	       ^^^^^\n" + 
+		"Join cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"30. ERROR in FromImpl.java (at line 41)\n" + 
+		"	public void findJoins(AbstractQueryImpl query){\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^\n" + 
+		"AbstractQueryImpl cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"31. WARNING in FromImpl.java (at line 42)\n" + 
+		"	Stack stack = new Stack();\n" + 
+		"	^^^^^\n" + 
+		"Stack is a raw type. References to generic type Stack<E> should be parameterized\n" + 
+		"----------\n" + 
+		"32. WARNING in FromImpl.java (at line 42)\n" + 
+		"	Stack stack = new Stack();\n" + 
+		"	                  ^^^^^\n" + 
+		"Stack is a raw type. References to generic type Stack<E> should be parameterized\n" + 
+		"----------\n" + 
+		"33. WARNING in FromImpl.java (at line 43)\n" + 
+		"	stack.push(this);\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method push(Object) belongs to the raw type Stack. References to generic type Stack<E> should be parameterized\n" + 
+		"----------\n" + 
+		"34. WARNING in FromImpl.java (at line 45)\n" + 
+		"	FromImpl currentJoin = (FromImpl) stack.pop();\n" + 
+		"	^^^^^^^^\n" + 
+		"FromImpl is a raw type. References to generic type FromImpl<Z,X> should be parameterized\n" + 
+		"----------\n" + 
+		"35. WARNING in FromImpl.java (at line 45)\n" + 
+		"	FromImpl currentJoin = (FromImpl) stack.pop();\n" + 
+		"	                        ^^^^^^^^\n" + 
+		"FromImpl is a raw type. References to generic type FromImpl<Z,X> should be parameterized\n" + 
+		"----------\n" + 
+		"36. WARNING in FromImpl.java (at line 46)\n" + 
+		"	stack.addAll(currentJoin.getJoins());\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method addAll(Collection) belongs to the raw type Vector. References to generic type Vector<E> should be parameterized\n" + 
+		"----------\n" + 
+		"37. ERROR in FromImpl.java (at line 47)\n" + 
+		"	if (currentJoin.isLeaf){\n" + 
+		"	                ^^^^^^\n" + 
+		"isLeaf cannot be resolved or is not a field\n" + 
 		"----------\n");
 }
 }
