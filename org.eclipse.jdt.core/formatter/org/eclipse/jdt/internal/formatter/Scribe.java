@@ -2678,8 +2678,7 @@ public class Scribe implements IJavaDocTagConstants {
 					if (this.tabLength == 0) {
 						similarCommentsIndentation = relativeIndentation == 0;
 					} else if (relativeIndentation > -this.tabLength) {
-						similarCommentsIndentation = this.formatter.preferences.comment_format_line_comment_starting_on_first_column ||
-							(currentCommentIndentation != 0 && this.lastLineComment.currentIndentation != 0);
+						similarCommentsIndentation = relativeIndentation == 0 || currentCommentIndentation != 0 && this.lastLineComment.currentIndentation != 0;
 					}
 					if (similarCommentsIndentation && this.lastLineComment.indentation != this.indentationLevel) {
 						int currentIndentationLevel = this.indentationLevel;
