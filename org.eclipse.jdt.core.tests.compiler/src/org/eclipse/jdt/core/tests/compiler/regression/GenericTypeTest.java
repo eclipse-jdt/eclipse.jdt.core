@@ -50484,4 +50484,33 @@ public void test1461() {
 		"isLeaf cannot be resolved or is not a field\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=316889
+public void test1462() {
+	this.runNegativeTest(
+		new String[] {
+			"AnotherClass.java",
+			"public class AnotherClass<I extends IRecursiveInterface<? super I>> {}\n" +  
+			"class ImplementingClass implements IRecursiveInterface<IReferencedInterface>, IReferencedInterface {\n" +
+			"    private AnotherClass<IReferencedInterface> m_var;\n" +
+			"    public void setAnother(final AnotherClass<? extends IReferencedInterface> a) {\n" +
+			"	    m_var = a;\n" +
+			"    }\n" +
+			"}\n" +
+			"interface IRecursiveInterface<I extends IRecursiveInterface<? super I>> {\n" +
+			"	void setAnother(final AnotherClass<? extends I> a);\n" +
+			"}\n" +
+			"interface IReferencedInterface extends IRecursiveInterface<IReferencedInterface> {}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in AnotherClass.java (at line 3)\n" + 
+		"	private AnotherClass<IReferencedInterface> m_var;\n" + 
+		"	                                           ^^^^^\n" + 
+		"The field ImplementingClass.m_var is never read locally\n" + 
+		"----------\n" + 
+		"2. ERROR in AnotherClass.java (at line 5)\n" + 
+		"	m_var = a;\n" + 
+		"	        ^\n" + 
+		"Type mismatch: cannot convert from AnotherClass<capture#1-of ? extends IReferencedInterface> to AnotherClass<IReferencedInterface>\n" + 
+		"----------\n");
+}
 }
