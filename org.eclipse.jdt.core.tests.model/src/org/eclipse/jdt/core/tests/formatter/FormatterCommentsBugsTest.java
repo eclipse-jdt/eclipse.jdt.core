@@ -6841,4 +6841,218 @@ public void testBug315732() throws JavaModelException {
 	);
 }
 
+/**
+ * @bug 313651: [formatter] Unexpected indentation of line comment
+ * @test Verify that comments with too different indentation are not considered as contiguous
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=313651"
+ */
+public void testBug313651_01() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.TRUE);
+	String source = 
+		"public class X01 {\n" + 
+		"	public void testMethod() {\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"start\");\n" + 
+		"//		System.out.println(\"next\");\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"end\");\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source);
+}
+public void testBug313651_01b() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT, DefaultCodeFormatterConstants.TRUE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT_STARTING_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.TRUE);
+	String source = 
+		"public class X01 {\n" + 
+		"	public void testMethod() {\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"start\");\n" + 
+		"//		System.out.println(\"next\");\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"end\");\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source);
+}
+public void testBug313651_01c() {
+	String source = 
+		"public class X01 {\n" + 
+		"	public void testMethod() {\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"start\");\n" + 
+		"//		System.out.println(\"next\");\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"end\");\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X01 {\n" + 
+		"	public void testMethod() {\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"start\");\n" + 
+		"		// System.out.println(\"next\");\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"end\");\n" + 
+		"	}\n" + 
+	    "}\n"
+	);
+}
+public void testBug313651_02() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.TRUE);
+	String source = 
+		"public class X02 {\n" + 
+		"	public void testMethod() {\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"start\");\n" + 
+		"		System.out.println(\"next\");\n" + 
+		"		// Comment 1\n" + 
+		"//		System.out.println(\"end\");\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source);
+}
+public void testBug313651_02b() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT, DefaultCodeFormatterConstants.TRUE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT_STARTING_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.TRUE);
+	String source = 
+		"public class X02 {\n" + 
+		"	public void testMethod() {\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"start\");\n" + 
+		"		System.out.println(\"next\");\n" + 
+		"		// Comment 1\n" + 
+		"//		System.out.println(\"end\");\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source);
+}
+public void testBug313651_02c() {
+	String source = 
+		"public class X02 {\n" + 
+		"	public void testMethod() {\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"start\");\n" + 
+		"		System.out.println(\"next\");\n" + 
+		"		// Comment 1\n" + 
+		"//		System.out.println(\"end\");\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X02 {\n" + 
+		"	public void testMethod() {\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"start\");\n" + 
+		"		System.out.println(\"next\");\n" + 
+		"		// Comment 1\n" + 
+		"		// System.out.println(\"end\");\n" + 
+		"	}\n" + 
+	    "}\n"
+	);
+}
+public void testBug313651_03() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.TRUE);
+	String source = 
+		"public class X03 {\n" + 
+		"	public void testMethod() {\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"start\");\n" + 
+		"//		System.out.println(\"next\");\n" + 
+		"		// Comment 1\n" + 
+		"//		System.out.println(\"end\");\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source);
+}
+public void testBug313651_03b() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT, DefaultCodeFormatterConstants.TRUE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT_STARTING_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.TRUE);
+	String source = 
+		"public class X03 {\n" + 
+		"	public void testMethod() {\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"start\");\n" + 
+		"//		System.out.println(\"next\");\n" + 
+		"		// Comment 1\n" + 
+		"//		System.out.println(\"end\");\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source);
+}
+public void testBug313651_03c() {
+	String source = 
+		"public class X03 {\n" + 
+		"	public void testMethod() {\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"start\");\n" + 
+		"//		System.out.println(\"next\");\n" + 
+		"		// Comment 1\n" + 
+		"//		System.out.println(\"end\");\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X03 {\n" + 
+		"	public void testMethod() {\n" + 
+		"		// Comment 1\n" + 
+		"		System.out.println(\"start\");\n" + 
+		"		// System.out.println(\"next\");\n" + 
+		"		// Comment 1\n" + 
+		"		// System.out.println(\"end\");\n" + 
+		"	}\n" + 
+	    "}\n"
+	);
+}
+public void testBug313651_wksp3_01() {
+	String source = 
+		"package wksp3;\n" + 
+		"public class X01 implements\n" + 
+		"// start of comment\n" + 
+		"// MyFirstInterface {\n" + 
+		"	MySecondInterface {\n" + 
+		"// end of comment\n" + 
+	    "}\n";
+	formatSource(source,
+		"package wksp3;\n" + 
+		"\n" + 
+		"public class X01 implements\n" + 
+		"// start of comment\n" + 
+		"// MyFirstInterface {\n" + 
+		"		MySecondInterface {\n" + 
+		"	// end of comment\n" + 
+	    "}\n"
+	);
+}
+public void testBug313651_wksp3_02() {
+	String source = 
+		"package wksp3;\n" + 
+		"public class X02 implements MyOtherInterface, \n" + 
+		"// start of comment\n" + 
+		"// MyFirstInterface {\n" + 
+		"	MySecondInterface {\n" + 
+		"// end of comment\n" + 
+	    "}\n";
+	formatSource(source,
+		"package wksp3;\n" + 
+		"\n" + 
+		"public class X02 implements MyOtherInterface,\n" + 
+		"// start of comment\n" + 
+		"// MyFirstInterface {\n" + 
+		"		MySecondInterface {\n" + 
+		"	// end of comment\n" + 
+	    "}\n"
+	);
+}
+
 }
