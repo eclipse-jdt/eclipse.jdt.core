@@ -315,7 +315,7 @@ public void finalizeProblems() {
 									IrritantSet tokenIrritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
 									if (tokenIrritants != null
 											&& !tokenIrritants.areAllSet() // no complaint against @SuppressWarnings("all")
-											&& options.isAnyEnabled(tokenIrritants) // if irritant is effectevely enabled
+											&& options.isAnyEnabled(tokenIrritants) // if irritant is effectively enabled
 											&& (foundIrritants[iSuppress] == null || !foundIrritants[iSuppress].isAnySet(tokenIrritants))) { // if irritant had no matching problem
 										if (unusedWarningTokenIsWarning) {
 											int start = value.sourceStart, end = value.sourceEnd;
