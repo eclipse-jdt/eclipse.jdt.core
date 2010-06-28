@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.util.Util;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.SourceMethod;
@@ -10954,12 +10955,16 @@ public void testBug286379c() throws CoreException {
         }
 	}
 	// print statement to debug random failures of this test
+	JavaModelManager.DEBUG_302850 = true;
 	System.out.println("================================================================================");
 	System.out.println("Starting test JavaSearchBugTests.testBug286379c()...");
+	System.out.println("	- Default Options at test start:");
+	System.out.println(Util.indentString(new CompilerOptions(JavaCore.getDefaultOptions()).toString(), 1));
 	System.out.println("	- Options at test start:");
 	System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
 	System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
 	System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
+	System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
 	
 	IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
 	TestResourceChangeListener changeListener = new TestResourceChangeListener();
@@ -11007,6 +11012,7 @@ public void testBug286379c() throws CoreException {
 		System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
 		System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
 		System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
+		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
 		// Restart to let the indexes to be refreshed
 		simulateExit();
 		simulateRestart();
@@ -11015,6 +11021,7 @@ public void testBug286379c() throws CoreException {
 		System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
 		System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
 		System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
+		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
 		waitUntilIndexesReady();
 
 		// Search for the new type with new extension
@@ -11039,6 +11046,7 @@ public void testBug286379c() throws CoreException {
 		System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
 		System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
 		System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
+		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
 		// Restarting should update the index file to remove the references of any .torem files
 		simulateExit();
 		simulateRestart();	
@@ -11063,6 +11071,7 @@ public void testBug286379c() throws CoreException {
 		System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
 		System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
 		System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
+		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
 	} finally {
 		getWorkspace().removeResourceChangeListener(changeListener);
 		if (javaContentType != null)
@@ -11072,7 +11081,9 @@ public void testBug286379c() throws CoreException {
 		System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
 		System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
 		System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
-		System.out.println("================================================================================");
+		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
+		System.out.println("	- Default Options at test end:");
+		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getDefaultOptions()).toString(), 2));
 	}
 }
 

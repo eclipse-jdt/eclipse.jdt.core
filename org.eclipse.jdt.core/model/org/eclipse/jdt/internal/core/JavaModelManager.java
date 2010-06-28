@@ -1402,6 +1402,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public static boolean CP_RESOLVE_VERBOSE_ADVANCED = false;
 	public static boolean CP_RESOLVE_VERBOSE_FAILURE = false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;
+	// temporary debug flag to track failures of bug 302850
+	public static boolean DEBUG_302850 = false;
 
 	/**
 	 * A cache of opened zip files per thread.
@@ -4623,6 +4625,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public void setOptions(Hashtable newOptions) {
+		
+		if (DEBUG_302850) {
+			System.out.println("Entering in JavaModelManager.setOptions():"); //$NON-NLS-1$
+			System.out.println(new CompilerOptions(newOptions).toString());
+			System.out.println("	- Call stack:"); //$NON-NLS-1$
+			StackTraceElement[] elements = new Exception().getStackTrace();
+			for (int i=0,n=elements.length; i<n; i++) {
+				System.out.println("		+ "+elements[i]); //$NON-NLS-1$
+			}
+		}
 
 		try {
 			Hashtable cachedValue = newOptions == null ? null : new Hashtable(newOptions);
