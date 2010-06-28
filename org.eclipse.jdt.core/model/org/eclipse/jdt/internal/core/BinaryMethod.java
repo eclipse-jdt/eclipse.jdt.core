@@ -181,7 +181,10 @@ public String[] getParameterNames() throws JavaModelException {
 
 	// try to see if we can retrieve the names from the attached javadoc
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
-	final int paramCount = Signature.getParameterCount(new String(info.getMethodDescriptor()));
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=316937
+	// Use Signature#getParameterCount() only if the argument names are not already available.
+	final int paramCount = info.getArgumentNames() == null ? info.getArgumentNames().length : 
+										Signature.getParameterCount(new String(info.getMethodDescriptor()));
 	if (paramCount != 0) {
 		// don't try to look for javadoc for synthetic methods
 		int modifiers = getFlags();

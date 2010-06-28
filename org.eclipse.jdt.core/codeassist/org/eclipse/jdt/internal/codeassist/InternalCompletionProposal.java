@@ -210,11 +210,10 @@ public class InternalCompletionProposal extends CompletionProposal {
 		}
 
 		if(type != null) {
-			String[] args = new String[length];
-			for(int i = 0;	i< length ; i++){
-				args[i] = new String(paramTypeNames[i]);
-			}
-			IMethod method = type.getMethod(new String(selector),args);
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=316937
+			// BinaryType#getMethod() creates a new instance of BinaryMethod, which is a dummy.
+			// Instead we have to use IType#findMethods() to get a handle to the method of our interest.
+			IMethod method = findMethod(type, selector, paramTypeNames);
 			
 			if (this.hasNoParameterNamesFromIndex) {
 				IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot)type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
@@ -307,11 +306,10 @@ public class InternalCompletionProposal extends CompletionProposal {
 		}
 
 		if(type != null) {
-			String[] args = new String[length];
-			for(int i = 0;	i< length ; i++){
-				args[i] = new String(paramTypeNames[i]);
-			}
-			IMethod method = type.getMethod(new String(selector),args);
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=316937
+			// BinaryType#getMethod() creates a new instance of BinaryMethod, which is a dummy.
+			// Instead we have to use IType#findMethods() to get a handle to the method of our interest.
+			IMethod method = findMethod(type, selector, paramTypeNames);
 			try{
 				parameters = new char[length][];
 				String[] params = method.getParameterNames();
@@ -329,6 +327,34 @@ public class InternalCompletionProposal extends CompletionProposal {
 		}
 
 		return parameters;
+	}
+
+	private IMethod findMethod(IType type, char[] selector, char[][] paramTypeNames) {
+		IMethod method = null;
+		int startingIndex = 0;
+		String[] args;
+		IType enclosingType = type.getDeclaringType();
+		// If the method is a constructor of an inner type, add the enclosing type as an 
+		// additional parameter to the constructor.
+		if (enclosingType != null && CharOperation.equals(type.getElementName().toCharArray(), selector)) {
+			args = new String[paramTypeNames.length+1];
+			startingIndex = 1;
+			args[0] = Signature.createTypeSignature(enclosingType.getFullyQualifiedName(), true);
+		}
+		else {
+			args = new String[paramTypeNames.length];
+		}
+		int length = args.length;
+		for(int i = startingIndex;	i< length ; i++){
+			args[i] = new String(paramTypeNames[i-startingIndex]);
+		}
+		method = type.getMethod(new String(selector), args);
+		
+		IMethod[] methods = type.findMethods(method);
+		if (methods != null && methods.length > 0) {
+			method = methods[0];
+		}
+		return method;
 	}
 
 	protected char[] getDeclarationPackageName() {
