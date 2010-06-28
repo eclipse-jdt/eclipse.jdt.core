@@ -516,4 +516,112 @@ public class ASTRewritingModifyingInsertTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317468
+	 */
+	public void test0013() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0013", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0013;\n");
+		buf.append("public enum X {\n");
+		buf.append("	A, B,\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false, AST.JLS3);
+
+		astRoot.recordModifications();
+
+		AST ast = astRoot.getAST();
+
+		final List types = astRoot.types();
+		VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+		fragment.setName(ast.newSimpleName("field"));
+		final FieldDeclaration fieldDeclaration = ast.newFieldDeclaration(fragment);
+		fieldDeclaration.setType(ast.newPrimitiveType(PrimitiveType.INT));
+		((AbstractTypeDeclaration) types.get(0)).bodyDeclarations().add(fieldDeclaration);
+
+		String preview = evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0013;\n");
+		buf.append("public enum X {\n");
+		buf.append("	A, B,;\n");
+		buf.append("\n");
+		buf.append("    int field;\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317468
+	 */
+	public void test0014() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0014", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0014;\n");
+		buf.append("public enum X {\n");
+		buf.append("	;\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false, AST.JLS3);
+
+		astRoot.recordModifications();
+
+		AST ast = astRoot.getAST();
+
+		final List types = astRoot.types();
+		VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+		fragment.setName(ast.newSimpleName("field"));
+		final FieldDeclaration fieldDeclaration = ast.newFieldDeclaration(fragment);
+		fieldDeclaration.setType(ast.newPrimitiveType(PrimitiveType.INT));
+		((AbstractTypeDeclaration) types.get(0)).bodyDeclarations().add(fieldDeclaration);
+
+		String preview = evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0014;\n");
+		buf.append("public enum X {\n");
+		buf.append("	;\n");
+		buf.append("\n");
+		buf.append("    int field;\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317468
+	 */
+	public void test0015() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0015", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0015;\n");
+		buf.append("public enum X {\n");
+		buf.append("	A, B,;\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false, AST.JLS3);
+
+		astRoot.recordModifications();
+
+		AST ast = astRoot.getAST();
+
+		final List types = astRoot.types();
+		VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+		fragment.setName(ast.newSimpleName("field"));
+		final FieldDeclaration fieldDeclaration = ast.newFieldDeclaration(fragment);
+		fieldDeclaration.setType(ast.newPrimitiveType(PrimitiveType.INT));
+		((AbstractTypeDeclaration) types.get(0)).bodyDeclarations().add(fieldDeclaration);
+
+		String preview = evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0015;\n");
+		buf.append("public enum X {\n");
+		buf.append("	A, B,;\n");
+		buf.append("\n");
+		buf.append("    int field;\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
 }
