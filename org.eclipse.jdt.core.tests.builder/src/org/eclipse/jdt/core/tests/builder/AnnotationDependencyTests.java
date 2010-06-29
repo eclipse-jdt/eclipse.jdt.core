@@ -60,6 +60,71 @@ public class AnnotationDependencyTests extends BuilderTests {
 			+ "String value();\n"
 			+ "}\n";
 		env.addClass(this.srcRoot, "p1", "Anno", annoCode);
+		annoCode = "package p1;\n"
+			+ "@interface AnnoInt {\n"
+			+ "int value();\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "AnnoInt", annoCode);
+		annoCode = "package p1;\n"
+			+ "@interface AnnoBoolean {\n"
+			+ "boolean value();\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "AnnoBoolean", annoCode);
+		annoCode = "package p1;\n"
+			+ "@interface AnnoByte {\n"
+			+ "byte value();\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "AnnoByte", annoCode);
+		annoCode = "package p1;\n"
+			+ "@interface AnnoChar {\n"
+			+ "char value();\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "AnnoChar", annoCode);
+		annoCode = "package p1;\n"
+			+ "@interface AnnoShort {\n"
+			+ "short value();\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "AnnoShort", annoCode);
+		annoCode = "package p1;\n"
+			+ "@interface AnnoDouble {\n"
+			+ "double value();\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "AnnoDouble", annoCode);
+		annoCode = "package p1;\n"
+			+ "@interface AnnoFloat {\n"
+			+ "float value();\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "AnnoFloat", annoCode);
+		annoCode = "package p1;\n"
+			+ "@interface AnnoLong {\n"
+			+ "long value();\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "AnnoLong", annoCode);
+		annoCode = "package p1;\n"
+			+ "@interface AnnoStringArray {\n"
+			+ "String[] value();\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "AnnoStringArray", annoCode);
+		annoCode = "package p1;\n"
+			+ "@interface AnnoAnnotation {\n"
+			+ "AnnoLong value();\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "AnnoAnnotation", annoCode);
+		annoCode = "package p1;\n"
+			+ "enum E {\n"
+			+ "A, B, C\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "E", annoCode);
+		annoCode = "package p1;\n"
+			+ "@interface AnnoEnum {\n"
+			+ "E value();\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "AnnoEnum", annoCode);
+		annoCode = "package p1;\n"
+			+ "@interface AnnoClass {\n"
+			+ "Class<?> value();\n"
+			+ "}\n";
+		env.addClass(this.srcRoot, "p1", "AnnoClass", annoCode);
 	}
 	
 	/**
@@ -265,5 +330,1045 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "question", "package-info", question );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-	}	
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency2() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@Anno(\"A1\")" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@Anno(\"A1\")" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency3() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoInt(3)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoInt(3)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency4() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoByte(3)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoByte(3)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency5() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoBoolean(true)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoBoolean(true)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency6() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoChar('c')" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoChar('c')" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency7() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoDouble(1.0)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoDouble(1.0)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency8() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoFloat(1.0f)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoFloat(1.0f)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency9() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoLong(1L)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoLong(1L)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency10() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoShort(3)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoShort(3)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency11() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoStringArray({\"A1\",\"A2\"})" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoStringArray({\"A1\",\"A2\"})" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency12() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoAnnotation(@AnnoLong(3))" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoAnnotation(@AnnoLong(3))" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency13() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoEnum(E.A)\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoEnum(E.A)\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency14() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoClass(Object.class)\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoClass(Object.class)\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency15() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@Anno(\"A1\")" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@Anno(\"A1\")" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency16() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoInt(3)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoInt(4)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency17() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoByte(3)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoByte(4)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B"});
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency18() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoBoolean(true)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoBoolean(false)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency19() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoChar('c')" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoChar('d')" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency20() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoDouble(1.0)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoDouble(2.0)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency21() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoFloat(1.0f)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoFloat(2.0f)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency22() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoLong(1L)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoLong(2L)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency23() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoShort(3)" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoShort(5)" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency24() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoStringArray({\"A1\",\"A2\"})" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoStringArray({\"A2\",\"A1\"})" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency25() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoAnnotation(@AnnoLong(3))" + "\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoAnnotation(@AnnoLong(4))" + "\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency26() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoEnum(E.A)\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoEnum(E.C)\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841
+	 */
+	public void testTypeAnnotationDependency27() throws Exception
+	{
+		String a1Code = "package p1; " + "\n"
+			+ "@AnnoClass(Object.class)\n"
+			+ "public class A {\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String a2Code = "package p1; " + "\n"
+			+ "@AnnoClass(String.class)\n"
+			+ "public class A {\n"
+			+ "\n"
+			+ "    public void foo() {\n"
+			+ "        System.out.println(\"test\");"
+			+ "    }"
+			+ "}";
+		String bCode = "package p1; " + "\n"
+			+ "public class B {" + "\n"
+			+ "  public A a;" + "\n"
+			+ "}";
+
+		env.addClass( this.srcRoot, "p1", "A", a1Code );
+		env.addClass( this.srcRoot, "p1", "B", bCode );
+		addAnnotationType();
+		
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// edit annotation in A
+		env.addClass( this.srcRoot, "p1", "A", a2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+		
+		// verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
+	}
 }
