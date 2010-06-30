@@ -3409,15 +3409,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						int nextToken= getScanner().readNext(endPos, true);
 						if (nextToken != TerminalTokens.TokenNameSEMICOLON) {
 							doTextInsert(endPos, ";", getEditGroup(children[0])); //$NON-NLS-1$
-//							doTextReplace(pos, endPos - pos, ";", getEditGroup(children[0])); //$NON-NLS-1$
-							pos= endPos;
 						} else {
 							endPos= getScanner().getCurrentEndOffset();
 							if (isAllOfKind(children, RewriteEvent.REMOVED)) {
 								doTextRemove(pos, endPos - pos, getEditGroup(children[0]));
 							}
-							pos= endPos;
 						}
+						pos= endPos;
 					} else {
 						doTextInsert(pos, ";", getEditGroup(children[0])); //$NON-NLS-1$
 					}
