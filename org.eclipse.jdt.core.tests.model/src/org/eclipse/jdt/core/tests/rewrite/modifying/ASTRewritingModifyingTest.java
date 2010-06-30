@@ -64,7 +64,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 
-		this.javaProject = createJavaProject("P", new String[] {"src"}, "bin");
+		this.javaProject = createJavaProject("P", new String[] {"src"}, null, "bin", "1.5");
 		this.sourceFolder = getPackageFragmentRoot("P", "src");
 
 		Hashtable options = JavaCore.getOptions();
