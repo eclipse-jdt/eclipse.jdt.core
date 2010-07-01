@@ -150,7 +150,10 @@ public void resolve(MethodScope initializationScope) {
 			SourceTypeBinding declaringType = classScope.enclosingSourceType();
 			checkHidingSuperField: {
 				if (declaringType.superclass == null) break checkHidingSuperField;
-				FieldBinding existingVariable = classScope.findField(declaringType.superclass, this.name, this,  false /*do not resolve hidden field*/);
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171, find field skipping visibility checks
+				// we do the checks below ourselves, using the appropriate conditions for access check of
+				// protected members from superclasses.
+				FieldBinding existingVariable = classScope.findField(declaringType.superclass, this.name, this,  false /*do not resolve hidden field*/, true /* no visibility checks please */);
 				if (existingVariable == null) break checkHidingSuperField; // keep checking outer scenario
 				if (!existingVariable.isValidBinding())  break checkHidingSuperField; // keep checking outer scenario
 				if (existingVariable.original() == this.binding) break checkHidingSuperField; // keep checking outer scenario

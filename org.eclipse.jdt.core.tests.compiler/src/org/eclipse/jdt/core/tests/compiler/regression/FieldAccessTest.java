@@ -679,6 +679,95 @@ public void test022() {
 		"OLD_FIELD cannot be resolved or is not a field\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171
+public void test023() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" +
+			"public abstract class A {\n" +
+			"    protected int field;\n" +
+			"}\n",
+			"p2/B.java",
+			"package p2;\n" +
+			"import p1.A;\n" +
+			"public abstract class B extends A {\n" +
+			"    protected int field;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in p2\\B.java (at line 4)\n" + 
+		"	protected int field;\n" + 
+		"	              ^^^^^\n" + 
+		"The field B.field is hiding a field from type A\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171
+public void test024() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" +
+			"public abstract class A extends Super {\n" +
+			"}\n",
+			"p1/Super.java",
+			"package p1;\n" +
+			"public abstract class Super extends SuperSuper {\n" +
+			"}\n",
+			"p1/SuperSuper.java",
+			"package p1;\n" +
+			"public abstract class SuperSuper {\n" +
+			"    protected int field;\n" +
+			"}\n",
+			"p2/B.java",
+			"package p2;\n" +
+			"import p1.A;\n" +
+			"public abstract class B extends A {\n" +
+			"    protected int field;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in p2\\B.java (at line 4)\n" + 
+		"	protected int field;\n" + 
+		"	              ^^^^^\n" + 
+		"The field B.field is hiding a field from type SuperSuper\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171
+public void test025() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/A.java",
+			"package p1;\n" +
+			"public abstract class A extends Super {\n" +
+			"}\n",
+			"p1/Super.java",
+			"package p1;\n" +
+			"public abstract class Super extends SuperSuper {\n" +
+			"}\n",
+			"p1/SuperSuper.java",
+			"package p1;\n" +
+			"public abstract class SuperSuper implements Interface{\n" +
+			"}\n",
+			"p1/Interface.java",
+			"package p1;\n" +
+			"public interface Interface{\n" +
+			"    int field = 123;\n" +
+			"}\n",
+			"p2/B.java",
+			"package p2;\n" +
+			"import p1.A;\n" +
+			"public abstract class B extends A {\n" +
+			"    protected int field;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in p2\\B.java (at line 4)\n" + 
+		"	protected int field;\n" + 
+		"	              ^^^^^\n" + 
+		"The field B.field is hiding a field from type Interface\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return FieldAccessTest.class;
 }

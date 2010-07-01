@@ -1015,16 +1015,22 @@ public void test032() {
 			"	String bar = \"X2.bar\";	\n" +
 			"}	\n",
 		},
-		"----------\n" +
-		"1. ERROR in p\\X.java (at line 4)\n" +
-		"	System.out.println(new q.X2().foo);	\n" +
-		"	                              ^^^\n" +
-		"The field X2.foo is not visible\n" +
-		"----------\n" +
-		"2. ERROR in p\\X.java (at line 5)\n" +
-		"	System.out.println(new q.X2().bar);	\n" +
-		"	                              ^^^\n" +
-		"The field X2.bar is not visible\n" +
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 4)\n" + 
+		"	System.out.println(new q.X2().foo);	\n" + 
+		"	                              ^^^\n" + 
+		"The field X2.foo is not visible\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\X.java (at line 5)\n" + 
+		"	System.out.println(new q.X2().bar);	\n" + 
+		"	                              ^^^\n" + 
+		"The field X2.bar is not visible\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in q\\X2.java (at line 3)\n" + 
+		"	protected String foo = \"X2.foo\";	\n" + 
+		"	                 ^^^\n" + 
+		"The field X2.foo is hiding a field from type X1\n" + 
 		"----------\n");
 }
 

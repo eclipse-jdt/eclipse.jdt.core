@@ -933,7 +933,6 @@ public abstract class Scope {
 		}
 		return null;
 	}
-
 	// Internal use only
 	/*	Answer the field binding that corresponds to fieldName.
 		Start the lookup at the receiverType.
@@ -941,10 +940,23 @@ public abstract class Scope {
 			isSuperAccess(); this is used to determine if the discovered field is visible.
 		Only fields defined by the receiverType or its supertypes are answered;
 		a field of an enclosing type will not be found using this API.
-
+    	If no visible field is discovered, null is answered.
+	 */
+	public FieldBinding findField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite, boolean needResolve) {
+		return findField(receiverType, fieldName, invocationSite, needResolve, false);
+	}
+	// Internal use only
+	/*	Answer the field binding that corresponds to fieldName.
+		Start the lookup at the receiverType.
+		InvocationSite implements
+			isSuperAccess(); this is used to determine if the discovered field is visible.
+		Only fields defined by the receiverType or its supertypes are answered;
+		a field of an enclosing type will not be found using this API.
+        If the parameter invisibleFieldsOk is true, visibility checks have not been run on
+        any returned fields. The caller needs to apply these checks as needed. Otherwise,
 		If no visible field is discovered, null is answered.
 	*/
-	public FieldBinding findField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite, boolean needResolve) {
+	public FieldBinding findField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite, boolean needResolve, boolean invisibleFieldsOk) {
 
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReference(receiverType);
@@ -989,6 +1001,9 @@ public abstract class Scope {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=316456
 		boolean insideTypeAnnotations = this instanceof MethodScope && ((MethodScope) this).insideTypeAnnotation;
 		if (field != null) {
+			if (invisibleFieldsOk) {
+				return field;
+			}
 			if (invocationSite == null || insideTypeAnnotations
 				? field.canBeSeenBy(getCurrentPackage())
 				: field.canBeSeenBy(currentType, invocationSite, this))
@@ -1027,6 +1042,9 @@ public abstract class Scope {
 			currentType.initializeForStaticImports();
 			currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceEnd());
 			if ((field = currentType.getField(fieldName, needResolve)) != null) {
+				if (invisibleFieldsOk) {
+					return field;
+				}
 				keepLooking = false;
 				if (field.canBeSeenBy(receiverType, invocationSite, this)) {
 					if (visibleField == null)
@@ -1048,6 +1066,9 @@ public abstract class Scope {
 				unitScope.recordTypeReference(anInterface);
 				// no need to capture rcv interface, since member field is going to be static anyway
 				if ((field = anInterface.getField(fieldName, true /*resolve*/)) != null) {
+					if (invisibleFieldsOk) {
+						return field;
+					}
 					if (visibleField == null) {
 						visibleField = field;
 					} else {
