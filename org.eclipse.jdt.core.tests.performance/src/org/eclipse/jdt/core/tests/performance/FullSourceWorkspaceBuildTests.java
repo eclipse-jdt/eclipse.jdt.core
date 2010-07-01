@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -240,9 +240,16 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	}
 
 	/*
-	 * Compile given paths using batch compiler
+	 * Compile given paths in a plugin using batch compiler
 	 */
 	void compile(String pluginID, String options, boolean log, String[] srcPaths) throws IOException, CoreException {
+		compile(pluginID, options, null, log, srcPaths);
+	}
+
+	/*
+	 * Compile given paths in a plugin using batch compiler
+	 */
+	void compile(String pluginID, String options, String compliance, boolean log, String[] srcPaths) throws IOException, CoreException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		final String targetWorkspacePath = workspaceRoot.getProject(pluginID).getLocation().toFile().getCanonicalPath();
@@ -266,8 +273,33 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			}
 		}
 
+		compile(sources, options, classpath, null, log, logFileName);
+	}
+
+	// compile the sources present in this plugin directory using batch compiler
+	void compile (String[] srcPaths, String options, String compliance, boolean log) throws IOException {
+		final String targetWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile().getCanonicalPath();
+		String logFileName = targetWorkspacePath + File.separator + getName()+".log";
+		
+		String pluginDir = getPluginDirectoryPath();
+		String sources = "";
+		for (int i=0, l=srcPaths.length; i<l; i++) {
+			String path = pluginDir + File.separator + srcPaths[i];
+			if (path.indexOf(" ") > 0) {
+				path = "\"" + path + "\"";
+			}
+			sources += " " + path;
+		}
+		compile(sources, options, "", compliance, log, logFileName);
+	}
+	
+	// compile the given sources using batch compiler 
+	private void compile(String sources, String options, String classpath, String compliance, boolean log, String logFileName) {
 		// Warm up
-		String compliance = " -" + (COMPLIANCE==null ? "1.4" : COMPLIANCE);
+		if (compliance == null) 
+			compliance = " -" + (COMPLIANCE==null ? "1.4" : COMPLIANCE);
+		else 
+			compliance = " -" + compliance;
 		final String cmdLine = classpath + compliance + " -g -preserveAllLocals "+(options==null?"":options)+" -d " + COMPILER_OUTPUT_DIR + (log?" -log "+logFileName:"") + sources;
 		if (PRINT) System.out.println("	Compiler command line = "+cmdLine);
 		int warnings = 0;
@@ -676,7 +708,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testBatchCompilerNoWarning() throws IOException, CoreException {
 		tagAsSummary("Compile folders using cmd line (no warn)", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-nowarn", true/*log errors*/, null);
+		compile(JavaCore.PLUGIN_ID, "-nowarn", null, true/*log errors*/, null);
 	}
 
 	/**
@@ -686,7 +718,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testCompileJDTCoreProjectNoWarning() throws IOException, CoreException {
 		tagAsSummary("Compile JDT/Core with cmd line (no warn)", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-nowarn", false/*no log*/, JDT_CORE_SRC_PATHS);
+		compile(JavaCore.PLUGIN_ID, "-nowarn", null, false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
 	/**
@@ -696,7 +728,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testCompileJDTCoreProjectDefault() throws IOException, CoreException {
 		tagAsSummary("Compile JDT/Core with command line", true); // put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "", false/*no log*/, JDT_CORE_SRC_PATHS);
+		compile(JavaCore.PLUGIN_ID, "", null, false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
 	/**
@@ -706,7 +738,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testCompileJDTCoreProjectJavadoc() throws IOException, CoreException {
 		tagAsSummary("Compile JDT/Core with cmd line (javadoc)", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", false/*no log*/, JDT_CORE_SRC_PATHS);
+		compile(JavaCore.PLUGIN_ID, "-warn:javadoc", null, false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
 	/**
@@ -717,7 +749,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testCompileJDTCoreProjectAllWarnings() throws IOException, CoreException {
 		tagAsSummary("Compile JDT/Core with cmd line (all)", false); // do NOT put in fingerprint
-		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, false/*no log*/, JDT_CORE_SRC_PATHS);
+		compile(JavaCore.PLUGIN_ID, ALL_OPTIONS, null, false/*no log*/, JDT_CORE_SRC_PATHS);
 	}
 
 	/**
@@ -749,6 +781,14 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 				"Eclipse SWT Browser/common",
 				"Eclipse SWT Browser/win32",
 		};
-		compile("org.eclipse.swt", "", false/*no log*/, sourcePaths);
+		compile("org.eclipse.swt", "", null, false/*no log*/, sourcePaths);
+	}
+	
+	/**
+	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=315978
+	 */
+	public void testBuildGenericType() throws IOException, CoreException {
+		tagAsSummary("Build Generic Type ", false); // do NOT put in fingerprint
+		compile(new String[] {"EclipseVisitorBug.java"}, "", "1.6", false /*no log*/ );	
 	}
 }
