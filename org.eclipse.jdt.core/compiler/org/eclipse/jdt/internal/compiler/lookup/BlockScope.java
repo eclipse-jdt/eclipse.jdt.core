@@ -464,22 +464,31 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 			problemReporter().deprecatedType(referenceBinding, invocationNode);
 		}
 	}
+	Binding problemFieldBinding = null;
 	while (currentIndex < length) {
 		referenceBinding = (ReferenceBinding) binding;
 		char[] nextName = compoundName[currentIndex++];
 		invocationSite.setFieldIndex(currentIndex);
 		invocationSite.setActualReceiverType(referenceBinding);
 		if ((mask & Binding.FIELD) != 0 && (binding = findField(referenceBinding, nextName, invocationSite, true /*resolve*/)) != null) {
-			if (!binding.isValidBinding()) {
-				return new ProblemFieldBinding(
-					((ProblemFieldBinding)binding).closestMatch,
-					((ProblemFieldBinding)binding).declaringClass,
-					CharOperation.concatWith(CharOperation.subarray(compoundName, 0, currentIndex), '.'),
-					binding.problemId());
+			if (binding.isValidBinding()) {
+				break; // binding is now a field
 			}
-			break; // binding is now a field
+			problemFieldBinding = new ProblemFieldBinding(
+				((ProblemFieldBinding)binding).closestMatch,
+				((ProblemFieldBinding)binding).declaringClass,
+				CharOperation.concatWith(CharOperation.subarray(compoundName, 0, currentIndex), '.'),
+				binding.problemId()); 
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858 : If field is inaccessible,
+			// don't give up yet, continue to look for a visible member type 
+			if (binding.problemId() != ProblemReasons.NotVisible) {  
+				return problemFieldBinding;
+			}
 		}
 		if ((binding = findMemberType(nextName, referenceBinding)) == null) {
+			if (problemFieldBinding != null) {
+				return problemFieldBinding;
+			}
 			if ((mask & Binding.FIELD) != 0) {
 				return new ProblemFieldBinding(
 						null,
@@ -498,11 +507,15 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 				ProblemReasons.NotFound);
 		}
 		// binding is a ReferenceBinding
-		if (!binding.isValidBinding())
+		if (!binding.isValidBinding()) {
+			if (problemFieldBinding != null) {
+				return problemFieldBinding;
+			}
 			return new ProblemReferenceBinding(
 				CharOperation.subarray(compoundName, 0, currentIndex),
 				(ReferenceBinding)((ReferenceBinding)binding).closestMatch(),
 				binding.problemId());
+		}
 		if (invocationSite instanceof ASTNode) {
 			referenceBinding = (ReferenceBinding) binding;
 			ASTNode invocationNode = (ASTNode) invocationSite;

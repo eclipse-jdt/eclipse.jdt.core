@@ -3176,6 +3176,141 @@ public void test097() {
 		"The type B$A is not visible\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858
+public void test098() {
+	this.runConformTest(
+		new String[] {
+			"B.java",//------------------------------
+			"class A {\n" +
+			"    public final static class B {\n" +
+			"        public final static String length = \"very long\";\n" +
+			"    }\n" +
+			"    private  int [] B = new int[5];\n" +    
+			"}\n" +
+			"public class B {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.println(A.B.length);\n" +
+			"    }\n" +   
+			"}\n",
+		},
+		"very long");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858
+public void test099() {
+	this.runNegativeTest(
+		new String[] {
+			"B.java",//------------------------------
+			"class A {\n" +
+			"    public final static class B {\n" +
+			"        public final static String length = \"very long\";\n" +
+			"    }\n" +
+			"    public int [] B = new int[5];\n" +    
+			"}\n" +
+			"public class B {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.println(A.B.length);\n" +
+			"    }\n" +   
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in B.java (at line 9)\n" + 
+		"	System.out.println(A.B.length);\n" + 
+		"	                   ^^^^^^^^^^\n" + 
+		"Cannot make a static reference to the non-static field A.B\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858
+public void test100() {
+	this.runConformTest(
+		new String[] {
+			"B.java",//------------------------------
+			"class A {\n" +
+			"    public final class B {\n" +
+			"        public final String length = \"very long\";\n" +
+			"    }\n" +
+			"    public static int [] B = new int[5];\n" +    
+			"}\n" +
+			"public class B {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.println(A.B.length);\n" +
+			"    }\n" +   
+			"}\n",
+		},
+		"5");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858
+public void test101() {
+	this.runNegativeTest(
+		new String[] {
+			"B.java",//------------------------------
+			"class A {\n" +
+			"    private final class B {\n" +
+			"        public final String length = \"very long\";\n" +
+			"    }\n" +
+			"    private int [] B = new int[5];\n" +    
+			"}\n" +
+			"public class B {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.println(A.B.length);\n" +
+			"    }\n" +   
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in B.java (at line 2)\n" + 
+		"	private final class B {\n" + 
+		"	                    ^\n" + 
+		"The type A.B is never used locally\n" + 
+		"----------\n" + 
+		"2. WARNING in B.java (at line 3)\n" + 
+		"	public final String length = \"very long\";\n" + 
+		"	                    ^^^^^^\n" + 
+		"The field A.B.length is never read locally\n" + 
+		"----------\n" + 
+		"3. WARNING in B.java (at line 5)\n" + 
+		"	private int [] B = new int[5];\n" + 
+		"	               ^\n" + 
+		"The field A.B is never read locally\n" + 
+		"----------\n" + 
+		"4. ERROR in B.java (at line 9)\n" + 
+		"	System.out.println(A.B.length);\n" + 
+		"	                     ^\n" + 
+		"The field A.B is not visible\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858
+public void test102() {
+	this.runNegativeTest(
+		new String[] {
+			"B.java",//------------------------------
+			"class A {\n" +
+			"    public final class B {\n" +
+			"        private final String length = \"very long\";\n" +
+			"    }\n" +
+			"    private int [] B = new int[5];\n" +    
+			"}\n" +
+			"public class B {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.println(A.B.length);\n" +
+			"    }\n" +   
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in B.java (at line 3)\n" + 
+		"	private final String length = \"very long\";\n" + 
+		"	                     ^^^^^^\n" + 
+		"The field A.B.length is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in B.java (at line 5)\n" + 
+		"	private int [] B = new int[5];\n" + 
+		"	               ^\n" + 
+		"The field A.B is never read locally\n" + 
+		"----------\n" + 
+		"3. ERROR in B.java (at line 9)\n" + 
+		"	System.out.println(A.B.length);\n" + 
+		"	                       ^^^^^^\n" + 
+		"The field A.B.length is not visible\n" + 
+		"----------\n");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }
