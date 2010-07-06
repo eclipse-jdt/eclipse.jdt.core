@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
 import java.io.IOException;
 
 import junit.framework.Test;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
@@ -1331,6 +1333,108 @@ public void testOwner() throws CoreException {
 		if (anotherWorkingCopy != null)
 			anotherWorkingCopy.discardWorkingCopy();
 		deleteProject("P");
+	}
+}
+/**
+ * @bug 316654: ITypeHierarchyChangedListener receive spurious callbacks
+ * 
+ * Test that a non-Java resource added to a folder package fragment root doesn't
+ * result in a type hierarchy changed event.
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=316654"
+ * @throws CoreException
+ */
+public void testBug316654() throws CoreException {
+	IJavaProject project = getJavaProject("TypeHierarchyNotification");
+	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
+	IType type= cu.getType("X");
+	ITypeHierarchy h = type.newTypeHierarchy(project, null);
+	h.addTypeHierarchyChangedListener(this);
+	IPath filePath = project.getProject().getFullPath().append("src").append("simplefile.txt");
+	try {
+		createFile(filePath.toOSString(), "A simple text file");
+		assertTrue("Should not receive change", !this.changeReceived);
+	} finally {
+		deleteFile(filePath.toOSString());
+		h.removeTypeHierarchyChangedListener(this);
+	}
+}
+/**
+ * Additional test - Test that a relevant Java source resource change results in a type hierarchy 
+ * change event.  
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=316654"
+ * @throws CoreException
+ */
+public void testBug316654_a() throws CoreException {
+	IJavaProject project = getJavaProject("TypeHierarchyNotification");
+	ICompilationUnit cu = getCompilationUnit("TypeHierarchyNotification", "src", "p", "X.java");
+	IType type= cu.getType("X");
+	ITypeHierarchy h = type.newTypeHierarchy(project, null);
+	h.addTypeHierarchyChangedListener(this);
+	IPath filePath = project.getProject().getFullPath().append("src").append("p").append("Y.java");
+	try {
+		createFile(filePath.toOSString(), 
+					"package p;\n" +
+					"class Y extends X{\n" +
+					"}");
+		assertOneChange(h);
+	} finally {
+		deleteFile(filePath.toOSString());
+		h.removeTypeHierarchyChangedListener(this);
+	}
+}
+/**
+ * Additional test - Test that a relevant external archive change results in a type hierarchy 
+ * change event.  
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=316654"
+ * @throws CoreException
+ */
+public void testBug316654_b() throws CoreException {
+	IJavaProject project = getJavaProject("TypeHierarchyNotification");
+	refreshExternalArchives(project);
+	File jarFile = new File(getExternalJCLPathString());
+	long oldTimestamp = jarFile.lastModified();
+	assertTrue("File does not exist", jarFile.exists());
+
+	IType throwableClass = getClassFile("TypeHierarchyNotification", getExternalJCLPathString(), "java.lang", "Throwable.class").getType();
+	ITypeHierarchy h = throwableClass.newTypeHierarchy(project, null);
+	h.addTypeHierarchyChangedListener(this);
+	reset();
+	
+	try {
+		jarFile.setLastModified(System.currentTimeMillis());
+		refreshExternalArchives(project);
+		assertOneChange(h);
+	} finally {
+		jarFile.setLastModified(oldTimestamp);
+		h.removeTypeHierarchyChangedListener(this);
+	}
+}
+/**
+ * Additional test - Test that a relevant archive change results in a type hierarchy 
+ * change event.
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=316654"
+ * @throws CoreException
+ */
+public void testBug316654_c() throws CoreException {
+	IJavaProject project = getJavaProject("TypeHierarchyNotification");
+	IPath jarPath = project.getPath().append("test316654.jar"); 
+	IFile jarFile = getFile(jarPath.toOSString());
+
+	IType type = getClassFile("TypeHierarchyNotification", jarPath.toOSString(), "a", "A.class").getType();
+	ITypeHierarchy h = type.newTypeHierarchy(project, null);
+	h.addTypeHierarchyChangedListener(this);
+	reset();
+	
+	try {
+		jarFile.touch(null);
+		refresh(project);
+		assertOneChange(h);
+	} finally {
+		h.removeTypeHierarchyChangedListener(this);
 	}
 }
 /**

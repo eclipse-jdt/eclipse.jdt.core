@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -960,11 +960,11 @@ private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaEl
 					}
 				}
 			}
-			if ((flags & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) > 0 || (flags & IJavaElementDelta.F_CONTENT) > 0) {
+			if ((flags & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) > 0 || (flags & IJavaElementDelta.F_ARCHIVE_CONTENT_CHANGED) > 0) {
 				// 1. removed from classpath - if it contains packages we are interested in
 				// the the type hierarchy has changed
 				// 2. content of a jar changed - if it contains packages we are interested in
-				// the the type hierarchy has changed
+				// then the type hierarchy has changed
 				IJavaElement[] pkgs = this.packageRegion.getElements();
 				for (int i = 0; i < pkgs.length; i++) {
 					if (pkgs[i].getParent().equals(element)) {
