@@ -12,6 +12,8 @@
 
 package org.eclipse.jdt.apt.tests;
 
+import java.util.Map;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -22,12 +24,17 @@ import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.generic.AbstractGenericProcessor;
 import org.eclipse.jdt.apt.tests.annotations.generic.GenericFactory;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorDeclarationCodeExample;
+import org.eclipse.jdt.apt.tests.annotations.mirrortest.SourceMirrorCodeExample;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
+import com.sun.mirror.declaration.AnnotationMirror;
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
+import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
+import com.sun.mirror.declaration.AnnotationValue;
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.util.SourcePosition;
@@ -239,6 +246,22 @@ public class MirrorDeclarationTests extends APTTestBase {
 		assertTrue("Processor not invoked", p.called);
 	}
 	
+	public void testSourceMirror() {
+		
+		TestSourceMirrorProc p = new TestSourceMirrorProc();
+		GenericFactory.setProcessor(p);
+		
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+		env.addClass(srcRoot, SourceMirrorCodeExample.CODE_PACKAGE, SourceMirrorCodeExample.ANNO_CODE_CLASS_NAME, SourceMirrorCodeExample.ANNO_CODE);
+		env.addClass(srcRoot, SourceMirrorCodeExample.CODE_PACKAGE, SourceMirrorCodeExample.CODE_CLASS_NAME, SourceMirrorCodeExample.CODE);
+		
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		
+		assertTrue("Processor not invoked", p.called);
+	}
+	
 	static class TestLocationProc extends AbstractGenericProcessor {
 
 		boolean called;
@@ -252,6 +275,28 @@ public class MirrorDeclarationTests extends APTTestBase {
 
 			assertTrue(p.column() == 32);
 			assertTrue(p.line() == 3);
+		}
+	}
+	
+	static class TestSourceMirrorProc extends AbstractGenericProcessor {
+		
+		boolean called;
+		
+		public void _process() {
+			called = true;
+			TypeDeclaration tdCode = env.getTypeDeclaration(SourceMirrorCodeExample.CODE_PACKAGE + "." + SourceMirrorCodeExample.ANNO_CODE_CLASS_NAME);
+			for (AnnotationMirror am : tdCode.getAnnotationMirrors()) {
+				if ("GenericAnnotation".equals(am.getAnnotationType().getDeclaration().getSimpleName())) {
+					continue;
+				}
+				assertTrue(null != am.getPosition());
+				AnnotationTypeDeclaration atd = am.getAnnotationType().getDeclaration();
+				assertTrue(null != atd.getPosition());
+				for (Map.Entry<AnnotationTypeElementDeclaration, AnnotationValue> entry : am.getElementValues().entrySet()) {
+					assertNotNull(entry.getKey().getPosition());
+					assertNotNull(entry.getKey().getDefaultValue().getPosition());
+				}
+			}
 		}
 	}
 	

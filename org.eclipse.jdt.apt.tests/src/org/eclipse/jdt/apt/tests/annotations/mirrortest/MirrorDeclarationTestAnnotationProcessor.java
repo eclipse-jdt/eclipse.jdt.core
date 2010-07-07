@@ -47,6 +47,7 @@ import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.type.AnnotationType;
 import com.sun.mirror.type.ClassType;
 import com.sun.mirror.type.ReferenceType;
+import com.sun.mirror.util.SourcePosition;
 
 public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 	
@@ -119,8 +120,11 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
         AnnotationTypeElementDeclaration elementString = null;
         AnnotationTypeElementDeclaration elementInt = null;
         for(AnnotationTypeElementDeclaration ated : elementDeclarations) {
-        	if(ated.toString().startsWith("S"))
+        	if(ated.toString().startsWith("S")) {
         		elementString = ated;
+                SourcePosition posAted = ated.getPosition();
+                ProcessorTestStatus.assertTrue("position should be null", posAted == null); // the anno is declared in binary - no AST.
+        	}        		
         	if(ated.toString().startsWith("i"))
         		elementInt = ated;
         }
@@ -128,6 +132,8 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
         ProcessorTestStatus.assertEquals("declaring type same as AnnotationTypeDeclaration", annoTypeDecl, elementInt.getDeclaringType());
 
         AnnotationValue valueString = elementString.getDefaultValue();
+        SourcePosition posVS = valueString.getPosition();
+        ProcessorTestStatus.assertTrue("position should be null", posVS == null); // the anno is declared in binary - no AST.
         AnnotationValue valueInt = elementInt.getDefaultValue();
         ProcessorTestStatus.assertEquals("", "bob", valueString.getValue());
         ProcessorTestStatus.assertEquals("", new Integer(3), valueInt.getValue());

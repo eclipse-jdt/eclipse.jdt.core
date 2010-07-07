@@ -105,7 +105,8 @@ public class AnnotationValueImpl implements EclipseMirrorObject, AnnotationValue
 			break;
 		case ANNOTATION_ELEMENT:
 			final AnnotationElementDeclarationImpl element = (AnnotationElementDeclarationImpl)_parent;
-			astNode = element.getAstNodeForDefault();			
+			astNode = element.getAstNodeForDefault();
+			break;
 		default:
 			throw new IllegalStateException(); // should never reach this point.
 		}
