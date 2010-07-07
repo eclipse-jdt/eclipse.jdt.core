@@ -6710,133 +6710,142 @@ public final class CompletionEngine
 		if (enclosingNode == null || !(enclosingNode instanceof IfStatement)) return;
 
 		IfStatement ifStatement = (IfStatement)enclosingNode;
-
-		if (!(ifStatement.condition instanceof InstanceOfExpression)) return;
-
-		InstanceOfExpression instanceOfExpression = (InstanceOfExpression) ifStatement.condition;
-
-		TypeReference instanceOfType = instanceOfExpression.type;
-
-		if (instanceOfType.resolvedType == null) return;
-
-		boolean findFromAnotherReceiver = false;
-
-		char[][] receiverName = null;
-		int receiverStart = -1;
-		int receiverEnd = -1;
-
-		if (receiver instanceof QualifiedNameReference) {
-			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) receiver;
-
-			receiverName = qualifiedNameReference.tokens;
-
-			if (receiverName.length != 1) return;
-
-			receiverStart = (int) (qualifiedNameReference.sourcePositions[0] >>> 32);
-			receiverEnd = (int) qualifiedNameReference.sourcePositions[qualifiedNameReference.tokens.length - 1] + 1;
-
-			// if (local instanceof X) local.|
-			// if (field instanceof X) field.|
-			if (instanceOfExpression.expression instanceof SingleNameReference &&
-					((SingleNameReference)instanceOfExpression.expression).binding == qualifiedBinding &&
-					(qualifiedBinding instanceof LocalVariableBinding || qualifiedBinding instanceof FieldBinding)) {
-				findFromAnotherReceiver = true;
-			}
-
-			// if (this.field instanceof X) field.|
-			if (instanceOfExpression.expression instanceof FieldReference) {
-				FieldReference fieldReference = (FieldReference)instanceOfExpression.expression;
-
-				if (fieldReference.receiver instanceof ThisReference &&
-						qualifiedBinding instanceof FieldBinding &&
-						fieldReference.binding == qualifiedBinding) {
-							findFromAnotherReceiver = true;
-				}
-			}
-		} else if (receiver instanceof FieldReference) {
-			FieldReference fieldReference1 = (FieldReference) receiver;
-
-			receiverStart = fieldReference1.sourceStart;
-			receiverEnd = fieldReference1.sourceEnd + 1;
-
-			if (fieldReference1.receiver instanceof ThisReference) {
-
-				receiverName = new char[][] {THIS, fieldReference1.token};
-
-				// if (field instanceof X) this.field.|
+		while (true) {
+			if (!(ifStatement.condition instanceof InstanceOfExpression)) return;
+	
+			InstanceOfExpression instanceOfExpression = (InstanceOfExpression) ifStatement.condition;
+	
+			TypeReference instanceOfType = instanceOfExpression.type;
+	
+			if (instanceOfType.resolvedType == null) return;
+	
+			boolean findFromAnotherReceiver = false;
+	
+			char[][] receiverName = null;
+			int receiverStart = -1;
+			int receiverEnd = -1;
+	
+			if (receiver instanceof QualifiedNameReference) {
+				QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) receiver;
+	
+				receiverName = qualifiedNameReference.tokens;
+	
+				if (receiverName.length != 1) return;
+	
+				receiverStart = (int) (qualifiedNameReference.sourcePositions[0] >>> 32);
+				receiverEnd = (int) qualifiedNameReference.sourcePositions[qualifiedNameReference.tokens.length - 1] + 1;
+	
+				// if (local instanceof X) local.|
+				// if (field instanceof X) field.|
 				if (instanceOfExpression.expression instanceof SingleNameReference &&
-						((SingleNameReference)instanceOfExpression.expression).binding == fieldReference1.binding) {
+						((SingleNameReference)instanceOfExpression.expression).binding == qualifiedBinding &&
+						(qualifiedBinding instanceof LocalVariableBinding || qualifiedBinding instanceof FieldBinding)) {
 					findFromAnotherReceiver = true;
 				}
-
-				// if (this.field instanceof X) this.field.|
+	
+				// if (this.field instanceof X) field.|
 				if (instanceOfExpression.expression instanceof FieldReference) {
-					FieldReference fieldReference2 = (FieldReference)instanceOfExpression.expression;
-
-					if (fieldReference2.receiver instanceof ThisReference &&
-							fieldReference2.binding == fieldReference1.binding) {
+					FieldReference fieldReference = (FieldReference)instanceOfExpression.expression;
+	
+					if (fieldReference.receiver instanceof ThisReference &&
+							qualifiedBinding instanceof FieldBinding &&
+							fieldReference.binding == qualifiedBinding) {
 								findFromAnotherReceiver = true;
 					}
 				}
+			} else if (receiver instanceof FieldReference) {
+				FieldReference fieldReference1 = (FieldReference) receiver;
+	
+				receiverStart = fieldReference1.sourceStart;
+				receiverEnd = fieldReference1.sourceEnd + 1;
+	
+				if (fieldReference1.receiver instanceof ThisReference) {
+	
+					receiverName = new char[][] {THIS, fieldReference1.token};
+	
+					// if (field instanceof X) this.field.|
+					if (instanceOfExpression.expression instanceof SingleNameReference &&
+							((SingleNameReference)instanceOfExpression.expression).binding == fieldReference1.binding) {
+						findFromAnotherReceiver = true;
+					}
+	
+					// if (this.field instanceof X) this.field.|
+					if (instanceOfExpression.expression instanceof FieldReference) {
+						FieldReference fieldReference2 = (FieldReference)instanceOfExpression.expression;
+	
+						if (fieldReference2.receiver instanceof ThisReference &&
+								fieldReference2.binding == fieldReference1.binding) {
+									findFromAnotherReceiver = true;
+						}
+					}
+				}
 			}
-		}
-
-		if (findFromAnotherReceiver) {
-			TypeBinding receiverTypeBinding = instanceOfType.resolvedType;
-			char[] castedReceiver = null;
-
-			char[] castedTypeChars = CharOperation.concatWith(instanceOfType.getTypeName(), '.');
-			if(this.source != null) {
-				int memberRefStart = this.startPosition;
-
-				char[] receiverChars = CharOperation.subarray(this.source, receiverStart, receiverEnd);
-				char[] dotChars = CharOperation.subarray(this.source, receiverEnd, memberRefStart);
-
-				castedReceiver =
-					CharOperation.concat(
+	
+			if (findFromAnotherReceiver) {
+				TypeBinding receiverTypeBinding = instanceOfType.resolvedType;
+				char[] castedReceiver = null;
+	
+				char[] castedTypeChars = CharOperation.concatWith(instanceOfType.getTypeName(), '.');
+				if(this.source != null) {
+					int memberRefStart = this.startPosition;
+	
+					char[] receiverChars = CharOperation.subarray(this.source, receiverStart, receiverEnd);
+					char[] dotChars = CharOperation.subarray(this.source, receiverEnd, memberRefStart);
+	
+					castedReceiver =
 						CharOperation.concat(
-							'(',
 							CharOperation.concat(
-								CharOperation.concat('(', castedTypeChars, ')'),
-								receiverChars),
-							')'),
-						dotChars);
+								'(',
+								CharOperation.concat(
+									CharOperation.concat('(', castedTypeChars, ')'),
+									receiverChars),
+								')'),
+							dotChars);
+				} else {
+					castedReceiver =
+						CharOperation.concat(
+							CharOperation.concat(
+								'(',
+								CharOperation.concat(
+									CharOperation.concat('(', castedTypeChars, ')'),
+									CharOperation.concatWith(receiverName, '.')),
+								')'),
+							DOT);
+				}
+	
+				if (castedReceiver == null) return;
+	
+				int oldStartPosition = this.startPosition;
+				this.startPosition = receiverStart;
+	
+				findFieldsAndMethods(
+						this.completionToken,
+						receiverTypeBinding,
+						scope,
+						fieldsFound,
+						methodsFound,
+						invocationSite,
+						invocationScope,
+						false,
+						false,
+						null,
+						null,
+						null,
+						false,
+						castedReceiver,
+						receiverStart,
+						receiverEnd);
+	
+				this.startPosition = oldStartPosition;
+			}
+			// traverse the enclosing node to find the instanceof expression corresponding
+			// to the completion node (if any)
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304006
+			if (ifStatement.thenStatement instanceof IfStatement) {
+				ifStatement = (IfStatement) ifStatement.thenStatement;
 			} else {
-				castedReceiver =
-					CharOperation.concat(
-						CharOperation.concat(
-							'(',
-							CharOperation.concat(
-								CharOperation.concat('(', castedTypeChars, ')'),
-								CharOperation.concatWith(receiverName, '.')),
-							')'),
-						DOT);
+				break;
 			}
-
-			if (castedReceiver == null) return;
-
-			int oldStartPosition = this.startPosition;
-			this.startPosition = receiverStart;
-
-			findFieldsAndMethods(
-					this.completionToken,
-					receiverTypeBinding,
-					scope,
-					fieldsFound,
-					methodsFound,
-					invocationSite,
-					invocationScope,
-					false,
-					false,
-					null,
-					null,
-					null,
-					false,
-					castedReceiver,
-					receiverStart,
-					receiverEnd);
-
-			this.startPosition = oldStartPosition;
 		}
 	}
 	private void findFieldsAndMethodsFromFavorites(

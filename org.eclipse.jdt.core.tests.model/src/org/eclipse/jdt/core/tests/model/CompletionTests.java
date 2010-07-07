@@ -2390,8 +2390,13 @@ public void testCompletionAfterInstanceof03_05() throws JavaModelException {
 	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
 	int start1 = str.lastIndexOf("equal") + "".length();
 	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
 	assertResults(
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
@@ -2525,8 +2530,13 @@ public void testCompletionAfterInstanceof06_01() throws JavaModelException {
 	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
 	int start1 = str.lastIndexOf("equal") + "".length();
 	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
 	assertResults(
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
@@ -2555,8 +2565,13 @@ public void testCompletionAfterInstanceof06_02() throws JavaModelException {
 	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
 	int start1 = str.lastIndexOf("equal") + "".length();
 	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
 	assertResults(
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
@@ -2587,8 +2602,13 @@ public void testCompletionAfterInstanceof07() throws JavaModelException {
 	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
 	int start1 = str.lastIndexOf("equal") + "".length();
 	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
 	assertResults(
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}",
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
@@ -21452,6 +21472,223 @@ public void testBug195346b() throws JavaModelException {
 			"CompletionAfterCase2.AN_INNER_CLASS[TYPE_REF]{AN_INNER_CLASS, test, Ltest.CompletionAfterCase2$AN_INNER_CLASS;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"AN_INT_VALUE[FIELD_REF]{AN_INT_VALUE, Ltest.CompletionAfterCase2;, I, AN_INT_VALUE, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
 			"AN_INT_VALUE2[FIELD_REF]{AN_INT_VALUE2, Ltest.CompletionAfterCase2;, I, AN_INT_VALUE2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE + R_FINAL) + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304006
+// To verify that autocast works correctly after an instanceof even if there are other expressions in between
+// instanceof and the place where code assist is requested.
+public void testBug304006a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public int foo() { return 1; }\n" +
+		"	public int returnZero(){ return 0;}\n" +
+		"	void bar(Object a){\n" +
+		"       int i = 1;\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {" +
+		"			if (i == 1)\n" +
+		"				i =  a.r\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "a.r";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+	int start1 = str.lastIndexOf("r") + "".length();
+	int end1 = start1 + "r".length();
+	int start2 = str.lastIndexOf("a.r");
+	int end2 = start2 + "a.r".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	
+	assertResults(
+			"expectedTypesSignatures={I}\n" +
+			"expectedTypesKeys={I}",
+			requestor.getContext());
+	assertResults(
+			"returnZero[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).returnZero(), Ltest.CompletionAfterInstanceOf;, ()I, Ltest.CompletionAfterInstanceOf;, returnZero, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304006
+// To verify that autocast works correctly after an instanceof even if there are other expressions in between
+// instanceof and the place where code assist is requested.
+public void testBug304006b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public int foo() { return 1; }\n" +
+		"	public int returnZero(){ return 0;}\n" +
+		"	void bar(Object a){\n" +
+		"       int i = 1;\n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {" +
+		"			if (i == 1)\n" +
+		"				a.r\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "a.r";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("r") + "".length();
+	int end1 = start1 + "r".length();
+	int start2 = str.lastIndexOf("a.r");
+	int end2 = start2 + "a.r".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	
+	assertResults(
+			"returnZero[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).returnZero(), Ltest.CompletionAfterInstanceOf;, ()I, Ltest.CompletionAfterInstanceOf;, returnZero, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304006
+// To verify that autocast works correctly even when the completion node
+// is preceeded by a number of unrelated instanceof expressions
+public void testBug304006c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public int foo() { return 1; }\n" +
+		"	public int returnZero(){ return 0;}\n" +
+		"	void bar(Object abc, Object xyz){\n" +
+		"       int i = 1, j;\n" +
+		"		if(i == 1)\n" +
+		"			if (abc instanceof CompletionAfterInstanceOf)\n" +
+		"				if(xyz instanceof CompletionAfterInstanceOf){\n" +
+		"					j = 1;\n" +
+		"					if(j == 1)\n" +
+		"						i = abc.r \n" +
+		"				}\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "abc.r";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+	int start1 = str.lastIndexOf("r") + "".length();
+	int end1 = start1 + "r".length();
+	int start2 = str.lastIndexOf("abc.r");
+	int end2 = start2 + "abc.r".length();
+	int start3 = str.lastIndexOf("abc.");
+	int end3 = start3 + "abc".length();
+	
+	assertResults(
+			"expectedTypesSignatures={I}\n" +
+			"expectedTypesKeys={I}",
+			requestor.getContext());
+	assertResults(
+			"returnZero[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)abc).returnZero(), Ltest.CompletionAfterInstanceOf;, ()I, Ltest.CompletionAfterInstanceOf;, returnZero, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304006
+// To verify that autocast works correctly even when the completion node is preceeded by a number 
+// of unrelated instanceof expressions. This case has errors in compilation unit. 
+public void testBug304006d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public int foo() { return 1; }\n" +
+		"	public int returnZero(){ return 0;}\n" +
+		"	void bar(Object abc, Object xyz){\n" +
+		"       int i = 1, j;\n" +
+		"		j = \n" +
+		"		if(i == 1)\n" +
+		"			if (abc instanceof CompletionAfterInstanceOf)\n" +
+		"				if(xyz instanceof CompletionAfterInstanceOf){\n" +
+		"					j = 1;\n" +
+		"					if(j == 1)\n" +
+		"						xyz.r \n" +
+		"				}\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "xyz.r";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("r") + "".length();
+	int end1 = start1 + "r".length();
+	int start2 = str.lastIndexOf("xyz.r");
+	int end2 = start2 + "xyz.r".length();
+	int start3 = str.lastIndexOf("xyz.");
+	int end3 = start3 + "xyz".length();
+	
+	assertResults(
+			"returnZero[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)xyz).returnZero(), Ltest.CompletionAfterInstanceOf;, ()I, Ltest.CompletionAfterInstanceOf;, returnZero, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304006
+// To verify that autocast works correctly after an instanceof even if there are other expressions in between
+// instanceof and the place where code assist is requested. This is a case with errors in the compilation unit.
+public void testBug304006e() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public int foo() { return 1; }\n" +
+		"	public int returnZero(){ return 0;}\n" +
+		"	void bar(Object a){\n" +
+		"       int i = 1;\n" +
+		"       int i = \n" +
+		"		if (a instanceof CompletionAfterInstanceOf) {" +
+		"			if (i == 1)\n" +
+		"				i =  a.r\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "a.r";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+	int start1 = str.lastIndexOf("r") + "".length();
+	int end1 = start1 + "r".length();
+	int start2 = str.lastIndexOf("a.r");
+	int end2 = start2 + "a.r".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	
+	assertResults(
+			"expectedTypesSignatures={I}\n" +
+			"expectedTypesKeys={I}",
+			requestor.getContext());
+	assertResults(
+			"returnZero[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).returnZero(), Ltest.CompletionAfterInstanceOf;, ()I, Ltest.CompletionAfterInstanceOf;, returnZero, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
 }

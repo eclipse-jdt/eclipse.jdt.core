@@ -563,8 +563,9 @@ protected void attachOrphanCompletionNode(){
 			if(expression == this.assistNode
 				|| (expression instanceof Assignment	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=287939
 					&& ((Assignment)expression).expression == this.assistNode
-					&& ((this.expressionPtr > 0 && this.expressionStack[this.expressionPtr - 1] instanceof InstanceOfExpression)
-						|| (this.elementPtr >= 0 && this.elementObjectInfoStack[this.elementPtr] instanceof InstanceOfExpression)))
+					&& ((this.expressionPtr > 0 && stackHasInstanceOfExpression(this.expressionStack, this.expressionPtr - 1))
+							// In case of error in compilation unit, expression stack might not have instanceof exp, so try elementObjectInfoStack
+						|| (this.elementPtr >= 0 && stackHasInstanceOfExpression(this.elementObjectInfoStack, this.elementPtr))))
 				|| (expression instanceof AllocationExpression
 					&& ((AllocationExpression)expression).type == this.assistNode)
 				|| (expression instanceof AND_AND_Expression
@@ -1064,7 +1065,7 @@ private void buildMoreCompletionContext(Expression expression) {
 	}
 }
 private Statement buildMoreCompletionEnclosingContext(Statement statement) {
-
+	IfStatement ifStatement = null;
 	int blockIndex = lastIndexOfElement(K_BLOCK_DELIMITER);
 	int controlIndex = lastIndexOfElement(K_CONTROL_STATEMENT_DELIMITER);
 	int index;
@@ -1077,42 +1078,63 @@ private Statement buildMoreCompletionEnclosingContext(Statement statement) {
 		int instanceOfIndex = lastIndexOfElement(K_BETWEEN_INSTANCEOF_AND_RPAREN);
 		index = blockIndex != -1 && instanceOfIndex < blockIndex ? blockIndex : instanceOfIndex;
 	}
-	if (index != -1 && this.elementInfoStack[index] == IF && this.elementObjectInfoStack[index] != null) {
-		Expression condition = (Expression)this.elementObjectInfoStack[index];
-
-		// If currentElement is a RecoveredLocalVariable then it can be contained in the if statement
-		if (this.currentElement instanceof RecoveredLocalVariable &&
-				this.currentElement.parent instanceof RecoveredBlock) {
-			RecoveredLocalVariable recoveredLocalVariable = (RecoveredLocalVariable) this.currentElement;
-			if (recoveredLocalVariable.localDeclaration.initialization == null &&
-					statement instanceof Expression &&
-					condition.sourceStart < recoveredLocalVariable.localDeclaration.sourceStart) {
-				this.currentElement.add(statement, 0);
-
-				statement = recoveredLocalVariable.updatedStatement(0, new HashSet());
-
-				// RecoveredLocalVariable must be removed from its parent because the IfStatement will be added instead
-				RecoveredBlock recoveredBlock =  (RecoveredBlock) recoveredLocalVariable.parent;
-				recoveredBlock.statements[--recoveredBlock.statementCount] = null;
-
-				this.currentElement = recoveredBlock;
-
+	while (index >= 0) {
+		// Try to find an enclosing if statement even if one is not found immediately preceding the completion node.
+		if (index != -1 && this.elementInfoStack[index] == IF && this.elementObjectInfoStack[index] != null) {
+			Expression condition = (Expression)this.elementObjectInfoStack[index];
+	
+			// If currentElement is a RecoveredLocalVariable then it can be contained in the if statement
+			if (this.currentElement instanceof RecoveredLocalVariable &&
+					this.currentElement.parent instanceof RecoveredBlock) {
+				RecoveredLocalVariable recoveredLocalVariable = (RecoveredLocalVariable) this.currentElement;
+				if (recoveredLocalVariable.localDeclaration.initialization == null &&
+						statement instanceof Expression &&
+						condition.sourceStart < recoveredLocalVariable.localDeclaration.sourceStart) {
+					this.currentElement.add(statement, 0);
+	
+					statement = recoveredLocalVariable.updatedStatement(0, new HashSet());
+	
+					// RecoveredLocalVariable must be removed from its parent because the IfStatement will be added instead
+					RecoveredBlock recoveredBlock =  (RecoveredBlock) recoveredLocalVariable.parent;
+					recoveredBlock.statements[--recoveredBlock.statementCount] = null;
+	
+					this.currentElement = recoveredBlock;
+	
+				}
 			}
+			if (statement instanceof AND_AND_Expression && this.assistNode instanceof Statement) {
+				statement = (Statement) this.assistNode;
+			}
+			ifStatement =
+				new IfStatement(
+						condition,
+						statement,
+						condition.sourceStart,
+						statement.sourceEnd);
+			index--;
+			break;
 		}
-		if (statement instanceof AND_AND_Expression && this.assistNode instanceof Statement) {
-			statement = (Statement) this.assistNode;
-		}
-		IfStatement ifStatement =
-			new IfStatement(
-					condition,
-					statement,
-					condition.sourceStart,
-					statement.sourceEnd);
-		this.enclosingNode = ifStatement;
-		return ifStatement;
+		index--;
 	}
-
-	return statement;
+	if (ifStatement == null) {
+		return statement;
+	}
+	// collect all if statements with instanceof expressions that enclose the completion node
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304006
+	while (index >= 0) {
+		if (this.elementInfoStack[index] == IF && this.elementObjectInfoStack[index] instanceof InstanceOfExpression) {
+			InstanceOfExpression condition = (InstanceOfExpression)this.elementObjectInfoStack[index];
+			ifStatement =
+				new IfStatement(
+						condition,
+						ifStatement,
+						condition.sourceStart,
+						ifStatement.sourceEnd);
+		}
+		index--;
+	}
+	this.enclosingNode = ifStatement;
+	return ifStatement;
 }
 private void buildMoreGenericsCompletionContext(ASTNode node, boolean consumeTypeArguments) {
 	int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
@@ -4839,5 +4861,20 @@ protected FieldDeclaration createFieldDeclaration(char[] assistName, int sourceS
 		this.lastCheckPoint = sourceEnd + 1;
 		return field;
 	}
+}
+
+/*
+ * To find out if the given stack has an instanceof expression
+ * at the given startIndex or at one prior to that
+ */
+private boolean stackHasInstanceOfExpression(Object[] stackToSearch, int startIndex) {
+	int indexInstanceOf = startIndex;
+	while (indexInstanceOf >= 0) {
+		if (stackToSearch[indexInstanceOf] instanceof InstanceOfExpression) {
+			return true;
+		}
+		indexInstanceOf--;
+	}
+	return false;
 }
 }
