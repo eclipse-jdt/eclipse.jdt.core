@@ -106,8 +106,8 @@ public class ClassScope extends Scope {
 		for (int i = 0; i < size; i++) {
 			FieldDeclaration field = fields[i];
 			if (field.getKind() == AbstractVariableDeclaration.INITIALIZER) {
-				if (sourceType.isInterface())
-					problemReporter().interfaceCannotHaveInitializers(sourceType, field);
+				// We used to report an error for initializers declared inside interfaces, but
+				// now this error reporting is moved into the parser itself. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=212713
 			} else {
 				FieldBinding fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, sourceType);
 				fieldBinding.id = count;

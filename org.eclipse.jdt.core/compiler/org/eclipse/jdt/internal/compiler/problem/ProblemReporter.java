@@ -2870,8 +2870,8 @@ public void interfaceCannotHaveConstructors(ConstructorDeclaration constructor) 
 		constructor,
 		constructor.compilationResult());
 }
-public void interfaceCannotHaveInitializers(SourceTypeBinding type, FieldDeclaration fieldDecl) {
-	String[] arguments = new String[] {new String(type.sourceName())};
+public void interfaceCannotHaveInitializers(char [] sourceName, FieldDeclaration fieldDecl) {
+	String[] arguments = new String[] {new String(sourceName)};
 
 	this.handle(
 		IProblem.InterfaceCannotHaveInitializers,

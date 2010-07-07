@@ -451,4 +451,32 @@ public void test13() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=212713
+public void test14() {
+
+	String s =
+		"public interface Test {\n"+
+		"  static {  }\n"+
+		"  {         }\n"+
+		"}\n";
+
+	String expectedSyntaxErrorDiagnosis =
+		"----------\n" +
+		"1. ERROR in <test> (at line 2)\n" +
+		"	static {  }\n" +
+		"	       ^^^^\n" +
+		"The interface Test cannot define an initializer\n" +
+		"----------\n" +
+		"2. ERROR in <test> (at line 3)\n" +
+		"	{         }\n" +
+		"	^^^^^^^^^^^\n" +
+		"The interface Test cannot define an initializer\n" +
+		"----------\n";
+
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedSyntaxErrorDiagnosis,
+		testName);
+}
 }

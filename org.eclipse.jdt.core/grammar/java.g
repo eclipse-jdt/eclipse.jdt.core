@@ -803,8 +803,15 @@ InvalidConstructorDeclaration ::= ConstructorHeader ';'
 /.$putCase consumeInvalidConstructorDeclaration(false);  $break ./
 /:$readableName InvalidConstructorDeclaration:/
 
+-- These rules are added to be able to parse initializers inside an interface and then report a relevent error message (bug 212713)
+InvalidInitializer -> StaticInitializer
+InvalidInitializer -> Initializer
+/:$readableName InvalidInitializer:/
+
+
 InterfaceMemberDeclaration -> AbstractMethodDeclaration
 InterfaceMemberDeclaration -> InvalidConstructorDeclaration
+InterfaceMemberDeclaration -> InvalidInitializer
 --1.1 feature
 InterfaceMemberDeclaration -> ClassDeclaration
 --1.1 feature

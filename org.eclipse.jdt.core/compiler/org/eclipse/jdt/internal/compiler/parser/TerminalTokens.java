@@ -129,7 +129,7 @@ public interface TerminalTokens {
 		TokenNameLESS = 7,
 		TokenNameLPAREN = 28,
 		TokenNameRPAREN = 29,
-		TokenNameLBRACE = 69,
+		TokenNameLBRACE = 68,
 		TokenNameRBRACE = 31,
 		TokenNameLBRACKET = 14,
 		TokenNameRBRACKET = 70,
@@ -141,6 +141,6 @@ public interface TerminalTokens {
 		TokenNameEQUAL = 71,
 		TokenNameAT = 53,
 		TokenNameELLIPSIS = 107,
-		TokenNameEOF = 68,
+		TokenNameEOF = 69,
 		TokenNameERROR = 110;
 }
