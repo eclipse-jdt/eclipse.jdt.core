@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2009 IBM Corporation and others.
+ * Copyright (c) 2004, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Andreas Magnusson <andreas.ch.magnusson@gmail.com>- contribution for bug 151500
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
@@ -194,7 +195,8 @@ public class InternalCompletionProposal extends CompletionProposal {
 			}
 		} else {
 			// TODO (david) shouldn't it be NameLookup.ACCEPT_ALL ?
-			NameLookup.Answer answer = this.nameLookup.findType(new String(tName),
+			NameLookup.Answer answer = this.nameLookup.findType(new String(declaringTypeName),
+				new String(declaringTypePackageName),
 				false,
 				NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES,
 				true/* consider secondary types */,
@@ -249,6 +251,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 					char[][] argumentNames = info.getArgumentNames();
 					if (argumentNames != null && argumentNames.length == length) {
 						parameters = argumentNames;
+						return parameters;
 					}
 				} catch(JavaModelException e){
 					//parameters == null;
@@ -290,7 +293,8 @@ public class InternalCompletionProposal extends CompletionProposal {
 			}
 		} else {
 			// TODO (david) shouldn't it be NameLookup.ACCEPT_ALL ?
-			NameLookup.Answer answer = this.nameLookup.findType(new String(tName),
+			NameLookup.Answer answer = this.nameLookup.findType(new String(declaringTypeName),
+				new String(declaringTypePackageName),
 				false,
 				NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES,
 				true/* consider secondary types */,
