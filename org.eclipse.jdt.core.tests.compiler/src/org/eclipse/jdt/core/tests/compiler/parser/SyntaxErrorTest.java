@@ -479,4 +479,46 @@ public void test14() {
 		expectedSyntaxErrorDiagnosis,
 		testName);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210419
+public void test15() {
+
+	String s =
+		"package bug;\n" +
+		"public class Test {\n" +
+		"  static int X;\n" +
+		"  String field = { String str;\n" +
+		"      switch (X) {\n" +
+		"        case 0:\n" +
+		"          str = \"zero\";\n" +
+		"          break;\n" +
+		"        default:\n" +
+		"          str = \"other\";\n" +
+		"          break;\n" +
+		"      }\n" +
+		"      this.field = str;\n" +
+		"  };\n" +
+		"  public static void main(String[] args) {\n" +
+		"    System.out.println(new Test().field);\n" +
+		"  }\n" +
+		"}\n";
+
+	String expectedSyntaxErrorDiagnosis =
+		"----------\n" +
+		"1. ERROR in <test> (at line 4)\n" +
+		"	String field = { String str;\n" +
+		"	               ^^^^^^^^\n" +
+		"Syntax error on token(s), misplaced construct(s)\n" +
+		"----------\n" +
+		"2. ERROR in <test> (at line 4)\n" +
+		"	String field = { String str;\n" +
+		"	                           ^\n" +
+		"Syntax error on token \";\", { expected after this token\n" +
+		"----------\n";
+
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedSyntaxErrorDiagnosis,
+		testName);
+}
 }
