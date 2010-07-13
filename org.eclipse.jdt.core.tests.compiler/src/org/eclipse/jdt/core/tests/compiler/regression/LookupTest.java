@@ -3311,6 +3311,153 @@ public void test102() {
 		"The field A.B.length is not visible\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=316956
+public void test103() {
+	Map options = getCompilerOptions();
+	CompilerOptions compOptions = new CompilerOptions(options);
+	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+		new String[] {
+			"A.java",//------------------------------
+			"public class A {\n" +
+			"	  private int x;\n" +
+			"	  static class B {\n" +
+			"	    private int x;\n" +
+			"	    private C c = new C() {\n" +
+			"	      void foo() {\n" +
+			"	        x = 3;\n" +
+			"	      }\n" +
+			"	    };\n" +
+			"	  }\n" +
+			"	  static class C {\n" +
+			"	    private int x;\n" +
+			"	  }\n" +
+			"	}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in A.java (at line 2)\n" + 
+		"	private int x;\n" + 
+		"	            ^\n" + 
+		"The field A.x is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in A.java (at line 4)\n" + 
+		"	private int x;\n" + 
+		"	            ^\n" + 
+		"The field A.B.x is never read locally\n" + 
+		"----------\n" + 
+		"3. WARNING in A.java (at line 5)\n" + 
+		"	private C c = new C() {\n" + 
+		"	          ^\n" + 
+		"The field A.B.c is never read locally\n" + 
+		"----------\n" + 
+		"4. WARNING in A.java (at line 6)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method foo() from the type new A.C(){} is never used locally\n" + 
+		"----------\n" + 
+		"5. WARNING in A.java (at line 7)\n" + 
+		"	x = 3;\n" + 
+		"	^\n" + 
+		"Write access to enclosing field A.B.x is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"6. WARNING in A.java (at line 12)\n" + 
+		"	private int x;\n" + 
+		"	            ^\n" + 
+		"The field A.C.x is never read locally\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=316956
+public void test104() {
+	Map options = getCompilerOptions();
+	CompilerOptions compOptions = new CompilerOptions(options);
+	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+		new String[] {
+			"A.java",//------------------------------
+			"public class A {\n" +
+			"	  private int x;\n" +
+			"	  static class B {\n" +
+			"	    private int x;\n" +
+			"	    private C c = new C() {\n" +
+			"	      void foo() {\n" +
+			"	        x = 3;\n" +
+			"	      }\n" +
+			"	    };\n" +
+			"	  }\n" +
+			"	  static class C {\n" +
+			"	    public int x;\n" +
+			"	  }\n" +
+			"	}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in A.java (at line 2)\n" + 
+		"	private int x;\n" + 
+		"	            ^\n" + 
+		"The field A.x is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in A.java (at line 4)\n" + 
+		"	private int x;\n" + 
+		"	            ^\n" + 
+		"The field A.B.x is never read locally\n" + 
+		"----------\n" + 
+		"3. WARNING in A.java (at line 5)\n" + 
+		"	private C c = new C() {\n" + 
+		"	          ^\n" + 
+		"The field A.B.c is never read locally\n" + 
+		"----------\n" + 
+		"4. WARNING in A.java (at line 6)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method foo() from the type new A.C(){} is never used locally\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=316956
+public void test105() {
+	Map options = getCompilerOptions();
+	CompilerOptions compOptions = new CompilerOptions(options);
+	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+		new String[] {
+			"A.java",//------------------------------
+			"public class A {\n" +
+			"	  private int x;\n" +
+			"	  private C c = new C() {\n" +
+			"	    void foo() {\n" +
+			"	      x = 3;\n" +
+			"	    }\n" +
+			"	  };\n" +
+			"	  static class C {\n" +
+			"	    private int x;\n" +
+			"	  }\n" +
+			"	 }\n",
+		},
+		"----------\n" + 
+		"1. WARNING in A.java (at line 2)\n" + 
+		"	private int x;\n" + 
+		"	            ^\n" + 
+		"The field A.x is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in A.java (at line 3)\n" + 
+		"	private C c = new C() {\n" + 
+		"	          ^\n" + 
+		"The field A.c is never read locally\n" + 
+		"----------\n" + 
+		"3. WARNING in A.java (at line 4)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method foo() from the type new A.C(){} is never used locally\n" + 
+		"----------\n" + 
+		"4. WARNING in A.java (at line 5)\n" + 
+		"	x = 3;\n" + 
+		"	^\n" + 
+		"Write access to enclosing field A.x is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"5. WARNING in A.java (at line 9)\n" + 
+		"	private int x;\n" + 
+		"	            ^\n" + 
+		"The field A.C.x is never read locally\n" + 
+		"----------\n");
+}
 public static Class testClass() {	return LookupTest.class;
 }
 }

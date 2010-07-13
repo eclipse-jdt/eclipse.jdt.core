@@ -1688,7 +1688,9 @@ public abstract class Scope {
 											}
 											if (foundField.isValidBinding())
 												// if a valid field was found, complain when another is found in an 'immediate' enclosing type (that is, not inherited)
-												if (foundField.declaringClass != fieldBinding.declaringClass)
+												// but only if "valid field" was inherited in the first place.
+												if (foundField.declaringClass != fieldBinding.declaringClass &&
+												    foundField.declaringClass != foundActualReceiverType) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=316956
 													// i.e. have we found the same field - do not trust field identity yet
 													return new ProblemFieldBinding(
 														foundField, // closest match
