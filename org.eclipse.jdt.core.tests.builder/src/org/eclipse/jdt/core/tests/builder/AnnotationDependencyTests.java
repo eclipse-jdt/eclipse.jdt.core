@@ -368,7 +368,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -377,14 +377,14 @@ public class AnnotationDependencyTests extends BuilderTests {
 	public void testTypeAnnotationDependency3() throws Exception
 	{
 		String a1Code = "package p1; " + "\n"
-			+ "@AnnoInt(3)" + "\n"
+			+ "@AnnoInt(24)" + "\n"
 			+ "public class A {\n"
 			+ "    public void foo() {\n"
 			+ "        System.out.println(\"test\");"
 			+ "    }"
 			+ "}";
 		String a2Code = "package p1; " + "\n"
-			+ "@AnnoInt(3)" + "\n"
+			+ "@AnnoInt(24)" + "\n"
 			+ "public class A {\n"
 			+ "\n"
 			+ "    public void foo() {\n"
@@ -408,7 +408,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -448,7 +448,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -488,7 +488,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -528,7 +528,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -568,7 +568,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -608,7 +608,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -648,7 +648,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -688,7 +688,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -728,7 +728,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -768,7 +768,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -808,7 +808,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -848,7 +848,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
+		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
 	/**
@@ -864,7 +864,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 			+ "    }"
 			+ "}";
 		String a2Code = "package p1; " + "\n"
-			+ "@Anno(\"A1\")" + "\n"
+			+ "@Anno(\"A2\")" + "\n"
 			+ "public class A {\n"
 			+ "\n"
 			+ "    public void foo() {\n"
@@ -888,8 +888,8 @@ public class AnnotationDependencyTests extends BuilderTests {
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
 		
-		// verify that B was recompiled
-		expectingUniqueCompiledClasses(new String[] { "p1.A" });
+		//  verify that B was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=317841

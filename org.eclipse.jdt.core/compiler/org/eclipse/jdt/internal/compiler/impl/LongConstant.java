@@ -73,10 +73,7 @@ public int typeID() {
 }
 
 public int hashCode() {
-	final int prime = 31;
-	int result = 1;
-	result = prime * result + (int) (this.value ^ (this.value >>> 32));
-	return result;
+	return (int) (this.value ^ (this.value >>> 32));
 }
 
 public boolean equals(Object obj) {

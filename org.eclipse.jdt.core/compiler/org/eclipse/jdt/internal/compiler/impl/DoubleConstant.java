@@ -65,12 +65,8 @@ public class DoubleConstant extends Constant {
 	}
 
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		long temp;
-		temp = Double.doubleToLongBits(this.value);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		return result;
+		long temp = Double.doubleToLongBits(this.value);
+		return (int) (temp ^ (temp >>> 32));
 	}
 
 	public boolean equals(Object obj) {
