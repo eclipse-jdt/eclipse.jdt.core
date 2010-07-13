@@ -541,6 +541,21 @@ void checkTypeVariableMethods(TypeParameter typeParameter) {
 				int count = index + 1;
 				while (--count > 0) {
 					MethodBinding match = matchingInherited[count];
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=314556
+					MethodBinding interfaceMethod = null, implementation = null;
+					if (first.declaringClass.isInterface()) {
+						interfaceMethod = first;
+					} else if (first.declaringClass.isClass()) {
+						implementation = first;
+					}
+					if (match.declaringClass.isInterface()) {
+						interfaceMethod = match;
+					} else if (match.declaringClass.isClass()) {
+						implementation = match;
+					}
+					if (interfaceMethod != null && implementation != null && !isAsVisible(implementation, interfaceMethod))
+						problemReporter().inheritedMethodReducesVisibility(typeParameter, implementation, new MethodBinding [] {interfaceMethod});
+					
 					if (areReturnTypesCompatible(first, match)) continue;
 					// unrelated interfaces - check to see if return types are compatible
 					if (first.declaringClass.isInterface() && match.declaringClass.isInterface() && areReturnTypesCompatible(match, first))

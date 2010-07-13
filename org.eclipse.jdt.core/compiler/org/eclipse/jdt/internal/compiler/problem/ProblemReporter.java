@@ -2747,7 +2747,7 @@ public void indirectAccessToStaticMethod(ASTNode location, MethodBinding method)
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
+private void inheritedMethodReducesVisibility(int sourceStart, int sourceEnd, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
 	StringBuffer concreteSignature = new StringBuffer();
 	concreteSignature
 		.append(concreteMethod.declaringClass.readableName())
@@ -2767,8 +2767,14 @@ public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBindi
 		new String[] {
 			shortSignature.toString(),
 			new String(abstractMethods[0].declaringClass.shortReadableName())},
-		type.sourceStart(),
-		type.sourceEnd());
+		sourceStart,
+		sourceEnd);
+}
+public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
+	inheritedMethodReducesVisibility(type.sourceStart(), type.sourceEnd(), concreteMethod, abstractMethods);
+}
+public void inheritedMethodReducesVisibility(TypeParameter typeParameter, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
+	inheritedMethodReducesVisibility(typeParameter.sourceStart(), typeParameter.sourceEnd(), concreteMethod, abstractMethods);
 }
 public void inheritedMethodsHaveIncompatibleReturnTypes(ASTNode location, MethodBinding[] inheritedMethods, int length) {
 	StringBuffer methodSignatures = new StringBuffer();

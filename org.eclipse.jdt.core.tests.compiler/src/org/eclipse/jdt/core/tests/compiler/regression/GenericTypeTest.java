@@ -50513,4 +50513,22 @@ public void test1462() {
 		"Type mismatch: cannot convert from AnotherClass<capture#1-of ? extends IReferencedInterface> to AnotherClass<IReferencedInterface>\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=314556
+public void test1463() {
+	this.runNegativeTest(
+		new String[] {
+			"BaseType.java",
+            "public interface BaseType {\n" +
+            "	   BaseType clone() throws CloneNotSupportedException;\n" +
+            "}\n" +
+            "interface SubType<T extends BaseType & java.io.Closeable> extends BaseType {\n" +
+            "}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in BaseType.java (at line 4)\n" + 
+		"	interface SubType<T extends BaseType & java.io.Closeable> extends BaseType {\n" + 
+		"	                  ^\n" + 
+		"The inherited method Object.clone() cannot hide the public abstract method in BaseType\n" + 
+		"----------\n");
+}
 }
