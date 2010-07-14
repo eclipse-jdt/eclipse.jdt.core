@@ -160,7 +160,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	// check for assignment with no effect
 	Binding left = getDirectBinding(this.lhs);
-	if (left != null && left == getDirectBinding(this.expression)) {
+	if (left != null && !left.isVolatile() && left == getDirectBinding(this.expression)) {
 		scope.problemReporter().assignmentHasNoEffect(this, left.shortReadableName());
 	}
 

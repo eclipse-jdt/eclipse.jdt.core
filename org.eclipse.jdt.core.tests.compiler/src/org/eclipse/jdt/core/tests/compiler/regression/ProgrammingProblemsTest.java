@@ -1638,4 +1638,49 @@ public void test0043() {
 		"a cannot be resolved to a variable\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=310264
+public void test0044() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"   volatile int x;\n" +
+			"   int nvx;\n" +
+			"	void foo(int i) {\n" +
+			"		x = x;\n" + 
+			"       nvx = nvx;\n" +
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	nvx = nvx;\n" + 
+		"	^^^^^^^^^\n" + 
+		"The assignment to variable nvx has no effect\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=310264
+public void test0045() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"   volatile int x = this.x;\n" +
+			"   int nvx = this.nvx;\n" +
+			"	void foo(int i) {\n" +
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	volatile int x = this.x;\n" + 
+		"	             ^^^^^^^^^^\n" + 
+		"The assignment to variable x has no effect\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	int nvx = this.nvx;\n" + 
+		"	    ^^^^^^^^^^^^^^\n" + 
+		"The assignment to variable nvx has no effect\n" + 
+		"----------\n");
+}
 }
