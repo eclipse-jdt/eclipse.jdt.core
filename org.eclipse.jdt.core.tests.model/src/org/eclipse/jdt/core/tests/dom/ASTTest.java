@@ -1709,6 +1709,16 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		} catch (RuntimeException e) {
 			// pass
 		}
+		
+		// test for 319900
+		x.setLiteralValue("'");
+		assertEquals("", "\"'\"", x.getEscapedValue());
+		assertEquals("", "'", x.getLiteralValue());
+		
+		// test for 319900
+		x.setEscapedValue("\"'\"");
+		assertEquals("", "\"'\"", x.getEscapedValue());
+		assertEquals("", "'", x.getLiteralValue());
 	}
 
 	public void testStringLiteralUnicode() {
