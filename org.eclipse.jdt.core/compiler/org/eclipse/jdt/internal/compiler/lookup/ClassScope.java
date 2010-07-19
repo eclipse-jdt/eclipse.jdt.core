@@ -41,7 +41,7 @@ public class ClassScope extends Scope {
 	}
 
 	void buildAnonymousTypeBinding(SourceTypeBinding enclosingType, ReferenceBinding supertype) {
-		LocalTypeBinding anonymousType = buildLocalType(enclosingType, supertype, enclosingType.fPackage);
+		LocalTypeBinding anonymousType = buildLocalType(enclosingType, enclosingType.fPackage);
 		anonymousType.modifiers |= ExtraCompilerModifiers.AccLocallyUsed; // tag all anonymous types as used locally
 		if (supertype.isInterface()) {
 			anonymousType.superclass = getJavaLangObject();
@@ -155,14 +155,14 @@ public class ClassScope extends Scope {
 			 ((SourceTypeBinding) memberTypes[i]).scope.buildFieldsAndMethods();
 	}
 
-	private LocalTypeBinding buildLocalType(SourceTypeBinding enclosingType, ReferenceBinding anonymousOriginalSuperType, PackageBinding packageBinding) {
+	private LocalTypeBinding buildLocalType(SourceTypeBinding enclosingType, PackageBinding packageBinding) {
 
 		this.referenceContext.scope = this;
 		this.referenceContext.staticInitializerScope = new MethodScope(this, this.referenceContext, true);
 		this.referenceContext.initializerScope = new MethodScope(this, this.referenceContext, false);
 
 		// build the binding or the local type
-		LocalTypeBinding localType = new LocalTypeBinding(this, enclosingType, innermostSwitchCase(), anonymousOriginalSuperType);
+		LocalTypeBinding localType = new LocalTypeBinding(this, enclosingType, innermostSwitchCase());
 		this.referenceContext.binding = localType;
 		checkAndSetModifiers();
 		buildTypeVariables();
@@ -198,7 +198,7 @@ public class ClassScope extends Scope {
 					}
 				}
 				ClassScope memberScope = new ClassScope(this, this.referenceContext.memberTypes[i]);
-				LocalTypeBinding memberBinding = memberScope.buildLocalType(localType, null /* anonymous super type*/, packageBinding);
+				LocalTypeBinding memberBinding = memberScope.buildLocalType(localType, packageBinding);
 				memberBinding.setAsMemberType();
 				memberTypeBindings[count++] = memberBinding;
 			}
@@ -211,7 +211,7 @@ public class ClassScope extends Scope {
 
 	void buildLocalTypeBinding(SourceTypeBinding enclosingType) {
 
-		LocalTypeBinding localType = buildLocalType(enclosingType, null /* anonymous super type*/, enclosingType.fPackage);
+		LocalTypeBinding localType = buildLocalType(enclosingType, enclosingType.fPackage);
 		connectTypeHierarchy();
 		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 			checkParameterizedTypeBounds();
