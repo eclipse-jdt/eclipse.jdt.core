@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1709,6 +1709,16 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		} catch (RuntimeException e) {
 			// pass
 		}
+		
+		// test for 319900
+		x.setLiteralValue("'");
+		assertEquals("", "\"'\"", x.getEscapedValue());
+		assertEquals("", "'", x.getLiteralValue());
+		
+		// test for 319900
+		x.setEscapedValue("\"'\"");
+		assertEquals("", "\"'\"", x.getEscapedValue());
+		assertEquals("", "'", x.getLiteralValue());
 	}
 
 	public void testStringLiteralUnicode() {
