@@ -1065,7 +1065,7 @@ public void cannotReadSource(CompilationUnitDeclaration unit, AbortCompilationUn
 		if (encoding == null) {
 			encoding = System.getProperty("file.encoding"); //$NON-NLS-1$
 		}
-		String[] arguments = new String[]{ fileName, encoding, };
+		String[] arguments = new String[]{ fileName, encoding };
 		this.handle(
 				IProblem.InvalidEncoding,
 				arguments,
@@ -1078,13 +1078,16 @@ public void cannotReadSource(CompilationUnitDeclaration unit, AbortCompilationUn
 	PrintWriter writer = new PrintWriter(stringWriter);
 	if (verbose) {
 		abortException.exception.printStackTrace(writer);
+		System.err.println(stringWriter.toString());
+		stringWriter = new StringWriter();
+		writer = new PrintWriter(stringWriter);
 	} else {
 		writer.print(abortException.exception.getClass().getName());
 		writer.print(':');
 		writer.print(abortException.exception.getMessage());
 	}
 	String exceptionTrace = stringWriter.toString();
-	String[] arguments = new String[]{ fileName, exceptionTrace, };
+	String[] arguments = new String[]{ fileName, exceptionTrace };
 	this.handle(
 			IProblem.CannotReadSource,
 			arguments,

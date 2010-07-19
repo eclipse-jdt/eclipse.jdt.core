@@ -1174,8 +1174,10 @@ public class Scribe implements IJavaDocTagConstants {
 							linePtr = -linePtr - 1;
 						}
 						int i = getLineEnd(linePtr)+1;
-						while (this.scanner.source[i] != '\r') {
-							System.out.print(this.scanner.source[i++]);
+						char[] source = this.scanner.source;
+						int sourceLength = source.length;
+						while (i < sourceLength && source[i] != '\r') {
+							System.out.print(source[i++]);
 						}
 						System.out.println();
 						System.out.println(" - indentation level = "+this.indentationLevel); //$NON-NLS-1$
