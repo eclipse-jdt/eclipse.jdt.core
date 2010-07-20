@@ -1081,11 +1081,10 @@ public void cannotReadSource(CompilationUnitDeclaration unit, AbortCompilationUn
 		System.err.println(stringWriter.toString());
 		stringWriter = new StringWriter();
 		writer = new PrintWriter(stringWriter);
-	} else {
-		writer.print(abortException.exception.getClass().getName());
-		writer.print(':');
-		writer.print(abortException.exception.getMessage());
 	}
+	writer.print(abortException.exception.getClass().getName());
+	writer.print(':');
+	writer.print(abortException.exception.getMessage());
 	String exceptionTrace = stringWriter.toString();
 	String[] arguments = new String[]{ fileName, exceptionTrace };
 	this.handle(
