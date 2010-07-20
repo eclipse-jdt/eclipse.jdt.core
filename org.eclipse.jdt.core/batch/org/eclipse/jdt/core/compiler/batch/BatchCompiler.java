@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,7 +49,7 @@ public final class BatchCompiler {
 	 * @return whether the compilation completed successfully
 	 */
 	public static boolean compile(String commandLine, PrintWriter outWriter, PrintWriter errWriter, CompilationProgress progress) {
-		return Main.compile(Main.tokenize(commandLine), outWriter, errWriter, progress);
+		return compile(Main.tokenize(commandLine), outWriter, errWriter, progress);
 	}
 
 	/**

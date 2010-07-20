@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1535,7 +1535,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 			case T_boolean : return "boolean"; //$NON-NLS-1$
 			case T_long : return "long";//$NON-NLS-1$
 			case T_JavaLangString : return "java.lang.String"; //$NON-NLS-1$
-			case T_null : return "null";	 //$NON-NLS-1$
 			default: return "unknown"; //$NON-NLS-1$
 		}
 	}

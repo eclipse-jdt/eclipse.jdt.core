@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -167,6 +167,30 @@ public abstract class Annotation extends Expression {
 
 	public AnnotationBinding getCompilerAnnotation() {
 		return this.compilerAnnotation;
+	}
+
+	public boolean isRuntimeInvisible() {
+		final TypeBinding annotationBinding = this.resolvedType;
+		if (annotationBinding == null) {
+			return false;
+		}
+		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
+		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
+			return true; // by default the retention is CLASS
+
+		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationClassRetention;
+	}
+
+	public boolean isRuntimeVisible() {
+		final TypeBinding annotationBinding = this.resolvedType;
+		if (annotationBinding == null) {
+			return false;
+		}
+		long metaTagBits = annotationBinding.getAnnotationTagBits();
+		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
+			return false; // by default the retention is CLASS
+
+		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationRuntimeRetention;
 	}
 
 	public abstract MemberValuePair[] memberValuePairs();

@@ -210,7 +210,7 @@ public abstract class AbstractMethodDeclaration
 
 		classFile.generateMethodInfoHeader(this.binding);
 		int methodAttributeOffset = classFile.contentsOffset;
-		int attributeNumber = classFile.generateMethodInfoAttribute(this.binding);
+		int attributeNumber = classFile.generateMethodInfoAttributes(this.binding);
 		if ((!this.binding.isNative()) && (!this.binding.isAbstract())) {
 			int codeAttributeOffset = classFile.contentsOffset;
 			classFile.generateCodeAttributeHeader();
@@ -250,12 +250,12 @@ public abstract class AbstractMethodDeclaration
 		} else {
 			checkArgumentsSize();
 		}
-		classFile.completeMethodInfo(methodAttributeOffset, attributeNumber);
+		classFile.completeMethodInfo(this.binding, methodAttributeOffset, attributeNumber);
 	}
 
 	private void checkArgumentsSize() {
 		TypeBinding[] parameters = this.binding.parameters;
-		int size = 1; // an abstact method or a native method cannot be static
+		int size = 1; // an abstract method or a native method cannot be static
 		for (int i = 0, max = parameters.length; i < max; i++) {
 			switch(parameters[i].id) {
 				case TypeIds.T_long :

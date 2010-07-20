@@ -79,6 +79,9 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"  X(String... s) {\n" +
 		"  }\n" +
+		"  native void foo2();\n" +
+		"  volatile void foo3() {}\n" +
+		"  strictfp void foo4() {}\n" +
 		"}\n" +
 		"/** @deprecated\n */" +
 		"interface I {\n" +
@@ -1698,8 +1701,8 @@ public void testGetMethod3() throws JavaModelException {
 public void testGetMethods() throws JavaModelException {
 	IType type = this.cu.getType("X");
 	IMethod[] methods= type.getMethods();
-	String[] methodNames = new String[] {"foo", "bar", "fred", "fred2", "testIsVarArgs", "X"};
-	String[] flags = new String[] {"public", "protected static", "private", "private", "", ""};
+	String[] methodNames = new String[] {"foo", "bar", "fred", "fred2", "testIsVarArgs", "X", "foo2", "foo3", "foo4"};
+	String[] flags = new String[] {"public", "protected static", "private", "private", "", "", "native", "volatile", "strictfp"};
 	assertEquals("Wrong number of methods returned", methodNames.length, methods.length);
 	for (int i = 0; i < methods.length; i++) {
 		assertEquals("Incorrect name for the " + i + " method", methodNames[i], methods[i].getElementName());

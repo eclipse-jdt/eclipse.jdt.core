@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,8 +32,8 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 	public void generateCode(ClassFile classFile) {
 		classFile.generateMethodInfoHeader(this.binding);
 		int methodAttributeOffset = classFile.contentsOffset;
-		int attributeNumber = classFile.generateMethodInfoAttribute(this.binding, this);
-		classFile.completeMethodInfo(methodAttributeOffset, attributeNumber);
+		int attributeNumber = classFile.generateMethodInfoAttributes(this.binding, this);
+		classFile.completeMethodInfo(this.binding, methodAttributeOffset, attributeNumber);
 	}
 
 	public boolean isAnnotationMethod() {

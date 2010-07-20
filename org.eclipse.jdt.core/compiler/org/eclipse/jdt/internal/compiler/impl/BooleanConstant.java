@@ -56,7 +56,7 @@ public class BooleanConstant extends Constant {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		BooleanConstant other = (BooleanConstant) obj;
-		return this.value == other.value;
+		// cannot be true anymore as the first test would have returned true
+		return false;
 	}
 }
