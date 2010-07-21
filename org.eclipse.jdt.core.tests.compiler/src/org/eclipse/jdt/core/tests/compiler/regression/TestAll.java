@@ -72,6 +72,7 @@ public static Test suite() {
 	standardTests.add(LineNumberAttributeTest.class);
 	standardTests.add(ProgrammingProblemsTest.class);
 	standardTests.add(ManifestAnalyzerTest.class);
+	standardTests.add(InitializationTests.class);
 
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {
