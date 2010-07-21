@@ -4636,13 +4636,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 		}
 
-		try {
 			Hashtable cachedValue = newOptions == null ? null : new Hashtable(newOptions);
 			IEclipsePreferences defaultPreferences = getDefaultPreferences();
 			IEclipsePreferences instancePreferences = getInstancePreferences();
 
 			if (newOptions == null){
-				instancePreferences.clear();
+				try {
+					instancePreferences.clear();
+				} catch(BackingStoreException e) {
+					// ignore
+				}
 			} else {
 				Enumeration keys = newOptions.keys();
 				while (keys.hasMoreElements()){
@@ -4662,17 +4665,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						instancePreferences.put(key, value);
 					}
 				}
+				try {
+					// persist options
+					instancePreferences.flush();
+				} catch(BackingStoreException e) {
+					// ignore
+				}
 			}
-
-			// persist options
-			instancePreferences.flush();
-
 			// update cache
 			Util.fixTaskTags(cachedValue);
 			this.optionsCache = cachedValue;
-		} catch (BackingStoreException e) {
-			// ignore
-		}
 	}
 
 	public void startup() throws CoreException {
