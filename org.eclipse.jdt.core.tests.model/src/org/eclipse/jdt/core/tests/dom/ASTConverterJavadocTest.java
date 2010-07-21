@@ -50,7 +50,7 @@ import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
  * Then open the CU on which the test fails in a ASTView and verify the offset/length
  * of the offending node located at the positions displayed in the console when the test failed...
  *
- * Since 3.4, the failing test also provides the comparision between the source of the comment
+ * Since 3.4, the failing test also provides the comparison between the source of the comment
  * and the string get from the built DOM/AST nodes in the comment (see {@link ASTConverterJavadocFlattener})
  * but this may be not enough to see precisely the origin of the problem.
  */
@@ -94,8 +94,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected String compilerOption = JavaCore.IGNORE;
 	protected List failures;
 	protected boolean stopOnFailure = true;
-	// Project
-	protected IJavaProject currentProject;
 	Map savedOptions = null;
 
 	/**
