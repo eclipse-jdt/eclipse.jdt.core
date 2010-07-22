@@ -169,9 +169,7 @@ public void test004() {
 			"class A3 { \n"+
 			"	class B {} \n"+
 			"} \n"
-		},
-		null,
-		null); // no specific success output string
+		}); // no specific success output string
 
 	/* then compile with previous input */
 

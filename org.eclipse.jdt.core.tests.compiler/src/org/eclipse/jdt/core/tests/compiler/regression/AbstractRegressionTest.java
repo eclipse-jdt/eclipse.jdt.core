@@ -1145,6 +1145,7 @@ protected static class JavacTestOptions {
 	 		// test directory preparation
 			true /* flush output directory */,
 			testFiles /* test files */,
+			new String[] {},
 			// compiler options
 			null /* no class libraries */,
 			null /* no custom options */,
@@ -1186,25 +1187,26 @@ protected static class JavacTestOptions {
 			// javac options
 			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
-
-	// WORK good candidate for elimination (3 uses)
 	protected void runConformTest(
-		String[] testFiles,
-		String expectedSuccessOutputString,
-		String[] vmArguments) {
+			String[] testFiles,
+			String[] dependantFiles,
+			String expectedSuccessOutputString) {
 		runTest(
-			testFiles /* test files */,
-			false /* expecting no compiler errors */,
-			null /* do not check compiler log */,
-			expectedSuccessOutputString /* expected output string */,
-			null /* do not check error string */,
-			false /* do not force execution */,
-			null /* no class libraries */,
-			true /* flush output directory */,
-			vmArguments /* vm arguments */,
-			null /* no custom options */,
-			null /* no custom requestor */,
-			JavacTestOptions.DEFAULT /* default javac test options */);
+				true,
+				testFiles,
+				dependantFiles,
+				null,
+				null,
+				false,
+				null,
+				false,
+				null,
+				false,
+				null,
+				expectedSuccessOutputString,
+				null,
+				null,
+				JavacTestOptions.DEFAULT);
 	}
 
 	protected void runConformTest(
@@ -2071,8 +2073,10 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 			String expectedErrorString,
 			// javac options
 			JavacTestOptions javacTestOptions) {
-		runTest(shouldFlushOutputDirectory,
+		runTest(
+			shouldFlushOutputDirectory,
 			testFiles,
+			new String[] {},
 			classLibraries,
 			customOptions,
 			performStatementsRecovery,
@@ -2162,6 +2166,7 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 			// test directory preparation
 			boolean shouldFlushOutputDirectory,
 			String[] testFiles,
+			String[] dependantFiles,
 			// compiler options
 			String[] classLibraries,
 			Map customOptions,
@@ -2205,7 +2210,7 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 		CompilerOptions compilerOptions = new CompilerOptions(options);
 		compilerOptions.performMethodsFullRecovery = performStatementsRecovery;
 		compilerOptions.performStatementsRecovery = performStatementsRecovery;
-		INameEnvironment nameEnvironment = getNameEnvironment(new String[]{}, classLibraries);
+		INameEnvironment nameEnvironment = getNameEnvironment(dependantFiles, classLibraries);
 		Compiler batchCompiler =
 			new Compiler(
 				nameEnvironment,
