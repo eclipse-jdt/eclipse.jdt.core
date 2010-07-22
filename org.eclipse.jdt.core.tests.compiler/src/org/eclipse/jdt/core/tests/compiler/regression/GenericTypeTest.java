@@ -50513,4 +50513,30 @@ public void test1462() {
 		"Type mismatch: cannot convert from AnotherClass<capture#1-of ? extends IReferencedInterface> to AnotherClass<IReferencedInterface>\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319603
+public void test1464() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Set;\n" +
+			"\n" +
+			"public class X {\n" +
+			"\n" +
+			"	public <T> Collection<T> m(Collection<T> a) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public <T> Set<T> m(Set<T> a) {\n" +
+			"			return m(a); \n" +
+			"	}\n" +
+			"   Zork z;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
