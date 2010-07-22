@@ -34,7 +34,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug304416" };
+//		TESTS_NAMES = new String[] { "testBug320414" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -11661,5 +11661,58 @@ public void testBug305590() {
 		"instanceof always yields false: The variable str can only be null at this location\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=320414
+public void testBug320414() throws Exception {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static class B {\n" + 
+			"		public static final int CONST = 16;\n" + 
+			"		int i;\n" + 
+			"	}\n" + 
+			"	B b;\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X().foo();\n" + 
+			"	}\n" + 
+			"	void foo() {\n" + 
+			"		B localB = b; \n" + 
+			"		int i = localB.CONST;\n" + 
+			"		if (localB != null) {\n" + 
+			"			i = localB.i;\n" + 
+			"		}\n" + 
+			"		System.out.println(i);\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"16",
+		null,
+		true,
+		null,
+		options,
+		null);
+	String expectedOutput =
+		"  void foo();\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  getfield X.b : X.B [24]\n" + 
+		"     4  astore_1 [localB]\n" + 
+		"     5  bipush 16\n" + 
+		"     7  istore_2 [i]\n" + 
+		"     8  aload_1 [localB]\n" + 
+		"     9  ifnull 17\n" + 
+		"    12  aload_1 [localB]\n" + 
+		"    13  getfield X$B.i : int [26]\n" + 
+		"    16  istore_2 [i]\n" + 
+		"    17  getstatic java.lang.System.out : java.io.PrintStream [32]\n" + 
+		"    20  iload_2 [i]\n" + 
+		"    21  invokevirtual java.io.PrintStream.println(int) : void [38]\n" + 
+		"    24  return\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 }
