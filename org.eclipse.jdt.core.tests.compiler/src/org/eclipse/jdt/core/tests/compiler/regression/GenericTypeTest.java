@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test1464" };
-//		TESTS_NUMBERS = new int[] { 1461 };
+//		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -49896,9 +49896,7 @@ public void test1458() {
 					"		      getClass().newInstance().protectedInt = 10;\n" +
 					"		   }\n" +
 					"	}\n"
-			},
-			null,
-			null); // no specific success output string
+			});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=295698
 public void test1459() {
@@ -50557,4 +50555,26 @@ public void test1464() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=320275
+public void _test1465() {
+	this.runConformTest(
+			new String[] {
+				"AbstractSubClass.java",
+				"public abstract class AbstractSubClass extends AbstractClass {}",
+			},
+			new String[] {
+					"AbstractClass.java",
+					"public abstract class AbstractClass implements BaseInterface {}",
+					"AbstractSubClass.java",
+					"public abstract class AbstractSubClass extends AbstractClass {}",
+					"BaseInterface.java",
+					"public interface BaseInterface extends GenericInterface<ConcreteClass> {}",
+					"ConcreteClass.java",
+					"public class ConcreteClass extends AbstractSubClass {}",
+					"GenericInterface.java",
+					"public interface GenericInterface<T> {}",
+			},
+			"");
+}
+
 }
