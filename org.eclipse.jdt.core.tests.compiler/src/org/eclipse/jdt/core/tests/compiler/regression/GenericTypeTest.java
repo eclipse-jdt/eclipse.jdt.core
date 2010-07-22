@@ -30,7 +30,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test1245" };
+//		TESTS_NAMES = new String[] { "test1464" };
 //		TESTS_NUMBERS = new int[] { 1461 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -50529,6 +50529,32 @@ public void test1463() {
 		"	interface SubType<T extends BaseType & java.io.Closeable> extends BaseType {\n" + 
 		"	                  ^\n" + 
 		"The inherited method Object.clone() cannot hide the public abstract method in BaseType\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319603
+public void test1464() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Set;\n" +
+			"\n" +
+			"public class X {\n" +
+			"\n" +
+			"	public <T> Collection<T> m(Collection<T> a) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public <T> Set<T> m(Set<T> a) {\n" +
+			"			return m(a); \n" +
+			"	}\n" +
+			"   Zork z;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
 }

@@ -615,6 +615,7 @@ public final class CompletionEngine
 		public void setFieldIndex(int depth){/* empty */}
 		public int sourceEnd() { return 0; 	}
 		public int sourceStart() { return 0; 	}
+		public TypeBinding expectedType() { return null; }
 	};
 
 	private int foundTypesCount;

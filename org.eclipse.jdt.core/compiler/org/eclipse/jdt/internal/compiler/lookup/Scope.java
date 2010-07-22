@@ -3658,6 +3658,7 @@ public abstract class Scope {
 			public void setFieldIndex(int depth) { /* ignore */}
 			public int sourceStart() { return invocationSite.sourceStart(); }
 			public int sourceEnd() { return invocationSite.sourceStart(); }
+			public TypeBinding expectedType() { return invocationSite.expectedType(); }
 		};
 		MethodBinding[] moreSpecific = new MethodBinding[visibleSize];
 		int count = 0;
