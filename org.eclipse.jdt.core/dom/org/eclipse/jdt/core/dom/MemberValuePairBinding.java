@@ -72,7 +72,8 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 					return new Long(constant.longValue());
 				case TypeIds.T_short:
 					return new Short(constant.shortValue());
-				case TypeIds.T_JavaLangString:
+				default:
+					// TypeIds.T_JavaLangString:
 					return constant.stringValue();
 			}
 		} else if (internalObject instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
@@ -139,6 +140,10 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 		this.value = buildDOMValue(this.internalPair.getValue(), this.bindingResolver);
 		if (this.value == null)
 			this.value = NoValue;
+		IMethodBinding methodBinding = getMethodBinding();
+		if (methodBinding.getReturnType().isArray() && !this.value.getClass().isArray()) {
+			this.value = new Object[] { this.value }; 
+		}
 	}
 
 	char[] internalName() {
@@ -168,11 +173,11 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 			return true;
 		if (binding.getKind() != IBinding.MEMBER_VALUE_PAIR)
 			return false;
-		IMemberValuePairBinding other = (IMemberValuePairBinding) binding;
-		if (!getMethodBinding().isEqualTo(other.getMethodBinding())) {
+		IMemberValuePairBinding otherMemberValuePairBinding = (IMemberValuePairBinding) binding;
+		if (!getMethodBinding().isEqualTo(otherMemberValuePairBinding.getMethodBinding())) {
 			return false;
 		}
-		Object otherValue = other.getValue();
+		Object otherValue = otherMemberValuePairBinding.getValue();
 		Object currentValue = getValue();
 		if (currentValue == null) {
 			return otherValue == null;
@@ -183,7 +188,34 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 			}
 			return false;
 		}
-		return currentValue.equals(otherValue);
+		if (currentValue.getClass().isArray()) {
+			if (!otherValue.getClass().isArray()) {
+				return false;
+			}
+			Object[] currentValues = (Object[]) currentValue;
+			Object[] otherValues = (Object[]) otherValue;
+			final int length = currentValues.length;
+			if (length != otherValues.length) {
+				return false;
+			}
+			for (int i = 0; i < length; i++) {
+				Object current = currentValues[i];
+				Object other = otherValues[i];
+				if (current instanceof IBinding) {
+					if (!(other instanceof IBinding)) {
+						return false;
+					}
+					if (!((IBinding) current).isEqualTo((IBinding) other)) {
+						return false;
+					}
+				} else if (!current.equals(other)) {
+					return false;
+				}
+			}
+			return true;
+		} else {
+			return currentValue.equals(otherValue);
+		}
 	}
 
 	/*

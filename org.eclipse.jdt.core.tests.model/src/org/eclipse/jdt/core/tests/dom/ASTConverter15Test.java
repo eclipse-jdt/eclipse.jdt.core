@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 342, 343 };
+//		TESTS_NUMBERS = new int[] { 344 };
 //		TESTS_RANGE = new int[] { 325, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -62,7 +62,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy = null;
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=234609 BindingKey#toSignature() fails with key from createWilcardTypeBindingKey(..)
 	public void test234609() throws JavaModelException {
 
@@ -10989,5 +10989,130 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		binding = binding.getMethodDeclaration();
 		annotations = binding.getAnnotations();
 		assertEquals("Wrong size", 1, annotations.length);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=223225
+	public void test344() throws JavaModelException {
+		String contents =
+			"public class X {\n" + 
+			"    private @interface Strings {\n" + 
+			"        String[] value() default \"default element\";\n" + 
+			"    }\n" + 
+			"    private @interface Annot {\n" + 
+			"        String[] value();\n" + 
+			"    }\n" + 
+			"    private @interface Annot2 {\n" + 
+			"        String value();\n" + 
+			"    }\n" + 
+			"    private @interface Annot3 {\n" + 
+			"        Class<?> value();\n" + 
+			"    }\n" + 
+			"    @Strings\n" + 
+			"    public void marker() {\n" + 
+			"        // nothing\n" + 
+			"    }\n" + 
+			"    @Strings(\"single element\")\n" + 
+			"    public void single() {\n" + 
+			"        // nothing\n" + 
+			"    }\n" + 
+			"    @Strings(value = \"single element\")\n" + 
+			"    public void singleValue() {\n" + 
+			"        // nothing\n" + 
+			"    }\n" + 
+			"    @Strings({\"single element\"})\n" + 
+			"    public void singleArray() {\n" + 
+			"        // nothing\n" + 
+			"    }\n" + 
+			"    @Strings(value = {\"single element\"})\n" + 
+			"    public void singleArrayValue() {\n" + 
+			"        // nothing\n" + 
+			"    }\n" + 
+			"    @Strings({\"one\", \"two\", \"three\"})\n" + 
+			"    public void multi() {\n" + 
+			"        // nothing\n" + 
+			"    }\n" + 
+			"    @Strings(value = {\"one\", \"two\", \"three\"})\n" + 
+			"    public void multiValue() {\n" + 
+			"        // nothing\n" + 
+			"    }\n" + 
+			"    @Annot(\"test\")\n" + 
+			"    public void singleValue2() {\n" + 
+			"        // nothing\n" + 
+			"    }\n" + 
+			"    @Annot2(\"test\")\n" +
+			"    @Annot3(Object.class)\n" + 
+			"    public void singleValue3() {\n" + 
+			"        // nothing\n" + 
+			"    }\n" + 
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		CompilationUnit unit= (CompilationUnit) buildAST(
+			contents,
+			this.workingCopy,
+			true,
+			true,
+			true);
+		class MyVisitor extends ASTVisitor {
+			List memberPairBindings = new ArrayList();
+			private boolean checkAnnotationBinding(Annotation annotation) {
+				final IAnnotationBinding annotationBinding = annotation.resolveAnnotationBinding();
+				final IMemberValuePairBinding[] allMemberValuePairs = annotationBinding.getAllMemberValuePairs();
+				assertEquals("Wrong size", 1, allMemberValuePairs.length);
+				IMemberValuePairBinding memberValuePairBinding = allMemberValuePairs[0];
+				final Object value = memberValuePairBinding.getValue();
+				if ("Strings".equals(annotationBinding.getName())) {
+					assertTrue("Not an array", value.getClass().isArray());
+				}
+				this.memberPairBindings.add(memberValuePairBinding);
+				return false;
+			}
+			public boolean visit(MarkerAnnotation node) {
+				return checkAnnotationBinding(node);
+			}
+			public boolean visit(SingleMemberAnnotation node) {
+				return checkAnnotationBinding(node);
+			}
+			public boolean visit(NormalAnnotation node) {
+				return checkAnnotationBinding(node);
+			}
+			public List allMemberValuePairs() {
+				return this.memberPairBindings;
+			}
+		}
+		MyVisitor visitor = new MyVisitor();
+		unit.accept(visitor);
+		List allMemberValuePairsBindings = visitor.allMemberValuePairs();
+		AnnotationTypeDeclaration annotationTypeDeclaration = (AnnotationTypeDeclaration) ((AbstractTypeDeclaration) unit.types().get(0)).bodyDeclarations().get(0);
+		AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration = (AnnotationTypeMemberDeclaration) annotationTypeDeclaration.bodyDeclarations().get(0);
+		IMethodBinding binding = annotationTypeMemberDeclaration.resolveBinding();
+		Object defaultValue = binding.getDefaultValue();
+		assertTrue("Not an array", !defaultValue.getClass().isArray());
+		unit = (CompilationUnit) buildAST(
+				contents,
+				this.workingCopy,
+				true,
+				true,
+				true);
+		visitor = new MyVisitor();
+		unit.accept(visitor);
+		List allMemberValuePairsBindings2 = visitor.allMemberValuePairs();
+		final int size = allMemberValuePairsBindings.size();
+		assertEquals("Wrong size", 10, size);
+		assertEquals("Wrong size", 10, allMemberValuePairsBindings2.size());
+		StringBuffer buffer = new StringBuffer();
+		StringBuffer buffer2 = new StringBuffer();
+		for (int i = 0; i < size; i++) {
+			final IMemberValuePairBinding firstMemberValuePairBinding = (IMemberValuePairBinding) allMemberValuePairsBindings.get(i);
+			final IMemberValuePairBinding secondMemberValuePairBinding = (IMemberValuePairBinding) allMemberValuePairsBindings2.get(i);
+			final boolean isEqualTo = firstMemberValuePairBinding.isEqualTo(secondMemberValuePairBinding);
+			assertTrue("not equals: " + i, isEqualTo);
+			buffer.append(firstMemberValuePairBinding);
+			buffer2.append(secondMemberValuePairBinding);
+		}
+		assertTrue("Different output", buffer.toString().equals(buffer2.toString()));
+		annotationTypeDeclaration = (AnnotationTypeDeclaration) ((AbstractTypeDeclaration) unit.types().get(0)).bodyDeclarations().get(1);
+		annotationTypeMemberDeclaration = (AnnotationTypeMemberDeclaration) annotationTypeDeclaration.bodyDeclarations().get(0);
+		binding = annotationTypeMemberDeclaration.resolveBinding();
+		defaultValue = binding.getDefaultValue();
+		assertNull("Got a default value", defaultValue);
 	}
 }
