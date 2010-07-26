@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -1028,8 +1029,10 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		if ((sourceType.tagBits & TagBits.BeginHierarchyCheck) == 0) {
 			sourceType.tagBits |= TagBits.BeginHierarchyCheck;
+			environment().typesBeingConnected.add(sourceType);
 			boolean noProblems = connectSuperclass();
 			noProblems &= connectSuperInterfaces();
+			environment().typesBeingConnected.remove(sourceType);
 			sourceType.tagBits |= TagBits.EndHierarchyCheck;
 			noProblems &= connectTypeVariables(this.referenceContext.typeParameters, false);
 			sourceType.tagBits |= TagBits.TypeVariablesAreConnected;
@@ -1065,8 +1068,10 @@ public class ClassScope extends Scope {
 			return;
 
 		sourceType.tagBits |= TagBits.BeginHierarchyCheck;
+		environment().typesBeingConnected.add(sourceType);
 		boolean noProblems = connectSuperclass();
 		noProblems &= connectSuperInterfaces();
+		environment().typesBeingConnected.remove(sourceType);
 		sourceType.tagBits |= TagBits.EndHierarchyCheck;
 		noProblems &= connectTypeVariables(this.referenceContext.typeParameters, false);
 		sourceType.tagBits |= TagBits.TypeVariablesAreConnected;
@@ -1168,11 +1173,25 @@ public class ClassScope extends Scope {
 			org.eclipse.jdt.internal.compiler.ast.TypeReference ref = ((SourceTypeBinding) superType).scope.superTypeReference;
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133071
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=121734
-			if (ref != null && (ref.resolvedType == null || ((ReferenceBinding) ref.resolvedType).isHierarchyBeingActivelyConnected())) {
+			if (ref != null && ref.resolvedType != null && ((ReferenceBinding) ref.resolvedType).isHierarchyBeingActivelyConnected()) {
 				problemReporter().hierarchyCircularity(sourceType, superType, reference);
 				sourceType.tagBits |= TagBits.HierarchyHasProblems;
 				superType.tagBits |= TagBits.HierarchyHasProblems;
 				return true;
+			}
+			if (ref != null && ref.resolvedType == null) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885 Don't cry foul prematurely.
+				// Check the edges traversed to see if there really is a cycle.
+				char [] referredName = ref.getLastToken(); 
+				for (Iterator iter = environment().typesBeingConnected.iterator(); iter.hasNext();) {
+					SourceTypeBinding type = (SourceTypeBinding) iter.next();
+					if (CharOperation.equals(referredName, type.sourceName())) {
+						problemReporter().hierarchyCircularity(sourceType, superType, reference);
+						sourceType.tagBits |= TagBits.HierarchyHasProblems;
+						superType.tagBits |= TagBits.HierarchyHasProblems;
+						return true;
+					}
+				}
 			}
 		}
 		if ((superType.tagBits & TagBits.BeginHierarchyCheck) == 0)

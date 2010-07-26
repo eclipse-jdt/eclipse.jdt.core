@@ -12,7 +12,9 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFilePool;
@@ -65,6 +67,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public MethodBinding arrayClone;
 
 	private ArrayList missingTypes;
+	Set typesBeingConnected;
 	public boolean isProcessingAnnotations = false;
 
 	final static int BUILD_FIELDS_AND_METHODS = 4;
@@ -92,6 +95,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.missingTypes = null;
 	this.accessRestrictions = new HashMap(3);
 	this.classFilePool = ClassFilePool.newInstance();
+	this.typesBeingConnected = new HashSet();
 }
 
 /**
@@ -1348,6 +1352,7 @@ public void reset() {
 	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
 	this.uniqueGetClassMethodBinding = null;
 	this.missingTypes = null;
+	this.typesBeingConnected = new HashSet();
 
 	for (int i = this.units.length; --i >= 0;)
 		this.units[i] = null;
