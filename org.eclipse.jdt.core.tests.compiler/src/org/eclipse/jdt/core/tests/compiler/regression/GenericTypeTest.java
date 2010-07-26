@@ -50576,5 +50576,79 @@ public void _test1465() {
 			},
 			"");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=320463
+public void test1466() {
+	this.runNegativeTest(
+		new String[] {
+			"Outer.java",
+			"public class Outer<T> {\n"+
+			"    class Cell {\n"+
+			"        final T value;\n"+
+			"        Cell(T value) {\n"+
+			"            this.value = value;\n"+
+			"        }\n"+
+			"    }\n"+
+			"    Class<Outer<T>.Cell> cellClass = Cell.class;\n"+
+			"    {\n"+
+			"    	this.cellClass = Cell.class;\n"+
+			"    	this.cellClass = Outer.Cell.class;\n"+
+			"    }\n"+
+			"    public static void main(String[] args) {\n"+
+			"        Outer<Integer>.Cell intCell = new Outer<Integer>().new Cell(314);\n"+
+			"        Outer<String>.Cell strCell = new Outer<String>().cellClass.cast(intCell);\n"+
+			"        String val = strCell.value; // ClassCastException\n"+
+			"        System.out.println(val);\n"+
+			"    }\n"+
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Outer.java (at line 8)\n" + 
+		"	Class<Outer<T>.Cell> cellClass = Cell.class;\n" + 
+		"	                                 ^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<Outer.Cell> to Class<Outer<T>.Cell>\n" + 
+		"----------\n" + 
+		"2. ERROR in Outer.java (at line 10)\n" + 
+		"	this.cellClass = Cell.class;\n" + 
+		"	                 ^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<Outer.Cell> to Class<Outer<T>.Cell>\n" + 
+		"----------\n" + 
+		"3. ERROR in Outer.java (at line 11)\n" + 
+		"	this.cellClass = Outer.Cell.class;\n" + 
+		"	                 ^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<Outer.Cell> to Class<Outer<T>.Cell>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=312076
+public void test1467() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  { \n" +
+			"    public abstract static class Base<S extends Base<S>> {\n" +
+			"        public Base(Class<S> sClass) {\n" +
+			"            Class<S> theClass = sClass;\n" +
+			"            System.out.println(theClass);\n" +
+			"            System.out.println(sClass);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public class Arr extends Base<Arr> {\n" +
+			"        public Arr() { \n" +
+			"            super(Arr.class);\n" +
+			"            System.out.println(Arr.class);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        X<Integer> x = new X<Integer>();\n" +
+			"        X<Integer>.Arr a = x.new Arr();\n" +
+			"        System.out.println(a);\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	super(Arr.class);\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor X.Base<X<T>.Arr>(Class<X.Arr>) is undefined\n" + 
+		"----------\n");
+}
 }
