@@ -139,6 +139,290 @@ public void test004() {
 	"The type X is never used locally\n" + 
 	"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+public void test005() {
+	this.runNegativeTest(new String[] {
+		"p1/GreenBox.java",
+		"package p1;\n" +
+		"import static p1.BrownBox.*;\n" +
+		"public interface GreenBox {\n" +
+		"    public static class Cat extends Object {}\n" +
+		"}\n",
+		"p1/BrownBox.java",
+		"package p1;\n" +
+		"import static p1.GreenBox.*;\n" +
+		"public interface BrownBox {\n" +
+		"    public static class BlackCat extends Cat {}\n" +
+		"}\n",
+	},
+	"----------\n" + 
+	"1. WARNING in p1\\GreenBox.java (at line 2)\n" + 
+	"	import static p1.BrownBox.*;\n" + 
+	"	              ^^^^^^^^^^^\n" + 
+	"The import p1.BrownBox is never used\n" + 
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+public void test006() {
+	this.runNegativeTest(new String[] {
+		"p1/BrownBox.java",
+		"package p1;\n" +
+		"import static p1.GreenBox.*;\n" +
+		"public interface BrownBox {\n" +
+		"    public static class BlackCat extends Cat {}\n" +
+		"}\n",
+		"p1/GreenBox.java",
+		"package p1;\n" +
+		"import static p1.BrownBox.*;\n" +
+		"public interface GreenBox {\n" +
+		"    public static class Cat extends Object {}\n" +
+		"}\n",
+	},
+	"----------\n" + 
+	"1. WARNING in p1\\GreenBox.java (at line 2)\n" + 
+	"	import static p1.BrownBox.*;\n" + 
+	"	              ^^^^^^^^^^^\n" + 
+	"The import p1.BrownBox is never used\n" + 
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+public void test007() {
+	this.runNegativeTest(new String[] {
+		"p1/BrownBox.java",
+		"package p1;\n" +
+		"import static p1.GreenBox.*;\n" +
+		"public interface BrownBox {\n" +
+		"    public static class BlackCat extends Cat {}\n" +
+		"}\n",
+		"p1/GreenBox.java",
+		"package p1;\n" +
+		"import static p1.BrownBox.*;\n" +
+		"public interface GreenBox {\n" +
+		"    public static class Cat extends java.lang.Object {}\n" +
+		"}\n",
+	},
+	"----------\n" + 
+	"1. WARNING in p1\\GreenBox.java (at line 2)\n" + 
+	"	import static p1.BrownBox.*;\n" + 
+	"	              ^^^^^^^^^^^\n" + 
+	"The import p1.BrownBox is never used\n" + 
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+public void test008() {
+	this.runNegativeTest(new String[] {
+		"p1/BrownBox.java",
+		"package p1;\n" +
+		"import static p1.GreenBox.*;\n" +
+		"public interface BrownBox {\n" +
+		"    public static class BlackCat extends Cat {}\n" +
+		"}\n",
+		"p1/GreenBox.java",
+		"package p1;\n" +
+		"import static p1.BrownBox.*;\n" +
+		"public interface GreenBox {\n" +
+		"    public static class Cat extends BlackCat {}\n" +
+		"}\n",
+	},
+	"----------\n" + 
+	"1. ERROR in p1\\BrownBox.java (at line 4)\n" + 
+	"	public static class BlackCat extends Cat {}\n" + 
+	"	                    ^^^^^^^^\n" + 
+	"The hierarchy of the type BlackCat is inconsistent\n" + 
+	"----------\n" + 
+	"----------\n" + 
+	"1. ERROR in p1\\GreenBox.java (at line 4)\n" + 
+	"	public static class Cat extends BlackCat {}\n" + 
+	"	                                ^^^^^^^^\n" + 
+	"Cycle detected: a cycle exists in the type hierarchy between GreenBox.Cat and BrownBox.BlackCat\n" + 
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+public void test009() {
+	this.runNegativeTest(new String[] {
+		"p1/GreenBox.java",
+		"package p1;\n" +
+		"import static p1.BrownBox.*;\n" +
+		"public interface GreenBox {\n" +
+		"    public static class Cat extends BlackCat {}\n" +
+		"}\n",
+		"p1/BrownBox.java",
+		"package p1;\n" +
+		"import static p1.GreenBox.*;\n" +
+		"public interface BrownBox {\n" +
+		"    public static class BlackCat extends Cat {}\n" +
+		"}\n",
+	},
+	"----------\n" + 
+	"1. ERROR in p1\\GreenBox.java (at line 4)\n" + 
+	"	public static class Cat extends BlackCat {}\n" + 
+	"	                    ^^^\n" + 
+	"The hierarchy of the type Cat is inconsistent\n" + 
+	"----------\n" + 
+	"----------\n" + 
+	"1. ERROR in p1\\BrownBox.java (at line 4)\n" + 
+	"	public static class BlackCat extends Cat {}\n" + 
+	"	                                     ^^^\n" + 
+	"Cycle detected: a cycle exists in the type hierarchy between BrownBox.BlackCat and GreenBox.Cat\n" + 
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+public void test0010() {
+	this.runNegativeTest(new String[] {
+		"p1/GreenBox.java",
+		"package p1;\n" +
+		"import static p1.BrownBox.*;\n" +
+		"interface SuperInterface {\n" +
+		"   public static class Cat extends BlackCat {}\n" +
+		"}\n" +
+		"public interface GreenBox {\n" +
+		"}\n",
+		"p1/BrownBox.java",
+		"package p1;\n" +
+		"import static p1.GreenBox.*;\n" +
+		"public interface BrownBox {\n" +
+		"    public static class BlackCat extends Cat {}\n" +
+		"}\n",
+	},
+	"----------\n" + 
+	"1. ERROR in p1\\GreenBox.java (at line 4)\n" + 
+	"	public static class Cat extends BlackCat {}\n" + 
+	"	                    ^^^\n" + 
+	"The hierarchy of the type Cat is inconsistent\n" + 
+	"----------\n" + 
+	"----------\n" + 
+	"1. ERROR in p1\\BrownBox.java (at line 4)\n" + 
+	"	public static class BlackCat extends Cat {}\n" + 
+	"	                                     ^^^\n" + 
+	"Cat cannot be resolved to a type\n" + 
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+public void test0011() {
+	this.runNegativeTest(new String[] {
+		"p1/GreenBox.java",
+		"package p1;\n" +
+		"import static p1.BrownBox.*;\n" +
+		"interface SuperInterface {\n" +
+		"   public static class Cat extends BlackCat {}\n" +
+		"}\n" +
+		"public interface GreenBox extends SuperInterface {\n" +
+		"}\n",
+		"p1/BrownBox.java",
+		"package p1;\n" +
+		"import static p1.GreenBox.*;\n" +
+		"public interface BrownBox {\n" +
+		"    public static class BlackCat extends Cat {}\n" +
+		"}\n",
+	},
+	"----------\n" + 
+	"1. ERROR in p1\\GreenBox.java (at line 4)\n" + 
+	"	public static class Cat extends BlackCat {}\n" + 
+	"	                    ^^^\n" + 
+	"The hierarchy of the type Cat is inconsistent\n" + 
+	"----------\n" + 
+	"----------\n" + 
+	"1. ERROR in p1\\BrownBox.java (at line 4)\n" + 
+	"	public static class BlackCat extends Cat {}\n" + 
+	"	                                     ^^^\n" + 
+	"Cycle detected: a cycle exists in the type hierarchy between BrownBox.BlackCat and SuperInterface.Cat\n" + 
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+public void test0012() {
+	this.runNegativeTest(new String[] {
+		"p1/GreenBox.java",
+		"package p1;\n" +
+		"import static p1.BrownBox.*;\n" +
+		"interface SuperInterface {\n" +
+		"   public static class Cat extends BlackCat {}\n" +
+		"}\n" +
+		"public interface GreenBox extends SuperInterface {\n" +
+		"}\n",
+		"p1/BrownBox.java",
+		"package p1;\n" +
+		"import static p1.GreenBox.*;\n" +
+		"public interface BrownBox {\n" +
+		"    public static class BlackCat extends GreenBox.Cat {}\n" +
+		"}\n",
+	},
+	"----------\n" + 
+	"1. ERROR in p1\\GreenBox.java (at line 4)\n" + 
+	"	public static class Cat extends BlackCat {}\n" + 
+	"	                    ^^^\n" + 
+	"The hierarchy of the type Cat is inconsistent\n" + 
+	"----------\n" + 
+	"----------\n" + 
+	"1. ERROR in p1\\BrownBox.java (at line 4)\n" + 
+	"	public static class BlackCat extends GreenBox.Cat {}\n" + 
+	"	                                     ^^^^^^^^^^^^\n" + 
+	"Cycle detected: a cycle exists in the type hierarchy between BrownBox.BlackCat and SuperInterface.Cat\n" + 
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+public void test0013() {
+	this.runNegativeTest(new String[] {
+		"cycle/X.java",
+		"package cycle;\n" +
+		"class X extends Y {}\n" +
+		"class Y extends X {}\n",
+	},
+	"----------\n" + 
+	"1. ERROR in cycle\\X.java (at line 2)\n" + 
+	"	class X extends Y {}\n" + 
+	"	      ^\n" + 
+	"The hierarchy of the type X is inconsistent\n" + 
+	"----------\n" + 
+	"2. ERROR in cycle\\X.java (at line 3)\n" + 
+	"	class Y extends X {}\n" + 
+	"	                ^\n" + 
+	"Cycle detected: a cycle exists in the type hierarchy between Y and X\n" + 
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885
+public void test0014() {
+	this.runNegativeTest(new String[] {
+		"cycle/X.java",
+		"package cycle;\n" +
+		"class X extends Y {}\n" +
+		"class Y extends Z {}\n" +
+		"class Z extends A {}\n" +
+		"class A extends B {}\n" +
+		"class B extends C {}\n" +
+		"class C extends X {}\n"
+	},
+	"----------\n" + 
+	"1. ERROR in cycle\\X.java (at line 2)\n" + 
+	"	class X extends Y {}\n" + 
+	"	      ^\n" + 
+	"The hierarchy of the type X is inconsistent\n" + 
+	"----------\n" + 
+	"2. ERROR in cycle\\X.java (at line 3)\n" + 
+	"	class Y extends Z {}\n" + 
+	"	      ^\n" + 
+	"The hierarchy of the type Y is inconsistent\n" + 
+	"----------\n" + 
+	"3. ERROR in cycle\\X.java (at line 4)\n" + 
+	"	class Z extends A {}\n" + 
+	"	      ^\n" + 
+	"The hierarchy of the type Z is inconsistent\n" + 
+	"----------\n" + 
+	"4. ERROR in cycle\\X.java (at line 5)\n" + 
+	"	class A extends B {}\n" + 
+	"	      ^\n" + 
+	"The hierarchy of the type A is inconsistent\n" + 
+	"----------\n" + 
+	"5. ERROR in cycle\\X.java (at line 6)\n" + 
+	"	class B extends C {}\n" + 
+	"	      ^\n" + 
+	"The hierarchy of the type B is inconsistent\n" + 
+	"----------\n" + 
+	"6. ERROR in cycle\\X.java (at line 7)\n" + 
+	"	class C extends X {}\n" + 
+	"	                ^\n" + 
+	"Cycle detected: a cycle exists in the type hierarchy between C and X\n" + 
+	"----------\n");
+}
 public static Class testClass() {
 	return InnerClass15Test.class;
 }
