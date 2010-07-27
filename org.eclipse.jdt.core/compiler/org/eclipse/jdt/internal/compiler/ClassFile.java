@@ -3857,6 +3857,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (aType.isAnonymousType()) {
 			accessFlags &= ~ClassFileConstants.AccFinal;
 		}
+		int finalAbstract = ClassFileConstants.AccFinal | ClassFileConstants.AccAbstract;
+		if ((accessFlags & finalAbstract) == finalAbstract) {
+			accessFlags &= ~finalAbstract;
+		}
 		this.enclosingClassFile = parentClassFile;
 		// innerclasses get their names computed at code gen time
 

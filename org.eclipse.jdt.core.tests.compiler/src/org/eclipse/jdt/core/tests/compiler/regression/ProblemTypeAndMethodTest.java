@@ -31,7 +31,7 @@ public ProblemTypeAndMethodTest(String name) {
 // All specified tests which does not belong to the class are skipped...
 static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 104 };
+//		TESTS_NUMBERS = new int[] { 107 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 }
 
@@ -5338,5 +5338,51 @@ public void test106() {
 		"	    ^^^^^^^^\n" + 
 		"Listener cannot be resolved to a type\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=319425
+public void test107() {
+	this.runNegativeTest(
+		new String[] {
+			"p/OuterBogus.java", //-----------------------------------------------------------------------
+			"package p;\n" +
+			"abstract final class OuterBogus {\n" + 
+			"	public static void call() {\n" + 
+			"		System.out.println(\"Hi. I'm outer bogus.\");\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in p\\OuterBogus.java (at line 2)\n" + 
+		"	abstract final class OuterBogus {\n" + 
+		"	                     ^^^^^^^^^^\n" + 
+		"The class OuterBogus can be either abstract or final, not both\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* no custom options */,
+		true /* do not generate output */,
+		false /* do not show category */,
+		false /* do not show warning token */,
+		false  /* do not skip javac for this peculiar test */,
+		false  /* do not perform statements recovery */);
+	this.runConformTest(
+		new String[] {
+			"p/Bogus.java", //-----------------------------------------------------------------------
+			"package p;\n" +
+			"\n" + 
+			"public class Bogus {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" +
+			"			OuterBogus.call();\n" + 
+			"		} catch(Error e) {\n" +
+			"			System.out.println(\"Compilation error found\");\n" + 
+			"		}\n" +
+			"	}\n" + 
+			"}",
+		},
+		"Compilation error found",
+		null,
+		false,
+		null);
 }
 }
