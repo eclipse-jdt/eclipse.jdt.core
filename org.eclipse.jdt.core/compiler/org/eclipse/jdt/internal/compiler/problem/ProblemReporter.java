@@ -3667,8 +3667,13 @@ public void invalidType(ASTNode location, TypeBinding type) {
 	if (type.isParameterizedType()) {
 		List missingTypes = type.collectMissingTypes(null);
 		if (missingTypes != null) {
+			ReferenceContext savedContext = this.referenceContext;
 			for (Iterator iterator = missingTypes.iterator(); iterator.hasNext(); ) {
-				invalidType(location, (TypeBinding) iterator.next());
+				try {
+					invalidType(location, (TypeBinding) iterator.next());
+				} finally {
+					this.referenceContext = savedContext;
+				}
 			}
 			return;
 		}
@@ -3692,10 +3697,10 @@ public void invalidType(ASTNode location, TypeBinding type) {
 			break;
 		case ProblemReasons.NonStaticReferenceInStaticContext :
 			id = IProblem.NonStaticTypeFromStaticInvocation;
-		    break;
+			break;
 		case ProblemReasons.IllegalSuperTypeVariable :
-		    id = IProblem.IllegalTypeVariableSuperReference;
-		    break;
+			id = IProblem.IllegalTypeVariableSuperReference;
+			break;
 		case ProblemReasons.NoError : // 0
 		default :
 			needImplementation(location); // want to fail to see why we were here...
