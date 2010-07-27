@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 - 2009 BEA Systems, Inc. and others
+ * Copyright (c) 2007 - 2010 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.processing.Filer;
+import javax.annotation.processing.FilerException;
 import javax.lang.model.element.Element;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
@@ -31,6 +32,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.apt.core.internal.AptCompilationParticipant;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.apt.pluggable.core.Apt6Plugin;
@@ -90,8 +92,10 @@ public class IdeFilerImpl implements Filer {
 			throw new IllegalArgumentException("Relative name is zero length");
 		}
 		IFile file = getFileFromOutputLocation(location, pkg, relativeName);
+		if (AptCompilationParticipant.getInstance().getJava6GeneratedFiles().contains(file)) {
+			throw new FilerException("Source file already created: " + file.getFullPath()); //$NON-NLS-1$
+		}
 		
-		//TODO: check whether file has already been generated in this run
 		Set<IFile> parentFiles;
 		if (originatingElements != null && originatingElements.length > 0) {
 			parentFiles = new HashSet<IFile>(originatingElements.length);
@@ -120,7 +124,11 @@ public class IdeFilerImpl implements Filer {
 		if (null == name) {
 			throw new IllegalArgumentException("Name is null");
 		}
-		//TODO: check whether file has already been generated in this run
+		IFile file = _env.getAptProject().getGeneratedFileManager().getIFileForTypeName(name.toString());
+		if (AptCompilationParticipant.getInstance().getJava6GeneratedFiles().contains(file)) {
+			throw new FilerException("Source file already created: " + file.getFullPath()); //$NON-NLS-1$
+		}
+		
 		Set<IFile> parentFiles = Collections.emptySet();
 		if (originatingElements != null && originatingElements.length > 0) {
 			parentFiles = new HashSet<IFile>(originatingElements.length);
