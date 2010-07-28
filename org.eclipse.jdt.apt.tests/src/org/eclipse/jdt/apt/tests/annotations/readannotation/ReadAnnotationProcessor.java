@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import junit.framework.ComparisonFailure;
-import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
@@ -41,9 +41,9 @@ public class ReadAnnotationProcessor extends BaseProcessor
 		ProcessorTestStatus.setProcessorRan();
 		try{			
 			TypeDeclaration typeDecl = _env.getTypeDeclaration("question.AnnotationTest");		
-			TestCase.assertNotNull("failed to locate type 'question.AnnotationTest'", typeDecl);
+			Assert.assertNotNull("failed to locate type 'question.AnnotationTest'", typeDecl);
 			if( typeDecl != null){			
-				TestCase.assertEquals("Type name mismatch", "question.AnnotationTest", typeDecl.getQualifiedName());			
+				Assert.assertEquals("Type name mismatch", "question.AnnotationTest", typeDecl.getQualifiedName());			
 				
 				final String[] expectedPkgAnnos = new String[]{ "@Deprecated()" };
 				assertAnnotation(expectedPkgAnnos, typeDecl.getPackage().getAnnotationMirrors() );				
@@ -60,11 +60,11 @@ public class ReadAnnotationProcessor extends BaseProcessor
 				final Collection<FieldDeclaration> fieldDecls = typeDecl.getFields();
 				
 				int counter = 0;
-				TestCase.assertEquals(5, fieldDecls.size());
+				Assert.assertEquals(5, fieldDecls.size());
 				for(FieldDeclaration fieldDecl : fieldDecls ){
 					final String name = "field" + counter;				
 					
-					TestCase.assertEquals("field name mismatch", name, fieldDecl.getSimpleName());
+					Assert.assertEquals("field name mismatch", name, fieldDecl.getSimpleName());
 					final String[] expected;
 					switch(counter){				
 					case 0:		
@@ -95,11 +95,11 @@ public class ReadAnnotationProcessor extends BaseProcessor
 				
 				final Collection<? extends MethodDeclaration> methodDecls = typeDecl.getMethods();
 				counter = 0;
-				TestCase.assertEquals(7, methodDecls.size());
+				Assert.assertEquals(7, methodDecls.size());
 				for(MethodDeclaration methodDecl : methodDecls ){
 					final String name = "method" + counter;				
 					
-					TestCase.assertEquals("method name mismatch", name, methodDecl.getSimpleName());
+					Assert.assertEquals("method name mismatch", name, methodDecl.getSimpleName());
 					final String[] expected;
 					switch(counter)
 					{
@@ -172,7 +172,7 @@ public class ReadAnnotationProcessor extends BaseProcessor
 	private void assertAnnotation(final String[] expected, Collection<AnnotationMirror> annotations)
 	{
 		final int expectedLen = expected.length;		
-		TestCase.assertEquals("annotation number mismatch", expected.length, annotations.size()); //$NON-NLS-1$
+		Assert.assertEquals("annotation number mismatch", expected.length, annotations.size()); //$NON-NLS-1$
 		
 		final HashSet<String> expectedSet = new HashSet<String>(expectedLen * 4 / 3 + 1);
 		for( int i=0; i<expectedLen; i++ )
@@ -182,14 +182,14 @@ public class ReadAnnotationProcessor extends BaseProcessor
 		for( AnnotationMirror mirror : annotations ){
 			String mirrorString = ProcessorUtil.annoMirrorToString(mirror);
 			if( counter >= expectedLen )
-				TestCase.assertEquals("", mirrorString); //$NON-NLS-1$
+				Assert.assertEquals("", mirrorString); //$NON-NLS-1$
 			else{
 				final boolean contains = expectedSet.contains(mirrorString);
 				if( !contains ){					
 					System.err.println("found unexpected: " + mirrorString);
 					System.err.println("expected set: " + expectedSet);
 				}
-				TestCase.assertTrue("unexpected annotation " + mirrorString, contains); //$NON-NLS-1$
+				Assert.assertTrue("unexpected annotation " + mirrorString, contains); //$NON-NLS-1$
 				expectedSet.remove(mirrorString);
 			}
 			counter ++;

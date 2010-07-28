@@ -14,7 +14,6 @@ import java.io.File;
 import java.util.HashSet;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IFolder;
@@ -198,8 +197,8 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		final String typeKey = BindingKey.createTypeBindingKey("question.AnnotationTest");
 		final ITypeBinding typeBinding = getTypeBinding(typeKey, env.getJavaProject(getProjectName()));
 			
-		TestCase.assertNotNull("failed to locate 'question.AnnotationTest'", typeBinding);
-		TestCase.assertEquals("Type name mismatch", "question.AnnotationTest", typeBinding.getQualifiedName());
+		assertNotNull("failed to locate 'question.AnnotationTest'", typeBinding);
+		assertEquals("Type name mismatch", "question.AnnotationTest", typeBinding.getQualifiedName());
 		
 		// test package annotation
 		final String[] expectedPkgAnnos = new String[]{ "@Deprecated()" };
@@ -214,11 +213,11 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		
 		final IVariableBinding[] fieldBindings = typeBinding.getDeclaredFields();
 		int counter = 0;
-		TestCase.assertEquals(5, fieldBindings.length);
+		assertEquals(5, fieldBindings.length);
 		for(IVariableBinding fieldDecl : fieldBindings ){
 			final String name = "field" + counter;				
 			
-			TestCase.assertEquals("field name mismatch", name, fieldDecl.getName());
+			assertEquals("field name mismatch", name, fieldDecl.getName());
 			final String[] expected;
 			switch(counter){				
 			case 0:		
@@ -250,11 +249,11 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		
 		final IMethodBinding[] methodBindings = typeBinding.getDeclaredMethods();
 		counter = 0;
-		TestCase.assertEquals(7, methodBindings.length);
+		assertEquals(7, methodBindings.length);
 		for(IMethodBinding methodDecl : methodBindings ){
 			final String name = "method" + counter;				
 			
-			TestCase.assertEquals("method name mismatch", name, methodDecl.getName());
+			assertEquals("method name mismatch", name, methodDecl.getName());
 			final String[] expected;
 			switch(counter)
 			{
@@ -311,7 +310,7 @@ public class ReadAnnotationTests2 extends BuilderTests {
 	private void assertAnnotation(final String[] expected, IAnnotationBinding[] annotations)
 	{
 		final int expectedLen = expected.length;		
-		TestCase.assertEquals("annotation number mismatch", expected.length, annotations.length); //$NON-NLS-1$
+		assertEquals("annotation number mismatch", expected.length, annotations.length); //$NON-NLS-1$
 		
 		final HashSet<String> expectedSet = new HashSet<String>(expectedLen * 4 / 3 + 1);
 		for( int i=0; i<expectedLen; i++ )
@@ -320,7 +319,7 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		int counter = 0;
 		for( IAnnotationBinding mirror : annotations ){
 			if( counter >= expectedLen )
-				TestCase.assertEquals("", mirror.toString()); //$NON-NLS-1$
+				assertEquals("", mirror.toString()); //$NON-NLS-1$
 			else{
 				final String mirrorToString = mirror.toString();
 				final boolean contains = expectedSet.contains(mirrorToString);
@@ -328,7 +327,7 @@ public class ReadAnnotationTests2 extends BuilderTests {
 					System.err.println(mirrorToString);
 					System.err.println(expectedSet);
 				}
-				TestCase.assertTrue("unexpected annotation " + mirrorToString, contains); //$NON-NLS-1$
+				assertTrue("unexpected annotation " + mirrorToString, contains); //$NON-NLS-1$
 				expectedSet.remove(mirrorToString);
 			}
 			counter ++;

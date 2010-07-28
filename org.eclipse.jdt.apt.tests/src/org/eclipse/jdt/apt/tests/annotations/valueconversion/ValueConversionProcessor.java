@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import junit.framework.Assert;
 
 import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
@@ -54,7 +54,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 		ProcessorTestStatus.setProcessorRan();
 		final TypeDeclaration test = _env.getTypeDeclaration("sample.Test");
 		if( test == null )
-			TestCase.assertNotNull("failed to locate type 'sample.Test'", test);
+			Assert.assertNotNull("failed to locate type 'sample.Test'", test);
 		
 		testCompilerAPIPath(test);
 		testReflectionPath(test);
@@ -63,7 +63,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 	private void testCompilerAPIPath(TypeDeclaration test){
 		final Collection<AnnotationMirror> annotations = test.getAnnotationMirrors();
 		final int numAnnotations = annotations == null ? 0 : annotations.size();
-		TestCase.assertEquals("annotation number mismatch", 1, numAnnotations);
+		Assert.assertEquals("annotation number mismatch", 1, numAnnotations);
 		
 		final AnnotationMirror annotation = annotations.iterator().next();
 		final AnnotationType annotationType = annotation.getAnnotationType();
@@ -150,7 +150,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 				expectedValue = DOUBLE_49;
 				break;
 			default:
-				TestCase.assertNotNull("unexpected member " + name, null);
+				Assert.assertNotNull("unexpected member " + name, null);
 				throw new IllegalStateException(); // won't get here.
 			}
 			assertValueTypeMatch(name, actualValue, expectedType, expectedValue);
@@ -196,7 +196,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 				return;
 			}
 			else{
-				TestCase.assertNotNull("unexpected member " + name, null);
+				Assert.assertNotNull("unexpected member " + name, null);
 				throw new IllegalStateException(); // won't get here.
 			}
 			@SuppressWarnings("unchecked")

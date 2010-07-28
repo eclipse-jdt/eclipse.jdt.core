@@ -23,7 +23,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.internal.apt.pluggable.core.Apt6Plugin;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.AptProblem;
-import org.eclipse.jdt.internal.compiler.apt.dispatch.BatchMessagerImpl;
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseMessagerImpl;
 
 /**
  * 
@@ -72,7 +72,7 @@ public class IdeMessagerImpl implements Messager {
 	 */
 	public void printMessage(Kind kind, CharSequence msg, Element e, AnnotationMirror a,
 			AnnotationValue v) {
-		AptProblem problem = BatchMessagerImpl.createProblem(kind, msg, e, a, v);
+		AptProblem problem = BaseMessagerImpl.createProblem(kind, msg, e, a, v);
 		if (kind == Kind.NOTE) {
 			Apt6Plugin.log(new Status(IStatus.INFO, Apt6Plugin.PLUGIN_ID, Apt6Plugin.STATUS_EXCEPTION, problem.getMessage(), null));
 		}
