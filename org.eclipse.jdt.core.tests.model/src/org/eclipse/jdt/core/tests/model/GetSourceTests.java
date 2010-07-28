@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -472,6 +472,75 @@ public class GetSourceTests extends ModifyingResourceTests {
 				getNameSource(cuSource, type));
 		} finally {
 			deleteProject("P15");
+		}
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=150980
+	 */
+	public void testNameRange09() throws CoreException { // was testNameRangeAnonymous
+		try {
+			String cuSource =
+				"package p . q . r. s ;\n" +
+				"public class Y {\n" +
+				"  void foo() {\n" +
+				"    Y y = new Y() {};\n" +
+				"    class C {\n" +
+				"    }\n"+
+				"  }\n" +
+				"}";
+			createFolder("/P/p/q/r/s/");
+			createFile("/P/p/q/r/s/Y.java", cuSource);
+			final IPackageDeclaration[] packageDeclarations = getCompilationUnit("/P/p/q/r/s/Y.java").getPackageDeclarations();
+			assertEquals("Wrong size", 1, packageDeclarations.length);
+
+			String actualSource = getNameSource(cuSource, packageDeclarations[0]);
+			String expectedSource = "p . q . r. s";
+			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+		} finally {
+			deleteFile("/P/p/q/r/s/Y.java");
+		}
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=150980
+	 */
+	public void testNameRange10() throws CoreException { // was testNameRangeAnonymous
+		try {
+			String cuSource =
+				"import java . lang . * ;\n" +
+				"public class Y {\n" +
+				"}";
+			createFile("/P/Y.java", cuSource);
+			final IImportDeclaration[] imports = getCompilationUnit("/P/Y.java").getImports();
+			assertEquals("Wrong size", 1, imports.length);
+
+			String actualSource = getNameSource(cuSource, imports[0]);
+			String expectedSource = "java . lang . *";
+			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+		} finally {
+			deleteFile("/P/Y.java");
+		}
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=150980
+	 */
+	public void testNameRange11() throws CoreException { // was testNameRangeAnonymous
+		try {
+			String cuSource =
+				"import java . lang  .  Object  ;\n" +
+				"public class Y {\n" +
+				"}";
+			createFile("/P/Y.java", cuSource);
+			final IImportDeclaration[] imports = getCompilationUnit("/P/Y.java").getImports();
+			assertEquals("Wrong size", 1, imports.length);
+
+			String actualSource = getNameSource(cuSource, imports[0]);
+			String expectedSource = "java . lang  .  Object";
+			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+		} finally {
+			deleteFile("/P/Y.java");
 		}
 	}
 

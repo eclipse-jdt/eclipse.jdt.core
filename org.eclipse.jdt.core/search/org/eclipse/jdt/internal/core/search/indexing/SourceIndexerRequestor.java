@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -74,9 +74,9 @@ public void acceptFieldReference(char[] fieldName, int sourcePosition) {
 	this.indexer.addFieldReference(fieldName);
 }
 /**
- * @see ISourceElementRequestor#acceptImport(int, int, char[][], boolean, int)
+ * @see ISourceElementRequestor#acceptImport(int, int, int, int, char[][], boolean, int)
  */
-public void acceptImport(int declarationStart, int declarationEnd, char[][] tokens, boolean onDemand, int modifiers) {
+public void acceptImport(int declarationStart, int declarationEnd, int nameStart, int nameEnd, char[][] tokens, boolean onDemand, int modifiers) {
 	// imports have already been reported while creating the ImportRef node (see SourceElementParser#comsume*ImportDeclarationName() methods)
 }
 /**

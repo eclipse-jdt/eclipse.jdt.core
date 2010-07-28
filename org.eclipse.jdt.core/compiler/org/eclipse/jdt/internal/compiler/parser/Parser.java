@@ -1834,7 +1834,8 @@ protected void consumeBinaryExpression(int op) {
 			}
 			break;
 		case LESS :
-			this.intPtr--;
+		case MULTIPLY :
+			this.intPtr--; // star end position or starting position of angle bracket
 			this.expressionStack[this.expressionPtr] =
 				new BinaryExpression(
 					expr1,
@@ -1957,7 +1958,8 @@ protected void consumeBinaryExpressionWithName(int op) {
 			}
 			break;
 		case LESS :
-			this.intPtr--;
+		case MULTIPLY :
+			this.intPtr--; // star end position or starting position of angle bracket
 			this.expressionStack[this.expressionPtr] =
 				new BinaryExpression(
 					expr1,
@@ -4891,7 +4893,7 @@ protected void consumePackageDeclarationName() {
 		0,
 		length);
 
-	impt = new ImportReference(tokens, positions, true, ClassFileConstants.AccDefault);
+	impt = new ImportReference(tokens, positions, false, ClassFileConstants.AccDefault);
 	this.compilationUnit.currentPackage = impt;
 
 	if (this.currentToken == TokenNameSEMICOLON){
@@ -4936,7 +4938,7 @@ protected void consumePackageDeclarationNameWithModifiers() {
 	int packageModifiersSourceStart = this.intStack[this.intPtr--]; // we don't need the modifiers start
 	int packageModifiers = this.intStack[this.intPtr--];
 
-	impt = new ImportReference(tokens, positions, true, packageModifiers);
+	impt = new ImportReference(tokens, positions, false, packageModifiers);
 	this.compilationUnit.currentPackage = impt;
 	// consume annotations
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -7280,6 +7282,8 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
 	pushOnAstStack(impt = new ImportReference(tokens, positions, true, ClassFileConstants.AccStatic));
 
+	// star end position
+	impt.trailingStarPosition = this.intStack[this.intPtr--];
 	this.modifiers = ClassFileConstants.AccDefault;
 	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
 
@@ -7663,6 +7667,10 @@ protected void consumeToken(int type) {
 				}
 			}
 			break;
+		case TokenNameMULTIPLY :
+			// star end position
+			pushOnIntStack(this.scanner.currentPosition - 1);
+			break;
 			//  case TokenNameCOMMA :
 			//  case TokenNameCOLON  :
 			//  case TokenNameLBRACKET  :
@@ -7789,6 +7797,8 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
 	pushOnAstStack(impt = new ImportReference(tokens, positions, true, ClassFileConstants.AccDefault));
 
+	// star end position
+	impt.trailingStarPosition = this.intStack[this.intPtr--];
 	if (this.currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
 	} else {

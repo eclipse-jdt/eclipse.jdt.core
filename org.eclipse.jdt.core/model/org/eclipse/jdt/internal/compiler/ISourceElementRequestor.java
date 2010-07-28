@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -120,6 +120,12 @@ public interface ISourceElementRequestor {
 	 * @param declarationEnd
 	 *                   This is the position of the ';' ending the import statement or
 	 *                   the end of the comment following the import.
+	 * @param nameStart
+	 *                   This is the position of the first character of the import declaration's
+	 *                   name.
+	 * @param nameEnd
+	 *                   This is the position of the last character of the import declaration's
+	 *                   name.
 	 * @param tokens
 	 *                   This are the tokens of the import like specified in the source.
 	 * @param onDemand
@@ -128,7 +134,7 @@ public interface ISourceElementRequestor {
 	 * @param modifiers
 	 *                   can be set to static from 1.5 on.
 	 */
-	void acceptImport(int declarationStart, int declarationEnd, char[][] tokens, boolean onDemand, int modifiers);
+	void acceptImport(int declarationStart, int declarationEnd, int nameStart, int nameEnd, char[][] tokens, boolean onDemand, int modifiers);
 
 	/*
 	 * Table of line separator position. This table is passed once at the end of

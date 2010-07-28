@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IPackageDeclaration;
 
 /**
  * @see IPackageDeclaration
@@ -43,6 +42,13 @@ public int getElementType() {
  */
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_PACKAGEDECLARATION;
+}
+/**
+ * @see IPackageDeclaration#getNameRange()
+ */
+public ISourceRange getNameRange() throws JavaModelException {
+	AnnotatableInfo info = (AnnotatableInfo) getElementInfo();
+	return info.getNameRange();
 }
 /*
  * @see JavaElement#getPrimaryElement(boolean)

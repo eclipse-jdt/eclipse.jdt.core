@@ -1938,6 +1938,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			case IJavaElement.ANNOTATION:
 				nameRange = ((IAnnotation) element).getNameRange();
 				break;
+			case IJavaElement.PACKAGE_DECLARATION :
+				nameRange = ((IPackageDeclaration) element).getNameRange();
+				break;
+			case IJavaElement.IMPORT_DECLARATION :
+				nameRange = ((IImportDeclaration) element).getNameRange();
+				break;
 			default:
 				nameRange = ((IMember) element).getNameRange();
 				break;

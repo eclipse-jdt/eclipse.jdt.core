@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -125,7 +125,7 @@ protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUn
 /**
  * @see ISourceElementRequestor
  */
-public void acceptImport(int declarationStart, int declarationEnd, char[][] tokens, boolean onDemand, int modifiers) {
+public void acceptImport(int declarationStart, int declarationEnd, int nameSourceStart, int nameSourceEnd, char[][] tokens, boolean onDemand, int modifiers) {
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 	if (!(parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT)) {
 		Assert.isTrue(false); // Should not happen
@@ -148,6 +148,8 @@ public void acceptImport(int declarationStart, int declarationEnd, char[][] toke
 	ImportDeclarationElementInfo info = new ImportDeclarationElementInfo();
 	info.setSourceRangeStart(declarationStart);
 	info.setSourceRangeEnd(declarationEnd);
+	info.setNameSourceStart(nameSourceStart);
+	info.setNameSourceEnd(nameSourceEnd);
 	info.setFlags(modifiers);
 
 	addToChildren(this.importContainerInfo, handle);
@@ -184,6 +186,8 @@ public void acceptPackage(ImportReference importReference) {
 		AnnotatableInfo info = new AnnotatableInfo();
 		info.setSourceRangeStart(importReference.declarationSourceStart);
 		info.setSourceRangeEnd(importReference.declarationSourceEnd);
+		info.setNameSourceStart(importReference.sourceStart);
+		info.setNameSourceEnd(importReference.sourceEnd);
 
 		addToChildren(parentInfo, handle);
 		this.newElements.put(handle, info);

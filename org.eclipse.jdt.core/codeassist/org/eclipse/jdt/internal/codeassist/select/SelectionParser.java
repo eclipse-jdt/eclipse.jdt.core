@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -939,6 +939,8 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	/* build specific assist node on import statement */
 	ImportReference reference = createAssistImportReference(subset, positions, ClassFileConstants.AccStatic);
 	reference.bits |= ASTNode.OnDemand;
+	// star end position
+	reference.trailingStarPosition = this.intStack[this.intPtr--];
 	this.assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 
@@ -1020,6 +1022,8 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	/* build specific assist node on import statement */
 	ImportReference reference = createAssistImportReference(subset, positions, ClassFileConstants.AccDefault);
 	reference.bits |= ASTNode.OnDemand;
+	// star end position
+	reference.trailingStarPosition = this.intStack[this.intPtr--];
 	this.assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 
