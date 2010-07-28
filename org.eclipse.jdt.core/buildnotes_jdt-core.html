@@ -48,6 +48,48 @@ Eclipse SDK 3.7M1 - %date% - 3.7.0 M1
 <br>Project org.eclipse.jdt.core v_B05
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B05">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>
+New API added to be able to retrieve the name range for <code>org.eclipse.jdt.core.IImportDeclaration</code>:
+<pre>
+/**
+ * Returns the source range of this import declaration's name,
+ * or null if this import declaration does not have
+ * associated source code (for example, a binary type).
+ * 
+ * The source range for the name includes the trailing '*' if the call to
+ * isOnDemand() returns true.
+ * 
+ *
+ * @exception JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource.
+ * @return the source range of this import declaration's name,
+ * or null if this import declaration does not have
+ * associated source code (for example, a binary type)
+ * @since 3.7
+ */
+ISourceRange getNameRange() throws JavaModelException;
+</pre>
+</li>
+<li>
+New API added to be able to retrieve the name range for <code>org.eclipse.jdt.core.IPackageDeclaration</code>:
+<pre>
+/**
+ * Returns the source range of this package declaration's name,
+ * or null if this package declaration does not have
+ * associated source code (for example, a binary type).
+ *
+ * @exception JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource.
+ * @return the source range of this package declaration's name,
+ * or null if this package declaration does not have
+ * associated source code (for example, a binary type)
+ * @since 3.7
+ */
+ISourceRange getNameRange() throws JavaModelException;
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=150980">150980</a>
