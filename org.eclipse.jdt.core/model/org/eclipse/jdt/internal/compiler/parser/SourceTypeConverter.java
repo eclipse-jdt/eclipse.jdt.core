@@ -495,6 +495,7 @@ public class SourceTypeConverter extends TypeConverter {
 			type.memberTypes = new TypeDeclaration[sourceMemberTypeCount];
 			for (int i = 0; i < sourceMemberTypeCount; i++) {
 				type.memberTypes[i] = convert(sourceMemberTypes[i], compilationResult);
+				type.memberTypes[i].enclosingType = type;
 			}
 		}
 

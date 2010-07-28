@@ -282,6 +282,7 @@ public class BinaryTypeConverter extends TypeConverter {
 			} else {
 				typeDeclaration.memberTypes[i] = convert(memberTypes[i], null, null);
 			}
+			typeDeclaration.memberTypes[i].enclosingType = typeDeclaration;
 		}
 
 		/* convert fields */
