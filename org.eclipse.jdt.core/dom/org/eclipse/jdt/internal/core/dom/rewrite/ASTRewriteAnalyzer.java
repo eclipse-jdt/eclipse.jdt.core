@@ -585,6 +585,32 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					ASTNode node= (ASTNode) currEvent.getOriginalValue();
 					TextEditGroup editGroup= getEditGroup(currEvent);
 					int currEnd= getEndOfNode(node);
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=306524
+					// Check for leading comments that are not part of extended range, and prevent them
+					// from getting removed.
+					try {
+						TokenScanner scanner = getScanner();
+						int newOffset = prevEnd;
+						int extendedOffset = getExtendedOffset(node);
+						// Try to find the end of the last comment which is not part of extended source
+						// range of the node.
+						while (TokenScanner.isComment(scanner.readNext(newOffset, false))) {
+							int tempOffset = scanner.getNextEndOffset(newOffset, false);
+							// check whether the comment is part of extended source range of the node.
+							// If it is then we need to stop.
+							if (tempOffset < extendedOffset) {
+								newOffset = tempOffset;
+							} else {
+								break;
+							}
+						}
+						if (currPos < newOffset) {
+							currPos = extendedOffset;
+						} 
+						prevEnd = newOffset;		
+					} catch (CoreException e) {
+						// ignore
+					}
 					if (i > lastNonDelete && separatorState == EXISTING) {
 						// is last, remove previous separator: split delete to allow range copies
 						doTextRemove(prevEnd, currPos - prevEnd, editGroup); // remove separator
@@ -598,6 +624,25 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						
 						// remove element and next separator
 						int end= getStartOfNextNode(nextIndex, currEnd); // start of next
+						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=306524
+						// Check for trailing comments that are not part of extended range, and prevent them
+						// from getting removed.
+						try {
+							TokenScanner scanner = getScanner();
+							int nextToken= scanner.readNext(currEnd, false);
+							if (TokenScanner.isComment(nextToken)) {
+								// the separator also has comments that are not part of extended
+								// source range of this node or the next node. So dont remove the separator
+								if (end != scanner.getNextStartOffset(currEnd, false)) {
+									// If this condition were true, comments just found as part of the separator would've basically been
+									// part of the extended source range of the next node. So 'end' wud've safely been set to the correct position
+									// and no change is needed.
+									end = currEnd;
+								}
+							}
+						} catch (CoreException e) {
+							// ignore
+						}
 						doTextRemoveAndVisit(currPos, currEnd - currPos, node, getEditGroup(currEvent)); // remove node
 						if (mustRemoveSeparator(currPos, i)) {
 							doTextRemove(currEnd, end - currEnd, editGroup); // remove separator

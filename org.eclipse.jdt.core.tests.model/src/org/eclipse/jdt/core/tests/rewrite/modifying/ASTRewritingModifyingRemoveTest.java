@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,8 +16,11 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	private static final Class THIS = ASTRewritingModifyingRemoveTest.class;
@@ -407,6 +410,9 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		buf.append("package test0010;\n");
 		buf.append("\n");
 		buf.append("public class X {\n");
+		buf.append("    // comment1\n");
+		buf.append("\n");
+		buf.append("    \n");
 		buf.append("\n");
 		buf.append("    // comment5\n");
 		buf.append("}\n");
@@ -455,6 +461,176 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		buf.append("\n");
 		buf.append("    private void foo2(){\n");
 		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=306524
+	 * To test that when types are removed, only the comments in the extended source range are
+	 * removed, and the rest are left untouched.
+	 */
+	public void test0012() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0012", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0012;\n");
+		buf.append("public class X {\n");
+		buf.append("\n");
+		buf.append("    // one line comment1\n");
+		buf.append("\n");
+		buf.append("    /*\n");
+		buf.append("     * comment2\n");
+		buf.append("     */\n");
+		buf.append("\n");
+		buf.append("    // one line comment3\n");
+		buf.append("    class X1{\n");
+		buf.append("    }\n");
+		buf.append("    // one line comment4\n");
+		buf.append("\n");
+		buf.append("\n");
+		buf.append("    // one line comment5\n");
+		buf.append("\n");
+		buf.append("    /*\n");
+		buf.append("     * comment6\n");
+		buf.append("     */\n");
+		buf.append("\n");
+		buf.append("\n");
+		buf.append("    /*\n");
+		buf.append("     * comment7\n");
+		buf.append("     */\n");
+		buf.append("\n");
+		buf.append("    // one line comment8\n");
+		buf.append("    // one line comment9\n");
+		buf.append("    class X2{\n");
+		buf.append("    }\n");
+		buf.append("    /*\n");
+		buf.append("     * comment10\n");
+		buf.append("     */\n");
+		buf.append("\n");
+		buf.append("    // one line comment11\n");
+		buf.append("    // one line comment12\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false);
+
+		astRoot.recordModifications();
+
+		List types = astRoot.types();
+		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
+		TypeDeclaration [] members = typeDeclaration.getTypes();
+		typeDeclaration.bodyDeclarations().remove(members[0]);
+		typeDeclaration.bodyDeclarations().remove(members[1]);
+
+		String preview = evaluateRewrite(cu, astRoot);
+
+		buf= new StringBuffer();
+		buf.append("package test0012;\n");
+		buf.append("public class X {\n");
+		buf.append("\n");
+		buf.append("    // one line comment1\n");
+		buf.append("\n");
+		buf.append("    /*\n");
+		buf.append("     * comment2\n");
+		buf.append("     */\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("\n");
+		buf.append("    // one line comment5\n");
+		buf.append("\n");
+		buf.append("    /*\n");
+		buf.append("     * comment6\n");
+		buf.append("     */\n");
+		buf.append("\n");
+		buf.append("\n");
+		buf.append("    /*\n");
+		buf.append("     * comment7\n");
+		buf.append("     */\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("    // one line comment11\n");
+		buf.append("    // one line comment12\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=306524
+	 * To test that when types are removed, only the comments in the extended source range are
+	 * removed, and the rest are left untouched. This test is for cases where type to be removed is the 
+	 * last one in file and there are more than one leading comments that are not part of its 
+	 * extended source range
+	 */
+	public void test0013() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0013", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0013;\n");
+		buf.append("public class X {\n");
+		buf.append("\n");
+		buf.append("    // one line comment1a\n");
+		buf.append("\n");
+		buf.append("    /*\n");
+		buf.append("     * comment2\n");
+		buf.append("     */\n");
+		buf.append("\n");
+		buf.append("    // one line comment1b\n");
+		buf.append("\n");
+		buf.append("    // one line comment3\n");
+		buf.append("    class X1{\n");
+		buf.append("    }\n");
+		buf.append("    // one line comment4\n");
+		buf.append("\n");
+		buf.append("\n");
+		buf.append("    // one line comment5\n");
+		buf.append("\n");
+		buf.append("    /*\n");
+		buf.append("     * comment6\n");
+		buf.append("     */\n");
+		buf.append("\n");
+		buf.append("\n");
+		buf.append("    /*\n");
+		buf.append("     * comment7\n");
+		buf.append("     */\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false);
+
+		astRoot.recordModifications();
+
+		List types = astRoot.types();
+		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
+		TypeDeclaration [] members = typeDeclaration.getTypes();
+		typeDeclaration.bodyDeclarations().remove(members[0]);
+
+		String preview = evaluateRewrite(cu, astRoot);
+		buf= new StringBuffer();
+		buf.append("package test0013;\n");
+		buf.append("public class X {\n");
+		buf.append("\n");
+		buf.append("    // one line comment1a\n");
+		buf.append("\n");
+		buf.append("    /*\n");
+		buf.append("     * comment2\n");
+		buf.append("     */\n");
+		buf.append("\n");
+		buf.append("    // one line comment1b\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("\n");
+		buf.append("    // one line comment5\n");
+		buf.append("\n");
+		buf.append("    /*\n");
+		buf.append("     * comment6\n");
+		buf.append("     */\n");
+		buf.append("\n");
+		buf.append("\n");
+		buf.append("    /*\n");
+		buf.append("     * comment7\n");
+		buf.append("     */\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}

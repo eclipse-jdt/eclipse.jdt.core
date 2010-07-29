@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,6 @@ import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -522,7 +521,14 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
 		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
+		buf.append("\n");
 		buf.append("    public void foo2();\n");
+		buf.append("\n");
+		buf.append("//c3\n");
+		buf.append("\n");
 		buf.append("\n");
 		buf.append("//c4\n");
 		buf.append("}\n");
@@ -572,6 +578,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("    public void foo1();\n");
 		buf.append("\n");
 		buf.append("//c2\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c3\n");
 		buf.append("\n");
 		buf.append("    public void foo3();\n");
 		buf.append("\n");
@@ -623,6 +633,12 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("\n");
 		buf.append("    public void foo1();\n");
 		buf.append("\n");
+		buf.append("//c2\n");
+		buf.append("\n");
+		buf.append("\n");
+		buf.append("//c3\n");
+		buf.append("\n");
+		buf.append("\n");
 		buf.append("//c4\n");
 		buf.append("}\n");
 
@@ -668,6 +684,17 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
+		buf.append("//c1\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c3\n");
+		buf.append("\n");
+		buf.append("    \n");
 		buf.append("\n");
 		buf.append("//c4\n");
 		buf.append("}\n");
@@ -725,6 +752,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("//c1\n");
 		buf.append("\n");
 		buf.append("    void new1();\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
 		buf.append("\n");
 		buf.append("    public void foo2();\n");
 		buf.append("\n");
@@ -797,6 +828,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("\n");
 		buf.append("    void new2();\n");
 		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
+		buf.append("\n");
 		buf.append("    public void foo2();\n");
 		buf.append("\n");
 		buf.append("//c3\n");
@@ -868,6 +903,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("\n");
 		buf.append("    void new2();\n");
 		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c3\n");
+		buf.append("\n");
 		buf.append("    public void foo3();\n");
 		buf.append("\n");
 		buf.append("//c4\n");
@@ -927,6 +966,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("//c1\n");
 		buf.append("\n");
 		buf.append("    int new1;\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
 		buf.append("\n");
 		buf.append("    public int x2;\n");
 		buf.append("\n");
@@ -997,6 +1040,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("    int new1;\n");
 		buf.append("\n");
 		buf.append("    int new2;\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
 		buf.append("\n");
 		buf.append("    public int x2;\n");
 		buf.append("\n");
@@ -1069,6 +1116,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("\n");
 		buf.append("    int new2;\n");
 		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c3\n");
+		buf.append("\n");
 		buf.append("    public int x3;\n");
 		buf.append("\n");
 		buf.append("//c4\n");
@@ -1130,6 +1181,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("//c1\n");
 		buf.append("\n");
 		buf.append("    void new1();\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
 		buf.append("\n");
 		buf.append("    public void foo2();\n");
 		buf.append("\n");
@@ -1195,6 +1250,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("//c1\n");
 		buf.append("\n");
 		buf.append("    int new1;\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
 		buf.append("\n");
 		buf.append("    public int x2;\n");
 		buf.append("\n");
@@ -1268,6 +1327,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("    void new1();\n");
 		buf.append("\n");
 		buf.append("    void new2();\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
 		buf.append("\n");
 		buf.append("    public void foo2();\n");
 		buf.append("\n");
@@ -1343,6 +1406,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("\n");
 		buf.append("    int new2;\n");
 		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
+		buf.append("\n");
 		buf.append("    public int x2;\n");
 		buf.append("\n");
 		buf.append("//c3\n");
@@ -1409,6 +1476,14 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("\n");
 		buf.append("    void new1();\n");
 		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c3\n");
+		buf.append("\n");
 		buf.append("    void new2();\n");
 		buf.append("\n");
 		buf.append("//c4\n");
@@ -1467,6 +1542,14 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("//c1\n");
 		buf.append("\n");
 		buf.append("    int new1;\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
+		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c3\n");
 		buf.append("\n");
 		buf.append("    int new2;\n");
 		buf.append("\n");
@@ -1530,7 +1613,15 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("\n");
 		buf.append("    void new1();\n");
 		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
+		buf.append("\n");
 		buf.append("    void new2();\n");
+		buf.append("\n");
+		buf.append("//c3\n");
+		buf.append("\n");
+		buf.append("    \n");
 		buf.append("\n");
 		buf.append("//c4\n");
 		buf.append("}\n");
@@ -1591,7 +1682,15 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		buf.append("\n");
 		buf.append("    int new1;\n");
 		buf.append("\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("//c2\n");
+		buf.append("\n");
 		buf.append("    int new2;\n");
+		buf.append("\n");
+		buf.append("//c3\n");
+		buf.append("\n");
+		buf.append("    \n");
 		buf.append("\n");
 		buf.append("//c4\n");
 		buf.append("}\n");
@@ -1650,10 +1749,14 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		rewrite.remove(f1, null);
 
 		String preview= evaluateRewrite(cu, rewrite);
-
+		// Note that c1 is absent because source range has been calculated from c1
 		buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
+		buf.append("    \n");
+		buf.append("\n");
+		buf.append("    //c2\n");
+		buf.append("\n");
 		buf.append("    public int x2;\n");
 		buf.append("\n");
 		buf.append("    //c3\n");
