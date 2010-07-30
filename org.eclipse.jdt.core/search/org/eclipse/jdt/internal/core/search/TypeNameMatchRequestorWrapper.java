@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -25,8 +26,11 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.Openable;
+import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
@@ -69,6 +73,8 @@ public class TypeNameMatchRequestorWrapper implements IRestrictedAccessTypeReque
 	 * Cache package handles to optimize memory.
 	 */
 	private HashtableOfArrayToObject packageHandles;
+	private long complianceValue;
+	private IJavaProject lastProject;
 
 public TypeNameMatchRequestorWrapper(TypeNameMatchRequestor requestor, IJavaSearchScope scope) {
 	this.requestor = requestor;
@@ -116,7 +122,8 @@ public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName,
 		// Accept match if the type has been found
 		if (type != null) {
 			// hierarchy scopes require one more check:
-			if (!(this.scope instanceof HierarchyScope) || ((HierarchyScope)this.scope).enclosesFineGrained(type)) {
+			if ((!(this.scope instanceof HierarchyScope) || ((HierarchyScope)this.scope).enclosesFineGrained(type))
+					&& (!filterMatch(type))) {
 
 				// Create the match
 				final JavaSearchTypeNameMatch match = new JavaSearchTypeNameMatch(type, modifiers);
@@ -220,4 +227,56 @@ private IType createTypeFromPath(String resourcePath, String simpleTypeName, cha
 	}
 	return null;
 }
+
+private boolean filterMatch(IJavaElement type) {
+	
+	// filter enum and assert - these keywords have been added in 
+	// latter versions of Java and hence should be filtered off 
+	// for the versions they are introduced
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=313668
+	while (type != null) {
+		if (type.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
+			String[] names = ((PackageFragment)type).names;
+			for (int i = 0, l = names.length; i < l; i++) {
+				if (isNameNewKeyword(type, names[i]))
+					return true;
+			}
+			return false;
+		}
+		if (isNameNewKeyword(type, type.getElementName())) {
+			return true;
+		}
+		type = type.getParent();
+	}
+	return false;
+}
+
+// this function is optimized to assume that there are lesser chances of enum or assert as the name
+private boolean isNameNewKeyword(IJavaElement type, String name) {
+	if (name == null) return false;
+	switch(name.length()) {
+		case 4: // length of enum
+			if (name.equals("enum")) { //$NON-NLS-1$
+				return (getProjectCompliance(type) >= ClassFileConstants.JDK1_5);
+			}
+			break;
+		case 6: // length of assert
+			if (name.equals("assert")) { //$NON-NLS-1$
+				return (getProjectCompliance(type) >= ClassFileConstants.JDK1_4);
+			}
+			break;
+	}
+	return false;
+}
+
+private long getProjectCompliance(IJavaElement type) {
+	IJavaProject proj = (IJavaProject)type.getAncestor(IJavaElement.JAVA_PROJECT);
+	if (proj != this.lastProject) {
+		String complianceStr = proj.getOption(CompilerOptions.OPTION_Source, true);
+		this.complianceValue = CompilerOptions.versionToJdkLevel(complianceStr);
+		this.lastProject = proj;
+	}
+	return this.complianceValue;
+}
+
 }

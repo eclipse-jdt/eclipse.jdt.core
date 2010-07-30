@@ -257,6 +257,29 @@ public static ClassFileReader classFileReader(IType type) {
 	return null;
 }
 
+private boolean filterMatch(SearchMatch match) {
+	
+	// filter enum and assert - these keywords have been added in 
+	// later versions of Java and hence should be filtered off 
+	// for the versions they are introduced
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=313668
+	IJavaElement element = (IJavaElement)match.getElement();	
+	if (this.options != null && this.options.sourceLevel < ClassFileConstants.JDK1_3)
+		return false;	
+	while (element != null) {
+		if (element.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
+			String[] names = ((PackageFragment)element).names;
+			for (int i = 0, l = names.length; i < l; i++) {
+				if (isNameNewKeyword(element, names[i])) return true;
+			}
+			return false;
+		}
+		if (isNameNewKeyword(element, element.getElementName())) return true;
+		element = element.getParent();
+	}
+	return false;
+}
+
 /**
  * Query a given index for matching entries. Assumes the sender has opened the index and will close when finished.
  */
@@ -927,12 +950,38 @@ public MethodBinding getMethodBinding(MethodPattern methodPattern) {
 	this.bindings.put(methodPattern, new ProblemMethodBinding(methodPattern.selector, null, ProblemReasons.NotFound));
 	return null;
 }
+
+private long getProjectCompliance(IJavaElement element) {
+	if (this.options != null) return this.options.sourceLevel;
+	IJavaProject proj = (IJavaProject)element.getAncestor(IJavaElement.JAVA_PROJECT);
+	String complianceStr = proj.getOption(CompilerOptions.OPTION_Source, true);
+	return CompilerOptions.versionToJdkLevel(complianceStr);
+}
+
 protected boolean hasAlreadyDefinedType(CompilationUnitDeclaration parsedUnit) {
 	CompilationResult result = parsedUnit.compilationResult;
 	if (result == null) return false;
 	for (int i = 0; i < result.problemCount; i++)
 		if (result.problems[i].getID() == IProblem.DuplicateTypes)
 			return true;
+	return false;
+}
+
+// this function is optimized to assume that there are lesser chances of enum or assert as the name
+private boolean isNameNewKeyword(IJavaElement element, String name) {
+	if (name == null) return false;
+	switch(name.length()) {
+		case 4: // length of enum
+			if (name.equals("enum")) { //$NON-NLS-1$
+				return (getProjectCompliance(element) >= ClassFileConstants.JDK1_5);
+			}
+			return false;
+		case 6: // length of assert
+			if (name.equals("assert")) { //$NON-NLS-1$
+				return (getProjectCompliance(element) >= ClassFileConstants.JDK1_4);
+			}
+			return false;
+	}
 	return false;
 }
 /**
@@ -1700,6 +1749,9 @@ protected void report(SearchMatch match) throws CoreException {
 		if (BasicSearchEngine.VERBOSE) {
 			System.out.println("Cannot report a null match!!!"); //$NON-NLS-1$
 		}
+		return;
+	}
+	if (filterMatch(match)) {
 		return;
 	}
 	long start = -1;

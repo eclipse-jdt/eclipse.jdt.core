@@ -11946,4 +11946,142 @@ public void testBug313668() throws CoreException {
 		deleteProject(serverProject);
 	}
 }
+
+/**
+ * @bug 317264: Refactoring is impossible with commons.lang added to project
+ * @test 1.5 compliant project should not return any types having the name `enum` or `assert'
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=313668"
+ */
+public void testBug317264a() throws CoreException {
+	IJavaProject project = null;
+	try
+	{
+		project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		
+		waitUntilIndexesReady();
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+				"b317264".toCharArray(),
+				SearchPattern.R_PREFIX_MATCH,
+				"".toCharArray(),
+				SearchPattern.R_PREFIX_MATCH,
+				IJavaSearchConstants.TYPE,
+				scope,
+				collector,
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+		assertSearchResults("Unexpected search results!", "", collector);		
+	} finally {
+		deleteProject(project);
+	}
+}
+
+/**
+ *  1.4 compliant project should return types named enum
+ */
+public void testBug317264b() throws CoreException {
+	IJavaProject project = null;
+	try
+	{
+		project = createJavaProject("P");
+		project.setOption(CompilerOptions.OPTION_Source, "1.4");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		waitUntilIndexesReady();
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+				"b317264".toCharArray(),
+				SearchPattern.R_PREFIX_MATCH,
+				"".toCharArray(),
+				SearchPattern.R_PREFIX_MATCH,
+				IJavaSearchConstants.TYPE,
+				scope,
+				collector,
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+		assertSearchResults("Unexpected search results!", 
+				"InEnum (not open) [in InEnum.class [in b317264.enum [in /JavaSearchBugs/lib/b317264.jar [in P]]]]",
+				collector);		
+	} finally {
+		deleteProject(project);
+	}
+}
+
+/**
+ *  search of types in a 1.5 compliant project should not return any types having the name `enum` or `assert'
+ */
+public void testBug317264c() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		search("b317264.*", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/**
+ *  search of types in a 1.4 compliant project should return types having the name `enum`
+ */
+public void testBug317264d() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P");
+		project.setOption(CompilerOptions.OPTION_Source, "1.4");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		search("b317264.*", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", 
+				"lib/b317264.jar b317264.enum.InEnum EXACT_MATCH", 
+				this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/**
+ *  search of packages in a 1.5 compliant project should not return types having the name `enum` and `assert`
+ */
+public void testBug317264e() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		search("b317264.*", IJavaSearchConstants.PACKAGE, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/**
+ * search of packages in a 1.4 compliant project should not return types having the name `assert` but should return 'enum'
+ */
+public void testBug317264f() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P");
+		project.setOption(CompilerOptions.OPTION_Source, "1.4");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		search("b317264.*", IJavaSearchConstants.PACKAGE, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!",
+				"lib/b317264.jar b317264.enum [No source] EXACT_MATCH",
+				this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
 }
