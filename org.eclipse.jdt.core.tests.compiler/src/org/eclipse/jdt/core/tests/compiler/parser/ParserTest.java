@@ -688,12 +688,7 @@ public void test026() {
 		"	                       ^^\n" +
 		"Empty block should be documented\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	A() {}\n" +
-		"	    ^^\n" +
-		"Empty block should be documented\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 9)\n" +
+		"2. ERROR in X.java (at line 9)\n" +
 		"	public void bar() {}\n" +
 		"	                  ^^\n" +
 		"Empty block should be documented\n" +

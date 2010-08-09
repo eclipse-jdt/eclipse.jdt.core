@@ -451,7 +451,9 @@ public abstract class AbstractMethodDeclaration
 				this.statements[i].resolve(this.scope);
 			}
 		} else if ((this.bits & UndocumentedEmptyBlock) != 0) {
-			this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
+			if (!this.isConstructor() || this.arguments != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319626
+				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
+			}
 		}
 	}
 

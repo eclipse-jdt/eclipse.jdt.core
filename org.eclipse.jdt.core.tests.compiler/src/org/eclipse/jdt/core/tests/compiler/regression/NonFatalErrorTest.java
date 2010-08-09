@@ -206,4 +206,56 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			// javac options
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319626
+	public void test006() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.DISABLED);
+		customOptions.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
+		runNegativeTest(
+			// test directory preparation
+			true /* flush output directory */,
+			new String[] { /* test files */
+				"X.java",
+				"public class X {\n" +
+				"	{     }\n" +
+				"	static {  }\n" +
+				" 	X() { }\n" +
+				" 	X(int a) {}\n" +
+				" 	public void foo() {}\n" +
+				"	public static void main(String argv[]) {\n" +
+				"		System.out.println(\"SUCCESS\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			// compiler options
+			null /* no class libraries */,
+			customOptions /* custom options */,
+			// compiler results
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	{     }\n" + 
+			"	^^^^^^^\n" + 
+			"Empty block should be documented\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	static {  }\n" + 
+			"	       ^^^^\n" + 
+			"Empty block should be documented\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	X(int a) {}\n" + 
+			"	         ^^\n" + 
+			"Empty block should be documented\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	public void foo() {}\n" + 
+			"	                  ^^\n" + 
+			"Empty block should be documented\n" + 
+			"----------\n",
+			// runtime results
+			"SUCCESS" /* expected output string */,
+			null /* do not check error string */,
+			// javac options
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
+	}
 }
