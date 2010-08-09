@@ -687,5 +687,35 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			}
 			removeLibrary(this.project, "/lib/chaining.jar", null);
 		}
-	}	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=320167
+	// Test to verify that while trying to get javadoc contents from a malformed
+	// javadoc, CharOperation doesnt throw an IOOBE
+	public void testBug320167() throws JavaModelException {
+		try {
+			setJavadocLocationAttribute("malformedDoc");
+
+			IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
+			assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+			IClassFile classFile = packageFragment.getClassFile("X.class"); //$NON-NLS-1$
+			assertNotNull(classFile);
+			IType type = classFile.getType();
+			IMethod method = type.getMethod("foo", new String[] {"I", "J", "Ljava.lang.String;"}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			assertTrue(method.exists());
+			String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+			assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
+			String[] paramNames = method.getParameterNames();
+			assertNotNull(paramNames);
+			assertEquals("Wrong size", 3, paramNames.length); //$NON-NLS-1$
+			assertEquals("Wrong name for first param", "i", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
+			assertEquals("Wrong name for second param", "l", paramNames[1]); //$NON-NLS-1$ //$NON-NLS-2$
+			assertEquals("Wrong name for third param", "s", paramNames[2]); //$NON-NLS-1$ //$NON-NLS-2$
+		} catch (IndexOutOfBoundsException e) {
+			assertTrue("Should not happen", false);
+		} catch (JavaModelException e) {
+			assertTrue("Should happen", true);
+		} finally {
+			setJavadocLocationAttribute(DEFAULT_DOC_FOLDER);
+		}
+	}
 }
