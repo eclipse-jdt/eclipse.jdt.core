@@ -108,6 +108,18 @@ public void test007() {
 	array2 = new char[] { 'a' , 'b', 'd'};
 	assertTrue(CharOperation.compareTo(array, array2) < 0);
 }
+// test indexOf case sensitive
+public void test008() {
+	char[] array = new char[] { 'a' , 'b', 'c' };
+	char[] array2 = new char[] { 'a' , 'b', 'c', 'a', 'a'};
+	assertTrue(CharOperation.indexOf(array, array2, true, -1) < 0);
+}
+// test indexOf case insensitive
+public void test009() {
+	char[] array = new char[] { 'a' , 'b', 'c' };
+	char[] array2 = new char[] { 'a' , 'b', 'c', 'a', 'a'};
+	assertTrue(CharOperation.indexOf(array, array2, false, -1) < 0);
+}
 public static Class testClass() {
 	return CharOperationTest.class;
 }
