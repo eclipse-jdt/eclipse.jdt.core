@@ -129,7 +129,7 @@ public void cleanUpIndexes() {
 	}
 	deleteIndexFiles(knownPaths);
 }
-public IPath computeIndexLocation(IPath containerPath) {
+public synchronized IPath computeIndexLocation(IPath containerPath) {
 	IPath indexLocation = (IPath) this.indexLocations.get(containerPath);
 	if (indexLocation == null) {
 		String pathString = containerPath.toOSString();
@@ -168,7 +168,7 @@ private void deleteIndexFiles(SimpleSet pathsToKeep) {
 /*
  * Creates an empty index at the given location, for the given container path, if none exist.
  */
-public void ensureIndexExists(IPath indexLocation, IPath containerPath) {
+public synchronized void ensureIndexExists(IPath indexLocation, IPath containerPath) {
 	SimpleLookupTable states = getIndexStates();
 	Object state = states.get(indexLocation);
 	if (state == null) {
