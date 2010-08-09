@@ -2779,6 +2779,60 @@ public void test053() throws Exception {
 		},
 		"12345");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321085
+public void test054() throws Exception {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.HashSet;\n" +
+				"import java.util.Set;\n" +
+				"public class X {\n" +
+				"    void foo() {\n" +
+				"       HashSet<String> x = new HashSet<String>();\n" +
+				"        x.add(\"a\");\n" +
+				"        HashSet<Integer> y = new HashSet<Integer>();\n" +
+				"        y.add(1);\n" +
+				"        Set<String> [] OK= new Set[] { x, y };\n" +
+				"        for (Set<String> BUG : new Set[] { x, y }) {\n" +
+				"            for (String str : BUG)\n" +
+				"                System.out.println(str);\n" +
+				"        }\n" +
+				"        Set [] set = new Set[] { x, y };\n" +
+				"        for (Set<String> BUG : set) {\n" +
+				"            for (String str : BUG)\n" +
+				"                System.out.println(str);\n" +
+				"        }\n" +
+				"    }\n" +
+				"    Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	Set<String> [] OK= new Set[] { x, y };\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
+			"	for (Set<String> BUG : new Set[] { x, y }) {\n" + 
+			"	                       ^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 14)\n" + 
+			"	Set [] set = new Set[] { x, y };\n" + 
+			"	^^^\n" + 
+			"Set is a raw type. References to generic type Set<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 15)\n" + 
+			"	for (Set<String> BUG : set) {\n" + 
+			"	                       ^^^\n" + 
+			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 20)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }
