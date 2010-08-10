@@ -201,6 +201,9 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 	private static File LOG_FILE;
 	private static PrintStream LOG_STREAM;
 
+	// Maintenance
+	private static boolean MAINTENANCE = false;
+
 	// Comparison
 	private static boolean CLEAN = false;
 	private static boolean CAN_COMPARE = true;
@@ -589,6 +592,8 @@ private static void initDirectories(File inputDir, int profiles, boolean verify)
 			String token = tokenizer.nextToken();
 			if (token.equals("clean")) {
 				CLEAN = true;
+			} else if (token.equals("maintenance")) {
+				MAINTENANCE = true;
 			} else if (token.equals("list")) {
 				LIST = true;
 			} else if (token.equals("tmp")) {
@@ -819,7 +824,7 @@ private static void setOutputDir(File inputDir, String dir, int profiles) {
 
 	// Compute the final output dir
 	File parent = new File(OUTPUT_DIR, ECLIPSE_VERSION);
-	if (!parent.exists()) {
+	if (MAINTENANCE) {
 		try {
 			int version = Integer.parseInt(ECLIPSE_VERSION.substring(1));
 			File maintenance = new File(OUTPUT_DIR, "v"+(version-1));
