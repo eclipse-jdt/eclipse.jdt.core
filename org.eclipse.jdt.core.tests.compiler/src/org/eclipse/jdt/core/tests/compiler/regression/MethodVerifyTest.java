@@ -9583,6 +9583,11 @@ public void test176() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251091
+// Srikanth, Aug 10th 2010. This test does not elicit any name clash error from javac 5 or javac6
+// javac7 reports "X.java:7: name clash: foo(Collection<?>) in X and foo(Collection) in A have the
+// same erasure, yet neither overrides the other"
+// After the fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=322001, we match
+// JDK7 (7b100) behavior. (earlier we would issue an extra name clash)
 public void test177() {
 	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_6) { // see test187()
 		this.runNegativeTest(
@@ -9613,17 +9618,12 @@ public void test177() {
 			"	             ^^^^^^^^^^\n" + 
 			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 6)\n" + 
-			"	class X extends A implements I {\n" + 
-			"	      ^\n" + 
-			"Name clash: The method foo(Collection<?>) of type I has the same erasure as foo(Collection) of type A but does not override it\n" + 
-			"----------\n" + 
-			"5. WARNING in X.java (at line 6)\n" + 
+			"4. WARNING in X.java (at line 6)\n" + 
 			"	class X extends A implements I {\n" + 
 			"	      ^\n" + 
 			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 7)\n" + 
+			"5. ERROR in X.java (at line 7)\n" + 
 			"	@Override public X foo(Collection<?> c) { return this; }\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method foo(Collection<?>) of type X has the same erasure as foo(Collection) of type A but does not override it\n" + 
@@ -9658,22 +9658,17 @@ public void test177() {
 			"	             ^^^^^^^^^^\n" + 
 			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 6)\n" + 
-			"	class X extends A implements I {\n" + 
-			"	      ^\n" + 
-			"Name clash: The method foo(Collection<?>) of type I has the same erasure as foo(Collection) of type A but does not override it\n" + 
-			"----------\n" + 
-			"5. WARNING in X.java (at line 6)\n" + 
+			"4. WARNING in X.java (at line 6)\n" + 
 			"	class X extends A implements I {\n" + 
 			"	      ^\n" + 
 			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 7)\n" + 
+			"5. ERROR in X.java (at line 7)\n" + 
 			"	@Override public X foo(Collection<?> c) { return this; }\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method foo(Collection<?>) of type X has the same erasure as foo(Collection) of type A but does not override it\n" + 
 			"----------\n" + 
-			"7. ERROR in X.java (at line 7)\n" + 
+			"6. ERROR in X.java (at line 7)\n" + 
 			"	@Override public X foo(Collection<?> c) { return this; }\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The method foo(Collection<?>) of type X must override a superclass method\n" + 
@@ -10906,5 +10901,91 @@ public void test208a() {
 			"}\n"
 		},
 		this.complianceLevel <= ClassFileConstants.JDK1_5 ? "Annotation was found" : "Annotation was not found");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322001
+public void test209() {
+	this.runNegativeTest(
+		new String[] {
+			"Concrete.java",
+			"class Bar extends Zork {}\n" +
+			"class Foo {}\n" +
+			"\n" +
+			"interface Function<F, T> {\n" +
+			"    T apply(F f);\n" +
+			"}\n" +
+			"interface Predicate<T> {\n" +
+			"    boolean apply(T t);\n" +
+			"}\n" +
+			"\n" +
+			"public class Concrete implements Predicate<Foo>, Function<Bar, Boolean> {\n" +
+			"    public Boolean apply(Bar two) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"    public boolean apply(Foo foo) {\n" +
+			"        return false;\n" +
+			"    }\n" +
+
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Concrete.java (at line 1)\n" + 
+		"	class Bar extends Zork {}\n" + 
+		"	                  ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321548
+public void test210() {
+	this.runNegativeTest(
+		new String[] {
+			"ErasureTest.java",
+			"interface Interface1<T> {\n" +
+			"    public void hello(T greeting);\n" +
+			"}\n" +
+			"interface Interface2<T> {\n" +
+			"    public int hello(T greeting);\n" +
+			"}\n" +
+			"public class ErasureTest extends Zork implements Interface1<String>, Interface2<Double> {\n" +
+			"    public void hello(String greeting) { }\n" +
+			"    public int hello(Double greeting) {\n" +
+			"        return 0;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in ErasureTest.java (at line 7)\n" + 
+		"	public class ErasureTest extends Zork implements Interface1<String>, Interface2<Double> {\n" + 
+		"	                                 ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+public void test211() {
+	this.runNegativeTest(
+		new String[] {
+			"SomeClass.java",
+			"interface Equivalent<T> {\n" +
+			"	boolean equalTo(T other);\n" +
+			"}\n" +
+			"\n" +
+			"interface EqualityComparable<T> {\n" +
+			"	boolean equalTo(T other);\n" +
+			"}\n" +
+			"\n" +
+			"public class SomeClass implements Equivalent<String>, EqualityComparable<Integer> {\n" +
+			"	public boolean equalTo(String other) {\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public boolean equalTo(Integer other) {\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in SomeClass.java (at line 9)\n" + 
+		"	public class SomeClass implements Equivalent<String>, EqualityComparable<Integer> {\n" + 
+		"	             ^^^^^^^^^\n" + 
+		"Name clash: The method equalTo(T) of type EqualityComparable<T> has the same erasure as equalTo(T) of type Equivalent<T> but does not override it\n" + 
+		"----------\n");
 }
 }

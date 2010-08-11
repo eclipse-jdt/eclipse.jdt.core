@@ -152,9 +152,25 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 
 	MethodBinding bridge = this.type.addSyntheticBridgeMethod(originalInherited, currentMethod.original());
 	if (bridge != null) {
-		for (int i = 0, l = allInheritedMethods == null ? 0 : allInheritedMethods.length; i < l; i++) {
-			if (allInheritedMethods[i] != null && detectInheritedNameClash(originalInherited, allInheritedMethods[i].original()))
-				return;
+		/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=322001. We used to unconditionally check here
+		   for name clashes between the overridden inherited method and all other "non-matching"
+		   inherited methods with the same method selector here. 
+		   
+		   This makes no sense when the current type is concrete as the overridden method has been
+		   effectively replaced and is hidden in the current class and cannot contribute to a clash.
+		   The overriding method or the bridge may collide with an inherited method, but that is being
+		   checked elsewhere. 
+		   
+		   As a matter of fact, this is true even for abstract types, but we do retain the name clash
+		   check for abstract types here for compatibility with javac.
+		   
+		   See also https://bugs.eclipse.org/bugs/show_bug.cgi?id=293615 for a very similar issue.
+		*/
+		if (this.type.isAbstract()) { 
+			for (int i = 0, l = allInheritedMethods == null ? 0 : allInheritedMethods.length; i < l; i++) {
+				if (allInheritedMethods[i] != null && detectInheritedNameClash(originalInherited, allInheritedMethods[i].original()))
+					return;
+			}
 		}
 		// See if the new bridge clashes with any of the user methods of the class. For this check
 		// we should check for "method descriptor clash" and not just "method signature clash". Really
