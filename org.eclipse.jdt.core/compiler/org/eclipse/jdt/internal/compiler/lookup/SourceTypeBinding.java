@@ -517,6 +517,16 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 				if (CharOperation.equals(inheritedMethodToBridge.selector, method.selector)
 					&& inheritedMethodToBridge.returnType.erasure() == method.returnType.erasure()
 					&& inheritedMethodToBridge.areParameterErasuresEqual(method)) {
+						SyntheticMethodBinding olderBridge = getSyntheticBridgeMethod(method);
+						MethodBinding olderTarget;
+						if (olderBridge == null || ((olderTarget = olderBridge.targetMethod) == null)) {
+							return null;
+						}
+						if (olderTarget.returnType.erasure() != targetMethod.returnType.erasure()
+								|| !olderTarget.areParameterErasuresEqual(targetMethod)) {
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
+							this.scope.problemReporter().inheritedMethodsHaveNameClash(this, method, inheritedMethodToBridge);
+						}
 						return null;
 				}
 			}
