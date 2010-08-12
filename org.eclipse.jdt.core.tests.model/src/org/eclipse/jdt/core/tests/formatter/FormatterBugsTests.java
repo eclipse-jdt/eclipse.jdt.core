@@ -6914,6 +6914,43 @@ public void testBug320754_02c() throws JavaModelException {
 		"}\n"
 	);
 }
+public void testBug320754_02d() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	String source =
+		"//@formatter:off\n" + 
+		"@MyAnnot (\n" + 
+		"  testAttribute = {\"test1\", \"test2\", \"test3\"}\n" + 
+		")\n" + 
+		"\n" + 
+		"//@formatter:on\n" + 
+		"public class X02d\n" + 
+		"{\n" + 
+		"    public static void main(String[] args)\n" + 
+		"    {\n" + 
+		"        int a=0;int b;\n" + 
+		"\n" + 
+		"        System.out.println(a);\n" + 
+		"\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"//@formatter:off\n" + 
+		"@MyAnnot (\n" + 
+		"  testAttribute = {\"test1\", \"test2\", \"test3\"}\n" + 
+		")\n" + 
+		"\n" + 
+		"//@formatter:on\n" + 
+		"public class X02d {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		int a = 0;\n" + 
+		"		int b;\n" + 
+		"\n" + 
+		"		System.out.println(a);\n" + 
+		"\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 public void testBug320754_03() throws JavaModelException {
 	this.formatterPrefs.use_tags = true;
 	String source =
