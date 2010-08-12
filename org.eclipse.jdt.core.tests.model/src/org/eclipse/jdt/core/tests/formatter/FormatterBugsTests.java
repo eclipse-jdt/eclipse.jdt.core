@@ -6692,4 +6692,258 @@ public void testBug313524_wksp1_12() throws JavaModelException {
 	);
 }
 
+/**
+ * @bug 320754: [formatter] Add preference for improved lines wrapping in nested method calls
+ * @test Ensure that the formatter keep previous eclipse versions behavior when
+ * 		the "Try to keep nested expressions on one line" preference is set.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=320754"
+ */
+public void testBug320754_00() throws JavaModelException {
+	String source =
+		"public class X00\n" + 
+		"{\n" + 
+		"    public static void main(String[] args)\n" + 
+		"    {\n" + 
+		"        int a=0;int b;\n" + 
+		"\n" + 
+		"        System.out.println(a);\n" + 
+		"\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"public class X00 {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		int a = 0;\n" + 
+		"		int b;\n" + 
+		"\n" + 
+		"		System.out.println(a);\n" + 
+		"\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug320754_01a() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	String source =
+		"//@formatter:off\n" + 
+		"//@formatter:on\n" + 
+		"public class X01a\n" + 
+		"{\n" + 
+		"    public static void main(String[] args)\n" + 
+		"    {\n" + 
+		"        int a=0;int b;\n" + 
+		"\n" + 
+		"        System.out.println(a);\n" + 
+		"\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"//@formatter:off\n" + 
+		"//@formatter:on\n" + 
+		"public class X01a {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		int a = 0;\n" + 
+		"		int b;\n" + 
+		"\n" + 
+		"		System.out.println(a);\n" + 
+		"\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug320754_01b() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	String source =
+		"/* @formatter:off */\n" + 
+		"/* @formatter:on */\n" + 
+		"public class X01b\n" + 
+		"{\n" + 
+		"    public static void main(String[] args)\n" + 
+		"    {\n" + 
+		"        int a=0;int b;\n" + 
+		"\n" + 
+		"        System.out.println(a);\n" + 
+		"\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"/* @formatter:off */\n" + 
+		"/* @formatter:on */\n" + 
+		"public class X01b {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		int a = 0;\n" + 
+		"		int b;\n" + 
+		"\n" + 
+		"		System.out.println(a);\n" + 
+		"\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug320754_01c() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	String source =
+		"/** @formatter:off */\n" + 
+		"/** @formatter:on */\n" + 
+		"public class X01c\n" + 
+		"{\n" + 
+		"    public static void main(String[] args)\n" + 
+		"    {\n" + 
+		"        int a=0;int b;\n" + 
+		"\n" + 
+		"        System.out.println(a);\n" + 
+		"\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"/** @formatter:off */\n" + 
+		"/** @formatter:on */\n" + 
+		"public class X01c {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		int a = 0;\n" + 
+		"		int b;\n" + 
+		"\n" + 
+		"		System.out.println(a);\n" + 
+		"\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug320754_02a() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	String source =
+		"//@formatter:off\n" + 
+		"@MyAnnot (\n" + 
+		"  testAttribute = {\"test1\", \"test2\", \"test3\"}\n" + 
+		")\n" + 
+		"//@formatter:on\n" + 
+		"public class X02\n" + 
+		"{\n" + 
+		"    public static void main(String[] args)\n" + 
+		"    {\n" + 
+		"        int a=0;int b;\n" + 
+		"\n" + 
+		"        System.out.println(a);\n" + 
+		"\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"//@formatter:off\n" + 
+		"@MyAnnot (\n" + 
+		"  testAttribute = {\"test1\", \"test2\", \"test3\"}\n" + 
+		")\n" + 
+		"//@formatter:on\n" + 
+		"public class X02 {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		int a = 0;\n" + 
+		"		int b;\n" + 
+		"\n" + 
+		"		System.out.println(a);\n" + 
+		"\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug320754_02b() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	String source =
+		"/* @formatter:off */\n" + 
+		"@MyAnnot (\n" + 
+		"  testAttribute = {\"test1\", \"test2\", \"test3\"}\n" + 
+		")\n" + 
+		"/* @formatter:on */\n" + 
+		"public class X02b\n" + 
+		"{\n" + 
+		"    public static void main(String[] args)\n" + 
+		"    {\n" + 
+		"        int a=0;int b;\n" + 
+		"\n" + 
+		"        System.out.println(a);\n" + 
+		"\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"/* @formatter:off */\n" + 
+		"@MyAnnot (\n" + 
+		"  testAttribute = {\"test1\", \"test2\", \"test3\"}\n" + 
+		")\n" + 
+		"/* @formatter:on */\n" + 
+		"public class X02b {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		int a = 0;\n" + 
+		"		int b;\n" + 
+		"\n" + 
+		"		System.out.println(a);\n" + 
+		"\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug320754_02c() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	String source =
+		"/** @formatter:off */\n" + 
+		"@MyAnnot (\n" + 
+		"  testAttribute = {\"test1\", \"test2\", \"test3\"}\n" + 
+		")\n" + 
+		"/** @formatter:on */\n" + 
+		"public class X02c\n" + 
+		"{\n" + 
+		"    public static void main(String[] args)\n" + 
+		"    {\n" + 
+		"        int a=0;int b;\n" + 
+		"\n" + 
+		"        System.out.println(a);\n" + 
+		"\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"/** @formatter:off */\n" + 
+		"@MyAnnot (\n" + 
+		"  testAttribute = {\"test1\", \"test2\", \"test3\"}\n" + 
+		")\n" + 
+		"/** @formatter:on */\n" + 
+		"public class X02c {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		int a = 0;\n" + 
+		"		int b;\n" + 
+		"\n" + 
+		"		System.out.println(a);\n" + 
+		"\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug320754_03() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	String source =
+		"//@formatter:off\n" + 
+		"\n" + 
+		"//@formatter:on\n" + 
+		"public class X03\n" + 
+		"{\n" + 
+		"    public static void main(String[] args)\n" + 
+		"    {\n" + 
+		"        int a=0;int b;\n" + 
+		"\n" + 
+		"        System.out.println(a);\n" + 
+		"\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"//@formatter:off\n" + 
+		"\n" + 
+		"//@formatter:on\n" + 
+		"public class X03 {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		int a = 0;\n" + 
+		"		int b;\n" + 
+		"\n" + 
+		"		System.out.println(a);\n" + 
+		"\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
 }
