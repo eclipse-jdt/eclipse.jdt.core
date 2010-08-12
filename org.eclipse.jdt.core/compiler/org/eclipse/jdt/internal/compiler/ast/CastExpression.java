@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Nick Teryaev - fix for bug (https://bugs.eclipse.org/bugs/show_bug.cgi?id=40752)
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -47,9 +48,13 @@ public CastExpression(Expression expression, Expression type) {
 }
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	return this.expression
+	FlowInfo result = this.expression
 		.analyseCode(currentScope, flowContext, flowInfo)
 		.unconditionalInits();
+	if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
+		this.expression.checkNPE(currentScope, flowContext, flowInfo);
+	}
+	return result;
 }
 
 /**

@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 236385
+ *     Stephan Herrmann - Contributions for 
+ *     						bug 236385 - [compiler] Warn for potential programming problem if an object is created but not used
+ *     						bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -39,6 +41,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.arguments[i]
 					.analyseCode(currentScope, flowContext, flowInfo)
 					.unconditionalInits();
+			if ((this.arguments[i].implicitConversion & TypeIds.UNBOXING) != 0) {
+				this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);
+			}
 		}
 	}
 	// record some dependency information for exception types

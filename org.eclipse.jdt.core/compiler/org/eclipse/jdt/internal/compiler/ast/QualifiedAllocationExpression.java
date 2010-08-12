@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -71,6 +72,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		if (this.arguments != null) {
 			for (int i = 0, count = this.arguments.length; i < count; i++) {
 				flowInfo = this.arguments[i].analyseCode(currentScope, flowContext, flowInfo);
+				if ((this.arguments[i].implicitConversion & TypeIds.UNBOXING) != 0) {
+					this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);
+				}
 			}
 		}
 

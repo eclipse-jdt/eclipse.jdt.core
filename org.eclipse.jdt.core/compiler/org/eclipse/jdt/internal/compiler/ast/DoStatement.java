@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -57,6 +58,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	int previousMode = flowInfo.reachMode();
 
+	FlowInfo initsOnCondition = flowInfo;
+
 	UnconditionalFlowInfo actionInfo = flowInfo.nullInfoLessUnconditionalCopy();
 	// we need to collect the contribution to nulls of the coming paths through the
 	// loop, be they falling through normally or branched to break, continue labels
@@ -72,6 +75,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				FlowInfo.UNREACHABLE) != 0) {
 			this.continueLabel = null;
 		}
+		if ((this.condition.implicitConversion & TypeIds.UNBOXING) != 0) {
+			initsOnCondition = flowInfo.unconditionalInits().
+									addInitializationsFrom(
+										actionInfo.mergedWith(loopingContext.initsOnContinue));
+		}
+	}
+	if ((this.condition.implicitConversion & TypeIds.UNBOXING) != 0) {
+		this.condition.checkNPE(currentScope, flowContext, initsOnCondition);
 	}
 	/* Reset reach mode, to address following scenario.
 	 *   final blank;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -60,6 +61,12 @@ public class AND_AND_Expression extends BinaryExpression {
 			}
 		}
 		rightInfo = this.right.analyseCode(currentScope, flowContext, rightInfo);
+		if ((this.left.implicitConversion & TypeIds.UNBOXING) != 0) {
+			this.left.checkNPE(currentScope, flowContext, flowInfo);
+		}
+		if ((this.right.implicitConversion & TypeIds.UNBOXING) != 0) {
+			this.right.checkNPE(currentScope, flowContext, flowInfo);
+		}
 		FlowInfo mergedInfo = FlowInfo.conditional(
 				rightInfo.safeInitsWhenTrue(),
 				leftInfo.initsWhenFalse().unconditionalInits().mergedWith(

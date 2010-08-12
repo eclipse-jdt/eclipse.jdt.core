@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -63,6 +64,9 @@ public class WhileStatement extends Statement {
 					new LoopingFlowContext(flowContext, flowInfo, this, null,
 						null, currentScope)),
 				condInfo);
+		if ((this.condition.implicitConversion & TypeIds.UNBOXING) != 0) {
+			this.condition.checkNPE(currentScope, flowContext, flowInfo);
+		}
 
 		LoopingFlowContext loopingContext;
 		FlowInfo actionInfo;

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -62,6 +63,12 @@ public class OR_OR_Expression extends BinaryExpression {
 			}
 		}
 		rightInfo = this.right.analyseCode(currentScope, flowContext, rightInfo);
+		if ((this.left.implicitConversion & TypeIds.UNBOXING) != 0) {
+			this.left.checkNPE(currentScope, flowContext, flowInfo);
+		}
+		if ((this.right.implicitConversion & TypeIds.UNBOXING) != 0) {
+			this.right.checkNPE(currentScope, flowContext, flowInfo);
+		}
 		// The definitely null variables in right info when true should not be missed out while merging
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=299900
 		FlowInfo leftInfoWhenTrueForMerging = leftInfo.initsWhenTrue().unconditionalCopy().addPotentialInitializationsFrom(rightInfo.unconditionalInitsWithoutSideEffect());

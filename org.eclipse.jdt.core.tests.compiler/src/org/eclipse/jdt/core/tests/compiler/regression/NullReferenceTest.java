@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - [null] no warning when unboxing SingleNameReference causes NPE, see https://bugs.eclipse.org/319201
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -11661,6 +11662,290 @@ public void testBug305590() {
 		"instanceof always yields false: The variable str can only be null at this location\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
+// unboxing raises an NPE
+//   LocalDeclaration
+public void testBug319201() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public void foo() {\n" +
+				"	 Integer i = null;\n" +
+				"	 int j = i;\n" + // should warn
+				"  }\n" +
+				"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	int j = i;\n" + 
+			"	        ^\n" + 
+			"Null pointer access: The variable i can only be null at this location\n" + 
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
+// unboxing could raise an NPE
+//   Assignment
+public void testBug319201a() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public void foo(Integer i) {\n" +
+				"    if (i == null) {};\n" +
+				"	 int j;\n" +
+				"	 j = i;\n" + // should warn
+				"  }\n" +
+				"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	j = i;\n" + 
+			"	    ^\n" + 
+			"Potential null pointer access: The variable i may be null at this location\n" + 
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
+// unboxing raises an NPE
+//   MessageSend
+public void testBug319201b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public void foo() {\n" +
+				"    Boolean bo = null;;\n" +
+				"	 bar(bo);\n" + // should warn
+				"  }\n" +
+				"  void bar(boolean b) {}\n" +
+				"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	bar(bo);\n" + 
+			"	    ^^\n" + 
+			"Null pointer access: The variable bo can only be null at this location\n" + 
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
+// unboxing raises an NPE
+// Node types covered (in this order):
+//   ExplicitConstructorCall
+//   AllocationExpression
+//   AND_AND_Expression
+//   OR_OR_Expression
+//   ArrayAllocationExpression
+//   ForStatement
+//   DoStatement
+//   IfStatement
+//   QualifiedAllocationExpression
+//   SwitchStatement
+//   WhileStatement
+//   CastExpression
+//   AssertStatement
+//   ReturnStatement
+public void testBug319201c() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runNegativeTest(
+			new String[] {
+              "X.java",
+              "class Y { public Y(boolean b1, boolean b2) {} }\n" +
+              "public class X extends Y {\n" +
+              "  public X(boolean b, Boolean b2) {\n" +
+              "      super(b2 == null, b2);\n" +
+              "  }\n" +
+              "  class Z {\n" +
+              "      public Z(boolean b) {}\n" +
+              "  }\n" +
+              "  boolean fB = (Boolean)null;\n" +
+              "  public boolean foo(boolean inB) {\n" +
+              "      Boolean b1 = null;\n" +
+              "      X x = new X(b1, null);\n" +
+              "      Boolean b2 = null;\n" +
+              "      boolean dontcare = b2 && inB;\n" +
+              "      Boolean b3 = null;\n" +
+              "      dontcare = inB || b3;\n" +
+              "      Integer dims = null;\n" +
+              "      char[] cs = new char[dims];\n" +
+              "      Boolean b5 = null;\n" +
+              "      do {\n" +
+              "          Boolean b4 = null;\n" +
+              "          for (int i=0;b4; i++);\n" +
+              "      } while (b5);\n" +
+              "      Boolean b6 = null;\n" +
+              "      if (b6) { }\n" +
+              "      Boolean b7 = null;\n" +
+              "      Z z = this.new Z(b7);\n" +
+              "      Integer sel = null;\n" +
+              "      switch(sel) {\n" +
+              "          case 1: break;\n" +
+              "          default: break;\n" +
+              "      }\n" +
+              "      Boolean b8 = null;\n" +
+              "      while (b8) {}\n" +
+              "      Boolean b9 = null;\n" +
+              "      dontcare = (boolean)b9;\n" +
+              "      Boolean b10 = null;\n" +
+              "      assert b10 : \"shouldn't happen, but will\";\n" +
+              "      Boolean b11 = null;\n" +
+              "      return b11;\n" +
+              "  }\n" +
+				"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	super(b2 == null, b2);\n" + 
+			"	                  ^^\n" + 
+			"Potential null pointer access: The variable b2 may be null at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	X x = new X(b1, null);\n" + 
+			"	            ^^\n" + 
+			"Null pointer access: The variable b1 can only be null at this location\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 14)\n" + 
+			"	boolean dontcare = b2 && inB;\n" + 
+			"	                   ^^\n" + 
+			"Null pointer access: The variable b2 can only be null at this location\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 16)\n" + 
+			"	dontcare = inB || b3;\n" + 
+			"	                  ^^\n" + 
+			"Null pointer access: The variable b3 can only be null at this location\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 18)\n" + 
+			"	char[] cs = new char[dims];\n" + 
+			"	                     ^^^^\n" + 
+			"Null pointer access: The variable dims can only be null at this location\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 22)\n" + 
+			"	for (int i=0;b4; i++);\n" + 
+			"	             ^^\n" + 
+			"Null pointer access: The variable b4 can only be null at this location\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 23)\n" + 
+			"	} while (b5);\n" + 
+			"	         ^^\n" + 
+			"Null pointer access: The variable b5 can only be null at this location\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 25)\n" + 
+			"	if (b6) { }\n" + 
+			"	    ^^\n" + 
+			"Null pointer access: The variable b6 can only be null at this location\n" + 
+			"----------\n" + 
+			"9. ERROR in X.java (at line 27)\n" + 
+			"	Z z = this.new Z(b7);\n" + 
+			"	                 ^^\n" + 
+			"Null pointer access: The variable b7 can only be null at this location\n" + 
+			"----------\n" + 
+			"10. ERROR in X.java (at line 29)\n" + 
+			"	switch(sel) {\n" + 
+			"	       ^^^\n" + 
+			"Null pointer access: The variable sel can only be null at this location\n" + 
+			"----------\n" + 
+			"11. ERROR in X.java (at line 34)\n" + 
+			"	while (b8) {}\n" + 
+			"	       ^^\n" + 
+			"Null pointer access: The variable b8 can only be null at this location\n" + 
+			"----------\n" + 
+			"12. ERROR in X.java (at line 36)\n" + 
+			"	dontcare = (boolean)b9;\n" + 
+			"	                    ^^\n" + 
+			"Null pointer access: The variable b9 can only be null at this location\n" + 
+			"----------\n" + 
+			"13. ERROR in X.java (at line 38)\n" + 
+			"	assert b10 : \"shouldn\'t happen, but will\";\n" + 
+			"	       ^^^\n" + 
+			"Null pointer access: The variable b10 can only be null at this location\n" + 
+			"----------\n" + 
+			"14. ERROR in X.java (at line 40)\n" + 
+			"	return b11;\n" + 
+			"	       ^^^\n" + 
+			"Null pointer access: The variable b11 can only be null at this location\n" + 
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319201
+// unboxing raises an NPE
+// DoStatement, variants with assignement and/or continue in the body & empty body
+public void testBug319201d() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE);
+	runNegativeTest(
+			new String[] {
+              "X.java",
+              "public class X {\n" +
+              "  public void foo(boolean cond, boolean cond2) {\n" +
+              "      Boolean b = null;\n" +
+              "      do {\n" +
+              "          b = false;\n" +
+              "          if (cond) continue;\n" +   // shouldn't make a difference
+              "      } while (b);\n" + // don't complain, loop body has already assigned b
+              "      Boolean b2 = null;\n" +
+              "      do {\n" +
+              "          if (cond) continue;\n" +
+              "          b2 = false;\n" +
+              "      } while (b2);\n" + // complain here: potentially null
+              "      Boolean b3 = null;\n" +
+              "      do {\n" +
+              "      } while (b3);\n" + // complain here: definitely null
+              "      Boolean b4 = null;\n" +
+              "      do {\n" +
+              "        if (cond) {\n" +
+              "            b4 = true;\n" +
+              "            if (cond2) continue;\n" +
+              "        }\n" +
+              "        b4 = false;\n" +
+              "      } while (b4);\n" + // don't complain here: definitely non-null
+              "      Boolean b5 = null;\n" +
+              "      do {\n" +
+              "         b5 = true;\n" +
+              "      } while (b5);\n" +  // don't complain 
+              "      Boolean b6 = null;\n" +
+              "      do {\n" +
+              "         b6 = true;\n" +
+              "         continue;\n" +
+              "      } while (b6); \n" + // don't complain
+              "      Boolean b7 = null;\n" +
+              "      Boolean b8 = null;\n" +
+              "      do {\n" +
+              "        if (cond) {\n" +
+              "            b7 = true;\n" +
+              "            continue;\n" +
+              "        } else {\n" +
+              "            b8 = true;\n" +
+              "        }\n" +
+              "      } while (b7);\n" + // complain here: after else branch b7 can still be null
+              "  }\n" +
+			  "}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	} while (b2);\n" + 
+			"	         ^^\n" + 
+			"Potential null pointer access: The variable b2 may be null at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
+			"	} while (b3);\n" + 
+			"	         ^^\n" + 
+			"Null pointer access: The variable b3 can only be null at this location\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 42)\n" + 
+			"	} while (b7);\n" + 
+			"	         ^^\n" + 
+			"Potential null pointer access: The variable b7 may be null at this location\n" + 
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=320414
 public void testBug320414() throws Exception {

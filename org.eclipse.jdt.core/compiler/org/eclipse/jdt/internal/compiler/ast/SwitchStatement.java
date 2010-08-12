@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -47,6 +48,9 @@ public class SwitchStatement extends Statement {
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		try {
 			flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
+			if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
+				this.expression.checkNPE(currentScope, flowContext, flowInfo);
+			}
 			SwitchFlowContext switchContext =
 				new SwitchFlowContext(flowContext, this, (this.breakLabel = new BranchLabel()));
 

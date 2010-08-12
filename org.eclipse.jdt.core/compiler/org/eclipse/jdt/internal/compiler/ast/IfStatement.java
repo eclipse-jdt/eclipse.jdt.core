@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -57,6 +58,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	int initialComplaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
 
 	Constant cst = this.condition.optimizedBooleanConstant();
+	if ((this.condition.implicitConversion & TypeIds.UNBOXING) != 0) {
+		this.condition.checkNPE(currentScope, flowContext, flowInfo);
+	}
 	boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
 	boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
 

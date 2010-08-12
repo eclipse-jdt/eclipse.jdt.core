@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -36,6 +37,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	if (this.expression != null) {
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
+		if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
+			this.expression.checkNPE(currentScope, flowContext, flowInfo);
+		}
 	}
 	this.initStateIndex =
 		currentScope.methodScope().recordInitializationStates(flowInfo);
