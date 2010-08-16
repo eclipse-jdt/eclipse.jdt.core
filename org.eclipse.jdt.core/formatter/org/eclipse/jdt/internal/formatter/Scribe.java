@@ -219,26 +219,12 @@ public class Scribe implements IJavaDocTagConstants {
 				// the offset of the region is inside a comment => restart the region from the comment start
 				adaptedOffset = this.commentPositions[index][0];
 				if (adaptedOffset >= 0) {
-					// adapt only javadoc or block commments. Since fix for bug
+					// adapt only javadoc or block comments. Since fix for bug
 					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=238210
 					// edits in line comments only concerns whitespaces hence can be
 					// treated as edits in code
 					adaptedLength = length + offset - adaptedOffset;
 					commentIndex = index;
-					// include also the indentation edit just before the comment if any
-					for (int j=0; j<this.editsIndex; j++) {
-						int editOffset = this.edits[j].offset;
-						int editEnd = editOffset + this.edits[j].length;
-						if (editEnd == adaptedOffset) {
-							if (j > 0 && this.edits[j].replacement.trim().length() == 0) {
-								adaptedLength += adaptedOffset - this.edits[j].offset;
-								adaptedOffset = editOffset;
-								break;
-							}
-						} else if (editEnd > adaptedOffset) {
-							break;
-						}
-					}
 				}
 			}
 			index = getCommentIndex(commentIndex, offset+length-1);
@@ -299,6 +285,14 @@ public class Scribe implements IJavaDocTagConstants {
 				currentEdit = index;
 			}
 		}
+
+    	// Set invalid all edits outside the region
+		if (currentEdit != -1) {
+			int length = sortedEdits.length;
+	    	for (int e=currentEdit; e<length; e++) {
+	    		sortedEdits[e].valid = false;
+	    	}
+    	}
 	}
 
 	/*
@@ -316,12 +310,12 @@ public class Scribe implements IJavaDocTagConstants {
      * region.
      */
     private int adaptEdit(OptimizedReplaceEdit[] sortedEdits, int start, int regionStart, int regionEnd) {
-    	int bottom = start==-1?0:start, top = sortedEdits.length - 1;
+    	int initialStart = start==-1 ? 0 : start;
+		int bottom = initialStart, top = sortedEdits.length - 1;
     	int topEnd = top;
     	int i = 0;
     	OptimizedReplaceEdit edit = null;
     	int overlapIndex = -1;
-        int linesOutside= -1;
 
     	// Look for an edit overlapping the region start
     	while (bottom <= top) {
@@ -329,28 +323,37 @@ public class Scribe implements IJavaDocTagConstants {
     		edit = sortedEdits[i];
     		int editStart = edit.offset;
    			int editEnd = editStart + edit.length;
-    		if (regionStart < editStart) {  // the edit starts after the region's start => no possible overlap of region's start
+    		if (editStart > regionStart) {  // the edit starts after the region's start => no possible overlap of region's start
     			top = i-1;
-    			if (regionEnd < editStart) { // the edit starts after the region's end => no possible overlap of region's end
+    			if (editStart > regionEnd) { // the edit starts after the region's end => no possible overlap of region's end
     				topEnd = top;
     			}
     		} else {
-    			if (regionStart >= editEnd) { // the edit ends before the region's start => no possible overlap of region's start
+    			if (editEnd < regionStart) { // the edit ends before the region's start => no possible overlap of region's start
 	    			bottom = i+1;
 				} else {
 					// Count the lines of the edit which are outside the region
-					linesOutside = 0;
+					int linesOutside = 0;
+					StringBuffer spacesOutside = new StringBuffer();
 					this.scanner.resetTo(editStart, editEnd-1);
-					while (!this.scanner.atEnd()) {
-						boolean before = this.scanner.currentPosition < regionStart;
-	                    char ch = (char) this.scanner.getNextChar();
-                    	if (ch == '\n' ) {
-                    		if (before) linesOutside++;
-                    	}
-                    }
+					while (this.scanner.currentPosition < regionStart && !this.scanner.atEnd()) {
+						char ch = (char) this.scanner.getNextChar();
+						switch (ch) {
+							case '\n':
+								linesOutside++;
+								spacesOutside.setLength(0);
+								break;
+							case '\r':
+								break;
+							default:
+								spacesOutside.append(ch);
+								break;
+						}
+					}
 
 					// Restart the edit at the beginning of the line where the region start
 					edit.offset = regionStart;
+					int editLength = edit.length;
 					edit.length -= edit.offset - editStart;
 
 					// Cut replacement string if necessary
@@ -363,36 +366,64 @@ public class Scribe implements IJavaDocTagConstants {
 							if (edit.replacement.charAt(idx) == '\n') linesReplaced++;
 						}
 
-						// As the edit starts outside the region, remove first lines from edit string if any
-						if (linesReplaced > 0) {
-					    	int linesCount = linesOutside >= linesReplaced ? linesReplaced : linesOutside;
-					    	if (linesCount > 0) {
-					    		int idx=0;
-					    		loop: while (idx < length) {
-					    			char ch = edit.replacement.charAt(idx);
-					    			switch (ch) {
-					    				case '\n':
-						    				linesCount--;
-						    				if (linesCount == 0) {
-						    					idx++;
-						    					break loop;
-						    				}
-						    				break;
-					    				case '\r':
-					    				case ' ':
-					    				case '\t':
-					    					break;
-					    				default:
-					    					break loop;
-					    			}
-					    			idx++;
-					    		}
-					    		if (idx >= length) {
-					    			edit.replacement = ""; //$NON-NLS-1$
-					    		} else {
-					    			edit.replacement = edit.replacement.substring(idx);
-					    		}
-					    	}
+						// If the edit was a replacement but become an insertion due to the length reduction
+						// and if the edit finishes just before the region starts and if there's no line to replace
+						// then there's no replacement to do...
+						if (editLength > 0 && edit.length == 0 && editEnd == regionStart && linesReplaced == 0 && linesOutside== 0) {
+							edit.valid = false;
+						} else {
+
+							// As the edit starts outside the region, remove first lines from edit string if any
+							if (linesReplaced > 0) {
+								int linesCount = linesOutside >= linesReplaced ? linesReplaced : linesOutside;
+								if (linesCount > 0) {
+									int idx = 0;
+									loop: while (idx < length) {
+										char ch = edit.replacement.charAt(idx);
+										switch (ch) {
+											case '\n':
+												linesCount--;
+												if (linesCount == 0) {
+													idx++;
+													break loop;
+												}
+												break;
+											case '\r':
+											case ' ':
+											case '\t':
+												break;
+											default:
+												break loop;
+										}
+										idx++;
+									}
+									// Compare spaces outside the region and the beginning
+									// of the replacement string to remove the common part
+									int spacesOutsideLength = spacesOutside.length();
+									int replacementStart = idx;
+									for (int o=0, r=0; o < spacesOutsideLength && r<(length-idx); o++) {
+										char rch = edit.replacement.charAt(idx + r);
+										char och = spacesOutside.charAt(o);
+										if (rch == och) {
+											replacementStart++;
+											r++;
+										} else if (rch == '\t' && (this.tabLength > 0 && och == ' ')) {
+											if ((o+1)%this.tabLength == 0) {
+												replacementStart++;
+												r++;
+											}
+										} else {
+											break;
+										}
+									}
+									// Update the replacement string
+									if (replacementStart >= length) {
+										edit.valid = false;
+									} else {
+										edit.replacement = edit.replacement.substring(replacementStart);
+									}
+								}
+							}
 						}
 					}
 					overlapIndex = i;
@@ -400,6 +431,7 @@ public class Scribe implements IJavaDocTagConstants {
 				}
 			}
     	}
+    	int validIndex = (overlapIndex != -1) ? overlapIndex : bottom;
 
     	// Look for an edit overlapping the region end
     	if (overlapIndex != -1) bottom = overlapIndex;
@@ -411,11 +443,11 @@ public class Scribe implements IJavaDocTagConstants {
     		if (regionEnd < editStart) {	// the edit starts after the region's end => no possible overlap of region's end
     			topEnd = i-1;
     		} else {
-    			if (regionEnd >= editEnd) {	// the edit ends before the region's end => no possible overlap of region's end
+    			if (editEnd <= regionEnd) {	// the edit ends before the region's end => no possible overlap of region's end
 	    			bottom = i+1;
 				} else {
 					// Count the lines of the edit which are outside the region
-					linesOutside = 0;
+					int linesOutside = 0;
 					this.scanner.resetTo(editStart, editEnd-1);
 					while (!this.scanner.atEnd()) {
 						boolean after = this.scanner.currentPosition >= regionEnd;
@@ -450,11 +482,25 @@ public class Scribe implements IJavaDocTagConstants {
 						}
 					}
 					edit.length -= editEnd - regionEnd;
-					return i;
+
+			    	// Set invalid all edits outside the region
+			    	for (int e=initialStart; e<validIndex; e++) {
+			    		sortedEdits[e].valid = false;
+			    	}
+			    	
+			    	// Return the index of next edit to look at
+					return i + 1;
 				}
 			}
     	}
-    	return overlapIndex;
+
+    	// Set invalid all edits outside the region
+    	for (int e=initialStart; e<validIndex; e++) {
+    		sortedEdits[e].valid = false;
+    	}
+    	
+    	// Return the index of next edit to look at
+    	return topEnd+1;
     }
 
 	private final void addDeleteEdit(int start, int end) {
@@ -1204,15 +1250,6 @@ public class Scribe implements IJavaDocTagConstants {
 		return getNewLine();
 	}
 
-	private IRegion getAdaptedRegionAt(int offset) {
-		int index = getIndexOfAdaptedRegionAt(offset);
-		if (index < 0) {
-			return null;
-		}
-
-		return this.adaptedRegions[index];
-	}
-
 	public TextEdit getRootEdit() {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541
 		adaptRegions();
@@ -1245,7 +1282,7 @@ public class Scribe implements IJavaDocTagConstants {
 		}
 		for (int i= 0, max = this.editsIndex; i < max; i++) {
 			OptimizedReplaceEdit currentEdit = this.edits[i];
-			if (isValidEdit(currentEdit)) {
+			if (currentEdit.valid && isValidEdit(currentEdit)) {
 				try {
 					edit.addChild(new ReplaceEdit(currentEdit.offset, currentEdit.length, currentEdit.replacement));
 				}
@@ -1473,23 +1510,6 @@ public class Scribe implements IJavaDocTagConstants {
 					return false;
 				}
 				return true;
-			}
-
-			IRegion starting = getAdaptedRegionAt(editOffset + editLength);
-			if (starting != null) {
-				int i = editOffset;
-				for (int max = editOffset + editLength; i < max; i++) {
-					int replacementStringIndex = i - editOffset;
-					if (replacementStringIndex >= editReplacementLength || this.scanner.source[i] != edit.replacement.charAt(replacementStringIndex)) {
-						break;
-					}
-				}
-				if (i - editOffset != editReplacementLength && i != editOffset + editLength - 1) {
-					edit.offset = starting.getOffset();
-					edit.length = 0;
-					edit.replacement = edit.replacement.substring(i - editOffset);
-					return true;
-				}
 			}
 
 			return false;

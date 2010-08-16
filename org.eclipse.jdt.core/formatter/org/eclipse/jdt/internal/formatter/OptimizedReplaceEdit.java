@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.formatter;
 
 public class OptimizedReplaceEdit {
 
+	boolean valid = true;
 	int offset;
 	int length;
 	String replacement;
@@ -23,6 +24,6 @@ public class OptimizedReplaceEdit {
 	}
 
 	public String toString() {
-		return "(" + this.offset + ", length " + this.length + " :>" + this.replacement + "<"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+		return (this.valid ? "(" : "X(") + this.offset + ", length " + this.length + " :>" + this.replacement + "<"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$ //$NON-NLS-5$
 	}
 }
