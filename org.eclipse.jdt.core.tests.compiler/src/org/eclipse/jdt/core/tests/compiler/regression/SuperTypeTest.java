@@ -417,7 +417,7 @@ public void test013() {
 		"2. ERROR in X.java (at line 2)\n" + 
 		"	interface X<E> extends List<E>, Collection<E>, Iterable<E> {}\n" + 
 		"	                                               ^^^^^^^^\n" + 
-		"Redundant superinterface Iterable<E> for the type X<E>, already defined by Collection<E>\n" + 
+		"Redundant superinterface Iterable<E> for the type X<E>, already defined by List<E>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 3)\n" + 
 		"	interface Y<E> extends Collection<E>, List<E> {}\n" + 
@@ -431,8 +431,8 @@ public void test013() {
 		"----------\n" + 
 		"5. ERROR in X.java (at line 4)\n" + 
 		"	interface XXX<E> extends Iterable<E>, List<E>, Collection<E> {}\n" + 
-		"	                         ^^^^^^^^\n" + 
-		"Redundant superinterface Iterable<E> for the type XXX<E>, already defined by Collection<E>\n" + 
+		"	                                               ^^^^^^^^^^\n" + 
+		"Redundant superinterface Collection<E> for the type XXX<E>, already defined by List<E>\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 5)\n" + 
 		"	abstract class Z implements List<Object>, Collection<Object> {}\n" + 
@@ -470,6 +470,175 @@ public void test014() {
 		"	public class X implements I, J {}\n" + 
 		"	                          ^\n" + 
 		"Redundant superinterface I for the type X, already defined by J\n" + 
+		"----------\n",
+		JavacTestOptions.SKIP);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911 (as is)
+public void test015() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */,
+		new String[] { /* test files */
+			"X.java",
+			"interface IVerticalRulerColumn {}\n" +
+			"interface IVerticalRulerInfo {}\n" +
+			"interface IVerticalRulerInfoExtension {}\n" +
+			"interface IChangeRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfoExtension {}\n" +
+			"interface IRevisionRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
+			"public final class X implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension, IChangeRulerColumn, IRevisionRulerColumn {}\n"
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	public final class X implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension, IChangeRulerColumn, IRevisionRulerColumn {}\n" + 
+		"	                                ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerColumn for the type X, already defined by IChangeRulerColumn\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	public final class X implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension, IChangeRulerColumn, IRevisionRulerColumn {}\n" + 
+		"	                                                      ^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerInfo for the type X, already defined by IRevisionRulerColumn\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	public final class X implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension, IChangeRulerColumn, IRevisionRulerColumn {}\n" + 
+		"	                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by IChangeRulerColumn\n" + 
+		"----------\n",
+		JavacTestOptions.SKIP);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911 (variation)
+public void test016() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */,
+		new String[] { /* test files */
+			"X.java",
+			"interface IVerticalRulerColumn {}\n" +
+			"interface IVerticalRulerInfo {}\n" +
+			"interface IVerticalRulerInfoExtension {}\n" +
+			"interface IChangeRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfoExtension {}\n" +
+			"interface IRevisionRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
+			"class Z implements IChangeRulerColumn {}\n" +
+			"class Y extends Z implements IRevisionRulerColumn {}\n" +
+			"public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n"
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" + 
+		"	                                          ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerColumn for the type X, already defined by IRevisionRulerColumn\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" + 
+		"	                                                                ^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerInfo for the type X, already defined by IRevisionRulerColumn\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" + 
+		"	                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by IRevisionRulerColumn\n" + 
+		"----------\n",
+		JavacTestOptions.SKIP);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911 (variation)
+public void test017() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */,
+		new String[] { /* test files */
+			"X.java",
+			"interface IVerticalRulerColumn {}\n" +
+			"interface IVerticalRulerInfo {}\n" +
+			"interface IVerticalRulerInfoExtension {}\n" +
+			"interface IChangeRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfoExtension {}\n" +
+			"interface IRevisionRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
+			"class Z implements IRevisionRulerColumn{}\n" +
+			"class C extends Z {}\n" +
+			"class B extends C implements IChangeRulerColumn {}\n" +
+			"class H extends B {}\n" +
+			"class Y extends H  {}\n" +
+			"public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n"
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" + 
+		"	                                          ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerColumn for the type X, already defined by IRevisionRulerColumn\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" + 
+		"	                                                                ^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerInfo for the type X, already defined by IRevisionRulerColumn\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" + 
+		"	                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by IRevisionRulerColumn\n" + 
+		"----------\n",
+		JavacTestOptions.SKIP);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911 (variation)
+public void test018() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */,
+		new String[] { /* test files */
+			"X.java",
+			"interface IVerticalRulerColumn {}\n" +
+			"interface IVerticalRulerInfo {}\n" +
+			"interface IVerticalRulerInfoExtension {}\n" +
+			"interface IChangeRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfoExtension {}\n" +
+			"interface IRevisionRulerColumn extends IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" +
+			"class Z implements IVerticalRulerInfoExtension {}\n" +
+			"class C extends Z {}\n" +
+			"class B extends C implements IChangeRulerColumn {}\n" +
+			"class H extends B implements IVerticalRulerInfo {}\n" +
+			"class Y extends H  implements IVerticalRulerColumn {}\n" +
+			"public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n"
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		// compiler results
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	class Y extends H  implements IVerticalRulerColumn {}\n" + 
+		"	                              ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerColumn for the type Y, already defined by IChangeRulerColumn\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" + 
+		"	                                          ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerColumn for the type X, already defined by Y\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" + 
+		"	                                                                ^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerInfo for the type X, already defined by H\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	public final class X extends Y implements IVerticalRulerColumn, IVerticalRulerInfo, IVerticalRulerInfoExtension {}\n" + 
+		"	                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Redundant superinterface IVerticalRulerInfoExtension for the type X, already defined by Z\n" + 
 		"----------\n",
 		JavacTestOptions.SKIP);
 }
