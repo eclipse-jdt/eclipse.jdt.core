@@ -714,7 +714,7 @@ public void testBug228652() {
 		"public class Test {\r\n" +
 		"\r\n" +
 		"	private int field;\r\n" +
-		"	\r\n" +
+		"\r\n" +
 		"	/**\r\n" +
 		"	 * fds\r\n" +
 		"	 */\r\n" +
@@ -954,8 +954,8 @@ public void testBug232768_Javadoc02() throws JavaModelException {
 	// This is due to the fact that the region is adapted to include the edit just before the comment
 	formatSource(source,
 		"public class C {\n" +
-		"	\n" +
-		"        /**\n" +
+		"\n" +
+		"	/**\n" +
 		"	 * a b c d .\n" +
 		"	 */\n" +
 		"	void m1() {\n" +
@@ -987,8 +987,8 @@ public void testBug232768_Javadoc03() throws JavaModelException {
 	// This is due to the fact that the region is adapted to include the edit just before the comment
 	formatSource(source,
 		"public class C {\n" +
-		"	\n" +
-		"        /**\n" +
+		"\n" +
+		"	/**\n" +
 		"	 * a b c d .\n" +
 		"	 */\n" +
 		"	void m1  (   )   {\n" +
@@ -1083,9 +1083,9 @@ public void testBug232768_Javadoc06() throws JavaModelException {
 	// Note that the incorrect indentation before the javadoc is fixed in this test case...
 	// This is due to the fact that the region is adapted to include the edit just before the comment
 	formatSource(source,
-		"   public     class			C{    \n" +
-		"	\n" +
-		"        /**\n" +
+		"   public     class			C{\n" +
+		"\n" +
+		"	/**\n" +
 		"	 * a b c d .\n" +
 		"	 */\n" +
 		"        void		m1  (   )   {\n" +
@@ -1147,8 +1147,8 @@ public void testBug232768_Block02() throws JavaModelException {
 	// This is due to the fact that the region is adapted to include the edit just before the comment
 	formatSource(source,
 		"public class D {\n" +
-		"	\n" +
-		"        /*\n" +
+		"\n" +
+		"	/*\n" +
 		"	 * a b c d .\n" +
 		"	 */\n" +
 		"	void m2() {\n" +
@@ -1180,8 +1180,8 @@ public void testBug232768_Block03() throws JavaModelException {
 	// This is due to the fact that the region is adapted to include the edit just before the comment
 	formatSource(source,
 		"public class D {\n" +
-		"	\n" +
-		"        /*\n" +
+		"\n" +
+		"	/*\n" +
 		"	 * a b c d .\n" +
 		"	 */\n" +
 		"	void m2  (   )   {\n" +
@@ -1276,9 +1276,9 @@ public void testBug232768_Block06() throws JavaModelException {
 	// Note that the incorrect indentation before the javadoc is fixed in this test case...
 	// This is due to the fact that the region is adapted to include the edit just before the comment
 	formatSource(source,
-		"   public     class			D{    \n" +
-		"	\n" +
-		"        /*\n" +
+		"   public     class			D{\n" +
+		"\n" +
+		"	/*\n" +
 		"	 * a b c d .\n" +
 		"	 */\n" +
 		"        void		m2  (   )   {\n" +
@@ -1553,7 +1553,7 @@ public void testBug233011() throws JavaModelException {
 	formatSource(source,
 		"\n" +
 		"public class E01 {\n" +
-		"        /**\n" +
+		"	/**\n" +
 		"	 * Javadoc comment\n" +
 		"	 */\n" +
 		"        /*\n" +
