@@ -21346,26 +21346,31 @@ public void testBug261534b() throws JavaModelException {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=310427
-// To verify that we don't get proposals for the field in whose declaration
-// content assist is being invoked
+// To verify that we don't get proposals for fields that have not yet been declared
+// inside a field declaration statement
 public void testBug310427a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;"+
 		"public class Test {\n" +
-		"	private int myField1;\n" +
-		"   private int myField2 = myFiel;\n" +
+		"       int myVar1 = 1;\n" +
+		"		int myVar2 = 1;\n" +
+		"		int myVar3 = myVar;\n" +
+		"       int myVar4 = 1;\n" +
+		"		int myVar5 = 1;\n" +
+		"	}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "private int myField2 = myFiel";
+	String completeBehind = "int myVar3 = myVar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"myField1[FIELD_REF]{myField1, Ltest.Test;, I, myField1, null, 57}",
+			"myVar1[FIELD_REF]{myVar1, Ltest.Test;, I, myVar1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+			"myVar2[FIELD_REF]{myVar2, Ltest.Test;, I, myVar2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
 			requestor.getResults());
 }
 

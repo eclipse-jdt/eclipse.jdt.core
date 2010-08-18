@@ -6001,14 +6001,13 @@ public final class CompletionEngine
 			if (this.assistNodeIsInsideCase && field.type instanceof ArrayBinding)
 				continue next;
 			
-			int ptr = this.uninterestingBindingsPtr;
-			// Cases where the binding is uninteresting eg. for completion occurring inside a field declaration,
-			// the field binding is uninteresting and shouldn't be proposed.
-			while (ptr >= 0) {
-				if (this.uninterestingBindings[ptr] == field) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=310427
+			// Don't propose field which is being declared currently
+			// Don't propose fields declared after the current field declaration statement
+			if (this.parser.assistNodeParent instanceof FieldDeclaration) {
+				FieldDeclaration fieldDeclaration = (FieldDeclaration) this.parser.assistNodeParent;
+				if (field.id >= fieldDeclaration.binding.id)
 					continue next;
-				}
-				ptr--;
 			}
 
 			boolean prefixRequired = false;
