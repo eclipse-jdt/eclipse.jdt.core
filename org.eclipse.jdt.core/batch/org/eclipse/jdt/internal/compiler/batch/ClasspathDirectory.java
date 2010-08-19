@@ -115,6 +115,13 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	if (binaryExists) {
 		try {
 			ClassFileReader reader = ClassFileReader.read(this.path + qualifiedBinaryFileName);
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115, package names are to be treated case sensitive.
+			String typeSearched = qualifiedPackageName.length() > 0 ? 
+					qualifiedPackageName.replace(File.separatorChar, '/') + "/" + fileName //$NON-NLS-1$
+					: fileName;
+			if (!CharOperation.equals(reader.getName(), typeSearched.toCharArray())) {
+				reader = null;
+			}
 			if (reader != null)
 				return new NameEnvironmentAnswer(
 						reader,

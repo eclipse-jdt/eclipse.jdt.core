@@ -3109,6 +3109,7 @@ public void test035(){
 		this.runConformTest(
 			new String[] {
 				"p/Y.java",
+				"package p;\n" +
 				"public class Y { public static final String S = \"\"; }",
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "Y.java\""
@@ -11409,5 +11410,359 @@ public void test306(){
 		"Multiple encoding specified: Cp1252, ISO-8859-1, UTF-8. The default encoding has been set to ISO-8859-1\n",
 		"",
 		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
+public void test0307(){
+	final String javaClassspath = System.getProperty("java.class.path");
+	final String javaUserDir = System.getProperty("user.dir");
+	try {
+		System.setProperty("user.dir", OUTPUT_DIR);
+		this.runConformTest(
+			new String[] {
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y { public class I {}; }",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "Y.java\""
+	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        "",
+	        "",
+	        true);
+		System.setProperty("java.class.path", "");
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import p.Y.I;\n" +
+					"public class X {\n" +
+					"   I i;\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.print(\"\");\n" +
+					"	}\n" +
+					"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        "",// this is not the runtime output
+		        "no classpath defined, using default directory instead\n",
+		        false);
+		final String userDir = System.getProperty("user.dir");
+		File f = new File(userDir, "X.java");
+		if (!Util.delete(f)) {
+			System.out.println("Could not delete X");
+		}
+		f = new File(userDir, "p" + File.separator + "Y.java");
+		if (!Util.delete(f)) {
+			System.out.println("Could not delete Y");
+		}
+
+	} finally {
+		System.setProperty("java.class.path", javaClassspath);
+		System.setProperty("user.dir", javaUserDir);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
+public void test0307a(){
+	final String javaClassspath = System.getProperty("java.class.path");
+	final String javaUserDir = System.getProperty("user.dir");
+	try {
+		System.setProperty("user.dir", OUTPUT_DIR);
+		this.runConformTest(
+			new String[] {
+				"P/Y.java",
+				"package P;\n" +
+				"public class Y { public class I {}; }",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "P" + File.separator + "Y.java\""
+	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        "",
+	        "",
+	        true);
+		System.setProperty("java.class.path", "");
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import p.Y.I;\n" +
+					"public class X {\n" +
+					"   I i;\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.print(\"\");\n" +
+					"	}\n" +
+					"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        "",// this is not the runtime output
+		        "no classpath defined, using default directory instead\n" + 
+		        "----------\n" + 
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		        "	import p.Y.I;\n" + 
+		        "	       ^^^\n" + 
+		        "The import p.Y cannot be resolved\n" + 
+		        "----------\n" + 
+		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		        "	I i;\n" + 
+		        "	^\n" + 
+		        "I cannot be resolved to a type\n" + 
+		        "----------\n" + 
+		        "2 problems (2 errors)",
+		        false);
+		final String userDir = System.getProperty("user.dir");
+		File f = new File(userDir, "X.java");
+		if (!Util.delete(f)) {
+			System.out.println("Could not delete X");
+		}
+		f = new File(userDir, "p" + File.separator + "Y.java");
+		if (!Util.delete(f)) {
+			System.out.println("Could not delete Y");
+		}
+
+	} finally {
+		System.setProperty("java.class.path", javaClassspath);
+		System.setProperty("user.dir", javaUserDir);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
+public void test0307b(){
+	final String javaClassspath = System.getProperty("java.class.path");
+	final String javaUserDir = System.getProperty("user.dir");
+	try {
+		System.setProperty("user.dir", OUTPUT_DIR);
+		this.runConformTest(
+			new String[] {
+				"p/y.java",
+				"package p;\n" +
+				"public class y { public class I {}; }",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "y.java\""
+	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        "",
+	        "",
+	        true);
+		System.setProperty("java.class.path", "");
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import p.Y.I;\n" +
+					"public class X {\n" +
+					"   I i;\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.print(\"\");\n" +
+					"	}\n" +
+					"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        "",// this is not the runtime output
+		        "no classpath defined, using default directory instead\n" + 
+		        "----------\n" + 
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		        "	import p.Y.I;\n" + 
+		        "	       ^^^\n" + 
+		        "The import p.Y cannot be resolved\n" + 
+		        "----------\n" + 
+		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		        "	I i;\n" + 
+		        "	^\n" + 
+		        "I cannot be resolved to a type\n" + 
+		        "----------\n" + 
+		        "2 problems (2 errors)",
+		        false);
+		final String userDir = System.getProperty("user.dir");
+		File f = new File(userDir, "X.java");
+		if (!Util.delete(f)) {
+			System.out.println("Could not delete X");
+		}
+		f = new File(userDir, "p" + File.separator + "Y.java");
+		if (!Util.delete(f)) {
+			System.out.println("Could not delete Y");
+		}
+
+	} finally {
+		System.setProperty("java.class.path", javaClassspath);
+		System.setProperty("user.dir", javaUserDir);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
+public void test0307c(){
+	final String javaClassspath = System.getProperty("java.class.path");
+	final String javaUserDir = System.getProperty("user.dir");
+	try {
+		System.setProperty("user.dir", OUTPUT_DIR);
+		this.runConformTest(
+			new String[] {
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y { public class i {}; }",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "Y.java\""
+	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        "",
+	        "",
+	        true);
+		System.setProperty("java.class.path", "");
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import p.Y.I;\n" +
+					"public class X {\n" +
+					"   I i;\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.print(\"\");\n" +
+					"	}\n" +
+					"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        "",// this is not the runtime output
+		        "no classpath defined, using default directory instead\n" + 
+		        "----------\n" + 
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		        "	import p.Y.I;\n" + 
+		        "	       ^^^^^\n" + 
+		        "The import p.Y.I cannot be resolved\n" + 
+		        "----------\n" + 
+		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		        "	I i;\n" + 
+		        "	^\n" + 
+		        "I cannot be resolved to a type\n" + 
+		        "----------\n" + 
+		        "2 problems (2 errors)",
+		        false);
+		final String userDir = System.getProperty("user.dir");
+		File f = new File(userDir, "X.java");
+		if (!Util.delete(f)) {
+			System.out.println("Could not delete X");
+		}
+		f = new File(userDir, "p" + File.separator + "Y.java");
+		if (!Util.delete(f)) {
+			System.out.println("Could not delete Y");
+		}
+
+	} finally {
+		System.setProperty("java.class.path", javaClassspath);
+		System.setProperty("user.dir", javaUserDir);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
+public void test0307d(){
+	final String javaClassspath = System.getProperty("java.class.path");
+	final String javaUserDir = System.getProperty("user.dir");
+	try {
+		System.setProperty("user.dir", OUTPUT_DIR);
+		this.runConformTest(
+			new String[] {
+				"p/Y.java",
+				"package P;\n" +
+				"public class Y { public class I {}; }",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "Y.java\""
+	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        "",
+	        "",
+	        true);
+		System.setProperty("java.class.path", "");
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import p.Y.I;\n" +
+					"public class X {\n" +
+					"   I i;\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.print(\"\");\n" +
+					"	}\n" +
+					"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        "",// this is not the runtime output
+		        "no classpath defined, using default directory instead\n" + 
+		        "----------\n" + 
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		        "	import p.Y.I;\n" + 
+		        "	       ^^^\n" + 
+		        "The import p.Y cannot be resolved\n" + 
+		        "----------\n" + 
+		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		        "	I i;\n" + 
+		        "	^\n" + 
+		        "I cannot be resolved to a type\n" + 
+		        "----------\n" + 
+		        "2 problems (2 errors)",
+		        false);
+		final String userDir = System.getProperty("user.dir");
+		File f = new File(userDir, "X.java");
+		if (!Util.delete(f)) {
+			System.out.println("Could not delete X");
+		}
+		f = new File(userDir, "p" + File.separator + "Y.java");
+		if (!Util.delete(f)) {
+			System.out.println("Could not delete Y");
+		}
+
+	} finally {
+		System.setProperty("java.class.path", javaClassspath);
+		System.setProperty("user.dir", javaUserDir);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
+public void test0307e(){
+	final String javaClassspath = System.getProperty("java.class.path");
+	final String javaUserDir = System.getProperty("user.dir");
+	try {
+		System.setProperty("user.dir", OUTPUT_DIR);
+		this.runConformTest(
+			new String[] {
+				"p/Y.java",
+				"package P;\n" +
+				"public class Y { public class I {}; }",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "P" + File.separator + "Y.java\""
+	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        "",
+	        "",
+	        true);
+		System.setProperty("java.class.path", "");
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import p.Y.I;\n" +
+					"public class X {\n" +
+					"   I i;\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.print(\"\");\n" +
+					"	}\n" +
+					"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        "",// this is not the runtime output
+		        "no classpath defined, using default directory instead\n" + 
+		        "----------\n" + 
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		        "	import p.Y.I;\n" + 
+		        "	       ^^^\n" + 
+		        "The import p.Y cannot be resolved\n" + 
+		        "----------\n" + 
+		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		        "	I i;\n" + 
+		        "	^\n" + 
+		        "I cannot be resolved to a type\n" + 
+		        "----------\n" + 
+		        "2 problems (2 errors)",
+		        false);
+		final String userDir = System.getProperty("user.dir");
+		File f = new File(userDir, "X.java");
+		if (!Util.delete(f)) {
+			System.out.println("Could not delete X");
+		}
+		f = new File(userDir, "p" + File.separator + "Y.java");
+		if (!Util.delete(f)) {
+			System.out.println("Could not delete Y");
+		}
+
+	} finally {
+		System.setProperty("java.class.path", javaClassspath);
+		System.setProperty("user.dir", javaUserDir);
+	}
 }
 }
