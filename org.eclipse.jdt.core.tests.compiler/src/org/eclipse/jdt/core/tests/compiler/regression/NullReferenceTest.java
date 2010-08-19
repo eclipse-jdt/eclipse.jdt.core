@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - [null] no warning when unboxing SingleNameReference causes NPE, see https://bugs.eclipse.org/319201
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bugs 319201 and 320170
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -5483,6 +5483,78 @@ public void test0535_try_finally() {
 				"}",
 			},
 			"");
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=320170 -  [compiler] [null] Whitebox issues in null analysis
+// trigger nullbits 0111 (pot n|nn|un), don't let "definitely unknown" override previous information
+public void test0536_try_finally() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			" X bar () { return null; }\n" +
+			" void foo() {\n" +
+			"   X x = new X();\n" +
+			"   try {\n" +
+			"     x = null;\n" +
+			"     x = new X();\n" +  // if this throws an exception finally finds x==null
+			"     x = bar();\n" +
+			"   } finally {\n" +
+			"     x.toString();\n" + // complain
+			"   }\n" +
+			" }\n" +
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	x.toString();\n" + 
+		"	^\n" + 
+		"Potential null pointer access: The variable x may be null at this location\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
+// null analysis -- try/finally
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=320170 -  [compiler] [null] Whitebox issues in null analysis
+// trigger nullbits 0111 (pot n|nn|un), don't let "definitely unknown" override previous information
+// multiple variables
+public void test0537_try_finally() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			" X bar () { return null; }\n" +
+			" void foo() {\n" +
+			"   X x1 = new X();\n" +
+			"   X x2 = new X();\n" +
+			"   X x3 = new X();\n" +
+			"   try {\n" +
+			"     x1 = null;\n" +
+			"     x2 = null;\n" +
+			"     x1 = new X();\n" +  // if this throws an exception finally finds x1==null
+			"     x2 = new X();\n" +  // if this throws an exception finally finds x2==null
+			"     x3 = new X();\n" +  // if this throws an exception finally still finds x3!=null
+			"     x1 = bar();\n" +
+			"     x2 = bar();\n" +
+			"   } finally {\n" +
+			"     x1.toString();\n" + // complain
+			"     x2.toString();\n" + // complain
+			"     x3.toString();\n" + // don't complain
+			"   }\n" +
+			" }\n" +
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	x1.toString();\n" + 
+		"	^^\n" + 
+		"Potential null pointer access: The variable x1 may be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 17)\n" + 
+		"	x2.toString();\n" + 
+		"	^^\n" + 
+		"Potential null pointer access: The variable x2 may be null at this location\n" + 
+		"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- try/catch

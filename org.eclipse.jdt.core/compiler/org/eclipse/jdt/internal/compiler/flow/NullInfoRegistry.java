@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2009 IBM Corporation and others.
+ * Copyright (c) 2006, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 320170   
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -319,7 +320,7 @@ public UnconditionalFlowInfo mitigateNullInfoOf(FlowInfo flowInfo) {
 			// prot. non null
 		& ((a2 = this.nullBit2) | (a4 = this.nullBit4));
 			// null or unknown
-	m2 = s1 & (s2 = this.nullBit2) & (s3 ^ s4)
+	m2 = s1 & (s2 = this.nullBit2) & (s3 ^ s4) // TODO(stephan): potential typo: should this be "s2 = source.nullBit2"???
 			// prot. null
 		& ((a3 = this.nullBit3) | a4);
 			// non null or unknown
@@ -336,6 +337,18 @@ public UnconditionalFlowInfo mitigateNullInfoOf(FlowInfo flowInfo) {
 		source.nullBit2 &= (nm1 = ~m1) & ((nm2 = ~m2) | a4);
 		source.nullBit3 &= (nm1 | a2) & nm2;
 		source.nullBit4 &= nm1 & nm2;
+		// any variable that is (pot n, pot nn, pot un) at end of try (as captured by *this* NullInfoRegistry)
+		// has the same uncertainty also for the mitigated case (function result)
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=320170 -  [compiler] [null] Whitebox issues in null analysis
+		// and org.eclipse.jdt.core.tests.compiler.regression.NullReferenceTest.test0536_try_finally()
+		long x = ~this.nullBit1 & a2 & a3 & a4; // x is set for all variable ids that have state 0111 (pot n, pot nn, pot un)
+		if (x != 0) {
+			// restore state 0111 for all variable ids in x:
+			source.nullBit1 &= ~x;
+			source.nullBit2 |= x;
+			source.nullBit3 |= x;
+			source.nullBit4 |= x;
+		}
 	}
 	if (this.extra != null && source.extra != null) {
 		int length = this.extra[2].length, sourceLength = source.extra[0].length;

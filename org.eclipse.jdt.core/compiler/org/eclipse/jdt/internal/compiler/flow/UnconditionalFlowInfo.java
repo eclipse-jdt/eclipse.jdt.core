@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 320170   
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -63,6 +64,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		0100	pot. null
 		0101	pot. n & pot. un
 		0110	pot. n & pot. nn
+		0111    pot. n & pot. nn & pot. un
 		1001	def. unknown
 		1010	def. non null
 		1011	pot. nn & prot. nn
