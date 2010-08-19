@@ -4498,4 +4498,138 @@ public void testIgnoreMethodBodies4() throws CoreException {
 			ast
 		);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259
+public void testGenericAPIUsageFromA14Project() throws CoreException {
+	IJavaProject project14 = null;
+	IJavaProject project15 = null;
+	try {
+		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		createFolder("/Reconciler15API/src/p2");
+		createFile(
+			"/Reconciler15API/src/p2/BundleContext.java",
+			"package p2;\n" +
+			"public class BundleContext {\n" +
+			"  public <S> S getService(S s) {\n" +
+			"      return null;\n" +
+			"  }\n" +
+			"}"
+		);
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		
+		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
+		int oldLength = oldClasspath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
+		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
+		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
+		project14.setRawClasspath(newClasspath, null);
+		
+		createFolder("/Reconciler1415/src/p1");
+		String source = 
+			"package p1;\n" +
+			"import p2.BundleContext;\n" +
+			"public class X {\n" +
+			"  public static void main(BundleContext context, String string) {\n" +
+			"  String s = (String) context.getService(string); \n" +
+			"  }\n" +
+			"}";
+
+		createFile(
+			"/Reconciler1415/src/p1/X.java",
+			source
+		);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" + 
+			"	String s = (String) context.getService(string); \n" + 
+			"	       ^\n" + 
+			"The local variable s is never read\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (project14 != null)
+			deleteProject(project14);
+		if (project15 != null)
+			deleteProject(project15);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259 (same as above, but with a JSR14 target)
+public void testGenericAPIUsageFromA14Project2() throws CoreException {
+	IJavaProject project14 = null;
+	IJavaProject project15 = null;
+	try {
+		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		createFolder("/Reconciler15API/src/p2");
+		createFile(
+			"/Reconciler15API/src/p2/BundleContext.java",
+			"package p2;\n" +
+			"public class BundleContext {\n" +
+			"  public <S> S getService(S s) {\n" +
+			"      return null;\n" +
+			"  }\n" +
+			"}"
+		);
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		
+		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
+		int oldLength = oldClasspath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
+		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
+		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
+		project14.setRawClasspath(newClasspath, null);
+		
+		createFolder("/Reconciler1415/src/p1");
+		String source = 
+			"package p1;\n" +
+			"import p2.BundleContext;\n" +
+			"public class X {\n" +
+			"  public static void main(BundleContext context, String string) {\n" +
+			"  String s = (String) context.getService(string); \n" +
+			"  }\n" +
+			"}";
+
+		createFile(
+			"/Reconciler1415/src/p1/X.java",
+			source
+		);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" + 
+			"	String s = (String) context.getService(string); \n" + 
+			"	       ^\n" + 
+			"The local variable s is never read\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (project14 != null)
+			deleteProject(project14);
+		if (project15 != null)
+			deleteProject(project15);
+	}
+}
 }

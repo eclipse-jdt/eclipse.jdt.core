@@ -564,7 +564,13 @@ public abstract class Scope {
 	 * @param checkForErasedCandidateCollisions
 	 */
 	protected boolean connectTypeVariables(TypeParameter[] typeParameters, boolean checkForErasedCandidateCollisions) {
-		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) return true;
+		/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259 - We used to not bother with connecting
+		   type variables if source level is < 1.5. This creates problems in the reconciler if a 1.4
+		   project references the generified API of a 1.5 project. The "current" project's source
+		   level cannot decide this question for some other project. Now, if we see type parameters
+		   at all, we assume that the concerned java element has some legitimate business with them.
+		 */
+		if (typeParameters == null || typeParameters.length == 0) return true;
 		Map invocations = new HashMap(2);
 		boolean noProblems = true;
 		// preinitializing each type variable
