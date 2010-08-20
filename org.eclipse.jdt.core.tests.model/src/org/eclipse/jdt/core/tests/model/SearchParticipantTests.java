@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -313,5 +313,87 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 		assertSearchResults(
 			"X.test X [X]",
 			requestor);
+	}
+	
+	/*
+	 * Ensures that a simple search that forwards queries to the default participant works as expected even after restart
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=308402
+	 */
+	public void testSearchAfterRestart() throws CoreException {
+		createFile(
+			"/P/X.test",
+			"public class X {\n" +
+			"}"
+		);
+
+		// index file
+		TestSearchParticipant participant = new TestSearchParticipant();
+		TestSearchDocument document = new TestSearchDocument("/P/X.test", participant);
+		participant.scheduleDocumentIndexing(document, getIndexLocation());
+		waitUntilIndexesReady();
+		try {
+			Thread.sleep(5000); // wait for the indexes to go into the disk
+		} catch (InterruptedException e) {
+			// ignore
+		}
+		simulateExit();
+		simulateRestart();
+		waitUntilIndexesReady();
+	
+		// search for declaration of X
+		SearchPattern pattern = SearchPattern.createPattern("X", IJavaSearchConstants.DECLARATIONS, IJavaSearchConstants.TYPE, SearchPattern.R_EXACT_MATCH);
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		SearchRequestor requestor =  new TestResultCollector();
+		new SearchEngine().search(pattern, new SearchParticipant[] {participant}, scope, requestor, null);
+		assertSearchResults(
+			"X.test X [X]",
+			requestor);
+		
+	}
+	
+	/*
+	 * Ensures that a simple search that forwards queries to the default participant works as expected even after removing 
+	 * the index and then doing a restart
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=308402
+	 */
+	public void testSearchAfterRemoveAndRestart() throws CoreException {
+		createFile(
+			"/P/X.test",
+			"public class X {\n" +
+			"}"
+		);
+
+		// index file
+		TestSearchParticipant participant = new TestSearchParticipant();
+		TestSearchDocument document = new TestSearchDocument("/P/X.test", participant);
+		participant.scheduleDocumentIndexing(document, getIndexLocation());
+		waitUntilIndexesReady();
+		
+		// search for declaration of X
+		SearchPattern pattern = SearchPattern.createPattern("X", IJavaSearchConstants.DECLARATIONS, IJavaSearchConstants.TYPE, SearchPattern.R_EXACT_MATCH);
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		SearchRequestor requestor =  new TestResultCollector();
+		new SearchEngine().search(pattern, new SearchParticipant[] {participant}, scope, requestor, null);
+		
+		// remove the index
+		participant.removeIndex(getIndexLocation());
+		assertSearchResults(
+			"X.test X [X]",
+			requestor);
+		try {
+			Thread.sleep(5000); // wait for the indexes to go into the disk
+		} catch (InterruptedException e) {
+			// ignore
+		}
+		requestor =  new TestResultCollector();
+		new SearchEngine().search(pattern, new SearchParticipant[] {participant}, scope, requestor, null);
+		assertSearchResults("", requestor);
+		
+		simulateExit();
+		simulateRestart();
+		waitUntilIndexesReady();
+		requestor =  new TestResultCollector();
+		new SearchEngine().search(pattern, new SearchParticipant[] {participant}, scope, requestor, null);
+		assertSearchResults("", requestor);	
 	}
 }
