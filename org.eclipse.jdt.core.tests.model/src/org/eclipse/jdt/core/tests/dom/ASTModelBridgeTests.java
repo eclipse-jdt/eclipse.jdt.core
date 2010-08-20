@@ -44,7 +44,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "testCreateBindings23" };
+//		TESTS_NAMES = new String[] { "test320802" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -2222,5 +2222,79 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			deleteFile(filePath);
 		}
 	}
+	public void test320802() throws CoreException {
+		String filePath = "/P/src/X.java";
+		String filePathY = "/P/src/p/Y.java";
+		try {
+			String contents =
+				"import p.Y;\n" +
+				"public class X {\n" +
+				"	Y<MissingType1, MissingType2> y;\n" +
+				"	public X() {\n" +
+				"		this.y = new Y<MissingType1, MissingType2>();\n" +
+				"	}\n" + 
+				"}";
+			createFile(filePath, contents);
+			ICompilationUnit compilationUnit = getCompilationUnit("P", "src", "", "X.java");
+			assertTrue(compilationUnit.exists());
 
+			String contents2 =
+				"package p;\n" +
+				"public class Y<T, U> {}";
+			createFolder("/P/src/p");
+			createFile(filePathY, contents2);
+			ICompilationUnit compilationUnit2 = getCompilationUnit("P", "src", "p", "Y.java");
+			assertTrue(compilationUnit2.exists());
+
+			final CompilationUnit[] asts = new CompilationUnit[1];
+			BindingRequestor requestor = new BindingRequestor() {
+				public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+					asts[0] = ast;
+				}
+			};
+			resolveASTs(
+				new ICompilationUnit[] {compilationUnit},
+				new String[0],
+				requestor,
+				getJavaProject("P"),
+				this.workingCopy.getOwner()
+			);
+			assertNotNull("No ast", asts[0]);
+			final IProblem[] problems = asts[0].getProblems();
+			String expectedProblems = 
+				"1. ERROR in /P/src/X.java (at line 3)\n" + 
+				"	Y<MissingType1, MissingType2> y;\n" + 
+				"	  ^^^^^^^^^^^^\n" + 
+				"MissingType1 cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in /P/src/X.java (at line 3)\n" + 
+				"	Y<MissingType1, MissingType2> y;\n" + 
+				"	                ^^^^^^^^^^^^\n" + 
+				"MissingType2 cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in /P/src/X.java (at line 5)\n" + 
+				"	this.y = new Y<MissingType1, MissingType2>();\n" + 
+				"	^^^^^^\n" + 
+				"MissingType1 cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in /P/src/X.java (at line 5)\n" + 
+				"	this.y = new Y<MissingType1, MissingType2>();\n" + 
+				"	^^^^^^\n" + 
+				"MissingType2 cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. ERROR in /P/src/X.java (at line 5)\n" + 
+				"	this.y = new Y<MissingType1, MissingType2>();\n" + 
+				"	               ^^^^^^^^^^^^\n" + 
+				"MissingType1 cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"6. ERROR in /P/src/X.java (at line 5)\n" + 
+				"	this.y = new Y<MissingType1, MissingType2>();\n" + 
+				"	                             ^^^^^^^^^^^^\n" + 
+				"MissingType2 cannot be resolved to a type\n" + 
+				"----------\n";
+			assertProblems("Wrong problems", expectedProblems, problems, contents.toCharArray());
+		} finally {
+			deleteFile(filePath);
+		}
+	}
 }
