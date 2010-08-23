@@ -12072,4 +12072,953 @@ public void testBug320414() throws Exception {
 		"    24  return\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321926
+// To verify that a "redundant null check" warning is NOT elicited for a variable assigned non-null
+// in an infinite while loop inside a try catch block and that code generation shows no surprises.
+public void testBug321926a() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"		while (true) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good");
+}
+// Test that dead code warning does show up.
+public void testBug321926b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"		while (true) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		}\n" +
+			"       System.out.println(\"This is dead code\");\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
+			"	System.out.println(\"This is dead code\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unreachable code\n" + 
+			"----------\n");
+}
+// Check nullness in catch block, finally block and downstream code.
+public void testBug321926c() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"		while (true) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"	 	if (someVariable == null) {\n" +
+			"    		System.out.println(\"Compiler buggy\");\n" +
+			"	 	} else {\n" +
+			"			System.out.print(\"Compiler good \");\n" +
+			"	 	}\n" +
+			"	 } finally {\n" +
+			"	 	if (someVariable == null) {\n" +
+			"    		System.out.println(\"Compiler buggy\");\n" +
+			"	 	} else {\n" +
+			"			System.out.print(\"Compiler good \");\n" +
+			"	 	}\n" +
+            "    }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good Compiler good Compiler good");
+}
+// Various nested loops.
+public void testBug321926d() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       while (true) {\n" +
+			"           for(;;) { \n" +
+			"				while (true) {\n" +
+			"					if (i == 0){\n" +
+			"						someVariable = \"not null\";\n" +
+			"						i++;\n" +
+			"					}\n" +
+			"					else\n" +
+			"						throw new IOException();\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"	 	if (someVariable == null) {\n" +
+			"    		System.out.println(\"Compiler buggy\");\n" +
+			"	 	} else {\n" +
+			"			System.out.print(\"Compiler good \");\n" +
+			"	 	}\n" +
+			"	 } finally {\n" +
+			"	 	if (someVariable == null) {\n" +
+			"    		System.out.println(\"Compiler buggy\");\n" +
+			"	 	} else {\n" +
+			"			System.out.print(\"Compiler good \");\n" +
+			"	 	}\n" +
+            "    }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good Compiler good Compiler good");
+}
+// Test widening catch. 
+public void testBug321926e() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"		while (true) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		}\n" +
+			"	 } catch (Exception e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good");
+}
+// Tested nested try blocks.
+public void testBug321926f() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        String someVariable = null;\n" +
+			"        int i = 0;\n" +
+			"        try {\n" +
+			"        	while (true) {\n" +
+			"        		if (i != 0) {\n" +
+			"        			try {\n" +
+			"        				throw new IOException();\n" +
+			"        			} catch (IOException e) {\n" +
+			"        				if (someVariable == null) {\n" +
+			"        					System.out.println(\"The compiler is buggy\");\n" +
+			"        				} else {\n" +
+			"        					System.out.print(\"Compiler good \");\n" +
+			"        				}\n" +
+			"        				throw e;\n" +
+			"        			}\n" +
+			"        		} else {\n" +
+			"        			someVariable = \"not null\";\n" +
+			"        			i++;\n" +
+			"        		}\n" +
+			"        	}\n" +
+			"        } catch (Exception e) {\n" +
+			"            // having broken from loop, continue on\n" +
+			"        }\n" +
+			"        if (someVariable == null) {\n" +
+			"            System.out.println(\"The compiler is buggy\");\n" +
+			"        } else {\n" +
+			"            System.out.println(\"Compiler good\");\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n"},
+		"Compiler good Compiler good");
+}
+// test for loop
+public void testBug321926g() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"		for (int j = 0; true; j++) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good");
+}
+// test do while loop
+public void testBug321926h() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"		do {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		} while(true);\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good");
+}
+// test with while (true) with a break inside. was working already.
+public void testBug321926i() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"		while (true) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"               break;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good");
+}
+// Test with non-explicit throws, i.e call method which throws rather than an inline throw statement. 
+public void testBug321926j() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"		while (true) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				invokeSomeMethod();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"  public static void invokeSomeMethod() throws IOException {\n" +
+			"      throw new IOException();\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good");
+}
+// Variation with nested loops
+public void testBug321926k() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       while (true) {\n" +
+			"       	try {\n" +
+			"				while (true) {\n" +
+			"					if (i == 0){\n" +
+			"						someVariable = \"not null\";\n" +
+			"						i++;\n" +
+			"					}\n" +
+			"					else\n" +
+			"						throw new IOException();\n" +
+			"				}\n" +
+			"       	} catch (IOException e) {\n" +
+			"           }\n" +
+			"	 		if (someVariable == null) {\n" +
+			"    			System.out.println(\"Compiler buggy\");\n" +
+			"	 		} else {\n" +
+			"				System.out.print(\"Compiler good \");\n" +
+			"	 		}\n" +
+			"           throw new IOException();\n" +
+			"       }\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good Compiler good");
+}
+// variation with nested loops.
+public void testBug321926l() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       while (true) {\n" +
+			"           someVariable = null;\n"+
+			"       	try {\n" +
+			"				while (true) {\n" +
+			"					if (i == 0){\n" +
+			"						someVariable = \"not null\";\n" +
+			"						i++;\n" +
+			"					}\n" +
+			"					else\n" +
+			"						throw new IOException();\n" +
+			"				}\n" +
+			"       	} catch (IOException e) {\n" +
+			"           }\n" +
+			"	 		if (someVariable == null) {\n" +
+			"    			System.out.println(\"Compiler buggy\");\n" +
+			"	 		} else {\n" +
+			"				System.out.print(\"Compiler good \");\n" +
+			"	 		}\n" +
+			"           throw new IOException();\n" +
+			"       }\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good Compiler good");
+}
+public void testBug321926m() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"		while (true) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"           if (true) {\n" +
+			"               break;\n" +
+			"           }\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good");
+}
+public void testBug321926n() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       someVariable = \"not null\";\n" +
+			"		while (true) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good");
+}
+public void testBug321926o() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       someVariable = \"not null\";\n" +
+			"		for(;;) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good");
+}
+public void testBug321926p() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       someVariable = \"not null\";\n" +
+			"		do {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		} while (true);\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good");
+}
+public void testBug321926q() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       someVariable = \"not null\";\n" +
+			"		do {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		} while ((someVariable = \"not null\") != null);\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good", null, true, null, options, null);
+}
+public void testBug321926r() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       while ((someVariable = \"not null\") != null) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good", null, true, null, options, null
+		);
+}
+public void testBug321926s() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       someVariable = \" not null\";\n" +
+			"       while ((someVariable = null) != null) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else\n" +
+			"				throw new IOException();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler good\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler buggy\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good", null, true, null, options, null
+		);
+}
+public void testBug321926t() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"	public static void main(String s[]) {\n" +
+			"		String file = \"non null\";\n" +
+			"		int i = 0;\n" +
+			"       try {\n" +
+			"			while (true) {\n" +
+			"			    if (i == 0) {\n" +
+			"					file = null;\n" +
+			"                   i++;\n"+
+			"               }\n" +
+			"               else \n" +
+			"               	throw new IOException();\n" +
+			"			}\n" +
+			"       } catch (IOException e) {\n" +
+			"       }\n" +
+			"		if (file == null)\n" +
+			"		    System.out.println(\"Compiler good\");\n" +
+			"       else \n" +
+			"		    System.out.println(\"Compiler bad\");\n" +
+			"	}\n" +
+			"}\n"},
+		"Compiler good");
+}
+public void testBug321926u() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"	public static void main(String s[]) {\n" +
+			"		String file = \"non null\";\n" +
+			"		int i = 0;\n" +
+			"       try {\n" +
+			"			while (true) {\n" +
+			"			    if (i == 0) {\n" +
+			"					file = null;\n" +
+			"                   i++;\n"+
+			"               }\n" +
+			"               else {\n" +
+			"                   file = null;\n" +
+			"               	throw new IOException();\n" +
+			"               }\n" +
+			"			}\n" +
+			"       } catch (IOException e) {\n" +
+			"       }\n" +
+			"		if (file == null)\n" +
+			"		    System.out.println(\"Compiler good\");\n" +
+			"       else \n" +
+			"		    System.out.println(\"Compiler bad\");\n" +
+			"	}\n" +
+			"}\n"},
+		"Compiler good");
+}
+public void testBug321926v() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"	public static void main(String s[]) {\n" +
+			"		String file = null;\n" +
+			"		int i = 0;\n" +
+			"       try {\n" +
+			"			while (true) {\n" +
+			"			    if (i == 0) {\n" +
+			"					file = \"non null\";\n" +
+			"                   i++;\n"+
+			"               }\n" +
+			"               else {\n" +
+			"                   file = \"non null\";\n" +
+			"               	throw new IOException();\n" +
+			"               }\n" +
+			"			}\n" +
+			"       } catch (IOException e) {\n" +
+			"       }\n" +
+			"		if (file == null)\n" +
+			"		    System.out.println(\"Compiler bad\");\n" +
+			"       else \n" +
+			"		    System.out.println(\"Compiler good\");\n" +
+			"	}\n" +
+			"}\n"},
+		"Compiler good");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+public void testBug317829a() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       someVariable = \"not null\";\n" +
+			"		while (true) {\n" +
+			"			throw new IOException();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"	 	if (someVariable == null) {\n" +
+			"    		System.out.println(\"Compiler bad\");\n" +
+			"	 	} else {\n" +
+			"			System.out.print(\"Compiler good \");\n" +
+			"	 	}\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler bad\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+			"Compiler good Compiler good");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+public void testBug317829b() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       someVariable = \"not null\";\n" +
+			"		while (true) {\n" +
+			"			someMethod();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"	 	if (someVariable == null) {\n" +
+			"    		System.out.println(\"Compiler bad\");\n" +
+			"	 	} else {\n" +
+			"			System.out.print(\"Compiler good \");\n" +
+			"	 	}\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler bad\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"  public static void someMethod() throws IOException {\n" +
+			"      throw new IOException();\n" +
+			"  }\n" +
+			"}"},
+			"Compiler good Compiler good");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+public void testBug317829c() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       someVariable = \"not null\";\n" +
+			"		for (;;) {\n" +
+			"			throw new IOException();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"	 	if (someVariable == null) {\n" +
+			"    		System.out.println(\"Compiler bad\");\n" +
+			"	 	} else {\n" +
+			"			System.out.print(\"Compiler good \");\n" +
+			"	 	}\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler bad\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+			"Compiler good Compiler good");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+public void testBug317829d() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       someVariable = \"not null\";\n" +
+			"		for(;;) {\n" +
+			"			someMethod();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"	 	if (someVariable == null) {\n" +
+			"    		System.out.println(\"Compiler bad\");\n" +
+			"	 	} else {\n" +
+			"			System.out.print(\"Compiler good \");\n" +
+			"	 	}\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler bad\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"  public static void someMethod() throws IOException {\n" +
+			"      throw new IOException();\n" +
+			"  }\n" +
+			"}"},
+			"Compiler good Compiler good");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+public void testBug317829e() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       someVariable = \"not null\";\n" +
+			"		do {\n" +
+			"			throw new IOException();\n" +
+			"		} while (true);\n" +
+			"	 } catch (IOException e) {\n" +
+			"	 	if (someVariable == null) {\n" +
+			"    		System.out.println(\"Compiler bad\");\n" +
+			"	 	} else {\n" +
+			"			System.out.print(\"Compiler good \");\n" +
+			"	 	}\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler bad\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+			"Compiler good Compiler good");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+public void testBug317829f() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       someVariable = \"not null\";\n" +
+			"		do {\n" +
+			"			someMethod();\n" +
+			"		} while (true);\n" +
+			"	 } catch (IOException e) {\n" +
+			"	 	if (someVariable == null) {\n" +
+			"    		System.out.println(\"Compiler bad\");\n" +
+			"	 	} else {\n" +
+			"			System.out.print(\"Compiler good \");\n" +
+			"	 	}\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler bad\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"  public static void someMethod() throws IOException {\n" +
+			"      throw new IOException();\n" +
+			"  }\n" +
+			"}"},
+			"Compiler good Compiler good");
+}
 }
