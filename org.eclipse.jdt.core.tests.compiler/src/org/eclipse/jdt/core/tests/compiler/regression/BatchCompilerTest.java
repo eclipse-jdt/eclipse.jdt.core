@@ -11413,6 +11413,10 @@ public void test306(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
 public void test0307(){
+	String os= System.getProperty("os.name");
+    if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
+    	return;
+
 	final String javaClassspath = System.getProperty("java.class.path");
 	final String javaUserDir = System.getProperty("user.dir");
 	try {
@@ -11462,6 +11466,10 @@ public void test0307(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
 public void test0307a(){
+	String os= System.getProperty("os.name");
+    if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
+    	return;
+    	
 	final String javaClassspath = System.getProperty("java.class.path");
 	final String javaUserDir = System.getProperty("user.dir");
 	try {
@@ -11523,6 +11531,10 @@ public void test0307a(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
 public void test0307b(){
+	String os= System.getProperty("os.name");
+    if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
+    	return;
+
 	final String javaClassspath = System.getProperty("java.class.path");
 	final String javaUserDir = System.getProperty("user.dir");
 	try {
@@ -11584,6 +11596,10 @@ public void test0307b(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
 public void test0307c(){
+	String os= System.getProperty("os.name");
+    if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
+    	return;
+
 	final String javaClassspath = System.getProperty("java.class.path");
 	final String javaUserDir = System.getProperty("user.dir");
 	try {
@@ -11645,6 +11661,10 @@ public void test0307c(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
 public void test0307d(){
+	String os= System.getProperty("os.name");
+    if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
+    	return;
+
 	final String javaClassspath = System.getProperty("java.class.path");
 	final String javaUserDir = System.getProperty("user.dir");
 	try {
@@ -11706,6 +11726,10 @@ public void test0307d(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115
 public void test0307e(){
+	String os= System.getProperty("os.name");
+    if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
+    	return;
+
 	final String javaClassspath = System.getProperty("java.class.path");
 	final String javaUserDir = System.getProperty("user.dir");
 	try {
