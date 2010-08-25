@@ -12060,7 +12060,6 @@ public void testBug317264f() throws CoreException {
 	try
 	{
 		IJavaProject project = createJavaProject("P");
-		project.setOption(CompilerOptions.OPTION_Source, "1.4");
 		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
