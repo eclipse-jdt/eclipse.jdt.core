@@ -5284,4 +5284,133 @@ public void testBug281598c() throws Exception {
 		deleteProject("P");
 	}
 }
+// types in enum package of org.apache.commons.lang.jar should not be proposed for
+// 1.5 projects. see https://bugs.eclipse.org/bugs/show_bug.cgi?id=317264
+public void testBug317264a() throws CoreException {
+	IJavaProject project = null;
+	try
+	{
+		project = createJavaProject("P2", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/Completion/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
+		
+		createFile(
+				"/P2/X.java",
+				"import org.apache.commons.lang.*;\n"+
+				"public class X {\n"+
+				"  public void foo() {\n"+
+				"    enu\n"+
+				"  }\n"+
+				"}");
+		waitUntilIndexesReady();
+		
+		ICompilationUnit cu= getCompilationUnit("P2", "", "", "X.java");
+
+		String str = cu.getSource();
+		String completeBehind = "enu";
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		assertResults(
+				"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, 17}",
+				requestor.getResults());
+				
+	} finally {
+		deleteProject(project);
+	}
+}
+// types in enum package of org.apache.commons.lang.jar should be proposed for 1.4 projects
+public void testBug317264b() throws CoreException {
+	IJavaProject project = null;
+	try
+	{
+		project = createJavaProject("P2");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/Completion/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
+		
+		createFile(
+				"/P2/X.java",
+				"import org.apache.commons.lang.*;\n"+
+				"public class X {\n"+
+				"  public void foo() {\n"+
+				"    enu\n"+
+				"  }\n"+
+				"}");
+		waitUntilIndexesReady();
+		
+		ICompilationUnit cu= getCompilationUnit("P2", "", "", "X.java");
+
+		String str = cu.getSource();
+		String completeBehind = "enu";
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		assertResults(
+				"Enum[TYPE_REF]{org.apache.commons.lang.enum.Enum, org.apache.commons.lang.enum, Lorg.apache.commons.lang.enum.Enum;, null, null, 14}",
+				requestor.getResults());
+				
+	} finally {
+		deleteProject(project);
+	}
+}
+// enum package of org.apache.commons.lang.jar should not be proposed for 1.5 projects
+public void testBug317264c() throws CoreException {
+	IJavaProject project = null;
+	try
+	{
+		project = createJavaProject("P2", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/Completion/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
+		
+		createFile(
+				"/P2/X.java",
+				"import org.apache.commons.lang.enu;\n"+
+				"public class X {\n"+
+				"  public void foo() {\n"+   
+				"  }\n"+
+				"}");
+		waitUntilIndexesReady();
+		
+		ICompilationUnit cu= getCompilationUnit("P2", "", "", "X.java");
+
+		String str = cu.getSource();
+		String completeBehind = "lang.enu";
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		assertResults("", requestor.getResults());
+				
+	} finally {
+		deleteProject(project);
+	}
+}
+// enum package of org.apache.commons.lang.jar should be proposed for 1.4 projects
+public void testBug317264d() throws CoreException {
+	IJavaProject project = null;
+	try
+	{
+		project = createJavaProject("P2");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/Completion/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
+		
+		createFile(
+				"/P2/X.java",
+				"import org.apache.commons.lang.enu;\n"+
+				"public class X {\n"+
+				"  public void foo() {\n"+   
+				"  }\n"+
+				"}");
+		waitUntilIndexesReady();
+		
+		ICompilationUnit cu= getCompilationUnit("P2", "", "", "X.java");
+
+		String str = cu.getSource();
+		String completeBehind = "lang.enu";
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		assertResults(
+				"org.apache.commons.lang.enum[PACKAGE_REF]{org.apache.commons.lang.enum.*;, org.apache.commons.lang.enum, null, null, null, 24}",
+				requestor.getResults());
+				
+	} finally {
+		deleteProject(project);
+	}
+}
 }
