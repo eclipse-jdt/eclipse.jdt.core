@@ -8782,6 +8782,7 @@ public void testBug185452() throws CoreException {
 		"lib/b166348.jar  [No source]\n" +
 		"lib/b166348.jar pack [No source]\n" +
 		"lib/b166348.jar test [No source]\n" +
+		"lib/b317264 b317264\n" +
 		"lib/b86293.jar  [No source]\n" +
 		"lib/b87627.jar  [No source]\n" +
 		"lib/b87627.jar b87627 [No source]\n" +
@@ -11944,6 +11945,131 @@ public void testBug313668() throws CoreException {
 		deleteProject(commonProject);
 		deleteProject(clientProject);
 		deleteProject(serverProject);
+	}
+}
+/**
+ * @bug 317264: Refactoring is impossible with commons.lang added to project
+ * @test types in enum package of org.apache.commons.lang.jar should not be reported for 1.5 projects
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=317264"
+ */
+public void testBug317264a() throws CoreException {
+	IJavaProject project = null;
+	try
+	{
+		project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		
+		waitUntilIndexesReady();
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+				"org.apache.commons.lang.enum".toCharArray(),
+				SearchPattern.R_EXACT_MATCH,
+				"".toCharArray(),
+				SearchPattern.R_PREFIX_MATCH,
+				IJavaSearchConstants.TYPE,
+				scope,
+				collector,
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+		assertSearchResults("Unexpected search results!", "", collector);		
+	} finally {
+		deleteProject(project);
+	}
+}
+// types in enum package of org.apache.commons.lang.jar should be reported for 1.4 projects
+public void testBug317264b() throws CoreException {
+	IJavaProject project = null;
+	try
+	{
+		project = createJavaProject("P");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		
+		waitUntilIndexesReady();
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+				"org.apache.commons.lang.enum".toCharArray(),
+				SearchPattern.R_EXACT_MATCH,
+				"".toCharArray(),
+				SearchPattern.R_PREFIX_MATCH,
+				IJavaSearchConstants.TYPE,
+				scope,
+				collector,
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+		assertSearchResults("Unexpected search results!",
+				"Enum (not open) [in Enum.class [in org.apache.commons.lang.enum [in /JavaSearchBugs/lib/b317264/org.apache.commons.lang_2.modified.jar [in P]]]]",
+				collector);		
+	} finally {
+		deleteProject(project);
+	}
+}
+
+// types in enum package of org.apache.commons.lang.jar should not be reported for 1.5 projects
+public void testBug317264c() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		search("org.apache.commons.lang.enum*", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
+// types in enum package of org.apache.commons.lang.jar should be reported for 1.4 projects
+public void testBug317264d() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		search("org.apache.commons.lang.enum.*", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", 
+				"lib/b317264/org.apache.commons.lang_2.modified.jar org.apache.commons.lang.enum.Enum EXACT_MATCH",
+				this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
+// enum package of org.apache.commons.lang.jar should not be reported for 1.5 projects
+public void testBug317264e() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		search("org.apache.commons.lang.enum*", IJavaSearchConstants.PACKAGE, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!",  "", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
+//enum package of org.apache.commons.lang.jar should be reported for 1.4 projects
+public void testBug317264f() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P");
+		project.setOption(CompilerOptions.OPTION_Source, "1.4");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		search("org.apache.commons.lang.enum*", IJavaSearchConstants.PACKAGE, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", 
+				"lib/b317264/org.apache.commons.lang_2.modified.jar org.apache.commons.lang.enum [No source] EXACT_MATCH",
+				this.resultCollector);		
+	} finally {
+		deleteProject("P");
 	}
 }
 }
