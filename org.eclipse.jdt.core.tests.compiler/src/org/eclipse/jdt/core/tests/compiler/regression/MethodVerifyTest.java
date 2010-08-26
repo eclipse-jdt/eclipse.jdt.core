@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MethodVerifyTest extends AbstractComparableTest {
 	static {
-//		TESTS_NAMES = new String[] { "test000" };
+//		TESTS_NAMES = new String[] { "test211" };
 //		TESTS_NUMBERS = new int[] { 184 };
 //		TESTS_RANGE = new int[] { 190, -1};
 	}
@@ -10161,17 +10161,12 @@ public void test187() {
 		"	       ^^^^^^^^^^^^^^^^^^\n" + 
 		"Name clash: The method f(List<Integer>) of type Y has the same erasure as f(List<String>) of type X but does not override it\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
-		"	abstract class Z extends X implements I {}\n" + 
-		"	               ^\n" + 
-		"Name clash: The method f(List<String>) of type X has the same erasure as f(List<Integer>) of type I but does not override it\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 13)\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
 		"	int f(List<String> l) {return 0;}\n" + 
 		"	    ^^^^^^^^^^^^^^^^^\n" + 
 		"Method f(List<String>) has the same erasure f(List<E>) as another method in type XX\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 14)\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
 		"	double f(List<Integer> l) {return 0;}\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^\n" + 
 		"Method f(List<Integer>) has the same erasure f(List<E>) as another method in type XX\n" + 
@@ -10986,6 +10981,32 @@ public void test211() {
 		"	public class SomeClass implements Equivalent<String>, EqualityComparable<Integer> {\n" + 
 		"	             ^^^^^^^^^\n" + 
 		"Name clash: The method equalTo(T) of type EqualityComparable<T> has the same erasure as equalTo(T) of type Equivalent<T> but does not override it\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=323693
+public void test212() {
+	this.runNegativeTest(
+		new String[] {
+			"Derived.java",
+			"class Base<T> {\n" +
+			"    T foo(T x) {\n" +
+			"        return x;\n" +
+			"    }\n" +
+			"}\n" +
+			"interface Interface<T>{\n" +
+			"    T foo(T x);\n" +
+			"}\n" +
+			"public class Derived extends Base<String> implements Interface<Integer> {\n" +
+			"    public Integer foo(Integer x) {\n" +
+			"        return x;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Derived.java (at line 9)\n" + 
+		"	public class Derived extends Base<String> implements Interface<Integer> {\n" + 
+		"	             ^^^^^^^\n" + 
+		"Name clash: The method foo(T) of type Interface<T> has the same erasure as foo(T) of type Base<T> but does not override it\n" + 
 		"----------\n");
 }
 }
