@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - inconsistent initialization of classpath container backed by external class folder, see https://bugs.eclipse.org/320618
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -34,6 +35,9 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class JavaProjectTests extends ModifyingResourceTests {
 public JavaProjectTests(String name) {
 	super(name);
+}
+static {
+//	TESTS_NAMES = new String[] { "testAddExternalLibFolder6" };
 }
 public static Test suite() {
 	TestSuite suite = (TestSuite) buildModelTestSuite(JavaProjectTests.class);
@@ -166,6 +170,71 @@ public void testAddExternalLibFolder5() throws CoreException {
 	} finally {
 		deleteExternalResource("externalLib");
 		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that a type from a classpath container pointing to an external folder can be resolved
+ * Bug 320618 -  inconsistent initialization of classpath container backed by external class folder
+ */
+public void testAddExternalLibFolder6() throws CoreException, IOException {
+	IWorkspace workspace = null;
+	try {
+		simulateExitRestart();
+
+		// create a class folder outside the testing workspace:
+		createExternalFolder("TestContainer/p");
+		workspace = ResourcesPlugin.getWorkspace();
+		File workspaceLocation = new File(workspace.getRoot().getLocation().toOSString());
+		File classFileSrc = new File(workspaceLocation, "JavaProjectLibTests/lib/p/Y.class");
+		File classFileDst = new File(workspaceLocation.getParentFile().getCanonicalFile(), "TestContainer/p/Y.class"); // canonicalize the external path as this is not done on case sensitive platforms when creating a new lib entry
+		copy(classFileSrc, classFileDst);
+
+		// setup a project depending on the classpath container:
+		IJavaProject javaProject = setUpJavaProject("ExternalContainer");
+		IProject p = javaProject.getProject();
+		
+		// build should find no errors:
+		p.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+		for (int i=0; i<markers.length; i++)
+			System.out.println("unexpected marker: "+markers[i].getType()+": "+markers[i].getAttribute(IMarker.MESSAGE));
+		assertEquals("Unexpected markers", markers.length, 0);
+		
+	} finally {
+		deleteExternalResource("TestContainer");
+		deleteProject("ExternalContainer");
+	}
+	workspace.save(true, null);
+	// second go most be unaffected by previously used external links:
+	// (tests ExternalFoldersManager.cleanUp())
+	try {
+		// *don't* reset: simulateExitRestart();
+
+		// from hereon same as before:
+
+		// create a class folder outside the testing workspace:
+		createExternalFolder("TestContainer/p");
+		workspace = ResourcesPlugin.getWorkspace();
+		File workspaceLocation = new File(workspace.getRoot().getLocation().toOSString());
+		File classFileSrc = new File(workspaceLocation, "JavaProjectLibTests/lib/p/Y.class");
+		File classFileDst = new File(workspaceLocation.getParentFile().getCanonicalFile(), "TestContainer/p/Y.class"); // canonicalize the external path as this is not done on case sensitive platforms when creating a new lib entry
+		copy(classFileSrc, classFileDst);
+
+		// setup a project depending on the classpath container:
+		IJavaProject javaProject = setUpJavaProject("ExternalContainer");
+		IProject p = javaProject.getProject();
+		
+		// build should find no errors:
+		p.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+		for (int i=0; i<markers.length; i++)
+			System.out.println("unexpected marker: "+markers[i].getType()+": "+markers[i].getAttribute(IMarker.MESSAGE));
+		assertEquals("Unexpected markers", markers.length, 0);
+		
+	} finally {
+		deleteExternalResource("TestContainer");
+		deleteProject("ExternalContainer");
 	}
 }
 

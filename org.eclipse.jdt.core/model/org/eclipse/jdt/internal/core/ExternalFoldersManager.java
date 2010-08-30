@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - inconsistent initialization of classpath container backed by external class folder, see https://bugs.eclipse.org/320618
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.eclipse.core.resources.IFolder;
@@ -43,6 +45,7 @@ public class ExternalFoldersManager {
 	private static final String EXTERNAL_PROJECT_NAME = ".org.eclipse.jdt.core.external.folders"; //$NON-NLS-1$
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$
 	private Map folders;
+	private Set pendingFolders; // subset of keys of 'folders', for which linked folders haven't been created yet.
 	private int counter = 0;
 	/* Singleton instance */
 	private static ExternalFoldersManager MANAGER = new ExternalFoldersManager();
@@ -101,11 +104,11 @@ public class ExternalFoldersManager {
 		return EXTERNAL_PROJECT_NAME.equals(resourcePath.segment(0));
 	}
 
-	public IFolder addFolder(IPath externalFolderPath) {
-		return addFolder(externalFolderPath, getExternalFoldersProject());
+	public IFolder addFolder(IPath externalFolderPath, boolean scheduleForCreation) {
+		return addFolder(externalFolderPath, getExternalFoldersProject(), scheduleForCreation);
 	}
 
-	private IFolder addFolder(IPath externalFolderPath, IProject externalFoldersProject) {
+	private IFolder addFolder(IPath externalFolderPath, IProject externalFoldersProject, boolean scheduleForCreation) {
 		Map knownFolders = getFolders();
 		Object existing = knownFolders.get(externalFolderPath);
 		if (existing != null) {
@@ -115,13 +118,29 @@ public class ExternalFoldersManager {
 		do {
 			result = externalFoldersProject.getFolder(LINKED_FOLDER_NAME + this.counter++);
 		} while (result.exists());
+		if (scheduleForCreation) {
+			if (this.pendingFolders == null)
+				this.pendingFolders = new HashSet();
+			this.pendingFolders.add(externalFolderPath);
+		}
 		knownFolders.put(externalFolderPath, result);
 		return result;
+	}
+	
+	/** 
+	 * Try to remove the argument from the list of folders pending for creation.
+	 * @param externalPath to link to
+	 * @return true if the argument was found in the list of pending folders and could be removed from it.
+	 */
+	public boolean removePendingFolder(Object externalPath) {
+		if (this.pendingFolders == null)
+			return false;
+		return this.pendingFolders.remove(externalPath);
 	}
 
 	public IFolder createLinkFolder(IPath externalFolderPath, boolean refreshIfExistAlready, IProgressMonitor monitor) throws CoreException {
 		IProject externalFoldersProject = createExternalFoldersProject(monitor); // run outside synchronized as this can create a resource
-		IFolder result = addFolder(externalFolderPath, externalFoldersProject);
+		IFolder result = addFolder(externalFolderPath, externalFoldersProject, false);
 		if (!result.exists())
 			result.createLink(externalFolderPath, IResource.ALLOW_MISSING_LOCAL, monitor);
 		else if (refreshIfExistAlready)
@@ -134,8 +153,11 @@ public class ExternalFoldersManager {
 		if (toDelete == null)
 			return;
 		for (Iterator iterator = toDelete.iterator(); iterator.hasNext();) {
-			IFolder folder = (IFolder) iterator.next();
+			Map.Entry entry = (Map.Entry) iterator.next();
+			IFolder folder = (IFolder) entry.getValue();
 			folder.delete(true, monitor);
+			IPath key = (IPath) entry.getKey();
+			this.folders.remove(key);
 		}
 		IProject project = getExternalFoldersProject();
 		if (project.isAccessible() && project.members().length == 1/*remaining member is .project*/)
@@ -157,11 +179,10 @@ public class ExternalFoldersManager {
 				IPath path = (IPath) entry.getKey();
 				if ((roots != null && !roots.containsKey(path))
 						&& (sourceAttachments != null && !sourceAttachments.containsKey(path))) {
-					IFolder folder = (IFolder) entry.getValue();
-					if (folder != null) {
+					if (entry.getValue() != null) {
 						if (result == null)
 							result = new ArrayList();
-						result.add(folder);
+						result.add(entry);
 					}
 				}
 			}

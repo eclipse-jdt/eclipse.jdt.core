@@ -47,6 +47,12 @@
 			class="org.eclipse.jdt.core.tests.model.ContainerInitializer"/>
 	</extension>
 
+	<extension point = "org.eclipse.jdt.core.classpathContainerInitializer">
+		<classpathContainerInitializer
+			id="org.eclipse.jdt.core.tests.model.TEST_EXTERNAL_LIB_CONTAINER"
+			class="org.eclipse.jdt.core.tests.extensions.TestExternalLibContainerInitializer"/>
+	</extension>
+
 	<!-- Extra Java-like file extensions -->
 	<extension point="org.eclipse.core.contenttype.contentTypes"> 
 	    <file-association 
