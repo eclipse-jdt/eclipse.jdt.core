@@ -5374,6 +5374,8 @@ public void test107() {
 			"	public static void main(String[] args) {\n" + 
 			"		try {\n" +
 			"			OuterBogus.call();\n" + 
+			"		} catch(ClassFormatError e) {\n" +
+			"			System.out.println(\"Wrong error found\");\n" + 
 			"		} catch(Error e) {\n" +
 			"			System.out.println(\"Compilation error found\");\n" + 
 			"		}\n" +
