@@ -25,6 +25,10 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import junit.framework.AssertionFailedError;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.NullInfoRegistry;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
@@ -33,10 +37,6 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-
-import junit.framework.AssertionFailedError;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * A tests series especially meant to validate the internals of our null
@@ -559,6 +559,11 @@ public void test2057_markAsDefinitelyUnknown() {
 	assertTrue("nb of failures: " + failures, failures == 0);
 }
 
+public void test2058_markAsPotentiallyNull() {
+	int failures = NullReferenceImplTransformations.markAsPotentiallyNull.test();
+	assertTrue("nb of failures: " + failures, failures == 0);
+}
+
 public void test2060_addInitializationsFrom() {
 	int failures = NullReferenceImplTransformations.addInitializationsFrom.test();
 	assertTrue("nb of failures: " + failures, failures == 0);
@@ -854,7 +859,7 @@ public void test2500_addInitializationsFrom_for_definites() {
 // Note: coverage tests tend to fill the console with messages, and the
 //       instrumented code is slower, so never release code with active
 //       coverage tests.
-private static int coveragePointsNb = 39;
+private static int coveragePointsNb = 41;
 
 // PREMATURE reactivate coverage tests
 // Coverage by state transition tables methods.
@@ -870,6 +875,7 @@ public void test2998_coverage() {
 		test2055_markAsDefinitelyNonNull();
 		test2056_markAsDefinitelyNull();
 		test2057_markAsDefinitelyUnknown();
+		test2058_markAsPotentiallyNull();
 		test2060_addInitializationsFrom();
 		test2061_addPotentialInitializationsFrom();
 		test2062_mergedWith();
@@ -891,6 +897,7 @@ public void test2998_coverage() {
 				test2055_markAsDefinitelyNonNull();
 				test2056_markAsDefinitelyNull();
 				test2057_markAsDefinitelyUnknown();
+				test2058_markAsPotentiallyNull();
 				test2060_addInitializationsFrom();
 				test2061_addPotentialInitializationsFrom();
 				test2062_mergedWith();
@@ -1096,6 +1103,11 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
 public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 	grow(local.id + this.maxFieldCount);
 	super.markAsDefinitelyUnknown(local);
+}
+
+public void markAsPotentiallyNull(LocalVariableBinding local) {
+	grow(local.id + this.maxFieldCount);
+	super.markAsPotentiallyNull(local);
 }
 
 /**

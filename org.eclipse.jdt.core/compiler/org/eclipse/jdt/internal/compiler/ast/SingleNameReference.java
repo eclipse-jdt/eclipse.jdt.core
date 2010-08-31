@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 292478 - Report potentially null across variable assignment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -774,6 +775,8 @@ public int nullStatus(FlowInfo flowInfo) {
 					return FlowInfo.NULL;
 				if (flowInfo.isDefinitelyNonNull(local))
 					return FlowInfo.NON_NULL;
+				if (flowInfo.isPotentiallyNull(local))
+					return FlowInfo.POTENTIALLY_NULL;
 				return FlowInfo.UNKNOWN;
 			}
 	}

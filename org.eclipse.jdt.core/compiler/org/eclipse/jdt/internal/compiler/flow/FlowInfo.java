@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 292478 - Report potentially null across variable assignment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -25,6 +26,7 @@ public abstract class FlowInfo {
 	public final static int UNKNOWN = 0;
 	public final static int NULL = 1;
 	public final static int NON_NULL = -1;
+	public final static int POTENTIALLY_NULL = 2;
 
 	public static final UnconditionalFlowInfo DEAD_END; // Represents a dead branch status of initialization
 	static {
@@ -246,6 +248,11 @@ abstract public void markAsComparedEqualToNull(LocalVariableBinding local);
 	 * Record a local got definitely assigned to null.
 	 */
 	abstract public void markAsDefinitelyNull(LocalVariableBinding local);
+	
+	/**
+	 * Record a local may have got assigned to null.
+	 */
+	abstract public void markAsPotentiallyNull(LocalVariableBinding local);
 
 	/**
 	 * Record a local got definitely assigned.

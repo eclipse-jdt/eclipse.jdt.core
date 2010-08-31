@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 IBM Corporation and others.
+ * Copyright (c) 2005, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -242,6 +242,50 @@ public class NullReferenceImplTransformations {
 				return result;
 			}
 		},
+		markAsPotentiallyNull =
+			// markAsDefinitelyNull DEFINITION START
+			// start => pot. null
+			// prot. non null => pot. null
+			// prot. null => pot. null
+			// pot. unknown => pot. null
+			// pot. non null => pot. null
+			// pot. nn & prot. nn => pot. null
+			// pot. nn & pot. un => pot. null
+			// pot. null => pot. null
+			// pot. n & prot. n => pot. null
+			// pot. n & pot. un => pot. null
+			// pot. n & pot. nn => pot. null
+			// def. unknown => pot. null
+			// def. non null => pot. null
+			// def. null => pot. null
+			// markAsPotentiallyNull DEFINITION END
+				// PREMATURE add 'catch rules'
+				new TwoDimensionalTransformation("markAsPotentiallyNull",
+					new byte[][] {
+					// markAsPotentiallyNull INITIALIZER START
+					{0x00,0x08},
+					{0x04,0x08},
+					{0x08,0x08},
+					{0x0C,0x08},
+					{0x10,0x08},
+					{0x14,0x08},
+					{0x18,0x08},
+					{0x24,0x08},
+					{0x28,0x08},
+					{0x2C,0x08},
+					{0x30,0x08},
+					{0x34,0x08},
+					{0x38,0x08},
+					{0x3C,0x08},
+					// markAsPotentiallyNull INITIALIZER END
+					}) {
+				UnconditionalFlowInfo output(UnconditionalFlowInfo input,
+						TestLocalVariableBinding local) {
+					UnconditionalFlowInfo result = (UnconditionalFlowInfo)input.copy();
+					result.markAsPotentiallyNull(local);
+					return result;
+				}
+			},
 		addInitializationsFrom =
 		// addInitializationsFrom DEFINITION START
 		// def. non null + def. non null => def. non null

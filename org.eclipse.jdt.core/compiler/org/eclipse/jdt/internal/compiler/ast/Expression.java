@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 292478 - Report potentially null across variable assignment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -829,11 +830,11 @@ public void markAsNonNull() {
 	this.bits |= ASTNode.IsNonNull;
 }
 
-	public int nullStatus(FlowInfo flowInfo) {
+public int nullStatus(FlowInfo flowInfo) {
 
-		if (/* (this.bits & IsNonNull) != 0 || */
-			this.constant != null && this.constant != Constant.NotAConstant)
-		return FlowInfo.NON_NULL; // constant expression cannot be null
+	if (/* (this.bits & IsNonNull) != 0 || */
+		this.constant != null && this.constant != Constant.NotAConstant)
+	return FlowInfo.NON_NULL; // constant expression cannot be null
 
 	LocalVariableBinding local = localVariableBinding();
 	if (local != null) {
@@ -841,6 +842,8 @@ public void markAsNonNull() {
 			return FlowInfo.NULL;
 		if (flowInfo.isDefinitelyNonNull(local))
 			return FlowInfo.NON_NULL;
+		if (flowInfo.isPotentiallyNull(local))
+			return FlowInfo.POTENTIALLY_NULL;
 		return FlowInfo.UNKNOWN;
 	}
 	return FlowInfo.NON_NULL;

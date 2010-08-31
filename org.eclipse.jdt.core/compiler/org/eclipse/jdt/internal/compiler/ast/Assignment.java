@@ -8,7 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genady Beriozkin - added support for reporting assignment with no effect
- *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *     												and bug 292478 - Report potentially null across variable assignment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -59,6 +60,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			case FlowInfo.NON_NULL :
 				flowInfo.markAsDefinitelyNonNull(local);
 				break;
+			case FlowInfo.POTENTIALLY_NULL :
+				flowInfo.markAsPotentiallyNull(local);
+				break;
 			default:
 				flowInfo.markAsDefinitelyUnknown(local);
 		}
@@ -69,6 +73,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					break;
 				case FlowInfo.NON_NULL :
 					flowContext.initsOnFinally.markAsDefinitelyNonNull(local);
+					break;
+				case FlowInfo.POTENTIALLY_NULL :
+					flowContext.initsOnFinally.markAsPotentiallyNull(local);
 					break;
 				default:
 					flowContext.initsOnFinally.markAsDefinitelyUnknown(local);

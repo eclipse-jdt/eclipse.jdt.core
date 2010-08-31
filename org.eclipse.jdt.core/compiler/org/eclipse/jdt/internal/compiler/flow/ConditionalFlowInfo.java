@@ -157,6 +157,11 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
 	this.initsWhenFalse.markAsDefinitelyNull(local);
 }
 
+public void markAsPotentiallyNull(LocalVariableBinding local) {
+	this.initsWhenTrue.markAsPotentiallyNull(local);
+	this.initsWhenFalse.markAsPotentiallyNull(local);
+}
+
 public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 	this.initsWhenTrue.markAsDefinitelyUnknown(local);
 	this.initsWhenFalse.markAsDefinitelyUnknown(local);

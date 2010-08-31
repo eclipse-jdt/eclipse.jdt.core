@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bugs 319201 and 320170
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bugs 292478, 319201 and 320170
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -13020,5 +13020,137 @@ public void testBug317829f() {
 			"  }\n" +
 			"}"},
 			"Compiler good Compiler good");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
+// LocalDeclaration
+public void testBug292478() {
+    this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "public class X {\n" +
+                "  void foo(Object o) {\n" +
+                "    if (o != null) {/* */}\n" +
+                "    Object p = o;\n" +
+                "    p.toString();\n" + // complain here
+                "  }\n" +
+                "}"},
+            "----------\n" +
+            "1. ERROR in X.java (at line 5)\n" + 
+            "	p.toString();\n" + 
+            "	^\n" + 
+            "Potential null pointer access: The variable p may be null at this location\n" + 
+            "----------\n",
+            JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
+// Assignment
+public void testBug292478a() {
+  this.runNegativeTest(
+          new String[] {
+              "X.java",
+              "public class X {\n" +
+              "  void foo(Object o) {\n" +
+              "    Object p;" +
+              "    if (o != null) {/* */}\n" +
+              "    p = o;\n" +
+              "    p.toString();\n" + // complain here
+              "  }\n" +
+              "}"},
+          "----------\n" +
+          "1. ERROR in X.java (at line 5)\n" + 
+          "	p.toString();\n" + 
+          "	^\n" + 
+          "Potential null pointer access: The variable p may be null at this location\n" + 
+          "----------\n",
+          JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
+// Assignment after definite null
+public void testBug292478b() {
+this.runNegativeTest(
+        new String[] {
+            "X.java",
+            "public class X {\n" +
+            "  void foo(Object o) {\n" +
+            "    Object p = null;\n" +
+            "    if (o != null) {/* */}\n" +
+            "    p = o;\n" +
+            "    p.toString();\n" + // complain here
+            "  }\n" +
+            "}"},
+        "----------\n" +
+        "1. ERROR in X.java (at line 6)\n" + 
+        "	p.toString();\n" + 
+        "	^\n" + 
+        "Potential null pointer access: The variable p may be null at this location\n" + 
+        "----------\n",
+        JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
+// Assignment after definite null - many locals
+public void testBug292478c() {
+this.runNegativeTest(
+      new String[] {
+          "X.java",
+          "public class X {\n" +
+          "  void foo(Object o) {\n" +
+          "    int i00, i01, i02, i03, i04, i05, i06, i07, i08, i09;\n" +
+          "    int i10, i11, i12, i13, i14, i15, i16, i17, i18, i19;\n" +
+          "    int i20, i21, i22, i23, i24, i25, i26, i27, i28, i29;\n" +
+          "    int i30, i31, i32, i33, i34, i35, i36, i37, i38, i39;\n" +
+          "    int i40, i41, i42, i43, i44, i45, i46, i47, i48, i49;\n" +
+          "    int i50, i51, i52, i53, i54, i55, i56, i57, i58, i59;\n" +
+          "    int i60, i61, i62, i63, i64, i65, i66, i67, i68, i69;\n" +
+          "    Object p = null;\n" +
+          "    if (o != null) {/* */}\n" +
+          "    p = o;\n" +
+          "    p.toString();\n" + // complain here
+          "  }\n" +
+          "}"},
+      "----------\n" +
+      "1. ERROR in X.java (at line 13)\n" + 
+      "	p.toString();\n" + 
+      "	^\n" + 
+      "Potential null pointer access: The variable p may be null at this location\n" + 
+      "----------\n",
+      JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
+// Assignment affects initsOnFinally
+public void testBug292478d() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			" X bar() {\n" +
+			"   return null;\n" +
+			" }\n" +
+			" Object foo() {\n" +
+			"   X x = null;\n" +
+			"   X y = new X();\n" +
+			"   X u = null;\n" +
+			"   try {\n" +
+			"     u = bar();\n" +
+			"     x = bar();\n" +
+			"     if (x==null) { }\n" +
+			"     y = x;\n" +				// this makes y potentially null
+			"     if (x==null) { y=bar();} else { y=new X(); }\n" +
+			"     return x;\n" +
+			"   } finally {\n" +
+			"     y.toString();\n" +		// must complain against potentially null, although normal exist of tryBlock says differently (unknown or non-null)
+			"   }\n" +
+			" }\n" +
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 17)\n" + 
+		"	y.toString();\n" + 
+		"	^\n" + 
+		"Potential null pointer access: The variable y may be null at this location\n" + 
+		"----------\n");
 }
 }

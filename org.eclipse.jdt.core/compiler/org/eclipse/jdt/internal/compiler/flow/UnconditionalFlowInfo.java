@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 320170   
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bugs 320170 and 292478   
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -1327,6 +1327,39 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 				}
 			}
 		}
+	}
+}
+
+public void markAsPotentiallyNull(LocalVariableBinding local) {
+	if (this != DEAD_END) {
+		this.tagBits |= NULL_FLAG_MASK;
+        int position;
+        long mask;
+        if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
+            // use bits
+            this.nullBit1 &= ~(mask = 1L << position);
+            this.nullBit2 |= mask;
+            this.nullBit3 &= ~mask;
+            this.nullBit4 &= ~mask;
+            if (COVERAGE_TEST_FLAG) {
+				if(CoverageTestId == 40) {
+				  	this.nullBit4 = ~0;
+				}
+			}
+        } else {
+    		// use extra vector
+    		int vectorIndex ;
+    		this.extra[2][vectorIndex = (position / BitCacheSize) - 1]
+    		    &= ~(mask = 1L << (position % BitCacheSize));
+    		this.extra[3][vectorIndex] |= mask;
+    		this.extra[4][vectorIndex] &= (mask = ~mask);
+    		this.extra[5][vectorIndex] &= mask;
+    		if (COVERAGE_TEST_FLAG) {
+				if(CoverageTestId == 41) {
+					this.extra[5][vectorIndex] = ~0;
+				}
+			}
+    	}
 	}
 }
 
