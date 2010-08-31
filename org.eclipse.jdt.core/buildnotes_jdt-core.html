@@ -48,9 +48,59 @@ Eclipse SDK 3.7M2 - %date% - 3.7.0 M2
 <br>Project org.eclipse.jdt.core v_B10
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B10">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>
+The previously added new APIs:
+<blockquote>
+<code>org.eclipse.jdt.core.IImportDeclaration#getNameRange()</code>,<br>
+<code>org.eclipse.jdt.core.IPackageDeclaration#getNameRange()</code>
+</blockquote>
+have been moved to the org.eclipse.jdt.core.ISourceReference interface. See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=321764">321764</a> for details:
+<pre>
+/**
+ * Returns the name range associated with this element.
+ * 
+ * If the element is an IMember, it returns
+ * the source range of this member's simple name,
+ * or null if this member does not have a name
+ * (for example, an initializer), or if this member does not have
+ * associated source code (for example, a binary type).
+ * 
+ * If this element is an IImportDeclaration, the source range
+ * of this import declaration's name, or null if this import
+ * declaration does not have associated source code (for example, a binary type).
+ * The source range for the name includes the trailing '*' if the call to
+ * IImportDeclaration#isOnDemand() returns true.
+ *
+ * If this element is an IPackageDeclaration, the source range of
+ * this package declaration's name, or null if this package 
+ * declaration does not have associated source code (for example, a binary type).
+ *
+ * If this element is an IAnnotation, the source range of
+ * this annotation's name, or null if this annotation does not have
+ * associated source code (for example, in a binary type).
+ * 
+ * If this element is an ITypeParameter, the source range of this 
+ * type parameter's name, or null if this type parameter does not have
+ * associated source code (for example, in a binary type).
+ * 
+ * If this element is an ITypeRoot or IImportContainer, it
+ * returns null.
+ *
+ * @return the name range associated with this element, or null if
+ * not available
+ *
+ * @since 3.7
+ */
+ISourceRange getNameRange() throws JavaModelException;
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478">292478</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=321764">321764</a>
+Add getNameRange() to ISourceReference
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478">292478</a>
 Report potentially null across variable assignment
 
 <a name="v_B09"></a>
