@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 713, -1 };
-//		TESTS_NUMBERS =  new int[] { 653 };
+		TESTS_NUMBERS =  new int[] { 719 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -10491,6 +10491,67 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			ITypeBinding typeBinding = statement.getType().resolveBinding();
 			ITypeBinding typeBinding2 = ((VariableDeclarationFragment) statement.fragments().get(0)).getInitializer().resolveTypeBinding();
 			assertTrue("Is not cast compatible", typeBinding.isCastCompatible(typeBinding2));
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=258905
+	public void test0719() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			String contents =
+				"public class X {}";
+	
+			CompilationUnit unit = (CompilationUnit) buildAST(
+					contents,
+					workingCopy,
+					true);
+			final AST currentAst = unit.getAST();
+			// well known bindings
+			String[] wkbs = {
+				"byte", "char", "short", "int", "long", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+				"boolean", "float", "double", "void", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				"java.lang.AssertionError", //$NON-NLS-1$
+				"java.lang.Class", //$NON-NLS-1$
+				"java.lang.Cloneable", //$NON-NLS-1$
+				"java.lang.Error", //$NON-NLS-1$
+				"java.lang.Exception", //$NON-NLS-1$
+				"java.lang.Object", //$NON-NLS-1$
+				"java.lang.RuntimeException", //$NON-NLS-1$
+				"java.lang.String", //$NON-NLS-1$
+				"java.lang.StringBuffer", //$NON-NLS-1$
+				"java.lang.Throwable", //$NON-NLS-1$
+				"java.io.Serializable", //$NON-NLS-1$
+				"java.lang.Boolean", //$NON-NLS-1$
+				"java.lang.Byte", //$NON-NLS-1$
+				"java.lang.Character", //$NON-NLS-1$
+				"java.lang.Double", //$NON-NLS-1$
+				"java.lang.Float", //$NON-NLS-1$
+				"java.lang.Integer", //$NON-NLS-1$
+				"java.lang.Long", //$NON-NLS-1$
+				"java.lang.Short", //$NON-NLS-1$
+				"java.lang.Void", //$NON-NLS-1$
+			};
+
+			// no-so-well-known bindings
+			String[] nwkbs = {
+				"verylong", //$NON-NLS-1$
+				"java.lang.Math", //$NON-NLS-1$
+				"com.example.MyCode", //$NON-NLS-1$
+			};
+
+			// none of the well known bindings resolve in a plain AST
+			for (int i = 0; i<wkbs.length; i++) {
+				assertNotNull("No binding for " + wkbs[i], currentAst.resolveWellKnownType(wkbs[i]));
+			}
+
+			// none of the no so well known bindings resolve either
+			for (int i = 0; i<nwkbs.length; i++) {
+				assertNull("Binding for " + nwkbs[i], currentAst.resolveWellKnownType(nwkbs[i]));
+			}
 		} finally {
 			if (workingCopy != null) {
 				workingCopy.discardWorkingCopy();

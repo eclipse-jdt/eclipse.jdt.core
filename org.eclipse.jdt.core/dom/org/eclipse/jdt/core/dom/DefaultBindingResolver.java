@@ -1718,6 +1718,8 @@ class DefaultBindingResolver extends BindingResolver {
 				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_SHORT, 3));
 			} else if ("java.lang.Void".equals(name)) {//$NON-NLS-1$
 				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_VOID, 3));
+			} else if ("java.lang.AssertionError".equals(name)) { //$NON-NLS-1$
+				typeBinding = this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_ASSERTIONERROR, 3));
 			}
 		} catch (AbortCompilation e) {
 			// ignore missing types

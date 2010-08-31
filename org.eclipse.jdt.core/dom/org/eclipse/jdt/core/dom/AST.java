@@ -1132,6 +1132,7 @@ public final class AST {
 	 * <li><code>"long"</code></li>
 	 * <li><code>"short"</code></li>
 	 * <li><code>"void"</code></li>
+	 * <li><code>"java.lang.AssertionError"</code> (since 3.7)</li>
 	 * <li><code>"java.lang.Boolean"</code> (since 3.1)</li>
 	 * <li><code>"java.lang.Byte"</code> (since 3.1)</li>
 	 * <li><code>"java.lang.Character"</code> (since 3.1)</li>

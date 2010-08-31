@@ -1337,6 +1337,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		String[] wkbs = {
 			"byte", "char", "short", "int", "long", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			"boolean", "float", "double", "void", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			"java.lang.AssertionError", //$NON-NLS-1$
 			"java.lang.Class", //$NON-NLS-1$
 			"java.lang.Cloneable", //$NON-NLS-1$
 			"java.lang.Error", //$NON-NLS-1$
