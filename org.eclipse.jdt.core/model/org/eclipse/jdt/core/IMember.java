@@ -93,20 +93,6 @@ int getFlags() throws JavaModelException;
  */
 ISourceRange getJavadocRange() throws JavaModelException;
 /**
- * Returns the source range of this member's simple name,
- * or <code>null</code> if this member does not have a name
- * (for example, an initializer), or if this member does not have
- * associated source code (for example, a binary type).
- *
- * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource.
- * @return the source range of this member's simple name,
- * or <code>null</code> if this member does not have a name
- * (for example, an initializer), or if this member does not have
- * associated source code (for example, a binary type)
- */
-ISourceRange getNameRange() throws JavaModelException;
-/**
  * Returns the position relative to the order this member is defined in the source.
  * Numbering starts at 1 (thus the first occurrence is occurrence 1, not occurrence 0).
  * <p>

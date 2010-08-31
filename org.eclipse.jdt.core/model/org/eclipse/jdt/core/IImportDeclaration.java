@@ -39,25 +39,6 @@ String getElementName();
  * @since 3.0
  */
 int getFlags() throws JavaModelException;
-
-/**
- * Returns the source range of this import declaration's name,
- * or <code>null</code> if this import declaration does not have
- * associated source code (for example, a binary type).
- * 
- * <p>The source range for the name includes the trailing '*' if the call to
- * {@link #isOnDemand()} returns true.
- * </p>
- *
- * @exception JavaModelException if this element does not exist or if an
- *      exception occurs while accessing its corresponding resource.
- * @return the source range of this import declaration's name,
- * or <code>null</code> if this import declaration does not have
- * associated source code (for example, a binary type)
- * @since 3.7
- */
-ISourceRange getNameRange() throws JavaModelException;
-
 /**
  * Returns whether the import is on-demand. An import is on-demand if it ends
  * with <code>".*"</code>.

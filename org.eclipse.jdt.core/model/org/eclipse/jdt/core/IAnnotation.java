@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,19 +54,6 @@ public interface IAnnotation extends IJavaElement, ISourceReference {
 	 *		exception occurs while accessing its corresponding resource
 	 */
 	IMemberValuePair[] getMemberValuePairs() throws JavaModelException;
-
-	/**
-	 * Returns the source range of this annotation's name,
-	 * or <code>null</code> if this annotation does not have
-	 * associated source code (for example, in a binary type).
-	 *
-	 * @exception JavaModelException if this element does not exist or if an
-	 *      exception occurs while accessing its corresponding resource.
-	 * @return the source range of this annotation's name,
-	 * 		or <code>null</code> if this annotation does not have
-	 * 		associated source code (for example, in a binary type)
-	 */
-	ISourceRange getNameRange() throws JavaModelException;
 
 	/**
 	 * Returns the position relative to the order this annotation is defined in the source.

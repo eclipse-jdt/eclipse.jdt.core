@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,4 +72,42 @@ String getSource() throws JavaModelException;
  * @see SourceRange#isAvailable(ISourceRange)
  */
 ISourceRange getSourceRange() throws JavaModelException;
+
+/**
+ * Returns the name range associated with this element.
+ * 
+ * <p>If the element is an {@link IMember}, it returns
+ * the source range of this member's simple name,
+ * or <code>null</code> if this member does not have a name
+ * (for example, an initializer), or if this member does not have
+ * associated source code (for example, a binary type).</p>
+ * 
+ * <p>If this element is an {@link IImportDeclaration}, the source range
+ * of this import declaration's name, or <code>null</code> if this import
+ * declaration does not have associated source code (for example, a binary type).
+ * <br>The source range for the name includes the trailing '*' if the call to
+ * {@link IImportDeclaration#isOnDemand()} returns true.
+ * </p>
+ *
+ * <p>If this element is an {@link IPackageDeclaration}, the source range of
+ * this package declaration's name, or <code>null</code> if this package 
+ * declaration does not have associated source code (for example, a binary type).</p>
+ *
+ * <p>If this element is an {@link IAnnotation}, the source range of
+ * this annotation's name, or <code>null</code> if this annotation does not have
+ * associated source code (for example, in a binary type).</p>
+ * 
+ * <p>If this element is an {@link ITypeParameter}, the source range of this 
+ * type parameter's name, or <code>null</code> if this type parameter does not have
+ * associated source code (for example, in a binary type).</p>
+ * 
+ * <p>If this element is an {@link ITypeRoot} or {@link IImportContainer}, it
+ * returns null.</p>
+ *
+ * @return the name range associated with this element, or <code>null</code> if
+ * not available
+ *
+ * @since 3.7
+ */
+ISourceRange getNameRange() throws JavaModelException;
 }

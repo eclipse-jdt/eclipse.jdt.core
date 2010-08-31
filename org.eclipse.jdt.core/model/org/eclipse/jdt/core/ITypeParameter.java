@@ -66,17 +66,4 @@ public interface ITypeParameter extends IJavaElement, ISourceReference {
 	 * @return the declaring member of this type parameter.
 	 */
 	IMember getDeclaringMember();
-
-	/**
-	 * Returns the source range of this type parameter's name,
-	 * or <code>null</code> if this type parameter does not have
-	 * associated source code (for example, in a binary type).
-	 *
-	 * @exception JavaModelException if this element does not exist or if an
-	 *      exception occurs while accessing its corresponding resource.
-	 * @return the source range of this type parameter's name,
-	 * or <code>null</code> if this type parameter does not have
-	 * associated source code (for example, in a binary type)
-	 */
-	ISourceRange getNameRange() throws JavaModelException;
 }
