@@ -108,6 +108,7 @@ public class Scribe implements IJavaDocTagConstants {
 	/** disabling */
 	boolean editsEnabled;
 	boolean useTags;
+	int tagsKind;
 
 	/* Comments formatting */
 	private static final int INCLUDE_BLOCK_COMMENTS = CodeFormatter.F_INCLUDE_COMMENTS | CodeFormatter.K_MULTI_LINE_COMMENT;
@@ -1419,6 +1420,7 @@ public class Scribe implements IJavaDocTagConstants {
 
 	private void initializeScanner(long sourceLevel, DefaultCodeFormatterOptions preferences) {
 		this.useTags = preferences.use_tags;
+		this.tagsKind = 0;
 		char[][] taskTags = null;
 		if (this.useTags) {
 			this.disablingTag = preferences.disabling_tag;
@@ -1431,6 +1433,23 @@ public class Scribe implements IJavaDocTagConstants {
 				taskTags = new char[][] { this.disablingTag };
 			} else {
 				taskTags = new char[][] { this.disablingTag, this.enablingTag };
+			}
+		}
+		if (taskTags != null) {
+			loop: for (int i=0,length=taskTags.length; i<length; i++) {
+				if (taskTags[i].length > 2 && taskTags[i][0] == '/') {
+					switch (taskTags[i][1]) {
+						case '/':
+							this.tagsKind = TerminalTokens.TokenNameCOMMENT_LINE;
+							break loop;
+						case '*':
+							if (taskTags[i][2] != '*') {
+								this.tagsKind = TerminalTokens.TokenNameCOMMENT_BLOCK;
+								break loop;
+							}
+							break;
+					}
+				}
 			}
 		}
 		this.scanner = new Scanner(true, true, false/*nls*/, sourceLevel/*sourceLevel*/, taskTags, null/*taskPriorities*/, true/*taskCaseSensitive*/);
@@ -2368,10 +2387,10 @@ public class Scribe implements IJavaDocTagConstants {
 			int lines = 0;
 			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				int foundTaskCount = this.scanner.foundTaskCount;
+				int tokenStartPosition = this.scanner.getCurrentTokenStartPosition();
 				switch(this.currentToken) {
 					case TerminalTokens.TokenNameWHITESPACE :
 						char[] whiteSpaces = this.scanner.getCurrentTokenSource();
-						int whitespacesStartPosition = this.scanner.getCurrentTokenStartPosition();
 						int whitespacesEndPosition = this.scanner.getCurrentTokenEndPosition();
 						lines = 0;
 						for (int i = 0, max = whiteSpaces.length; i < max; i++) {
@@ -2445,7 +2464,7 @@ public class Scribe implements IJavaDocTagConstants {
 							// if a line comment is consumed, no other comment can be on the same line after
 							if (hasLineComment) {
 								if (lines >= 1) {
-									currentTokenStartPosition = whitespacesStartPosition;
+									currentTokenStartPosition = tokenStartPosition;
 									preserveEmptyLines(lines, currentTokenStartPosition);
 									addDeleteEdit(currentTokenStartPosition, whitespacesEndPosition);
 									this.scanner.resetTo(this.scanner.currentPosition, this.scannerEndPosition - 1);
@@ -2457,7 +2476,7 @@ public class Scribe implements IJavaDocTagConstants {
 							// if one or several new lines are consumed, following comments cannot be considered as trailing ones
 							if (lines >= 1) {
 								if (hasComment) {
-									this.printNewLine(whitespacesStartPosition);
+									this.printNewLine(tokenStartPosition);
 								}
 								this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 								return;
@@ -2465,37 +2484,47 @@ public class Scribe implements IJavaDocTagConstants {
 							// delete consumed white spaces
 							hasWhitespaces = true;
 							currentTokenStartPosition = this.scanner.currentPosition;
-							addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
+							addDeleteEdit(tokenStartPosition, whitespacesEndPosition);
 						} else {
 							if (lines == 0) {
 								hasWhitespaces = true;
-								addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
+								addDeleteEdit(tokenStartPosition, whitespacesEndPosition);
 							} else if (hasLineComment) {
-								currentTokenStartPosition = whitespacesStartPosition;
+								currentTokenStartPosition = tokenStartPosition;
 								preserveEmptyLines(lines, currentTokenStartPosition);
 								addDeleteEdit(currentTokenStartPosition, whitespacesEndPosition);
 							} else if (hasComment) {
 								if (lines == 1) {
-									this.printNewLine(whitespacesStartPosition);
+									this.printNewLine(tokenStartPosition);
 								} else {
-									preserveEmptyLines(lines - 1, whitespacesStartPosition);
+									preserveEmptyLines(lines - 1, tokenStartPosition);
 								}
-								addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
+								addDeleteEdit(tokenStartPosition, whitespacesEndPosition);
 							} else if (lines != 0 && (!this.formatter.preferences.join_wrapped_lines || this.formatter.preferences.number_of_empty_lines_to_preserve != 0 || this.blank_lines_between_import_groups > 0)) {
-								addReplaceEdit(whitespacesStartPosition, whitespacesEndPosition, getPreserveEmptyLines(lines-1));
+								addReplaceEdit(tokenStartPosition, whitespacesEndPosition, getPreserveEmptyLines(lines-1));
 							} else {
-								addDeleteEdit(whitespacesStartPosition, whitespacesEndPosition);
+								addDeleteEdit(tokenStartPosition, whitespacesEndPosition);
 							}
 						}
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					case TerminalTokens.TokenNameCOMMENT_LINE :
-						if (this.useTags && this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
-							if (!this.editsEnabled && this.editsIndex > 1) {
-								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
-								if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
-									printNewLinesBeforeDisablingComment();
+						if (this.useTags && this.editsEnabled) {
+							boolean turnOff = false;
+							if (foundTaskCount > 0) {
+								setEditsEnabled(foundTaskCount);
+								turnOff = true;
+							} else if (this.tagsKind == this.currentToken
+								&& CharOperation.fragmentEquals(this.disablingTag, this.scanner.source, tokenStartPosition, true)) {
+    							this.editsEnabled = false;
+								turnOff = true;
+					    	}
+							if (turnOff) {
+								if (!this.editsEnabled && this.editsIndex > 1) {
+									OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
+									if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
+										printNewLinesBeforeDisablingComment();
+									}
 								}
 							}
 						}
@@ -2514,17 +2543,31 @@ public class Scribe implements IJavaDocTagConstants {
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasLineComment = true;
 						lines = 0;
-						if (this.useTags && !this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
+						if (this.useTags && !this.editsEnabled) {
+							if (foundTaskCount > 0) {
+								setEditsEnabled(foundTaskCount);
+							} else if (this.tagsKind == this.currentToken) {
+	    						this.editsEnabled = CharOperation.fragmentEquals(this.enablingTag, this.scanner.source, tokenStartPosition, true);
+					    	}
 						}
 						break;
 					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-						if (this.useTags && this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
-							if (!this.editsEnabled && this.editsIndex > 1) {
-								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
-								if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
-									printNewLinesBeforeDisablingComment();
+						if (this.useTags && this.editsEnabled) {
+							boolean turnOff = false;
+							if (foundTaskCount > 0) {
+								setEditsEnabled(foundTaskCount);
+								turnOff = true;
+							} else if (this.tagsKind == this.currentToken
+								&& CharOperation.fragmentEquals(this.disablingTag, this.scanner.source, tokenStartPosition, true)) {
+    							this.editsEnabled = false;
+								turnOff = true;
+					    	}
+							if (turnOff) {
+								if (!this.editsEnabled && this.editsIndex > 1) {
+									OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
+									if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
+										printNewLinesBeforeDisablingComment();
+									}
 								}
 							}
 						}
@@ -2550,8 +2593,12 @@ public class Scribe implements IJavaDocTagConstants {
 						hasLineComment = false;
 						hasComment = true;
 						lines = 0;
-						if (this.useTags && !this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
+						if (this.useTags && !this.editsEnabled) {
+							if (foundTaskCount > 0) {
+								setEditsEnabled(foundTaskCount);
+							} else if (this.tagsKind == this.currentToken) {
+	    						this.editsEnabled = CharOperation.fragmentEquals(this.enablingTag, this.scanner.source, tokenStartPosition, true);
+					    	}
 						}
 						break;
 					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
@@ -4430,6 +4477,8 @@ public class Scribe implements IJavaDocTagConstants {
 			boolean hasModifiers = false;
 			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				int foundTaskCount = this.scanner.foundTaskCount;
+				int tokenStartPosition = this.scanner.getCurrentTokenStartPosition();
+				int tokenEndPosition = this.scanner.getCurrentTokenEndPosition();
 				switch(this.currentToken) {
 					case TerminalTokens.TokenNamepublic :
 					case TerminalTokens.TokenNameprotected :
@@ -4494,35 +4543,64 @@ public class Scribe implements IJavaDocTagConstants {
 						break;
 					case TerminalTokens.TokenNameCOMMENT_BLOCK :
 					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-						if (this.useTags && this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
-							if (!this.editsEnabled && this.editsIndex > 1) {
-								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
-								if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
-									printNewLinesBeforeDisablingComment();
+						if (this.useTags && this.editsEnabled) {
+							boolean turnOff = false;
+							if (foundTaskCount > 0) {
+								setEditsEnabled(foundTaskCount);
+								turnOff = true;
+							} else if (this.tagsKind == this.currentToken
+								&& CharOperation.equals(this.disablingTag, this.scanner.source, tokenStartPosition, tokenEndPosition+1)) {
+    							this.editsEnabled = false;
+								turnOff = true;
+					    	}
+							if (turnOff) {
+								if (!this.editsEnabled && this.editsIndex > 1) {
+									OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
+									if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
+										printNewLinesBeforeDisablingComment();
+									}
 								}
 							}
 						}
 						printBlockComment(this.currentToken == TerminalTokens.TokenNameCOMMENT_JAVADOC);
-						if (this.useTags && !this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
+						if (this.useTags && !this.editsEnabled) {
+							if (foundTaskCount > 0) {
+								setEditsEnabled(foundTaskCount);
+							} else if (this.tagsKind == this.currentToken) {
+	    						this.editsEnabled = CharOperation.equals(this.enablingTag, this.scanner.source, tokenStartPosition, tokenEndPosition+1);
+					    	}
 						}
 						currentTokenStartPosition = this.scanner.currentPosition;
 						hasComment = true;
 						break;
 					case TerminalTokens.TokenNameCOMMENT_LINE :
-						if (this.useTags && this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
-							if (!this.editsEnabled && this.editsIndex > 1) {
-								OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
-								if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
-									printNewLinesBeforeDisablingComment();
+						tokenEndPosition = -this.scanner.commentStops[this.scanner.commentPtr];
+						if (this.useTags && this.editsEnabled) {
+							boolean turnOff = false;
+							if (foundTaskCount > 0) {
+								setEditsEnabled(foundTaskCount);
+								turnOff = true;
+							} else if (this.tagsKind == this.currentToken
+								&& CharOperation.equals(this.disablingTag, this.scanner.source, tokenStartPosition, tokenEndPosition)) {
+    							this.editsEnabled = false;
+								turnOff = true;
+					    	}
+							if (turnOff) {
+								if (!this.editsEnabled && this.editsIndex > 1) {
+									OptimizedReplaceEdit currentEdit = this.edits[this.editsIndex-1];
+									if (this.scanner.startPosition == currentEdit.offset+currentEdit.length) {
+										printNewLinesBeforeDisablingComment();
+									}
 								}
 							}
 						}
 						printLineComment();
-						if (this.useTags && !this.editsEnabled && foundTaskCount > 0) {
-							setEditsEnabled(foundTaskCount);
+						if (this.useTags && !this.editsEnabled) {
+							if (foundTaskCount > 0) {
+								setEditsEnabled(foundTaskCount);
+							} else if (this.tagsKind == this.currentToken) {
+	    						this.editsEnabled = CharOperation.equals(this.enablingTag, this.scanner.source, tokenStartPosition, tokenEndPosition);
+					    	}
 						}
 						currentTokenStartPosition = this.scanner.currentPosition;
 						break;

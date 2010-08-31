@@ -363,17 +363,17 @@ public void testBug027079d() throws JavaModelException {
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
-		"public class X04 {\r\n" + 
-		"\r\n" + 
-		"/* disable-formatter */\r\n" + 
-		"void     foo(    )      {	\r\n" + 
-		"				//      unformatted       comment  	  \r\n" + 
-		"}\r\n" + 
-		"/* enable-formatter */\r\n" + 
-		"void     bar(    )      {	\r\n" + 
-		"				//      formatted       comment  	  \r\n" + 
-		"}\r\n" + 
-		"}\r\n";
+		"public class X04 {\n" + 
+		"\n" + 
+		"/* disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment  	  \n" + 
+		"}\n" + 
+		"/* enable-formatter */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment  	  \n" + 
+		"}\n" + 
+		"}\n";
 	formatSource(source,
 		"public class X04 {\n" + 
 		"\n" + 
@@ -410,22 +410,22 @@ public void testBug027079d2() throws JavaModelException {
 		"}\n" + 
 		"}\n";
 	formatSource(source,
-		"public class X04b {\r\n" + 
-		"\r\n" + 
-		"/* disable-formatter */\r\n" + 
-		"void     foo(    )      {	\r\n" + 
-		"				//      unformatted       comment  	  \r\n" + 
-		"}\r\n" + 
-		"/* enable-formatter */\r\n" + 
-		"	void bar() {\r\n" + 
-		"		// formatted comment\r\n" + 
-		"	}\r\n" + 
-		"}\r\n",
+		"public class X04b {\n" + 
+		"\n" + 
+		"/* disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment  	  \n" + 
+		"}\n" + 
+		"/* enable-formatter */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n",
 		CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS,
 		0 /* indentation level */,
 		0 /* offset */,
 		-1 /* length (all) */,
-		"\r\n",
+		"\n",
 		true/*repeat*/);
 }
 public void testBug027079d3() throws JavaModelException {
@@ -433,34 +433,34 @@ public void testBug027079d3() throws JavaModelException {
 	this.formatterPrefs.disabling_tag = "disable-formatter".toCharArray();
 	this.formatterPrefs.enabling_tag = "enable-formatter".toCharArray();
 	String source =
-		"public class X04c {\r\n" + 
-		"\r\n" + 
-		"/* disable-formatter */\r\n" + 
-		"void     foo(    )      {	\r\n" + 
-		"				//      unformatted       comment  	  \r\n" + 
-		"}\r\n" + 
-		"/* enable-formatter */\r\n" + 
-		"void     bar(    )      {	\r\n" + 
-		"				//      formatted       comment  	  \r\n" + 
-		"}\r\n" + 
-		"}\r\n";
+		"public class X04c {\n" + 
+		"\n" + 
+		"/* disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment  	  \n" + 
+		"}\n" + 
+		"/* enable-formatter */\n" + 
+		"void     bar(    )      {	\n" + 
+		"				//      formatted       comment  	  \n" + 
+		"}\n" + 
+		"}\n";
 	formatSource(source,
-		"public class X04c {\r\n" + 
-		"\r\n" + 
-		"/* disable-formatter */\r\n" + 
-		"void     foo(    )      {	\r\n" + 
-		"				//      unformatted       comment  	  \r\n" + 
-		"}\r\n" + 
-		"/* enable-formatter */\r\n" + 
-		"	void bar() {\r\n" + 
-		"		// formatted comment\r\n" + 
-		"	}\r\n" + 
-		"}\r\n",
+		"public class X04c {\n" + 
+		"\n" + 
+		"/* disable-formatter */\n" + 
+		"void     foo(    )      {	\n" + 
+		"				//      unformatted       comment  	  \n" + 
+		"}\n" + 
+		"/* enable-formatter */\n" + 
+		"	void bar() {\n" + 
+		"		// formatted comment\n" + 
+		"	}\n" + 
+		"}\n",
 		CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS,
 		0 /* indentation level */,
 		0 /* offset */,
 		-1 /* length (all) */,
-		"\r\n",
+		"\n",
 		true/*repeat*/);
 }
 public void testBug027079d4() throws JavaModelException {
@@ -6046,6 +6046,423 @@ public void testBug309706b() {
 }
 
 /**
+ * @bug 311578: [formatter] Enable/disable tag detection should include comment start/end tokens
+ * @test Ensure that the formatter now accepts tags with comment start/end tokens
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311578"
+ */
+public void testBug311578a() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	this.formatterPrefs.disabling_tag = "//J-".toCharArray();
+	this.formatterPrefs.enabling_tag = "//J+".toCharArray();
+	String source =
+		"package a;\n" + 
+		"public class Bug {\n" + 
+		"int a      =  -     1  +    42;\n" + 
+		"\n" + 
+		"//J-\n" + 
+		"int b      =  -     1  +    42;\n" + 
+		"//J+\n" + 
+		"\n" + 
+		"char                       x;\n" + 
+		"\n" + 
+		"////J-\n" + 
+		"int c      =  -     1  +    42;\n" + 
+		"////J+\n" + 
+		"\n" + 
+		"char                       y;\n" + 
+		"\n" + 
+		"/* J- */\n" + 
+		"int d      =  -     1  +    42;\n" + 
+		"/* J+ */\n" + 
+		"\n" + 
+		"char                       z;\n" + 
+		"\n" + 
+		"/* //J- */\n" + 
+		"int e      =  -     1  +    42;\n" + 
+		"/* //J+ */\n" + 
+		"\n" + 
+		"/** J-1 blabla */\n" + 
+		"char                       t;\n" + 
+		"}\n";
+	formatSource(source,
+		"package a;\n" + 
+		"\n" + 
+		"public class Bug {\n" + 
+		"	int a = -1 + 42;\n" + 
+		"\n" + 
+		"//J-\n" + 
+		"int b      =  -     1  +    42;\n" + 
+		"//J+\n" + 
+		"\n" + 
+		"	char x;\n" + 
+		"\n" + 
+		"////J-\n" + 
+		"int c      =  -     1  +    42;\n" + 
+		"////J+\n" + 
+		"\n" + 
+		"	char y;\n" + 
+		"\n" + 
+		"	/* J- */\n" + 
+		"	int d = -1 + 42;\n" + 
+		"	/* J+ */\n" + 
+		"\n" + 
+		"	char z;\n" + 
+		"\n" + 
+		"/* //J- */\n" + 
+		"int e      =  -     1  +    42;\n" + 
+		"/* //J+ */\n" + 
+		"\n" + 
+		"	/** J-1 blabla */\n" + 
+		"	char t;\n" + 
+		"}\n"
+	);
+}
+public void testBug311578b() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	this.formatterPrefs.disabling_tag = "/* J- */".toCharArray();
+	this.formatterPrefs.enabling_tag = "/* J+ */".toCharArray();
+	String source =
+		"package a;\n" + 
+		"public class Bug {\n" + 
+		"int a      =  -     1  +    42;\n" + 
+		"\n" + 
+		"//J-\n" + 
+		"int b      =  -     1  +    42;\n" + 
+		"//J+\n" + 
+		"\n" + 
+		"char                       x;\n" + 
+		"\n" + 
+		"////J-\n" + 
+		"int c      =  -     1  +    42;\n" + 
+		"////J+\n" + 
+		"\n" + 
+		"char                       y;\n" + 
+		"\n" + 
+		"/* J- */\n" + 
+		"int d      =  -     1  +    42;\n" + 
+		"/* J+ */\n" + 
+		"\n" + 
+		"char                       z;\n" + 
+		"\n" + 
+		"/* //J- */\n" + 
+		"int e      =  -     1  +    42;\n" + 
+		"/* //J+ */\n" + 
+		"\n" + 
+		"/** J-1 blabla */\n" + 
+		"char                       t;\n" + 
+		"}\n";
+	formatSource(source,
+		"package a;\n" + 
+		"\n" + 
+		"public class Bug {\n" + 
+		"	int a = -1 + 42;\n" + 
+		"\n" + 
+		"	// J-\n" + 
+		"	int b = -1 + 42;\n" + 
+		"	// J+\n" + 
+		"\n" + 
+		"	char x;\n" + 
+		"\n" + 
+		"	// //J-\n" + 
+		"	int c = -1 + 42;\n" + 
+		"	// //J+\n" + 
+		"\n" + 
+		"	char y;\n" + 
+		"\n" + 
+		"/* J- */\n" + 
+		"int d      =  -     1  +    42;\n" + 
+		"/* J+ */\n" + 
+		"\n" + 
+		"	char z;\n" + 
+		"\n" + 
+		"	/* //J- */\n" + 
+		"	int e = -1 + 42;\n" + 
+		"	/* //J+ */\n" + 
+		"\n" + 
+		"	/** J-1 blabla */\n" + 
+		"	char t;\n" + 
+		"}\n"
+	);
+}
+public void testBug311578c() throws JavaModelException {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_USE_ON_OFF_TAGS, DefaultCodeFormatterConstants.TRUE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, "//F--");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, "//F++");
+	String source =
+		"package a;\n" + 
+		"public class Bug {\n" + 
+		"int a      =  -     1  +    42;\n" + 
+		"\n" + 
+		"//F--\n" + 
+		"int b      =  -     1  +    42;\n" + 
+		"//F++\n" + 
+		"\n" + 
+		"char                       x;\n" + 
+		"\n" + 
+		"////F--\n" + 
+		"int c      =  -     1  +    42;\n" + 
+		"////F++\n" + 
+		"\n" + 
+		"char                       y;\n" + 
+		"\n" + 
+		"/* F-- */\n" + 
+		"int d      =  -     1  +    42;\n" + 
+		"/* F++ */\n" + 
+		"\n" + 
+		"char                       z;\n" + 
+		"\n" + 
+		"/* //F-- */\n" + 
+		"int e      =  -     1  +    42;\n" + 
+		"/* //F++ */\n" + 
+		"\n" + 
+		"/** F--1 blabla */\n" + 
+		"char                       t;\n" + 
+		"}\n";
+	formatSource(source,
+		"package a;\n" + 
+		"\n" + 
+		"public class Bug {\n" + 
+		"	int a = -1 + 42;\n" + 
+		"\n" + 
+		"//F--\n" + 
+		"int b      =  -     1  +    42;\n" + 
+		"//F++\n" + 
+		"\n" + 
+		"	char x;\n" + 
+		"\n" + 
+		"////F--\n" + 
+		"int c      =  -     1  +    42;\n" + 
+		"////F++\n" + 
+		"\n" + 
+		"	char y;\n" + 
+		"\n" + 
+		"	/* F-- */\n" + 
+		"	int d = -1 + 42;\n" + 
+		"	/* F++ */\n" + 
+		"\n" + 
+		"	char z;\n" + 
+		"\n" + 
+		"/* //F-- */\n" + 
+		"int e      =  -     1  +    42;\n" + 
+		"/* //F++ */\n" + 
+		"\n" + 
+		"	/** F--1 blabla */\n" + 
+		"	char t;\n" + 
+		"}\n"
+	);
+}
+public void testBug311578d() throws JavaModelException {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_USE_ON_OFF_TAGS, DefaultCodeFormatterConstants.TRUE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, "/*F--*/");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, "/*F++*/");
+	String source =
+		"package a;\n" + 
+		"public class Bug {\n" + 
+		"int a      =  -     1  +    42;\n" + 
+		"\n" + 
+		"//F--\n" + 
+		"int b      =  -     1  +    42;\n" + 
+		"//F++\n" + 
+		"\n" + 
+		"char                       x;\n" + 
+		"\n" + 
+		"////F--\n" + 
+		"int c      =  -     1  +    42;\n" + 
+		"////F++\n" + 
+		"\n" + 
+		"char                       y;\n" + 
+		"\n" + 
+		"/* F-- */\n" + 
+		"int d      =  -     1  +    42;\n" + 
+		"/* F++ */\n" + 
+		"\n" + 
+		"char                       y2;\n" + 
+		"\n" + 
+		"/*F--*/\n" + 
+		"int d2      =  -     1  +    42;\n" + 
+		"/*F++*/\n" + 
+		"\n" + 
+		"char                       z;\n" + 
+		"\n" + 
+		"/* //F-- */\n" + 
+		"int e      =  -     1  +    42;\n" + 
+		"/* //F++ */\n" + 
+		"\n" + 
+		"/** F--1 blabla */\n" + 
+		"char                       t;\n" + 
+		"}\n";
+	formatSource(source,
+		"package a;\n" + 
+		"\n" + 
+		"public class Bug {\n" + 
+		"	int a = -1 + 42;\n" + 
+		"\n" + 
+		"	// F--\n" + 
+		"	int b = -1 + 42;\n" + 
+		"	// F++\n" + 
+		"\n" + 
+		"	char x;\n" + 
+		"\n" + 
+		"	// //F--\n" + 
+		"	int c = -1 + 42;\n" + 
+		"	// //F++\n" + 
+		"\n" + 
+		"	char y;\n" + 
+		"\n" + 
+		"	/* F-- */\n" + 
+		"	int d = -1 + 42;\n" + 
+		"	/* F++ */\n" + 
+		"\n" + 
+		"	char y2;\n" + 
+		"\n" + 
+		"/*F--*/\n" + 
+		"int d2      =  -     1  +    42;\n" + 
+		"/*F++*/\n" + 
+		"\n" + 
+		"	char z;\n" + 
+		"\n" + 
+		"	/* //F-- */\n" + 
+		"	int e = -1 + 42;\n" + 
+		"	/* //F++ */\n" + 
+		"\n" + 
+		"	/** F--1 blabla */\n" + 
+		"	char t;\n" + 
+		"}\n"
+	);
+}
+public void testBug311578e() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	this.formatterPrefs.disabling_tag = "//J-".toCharArray();
+	this.formatterPrefs.enabling_tag = "//J+".toCharArray();
+	String source =
+		"package a;\n" + 
+		"public class Bug {\n" + 
+		"char                       z2;\n" + 
+		"\n" + 
+		"//J-1\n" + 
+		"int f      =  -     1  +    42;\n" + 
+		"//J+2\n" + 
+		"\n" + 
+		"char                       z3;\n" + 
+		"\n" + 
+		"//J- 1\n" + 
+		"int g      =  -     1  +    42;\n" + 
+		"//J+ 2\n" + 
+		"\n" + 
+		"char                       z4;\n" + 
+		"\n" + 
+		"  //J-\n" + 
+		"int h      =  -     1  +    42;\n" + 
+		"  //J+\n" + 
+		"\n" + 
+		"char                       z5;\n" + 
+		"\n" + 
+		"/*\n" + 
+		"//J-\n" + 
+		"*/\n" + 
+		"int i      =  -     1  +    42;\n" + 
+		"/*\n" + 
+		" //J+\n" + 
+		" */\n" + 
+		"\n" + 
+		"char                       z6;" +
+		"}\n";
+	formatSource(source,
+		"package a;\n" + 
+		"\n" + 
+		"public class Bug {\n" + 
+		"	char z2;\n" + 
+		"\n" + 
+		"//J-1\n" + 
+		"int f      =  -     1  +    42;\n" + 
+		"//J+2\n" + 
+		"\n" + 
+		"	char z3;\n" + 
+		"\n" + 
+		"//J- 1\n" + 
+		"int g      =  -     1  +    42;\n" + 
+		"//J+ 2\n" + 
+		"\n" + 
+		"	char z4;\n" + 
+		"\n" + 
+		"	//J-\n" + 
+		"int h      =  -     1  +    42;\n" + 
+		"  //J+\n" + 
+		"\n" + 
+		"	char z5;\n" + 
+		"\n" + 
+		"/*\n" + 
+		"//J-\n" + 
+		"*/\n" + 
+		"int i      =  -     1  +    42;\n" + 
+		"/*\n" + 
+		" //J+\n" + 
+		" */\n" + 
+		"\n" + 
+		"	char z6;\n" + 
+		"}\n"
+	);
+}
+public void testBug311578_320754a() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	this.formatterPrefs.disabling_tag = "//J-".toCharArray();
+	this.formatterPrefs.enabling_tag = "//J+".toCharArray();
+	String source =
+		"//J-\n" + 
+		"@MyAnnot (\n" + 
+		"  testAttribute = {\"test1\", \"test2\", \"test3\"}\n" + 
+		")\n" + 
+		"//J+\n" + 
+		"public class X\n" + 
+		"{\n" + 
+		"    public void foo()\n" + 
+		"    {\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"//J-\n" + 
+		"@MyAnnot (\n" + 
+		"  testAttribute = {\"test1\", \"test2\", \"test3\"}\n" + 
+		")\n" + 
+		"//J+\n" + 
+		"public class X {\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug311578_320754b() throws JavaModelException {
+	this.formatterPrefs.use_tags = true;
+	this.formatterPrefs.disabling_tag = "/*J-*/".toCharArray();
+	this.formatterPrefs.enabling_tag = "/*J+*/".toCharArray();
+	String source =
+		"/*J-*/\n" + 
+		"@MyAnnot (\n" + 
+		"  testAttribute = {\"test1\", \"test2\", \"test3\"}\n" + 
+		")\n" + 
+		"/*J+*/\n" + 
+		"public class X\n" + 
+		"{\n" + 
+		"    public void foo()\n" + 
+		"    {\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"/*J-*/\n" + 
+		"@MyAnnot (\n" + 
+		"  testAttribute = {\"test1\", \"test2\", \"test3\"}\n" + 
+		")\n" + 
+		"/*J+*/\n" + 
+		"public class X {\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 311582: [formatter] Master switch to enable/disable on/off tags
  * @test Ensure that the formatter does not take care of formatting tags by default
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311582"
@@ -6693,9 +7110,8 @@ public void testBug313524_wksp1_12() throws JavaModelException {
 }
 
 /**
- * @bug 320754: [formatter] Add preference for improved lines wrapping in nested method calls
- * @test Ensure that the formatter keep previous eclipse versions behavior when
- * 		the "Try to keep nested expressions on one line" preference is set.
+ * @bug 320754: [formatter] formatter:off/on tags does not work correctly
+ * @test Ensure disabling/enabling tags work properly around annotations
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=320754"
  */
 public void testBug320754_00() throws JavaModelException {
