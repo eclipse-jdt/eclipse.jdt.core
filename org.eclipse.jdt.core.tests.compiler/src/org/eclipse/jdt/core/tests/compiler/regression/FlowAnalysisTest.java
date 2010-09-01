@@ -2213,6 +2213,39 @@ public void test070() {
 		true /* shouldFlushOutputDirectory */,
 		compilerOptions);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324154
+public void test071() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"public class X {\n" +
+			"  static {\n" +
+			"    try {\n" +
+			"      while(true) {\n" +
+			"          if (true)\n" +
+			"              throw new NumberFormatException();\n" +
+			"          else\n" +
+			"              throw new IOException();\n" +
+			"      }\n" +
+			"    } catch(IOException e ) {\n" +
+			"        // empty\n" +
+			"    } \n" +
+			"  } \n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 9)\n" + 
+		"	throw new IOException();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	throw new IOException();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }

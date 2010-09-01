@@ -117,7 +117,7 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 				    int state = caughtException == null
 				    	? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
 				        : Scope.compareTypes(raisedException, caughtException);
-				    if (abruptlyExitedLoops != null && state != Scope.NOT_RELATED) {
+				    if (abruptlyExitedLoops != null && caughtException != null && state != Scope.NOT_RELATED) {
 				    	for (int i = 0, abruptlyExitedLoopsCount = abruptlyExitedLoops.size(); i < abruptlyExitedLoopsCount; i++) {
 							LoopingFlowContext loop = (LoopingFlowContext) abruptlyExitedLoops.get(i);
 							loop.recordCatchContextOfEscapingException(exceptionContext, caughtException);
@@ -234,7 +234,7 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 						    int state = caughtException == null
 						    	? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
 						        : Scope.compareTypes(raisedException, caughtException);
-						    if (abruptlyExitedLoops != null && state != Scope.NOT_RELATED) {
+						    if (abruptlyExitedLoops != null && caughtException != null && state != Scope.NOT_RELATED) {
 						    	for (int i = 0, abruptlyExitedLoopsCount = abruptlyExitedLoops.size(); i < abruptlyExitedLoopsCount; i++) {
 									LoopingFlowContext loop = (LoopingFlowContext) abruptlyExitedLoops.get(i);
 									loop.recordCatchContextOfEscapingException(exceptionContext, caughtException);
