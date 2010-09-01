@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephen Herrmann <stephan@cs.tu-berlin.de> -  Contribution for bug 133125
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -317,6 +318,18 @@ public int nullStatus(FlowInfo flowInfo) {
 	    ifFalseNullStatus = this.valueIfFalse.nullStatus(flowInfo);
 	if (ifTrueNullStatus == ifFalseNullStatus) {
 		return ifTrueNullStatus;
+	}
+	// is there a chance of null? -> potentially null
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
+	switch (ifTrueNullStatus) {
+		case FlowInfo.NULL:
+		case FlowInfo.POTENTIALLY_NULL:
+			return FlowInfo.POTENTIALLY_NULL;
+	}
+	switch (ifFalseNullStatus) {
+		case FlowInfo.NULL:
+		case FlowInfo.POTENTIALLY_NULL:
+			return FlowInfo.POTENTIALLY_NULL;
 	}
 	return FlowInfo.UNKNOWN;
 	// cannot decide which branch to take, and they disagree

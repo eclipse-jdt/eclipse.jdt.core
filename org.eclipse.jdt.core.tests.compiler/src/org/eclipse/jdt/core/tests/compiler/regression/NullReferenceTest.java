@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bugs 292478, 319201 and 320170
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bugs 133125, 292478, 319201 and 320170
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -729,17 +729,8 @@ public void test0033_conditional_expression() {
 }
 
 // null analysis -- conditional expression
-// TODO (maxime) fix - may consider simultaneous computation of expression null status
-// this case is one of those which raise the need for the simultaneous calculation of
-// the null status of an expression and the code analysis of the said expression; this
-// case is simplistic: we need a value (here, potentially null), that is *not* carried
-// by the current embodiment of the flow info; other cases are less trivial in which
-// side effects on variables could introduce errors into after the facts evaluations;
-// one possible trick would be to add a slot for this
-// other path: use a tainted unknown expression status; does not seem to cope well
-// with o = (o ==  null ? new Object() : o)
-// TODO (maxime) https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
-public void _test0034_conditional_expression() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
+public void test0034_conditional_expression() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -750,12 +741,90 @@ public void _test0034_conditional_expression() {
 			"    o.toString();\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"The variable o may be null\n" +
-		"----------\n");
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	o.toString();\n" +
+			"	^\n" +
+			"Potential null pointer access: The variable o may be null at this location\n" +
+			"----------\n");
+}
+
+// null analysis -- conditional expression
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
+// variant with constant condition
+public void test0034_conditional_expression_2() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  boolean b;\n" +
+			"  void foo() {\n" +
+			"    Object o = false ? null : new Object();\n" +
+			"    o.toString();\n" +
+			"  }\n" +
+			"}\n"},
+			"");
+}
+
+// null analysis -- conditional expression
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
+public void test0034_conditional_expression_3() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  boolean b;\n" +
+			"  void foo(Object a) {\n" +
+			" 	 if (a == null) {}\n" +
+			"    Object o = b ? a : new Object();\n" +
+			"    o.toString();\n" +
+			"  }\n" +
+			"}\n"},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	o.toString();\n" +
+			"	^\n" +
+			"Potential null pointer access: The variable o may be null at this location\n" +
+			"----------\n");
+}
+
+// null analysis -- conditional expression
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
+// variant with dependency between condition and expression - LocalDeclaration
+// TODO(stephan) cannot analyse this flow dependency
+public void _test0034_conditional_expression_4() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  boolean b;\n" +
+			"  void foo(Object u) {\n" +
+			"    if (u == null) {}\n" + //taint
+			"    Object o = (u == null) ? new Object() : u;\n" +
+			"    o.toString();\n" +
+			"  }\n" +
+			"}\n"},
+			"");
+}
+
+// null analysis -- conditional expression
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
+// variant with dependency between condition and expression - Assignment
+// TODO(stephan) cannot analyse this flow dependency
+public void _test0034_conditional_expression_5() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  boolean b;\n" +
+			"  void foo(Object u) {\n" +
+			"    if (u == null) {}\n" + //taint
+			"    Object o;\n" +
+			"    o = (u == null) ? new Object() : u;\n" +
+			"    o.toString();\n" +
+			"  }\n" +
+			"}\n"},
+			"");
 }
 
 // null analysis -- conditional expression
