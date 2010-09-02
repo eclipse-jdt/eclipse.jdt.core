@@ -12071,4 +12071,23 @@ public void testBug317264f() throws CoreException {
 		deleteProject("P");
 	}
 }
+
+/**
+ * @bug 324109: [search] Java search shows incorrect results as accurate matches
+ * @test search of method declaration off missing types should report potential matches and not accurate.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324109"
+ */
+public void testBug324109() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b324109/X.java",
+		"package b324109;\n" +
+		"public class X extends A {\n" +
+		" public void run() {}\n" +
+		"}"
+	);
+	search("Worker.run()", METHOD, DECLARATIONS);
+	assertSearchResults(
+		"src/b324109/X.java void b324109.X.run() [run] POTENTIAL_MATCH"
+	);
+}
 }
