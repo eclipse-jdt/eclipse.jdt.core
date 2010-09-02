@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -148,21 +148,21 @@ public class Assignment extends Expression {
 	}
 
 	/**
-	 * The "leftHandSide" structural property of this node type.
+	 * The "leftHandSide" structural property of this node type (child type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor LEFT_HAND_SIDE_PROPERTY =
 		new ChildPropertyDescriptor(Assignment.class, "leftHandSide", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "operator" structural property of this node type.
+	 * The "operator" structural property of this node type (type: {@link Assignment.Operator}).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor OPERATOR_PROPERTY =
 		new SimplePropertyDescriptor(Assignment.class, "operator", Assignment.Operator.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "rightHandSide" structural property of this node type.
+	 * The "rightHandSide" structural property of this node type (child type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor RIGHT_HAND_SIDE_PROPERTY =

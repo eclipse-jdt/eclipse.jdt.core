@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -174,28 +174,28 @@ public class InfixExpression extends Expression {
 	}
 
 	/**
-	 * The "leftOperand" structural property of this node type.
+	 * The "leftOperand" structural property of this node type (child type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor LEFT_OPERAND_PROPERTY =
 		new ChildPropertyDescriptor(InfixExpression.class, "leftOperand", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "operator" structural property of this node type.
+	 * The "operator" structural property of this node type (type: {@link InfixExpression.Operator}).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor OPERATOR_PROPERTY =
 		new SimplePropertyDescriptor(InfixExpression.class, "operator", InfixExpression.Operator.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "rightOperand" structural property of this node type.
+	 * The "rightOperand" structural property of this node type (child type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor RIGHT_OPERAND_PROPERTY =
 		new ChildPropertyDescriptor(InfixExpression.class, "rightOperand", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "extendedOperands" structural property of this node type.
+	 * The "extendedOperands" structural property of this node type (element type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor EXTENDED_OPERANDS_PROPERTY =
@@ -252,7 +252,7 @@ public class InfixExpression extends Expression {
 
 	/**
 	 * The list of extended operand expressions (element type:
-	 * <code>Expression</code>). Lazily initialized; defaults to an empty list.
+	 * {@link Expression}). Lazily initialized; defaults to an empty list.
 	 */
 	private ASTNode.NodeList extendedOperands = null;
 
@@ -507,7 +507,7 @@ public class InfixExpression extends Expression {
 	 * </p>
 	 *
 	 * @return the live list of extended operands
-	 *   (element type: <code>Expression</code>)
+	 *   (element type: {@link Expression})
 	 */
 	public List extendedOperands() {
 		if (this.extendedOperands == null) {

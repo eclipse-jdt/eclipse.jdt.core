@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,21 +38,21 @@ import java.util.List;
 public class PackageDeclaration extends ASTNode {
 
 	/**
-	 * The "javadoc" structural property of this node type.
+	 * The "javadoc" structural property of this node type (child type: {@link Javadoc}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor JAVADOC_PROPERTY =
 		new ChildPropertyDescriptor(PackageDeclaration.class, "javadoc", Javadoc.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "annotations" structural property of this node type (added in JLS3 API).
+	 * The "annotations" structural property of this node type (element type: {@link Annotation}) (added in JLS3 API).
 	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
 		new ChildListPropertyDescriptor(PackageDeclaration.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "name" structural property of this node type.
+	 * The "name" structural property of this node type (child type: {@link Name}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
@@ -115,7 +115,7 @@ public class PackageDeclaration extends ASTNode {
 	Javadoc optionalDocComment = null;
 
 	/**
-	 * The annotations (element type: <code>Annotation</code>).
+	 * The annotations (element type: {@link Annotation}).
 	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * @since 3.1
@@ -238,7 +238,7 @@ public class PackageDeclaration extends ASTNode {
 	 * package declaration (added in JLS3 API).
 	 *
 	 * @return the live list of annotations
-	 *    (element type: <code>Annotation</code>)
+	 *    (element type: {@link Annotation})
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
 	 * @since 3.1

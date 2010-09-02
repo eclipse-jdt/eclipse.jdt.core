@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,42 +63,42 @@ import java.util.List;
 public class ClassInstanceCreation extends Expression {
 
 	/**
-	 * The "typeArguments" structural property of this node type (added in JLS3 API).
+	 * The "typeArguments" structural property of this node type (element type: {@link Type}) (added in JLS3 API).
 	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor TYPE_ARGUMENTS_PROPERTY =
 		new ChildListPropertyDescriptor(ClassInstanceCreation.class, "typeArguments", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "expression" structural property of this node type.
+	 * The "expression" structural property of this node type (child type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
 		new ChildPropertyDescriptor(ClassInstanceCreation.class, "expression", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "name" structural property of this node type (JLS2 API only).
+	 * The "name" structural property of this node type (child type: {@link Name}) (JLS2 API only).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		new ChildPropertyDescriptor(ClassInstanceCreation.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "type" structural property of this node type (added in JLS3 API).
+	 * The "type" structural property of this node type (child type: {@link Type}) (added in JLS3 API).
 	 * @since 3.1
 	 */
 	public static final ChildPropertyDescriptor TYPE_PROPERTY =
 		new ChildPropertyDescriptor(ClassInstanceCreation.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "arguments" structural property of this node type.
+	 * The "arguments" structural property of this node type (element type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor ARGUMENTS_PROPERTY =
 		new ChildListPropertyDescriptor(ClassInstanceCreation.class, "arguments", Expression.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "anonymousClassDeclaration" structural property of this node type.
+	 * The "anonymousClassDeclaration" structural property of this node type (child type: {@link AnonymousClassDeclaration}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor ANONYMOUS_CLASS_DECLARATION_PROPERTY =
@@ -164,7 +164,7 @@ public class ClassInstanceCreation extends Expression {
 	private Expression optionalExpression = null;
 
 	/**
-	 * The type arguments (element type: <code>Type</code>).
+	 * The type arguments (element type: {@link Type}).
 	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * @since 3.1
@@ -185,7 +185,7 @@ public class ClassInstanceCreation extends Expression {
 
 	/**
 	 * The list of argument expressions (element type:
-	 * <code>Expression</code>). Defaults to an empty list.
+	 * {@link Expression}). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList arguments =
 		new ASTNode.NodeList(ARGUMENTS_PROPERTY);
@@ -373,7 +373,7 @@ public class ClassInstanceCreation extends Expression {
 	 * instance creation (added in JLS3 API).
 	 *
 	 * @return the live list of type arguments
-	 *    (element type: <code>Type</code>)
+	 *    (element type: {@link Type})
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
 	 * @since 3.1
@@ -511,7 +511,7 @@ public class ClassInstanceCreation extends Expression {
 	 * instance creation expression.
 	 *
 	 * @return the live list of argument expressions (possibly empty)
-	 *    (element type: <code>Expression</code>)
+	 *    (element type: {@link Expression})
 	 */
 	public List arguments() {
 		return this.arguments;

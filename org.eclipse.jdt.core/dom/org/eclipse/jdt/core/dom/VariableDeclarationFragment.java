@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,21 +32,21 @@ import java.util.List;
 public class VariableDeclarationFragment extends VariableDeclaration {
 
 	/**
-	 * The "name" structural property of this node type.
+	 * The "name" structural property of this node type (child type: {@link SimpleName}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		new ChildPropertyDescriptor(VariableDeclarationFragment.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "extraDimensions" structural property of this node type.
+	 * The "extraDimensions" structural property of this node type (type: {@link Integer}).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor EXTRA_DIMENSIONS_PROPERTY =
 		new SimplePropertyDescriptor(VariableDeclarationFragment.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "initializer" structural property of this node type.
+	 * The "initializer" structural property of this node type (child type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor INITIALIZER_PROPERTY =

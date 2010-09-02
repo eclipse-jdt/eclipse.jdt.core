@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 public class StringLiteral extends Expression {
 
 	/**
-	 * The "escapedValue" structural property of this node type.
+	 * The "escapedValue" structural property of this node type (type: {@link String}).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor ESCAPED_VALUE_PROPERTY =

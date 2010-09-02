@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,14 +60,14 @@ public class FieldDeclaration extends BodyDeclaration {
 		internalModifiers2PropertyFactory(FieldDeclaration.class);
 
 	/**
-	 * The "type" structural property of this node type.
+	 * The "type" structural property of this node type (child type: {@link Type}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor TYPE_PROPERTY =
 		new ChildPropertyDescriptor(FieldDeclaration.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "fragments" structural property of this node type).
+	 * The "fragments" structural property of this node type (element type: {@link VariableDeclarationFragment}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor FRAGMENTS_PROPERTY =
@@ -341,7 +341,7 @@ public class FieldDeclaration extends BodyDeclaration {
 	 * type of node will trigger an exception.
 	 *
 	 * @return the live list of variable declaration fragments in this
-	 *    statement (element type: <code>VariableDeclarationFragment</code>)
+	 *    statement (element type: {@link VariableDeclarationFragment})
 	 */
 	public List fragments() {
 		return this.variableDeclarationFragments;

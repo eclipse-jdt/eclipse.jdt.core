@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2009 IBM Corporation and others.
+ * Copyright (c) 2004, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,7 +44,7 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 
 	/**
 	 * Creates and returns a structural property descriptor for the
-	 * "typeName" property declared on the given concrete node type.
+	 * "typeName" property declared on the given concrete node type (child type: {@link Name}).
 	 *
 	 * @return the property descriptor
 	 */

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2008 IBM Corporation and others.
+ * Copyright (c) 2003, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,13 +27,13 @@ import java.util.List;
 public class TypeParameter extends ASTNode {
 
 	/**
-	 * The "name" structural property of this node type.
+	 * The "name" structural property of this node type (child type: {@link SimpleName}).
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		new ChildPropertyDescriptor(TypeParameter.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "typeBounds" structural property of this node type.
+	 * The "typeBounds" structural property of this node type (element type: {@link Type}).
 	 */
 	public static final ChildListPropertyDescriptor TYPE_BOUNDS_PROPERTY =
 		new ChildListPropertyDescriptor(TypeParameter.class, "typeBounds", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -74,7 +74,7 @@ public class TypeParameter extends ASTNode {
 	private SimpleName typeVariableName = null;
 
 	/**
-	 * The type bounds (element type: <code>Type</code>).
+	 * The type bounds (element type: {@link Type}).
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList typeBounds =
@@ -231,7 +231,7 @@ public class TypeParameter extends ASTNode {
 	 * and parameterized types are allowed).
 	 *
 	 * @return the live list of type bounds
-	 *    (element type: <code>Type</code>)
+	 *    (element type: {@link Type})
 	 */
 	public List typeBounds() {
 		return this.typeBounds;

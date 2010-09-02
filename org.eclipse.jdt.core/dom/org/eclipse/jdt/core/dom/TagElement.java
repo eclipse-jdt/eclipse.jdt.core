@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 IBM Corporation and others.
+ * Copyright (c) 2004, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,7 @@ import java.util.List;
 public final class TagElement extends ASTNode implements IDocElement {
 
 	/**
-	 * The "tagName" structural property of this node type.
+	 * The "tagName" structural property of this node type (type: {@link String}).
 	 *
 	 * @since 3.0
 	 */
@@ -44,7 +44,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 		new SimplePropertyDescriptor(TagElement.class, "tagName", String.class, OPTIONAL); //$NON-NLS-1$
 
 	/**
-	 * The "fragments" structural property of this node type.
+	 * The "fragments" structural property of this node type (element type: {@link IDocElement}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor FRAGMENTS_PROPERTY =
@@ -189,7 +189,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	private String optionalTagName = null;
 
 	/**
-	 * The list of doc elements (element type: <code>IDocElement</code>).
+	 * The list of doc elements (element type: {@link IDocElement}).
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList fragments =
@@ -356,7 +356,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * of node will trigger an exception.
 	 *
 	 * @return the live list of doc elements in this tag element
-	 * (element type: <code>ASTNode</code>)
+	 * (element type: {@link ASTNode})
 	 */
 	public List fragments() {
 		return this.fragments;

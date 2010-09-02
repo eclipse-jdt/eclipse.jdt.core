@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -105,14 +105,14 @@ public class PostfixExpression extends Expression {
 	}
 
 	/**
-	 * The "operator" structural property of this node type.
+	 * The "operator" structural property of this node type (type: {@link PostfixExpression.Operator}).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor OPERATOR_PROPERTY =
 		new SimplePropertyDescriptor(PostfixExpression.class, "operator", PostfixExpression.Operator.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "operand" structural property of this node type.
+	 * The "operand" structural property of this node type (child type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor OPERAND_PROPERTY =

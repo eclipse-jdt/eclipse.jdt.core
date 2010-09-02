@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,14 +35,14 @@ import java.util.List;
 public class SwitchStatement extends Statement {
 
 	/**
-	 * The "expression" structural property of this node type.
+	 * The "expression" structural property of this node type (child type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
 		new ChildPropertyDescriptor(SwitchStatement.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "statements" structural property of this node type.
+	 * The "statements" structural property of this node type (element type: {@link Statement}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor STATEMENTS_PROPERTY =
@@ -85,7 +85,7 @@ public class SwitchStatement extends Statement {
 
 	/**
 	 * The statements and SwitchCase nodes
-	 * (element type: <code>Statement</code>).
+	 * (element type: {@link Statement}).
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList statements =
@@ -225,7 +225,7 @@ public class SwitchStatement extends Statement {
 	 * the switch groups.
 	 *
 	 * @return the live list of statement nodes
-	 *    (element type: <code>Statement</code>)
+	 *    (element type: {@link Statement})
 	 */
 	public List statements() {
 		return this.statements;

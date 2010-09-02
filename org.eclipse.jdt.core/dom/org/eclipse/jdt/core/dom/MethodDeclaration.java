@@ -68,7 +68,7 @@ import java.util.List;
 public class MethodDeclaration extends BodyDeclaration {
 
 	/**
-	 * The "javadoc" structural property of this node type.
+	 * The "javadoc" structural property of this node type (child type: {@link Javadoc}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor JAVADOC_PROPERTY =
@@ -89,63 +89,63 @@ public class MethodDeclaration extends BodyDeclaration {
 		internalModifiers2PropertyFactory(MethodDeclaration.class);
 
 	/**
-	 * The "constructor" structural property of this node type.
+	 * The "constructor" structural property of this node type (type: {@link Boolean}).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor CONSTRUCTOR_PROPERTY =
 		new SimplePropertyDescriptor(MethodDeclaration.class, "constructor", boolean.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "name" structural property of this node type.
+	 * The "name" structural property of this node type (child type: {@link SimpleName}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		new ChildPropertyDescriptor(MethodDeclaration.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "returnType" structural property of this node type (JLS2 API only).
+	 * The "returnType" structural property of this node type (child type: {@link Type}) (JLS2 API only).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor RETURN_TYPE_PROPERTY =
 		new ChildPropertyDescriptor(MethodDeclaration.class, "returnType", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "returnType2" structural property of this node type (added in JLS3 API).
+	 * The "returnType2" structural property of this node type (child type: {@link Type}) (added in JLS3 API).
 	 * @since 3.1
 	 */
 	public static final ChildPropertyDescriptor RETURN_TYPE2_PROPERTY =
 		new ChildPropertyDescriptor(MethodDeclaration.class, "returnType2", Type.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "extraDimensions" structural property of this node type.
+	 * The "extraDimensions" structural property of this node type (type: {@link Integer}).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor EXTRA_DIMENSIONS_PROPERTY =
 		new SimplePropertyDescriptor(MethodDeclaration.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "typeParameters" structural property of this node type (added in JLS3 API).
+	 * The "typeParameters" structural property of this node type (element type: {@link TypeParameter}) (added in JLS3 API).
 	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor TYPE_PARAMETERS_PROPERTY =
 		new ChildListPropertyDescriptor(MethodDeclaration.class, "typeParameters", TypeParameter.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "parameters" structural property of this node type).
+	 * The "parameters" structural property of this node type (element type: {@link SingleVariableDeclaration}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor PARAMETERS_PROPERTY =
 		new ChildListPropertyDescriptor(MethodDeclaration.class, "parameters", SingleVariableDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "thrownExceptions" structural property of this node type).
+	 * The "thrownExceptions" structural property of this node type (element type: {@link Name}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor THROWN_EXCEPTIONS_PROPERTY =
 		new ChildListPropertyDescriptor(MethodDeclaration.class, "thrownExceptions", Name.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "body" structural property of this node type.
+	 * The "body" structural property of this node type (child type: {@link Block}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor BODY_PROPERTY =
@@ -227,7 +227,7 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * The parameter declarations
-	 * (element type: <code>SingleVariableDeclaration</code>).
+	 * (element type: {@link SingleVariableDeclaration}).
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList parameters =
@@ -248,7 +248,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	private boolean returnType2Initialized = false;
 
 	/**
-	 * The type paramters (element type: <code>TypeParameter</code>).
+	 * The type paramters (element type: {@link TypeParameter}).
 	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * @since 3.1
@@ -264,7 +264,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	private int extraArrayDimensions = 0;
 
 	/**
-	 * The list of thrown exception names (element type: <code>Name</code>).
+	 * The list of thrown exception names (element type: {@link Name}).
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList thrownExceptions =
@@ -533,7 +533,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * declaration (added in JLS3 API). This list is non-empty for parameterized methods.
 	 *
 	 * @return the live list of type parameters
-	 *    (element type: <code>TypeParameter</code>)
+	 *    (element type: {@link TypeParameter})
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
 	 * @since 3.1
@@ -594,7 +594,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * method declaration.
 	 *
 	 * @return the live list of method parameter declarations
-	 *    (element type: <code>SingleVariableDeclaration</code>)
+	 *    (element type: {@link SingleVariableDeclaration})
 	 */
 	public List parameters() {
 		return this.parameters;
@@ -630,7 +630,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * declaration.
 	 *
 	 * @return the live list of exception names
-	 *    (element type: <code>Name</code>)
+	 *    (element type: {@link Name})
 	 */
 	public List thrownExceptions() {
 		return this.thrownExceptions;

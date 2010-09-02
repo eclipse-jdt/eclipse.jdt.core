@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -85,11 +85,11 @@ public class ASTMatcher {
 	 * </p>
 	 *
 	 * @param list1 the first list of AST nodes
-	 *    (element type: <code>ASTNode</code>)
+	 *    (element type: {@link ASTNode})
 	 * @param list2 the second list of AST nodes
-	 *    (element type: <code>ASTNode</code>)
+	 *    (element type: {@link ASTNode})
 	 * @return <code>true</code> if the lists have the same number of elements
-	 *    and match pair-wise according to <code>ASTNode.subtreeMatch</code>
+	 *    and match pair-wise according to {@link ASTNode#subtreeMatch(ASTMatcher, Object) ASTNode.subtreeMatch}
 	 * @see ASTNode#subtreeMatch(ASTMatcher matcher, Object other)
 	 */
 	public final boolean safeSubtreeListMatch(List list1, List list2) {

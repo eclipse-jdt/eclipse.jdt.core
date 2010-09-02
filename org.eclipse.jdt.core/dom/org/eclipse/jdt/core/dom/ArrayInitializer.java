@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,7 @@ import java.util.List;
 public class ArrayInitializer extends Expression {
 
 	/**
-	 * The "expressions" structural property of this node type.
+	 * The "expressions" structural property of this node type (element type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor EXPRESSIONS_PROPERTY =
@@ -65,7 +65,7 @@ public class ArrayInitializer extends Expression {
 
 	/**
 	 * The list of expressions (element type:
-	 * <code>Expression</code>). Defaults to an empty list.
+	 * {@link Expression}). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList expressions =
 		new ASTNode.NodeList(EXPRESSIONS_PROPERTY);
@@ -138,7 +138,7 @@ public class ArrayInitializer extends Expression {
 	 * Returns the live ordered list of expressions in this array initializer.
 	 *
 	 * @return the live list of expressions
-	 *    (element type: <code>Expression</code>)
+	 *    (element type: {@link Expression})
 	 */
 	public List expressions() {
 		return this.expressions;

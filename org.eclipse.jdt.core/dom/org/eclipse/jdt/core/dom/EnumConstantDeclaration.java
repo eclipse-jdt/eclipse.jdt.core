@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,19 +54,19 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 		internalModifiers2PropertyFactory(EnumConstantDeclaration.class);
 
 	/**
-	 * The "name" structural property of this node type.
+	 * The "name" structural property of this node type (child type: {@link SimpleName}).
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		new ChildPropertyDescriptor(EnumConstantDeclaration.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "arguments" structural property of this node type.
+	 * The "arguments" structural property of this node type (element type: {@link Expression}).
 	 */
 	public static final ChildListPropertyDescriptor ARGUMENTS_PROPERTY =
 		new ChildListPropertyDescriptor(EnumConstantDeclaration.class, "arguments", Expression.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "anonymousClassDeclaration" structural property of this node type.
+	 * The "anonymousClassDeclaration" structural property of this node type (child type: {@link AnonymousClassDeclaration}).
 	 */
 	public static final ChildPropertyDescriptor ANONYMOUS_CLASS_DECLARATION_PROPERTY =
 		new ChildPropertyDescriptor(EnumConstantDeclaration.class, "anonymousClassDeclaration", AnonymousClassDeclaration.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
@@ -111,7 +111,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 
 	/**
 	 * The list of argument expressions (element type:
-	 * <code>Expression</code>). Defaults to an empty list.
+	 * {@link Expression}). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList arguments =
 		new ASTNode.NodeList(ARGUMENTS_PROPERTY);
@@ -308,7 +308,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	 * to not explicitly specifying arguments.
 	 *
 	 * @return the live list of argument expressions
-	 *    (element type: <code>Expression</code>)
+	 *    (element type: {@link Expression})
 	 */
 	public List arguments() {
 		return this.arguments;

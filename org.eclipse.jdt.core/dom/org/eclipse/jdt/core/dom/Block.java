@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,7 @@ import java.util.List;
 public class Block extends Statement {
 
 	/**
-	 * The "statements" structural property of this node type.
+	 * The "statements" structural property of this node type (element type: {@link Statement}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor STATEMENTS_PROPERTY =
@@ -63,7 +63,7 @@ public class Block extends Statement {
 	}
 
 	/**
-	 * The list of statements (element type: <code>Statement</code>).
+	 * The list of statements (element type: {@link Statement}).
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList statements =
@@ -146,7 +146,7 @@ public class Block extends Statement {
 	 * exception.
 	 *
 	 * @return the live list of statements in this block
-	 *    (element type: <code>Statement</code>)
+	 *    (element type: {@link Statement})
 	 */
 	public List statements() {
 		return this.statements;

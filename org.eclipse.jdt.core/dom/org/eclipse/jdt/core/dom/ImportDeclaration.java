@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,21 +33,21 @@ import java.util.List;
 public class ImportDeclaration extends ASTNode {
 
 	/**
-	 * The "name" structural property of this node type.
+	 * The "name" structural property of this node type (child type: {@link Name}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		new ChildPropertyDescriptor(ImportDeclaration.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "onDemand" structural property of this node type.
+	 * The "onDemand" structural property of this node type (type: {@link Boolean}).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor ON_DEMAND_PROPERTY =
 		new SimplePropertyDescriptor(ImportDeclaration.class, "onDemand", boolean.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "static" structural property of this node type (added in JLS3 API).
+	 * The "static" structural property of this node type (type: {@link Boolean}) (added in JLS3 API).
 	 * @since 3.1
 	 */
 	public static final SimplePropertyDescriptor STATIC_PROPERTY =

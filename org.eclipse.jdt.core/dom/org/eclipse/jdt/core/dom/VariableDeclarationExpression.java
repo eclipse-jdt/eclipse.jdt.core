@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,28 +45,28 @@ import java.util.List;
 public class VariableDeclarationExpression extends Expression {
 
 	/**
-	 * The "modifiers" structural property of this node type (JLS2 API only).
+	 * The "modifiers" structural property of this node type (type: {@link Integer}) (JLS2 API only).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY =
 		new SimplePropertyDescriptor(VariableDeclarationExpression.class, "modifiers", int.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "modifiers" structural property of this node type (added in JLS3 API).
+	 * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}) (added in JLS3 API).
 	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY =
 		new ChildListPropertyDescriptor(VariableDeclarationExpression.class, "modifiers", IExtendedModifier.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "type" structural property of this node type.
+	 * The "type" structural property of this node type (child type: {@link Type}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor TYPE_PROPERTY =
 		new ChildPropertyDescriptor(VariableDeclarationExpression.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "fragments" structural property of this node type).
+	 * The "fragments" structural property of this node type (element type: {@link VariableDeclarationFragment}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor FRAGMENTS_PROPERTY =
@@ -124,7 +124,7 @@ public class VariableDeclarationExpression extends Expression {
 	}
 
 	/**
-	 * The extended modifiers (element type: <code>IExtendedModifier</code>).
+	 * The extended modifiers (element type: {@link IExtendedModifier}).
 	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 * @since 3.0
@@ -281,7 +281,7 @@ public class VariableDeclarationExpression extends Expression {
 	 * </p>
 	 *
 	 * @return the live list of modifiers and annotations
-	 *    (element type: <code>IExtendedModifier</code>)
+	 *    (element type: {@link IExtendedModifier})
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
 	 * @since 3.1
@@ -407,7 +407,7 @@ public class VariableDeclarationExpression extends Expression {
 	 * type of node will trigger an exception.
 	 *
 	 * @return the live list of variable declaration fragments in this
-	 *    expression (element type: <code>VariableDeclarationFragment</code>)
+	 *    expression (element type: {@link VariableDeclarationFragment})
 	 */
 	public List fragments() {
 		return this.variableDeclarationFragments;

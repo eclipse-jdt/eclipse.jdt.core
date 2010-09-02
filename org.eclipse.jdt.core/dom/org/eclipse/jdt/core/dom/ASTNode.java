@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1099,7 +1099,7 @@ public abstract class ASTNode {
 
 		/**
 		 * The underlying list in which the nodes of this list are
-		 * stored (element type: <code>ASTNode</code>).
+		 * stored (element type: {@link ASTNode}).
 		 * <p>
 		 * Be stingy on storage - assume that list will be empty.
 		 * </p>
@@ -1171,7 +1171,7 @@ public abstract class ASTNode {
 
 		/**
 		 * A list of currently active cursors (element type:
-		 * <code>Cursor</code>), or <code>null</code> if there are no
+		 * {@link Cursor}), or <code>null</code> if there are no
 		 * active cursors.
 		 * <p>
 		 * It is important for storage considerations to maintain the
@@ -1753,7 +1753,7 @@ public abstract class ASTNode {
 	 * @param propertyList list beginning with the AST node class
 	 * followed by accumulated structural property descriptors
 	 * @return unmodifiable list of structural property descriptors
-	 * (element type: <code>StructuralPropertyDescriptor</code>)
+	 * (element type: {@link StructuralPropertyDescriptor})
 	 */
 	static List reapPropertyList(List propertyList) {
 		propertyList.remove(0); // remove nodeClass
@@ -2406,9 +2406,9 @@ public abstract class ASTNode {
 	 *
 	 * @param target the AST that is to own the nodes in the result
 	 * @param nodes the list of nodes to copy
-	 *    (element type: <code>ASTNode</code>)
+	 *    (element type: {@link ASTNode})
 	 * @return the list of copied subtrees
-	 *    (element type: <code>ASTNode</code>)
+	 *    (element type: {@link ASTNode})
 	 */
 	public static List copySubtrees(AST target, List nodes) {
 		List result = new ArrayList(nodes.size());

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,14 +41,14 @@ import java.util.List;
 public class TypeDeclarationStatement extends Statement {
 
 	/**
-	 * The "typeDeclaration" structural property of this node type (JLS2 API only).
+	 * The "typeDeclaration" structural property of this node type (child type: {@link TypeDeclaration}) (JLS2 API only).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor TYPE_DECLARATION_PROPERTY =
 		new ChildPropertyDescriptor(TypeDeclarationStatement.class, "typeDeclaration", TypeDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "declaration" structural property of this node type (added in JLS3 API).
+	 * The "declaration" structural property of this node type (child type: {@link AbstractTypeDeclaration}) (added in JLS3 API).
 	 * @since 3.1
 	 */
 	public static final ChildPropertyDescriptor DECLARATION_PROPERTY =

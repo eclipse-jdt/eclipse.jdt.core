@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,28 +44,28 @@ import java.util.List;
 public class ForStatement extends Statement {
 
 	/**
-	 * The "initializers" structural property of this node type.
+	 * The "initializers" structural property of this node type (element type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor INITIALIZERS_PROPERTY =
 		new ChildListPropertyDescriptor(ForStatement.class, "initializers", Expression.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "expression" structural property of this node type.
+	 * The "expression" structural property of this node type (child type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
 		new ChildPropertyDescriptor(ForStatement.class, "expression", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "updaters" structural property of this node type.
+	 * The "updaters" structural property of this node type (element type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor UPDATERS_PROPERTY =
 		new ChildListPropertyDescriptor(ForStatement.class, "updaters", Expression.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "body" structural property of this node type.
+	 * The "body" structural property of this node type (child type: {@link Statement}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor BODY_PROPERTY =
@@ -105,7 +105,7 @@ public class ForStatement extends Statement {
 
 	/**
 	 * The list of initializer expressions (element type:
-	 * <code>Expression</code>). Defaults to an empty list.
+	 * {@link Expression}). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList initializers =
 		new ASTNode.NodeList(INITIALIZERS_PROPERTY);
@@ -117,7 +117,7 @@ public class ForStatement extends Statement {
 
 	/**
 	 * The list of update expressions (element type:
-	 * <code>Expression</code>). Defaults to an empty list.
+	 * {@link Expression}). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList updaters =
 		new ASTNode.NodeList(UPDATERS_PROPERTY);
@@ -241,7 +241,7 @@ public class ForStatement extends Statement {
 	 * </p>
 	 *
 	 * @return the live list of initializer expressions
-	 *    (element type: <code>Expression</code>)
+	 *    (element type: {@link Expression})
 	 */
 	public List initializers() {
 		return this.initializers;
@@ -286,7 +286,7 @@ public class ForStatement extends Statement {
 	 * </p>
 	 *
 	 * @return the live list of update expressions
-	 *    (element type: <code>Expression</code>)
+	 *    (element type: {@link Expression})
 	 */
 	public List updaters() {
 		return this.updaters;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 public class CharacterLiteral extends Expression {
 
 	/**
-	 * The "escapedValue" structural property of this node type.
+	 * The "escapedValue" structural property of this node type (type: {@link String}).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor ESCAPED_VALUE_PROPERTY =

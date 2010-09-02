@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2009 IBM Corporation and others.
+ * Copyright (c) 2004, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,7 +34,7 @@ public final class NormalAnnotation extends Annotation {
 		internalTypeNamePropertyFactory(NormalAnnotation.class);
 
 	/**
-	 * The "values" structural property of this node type.
+	 * The "values" structural property of this node type (element type: {@link MemberValuePair}).
 	 */
 	public static final ChildListPropertyDescriptor VALUES_PROPERTY =
 		new ChildListPropertyDescriptor(NormalAnnotation.class, "values", MemberValuePair.class, CYCLE_RISK); //$NON-NLS-1$
@@ -177,7 +177,7 @@ public final class NormalAnnotation extends Annotation {
 	 * type of node will trigger an exception.
 	 *
 	 * @return the live list of member value pairs in this
-	 *    annotation (element type: <code>MemberValuePair</code>)
+	 *    annotation (element type: {@link MemberValuePair})
 	 */
 	public List values() {
 		return this.values;

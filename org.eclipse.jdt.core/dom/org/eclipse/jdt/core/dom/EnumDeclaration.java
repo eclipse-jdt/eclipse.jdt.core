@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,13 +62,13 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 		internalNamePropertyFactory(EnumDeclaration.class);
 
 	/**
-	 * The "superInterfaceTypes" structural property of this node type.
+	 * The "superInterfaceTypes" structural property of this node type (element type: {@link Type}).
 	 */
 	public static final ChildListPropertyDescriptor SUPER_INTERFACE_TYPES_PROPERTY =
 		new ChildListPropertyDescriptor(EnumDeclaration.class, "superInterfaceTypes", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "enumConstants" structural property of this node type.
+	 * The "enumConstants" structural property of this node type (element type: {@link EnumConstantDeclaration}).
 	 */
 	public static final ChildListPropertyDescriptor ENUM_CONSTANTS_PROPERTY =
 		new ChildListPropertyDescriptor(EnumDeclaration.class, "enumConstants", EnumConstantDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
@@ -113,7 +113,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 	}
 
 	/**
-	 * The superinterface types (element type: <code>Type</code>).
+	 * The superinterface types (element type: {@link Type}).
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList superInterfaceTypes =
@@ -121,7 +121,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * The enum constant declarations
-	 * (element type: <code>EnumConstantDeclaration</code>).
+	 * (element type: {@link EnumConstantDeclaration}).
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList enumConstants =
@@ -288,7 +288,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 	 * declaration.
 	 *
 	 * @return the live list of super interface types
-	 *    (element type: <code>Type</code>)
+	 *    (element type: {@link Type})
 	 */
 	public List superInterfaceTypes() {
 		return this.superInterfaceTypes;

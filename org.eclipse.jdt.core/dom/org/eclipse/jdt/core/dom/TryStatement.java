@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,21 +30,21 @@ import java.util.List;
 public class TryStatement extends Statement {
 
 	/**
-	 * The "body" structural property of this node type.
+	 * The "body" structural property of this node type (child type: {@link Block}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor BODY_PROPERTY =
 		new ChildPropertyDescriptor(TryStatement.class, "body", Block.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "catchClauses" structural property of this node type.
+	 * The "catchClauses" structural property of this node type (element type: {@link CatchClause}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor CATCH_CLAUSES_PROPERTY =
 		new ChildListPropertyDescriptor(TryStatement.class, "catchClauses", CatchClause.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "finally" structural property of this node type.
+	 * The "finally" structural property of this node type (child type: {@link Block}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor FINALLY_PROPERTY =
@@ -86,7 +86,7 @@ public class TryStatement extends Statement {
 	private Block body = null;
 
 	/**
-	 * The catch clauses (element type: <code>CatchClause</code>).
+	 * The catch clauses (element type: {@link CatchClause}).
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList catchClauses =
@@ -243,7 +243,7 @@ public class TryStatement extends Statement {
 	 * Returns the live ordered list of catch clauses for this try statement.
 	 *
 	 * @return the live list of catch clauses
-	 *    (element type: <code>CatchClause</code>)
+	 *    (element type: {@link CatchClause})
 	 */
 	public List catchClauses() {
 		return this.catchClauses;

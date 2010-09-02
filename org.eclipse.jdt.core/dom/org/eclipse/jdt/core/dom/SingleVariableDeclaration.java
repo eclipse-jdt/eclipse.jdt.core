@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,49 +39,49 @@ import java.util.List;
 public class SingleVariableDeclaration extends VariableDeclaration {
 
 	/**
-	 * The "modifiers" structural property of this node type (JLS2 API only).
+	 * The "modifiers" structural property of this node type (type: {@link Integer}) (JLS2 API only).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY =
 		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "modifiers", int.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "modifiers" structural property of this node type (added in JLS3 API).
+	 * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}) (added in JLS3 API).
 	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY =
 		new ChildListPropertyDescriptor(SingleVariableDeclaration.class, "modifiers", IExtendedModifier.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "name" structural property of this node type.
+	 * The "name" structural property of this node type (child type: {@link SimpleName}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		new ChildPropertyDescriptor(SingleVariableDeclaration.class, "name", SimpleName.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "type" structural property of this node type.
+	 * The "type" structural property of this node type (child type: {@link Type}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor TYPE_PROPERTY =
 		new ChildPropertyDescriptor(SingleVariableDeclaration.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "varargs" structural property of this node type (added in JLS3 API).
+	 * The "varargs" structural property of this node type (type: {@link Boolean}) (added in JLS3 API).
 	 * @since 3.1
 	 */
 	public static final SimplePropertyDescriptor VARARGS_PROPERTY =
 		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "varargs", boolean.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "extraDimensions" structural property of this node type.
+	 * The "extraDimensions" structural property of this node type (type: {@link Integer}).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor EXTRA_DIMENSIONS_PROPERTY =
 		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "initializer" structural property of this node type.
+	 * The "initializer" structural property of this node type (child type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor INITIALIZER_PROPERTY =
@@ -143,7 +143,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	}
 
 	/**
-	 * The extended modifiers (element type: <code>IExtendedModifier</code>).
+	 * The extended modifiers (element type: {@link IExtendedModifier}).
 	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 *
@@ -384,7 +384,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * </p>
 	 *
 	 * @return the live list of modifiers and annotations
-	 *    (element type: <code>IExtendedModifier</code>)
+	 *    (element type: {@link IExtendedModifier})
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
 	 * @since 3.1

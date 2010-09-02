@@ -32,19 +32,19 @@ import java.util.List;
 public class EnhancedForStatement extends Statement {
 
 	/**
-	 * The "parameter" structural property of this node type.
+	 * The "parameter" structural property of this node type (child type: {@link SingleVariableDeclaration}).
 	 */
 	public static final ChildPropertyDescriptor PARAMETER_PROPERTY =
 		new ChildPropertyDescriptor(EnhancedForStatement.class, "parameter", SingleVariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "expression" structural property of this node type.
+	 * The "expression" structural property of this node type (child type: {@link Expression}).
 	 */
 	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
 		new ChildPropertyDescriptor(EnhancedForStatement.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "body" structural property of this node type.
+	 * The "body" structural property of this node type (child type: {@link Statement}).
 	 */
 	public static final ChildPropertyDescriptor BODY_PROPERTY =
 		new ChildPropertyDescriptor(EnhancedForStatement.class, "body", Statement.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$

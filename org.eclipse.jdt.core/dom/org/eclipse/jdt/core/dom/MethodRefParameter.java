@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 IBM Corporation and others.
+ * Copyright (c) 2004, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,21 +42,21 @@ import java.util.List;
 public class MethodRefParameter extends ASTNode {
 
 	/**
-	 * The "type" structural property of this node type.
+	 * The "type" structural property of this node type (child type: {@link Type}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor TYPE_PROPERTY =
 		new ChildPropertyDescriptor(MethodRefParameter.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "varargs" structural property of this node type (added in JLS3 API).
+	 * The "varargs" structural property of this node type (type: {@link Boolean}) (added in JLS3 API).
 	 * @since 3.1
 	 */
 	public static final SimplePropertyDescriptor VARARGS_PROPERTY =
 		new SimplePropertyDescriptor(MethodRefParameter.class, "varargs", boolean.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "name" structural property of this node type.
+	 * The "name" structural property of this node type (child type: {@link SimpleName}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =

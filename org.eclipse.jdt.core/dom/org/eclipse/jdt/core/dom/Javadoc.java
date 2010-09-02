@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 public class Javadoc extends Comment {
 
 	/**
-	 * The "comment" structural property of this node type (JLS2 API only).
+	 * The "comment" structural property of this node type (type: {@link String}) (JLS2 API only).
 	 * @since 3.0
 	 * @deprecated Replaced by {@link #TAGS_PROPERTY} in the JLS3 API.
 	 */
@@ -39,7 +39,7 @@ public class Javadoc extends Comment {
 		new SimplePropertyDescriptor(Javadoc.class, "comment", String.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "tags" structural property of this node type.
+	 * The "tags" structural property of this node type (element type: {@link TagElement}).
 	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor TAGS_PROPERTY =
@@ -109,7 +109,7 @@ public class Javadoc extends Comment {
 	private String comment = MINIMAL_DOC_COMMENT;
 
 	/**
-	 * The list of tag elements (element type: <code>TagElement</code>).
+	 * The list of tag elements (element type: {@link TagElement}).
 	 * Defaults to an empty list.
 	 * @since 3.0
 	 */
@@ -292,7 +292,7 @@ public class Javadoc extends Comment {
 	 * </p>
 	 *
 	 * @return the live list of tag elements in this doc comment
-	 * (element type: <code>TagElement</code>)
+	 * (element type: {@link TagElement})
 	 * @since 3.0
 	 */
 	public List tags() {

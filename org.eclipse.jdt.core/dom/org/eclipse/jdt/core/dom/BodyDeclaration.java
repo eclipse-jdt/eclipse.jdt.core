@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,7 +70,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	private int modifierFlags = Modifier.NONE;
 
 	/**
-	 * The extended modifiers (element type: <code>IExtendedModifier</code>).
+	 * The extended modifiers (element type: {@link IExtendedModifier}).
 	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
 	 *
@@ -127,7 +127,7 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Creates and returns a structural property descriptor for the
-	 * "javadoc" property declared on the given concrete node type.
+	 * "javadoc" property declared on the given concrete node type (child type: {@link Javadoc}).
 	 *
 	 * @return the property descriptor
 	 */
@@ -137,7 +137,7 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Creates and returns a structural property descriptor for the
-	 * "modifiers" property declared on the given concrete node type.
+	 * "modifiers" property declared on the given concrete node type (type: {@link Integer}).
 	 *
 	 * @return the property descriptor
 	 */
@@ -147,7 +147,7 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Creates and returns a structural property descriptor for the
-	 * "modifiers" property declared on the given concrete node type.
+	 * "modifiers" property declared on the given concrete node type (element type: {@link IExtendedModifier}).
 	 *
 	 * @return the property descriptor
 	 */
@@ -259,7 +259,7 @@ public abstract class BodyDeclaration extends ASTNode {
 	 * of this declaration (added in JLS3 API).
 	 *
 	 * @return the live list of modifiers and annotations
-	 *    (element type: <code>IExtendedModifier</code>)
+	 *    (element type: {@link IExtendedModifier})
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
 	 * @since 3.1

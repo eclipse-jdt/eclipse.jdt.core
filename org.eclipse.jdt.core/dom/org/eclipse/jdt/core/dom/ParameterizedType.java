@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2008 IBM Corporation and others.
+ * Copyright (c) 2003, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,13 +35,13 @@ public class ParameterizedType extends Type {
     int index;
 
 	/**
-	 * The "type" structural property of this node type.
+	 * The "type" structural property of this node type (child type: {@link Type}).
 	 */
 	public static final ChildPropertyDescriptor TYPE_PROPERTY =
 		new ChildPropertyDescriptor(ParameterizedType.class, "type", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "typeArguments" structural property of this node type.
+	 * The "typeArguments" structural property of this node type (element type: {@link Type}).
 	 */
 	public static final ChildListPropertyDescriptor TYPE_ARGUMENTS_PROPERTY =
 		new ChildListPropertyDescriptor(ParameterizedType.class, "typeArguments", Type.class, CYCLE_RISK); //$NON-NLS-1$
@@ -82,7 +82,7 @@ public class ParameterizedType extends Type {
 	private Type type = null;
 
 	/**
-	 * The type arguments (element type: <code>Type</code>).
+	 * The type arguments (element type: {@link Type}).
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList typeArguments =
@@ -222,7 +222,7 @@ public class ParameterizedType extends Type {
 	 * at least one element and not contain primitive types.
 	 *
 	 * @return the live list of type arguments
-	 *    (element type: <code>Type</code>)
+	 *    (element type: {@link Type})
 	 */
 	public List typeArguments() {
 		return this.typeArguments;

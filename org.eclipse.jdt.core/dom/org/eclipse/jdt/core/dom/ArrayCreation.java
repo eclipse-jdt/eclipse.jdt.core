@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,21 +49,21 @@ import java.util.List;
 public class ArrayCreation extends Expression {
 
 	/**
-	 * The "type" structural property of this node type.
+	 * The "type" structural property of this node type (child type: {@link ArrayType}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor TYPE_PROPERTY =
 		new ChildPropertyDescriptor(ArrayCreation.class, "type", ArrayType.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "dimensions" structural property of this node type.
+	 * The "dimensions" structural property of this node type (element type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor DIMENSIONS_PROPERTY =
 		new ChildListPropertyDescriptor(ArrayCreation.class, "dimensions", Expression.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "initializer" structural property of this node type.
+	 * The "initializer" structural property of this node type (child type: {@link ArrayInitializer}).
 	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor INITIALIZER_PROPERTY =
@@ -108,7 +108,7 @@ public class ArrayCreation extends Expression {
 
 	/**
 	 * The list of dimension expressions (element type:
-	 * <code>Expression</code>). Defaults to an empty list.
+	 * {@link Expression}). Defaults to an empty list.
 	 */
 	private ASTNode.NodeList dimensions =
 		new ASTNode.NodeList(DIMENSIONS_PROPERTY);
@@ -261,7 +261,7 @@ public class ArrayCreation extends Expression {
 	 * initializer.
 	 *
 	 * @return the live list of dimension expressions
-	 *    (element type: <code>Expression</code>)
+	 *    (element type: {@link Expression})
 	 */
 	public List dimensions() {
 		return this.dimensions;
