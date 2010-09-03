@@ -405,7 +405,9 @@ public class ExternalFoldersManager {
 				for (int index = 0; index < this.externalFolders.size(); index++ ) {
 					if ((externalPath = (IPath)this.externalFolders.get(index)) != null) {
 						IFolder folder = getFolder(externalPath);
-						folder.refreshLocal(IResource.DEPTH_INFINITE, pm);
+						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321358
+						if (folder != null)
+							folder.refreshLocal(IResource.DEPTH_INFINITE, pm);
 					}
 					// Set the processed ones to null instead of removing the element altogether,
 					// so that they will not be considered as duplicates.
