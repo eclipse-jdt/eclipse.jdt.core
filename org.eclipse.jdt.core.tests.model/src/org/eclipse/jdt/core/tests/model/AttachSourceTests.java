@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 */
 public class AttachSourceTests extends ModifyingResourceTests {
 	static {
-//		TESTS_NAMES = new String[] { "testClassFileBuffer" };
+//		TESTS_NAMES = new String[] { "testConstructorAccess" };
 //		TESTS_NUMBERS = new int[] { 5 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
@@ -127,6 +127,14 @@ private void setUpGenericJar() throws IOException, CoreException {
 		"  }\n" +
 		"}\n" +
 		"class AType<E> {\n" + // type name containing character 'T'
+		"}",
+		"Container.java",
+		"public class Container {\n" + 
+		"	class Inner<S> {\n" + 
+		"		Inner(String st, Class<S> s) {\n" + 
+		"			super();\n" + 
+		"		}\n" + 
+		"	}\n" + 
 		"}"
 	};
 	addLibrary("generic.jar", "genericsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
@@ -951,7 +959,7 @@ public void testProjectAsClassFolder2() throws CoreException {
 }
 
 /*
- * Ensures that having a project as source attachement finds the source
+ * Ensures that having a project as source attachment finds the source
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=65186)
  */
 public void testProjectAsSourceAttachment() throws CoreException {
@@ -1062,7 +1070,7 @@ public void testRootPath3() throws JavaModelException {
 	root.close();
 }
 /**
- * Attach a jar with a source attachement that doesn't contain the source folders
+ * Attach a jar with a source attachment that doesn't contain the source folders
  */
 public void testRootPath4() throws JavaModelException {
 	IJavaProject project = getJavaProject("/AttachSourceTests");
@@ -1079,7 +1087,7 @@ public void testRootPath4() throws JavaModelException {
 	root.close();
 }
 /**
- * Attach a jar with a source attachement that doesn't contain the source folders
+ * Attach a jar with a source attachment that doesn't contain the source folders
  */
 public void testRootPath5() throws JavaModelException {
 	IJavaProject project = getJavaProject("/AttachSourceTests");
@@ -1104,7 +1112,7 @@ public void testRootPath5() throws JavaModelException {
 	root.close();
 }
 /**
- * Attach a jar with a source attachement that doesn't contain the source folders
+ * Attach a jar with a source attachment that doesn't contain the source folders
  */
 public void testRootPath6() throws JavaModelException {
 	IJavaProject project = getJavaProject("/AttachSourceTests");
@@ -1129,7 +1137,7 @@ public void testRootPath6() throws JavaModelException {
 	root.close();
 }
 /**
- * Attach a jar with a source attachement that doesn't contain the source folders
+ * Attach a jar with a source attachment that doesn't contain the source folders
  */
 public void testRootPath7() throws JavaModelException {
 	IJavaProject project = getJavaProject("/AttachSourceTests");
@@ -1162,7 +1170,7 @@ public void testRootPath7() throws JavaModelException {
 	root.close();
 }
 /**
- * Attach a jar with a source attachement that contains the source folders
+ * Attach a jar with a source attachment that contains the source folders
  */
 public void testRootPath8() throws JavaModelException {
 	IJavaProject project = getJavaProject("/AttachSourceTests");
@@ -1195,7 +1203,7 @@ public void testRootPath8() throws JavaModelException {
 	root.close();
 }
 /**
- * Attach a jar with a source attachement that contains the source folders
+ * Attach a jar with a source attachment that contains the source folders
  */
 public void testRootPath9() throws JavaModelException {
 	IJavaProject project = getJavaProject("/AttachSourceTests");
@@ -1228,7 +1236,7 @@ public void testRootPath9() throws JavaModelException {
 	root.close();
 }
 /**
- * Attach a jar with a source attachement that is itself
+ * Attach a jar with a source attachment that is itself
  */
 public void testRootPath10() throws JavaModelException {
 	IJavaProject project = getJavaProject("/AttachSourceTests");
@@ -1279,8 +1287,8 @@ public void testRootPath11() throws JavaModelException {
 	root.close();
 }
 /**
- * Attach a jar with a source attachement that is itself. The jar contains 2 root paths for the same class file.
- * (regression test for bug 74014 prefix path for source attachements - automatic detection does not seem to work)
+ * Attach a jar with a source attachment that is itself. The jar contains 2 root paths for the same class file.
+ * (regression test for bug 74014 prefix path for source attachments - automatic detection does not seem to work)
  */
 public void testRootPath12() throws JavaModelException {
 	IJavaProject project = getJavaProject("/AttachSourceTests");
@@ -1513,5 +1521,27 @@ public void testClassFileBuffer() throws JavaModelException {
 	classFile = this.innerClasses.getClassFile("X.class");
 	IBuffer buffer2 = classFile.getBuffer();
 	assertTrue("Same buffer is not reused", buffer2 == buffer);
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=242029
+ */
+public void testConstructorAccess() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/generic.jar"));
+	attachSource(root, "/AttachSourceTests/genericsrc.zip", null);
+	
+	IClassFile cf = root.getPackageFragment("").getClassFile("Container$Inner.class");
+	final IType type = cf.getType();
+	final IMethod[] methods = type.getMethods();
+	assertEquals("wrong size", 1, methods.length);
+	assertTrue("Not a constructor", methods[0].isConstructor());
+	assertSourceEquals(
+		"Unexpected source for generic constructor",
+		"Inner(String st, Class<S> s) {\n" + 
+		"			super();\n" + 
+		"		}",
+		methods[0].getSource());
+	attachSource(root, null, null); // detach source
+	root.close();
 }
 }

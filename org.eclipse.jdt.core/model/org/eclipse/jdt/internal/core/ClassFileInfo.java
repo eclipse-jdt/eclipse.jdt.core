@@ -244,12 +244,35 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 		// TODO (jerome) filter out synthetic members
 		//                        indexer should not index them as well
 		// if ((methodInfo.getModifiers() & IConstants.AccSynthetic) != 0) continue; // skip synthetic
+		boolean useGenericSignature = true;
 		char[] signature = methodInfo.getGenericSignature();
-		if (signature == null) signature = methodInfo.getMethodDescriptor();
+		if (signature == null) {
+			useGenericSignature = false;
+			signature = methodInfo.getMethodDescriptor();
+		}
+		String selector = new String(methodInfo.getSelector());
+		final boolean isConstructor = methodInfo.isConstructor();
+		if (isConstructor) {
+			selector = type.getElementName();
+		}
 		String[] pNames = null;
 		try {
 			pNames = Signature.getParameterTypes(new String(signature));
-		} catch (IllegalArgumentException e) {
+			if (isConstructor
+					&& useGenericSignature
+					&& type.isMember()
+					&& !Flags.isStatic(type.getFlags())) {
+				int length = pNames.length;
+				System.arraycopy(pNames, 0, (pNames = new String[length + 1]), 1, length);
+				char[] descriptor = methodInfo.getMethodDescriptor();
+				final String[] parameterTypes = Signature.getParameterTypes(new String(descriptor));
+				pNames[0] = parameterTypes[0];
+			}
+		}catch (IllegalArgumentException e) {
+			// protect against malformed .class file (e.g. com/sun/crypto/provider/SunJCE_b.class has a 'a' generic signature)
+			signature = methodInfo.getMethodDescriptor();
+			pNames = Signature.getParameterTypes(new String(signature));
+		} catch (JavaModelException e) {
 			// protect against malformed .class file (e.g. com/sun/crypto/provider/SunJCE_b.class has a 'a' generic signature)
 			signature = methodInfo.getMethodDescriptor();
 			pNames = Signature.getParameterTypes(new String(signature));
@@ -260,10 +283,6 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 		}
 		char[][] parameterTypes = ClassFile.translatedNames(paramNames);
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		String selector = new String(methodInfo.getSelector());
-		if (methodInfo.isConstructor()) {
-			selector =type.getElementName();
-		}
 		selector =  manager.intern(selector);
 		for (int j= 0; j < pNames.length; j++) {
 			pNames[j]= manager.intern(new String(parameterTypes[j]));
