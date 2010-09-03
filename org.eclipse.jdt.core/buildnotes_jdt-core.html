@@ -49,6 +49,37 @@ Eclipse SDK 3.7M2 - %date% - 3.7.0 M2
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B10">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>Code formatter: 4 new options were added to better handle the addition of
+new lines after annotations.
+<pre>
+ * FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD
+ * FORMATTER / Option to insert a new line after an annotation on a field declaration
+ *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_field"
+ *     - possible values:   { INSERT, DO_NOT_INSERT }
+ *     - default:           INSERT
+ * 
+ * FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD
+ * FORMATTER / Option to insert a new line after an annotation on a method declaration
+ *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_method"
+ *     - possible values:   { INSERT, DO_NOT_INSERT }
+ *     - default:           INSERT
+ *
+ * FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE
+ * FORMATTER / Option to insert a new line after an annotation on a package declaration
+ *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_package"
+ *     - possible values:   { INSERT, DO_NOT_INSERT }
+ *     - default:           INSERT
+ *
+ * FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE
+ * FORMATTER / Option to insert a new line after an annotation on a type declaration
+ *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_type"
+ *     - possible values:   { INSERT, DO_NOT_INSERT }
+ *     - default:           INSERT
+</pre>
+The addition of new lines after annotations has been discussed in <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=308000">bug 308000</a><br>
+Also note that previously available code formatter constant FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER has been deprecated.<br>
+All new options must be enabled to activate old strategy.
+</li>
 <li>
 The previously added new APIs:
 <blockquote>
@@ -98,7 +129,9 @@ ISourceRange getNameRange() throws JavaModelException;
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=321276">321276</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=308000">308000</a>
+[formatter] Formatter is missing options regarding Annotation Newlines
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=321276">321276</a>
 JDT core apis dont recognize InnerClass constructor inside .class files
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=252556">252556</a>
 [formatter] Spaces removed before formatted region of a compilation unit.

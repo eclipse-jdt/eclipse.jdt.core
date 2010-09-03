@@ -24,12 +24,21 @@ public interface ICodeFormatterConstants {
 	/** annotation on unspecified source*/
 	public static final int ANNOTATION_UNSPECIFIED = 0;
 
-	/** annotation on a member (type, method, field) */
-	public static final int ANNOTATION_ON_MEMBER = 1;
+	/** annotation on a type */
+	public static final int ANNOTATION_ON_TYPE = 1;
+
+	/** annotation on a field */
+	public static final int ANNOTATION_ON_FIELD = 2;
+
+	/** annotation on a method */
+	public static final int ANNOTATION_ON_METHOD = 3;
+
+	/** annotation on a package */
+	public static final int ANNOTATION_ON_PACKAGE = 4;
 
 	/** annotation on a parameter */
-	public static final int ANNOTATION_ON_PARAMETER = 2;
+	public static final int ANNOTATION_ON_PARAMETER = 5;
 
 	/** annotation on a local variable */
-	public static final int ANNOTATION_ON_LOCAL_VARIABLE = 3;
+	public static final int ANNOTATION_ON_LOCAL_VARIABLE = 6;
 }

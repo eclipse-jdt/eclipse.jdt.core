@@ -1288,8 +1288,66 @@ public class DefaultCodeFormatterConstants {
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
 	 * @since 3.4
+	 * @deprecated
+	 * All new options must be enabled to activate old strategy
+	 * {@link #FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD}
+	 * {@link #FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD}
+	 * {@link #FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE}
+	 * {@link #FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE}
 	 */
 	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_annotation_on_member";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a new line after an annotation on a field declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_field"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.7
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_annotation_on_field";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a new line after an annotation on a method declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_method"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.7
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_annotation_on_method";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a new line after an annotation on a package declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_package"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.7
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_annotation_on_package";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a new line after an annotation on a type declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_type"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.7
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_annotation_on_type";//$NON-NLS-1$
 
 	/**
 	 * <pre>
@@ -3846,6 +3904,35 @@ public class DefaultCodeFormatterConstants {
 		} catch (NumberFormatException e) {
 			throw WRONG_ARGUMENT;
 		}
+	}
+
+	/**
+	 * Return an array of compatible constants for an obsolete constant.
+	 * 
+	 * @param name The name of the obsolete constant
+	 * @return The list as a non-empty array of the compatible constants or
+	 * <code>null</code> if the constant is <b>not</b> obsolete.
+	 */
+	public static String[] getCompatibleConstants(String name) {
+		if (FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER.equals(name)) {
+			return new String[] {
+				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD,
+				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD,
+				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE,
+				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE
+			};
+		}
+		if (FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION.equals(name)) {
+			return new String[] {
+				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD,
+				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD,
+				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE,
+				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE,
+				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_LOCAL_VARIABLE,
+				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER
+			};
+		}
+		return null;
 	}
 
 	/**

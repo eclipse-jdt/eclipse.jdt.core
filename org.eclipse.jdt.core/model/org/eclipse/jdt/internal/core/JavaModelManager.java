@@ -2074,6 +2074,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		// backward compatibility
 		addDeprecatedOptions(options);
+		try {
+			final IEclipsePreferences eclipsePreferences = this.preferencesLookup[PREF_INSTANCE];
+			String[] instanceKeys = eclipsePreferences.keys();
+			for (int i=0, length=instanceKeys.length; i<length; i++) {
+				String optionName = instanceKeys[i];
+				migrateObsoleteOption(options, optionName, eclipsePreferences.get(optionName, null));
+			}
+		} catch (BackingStoreException e) {
+			// skip
+		}
 
 		Util.fixTaskTags(options);
 		// store built map in cache
@@ -2081,6 +2091,33 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		// return built map
 		return options;
+	}
+
+	/**
+	 * Migrates an old option value to its new corresponding option name(s)
+	 * when necessary.
+	 * <p>
+	 * Nothing is done if the given option is not obsolete or if no migration has been
+	 * specified for it.
+	 * </p><p>
+	 * Currently, migration is only done for formatter options.
+	 * </p>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=308000"
+	 * 
+	 * @param options The options map to update
+	 * @param optionName The old option name to update
+	 * @param optionValue The value of the old option name
+	 */
+	public void migrateObsoleteOption(Map options, String optionName, String optionValue) {
+
+		// Migrate formatter options
+		String[] compatibleConstants = DefaultCodeFormatterConstants.getCompatibleConstants(optionName);
+		if (compatibleConstants != null) {
+			for (int i=0, length=compatibleConstants.length; i < length; i++) {
+				options.put(compatibleConstants[i], optionValue);
+			}
+			return;
+		}
 	}
 
 	// Do not modify without modifying getDefaultOptions()

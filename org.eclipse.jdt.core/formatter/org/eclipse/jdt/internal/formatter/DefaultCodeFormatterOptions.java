@@ -135,7 +135,10 @@ public class DefaultCodeFormatterOptions {
 	public boolean indent_switchstatements_compare_to_switch;
 	public int indentation_size;
 
-	public boolean insert_new_line_after_annotation_on_member;
+	public boolean insert_new_line_after_annotation_on_type;
+	public boolean insert_new_line_after_annotation_on_field;
+	public boolean insert_new_line_after_annotation_on_method;
+	public boolean insert_new_line_after_annotation_on_package;
 	public boolean insert_new_line_after_annotation_on_parameter;
 	public boolean insert_new_line_after_annotation_on_local_variable;
 	public boolean insert_new_line_after_label;
@@ -421,7 +424,10 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, this.indent_switchstatements_compare_to_cases ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, this.indent_switchstatements_compare_to_switch ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, Integer.toString(this.indentation_size));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER, this.insert_new_line_after_annotation_on_member ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE, this.insert_new_line_after_annotation_on_type ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD, this.insert_new_line_after_annotation_on_field ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD, this.insert_new_line_after_annotation_on_method ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE, this.insert_new_line_after_annotation_on_package ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER, this.insert_new_line_after_annotation_on_parameter ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_LOCAL_VARIABLE, this.insert_new_line_after_annotation_on_local_variable ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER, this.insert_new_line_after_opening_brace_in_array_initializer? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -2028,16 +2034,41 @@ public class DefaultCodeFormatterOptions {
 				this.comment_clear_blank_lines_in_block_comment = DefaultCodeFormatterConstants.TRUE.equals(commentClearBlankLinesInBlockCommentOption);
 			}
 		}
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
+		// New line after annotations
 		final Object insertNewLineAfterAnnotationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION);
-		if (insertNewLineAfterAnnotationOption != null) { // check if deprecated option was used
-			this.insert_new_line_after_annotation_on_member = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOption);
-			this.insert_new_line_after_annotation_on_parameter = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOption);
-			this.insert_new_line_after_annotation_on_local_variable = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOption);
+		if (insertNewLineAfterAnnotationOption != null) { // check if deprecated 3.1 option was used
+			boolean insert = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOption);
+			this.insert_new_line_after_annotation_on_type = insert;
+			this.insert_new_line_after_annotation_on_field = insert;
+			this.insert_new_line_after_annotation_on_method = insert;
+			this.insert_new_line_after_annotation_on_package = insert;
+			this.insert_new_line_after_annotation_on_parameter = insert;
+			this.insert_new_line_after_annotation_on_local_variable = insert;
 		} else {
 			final Object insertNewLineAfterAnnotationOnMemberOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER);
-			if (insertNewLineAfterAnnotationOnMemberOption != null) { // otherwhise, use the new options
-				this.insert_new_line_after_annotation_on_member = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnMemberOption);
+			if (insertNewLineAfterAnnotationOnMemberOption != null) { // check if deprecated 3.4 option was used
+				boolean insert = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnMemberOption);
+				this.insert_new_line_after_annotation_on_type = insert;
+				this.insert_new_line_after_annotation_on_field = insert;
+				this.insert_new_line_after_annotation_on_method = insert;
+				this.insert_new_line_after_annotation_on_package = insert;
+			} else { // otherwise use new options
+				final Object insertNewLineAfterAnnotationOnTypeOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE);
+				if (insertNewLineAfterAnnotationOnTypeOption != null) {
+					this.insert_new_line_after_annotation_on_type = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnTypeOption);
+				}
+				final Object insertNewLineAfterAnnotationOnFieldOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD);
+				if (insertNewLineAfterAnnotationOnFieldOption != null) {
+					this.insert_new_line_after_annotation_on_field = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnFieldOption);
+				}
+				final Object insertNewLineAfterAnnotationOnMethodOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD);
+				if (insertNewLineAfterAnnotationOnMethodOption != null) {
+					this.insert_new_line_after_annotation_on_method = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnMethodOption);
+				}
+				final Object insertNewLineAfterAnnotationOnPackageOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE);
+				if (insertNewLineAfterAnnotationOnPackageOption != null) {
+					this.insert_new_line_after_annotation_on_package = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnPackageOption);
+				}
 			}
 			final Object insertNewLineAfterAnnotationOnParameterOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER);
 			if (insertNewLineAfterAnnotationOnParameterOption != null) {
@@ -2126,7 +2157,10 @@ public class DefaultCodeFormatterOptions {
 		this.indent_switchstatements_compare_to_cases = true;
 		this.indent_switchstatements_compare_to_switch = true;
 		this.indentation_size = 4;
-		this.insert_new_line_after_annotation_on_member = true;
+		this.insert_new_line_after_annotation_on_type = true;
+		this.insert_new_line_after_annotation_on_field = true;
+		this.insert_new_line_after_annotation_on_method = true;
+		this.insert_new_line_after_annotation_on_package = true;
 		this.insert_new_line_after_annotation_on_parameter = false;
 		this.insert_new_line_after_annotation_on_local_variable = true;
 		this.insert_new_line_after_opening_brace_in_array_initializer = false;
@@ -2401,7 +2435,10 @@ public class DefaultCodeFormatterOptions {
 		this.indent_switchstatements_compare_to_cases = true;
 		this.indent_switchstatements_compare_to_switch = false;
 		this.indentation_size = 4;
-		this.insert_new_line_after_annotation_on_member = true;
+		this.insert_new_line_after_annotation_on_type = true;
+		this.insert_new_line_after_annotation_on_field = true;
+		this.insert_new_line_after_annotation_on_method = true;
+		this.insert_new_line_after_annotation_on_package = true;
 		this.insert_new_line_after_annotation_on_parameter = false;
 		this.insert_new_line_after_annotation_on_local_variable = true;
 		this.insert_new_line_after_opening_brace_in_array_initializer = false;

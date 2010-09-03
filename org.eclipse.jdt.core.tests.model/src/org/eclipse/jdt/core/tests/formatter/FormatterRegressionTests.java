@@ -10364,7 +10364,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.line_separator = "\n";//$NON-NLS-1$
-		preferences.insert_new_line_after_annotation_on_member = false;
+		preferences.insert_new_line_after_annotation_on_type = false;
+		preferences.insert_new_line_after_annotation_on_field = false;
+		preferences.insert_new_line_after_annotation_on_method = false;
+		preferences.insert_new_line_after_annotation_on_package = false;
 		preferences.insert_new_line_after_annotation_on_parameter = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		IRegion[] regions = new IRegion[] {
@@ -10378,7 +10381,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.line_separator = "\n";//$NON-NLS-1$
-		preferences.insert_new_line_after_annotation_on_member = false;
+		preferences.insert_new_line_after_annotation_on_type = false;
+		preferences.insert_new_line_after_annotation_on_field = false;
+		preferences.insert_new_line_after_annotation_on_method = false;
+		preferences.insert_new_line_after_annotation_on_package = false;
 		preferences.insert_new_line_after_annotation_on_parameter = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		IRegion[] regions = new IRegion[] {
@@ -10393,7 +10399,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.line_separator = "\n";//$NON-NLS-1$
-		preferences.insert_new_line_after_annotation_on_member = false;
+		preferences.insert_new_line_after_annotation_on_type = false;
+		preferences.insert_new_line_after_annotation_on_field = false;
+		preferences.insert_new_line_after_annotation_on_method = false;
+		preferences.insert_new_line_after_annotation_on_package = false;
 		preferences.insert_new_line_after_annotation_on_parameter = true;
 		preferences.insert_new_line_after_annotation_on_local_variable = false;
 		Hashtable javaCoreOptions = JavaCore.getOptions();
@@ -10419,7 +10428,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test707() {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.insert_new_line_after_annotation_on_member = true;
+		preferences.insert_new_line_after_annotation_on_type = true;
+		preferences.insert_new_line_after_annotation_on_field = true;
+		preferences.insert_new_line_after_annotation_on_method = true;
+		preferences.insert_new_line_after_annotation_on_package = true;
 		preferences.insert_new_line_after_annotation_on_parameter = true;
 		preferences.insert_new_line_after_annotation_on_local_variable = false;
 		preferences.line_separator = "\n";//$NON-NLS-1$
@@ -10447,7 +10459,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.line_separator = "\n";//$NON-NLS-1$
-		preferences.insert_new_line_after_annotation_on_member = true;
+		preferences.insert_new_line_after_annotation_on_type = true;
+		preferences.insert_new_line_after_annotation_on_field = true;
+		preferences.insert_new_line_after_annotation_on_method = true;
+		preferences.insert_new_line_after_annotation_on_package = true;
 		preferences.insert_new_line_after_annotation_on_parameter = false;
 		preferences.insert_new_line_after_annotation_on_local_variable = false;
 		Hashtable javaCoreOptions = JavaCore.getOptions();
@@ -10473,7 +10488,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test709() {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.insert_new_line_after_annotation_on_member = false;
+		preferences.insert_new_line_after_annotation_on_type = false;
+		preferences.insert_new_line_after_annotation_on_field = false;
+		preferences.insert_new_line_after_annotation_on_method = false;
+		preferences.insert_new_line_after_annotation_on_package = false;
 		preferences.insert_new_line_after_annotation_on_parameter = false;
 		preferences.insert_new_line_after_annotation_on_local_variable = false;
 		preferences.line_separator = "\n";//$NON-NLS-1$
@@ -10500,7 +10518,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test710() {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.insert_new_line_after_annotation_on_member = false;
+		preferences.insert_new_line_after_annotation_on_type = false;
+		preferences.insert_new_line_after_annotation_on_field = false;
+		preferences.insert_new_line_after_annotation_on_method = false;
+		preferences.insert_new_line_after_annotation_on_package = false;
 		preferences.insert_new_line_after_annotation_on_parameter = true;
 		preferences.insert_new_line_after_annotation_on_local_variable = true;
 		preferences.line_separator = "\n";//$NON-NLS-1$
@@ -10527,7 +10548,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test711() {
 		final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.insert_new_line_after_annotation_on_member = false;
+		preferences.insert_new_line_after_annotation_on_type = false;
+		preferences.insert_new_line_after_annotation_on_field = false;
+		preferences.insert_new_line_after_annotation_on_method = false;
+		preferences.insert_new_line_after_annotation_on_package = false;
 		preferences.insert_new_line_after_annotation_on_parameter = false;
 		preferences.insert_new_line_after_annotation_on_local_variable = true;
 		preferences.line_separator = "\n";//$NON-NLS-1$
@@ -10726,4 +10750,173 @@ public void test724() {
 		"}\n"
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=308000
+public void test725() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+	String source =
+		"@Deprecated package pack;\n" + 
+		"public class Test {\n" + 
+		"    @Deprecated Test(String s) {}\n" + 
+		"    @Deprecated String label;\n" + 
+		"    @Deprecated void foo() {}\n" + 
+		"    @Deprecated interface I {}\n" + 
+		"}\n";
+	formatSource(source,
+		"@Deprecated\n" +
+		"package pack;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"	@Deprecated\n" + 
+		"	Test(String s) {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	@Deprecated\n" + 
+		"	String label;\n" + 
+		"\n" + 
+		"	@Deprecated\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	@Deprecated\n" + 
+		"	interface I {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void test726() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE, DefaultCodeFormatterConstants.FALSE);
+	String source =
+		"@Deprecated package pack;\n" + 
+		"public class Test {\n" + 
+		"    @Deprecated Test(String s) {}\n" + 
+		"    @Deprecated String label;\n" + 
+		"    @Deprecated void foo() {}\n" + 
+		"    @Deprecated interface I {}\n" + 
+		"}\n";
+	formatSource(source,
+		"@Deprecated package pack;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"	@Deprecated Test(String s) {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	@Deprecated String label;\n" + 
+		"\n" + 
+		"	@Deprecated void foo() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	@Deprecated interface I {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @deprecated Use a deprecated formatter option.
+ */
+public void test727() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_LOCAL_VARIABLE, DefaultCodeFormatterConstants.TRUE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER, DefaultCodeFormatterConstants.FALSE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER, DefaultCodeFormatterConstants.FALSE);
+	String source =
+		"@Deprecated package pack;\n" + 
+		"public class Test {\n" + 
+		"    @Deprecated Test(String s) {}\n" + 
+		"    @Deprecated String label;\n" + 
+		"    @Deprecated void foo() {}\n" + 
+		"    @Deprecated interface I {}\n" + 
+		"}\n";
+	formatSource(source,
+		"@Deprecated package pack;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"	@Deprecated Test(String s) {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	@Deprecated String label;\n" + 
+		"\n" + 
+		"	@Deprecated void foo() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	@Deprecated interface I {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @deprecated Use a deprecated formatter option.
+ */
+public void test728() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION, DefaultCodeFormatterConstants.FALSE);
+	String source =
+		"@Deprecated package pack;\n" + 
+		"public class Test {\n" + 
+		"    @Deprecated Test(String s) {}\n" + 
+		"    @Deprecated String label;\n" + 
+		"    @Deprecated void foo() {}\n" + 
+		"    @Deprecated interface I {}\n" + 
+		"}\n";
+	formatSource(source,
+		"@Deprecated package pack;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"	@Deprecated Test(String s) {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	@Deprecated String label;\n" + 
+		"\n" + 
+		"	@Deprecated void foo() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	@Deprecated interface I {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testONLY_729() {
+	this.formatterPrefs = null;
+	String profilePath = getResource("profiles", "b308000.xml");
+	this.formatterOptions = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(profilePath, "b308000");
+	assertNotNull("No preferences", this.formatterOptions);
+	String source =
+		"package p;\n" + 
+		"\n" + 
+		"@Deprecated public class C {\n" + 
+		"	@Deprecated public static void main(@Deprecated String[] args) {\n" + 
+		"		@Deprecated int i= 2;\n" + 
+		"		System.out.println(i);\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package p;\n" + 
+		"\n" + 
+		"@Deprecated public class C {\n" + 
+		"	@Deprecated public static void main(@Deprecated String[] args) {\n" + 
+		"		@Deprecated\n" + 
+		"		int i = 2;\n" + 
+		"		System.out.println(i);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
 }

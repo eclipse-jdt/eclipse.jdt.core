@@ -4487,8 +4487,23 @@ public class Scribe implements IJavaDocTagConstants {
 							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247
 							boolean shouldAddNewLine = false;
 							switch (annotationSourceKind) {
-								case ICodeFormatterConstants.ANNOTATION_ON_MEMBER :
-									if (this.formatter.preferences.insert_new_line_after_annotation_on_member) {
+								case ICodeFormatterConstants.ANNOTATION_ON_TYPE :
+									if (this.formatter.preferences.insert_new_line_after_annotation_on_type) {
+										shouldAddNewLine = true;
+									}
+									break;
+								case ICodeFormatterConstants.ANNOTATION_ON_FIELD :
+									if (this.formatter.preferences.insert_new_line_after_annotation_on_field) {
+										shouldAddNewLine = true;
+									}
+									break;
+								case ICodeFormatterConstants.ANNOTATION_ON_METHOD :
+									if (this.formatter.preferences.insert_new_line_after_annotation_on_method) {
+										shouldAddNewLine = true;
+									}
+									break;
+								case ICodeFormatterConstants.ANNOTATION_ON_PACKAGE :
+									if (this.formatter.preferences.insert_new_line_after_annotation_on_package) {
 										shouldAddNewLine = true;
 									}
 									break;
