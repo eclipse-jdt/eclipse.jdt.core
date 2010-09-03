@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -229,8 +229,16 @@ protected void addDependentsOf(IPath path, boolean isStructuralChange, StringSet
 	if (isStructuralChange) {
 		String last = path.lastSegment();
 		if (last.length() == TypeConstants.PACKAGE_INFO_NAME.length)
-			if (CharOperation.equals(last.toCharArray(), TypeConstants.PACKAGE_INFO_NAME))
+			if (CharOperation.equals(last.toCharArray(), TypeConstants.PACKAGE_INFO_NAME)) {
 				path = path.removeLastSegments(1); // the package-info file has changed so blame the package itself
+				/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=323785, in the case of default package,
+				   there is no need to blame the package itself as there can be no annotations or documentation
+				   comment tags in the package-info file that can influence the rest of the package. Just bail out
+				   so we don't touch null objects below.
+				 */
+				if (path.isEmpty())
+					return;
+			}
 	}
 
 	if (isStructuralChange && !this.hasStructuralChanges) {

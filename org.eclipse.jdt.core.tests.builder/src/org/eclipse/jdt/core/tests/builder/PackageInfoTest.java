@@ -228,6 +228,54 @@ public void test258145() throws JavaModelException {
 		otherPackageInfoPath,
 		new Problem("my/foo/package-info.java", "The type package-info is already defined", otherPackageInfoPath, 0, 0, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=323785 
+// (NPE upon creation/deletion of package-info.java in default package)
+public void test323785 () throws JavaModelException {
+	
+	IPath projectPath = env.addProject("Project", "1.5"); 
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	fullBuild(projectPath);
+
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(projectPath, ""); 
+
+	IPath root = env.addPackageFragmentRoot(projectPath, "src");
+	env.setOutputFolder(projectPath, "bin"); 
+	
+	fullBuild(projectPath);
+
+	env.addFile(root, "package-info.java",	"");
+
+	incrementalBuild(projectPath);
+	expectingNoProblems();
+	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=323785
+// verify that changes to package info containing secondary types do trigger incremental build.
+public void test323785a () throws JavaModelException {
+	
+	IPath projectPath = env.addProject("Project", "1.5"); 
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	fullBuild(projectPath);
+
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(projectPath, ""); 
+
+	IPath root = env.addPackageFragmentRoot(projectPath, "src");
+	env.setOutputFolder(projectPath, "bin"); 
+	
+	IPath xJavaPath = env.addFile(root, "X.java",	"class X extends Y {}\n");
+	fullBuild(projectPath);
+	env.addFile(root, "package-info.java",	"class Y {}\n");
+	incrementalBuild(projectPath);
+	expectingNoProblems();
+	env.addFile(root, "package-info.java",	"final class Y {}\n");
+	incrementalBuild(projectPath);
+	expectingOnlySpecificProblemFor(
+			xJavaPath,
+			new Problem("X.java", "The type X cannot subclass the final class Y", xJavaPath, 16, 17, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR));
+	
+}
 protected void assertSourceEquals(String message, String expected, String actual) {
 	if (actual == null) {
 		assertEquals(message, expected, null);
