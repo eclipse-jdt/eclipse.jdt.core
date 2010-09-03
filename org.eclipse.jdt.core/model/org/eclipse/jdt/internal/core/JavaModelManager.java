@@ -2111,13 +2111,43 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void migrateObsoleteOption(Map options, String optionName, String optionValue) {
 
 		// Migrate formatter options
-		String[] compatibleConstants = DefaultCodeFormatterConstants.getCompatibleConstants(optionName);
+		String[] compatibleConstants = getFormatterCompatibleConstants(optionName);
 		if (compatibleConstants != null) {
 			for (int i=0, length=compatibleConstants.length; i < length; i++) {
 				options.put(compatibleConstants[i], optionValue);
 			}
 			return;
 		}
+	}
+
+	/**
+	 * Return an array of compatible constants for an obsolete constant.
+	 * 
+	 * @param name The name of the obsolete constant
+	 * @return The list as a non-empty array of the compatible constants or
+	 * <code>null</code> if the constant is <b>not</b> obsolete.
+	 * @deprecated As using deprecated formatter constants
+	 */
+	private static String[] getFormatterCompatibleConstants(String name) {
+		if (DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER.equals(name)) {
+			return new String[] {
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE
+			};
+		}
+		if (DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION.equals(name)) {
+			return new String[] {
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_LOCAL_VARIABLE,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER
+			};
+		}
+		return null;
 	}
 
 	// Do not modify without modifying getDefaultOptions()

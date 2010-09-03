@@ -3907,35 +3907,6 @@ public class DefaultCodeFormatterConstants {
 	}
 
 	/**
-	 * Return an array of compatible constants for an obsolete constant.
-	 * 
-	 * @param name The name of the obsolete constant
-	 * @return The list as a non-empty array of the compatible constants or
-	 * <code>null</code> if the constant is <b>not</b> obsolete.
-	 */
-	public static String[] getCompatibleConstants(String name) {
-		if (FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER.equals(name)) {
-			return new String[] {
-				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD,
-				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD,
-				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE,
-				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE
-			};
-		}
-		if (FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION.equals(name)) {
-			return new String[] {
-				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD,
-				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD,
-				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE,
-				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE,
-				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_LOCAL_VARIABLE,
-				FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER
-			};
-		}
-		return null;
-	}
-
-	/**
 	 * <p>Return the indentation style of the given alignment value.
 	 * The given alignment value should be created using the <code>createAlignmentValue(boolean, int, int)</code>
 	 * API.
