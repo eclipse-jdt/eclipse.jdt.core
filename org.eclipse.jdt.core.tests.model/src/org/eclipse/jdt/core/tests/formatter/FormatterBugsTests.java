@@ -1690,7 +1690,6 @@ public void testBug203588() throws JavaModelException {
  * @bug 252556: [formatter] Spaces removed before formatted region of a compilation unit.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=252556"
  */
-// TODO Fix the bug... this test currently verifies that the problem still occurs!
 public void testBug252556() {
 	String source =
 		"package a;\n" + 
@@ -1711,13 +1710,167 @@ public void testBug252556() {
 		"public class Test {\n" + 
 		"\n" + 
 		"	private int field;\n" + 
-//		"	\n" + // this is the expected untouched line
-		"\n" + // instead the tab is removed although it is outside the selection...
+		"	\n" + 
 		"	/**\n" + 
 		"	 * fds\n" + 
 		"	 */\n" + 
 		"	public void foo() {\n" + 
 		"	}\n" + 
+		"}\n"
+	);
+}
+// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=95340
+public void testBug252556a() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"int foo() {[#\n" + 
+		"return 0;\n" + 
+		"#]}\n" + 
+		"void bar(){}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"void bar(){}\n" + 
+		"}\n"
+	);
+}
+// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=95340
+public void testBug252556b() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"int [#foo() {\n" + 
+		"return 0;\n" + 
+		"#]}\n" + 
+		"void bar(){}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"void bar(){}\n" + 
+		"}\n"
+	);
+}
+// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=95340
+public void testBug252556c() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"[#int foo() {\n" + 
+		"return 0;\n" + 
+		"#]}\n" + 
+		"void bar(){}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"void bar(){}\n" + 
+		"}\n"
+	);
+}
+// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=95340
+public void testBug252556d() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"[#int foo() {\n" + 
+		"return 0;\n" + 
+		"}#]\n" + 
+		"void bar(){}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"void bar(){}\n" + 
+		"}\n"
+	);
+}
+// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=95340
+public void testBug252556e() {
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"[#int foo() {\n" + 
+		"return 0;\n" + 
+		"}\n" + 
+		"#]void bar(){}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"\n" + 
+		"	int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	void bar(){}\n" + 
+		"}\n"
+	);
+}
+// see org.eclipse.jdt.ui.tests.core.CodeFormatterUtilTest.testFormatSubstring()
+public void testBug252556f() {
+	String source =
+		"package test1;\n" + 
+		"\n" + 
+		"import java.util.Vector;\n" + 
+		"\n" + 
+		"public class A {\n" + 
+		"    public void foo() {\n" + 
+		"    [#Runnable runnable= new Runnable() {};#]\n" + 
+		"    runnable.toString();\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"import java.util.Vector;\n" + 
+		"\n" + 
+		"public class A {\n" + 
+		"    public void foo() {\n" + 
+		"    	Runnable runnable = new Runnable() {\n" + 
+		"		};\n" + 
+		"    runnable.toString();\n" + 
+		"    }\n" + 
+		"}\n"
+	);
+}
+// Adding a test case impacted by the fix for bug 252556 got from massive tests
+public void testBug252556_wksp3a() {
+	String source =
+		"package wksp3;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * <pre>import java.net.*;\n" + 
+		" * import org.xml.sax.*;\n" + 
+		" * </pre>\n" + 
+		" */\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp3;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * <pre>\n" + 
+		" * import java.net.*;\n" + 
+		" * import org.xml.sax.*;\n" + 
+		" * </pre>\n" + 
+		" */\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
 		"}\n"
 	);
 }

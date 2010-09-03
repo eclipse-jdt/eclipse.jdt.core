@@ -23,6 +23,6 @@ public class OptimizedReplaceEdit {
 	}
 
 	public String toString() {
-		return "(" + this.offset + ", length " + this.length + " :>" + this.replacement + "<"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+		return (this.offset < 0 ? "(" : "X(") + this.offset + ", length " + this.length + " :>" + this.replacement + "<"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$ //$NON-NLS-5$
 	}
 }
