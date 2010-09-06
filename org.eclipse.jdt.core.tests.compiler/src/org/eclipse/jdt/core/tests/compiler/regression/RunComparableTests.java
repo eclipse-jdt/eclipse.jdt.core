@@ -31,6 +31,7 @@ public class RunComparableTests extends junit.framework.TestCase {
 		ALL_CLASSES.add(AutoBoxingTest.class);
 		ALL_CLASSES.add(Compliance_1_5.class);
 		ALL_CLASSES.add(GenericTypeTest.class);
+		ALL_CLASSES.add(GenericsRegressionTest.class);
 		ALL_CLASSES.add(ForeachStatementTest.class);
 		ALL_CLASSES.add(StaticImportTest.class);
 		ALL_CLASSES.add(VarargsTest.class);

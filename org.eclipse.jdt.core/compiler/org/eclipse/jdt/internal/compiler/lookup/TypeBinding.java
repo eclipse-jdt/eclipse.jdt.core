@@ -562,11 +562,12 @@ public boolean isParameterizedWithOwnVariables() {
 	return true;
 }
 
-private boolean isProvableDistinctSubType(TypeBinding otherType) {
+private boolean isProvableDistinctSubType(TypeBinding otherType, boolean isClassLiteral) {
 	if (otherType.isInterface()) {
 		if (isInterface())
 			return false;
 		if (isArrayType()
+				|| isClassLiteral // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
 				|| ((this instanceof ReferenceBinding) && ((ReferenceBinding) this).isFinal())
 				|| (isTypeVariable() && ((TypeVariableBinding)this).superclass().isFinal())) {
 			return !isCompatibleWith(otherType);
@@ -575,6 +576,7 @@ private boolean isProvableDistinctSubType(TypeBinding otherType) {
 	} else {
 		if (isInterface()) {
 			if (otherType.isArrayType()
+					|| isClassLiteral // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
 					|| ((otherType instanceof ReferenceBinding) && ((ReferenceBinding) otherType).isFinal())
 					|| (otherType.isTypeVariable() && ((TypeVariableBinding)otherType).superclass().isFinal())) {
 				return !isCompatibleWith(otherType);
@@ -690,6 +692,7 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 
 	TypeBinding upperBound1 = null;
 	TypeBinding lowerBound1 = null;
+	ReferenceBinding genericType = paramType.genericType();
 	switch (kind()) {
 		case Binding.WILDCARD_TYPE :
 			WildcardBinding wildcard = (WildcardBinding) this;
@@ -724,7 +727,7 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 			}
 			if (variable.firstBound == null) // unbound variable
 				return false;
-			TypeBinding eliminatedType = Scope.convertEliminatingTypeVariables(variable, paramType.genericType(), rank, null);
+			TypeBinding eliminatedType = Scope.convertEliminatingTypeVariables(variable, genericType, rank, null);
 			switch (eliminatedType.kind()) {
 				case Binding.WILDCARD_TYPE :
 				case Binding.INTERSECTION_TYPE :
@@ -779,7 +782,7 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 			}
 			if (otherVariable.firstBound == null) // unbound variable
 				return false;
-			TypeBinding otherEliminatedType = Scope.convertEliminatingTypeVariables(otherVariable, paramType.genericType(), rank, null);
+			TypeBinding otherEliminatedType = Scope.convertEliminatingTypeVariables(otherVariable, genericType, rank, null);
 			switch (otherEliminatedType.kind()) {
 				case Binding.WILDCARD_TYPE :
 				case Binding.INTERSECTION_TYPE :
@@ -816,10 +819,10 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 		if (lowerBound2 != null) {
 			return !lowerBound2.isCompatibleWith(upperBound1);
 		} else if (upperBound2 != null) {
-			return upperBound1.isProvableDistinctSubType(upperBound2)
-							&& upperBound2.isProvableDistinctSubType(upperBound1);
+			return upperBound1.isProvableDistinctSubType(upperBound2, false)
+							&& upperBound2.isProvableDistinctSubType(upperBound1, false);
 		} else {
-			return otherArgument.isProvableDistinctSubType(upperBound1);
+			return otherArgument.isProvableDistinctSubType(upperBound1, genericType.id == TypeIds.T_JavaLangClass);
 		}
 	} else {
 		if (lowerBound2 != null) {
@@ -828,7 +831,7 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 			}
 			return !lowerBound2.isCompatibleWith(this);
 		} else if (upperBound2 != null) {
-			return isProvableDistinctSubType(upperBound2);
+			return isProvableDistinctSubType(upperBound2, genericType.id == TypeIds.T_JavaLangClass);
 		} else {
 			return true; // ground types should have been the same
 		}
