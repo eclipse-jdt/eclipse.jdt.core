@@ -1447,6 +1447,7 @@ public void testDuplicateLocals1() throws JavaModelException {
 			"Unexpected type",
 			"QTestString;",
 			((ILocalVariable)elements[0]).getTypeSignature());
+	assertFalse(((ILocalVariable)elements[0]).isParameter());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
 public void testDuplicateLocals2() throws JavaModelException {

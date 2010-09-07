@@ -215,7 +215,13 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			memento.nextToken(); // JEM_COUNT
 			if (!memento.hasMoreTokens()) return this;
 			String typeSignature = memento.nextToken();
-			return new LocalVariable(this, varName, declarationStart, declarationEnd, nameStart, nameEnd, typeSignature, null);
+			memento.nextToken(); // JEM_COUNT
+			if (!memento.hasMoreTokens()) return this;
+			int flags = Integer.parseInt(memento.nextToken());
+			memento.nextToken(); // JEM_COUNT
+			if (!memento.hasMoreTokens()) return this;
+			boolean isParameter = Boolean.getBoolean(memento.nextToken());
+			return new LocalVariable(this, varName, declarationStart, declarationEnd, nameStart, nameEnd, typeSignature, null, flags, isParameter);
 		case JEM_TYPE_PARAMETER:
 			if (!memento.hasMoreTokens()) return this;
 			String typeParameterName = memento.nextToken();

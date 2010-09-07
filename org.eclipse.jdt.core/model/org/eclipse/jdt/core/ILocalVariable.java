@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,4 +52,46 @@ public interface ILocalVariable extends IJavaElement, ISourceReference, IAnnotat
 	 * @see Signature
 	 */
 	String getTypeSignature();
+	
+	/**
+	 * Returns <code>true</code> if this local variable is a method parameter, <code>false</code> otherwise.
+	 * 
+	 * @return <code>true</code> if this local variable is a method parameter, <code>false</code> otherwise
+	 * @since 3.7
+	 */
+	boolean isParameter();
+
+	/**
+	 * Returns the modifier flags for this local variable. The flags can be examined using class
+	 * {@link Flags}.
+	 * 
+	 * <p>Note that only flags as indicated in the source are returned.</p>
+	 *
+	 * @return the modifier flags for this local variable
+	 * @see Flags
+	 * @since 3.7
+	 */
+	int getFlags();
+
+	/**
+	 * Returns the declaring member of this local variable.
+	 * <p>
+	 * This is a handle-only method.
+	 * </p>
+	 *
+	 * @return the declaring member of this local variable
+	 * @since 3.7
+	 */
+	IMember getDeclaringMember();
+
+	/**
+	 * Returns the Java type root in which this local variable is declared.
+	 * <p>
+	 * This is a handle-only method.
+	 * </p>
+	 *
+	 * @return the Java type root in which this local variable is declared
+	 * @since 3.7
+	 */
+	ITypeRoot getTypeRoot();
 }

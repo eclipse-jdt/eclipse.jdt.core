@@ -48,9 +48,68 @@ Eclipse SDK 3.7M2 - %date% - 3.7.0 M2
 <br>Project org.eclipse.jdt.core v_B11
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B11">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Adding missing API methods on org.eclipse.jdt.core.ILocalVariable (see details in <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48420">bug 48420</a>):
+<pre>
+    /**
+     * Returns true if this local variable is a method parameter, false otherwise.
+     * 
+     * @return true if this local variable is a method parameter, false otherwise
+     * @since 3.7
+     */
+    boolean isParameter();
+
+    /**
+     * Returns the modifier flags for this local variable. The flags can be examined using class.
+     * 
+     * Note that only flags as indicated in the source are returned.
+     *
+     * @return the modifier flags for this local variable
+     * @see Flags
+     * @since 3.7
+     */
+    int getFlags();
+
+    /**
+     * Returns the declaring member of this local variable.
+     *
+     * This is a handle-only method.
+     *
+     * @return the declaring member of this local variable
+     * @since 3.7
+     */
+    IMember getDeclaringMember();
+
+    /**
+     * Returns the Java type root in which this local variable is declared.
+     *
+     * This is a handle-only method.
+     *
+     * @return the Java type root in which this local variable is declared
+     * @since 3.7
+     */
+    ITypeRoot getTypeRoot();
+</pre>
+</li>
+<li>Adding missing API method on org.eclipse.jdt.core.ITypeParameter (see details in <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48420">bug 48420</a>):
+<pre>
+    /**
+     * Returns the Java type root in which this type parameter is declared.
+     *
+     * This is a handle-only method.
+     *
+     * @return the Java type root in which this type parameter is declared
+     * @since 3.7
+     */
+    ITypeRoot getTypeRoot();
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414">321414</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=48420">48420</a>
+[API] ILocalVariable and ITypeParameter should provide more methods
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414">321414</a>
 Synthetic constructors can exceed 255 parameters -&gt; ClassFormatError
 
 <a name="v_B10"></a>

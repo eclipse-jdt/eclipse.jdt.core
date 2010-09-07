@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,6 +39,8 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	public int nameStart, nameEnd;
 	String typeSignature;
 	public IAnnotation[] annotations;
+	private int flags;
+	private boolean isParameter;
 
 	public LocalVariable(
 			JavaElement parent,
@@ -48,7 +50,9 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 			int nameStart,
 			int nameEnd,
 			String typeSignature,
-			org.eclipse.jdt.internal.compiler.ast.Annotation[] astAnnotations) {
+			org.eclipse.jdt.internal.compiler.ast.Annotation[] astAnnotations,
+			int flags,
+			boolean isParameter) {
 
 		super(parent);
 		this.name = name;
@@ -58,6 +62,8 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 		this.nameEnd = nameEnd;
 		this.typeSignature = typeSignature;
 		this.annotations = getAnnotations(astAnnotations);
+		this.flags = flags;
+		this.isParameter = isParameter;
 	}
 
 	protected void closing(Object info) {
@@ -243,6 +249,10 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 		buff.append(this.nameEnd);
 		buff.append(JEM_COUNT);
 		escapeMementoName(buff, this.typeSignature);
+		buff.append(JEM_COUNT);
+		buff.append(this.flags);
+		buff.append(JEM_COUNT);
+		buff.append(this.isParameter);
 		if (this.occurrenceCount > 1) {
 			buff.append(JEM_COUNT);
 			buff.append(this.occurrenceCount);
@@ -256,6 +266,14 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	public IResource getCorrespondingResource() {
 		return null;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @since 3.7
+	 */
+	public IMember getDeclaringMember() {
+		return (IMember) this.parent;
+	}
 
 	public String getElementName() {
 		return this.name;
@@ -263,6 +281,14 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
 	public int getElementType() {
 		return LOCAL_VARIABLE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * @since 3.7
+	 */
+	public int getFlags() {
+		return this.flags;
 	}
 
 	public ISourceRange getNameRange() {
@@ -306,6 +332,14 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 		return new SourceRange(this.declarationSourceStart, this.declarationSourceEnd-this.declarationSourceStart+1);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @since 3.7
+	 */
+	public ITypeRoot getTypeRoot() {
+		return this.getDeclaringMember().getTypeRoot();
+	}
+
 	public String getTypeSignature() {
 		return this.typeSignature;
 	}
@@ -317,10 +351,18 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	public int hashCode() {
 		return Util.combineHashCodes(this.parent.hashCode(), this.nameStart);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @since 3.7
+	 */
+	public boolean isParameter() {
+		return this.isParameter;
+	}
 
 	public boolean isStructureKnown() throws JavaModelException {
-        return true;
-    }
+		return true;
+	}
 
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 		buffer.append(tabString(tab));

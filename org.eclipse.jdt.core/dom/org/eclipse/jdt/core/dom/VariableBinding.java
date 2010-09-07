@@ -245,25 +245,45 @@ class VariableBinding implements IVariableBinding {
 		int nameLength;
 		int sourceStart;
 		int sourceLength;
+		int modifiers = 0;
 		if (localVar instanceof SingleVariableDeclaration) {
 			sourceStart = localVar.getStartPosition();
 			sourceLength = localVar.getLength();
-			SimpleName simpleName = ((SingleVariableDeclaration) localVar).getName();
+			final SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) localVar;
+			SimpleName simpleName = singleVariableDeclaration.getName();
 			nameStart = simpleName.getStartPosition();
 			nameLength = simpleName.getLength();
+			modifiers = singleVariableDeclaration.getModifiers();
 		} else {
 			nameStart =  localVar.getStartPosition();
 			nameLength = localVar.getLength();
 			ASTNode node = localVar.getParent();
 			sourceStart = node.getStartPosition();
 			sourceLength = node.getLength();
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) localVar;
+			final ASTNode parent = fragment.getParent();
+			switch (parent.getNodeType()) {
+				case ASTNode.VARIABLE_DECLARATION_EXPRESSION :
+					VariableDeclarationExpression expression = (VariableDeclarationExpression) parent;
+					modifiers = expression.getModifiers();
+					break;
+				case ASTNode.VARIABLE_DECLARATION_STATEMENT :
+					VariableDeclarationStatement statement = (VariableDeclarationStatement) parent;
+					modifiers = statement.getModifiers();
+					break;
+				case ASTNode.FIELD_DECLARATION :
+					FieldDeclaration fieldDeclaration = (FieldDeclaration) parent;
+					modifiers = fieldDeclaration.getModifiers();
+					break;
+			}
 		}
 		int sourceEnd = sourceStart+sourceLength-1;
 		char[] typeSig = this.binding.type.genericTypeSignature();
 		JavaElement parent = null;
 		IMethodBinding declaringMethod = getDeclaringMethod();
+		final LocalVariableBinding localVariableBinding = (LocalVariableBinding) this.binding;
 		if (declaringMethod == null) {
-			ReferenceContext referenceContext = ((LocalVariableBinding) this.binding).declaringScope.referenceContext();
+			ReferenceContext referenceContext = localVariableBinding.declaringScope.referenceContext();
 			if (referenceContext instanceof TypeDeclaration){
 				// Local variable is declared inside an initializer
 				TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
@@ -280,7 +300,17 @@ class VariableBinding implements IVariableBinding {
 			parent = (JavaElement) declaringMethod.getJavaElement();
 		}
 		if (parent == null) return null;
-		return new LocalVariable(parent, localVar.getName().getIdentifier(), sourceStart, sourceEnd, nameStart, nameStart+nameLength-1, new String(typeSig), ((LocalVariableBinding) this.binding).declaration.annotations);
+		return new LocalVariable(
+				parent,
+				localVar.getName().getIdentifier(),
+				sourceStart,
+				sourceEnd,
+				nameStart,
+				nameStart+nameLength-1,
+				new String(typeSig),
+				localVariableBinding.declaration.annotations,
+				modifiers,
+				(localVariableBinding.tagBits & TagBits.IsArgument) != 0);
 	}
 
 	/*

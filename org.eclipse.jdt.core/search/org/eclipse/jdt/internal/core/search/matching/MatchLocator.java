@@ -582,7 +582,9 @@ protected IJavaElement createHandle(AbstractVariableDeclaration variableDeclarat
 					variableDeclaration.sourceStart,
 					variableDeclaration.sourceEnd,
 					new String(variableDeclaration.type.resolvedType.signature()),
-					variableDeclaration.annotations
+					variableDeclaration.annotations,
+					variableDeclaration.modifiers,
+					false
 				);
 			}
 			break;
@@ -595,7 +597,9 @@ protected IJavaElement createHandle(AbstractVariableDeclaration variableDeclarat
 					variableDeclaration.sourceStart,
 					variableDeclaration.sourceEnd,
 					new String(variableDeclaration.type.resolvedType.signature()),
-					variableDeclaration.annotations
+					variableDeclaration.annotations,
+					variableDeclaration.modifiers,
+					true
 				);
 			}
 			break;

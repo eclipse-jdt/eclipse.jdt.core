@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
 import org.eclipse.jdt.internal.codeassist.impl.AssistCompilationUnit;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
@@ -242,7 +243,9 @@ public class InternalExtendedCompletionContext {
 				local.sourceStart,
 				local.sourceEnd,
 				Util.typeSignature(local.type),
-				binding.declaration.annotations);
+				binding.declaration.annotations,
+				local.modifiers,
+				local.getKind() == AbstractVariableDeclaration.PARAMETER);
 	}
 
 	private JavaElement getJavaElementOfCompilationUnit(Binding binding) {

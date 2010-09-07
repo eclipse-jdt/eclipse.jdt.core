@@ -63,7 +63,7 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 	}
 	
 	public IMember getDeclaringMember() {
-			return (IMember) getParent();
+		return (IMember) getParent();
 	}
 
 	public String getElementName() {
@@ -110,6 +110,14 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 
 	public IClassFile getClassFile() {
 		return ((JavaElement)getParent()).getClassFile();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @since 3.7
+	 */
+	public ITypeRoot getTypeRoot() {
+		return this.getDeclaringMember().getTypeRoot();
 	}
 
 	protected void toStringName(StringBuffer buffer) {

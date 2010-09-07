@@ -222,7 +222,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 				} else if (element instanceof ILocalVariable) {
 					this.line.append(" ");
 					ILocalVariable localVar = (ILocalVariable)element;
-					IJavaElement parent = localVar.getParent();
+					IJavaElement parent = localVar.getDeclaringMember();
 					if (parent instanceof IInitializer) {
 						IInitializer initializer = (IInitializer)parent;
 						append(initializer);

@@ -66,4 +66,15 @@ public interface ITypeParameter extends IJavaElement, ISourceReference {
 	 * @return the declaring member of this type parameter.
 	 */
 	IMember getDeclaringMember();
+
+	/**
+	 * Returns the Java type root in which this type parameter is declared.
+	 * <p>
+	 * This is a handle-only method.
+	 * </p>
+	 *
+	 * @return the Java type root in which this type parameter is declared
+	 * @since 3.7
+	 */
+	ITypeRoot getTypeRoot();
 }
