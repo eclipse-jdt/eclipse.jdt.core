@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 
 import junit.framework.Test;
 
@@ -1543,5 +1544,55 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 		assertStringsEqual("Type parameter bounds signatures", 
 							"TT;\n", typeParam.getBoundsSignatures());
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=316937
+	public void testBug316937() throws Exception {
+		try {
+			IJavaProject project = getJavaProject("P");
+			String[] pathAndContents = new String[] {
+					"bug316937/Foo.java",
+					"package bug316937;\n" + "public class Foo {\n"
+							+ "	class Bar {\n"
+							+ "		public Bar(int a, int b) {}\n" + "	}\n"
+							+ "}\n" };
+			addLibrary(project, "lib316937.jar", "src316937.zip",
+					pathAndContents, JavaCore.VERSION_1_5);
+			IPackageFragmentRoot packageFragRoot = project
+					.getPackageFragmentRoot(getFile("/P/lib316937.jar"));
 
+			IType type = packageFragRoot.getPackageFragment("bug316937")
+					.getClassFile("Foo.class").getType();
+			IType subType = type.getType("Bar");
+			IMethod[] methods = subType.getMethods();
+			assertEquals("Constructros", 1, methods.length);
+			IMethod method = methods[0];
+			String[] paramNames = method.getParameterNames();
+			assertStringsEqual("Type parameter names", "a\n" + "b\n",
+					paramNames);
+
+			// Remove the source attachment
+			IClasspathEntry[] rawClasspath = project.getRawClasspath();
+			for (int index = 0; index < rawClasspath.length; index++) {
+				IClasspathEntry entry = rawClasspath[index];
+				if (entry.getPath().toString().endsWith("lib316937.jar")) {
+					((ClasspathEntry) entry).sourceAttachmentPath = null;
+				}
+			}
+			project.setRawClasspath(rawClasspath, null);
+
+			packageFragRoot = project
+					.getPackageFragmentRoot(getFile("/P/lib316937.jar"));
+			type = packageFragRoot.getPackageFragment("bug316937")
+					.getClassFile("Foo.class").getType();
+			subType = type.getType("Bar");
+			methods = subType.getMethods();
+			assertEquals("Constructros", 1, methods.length);
+			method = methods[0];
+			paramNames = method.getParameterNames();
+			assertStringsEqual("Type parameter names", "a\n" + "b\n",
+					paramNames);
+		} finally {
+			removeLibrary(getJavaProject("P"), "lib316937.jar", "src316937.zip");
+		}
+	}
+	
 }
