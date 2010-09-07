@@ -42,10 +42,10 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 	public static List JAVA_SEARCH_SUITES = null;
 	protected static IJavaProject JAVA_PROJECT;
 	protected static boolean COPY_DIRS = true;
-	protected static int EXACT_RULE = SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE;
-	protected static int EQUIVALENT_RULE = EXACT_RULE | SearchPattern.R_EQUIVALENT_MATCH;
-	protected static int ERASURE_RULE = EXACT_RULE | SearchPattern.R_ERASURE_MATCH;
-	protected static int RAW_RULE = EXACT_RULE | SearchPattern.R_ERASURE_MATCH | SearchPattern.R_EQUIVALENT_MATCH;
+	protected final static int EXACT_RULE = SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE;
+	protected final static int EQUIVALENT_RULE = EXACT_RULE | SearchPattern.R_EQUIVALENT_MATCH;
+	protected final static int ERASURE_RULE = EXACT_RULE | SearchPattern.R_ERASURE_MATCH;
+	protected final static int RAW_RULE = EXACT_RULE | SearchPattern.R_ERASURE_MATCH | SearchPattern.R_EQUIVALENT_MATCH;
 
 //	ICompilationUnit[] workingCopies;
 //	boolean discard;

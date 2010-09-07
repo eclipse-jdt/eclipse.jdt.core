@@ -256,11 +256,13 @@ protected void consumeCastExpressionWithQualifiedGenericsArray() {
 }
 
 protected void consumeClassHeaderExtends() {
+	this.patternLocator.setFlavors(PatternLocator.SUPERTYPE_REF_FLAVOR);
 	super.consumeClassHeaderExtends();
 	if ((this.patternFineGrain & IJavaSearchConstants.SUPERTYPE_TYPE_REFERENCE) != 0) {
 		TypeDeclaration typeDeclaration = (TypeDeclaration) this.astStack[this.astPtr];
 		this.patternLocator.match(typeDeclaration.superclass, this.nodeSet);
 	}
+	this.patternLocator.setFlavors(PatternLocator.NO_FLAVOR);
 }
 
 protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() {
@@ -281,6 +283,12 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 		AllocationExpression allocation = (AllocationExpression) this.expressionStack[this.expressionPtr];
 		this.patternLocator.match(allocation.type, this.nodeSet);
 	}
+}
+
+protected void consumeEnterAnonymousClassBody(boolean qualified) {
+	this.patternLocator.setFlavors(PatternLocator.SUPERTYPE_REF_FLAVOR);
+	super.consumeEnterAnonymousClassBody(qualified);
+	this.patternLocator.setFlavors(PatternLocator.NO_FLAVOR);
 }
 
 protected void consumeEnterVariable() {
@@ -337,11 +345,13 @@ protected void consumeInstanceOfExpressionWithName() {
 	}
 }
 protected void consumeInterfaceType() {
+	this.patternLocator.setFlavors(PatternLocator.SUPERTYPE_REF_FLAVOR);
 	super.consumeInterfaceType();
 	if ((this.patternFineGrain & IJavaSearchConstants.SUPERTYPE_TYPE_REFERENCE) != 0) {
 		TypeReference typeReference = (TypeReference) this.astStack[this.astPtr];
 		this.patternLocator.match(typeReference, this.nodeSet);
 	}
+	this.patternLocator.setFlavors(PatternLocator.NO_FLAVOR);
 }
 
 protected void consumeLocalVariableDeclaration() {

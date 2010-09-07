@@ -34,6 +34,7 @@ public SuperTypeReferenceLocator(SuperTypeReferencePattern pattern) {
 //public int match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 public int match(TypeReference node, MatchingNodeSet nodeSet) {
+	if (this.flavors != SUPERTYPE_REF_FLAVOR) return IMPOSSIBLE_MATCH;
 	if (this.pattern.superSimpleName == null)
 		return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 

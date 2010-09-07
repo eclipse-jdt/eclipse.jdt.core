@@ -12073,6 +12073,246 @@ public void testBug317264f() throws CoreException {
 }
 
 /**
+ * @bug 322979: [search] use of IJavaSearchConstants.IMPLEMENTORS yields surprising results
+ * @test search of implementors does no longer report matches in type arguments
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=322979"
+ */
+public void testBug322979a() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFile("/P/Test.java", 
+			"public class Test extends Object implements Comparable<Object>{\n"+
+		    "public int compareTo(Object o) {\n"+
+		        "return 0;\n"+
+		    "}\n"+
+			"}\n");
+		waitUntilIndexesReady();
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		this.resultCollector.showAccuracy(true);
+		this.resultCollector.showSelection();
+		search("Object", TYPE, IMPLEMENTORS, scope);
+		assertSearchResults(
+			"Test.java Test [public class Test extends !|Object|! implements Comparable<Object>{] EXACT_MATCH"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug322979b() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFile("/P/Test.java", 
+			"public class Test extends java.lang.Object implements Comparable<Object>{\n"+
+		    "public int compareTo(Object o) {\n"+
+		        "return 0;\n"+
+		    "}\n"+
+			"}\n");
+		waitUntilIndexesReady();
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		IType type = getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "Object.class").getType();
+		this.resultCollector.showAccuracy(true);
+		this.resultCollector.showSelection();
+		search(type, IMPLEMENTORS, scope);
+		assertSearchResults(
+			"Test.java Test [public class Test extends !|java.lang.Object|! implements Comparable<Object>{] EXACT_MATCH"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug322979c() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFile("/P/Test.java", 
+			"public class Test extends Object implements I01a<Object>, I01b<String>, I01c<Object> {\n" + 
+			"}\n" + 
+			"interface I01a<T> {}\n" + 
+			"interface I01b<T> {}\n" + 
+			"interface I01c<T> {}\n"
+		);
+		waitUntilIndexesReady();
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		this.resultCollector.showSelection();
+		search("java.lang.Object", TYPE, IMPLEMENTORS, scope);
+		assertSearchResults(
+			"Test.java Test [public class Test extends !|Object|! implements I01a<Object>, I01b<String>, I01c<Object> {] EXACT_MATCH"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug322979d() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFile("/P/Test.java", 
+			"public class Test extends Object implements I01<\n" + 
+			"	I02<\n" + 
+			"		I03<Object,\n" + 
+			"			I02<Object, I01<Object>>,\n" + 
+			"			I03<Object, I01<Object>, I02<Object, I01<Object>>>\n" + 
+			"			>,\n" + 
+			"		I01<Object>>> {\n" + 
+			"}\n" + 
+			"interface I01<T> {}\n" + 
+			"interface I02<T, U> {}\n" + 
+			"interface I03<T, U, V> {}\n"
+		);
+		waitUntilIndexesReady();
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		this.resultCollector.showSelection();
+		search("Object", TYPE, IMPLEMENTORS, scope);
+		assertSearchResults(
+			"Test.java Test [public class Test extends !|Object|! implements I01<] EXACT_MATCH"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug322979e() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFile("/P/Test.java", 
+			"public class Test extends Object implements I01<\n" + 
+			"	I02<\n" + 
+			"		I03<Object,\n" + 
+			"			I02<Object, I01<Object>>,\n" + 
+			"			I03<Object, I01<Object>, I02<Object, I01<Object>>>\n" + 
+			"			>,\n" + 
+			"		I01<Object>>> {\n" + 
+			"}\n" + 
+			"interface I01<T> {}\n" + 
+			"interface I02<T, U> {}\n" + 
+			"interface I03<T, U, V> {}\n"
+		);
+		waitUntilIndexesReady();
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		this.resultCollector.showSelection();
+		search("Object", TYPE, REFERENCES, scope);
+		assertSearchResults(
+			"Test.java Test [public class Test extends !|Object|! implements I01<] EXACT_MATCH\n" + 
+			"Test.java Test [		I03<!|Object|!,] EXACT_MATCH\n" + 
+			"Test.java Test [			I02<!|Object|!, I01<Object>>,] EXACT_MATCH\n" + 
+			"Test.java Test [			I02<Object, I01<!|Object|!>>,] EXACT_MATCH\n" + 
+			"Test.java Test [			I03<!|Object|!, I01<Object>, I02<Object, I01<Object>>>] EXACT_MATCH\n" + 
+			"Test.java Test [			I03<Object, I01<!|Object|!>, I02<Object, I01<Object>>>] EXACT_MATCH\n" + 
+			"Test.java Test [			I03<Object, I01<Object>, I02<!|Object|!, I01<Object>>>] EXACT_MATCH\n" + 
+			"Test.java Test [			I03<Object, I01<Object>, I02<Object, I01<!|Object|!>>>] EXACT_MATCH\n" + 
+			"Test.java Test [		I01<!|Object|!>>> {] EXACT_MATCH\n" + 
+			""+ getExternalJCLPathString("1.5") + " java.lang.Object java.lang.Object.clone() EXACT_MATCH\n" + 
+			""+ getExternalJCLPathString("1.5") + " boolean java.lang.Object.equals(java.lang.Object) EXACT_MATCH\n" + 
+			""+ getExternalJCLPathString("1.5") + " java.lang.Class<? extends java.lang.Object> java.lang.Object.getClass() EXACT_MATCH"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug322979f() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFile("/P/Test.java", 
+			"public class Test extends Object implements I01<\n" + 
+			"	I02<\n" + 
+			"		I03<Object,\n" + 
+			"			I02<Object, I01<Object>>,\n" + 
+			"			I03<Object, I01<Object>, I02<Object, I01<Object>>>\n" + 
+			"			>,\n" + 
+			"		I01<Object>>> {\n" + 
+			"}\n" + 
+			"interface I01<T> {}\n" + 
+			"interface I02<T, U> {}\n" + 
+			"interface I03<T, U, V> {}\n"
+		);
+		waitUntilIndexesReady();
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		this.resultCollector.showSelection();
+		search("Object", TYPE, REFERENCES | SUPERTYPE_TYPE_REFERENCE, scope);
+		assertSearchResults(
+			"Test.java Test [public class Test extends !|Object|! implements I01<] EXACT_MATCH"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug322979g() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFile("/P/Test.java", 
+			"public class Test extends Object implements I<A<Object>.B<I<Object>>.C<I<A<Object>.B<Object>.C<Object>>>> {\n" + 
+			"}\n" + 
+			"interface I<T> {\n" + 
+			"}\n" + 
+			"class A<T> {\n" + 
+			"	class B<U> {\n" + 
+			"		class C<V> {}\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		waitUntilIndexesReady();
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		this.resultCollector.showSelection();
+		search("Object", TYPE, IMPLEMENTORS, scope);
+		assertSearchResults(
+			"Test.java Test [public class Test extends !|Object|! implements I<A<Object>.B<I<Object>>.C<I<A<Object>.B<Object>.C<Object>>>> {] EXACT_MATCH"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug322979h() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFile("/P/Test.java", 
+			"public class Test extends Object implements I1<String>, I2<Object>{\n"+
+		    "}\n"+
+		    "Interface I1<T> {}\n"+
+			"Interface I2<T> {}\n");
+		waitUntilIndexesReady();
+		int mask = IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		this.resultCollector.showAccuracy(true);
+		this.resultCollector.showSelection();
+		SearchPattern leftPattern = SearchPattern.createPattern(
+				"Object",
+				TYPE,
+				IMPLEMENTORS,
+				EXACT_RULE);
+		SearchPattern rightPattern = SearchPattern.createPattern(
+				"String",
+				TYPE,
+				REFERENCES,
+				EXACT_RULE);
+		search(SearchPattern.createOrPattern(leftPattern, rightPattern), scope, this.resultCollector);
+		assertSearchResults(
+			"Test.java Test [public class Test extends !|Object|! implements I1<String>, I2<Object>{] EXACT_MATCH\n" + 
+			"Test.java Test [public class Test extends Object implements I1<!|String|!>, I2<Object>{] EXACT_MATCH"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/**
  * @bug 324109: [search] Java search shows incorrect results as accurate matches
  * @test search of method declaration off missing types should report potential matches and not accurate.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324109"

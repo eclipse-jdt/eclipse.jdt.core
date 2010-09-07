@@ -39,7 +39,9 @@ public static final int ACCURATE_MATCH = 3;
 public static final int ERASURE_MATCH = 4;
 
 // Possible rule match flavors
+int flavors = 0;
 // see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=79866
+public static final int NO_FLAVOR = 0x0000;
 public static final int EXACT_FLAVOR = 0x0010;
 public static final int PREFIX_FLAVOR = 0x0020;
 public static final int PATTERN_FLAVOR = 0x0040;
@@ -48,6 +50,7 @@ public static final int CAMELCASE_FLAVOR = 0x0100;
 public static final int SUPER_INVOCATION_FLAVOR = 0x0200;
 public static final int SUB_INVOCATION_FLAVOR = 0x0400;
 public static final int OVERRIDDEN_METHOD_FLAVOR = 0x0800;
+public static final int SUPERTYPE_REF_FLAVOR = 0x1000;
 public static final int MATCH_LEVEL_MASK = 0x0F;
 public static final int FLAVORS_MASK = ~MATCH_LEVEL_MASK;
 
@@ -435,6 +438,17 @@ public int resolveLevel(ASTNode possibleMatchingNode) {
 	// only called with nodes which were possible matches to the call to matchLevel
 	// need to do instance of checks to find out exact type of ASTNode
 	return IMPOSSIBLE_MATCH;
+}
+/**
+ * Set the flavors for which the locator has to be focused on.
+ * If not set, the locator will accept all matches with or without flavors.
+ * When set, the locator will only accept match having the corresponding flavors.
+ * 
+ * @param flavors Bits mask specifying the flavors to be accepted or
+ * 	<code>0</code> to ignore the flavors while accepting matches.
+ */
+void setFlavors(int flavors) {
+	this.flavors = flavors;
 }
 /*
  * Update pattern locator match for parameterized top level types.
