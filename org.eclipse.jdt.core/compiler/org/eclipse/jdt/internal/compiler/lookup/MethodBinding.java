@@ -961,7 +961,7 @@ public final char[] signature(ClassFile classFile) {
 		return this.signature;
 	}
 
-	StringBuffer buffer = new StringBuffer(this.parameters.length + 1 * 20);
+	StringBuffer buffer = new StringBuffer((this.parameters.length + 1) * 20);
 	buffer.append('(');
 
 	TypeBinding[] targetParameters = this.parameters;

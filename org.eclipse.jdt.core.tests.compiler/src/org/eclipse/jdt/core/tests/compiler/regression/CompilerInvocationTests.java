@@ -788,6 +788,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("TooManyFields", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("TooManyLocalVariableSlots", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("TooManyMethods", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("TooManyParametersForSyntheticMethod", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("TooManySyntheticArgumentSlots", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("TypeArgumentMismatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("TypeArgumentsForRawGenericConstructor", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1422,6 +1423,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("TooManyFields", SKIP);
 		expectedProblemAttributes.put("TooManyLocalVariableSlots", SKIP);
 		expectedProblemAttributes.put("TooManyMethods", SKIP);
+		expectedProblemAttributes.put("TooManyParametersForSyntheticMethod", SKIP);
 		expectedProblemAttributes.put("TooManySyntheticArgumentSlots", SKIP);
 		expectedProblemAttributes.put("TypeArgumentMismatch", SKIP);
 		expectedProblemAttributes.put("TypeArgumentsForRawGenericConstructor", SKIP);

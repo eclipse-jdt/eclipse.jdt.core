@@ -302,14 +302,15 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.selector = accessedConstructor.selector;
 		this.returnType = accessedConstructor.returnType;
 		this.purpose = SyntheticMethodBinding.ConstructorAccess;
-		this.parameters = new TypeBinding[accessedConstructor.parameters.length + 1];
+		final int parametersLength = accessedConstructor.parameters.length;
+		this.parameters = new TypeBinding[parametersLength + 1];
 		System.arraycopy(
 			accessedConstructor.parameters,
 			0,
 			this.parameters,
 			0,
-			accessedConstructor.parameters.length);
-		this.parameters[accessedConstructor.parameters.length] =
+			parametersLength);
+		this.parameters[parametersLength] =
 			accessedConstructor.declaringClass;
 		this.thrownExceptions = accessedConstructor.thrownExceptions;
 		this.declaringClass = sourceType;

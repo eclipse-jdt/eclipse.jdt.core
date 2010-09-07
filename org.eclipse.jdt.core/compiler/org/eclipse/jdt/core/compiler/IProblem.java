@@ -808,6 +808,8 @@ void setSourceStart(int sourceStart);
 	int TooManyFields = Internal + 432;
 	/** @since 2.1 */
 	int TooManyMethods = Internal + 433;
+	/** @since 3.7 */
+	int TooManyParametersForSyntheticMethod = Internal + 434;
 
 	// 1.4 features
 	// assertion warning

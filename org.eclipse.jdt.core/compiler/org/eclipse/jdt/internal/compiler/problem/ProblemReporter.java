@@ -6508,6 +6508,22 @@ public void tooManyMethods(TypeDeclaration typeDeclaration) {
 		typeDeclaration.sourceStart,
 		typeDeclaration.sourceEnd);
 }
+public void tooManyParametersForSyntheticMethod(AbstractMethodDeclaration method) {
+	MethodBinding binding = method.binding;
+	String selector = null;
+	if (binding.isConstructor()) {
+		selector = new String(binding.declaringClass.sourceName());
+	} else {
+		selector = new String(selector);
+	}
+	this.handle(
+		IProblem.TooManyParametersForSyntheticMethod,
+		new String[] {selector, typesAsString(binding.isVarargs(), binding.parameters, false), new String(binding.declaringClass.readableName()), },
+		new String[] {selector, typesAsString(binding.isVarargs(), binding.parameters, true), new String(binding.declaringClass.shortReadableName()),},
+		ProblemSeverities.AbortMethod | ProblemSeverities.Error | ProblemSeverities.Fatal,
+		method.sourceStart,
+		method.sourceEnd);
+}
 public void typeCastError(CastExpression expression, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
 	String rightName = new String(rightType.readableName());

@@ -491,6 +491,12 @@ public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boo
 			accessors[isSuperAccess ? 0 : 1] = accessMethod;
 		}
 	}
+	if (accessMethod.parameters.length > 0xFF && targetMethod.isStatic()) {
+		this.scope.problemReporter().tooManyParametersForSyntheticMethod(targetMethod.sourceMethod());
+	} else if (accessMethod.parameters.length >= 0xFF && targetMethod.isConstructor()) {
+		this.scope.problemReporter().tooManyParametersForSyntheticMethod(targetMethod.sourceMethod());
+	}
+
 	return accessMethod;
 }
 /*
