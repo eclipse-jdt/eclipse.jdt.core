@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -149,7 +149,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	this.fPackage = packageBinding;
 	this.fileName = binaryType.getFileName();
 
-	char[] typeSignature = environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_5 ? binaryType.getGenericSignature() : null;
+	char[] typeSignature = environment.globalOptions.originalSourceLevel >= ClassFileConstants.JDK1_5 ? binaryType.getGenericSignature() : null;
 	this.typeVariables = typeSignature != null && typeSignature.length > 0 && typeSignature[0] == '<'
 		? null // is initialized in cachePartsFrom (called from LookupEnvironment.createBinaryTypeFrom())... must set to null so isGenericType() answers true
 		: Binding.NO_TYPE_VARIABLES;
@@ -260,7 +260,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			}
 		}
 
-		long sourceLevel = this.environment.globalOptions.sourceLevel;
+		long sourceLevel = this.environment.globalOptions.originalSourceLevel;
 		char[] typeSignature = null;
 		if (sourceLevel >= ClassFileConstants.JDK1_5) {
 			typeSignature = binaryType.getGenericSignature();
@@ -558,7 +558,7 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel, char[][][
 	if (iMethods != null) {
 		total = initialTotal = iMethods.length;
 		boolean keepBridgeMethods = sourceLevel < ClassFileConstants.JDK1_5
-			&& this.environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_5;
+			&& this.environment.globalOptions.originalComplianceLevel >= ClassFileConstants.JDK1_5;
 		for (int i = total; --i >= 0;) {
 			IBinaryMethod method = iMethods[i];
 			if ((method.getModifiers() & ClassFileConstants.AccSynthetic) != 0) {

@@ -4632,4 +4632,179 @@ public void testGenericAPIUsageFromA14Project2() throws CoreException {
 			deleteProject(project15);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=323633
+public void testGenericAPIUsageFromA14Project3() throws CoreException {
+	IJavaProject project14 = null;
+	IJavaProject project15 = null;
+	try {
+		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		createFolder("/Reconciler15API/src/p2");
+		createFile(
+			"/Reconciler15API/src/p2/X.java",
+			"package p2;\n" +
+			"import java.util.Collection;\n" +
+			"import java.util.Iterator;\n" +
+			"public class X<E> implements Collection<E>{\n" +
+			"   public static X getX() {\n" +
+			"        	return new X();\n" +
+			"	}\n" +
+			"	public int size() {\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"	public boolean isEmpty() {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean contains(Object o) {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public Iterator<E> iterator() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public Object[] toArray() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public <T> T[] toArray(T[] a) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public boolean add(E e) {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean remove(Object o) {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean containsAll(Collection<?> c) {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean addAll(Collection<? extends E> c) {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean removeAll(Collection<?> c) {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public boolean retainAll(Collection<?> c) {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	public void clear() {\n" +
+			"	}\n" +
+			"}\n"
+		);
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		
+		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
+		int oldLength = oldClasspath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
+		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
+		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
+		project14.setRawClasspath(newClasspath, null);
+		
+		createFolder("/Reconciler1415/src/p1");
+		String source = 
+			"package p1;\n" +
+			"import java.util.Collection;\n" +
+			"public class X {\n" +
+			"  public static void main(String string) {\n" +
+			"  Collection c = p2.X.getX(); \n" +
+			"  }\n" +
+			"}";
+
+		createFile(
+			"/Reconciler1415/src/p1/X.java",
+			source
+		);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" + 
+			"	Collection c = p2.X.getX(); \n" + 
+			"	           ^\n" + 
+			"The local variable c is never read\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (project14 != null)
+			deleteProject(project14);
+		if (project15 != null)
+			deleteProject(project15);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=323633 (variation: 15 uses 14)
+public void testGenericAPIUsageFromA14Project4() throws CoreException {
+	IJavaProject project14 = null;
+	IJavaProject project15 = null;
+	try {
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		createFolder("/Reconciler1415/src/p1");
+		String source = 
+			"package p1;\n" +
+			"import java.lang.Comparable;\n" +
+			"public class X implements Comparable {\n" +
+			"  public static X getX() {\n" +
+			"      return new X();\n" +
+			"  }\n" +
+			"}";
+
+		createFile(
+			"/Reconciler1415/src/p1/X.java",
+			source
+		);
+
+		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+
+		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		createFolder("/Reconciler15API/src/p2");
+		String otherSource = "package p2;\n" +
+		                     "public class X { \n" +
+		                     " private p1.X x = p1.X.getX();\n" +
+		                     " Comparable<String> y = null;\n" +
+		                     "}\n";   
+		                 
+		createFile(
+			"/Reconciler15API/src/p2/X.java",
+			otherSource
+		);
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		
+		IClasspathEntry[] oldClasspath = project15.getRawClasspath();
+		int oldLength = oldClasspath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
+		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
+		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler1415"));
+		project15.setRawClasspath(newClasspath, null);
+				
+		this.workingCopies = new ICompilationUnit[1];
+		char[] sourceChars = otherSource.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0] = getCompilationUnit("/Reconciler15API/src/p2/X.java").getWorkingCopy(this.wcOwner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /Reconciler15API/src/p2/X.java (at line 3)\n" + 
+			"	private p1.X x = p1.X.getX();\n" + 
+			"	             ^\n" + 
+			"The field X.x is never read locally\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (project14 != null)
+			deleteProject(project14);
+		if (project15 != null)
+			deleteProject(project15);
+	}
+}
 }

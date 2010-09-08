@@ -293,7 +293,9 @@ public class SourceTypeConverter extends TypeConverter {
 
 		// convert 1.5 specific constructs only if compliance is 1.5 or above
 		TypeParameter[] typeParams = null;
-		if (this.has1_5Compliance) {
+		// Digest type parameters if compliance level of current project or its prerequisite is >= 1.5
+		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=323633 && https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259
+		if (this.has1_5Compliance || this.problemReporter.options.complianceLevel >= ClassFileConstants.JDK1_5) {
 			/* convert type parameters */
 			char[][] typeParameterNames = methodInfo.getTypeParameterNames();
 			if (typeParameterNames != null) {
@@ -462,7 +464,10 @@ public class SourceTypeConverter extends TypeConverter {
 		if (this.has1_5Compliance) {
 			/* convert annotations */
 			type.annotations = convertAnnotations(typeHandle);
-
+		}
+		// Digest type parameters if compliance level of current project or its prerequisite is >= 1.5
+		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=323633 && https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259
+		if (this.has1_5Compliance || this.problemReporter.options.complianceLevel >= ClassFileConstants.JDK1_5) {
 			/* convert type parameters */
 			char[][] typeParameterNames = typeInfo.getTypeParameterNames();
 			if (typeParameterNames.length > 0) {

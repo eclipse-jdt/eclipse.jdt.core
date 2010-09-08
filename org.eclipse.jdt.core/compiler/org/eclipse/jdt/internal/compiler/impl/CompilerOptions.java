@@ -256,11 +256,21 @@ public class CompilerOptions {
 	
 	/** Classfile debug information, may contain source file name, line numbers, local variable tables, etc... */
 	public int produceDebugAttributes; 
-	/** Compliance level for the compiler, refers to a JDK version, e.g. {link {@link ClassFileConstants#JDK1_4} */
+	/** Compliance level for the compiler, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4} */
 	public long complianceLevel;
-	/** Java source level, refers to a JDK version, e.g. {link {@link ClassFileConstants#JDK1_4} */
+	/** Original compliance level for the compiler, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4},
+	 *  Usually same as the field complianceLevel, though the latter could deviate to create temporary sandbox
+	 *  modes during reconcile operations. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=323633
+	 */
+	public long originalComplianceLevel;
+	/** Java source level, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4} */
 	public long sourceLevel;
-	/** VM target level, refers to a JDK version, e.g. {link {@link ClassFileConstants#JDK1_4} */
+	/** Original Java source level, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4} 
+	 *  Usually same as the field sourceLevel, though the latter could deviate to create temporary sandbox
+	 *  modes during reconcile operations. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=323633
+	 * */
+	public long originalSourceLevel;
+	/** VM target level, refers to a JDK version, e.g. {@link ClassFileConstants#JDK1_4} */
 	public long targetJDK;
 	/** Source encoding format */
 	public String defaultEncoding;
@@ -953,8 +963,8 @@ public class CompilerOptions {
 		
 		// by default only lines and source attributes are generated.
 		this.produceDebugAttributes = ClassFileConstants.ATTR_SOURCE | ClassFileConstants.ATTR_LINES;
-		this.complianceLevel = ClassFileConstants.JDK1_4; // by default be compliant with 1.4
-		this.sourceLevel = ClassFileConstants.JDK1_3; //1.3 source behavior by default
+		this.complianceLevel = this.originalComplianceLevel = ClassFileConstants.JDK1_4; // by default be compliant with 1.4
+		this.sourceLevel = this.originalSourceLevel = ClassFileConstants.JDK1_3; //1.3 source behavior by default
 		this.targetJDK = ClassFileConstants.JDK1_2; // default generates for JVM1.2
 
 		this.defaultEncoding = null; // will use the platform default encoding
@@ -1117,11 +1127,11 @@ public class CompilerOptions {
 		}
 		if ((optionValue = optionsMap.get(OPTION_Compliance)) != null) {
 			long level = versionToJdkLevel(optionValue);
-			if (level != 0) this.complianceLevel = level;
+			if (level != 0) this.complianceLevel = this.originalComplianceLevel = level;
 		}
 		if ((optionValue = optionsMap.get(OPTION_Source)) != null) {
 			long level = versionToJdkLevel(optionValue);
-			if (level != 0) this.sourceLevel = level;
+			if (level != 0) this.sourceLevel = this.originalSourceLevel = level;
 		}
 		if ((optionValue = optionsMap.get(OPTION_TargetPlatform)) != null) {
 			long level = versionToJdkLevel(optionValue);
