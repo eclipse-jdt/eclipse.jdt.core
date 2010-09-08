@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *      Stephen Herrmann <stephan@cs.tu-berlin.de> -  Contribution for bug 317046
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -632,23 +633,22 @@ public boolean isProvablyDistinct(TypeBinding otherType) {
 		            return false;
 
 		    	case Binding.GENERIC_TYPE :
-		            SourceTypeBinding otherGenericType = (SourceTypeBinding) otherType;
-		            if (paramType.genericType() != otherGenericType)
+		            if (paramType.genericType() != otherType)
 		                return true;
 		            if (!paramType.isStatic()) { // static member types do not compare their enclosing
 		            	ReferenceBinding enclosing = enclosingType();
 		            	if (enclosing != null) {
-		            		ReferenceBinding otherEnclosing = otherGenericType.enclosingType();
+		            		ReferenceBinding otherEnclosing = otherType.enclosingType();
 		            		if (otherEnclosing == null) return true;
 		            		if ((otherEnclosing.tagBits & TagBits.HasDirectWildcard) == 0) {
 								if (enclosing != otherEnclosing) return true;
 		            		} else {
-		            			if (!enclosing.isEquivalentTo(otherGenericType.enclosingType())) return true;
+		            			if (!enclosing.isEquivalentTo(otherType.enclosingType())) return true;
 		            		}
 		            	}
 		            }
 		            length = paramType.arguments == null ? 0 : paramType.arguments.length;
-		            otherArguments = otherGenericType.typeVariables();
+		            otherArguments = otherType.typeVariables();
 		            otherLength = otherArguments == null ? 0 : otherArguments.length;
 		            if (otherLength != length)
 		                return true;
