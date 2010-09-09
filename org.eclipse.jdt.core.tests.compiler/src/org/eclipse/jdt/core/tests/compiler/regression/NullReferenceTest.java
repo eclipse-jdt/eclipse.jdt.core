@@ -35,7 +35,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug320414" };
+//		TESTS_NAMES = new String[] { "testBug292478g" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -13221,5 +13221,133 @@ public void testBug292478d() {
 		"	^\n" + 
 		"Potential null pointer access: The variable y may be null at this location\n" + 
 		"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
+// test regression reported in comment 8
+public void testBug292478e() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" +
+			"	Object foo(int i, boolean b1, boolean b2) {\n" +
+			"		Object o1 = null;\n" +
+			"		done : while (true) { \n" +
+			"			switch (i) {\n" +
+			"				case 1 :\n" +
+			"					Object o2 = null;\n" +
+			"					if (b2)\n" +
+			"						o2 = new Object();\n" +
+			"					o1 = o2;\n" +
+			"					break;\n" +
+			"				case 2 :\n" +
+			"					break done;\n" +
+			"			}\n" +
+			"		}		\n" +
+			"		if (o1 != null)\n" +
+			"			return o1;\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n"
+		});
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
+// variant where regression occurred inside the while-switch structure
+public void testBug292478f() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" +
+			"	Object foo(int i, boolean b1, boolean b2) {\n" +
+			"		Object o1 = null;\n" +
+			"		done : while (true) { \n" +
+			"			switch (i) {\n" +
+			"				case 1 :\n" +
+			"					Object o2 = null;\n" +
+			"					if (b2)\n" +
+			"						o2 = new Object();\n" +
+			"					o1 = o2;\n" +
+			"					if (o1 != null)\n" +
+			"						return o1;\n" +
+			"					break;\n" +
+			"				case 2 :\n" +
+			"					break done;\n" +
+			"			}\n" +
+			"		}		\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n"
+		});
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
+// variant for transfering state potentially unknown
+public void testBug292478g() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" +
+			"	Object foo(int i, boolean b1, boolean b2, Object o2) {\n" +
+			"		Object o1 = null;\n" +
+			"		done : while (true) { \n" +
+			"			switch (i) {\n" +
+			"				case 1 :\n" +
+			"					if (b2)\n" +
+			"						o2 = bar();\n" +
+			"					o1 = o2;\n" +
+			"					if (o1 != null)\n" +
+			"						return o1;\n" +
+			"					break;\n" +
+			"				case 2 :\n" +
+			"					break done;\n" +
+			"			}\n" +
+			"		}		\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"   Object bar() { return null; }\n" +
+			"}\n"
+		});
+}
+
+// Bug 324762 -  Compiler thinks there is deadcode and removes it!
+// regression caused by the fix for bug 133125
+// ternary is non-null or null
+public void testBug324762() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" +
+			"	void zork(boolean b1) {\n" +
+			"		Object satisfied = null;\n" +
+			"		if (b1) {\n" +
+			"			String[] s = new String[] { \"a\", \"b\" };\n" +
+			"			for (int k = 0; k < s.length && satisfied == null; k++)\n" +
+			"				satisfied = s.length > 1 ? new Object() : null;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		});
+}
+
+// Bug 324762 -  Compiler thinks there is deadcode and removes it!
+// regression caused by the fix for bug 133125
+// ternary is unknown or null
+public void testBug324762a() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" +
+			"	void zork(boolean b1) {\n" +
+			"		Object satisfied = null;\n" +
+			"		if (b1) {\n" +
+			"			String[] s = new String[] { \"a\", \"b\" };\n" +
+			"			for (int k = 0; k < s.length && satisfied == null; k++)\n" +
+			"				satisfied = s.length > 1 ? bar() : null;\n" +
+			"		}\n" +
+			"	}\n" +
+			"	Object bar() { return null; }\n" +
+			"}\n"
+		});
 }
 }

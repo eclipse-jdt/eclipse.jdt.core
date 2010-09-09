@@ -770,15 +770,8 @@ public int nullStatus(FlowInfo flowInfo) {
 			return FlowInfo.UNKNOWN;
 		case Binding.LOCAL : // reading a local variable
 			LocalVariableBinding local = (LocalVariableBinding) this.binding;
-			if (local != null) {
-				if (flowInfo.isDefinitelyNull(local))
-					return FlowInfo.NULL;
-				if (flowInfo.isDefinitelyNonNull(local))
-					return FlowInfo.NON_NULL;
-				if (flowInfo.isPotentiallyNull(local))
-					return FlowInfo.POTENTIALLY_NULL;
-				return FlowInfo.UNKNOWN;
-			}
+			if (local != null)
+				return flowInfo.nullStatus(local);
 	}
 	return FlowInfo.NON_NULL; // never get there
 }

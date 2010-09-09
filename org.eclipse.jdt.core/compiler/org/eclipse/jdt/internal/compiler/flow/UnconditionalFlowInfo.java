@@ -24,10 +24,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
  * No caching of pre-allocated instances.
  */
 public class UnconditionalFlowInfo extends FlowInfo {
-	// Coverage tests
 	/**
-	 * Exception raised when unexpected behavior is detected during coverage
-	 * tests.
+	 * Exception raised when unexpected behavior is detected.
 	 */
 	public static class AssertionFailedException extends RuntimeException {
 		private static final long serialVersionUID = 1827352841030089703L;
@@ -976,7 +974,20 @@ final public boolean isProtectedNull(LocalVariableBinding local) {
 	        & (this.extra[4][vectorIndex] ^ this.extra[5][vectorIndex])
 		    & (1L << (position % BitCacheSize))) != 0;
 }
-
+/** Asserts that the given boolean is <code>true</code>. If this
+ * is not the case, some kind of unchecked exception is thrown.
+ * The given message is included in that exception, to aid debugging.
+ *
+ * @param expression the outcome of the check
+ * @param message the message to include in the exception
+ * @return <code>true</code> if the check passes (does not return
+ *    if the check fails)
+ */
+private static boolean isTrue(boolean expression, String message) {
+	if (!expression)
+		throw new AssertionFailedException("assertion failed: " + message); //$NON-NLS-1$
+	return expression;
+}
 public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
 	// protected from non-object locals in calling methods
 	if (this != DEAD_END) {
@@ -1330,17 +1341,74 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 	}
 }
 
-public void markAsPotentiallyNull(LocalVariableBinding local) {
+public void resetNullInfo(LocalVariableBinding local) {
 	if (this != DEAD_END) {
 		this.tagBits |= NULL_FLAG_MASK;
         int position;
         long mask;
         if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
             // use bits
-            this.nullBit1 &= ~(mask = 1L << position);
+            this.nullBit1 &= (mask = ~(1L << position));
+            this.nullBit2 &= mask;
+            this.nullBit3 &= mask;
+            this.nullBit4 &= mask;
+        } else {
+    		// use extra vector
+    		int vectorIndex ;
+    		this.extra[2][vectorIndex = (position / BitCacheSize) - 1]
+    		    &= (mask = ~(1L << (position % BitCacheSize)));
+    		this.extra[3][vectorIndex] &= mask;
+    		this.extra[4][vectorIndex] &= mask;
+    		this.extra[5][vectorIndex] &= mask;
+    	}
+	}
+}
+
+/**
+ * Mark a local as potentially having been assigned to an unknown value.
+ * @param local the local to mark
+ */
+public void markPotentiallyUnknownBit(LocalVariableBinding local) {
+	// protected from non-object locals in calling methods
+	if (this != DEAD_END) {
+		this.tagBits |= NULL_FLAG_MASK;
+        int position;
+        long mask;
+        if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
+            // use bits
+        	mask = 1L << position;
+        	isTrue((this.nullBit1 & mask) == 0, "Adding 'unknown' mark in unexpected state"); //$NON-NLS-1$
+            this.nullBit4 |= mask;
+            if (COVERAGE_TEST_FLAG) {
+				if(CoverageTestId == 46) {
+				  	this.nullBit4 = ~0;
+				}
+			}
+        } else {
+    		// use extra vector
+    		int vectorIndex = (position / BitCacheSize) - 1;
+    		mask = 1L << (position % BitCacheSize);
+    		isTrue((this.extra[2][vectorIndex] & mask) == 0, "Adding 'unknown' mark in unexpected state"); //$NON-NLS-1$
+    		this.extra[5][vectorIndex] |= mask;
+    		if (COVERAGE_TEST_FLAG) {
+				if(CoverageTestId == 47) {
+					this.extra[5][vectorIndex] = ~0;
+				}
+			}
+    	}
+	}
+}
+
+public void markPotentiallyNullBit(LocalVariableBinding local) {
+	if (this != DEAD_END) {
+		this.tagBits |= NULL_FLAG_MASK;
+        int position;
+        long mask;
+        if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
+            // use bits
+        	mask = 1L << position;
+        	isTrue((this.nullBit1 & mask) == 0, "Adding 'potentially null' mark in unexpected state"); //$NON-NLS-1$
             this.nullBit2 |= mask;
-            this.nullBit3 &= ~mask;
-            this.nullBit4 &= ~mask;
             if (COVERAGE_TEST_FLAG) {
 				if(CoverageTestId == 40) {
 				  	this.nullBit4 = ~0;
@@ -1348,14 +1416,42 @@ public void markAsPotentiallyNull(LocalVariableBinding local) {
 			}
         } else {
     		// use extra vector
-    		int vectorIndex ;
-    		this.extra[2][vectorIndex = (position / BitCacheSize) - 1]
-    		    &= ~(mask = 1L << (position % BitCacheSize));
+    		int vectorIndex = (position / BitCacheSize) - 1;
+    		mask = 1L << (position % BitCacheSize);
     		this.extra[3][vectorIndex] |= mask;
-    		this.extra[4][vectorIndex] &= (mask = ~mask);
-    		this.extra[5][vectorIndex] &= mask;
+    		isTrue((this.extra[2][vectorIndex] & mask) == 0, "Adding 'potentially null' mark in unexpected state"); //$NON-NLS-1$
     		if (COVERAGE_TEST_FLAG) {
 				if(CoverageTestId == 41) {
+					this.extra[5][vectorIndex] = ~0;
+				}
+			}
+    	}
+	}
+}
+
+public void markPotentiallyNonNullBit(LocalVariableBinding local) {
+	if (this != DEAD_END) {
+		this.tagBits |= NULL_FLAG_MASK;
+        int position;
+        long mask;
+        if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
+            // use bits
+        	mask = 1L << position;
+        	isTrue((this.nullBit1 & mask) == 0, "Adding 'potentially non-null' mark in unexpected state"); //$NON-NLS-1$
+            this.nullBit3 |= mask;
+            if (COVERAGE_TEST_FLAG) {
+				if(CoverageTestId == 42) {
+				  	this.nullBit4 = ~0;
+				}
+			}
+        } else {
+    		// use extra vector
+    		int vectorIndex  = (position / BitCacheSize) - 1;
+    		mask = 1L << (position % BitCacheSize);
+    		isTrue((this.extra[2][vectorIndex] & mask) == 0, "Adding 'potentially non-null' mark in unexpected state"); //$NON-NLS-1$
+    		this.extra[4][vectorIndex] |= mask;
+    		if (COVERAGE_TEST_FLAG) {
+				if(CoverageTestId == 43) {
 					this.extra[5][vectorIndex] = ~0;
 				}
 			}

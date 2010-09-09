@@ -53,34 +53,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		.analyseAssignment(currentScope, flowContext, flowInfo, this, false)
 		.unconditionalInits();
 	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
-		switch(nullStatus) {
-			case FlowInfo.NULL :
-				flowInfo.markAsDefinitelyNull(local);
-				break;
-			case FlowInfo.NON_NULL :
-				flowInfo.markAsDefinitelyNonNull(local);
-				break;
-			case FlowInfo.POTENTIALLY_NULL :
-				flowInfo.markAsPotentiallyNull(local);
-				break;
-			default:
-				flowInfo.markAsDefinitelyUnknown(local);
-		}
-		if (flowContext.initsOnFinally != null) {
-			switch(nullStatus) {
-				case FlowInfo.NULL :
-					flowContext.initsOnFinally.markAsDefinitelyNull(local);
-					break;
-				case FlowInfo.NON_NULL :
-					flowContext.initsOnFinally.markAsDefinitelyNonNull(local);
-					break;
-				case FlowInfo.POTENTIALLY_NULL :
-					flowContext.initsOnFinally.markAsPotentiallyNull(local);
-					break;
-				default:
-					flowContext.initsOnFinally.markAsDefinitelyUnknown(local);
-			}
-		}
+		flowInfo.markNullStatus(local, nullStatus);
+		if (flowContext.initsOnFinally != null)
+			flowContext.initsOnFinally.markNullStatus(local, nullStatus);
 	}
 	return flowInfo;
 }

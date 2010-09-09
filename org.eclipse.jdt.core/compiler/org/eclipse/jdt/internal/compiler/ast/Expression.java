@@ -837,15 +837,8 @@ public int nullStatus(FlowInfo flowInfo) {
 	return FlowInfo.NON_NULL; // constant expression cannot be null
 
 	LocalVariableBinding local = localVariableBinding();
-	if (local != null) {
-		if (flowInfo.isDefinitelyNull(local))
-			return FlowInfo.NULL;
-		if (flowInfo.isDefinitelyNonNull(local))
-			return FlowInfo.NON_NULL;
-		if (flowInfo.isPotentiallyNull(local))
-			return FlowInfo.POTENTIALLY_NULL;
-		return FlowInfo.UNKNOWN;
-	}
+	if (local != null)
+		return flowInfo.nullStatus(local);
 	return FlowInfo.NON_NULL;
 }
 

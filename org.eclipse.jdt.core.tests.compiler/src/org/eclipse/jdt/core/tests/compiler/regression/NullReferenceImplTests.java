@@ -559,11 +559,6 @@ public void test2057_markAsDefinitelyUnknown() {
 	assertTrue("nb of failures: " + failures, failures == 0);
 }
 
-public void test2058_markAsPotentiallyNull() {
-	int failures = NullReferenceImplTransformations.markAsPotentiallyNull.test();
-	assertTrue("nb of failures: " + failures, failures == 0);
-}
-
 public void test2060_addInitializationsFrom() {
 	int failures = NullReferenceImplTransformations.addInitializationsFrom.test();
 	assertTrue("nb of failures: " + failures, failures == 0);
@@ -875,7 +870,6 @@ public void test2998_coverage() {
 		test2055_markAsDefinitelyNonNull();
 		test2056_markAsDefinitelyNull();
 		test2057_markAsDefinitelyUnknown();
-		test2058_markAsPotentiallyNull();
 		test2060_addInitializationsFrom();
 		test2061_addPotentialInitializationsFrom();
 		test2062_mergedWith();
@@ -897,7 +891,6 @@ public void test2998_coverage() {
 				test2055_markAsDefinitelyNonNull();
 				test2056_markAsDefinitelyNull();
 				test2057_markAsDefinitelyUnknown();
-				test2058_markAsPotentiallyNull();
 				test2060_addInitializationsFrom();
 				test2061_addPotentialInitializationsFrom();
 				test2062_mergedWith();
@@ -1103,11 +1096,6 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
 public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 	grow(local.id + this.maxFieldCount);
 	super.markAsDefinitelyUnknown(local);
-}
-
-public void markAsPotentiallyNull(LocalVariableBinding local) {
-	grow(local.id + this.maxFieldCount);
-	super.markAsPotentiallyNull(local);
 }
 
 /**

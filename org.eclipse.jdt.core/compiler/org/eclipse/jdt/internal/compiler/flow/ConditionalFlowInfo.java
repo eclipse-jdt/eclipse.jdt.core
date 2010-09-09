@@ -157,14 +157,29 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
 	this.initsWhenFalse.markAsDefinitelyNull(local);
 }
 
-public void markAsPotentiallyNull(LocalVariableBinding local) {
-	this.initsWhenTrue.markAsPotentiallyNull(local);
-	this.initsWhenFalse.markAsPotentiallyNull(local);
+public void resetNullInfo(LocalVariableBinding local) {
+	this.initsWhenTrue.resetNullInfo(local);
+	this.initsWhenFalse.resetNullInfo(local);
+}
+
+public void markPotentiallyNullBit(LocalVariableBinding local) {
+	this.initsWhenTrue.markPotentiallyNullBit(local);
+	this.initsWhenFalse.markPotentiallyNullBit(local);
+}
+
+public void markPotentiallyNonNullBit(LocalVariableBinding local) {
+	this.initsWhenTrue.markPotentiallyNonNullBit(local);
+	this.initsWhenFalse.markPotentiallyNonNullBit(local);
 }
 
 public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 	this.initsWhenTrue.markAsDefinitelyUnknown(local);
 	this.initsWhenFalse.markAsDefinitelyUnknown(local);
+}
+
+public void markPotentiallyUnknownBit(LocalVariableBinding local) {
+	this.initsWhenTrue.markPotentiallyUnknownBit(local);
+	this.initsWhenFalse.markPotentiallyUnknownBit(local);
 }
 
 public FlowInfo setReachMode(int reachMode) {

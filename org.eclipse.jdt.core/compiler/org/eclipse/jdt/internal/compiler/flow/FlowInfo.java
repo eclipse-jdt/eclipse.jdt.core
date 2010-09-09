@@ -23,10 +23,12 @@ public abstract class FlowInfo {
 	public final static int UNREACHABLE = 1;
 	public final static int NULL_FLAG_MASK = 2;
 
-	public final static int UNKNOWN = 0;
-	public final static int NULL = 1;
-	public final static int NON_NULL = -1;
-	public final static int POTENTIALLY_NULL = 2;
+	public final static int UNKNOWN = 1;
+	public final static int NULL = 2;
+	public final static int NON_NULL = 4;
+	public final static int POTENTIALLY_UNKNOWN = 8;
+	public final static int POTENTIALLY_NULL = 16;
+	public final static int POTENTIALLY_NON_NULL = 32;
 
 	public static final UnconditionalFlowInfo DEAD_END; // Represents a dead branch status of initialization
 	static {
@@ -248,11 +250,26 @@ abstract public void markAsComparedEqualToNull(LocalVariableBinding local);
 	 * Record a local got definitely assigned to null.
 	 */
 	abstract public void markAsDefinitelyNull(LocalVariableBinding local);
-	
+
 	/**
-	 * Record a local may have got assigned to null.
+	 * Reset all null-information about a given local.
 	 */
-	abstract public void markAsPotentiallyNull(LocalVariableBinding local);
+	abstract public void resetNullInfo(LocalVariableBinding local);
+
+	/**
+	 * Record a local may have got assigned to unknown (set the bit on existing info).
+	 */
+	abstract public void markPotentiallyUnknownBit(LocalVariableBinding local);
+
+	/**
+	 * Record a local may have got assigned to null (set the bit on existing info).
+	 */
+	abstract public void markPotentiallyNullBit(LocalVariableBinding local);
+
+	/**
+	 * Record a local may have got assigned to non-null (set the bit on existing info).
+	 */
+	abstract public void markPotentiallyNonNullBit(LocalVariableBinding local);
 
 	/**
 	 * Record a local got definitely assigned.
@@ -263,6 +280,61 @@ abstract public void markAsComparedEqualToNull(LocalVariableBinding local);
  * Record a local got definitely assigned to an unknown value.
  */
 abstract public void markAsDefinitelyUnknown(LocalVariableBinding local);
+
+/**
+ * Mark the null status of the given local according to the given status
+ * @param local
+ * @param nullStatus bitset of FLowInfo.UNKNOWN ... FlowInfo.POTENTIALLY_NON_NULL
+ */
+public void markNullStatus(LocalVariableBinding local, int nullStatus) {
+	switch(nullStatus) {
+		// definite status?
+		case FlowInfo.UNKNOWN :
+			markAsDefinitelyUnknown(local);
+			break;
+		case FlowInfo.NULL :
+			markAsDefinitelyNull(local);
+			break;
+		case FlowInfo.NON_NULL :
+			markAsDefinitelyNonNull(local);
+			break;
+		default:
+			// collect potential status:
+			resetNullInfo(local);
+			if ((nullStatus & FlowInfo.POTENTIALLY_UNKNOWN) != 0)
+				markPotentiallyUnknownBit(local);
+			if ((nullStatus & FlowInfo.POTENTIALLY_NULL) != 0)
+				markPotentiallyNullBit(local);
+			if ((nullStatus & FlowInfo.POTENTIALLY_NON_NULL) != 0)
+				markPotentiallyNonNullBit(local);
+			if ((nullStatus & (FlowInfo.POTENTIALLY_NULL|FlowInfo.POTENTIALLY_NON_NULL|FlowInfo.POTENTIALLY_UNKNOWN)) == 0)
+				markAsDefinitelyUnknown(local);
+	}
+}
+
+/**
+ * Answer the null status of the given local
+ * @param local
+ * @return bitset of FlowInfo.UNKNOWN ... FlowInfo.POTENTIALLY_NON_NULL
+ */
+public int nullStatus(LocalVariableBinding local) {
+	if (isDefinitelyUnknown(local))
+		return FlowInfo.UNKNOWN;
+	if (isDefinitelyNull(local))
+		return FlowInfo.NULL;
+	if (isDefinitelyNonNull(local))
+		return FlowInfo.NON_NULL;
+	int status = 0;
+	if (isPotentiallyUnknown(local))
+		status |= FlowInfo.POTENTIALLY_UNKNOWN;
+	if (isPotentiallyNull(local))
+		status |= FlowInfo.POTENTIALLY_NULL;
+	if (isPotentiallyNonNull(local))
+		status |= FlowInfo.POTENTIALLY_NON_NULL;
+	if (status > 0)
+		return status;
+	return FlowInfo.UNKNOWN;
+}
 
 /**
  * Merge branches using optimized boolean conditions

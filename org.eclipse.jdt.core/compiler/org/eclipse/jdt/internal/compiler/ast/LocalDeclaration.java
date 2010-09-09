@@ -57,19 +57,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	flowInfo.markAsDefinitelyAssigned(this.binding);
 	if ((this.binding.type.tagBits & TagBits.IsBaseType) == 0) {
-		switch(nullStatus) {
-			case FlowInfo.NULL :
-				flowInfo.markAsDefinitelyNull(this.binding);
-				break;
-			case FlowInfo.NON_NULL :
-				flowInfo.markAsDefinitelyNonNull(this.binding);
-				break;
-			case FlowInfo.POTENTIALLY_NULL :
-				flowInfo.markAsPotentiallyNull(this.binding);
-				break;
-			default:
-				flowInfo.markAsDefinitelyUnknown(this.binding);
-		}
+		flowInfo.markNullStatus(this.binding, nullStatus);
 		// no need to inform enclosing try block since its locals won't get
 		// known by the finally block
 	}
