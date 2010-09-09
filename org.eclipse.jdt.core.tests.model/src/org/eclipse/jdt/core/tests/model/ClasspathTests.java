@@ -6747,5 +6747,26 @@ public void testBug313965a() throws Exception {
 		ContainerInitializer.setInitializer(null);
 	}
 }
+public void testBug321170() throws Exception {
+	try {
+		IJavaProject p = this.createJavaProject("P", new String[] {}, "bin");
+		
+		IFile file = this.createFile("/P/bin/X.java", "public class X {}");
+		
+		IClasspathEntry[] classpath = new IClasspathEntry[1];
+		classpath[0] = JavaCore.newLibraryEntry(new Path("/P/bin/X.java"), null, null);
+		setClasspath(p, classpath);
+		ICompilationUnit element = (ICompilationUnit)JavaCore.create(file, p);
+		assertNotNull("File created", element);
+	}
+	catch(ClassCastException e){
+		fail("classcast exception");
+	}
+	finally {
+		deleteProject("P");
+		ContainerInitializer.setInitializer(null);
+	}
+}
+
 
 }

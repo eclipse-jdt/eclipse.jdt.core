@@ -997,9 +997,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			JavaProjectElementInfo projectInfo = (JavaProjectElementInfo) getJavaModelManager().getInfo(project);
 			ProjectCache projectCache = projectInfo == null ? null : projectInfo.projectCache;
 			HashtableOfArrayToObject allPkgFragmentsCache = projectCache == null ? null : projectCache.allPkgFragmentsCache;
-			IClasspathEntry[] entries =
-				org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resourcePath.lastSegment())
-					? project.getRawClasspath() // JAVA file can only live inside SRC folder (on the raw path)
+			boolean isJavaLike = org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resourcePath.lastSegment());
+			IClasspathEntry[] entries = isJavaLike ? project.getRawClasspath() // JAVA file can only live inside SRC folder (on the raw path)
 					: ((JavaProject)project).getResolvedClasspath();
 
 			int length	= entries.length;
@@ -1011,6 +1010,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
 					IPath rootPath = entry.getPath();
 					if (rootPath.equals(resourcePath)) {
+						if (isJavaLike) 
+							return null;
 						return project.getPackageFragmentRoot(resource);
 					} else if (rootPath.isPrefixOf(resourcePath)) {
 						// allow creation of package fragment if it contains a .java file that is included
