@@ -16,6 +16,7 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -27,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class MethodVerifyTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String[] { "test211" };
-//		TESTS_NUMBERS = new int[] { 184 };
+//		TESTS_NUMBERS = new int[] { 213 };
 //		TESTS_RANGE = new int[] { 190, -1};
 	}
 
@@ -11008,5 +11009,56 @@ public void test212() {
 		"	             ^^^^^^^\n" + 
 		"Name clash: The method foo(T) of type Interface<T> has the same erasure as foo(T) of type Base<T> but does not override it\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850 
+public void _test213() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"public abstract class Y implements I<Y> {\n" + 
+			"		public final Y foo(Object o, J<Y> j) {\n" + 
+			"			return null;\n" + 
+			"		}\n" + 
+			"	public final void bar(Object o, J<Y> j, Y y) {\n" + 
+			"	}\n" + 
+			"}",
+			"I.java",
+			"public interface I<S> {\n" + 
+			"	public S foo(Object o, J<S> j);\n" + 
+			"	public void bar(Object o, J<S> j, S s);\n" + 
+			"}",
+			"J.java",
+			"public interface J<S> {}"
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+	
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public Object foo() {\n" + 
+			"		return new Y() {};\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"",
+		null,
+		false,
+		null,
+		compilerOptions14,
+		null);
 }
 }
