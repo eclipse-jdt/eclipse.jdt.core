@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeDetector;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
 import org.eclipse.jdt.internal.codeassist.impl.AssistCompilationUnit;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -188,13 +187,39 @@ public class InternalExtendedCompletionContext {
 							}
 						} else {
 							FieldDeclaration fieldDeclaration = fields[i];
-							if (fieldDeclaration.initialization != null &&
-									fieldDeclaration.initialization.sourceStart <= astNode.sourceStart &&
-									astNode.sourceEnd <= fieldDeclaration.initialization.sourceEnd) {
+							if (fieldDeclaration.initialization != null) {
 								// completion is inside a field initializer
 								searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
+								// remove this field from visibleFields list because completion is being asked in its
+								// intialization and so this has not yet been declared successfully.
+								if (this.visibleFields.size > 0 && this.visibleFields.contains(fieldDeclaration.binding)) {
+									this.visibleFields.remove(fieldDeclaration.binding);
+								}
 								break done;
 							}
+							/*(Incase fieldDeclaration != null is not sufficient to infer that
+							  proposal is being asked inside initializer of field decl, use the below if
+							  block instead of the above)
+							if (fieldDeclaration.initialization != null) {
+							 
+								if (fieldDeclaration.initialization.sourceEnd > 0) {
+									if (fieldDeclaration.initialization.sourceStart <= astNode.sourceStart &&
+											astNode.sourceEnd <= fieldDeclaration.initialization.sourceEnd) {
+										// completion is inside a field initializer
+										searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
+									}
+								} else { // The sourceEnd may not yet be set
+									CompletionNodeDetector detector = new CompletionNodeDetector(this.assistNode, fieldDeclaration.initialization);
+									if (detector.containsCompletionNode()) {
+										searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
+									}
+								}
+								// remove this field from visibleFields list because completion is being asked in its
+								// intialization and so this has not yet been declared successfully.
+								if (this.visibleFields.size > 0 && this.visibleFields.contains(fieldDeclaration.binding)) {
+									this.visibleFields.remove(fieldDeclaration.binding);
+								}
+							}*/
 						}
 					}
 				}
@@ -724,11 +749,13 @@ public class InternalExtendedCompletionContext {
 						// If the local variable declaration's initialization statement itself has the completion,
 						// then don't propose the local variable
 						if (local.declaration.initialization != null) {
-							if(local.declaration.initialization.sourceEnd > 0) {
-									if (this.assistNode.sourceEnd <= local.declaration.initialization.sourceEnd
-											&& this.assistNode.sourceStart >= local.declaration.initialization.sourceStart) {
-										continue next;
-									}
+							/*(use this if-else block if it is found that local.declaration.initialization != null is not sufficient to 
+							  guarantee that proposal is being asked inside a local variable declaration's initializer)
+							 if(local.declaration.initialization.sourceEnd > 0) {
+								if (this.assistNode.sourceEnd <= local.declaration.initialization.sourceEnd
+										&& this.assistNode.sourceStart >= local.declaration.initialization.sourceStart) {
+									continue next;
+								}
 							} else {
 								CompletionNodeDetector detector = new CompletionNodeDetector(
 										this.assistNode,
@@ -736,7 +763,8 @@ public class InternalExtendedCompletionContext {
 								if (detector.containsCompletionNode()) {
 									continue next;
 								}
-							}
+							}*/
+							continue next;
 						}
 						for (int f = 0; f < localsFound.size; f++) {
 							LocalVariableBinding otherLocal =
