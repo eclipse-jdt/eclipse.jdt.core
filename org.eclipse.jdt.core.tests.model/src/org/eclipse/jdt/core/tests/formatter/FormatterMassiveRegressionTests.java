@@ -57,97 +57,160 @@ import org.eclipse.text.edits.TextEdit;
 /**
  * Comment formatter test suite for massive tests at a given location.
  * <p>
- * This test suite has only one generic test. The tests are dynamically defined by
- * getting all compilation units located at the running workspace or at the
- * directory specified using the "dir" system property and create
- * one test per unit.
+ * This test suite has only one generic test. When running this test suite, one test
+ * is created per compilation unit found while traversing the directory specified
+ * using the <code>inputDir</code> system property<br>(e.g.
+ * <code>-DinputDir=D:\eclipse\workspaces\formatter\inputs\full-src-30</code>).
  * </p><p>
- * The test consists in first format the compilation unit using the new comments
- * formatter (i.e. since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780
- * has been fixed) and second eventually compare it with the output that the
- * previous comments formatter would have done.
+ * Each test formats twice the compilation unit and compare the result to a
+ * previous formatting already stored at the same location from a root directory
+ * specified using the <code>outputDir</code> system property.
  * </p><p>
- * So, if no comparison is done, the test only insure that the new formatter does
- * not blow up while formatting the files found at the given location and that the
- * second formatting gives the same output than the first one.
+ * For example, if <code>outputDir</code> is set to the following value:<br>
+ * <code>-DoutputDir=D:\eclipse\workspaces\formatter\outputs</code><br>
+ * then a compilation unit found in <code>...\inputs\full-src-30\test\A.java</code>
+ * will be compared with the previously stored output in:
+ * <code>...\outputs\full-src-30\test\A.java</code>
  * </p><p>
- * TODO See how fix the remaining failing tests when comparing the
- * formatting of JUnit 3.8.2 files:
- * <ul>
- * 	<li>0 error</li>
- * 	<li>0 failure</li>
- * 	<li>0 file has different line leading spaces than old formatter</li>
- * 	<li>23 files have spaces differences with old formatter</li>
- *		</ul>
- * </p><p>
- * TODO Fix failures while running on workspaces without comparing.
- *
- * It is not possible to continue to compare the entire files after 2 formatting
- * as the code formatter cannot handle properly following snippet:
+ * To store the outputs on a specific input directory using a specific version,
+ * then load a JDT/Core version in the workspace and run this test suite using
+ * the following VM arguments:
  * <pre>
- * public class X02 {
- * 	int field; // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled
- * }
+ * -DinputDir=D:\eclipse\workspaces\formatter\inputs\full-src-30
+ * -DoutputDir=D:\eclipse\workspaces\formatter\outputs,clean
  * </pre>
- * Which is formatted as:
+ * Note the <code>clean</code> arguments added at the end of the outputDir
+ * system property to signify that the formatter outputs must be cleaned and
+ * stored.
+ * </p><p>
+ * The <code>logDir</code> system property can be set to tell the suite to
+ * write the console output in a file located in the specified directory. That makes
+ * the comparison between version and patches easier to do using the eclipse
+ * file comparison...
+ * </p><p><br>
+ * <b>***************************************<br>
+ * * Process to run massive tests against a patch *<br>
+ * ***************************************</b>
+ * <p>
+ * Here is the full description of the process to run massive tests against a patch
+ * using this test suite and all the compilation units of the JDT/Core performance
+ * <b>full-source-R3_0.zip</b> file...
+ * </p>
+ * <h3>Set-up input directory</h3>
+ * <p>
+ * The test suite needs to know where are the sources which will be used
+ * to massively test the formatter. To make it easy to set-up, only a root directory
+ * is necessary. From there, all compilation units found while traversing the tree of
+ * this directory will be used for the massive tests.
+ * </p><p>
+ * In our example, we will extract the content of the <b>full-source-R3_0.zip</b>
+ * file located in the <b>org.eclipse.jdt.core.tests.performance</b> plugin
+ * somewhere on our local disk... let's say in the
+ * <b>D:\tmp\formatter\inputs\full-src-30</b> directory.
+ * </p>
+ * <h3>Create the output reference</h3>
+ * <p>
+ * The reference from which the patch output will be compared to while running
+ * the massive test needs also to be created. To do this, a launch config
+ * for the <code>FormatterMassiveRegressionTests</code> test suite is necessary.
+ * </p><p>
+ *  For example, create a launch config named
+ * <b>FormatterMassiveRegressionTests (Eclipse 3.0 - clean)</b> with the
+ * following VM arguments:
  * <pre>
- * public class X02 {
- * 	int field; // This is a long comment that should be split in multiple line
- * 				// comments in case the line comment formatting is enabled
- * }
+ * -Xmx256M
+ * -DinputDir=D:\tmp\formatter\inputs\full-src-30
+ * -DoutputDir=D:\tmp\formatter\outputs,clean
+ * -DlogDir=D:\tmp\formatter\log
  * </pre>
- * But got a different output if formatted again:
+ * </p><p>
+ * Load the last version of JDT/Core plugins (e.g. <code>v_B11</code>) and
+ * launch this config...
+ * </p><p>
+ * When done, the console should have the following content:
  * <pre>
- * public class X02 {
- * 	int field; // This is a long comment that should be split in multiple line
- * 	// comments in case the line comment formatting is enabled
- * }
+ * Get all files from D:\tmp\formatter\inputs\full-src-30...done
+ * Deleting all files from D:\tmp\formatter\outputs\v37\full-src-30...done
+ * Version   : v_B11
+ * Profiles  : none!
+ * Test date : 9/12/10 1:47 PM
+ * Input dir : D:\tmp\formatter\inputs\full-src-30
+ *             9950 java files to format...
+ * Output dir: D:\tmp\formatter\outputs\v37\full-src-30
+ *             CLEANED
  * </pre>
- *
- * So, we're now obliged to ignore some whitespaces using the system property
- *  <code>ignoreWhitespaces</code> while running a launch config on this
- * test suite on big workspaces as full source perfs 3.0 or ganymede.
- *
- * Here are the results when setting the system property to
- * <code>linesLeading</code> (e.g. ignore white spaces at the beginning of the
- * lines, including the star inside javadoc or block comments):
- * <ul>
- * 	<li>JUnit 3.8.2 workspace (71 units):
- * 		<ul>
- * 		<li>0 error</li>
- * 		<li>0 failures</li>
- * 		<li>0 failures due to old formatter</li>
- * 		<li>8 files have different lines leading spaces</li>
- * 		<li>0 files have different spaces</li>
- *		</ul>
- *	</li>
- * 	<li>Eclipse 3.0 performance workspace (9951 units):
- * 		<ul>
- * 		<li>1 file has no output while formatting!</li>
- * 		<li>8 files have different output while reformatting twice but was expected!</li>
- * 		<li>714 files have different output while reformatting twice but only by leading whitespaces!</li>
- * 		<li>7 files have different output while reformatting twice but only by whitespaces!</li>
- *		</ul>
- *	</li>
- *	<li>Galileo workspace (41881 units):
- *		<ul>
- * 		<li>3 files have no output while formatting!</li>
- * 		<li>47 files have different output while reformatting twice!</li>
- * 		<li>2 files have different output while reformatting twice but was expected!</li>
- * 		<li>2384 files have different output while reformatting twice but only by leading whitespaces!</li>
- * 		<li>14 files have different output while reformatting twice but only by whitespaces!</li>
- *		</ul>
- *	</li>
- *	<li>JDKs workspace (29069 units):
- *		<ul>
- * 		<li>4 files have unexpected failure while formatting!</li>
- *		<li>1 file has no output while formatting!</li>
- * 		<li>115 files have different output while reformatting twice!</li>
- * 		<li>1148 files have different output while reformatting twice but only by leading whitespaces!</li>
- * 		<li>43 files have different output while reformatting twice but only by whitespaces!</li>
- *		</ul>
- *	</li>
- * </ul>
+ * Looking at the output directory, it should contain the same folders tree than
+ * the input one...
+ * </p>
+ * <h3>Create the log reference</h3>
+ * <p>
+ * The test suite log several problems which may occur while formatting a unit:
+ * 	<ul>
+ * 	<li>the file may have compilation errors preventing the formatter to proceed</li>
+ * 	<li>there's no output while formatting</li>
+ * 	<li>the output may be different while formatting twice</li>
+ * 	<li>the output may be different while formatting twice but only by leading whitespaces</li>
+ * 	<li>the output may be different while formatting twice but only by whitespaces</li>
+ *	</ul>
+ * </p><p>
+ * Even with last version of the formatter, such problems may happen on one or
+ * several tested compilation unit. So, it's important to know which are the existing
+ * issues of the used formatter version (e.g. <code>v_B11</code> in our example...).
+ * </p><p>
+ * To do this, another launch config is necessary to run the massive tests of the
+ * loaded JDT/Core version.
+ * </p><p>
+ *  For example, copy the previous launch config and rename it
+ * <b>FormatterMassiveRegressionTests (Eclipse 3.0)</b>. Change the VM 
+ * arguments as follows (<i>note that the <code>clean</code> has been removed
+ * from the <code>outputDir</code> system property</i>):
+ * <pre>
+ * -Xmx256M
+ * -DinputDir=D:\tmp\formatter\inputs\full-src-30
+ * -DoutputDir=D:\tmp\formatter\outputs
+ * -DlogDir=D:\tmp\formatter\log
+ * </pre>
+ * </p><p>
+ * Launch the config...
+ * </p><p>
+ * The log file contains the console output but also the complete list of the units
+ * on which problems were observed. As this run was done with the JDT/Core
+ * version it can be considered as the reference for this version...
+ * </p><p>
+ * Note that for our example, the observed problems for <code>v_B11</code>
+ * version while running massive tests on a Eclipse 3.0 performance workspace
+ * (9951 units) are:
+ * 	<ul>
+ * 	<li>1 file has compilation errors which prevent the formatter to proceed!</li>
+ * 	<li>4 files have different output while reformatting twice!</li>
+ * 	<li>10 files have different output while reformatting twice but only by leading whitespaces!</li>
+ * 	<li>4 files have different output while reformatting twice but only by whitespaces!</li>
+ *	</ul>
+ * </p>
+ * <h3>Run the massive tests on the patch</h3>
+ * <p>
+ * As the setup has been done for the massive tests, it's now possible to test a
+ * patch applied on the reference version (<code>v_B11</code>). For this, the
+ * patch needs of course to be applied first and also the <b>buildnotes_jdt-core.html</b>
+ * modified.
+ * </p><p>
+ * If the patch vXX of bug XXXXXX is about to be tested, then the line
+ * <code>Patch vXX for bug XXXXXX</code> needs to be added at the
+ * beginning of the first <b>What's new in this drop</b> section of the
+ * <b>buildnotes_jdt-core.html</b> file, e.g.:
+ * <pre>
+ * &lt;h2&gt;What's new in this drop&lt;/h2&gt;
+ * Patch v05 for bug 303519
+ * &lt;ul&gt;
+ * ...
+ * </pre>
+ * </p><p>
+ * Launch the <b>FormatterMassiveRegressionTests (Eclipse 3.0)</b> config...
+ * </p><p>
+ * Like the previous run, the written log file contains the complete list of the units
+ * on which problems were observed. Comparing this log file with the reference one
+ * will show whether the patch implies behavior changes for the formatter or not.
+ * </p>
  */
 public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 
