@@ -267,15 +267,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public final static ICompilationUnit[] NO_WORKING_COPY = new ICompilationUnit[0];
 
-	// Options
-	private final static int UNKNOWN_OPTION = 0;
-	private final static int DEPRECATED_OPTION = 1;
-	private final static int VALID_OPTION = 2;
+	// Preferences
 	HashSet optionNames = new HashSet(20);
-	Map deprecatedOptions = new HashMap();
 	Hashtable optionsCache;
 
-	// Preferences
 	public final IEclipsePreferences[] preferencesLookup = new IEclipsePreferences[2];
 	static final int PREF_INSTANCE = 0;
 	static final int PREF_DEFAULT = 1;
@@ -2043,89 +2038,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (isDeprecatedOption(optionName)) {
 			return JavaCore.ERROR;
 		}
-		int optionLevel = getOptionLevel(optionName);
-		if (optionLevel != UNKNOWN_OPTION){
+		String propertyName = optionName;
+		if (this.optionNames.contains(propertyName)){
 			IPreferencesService service = Platform.getPreferencesService();
-			String value = service.get(optionName, null, this.preferencesLookup);
-			if (value == null && optionLevel == DEPRECATED_OPTION) {
-				// May be a deprecated option, retrieve the new value in compatible options
-				String[] compatibleOptions = (String[]) this.deprecatedOptions.get(optionName);
-				value = service.get(compatibleOptions[0], null, this.preferencesLookup);
-			}
+			String value =  service.get(optionName, null, this.preferencesLookup);
 			return value==null ? null : value.trim();
 		}
 		return null;
-	}
-
-	/**
-	 * Returns the value of the given option for the given Eclipse preferences.
-	 * If no value was already set, then inherits from the global options if specified.
-	 *
-	 * @param optionName The name of the option
-	 * @param inheritJavaCoreOptions Tells whether the value can be inherited from global JavaCore options
-	 * @param projectPreferences The eclipse preferences from which to get the value
-	 * @return The value of the option. May be <code>null</code>
-	 */
-	public String getOption(String optionName, boolean inheritJavaCoreOptions, IEclipsePreferences projectPreferences) {
-		// Return the option value depending on its level
-		switch (getOptionLevel(optionName)) {
-			case VALID_OPTION:
-				// Valid option, return the preference value
-				String javaCoreDefault = inheritJavaCoreOptions ? JavaCore.getOption(optionName) : null;
-				if (projectPreferences == null) return javaCoreDefault;
-				String value = projectPreferences.get(optionName, javaCoreDefault);
-				return value == null ? null : value.trim();
-			case DEPRECATED_OPTION:
-				// Return the deprecated option value if it was already set
-				String oldValue = projectPreferences.get(optionName, null);
-				if (oldValue != null) {
-					return oldValue.trim();
-				}
-				// Get the new compatible value
-				String[] compatibleOptions = (String[]) this.deprecatedOptions.get(optionName);
-				String newDefault = inheritJavaCoreOptions ? JavaCore.getOption(compatibleOptions[0]) : null;
-				String newValue = projectPreferences.get(compatibleOptions[0], newDefault);
-				return newValue == null ? null : newValue.trim();
-		}
-		return null;
-	}
-
-	/**
-	 * Returns whether an option name is known or not.
-	 * 
-	 * @param optionName The name of the option
-	 * @return <code>true</code> when the option name is either
-	 * {@link #VALID_OPTION valid} or {@link #DEPRECATED_OPTION deprecated},
-	 * <code>false</code> otherwise.
-	 */
-	public boolean knowsOption(String optionName) {
-		boolean knownOption = this.optionNames.contains(optionName);
-		if (!knownOption) {
-			knownOption = this.deprecatedOptions.get(optionName) != null;
-		}
-		return knownOption;
-	}
-
-	/**
-	 * Returns the level of the given option.
-	 * 
-	 * @param optionName The name of the option
-	 * @return The level of the option as an int which may have the following
-	 * values:
-	 * <ul>
-	 * <li>{@link #UNKNOWN_OPTION}: the given option is unknown</li>
-	 * <li>{@link #DEPRECATED_OPTION}: the given option is deprecated</li>
-	 * <li>{@link #VALID_OPTION}: the given option is valid</li>
-	 * </ul>
-	 */
-	public int getOptionLevel(String optionName) {
-		if (this.optionNames.contains(optionName)) {
-			return VALID_OPTION;
-		}
-		if (this.deprecatedOptions.get(optionName) != null) {
-			return DEPRECATED_OPTION;
-		}
-		return UNKNOWN_OPTION;
 	}
 
 	public Hashtable getOptions() {
@@ -2151,26 +2070,21 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 		}
 
-		// set deprecated options using preferences service lookup
-		Iterator deprecatedEntries = this.deprecatedOptions.entrySet().iterator();
-		while (deprecatedEntries.hasNext()) {
-			Entry entry = (Entry) deprecatedEntries.next();
-			String propertyName = (String) entry.getKey();
-			String propertyValue = service.get(propertyName, null, this.preferencesLookup);
-			if (propertyValue != null) {
-				options.put(propertyName, propertyValue);
-				String[] compatibleOptions = (String[]) entry.getValue();
-				for (int co=0, length=compatibleOptions.length; co < length; co++) {
-					options.put(compatibleOptions[co], propertyValue);
-				}
-			}
-		}
-
 		// get encoding through resource plugin
 		options.put(JavaCore.CORE_ENCODING, JavaCore.getEncoding());
 
 		// backward compatibility
 		addDeprecatedOptions(options);
+		try {
+			final IEclipsePreferences eclipsePreferences = this.preferencesLookup[PREF_INSTANCE];
+			String[] instanceKeys = eclipsePreferences.keys();
+			for (int i=0, length=instanceKeys.length; i<length; i++) {
+				String optionName = instanceKeys[i];
+				migrateObsoleteOption(options, optionName, eclipsePreferences.get(optionName, null));
+			}
+		} catch (BackingStoreException e) {
+			// skip
+		}
 
 		Util.fixTaskTags(options);
 		// store built map in cache
@@ -2178,6 +2092,63 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		// return built map
 		return options;
+	}
+
+	/**
+	 * Migrates an old option value to its new corresponding option name(s)
+	 * when necessary.
+	 * <p>
+	 * Nothing is done if the given option is not obsolete or if no migration has been
+	 * specified for it.
+	 * </p><p>
+	 * Currently, migration is only done for formatter options.
+	 * </p>
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=308000"
+	 * 
+	 * @param options The options map to update
+	 * @param optionName The old option name to update
+	 * @param optionValue The value of the old option name
+	 */
+	public void migrateObsoleteOption(Map options, String optionName, String optionValue) {
+
+		// Migrate formatter options
+		String[] compatibleConstants = getFormatterCompatibleConstants(optionName);
+		if (compatibleConstants != null) {
+			for (int i=0, length=compatibleConstants.length; i < length; i++) {
+				options.put(compatibleConstants[i], optionValue);
+			}
+			return;
+		}
+	}
+
+	/**
+	 * Return an array of compatible constants for an obsolete constant.
+	 * 
+	 * @param name The name of the obsolete constant
+	 * @return The list as a non-empty array of the compatible constants or
+	 * <code>null</code> if the constant is <b>not</b> obsolete.
+	 * @deprecated As using deprecated formatter constants
+	 */
+	private static String[] getFormatterCompatibleConstants(String name) {
+		if (DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER.equals(name)) {
+			return new String[] {
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE
+			};
+		}
+		if (DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION.equals(name)) {
+			return new String[] {
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_LOCAL_VARIABLE,
+				DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER
+			};
+		}
+		return null;
 	}
 
 	// Do not modify without modifying getDefaultOptions()
@@ -4721,47 +4692,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	}
 
-	/**
-	 * Store the preferences value for the given option name.
-	 *
-	 * @param optionName The name of the option
-	 * @param optionValue The value of the option. If <code>null</code>, then
-	 * 	the option will be removed from the preferences instead.
-	 * @param eclipsePreferences The eclipse preferences to be updated
-	 * @return <code>true</code> if the preferences have been changed,
-	 * 	<code>false</code> otherwise.
-	 */
-	public boolean storePreference(String optionName, String optionValue, IEclipsePreferences eclipsePreferences) {
-		int optionLevel = this.getOptionLevel(optionName);
-		if (optionLevel == UNKNOWN_OPTION) return false; // unrecognized option
-		
-		// Store option value
-		switch (optionLevel) {
-			case JavaModelManager.VALID_OPTION:
-				if (optionValue == null) {
-					eclipsePreferences.remove(optionName);
-				} else {
-					eclipsePreferences.put(optionName, optionValue);
-				}
-				break;
-			case JavaModelManager.DEPRECATED_OPTION:
-				// Try to migrate deprecated option
-				eclipsePreferences.remove(optionName); // get rid off old preference
-				String[] compatibleOptions = (String[]) this.deprecatedOptions.get(optionName);
-				for (int co=0, length=compatibleOptions.length; co < length; co++) {
-					if (optionValue == null) {
-						eclipsePreferences.remove(compatibleOptions[co]);
-					} else {
-						eclipsePreferences.put(compatibleOptions[co], optionValue);
-					}
-				}
-				break;
-			default:
-				return false;
-		}
-		return true;
-	}
-
 	public void setOptions(Hashtable newOptions) {
 		
 		if (DEBUG_302850) {
@@ -4788,21 +4718,20 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				Enumeration keys = newOptions.keys();
 				while (keys.hasMoreElements()){
 					String key = (String)keys.nextElement();
-					int optionLevel = getOptionLevel(key);
-					if (optionLevel == UNKNOWN_OPTION) continue; // unrecognized option
+					if (!this.optionNames.contains(key)) continue; // unrecognized option
 					if (key.equals(JavaCore.CORE_ENCODING)) {
 						if (cachedValue != null) {
 							cachedValue.put(key, JavaCore.getEncoding());
 						}
 						continue; // skipped, contributed by resource prefs
 					}
-					String value = (String) newOptions.get(key);
+					String value = (String)newOptions.get(key);
 					String defaultValue = defaultPreferences.get(key, null);
-					// Store value in preferences
 					if (defaultValue != null && defaultValue.equals(value)) {
-						value = null;
+						instancePreferences.remove(key);
+					} else {
+						instancePreferences.put(key, value);
 					}
-					storePreference(key, value, instancePreferences);
 				}
 				try {
 					// persist options
