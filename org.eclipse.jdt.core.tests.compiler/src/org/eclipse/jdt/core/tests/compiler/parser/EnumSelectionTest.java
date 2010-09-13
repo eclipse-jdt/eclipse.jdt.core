@@ -39,7 +39,7 @@ public void test0001() {
 		"  void foo() {\n" +
 		"    {\n" +
 		"      switch (e) {\n" +
-		"      case <SelectOnName:A> : ;\n" +
+		"      case <SelectOnName:A> :\n" +
 		"      }\n" +
 		"    }\n" +
 		"  }\n" +

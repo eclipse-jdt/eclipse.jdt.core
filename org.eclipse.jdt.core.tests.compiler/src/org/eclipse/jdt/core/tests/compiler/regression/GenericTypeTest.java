@@ -30,7 +30,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test1464" };
+//		TESTS_NAMES = new String[] { "test1203c", "test1203d" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -43,9 +43,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	protected Map getCompilerOptions() {
-		Map compilerOptions = super.getCompilerOptions();
-		compilerOptions.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
-		return compilerOptions;
+		Map options = super.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
+		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+		return options;
 	}
 
 	public void test0001() {
@@ -14393,17 +14396,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in test\\Foo.java (at line 4)\n" + 
-			"	private R dosomething(){ return s; } \n" + 
-			"	          ^^^^^^^^^^^^^\n" + 
-			"The method dosomething() from the type Foo<R> is never used locally\n" + 
-			"----------\n" + 
-			"2. WARNING in test\\Foo.java (at line 5)\n" + 
-			"	private class Bar {} \n" + 
-			"	              ^^^\n" + 
-			"The type Foo<R>.Bar is never used locally\n" + 
-			"----------\n" + 
-			"----------\n" + 
 			"1. ERROR in test02\\FooBar.java (at line 6)\n" + 
 			"	f.s = \"foo\"; \n" + 
 			"	  ^\n" + 
@@ -19118,12 +19110,7 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
     		"	private static class Bucket extends LinkedList<MPair<K,V>> {}\n" +
     		"	                                                       ^\n" +
     		"Cannot make a static reference to the non-static type V\n" +
-    		"----------\n" +
-    		"3. WARNING in X.java (at line 7)\n" +
-    		"	private Bucket[] buckets = new X.Bucket[100];\n" +
-    		"	                 ^^^^^^^\n" +
-    		"The field X<K,V>.buckets is never read locally\n" +
-    		"----------\n");
+	    	"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973
 	public void test0613() {
@@ -25832,27 +25819,12 @@ public void test0812() {
 			"}\n",
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	private T t;\n" +
-		"	          ^\n" +
-		"The field X<T>.t is never read locally\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 3)\n" +
-		"	private X<?>.Inner inner;\n" +
-		"	                   ^^^^^\n" +
-		"The field X<T>.inner is never read locally\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 4)\n" +
-		"	private X<?>.Inner[] inners;\n" +
-		"	                     ^^^^^^\n" +
-		"The field X<T>.inners is never read locally\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 7)\n" +
+		"1. WARNING in X.java (at line 7)\n" +
 		"	this.inner = new X.Inner();\n" +
 		"	                 ^^^^^^^\n" +
 		"X.Inner is a raw type. References to generic type X<T>.Inner should be parameterized\n" +
 		"----------\n" +
-		"5. ERROR in X.java (at line 9)\n" +
+		"2. ERROR in X.java (at line 9)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
@@ -26020,47 +25992,42 @@ public void test0817() {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	private T t;\n" + 
-			"	          ^\n" + 
-			"The field X<T>.t is never read locally\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 9)\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
 			"	if (this.inner instanceof X<?>.Inner) {}\n" + 
 			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The expression of type X<?>.Inner is already an instance of type X<?>.Inner\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 10)\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
 			"	if (this.inners instanceof X<?>.Inner[]) {}\n" + 
 			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The expression of type X<?>.Inner[] is already an instance of type X<?>.Inner[]\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 14)\n" + 
+			"3. WARNING in X.java (at line 14)\n" + 
 			"	void foo(List l) {\n" + 
 			"	         ^^^^\n" + 
 			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 15)\n" + 
+			"4. WARNING in X.java (at line 15)\n" + 
 			"	if (l instanceof List<?>) {}\n" + 
 			"	    ^^^^^^^^^^^^^^^^^\n" + 
 			"The expression of type List is already an instance of type List<?>\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 16)\n" + 
+			"5. ERROR in X.java (at line 16)\n" + 
 			"	if (l instanceof List<? extends String>) {}\n" + 
 			"	    ^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot perform instanceof check against parameterized type List<? extends String>. Use the form List<?> instead since further generic type information will be erased at runtime\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 18)\n" + 
+			"6. WARNING in X.java (at line 18)\n" + 
 			"	void foo(List[] ls) {\n" + 
 			"	         ^^^^\n" + 
 			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
-			"8. WARNING in X.java (at line 19)\n" + 
+			"7. WARNING in X.java (at line 19)\n" + 
 			"	if (ls instanceof List<?>[]) {}\n" + 
 			"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The expression of type List[] is already an instance of type List<?>\n" + 
 			"----------\n" + 
-			"9. ERROR in X.java (at line 20)\n" + 
+			"8. ERROR in X.java (at line 20)\n" + 
 			"	if (ls instanceof List<? extends String>[]) {}\n" + 
 			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Cannot perform instanceof check against parameterized type List<? extends String>[]. Use the form List<?>[] instead since further generic type information will be erased at runtime\n" + 
@@ -32552,27 +32519,22 @@ public void test0996() {
 				"}\n", // =================
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 5)\n" +
-			"	private T aObject = null;\n" +
-			"	          ^^^^^^^\n" +
-			"The field X<T>.aObject is never read locally\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 20)\n" +
+			"1. ERROR in X.java (at line 20)\n" +
 			"	final List<X<?>> l2 = castList(l1, List.class);\n" +
 			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from List<List> to List<X<?>>\n" +
 			"----------\n" +
-			"3. WARNING in X.java (at line 22)\n" +
+			"2. WARNING in X.java (at line 22)\n" +
 			"	List<X> l3 = l2;\n" +
 			"	     ^\n" +
 			"X is a raw type. References to generic type X<T> should be parameterized\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 22)\n" +
+			"3. ERROR in X.java (at line 22)\n" +
 			"	List<X> l3 = l2;\n" +
 			"	             ^^\n" +
 			"Type mismatch: cannot convert from List<X<?>> to List<X>\n" +
 			"----------\n" +
-			"5. ERROR in X.java (at line 24)\n" +
+			"4. ERROR in X.java (at line 24)\n" +
 			"	l3 = l4;\n" +
 			"	     ^^\n" +
 			"Type mismatch: cannot convert from List<X<String>> to List<X>\n" +
@@ -36767,30 +36729,10 @@ public void test1088() {
 			"	      ^\n" +
 			"The nested type T is hiding the type parameter T of type Y<T>\n" +
 			"----------\n" +
-			"4. WARNING in X.java (at line 11)\n" +
-			"	class T {}; // hiding warning\n" +
-			"	      ^\n" +
-			"The type T is never used locally\n" +
-			"----------\n" +
-			"5. WARNING in X.java (at line 12)\n" +
+			"4. WARNING in X.java (at line 12)\n" +
 			"	class Local {};\n" +
 			"	      ^^^^^\n" +
 			"The type Local is hiding the type Y<T>.Local\n" +
-			"----------\n" +
-			"6. WARNING in X.java (at line 12)\n" +
-			"	class Local {};\n" +
-			"	      ^^^^^\n" +
-			"The type Local is never used locally\n" +
-			"----------\n" +
-			"7. WARNING in X.java (at line 15)\n" +
-			"	class T {}; // no hiding warning\n" +
-			"	      ^\n" +
-			"The type T is never used locally\n" +
-			"----------\n" +
-			"8. WARNING in X.java (at line 16)\n" +
-			"	class Local {}; // no hiding warning\n" +
-			"	      ^^^^^\n" +
-			"The type Local is never used locally\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165679 - variation
@@ -38111,27 +38053,22 @@ public void test1124() {
 			"}", // =================
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 7)\n" +
-		"	private final T theGenericThing;\n" +
-		"	                ^^^^^^^^^^^^^^^\n" +
-		"The field X<T>.theGenericThing is never read locally\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 13)\n" +
+		"1. WARNING in X.java (at line 13)\n" +
 		"	public static class InnerClassThatShowsBug extends X {\n" +
 		"	                                                   ^\n" +
 		"X is a raw type. References to generic type X<T> should be parameterized\n" +
 		"----------\n" +
-		"3. WARNING in X.java (at line 15)\n" +
+		"2. WARNING in X.java (at line 15)\n" +
 		"	super(null);\n" +
 		"	^^^^^^^^^^^^\n" +
 		"Type safety: The constructor X(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" +
 		"----------\n" +
-		"4. WARNING in X.java (at line 15)\n" +
+		"3. WARNING in X.java (at line 15)\n" +
 		"	super(null);\n" +
 		"	^^^^^^^^^^^^\n" +
 		"Access to enclosing constructor X<T>(T) is emulated by a synthetic accessor method\n" +
 		"----------\n" +
-		"5. ERROR in X.java (at line 19)\n" +
+		"4. ERROR in X.java (at line 19)\n" +
 		"	for (Map.Entry<String, String> entry : myMap().entrySet()) {\n" +
 		"	                                       ^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from element type Object to Map.Entry<String,String>\n" +
@@ -39571,42 +39508,27 @@ public void test1163() {
 			"}\n", // =================
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	private final Object mDependent = new Object() {\n" +
-		"	                     ^^^^^^^^^^\n" +
-		"The field X<T>.mDependent is never read locally\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
+		"1. WARNING in X.java (at line 5)\n" +
 		"	Object o1 = mObj;\n" +
 		"	            ^^^^\n" +
 		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 5)\n" +
+		"2. ERROR in X.java (at line 5)\n" +
 		"	Object o1 = mObj;\n" +
 		"	            ^^^^\n" +
 		"The blank final field mObj may not have been initialized\n" +
 		"----------\n" +
-		"4. WARNING in X.java (at line 7)\n" +
-		"	Object o2 = mObj;\n" +
-		"	       ^^\n" +
-		"The field new Object(){}.o2 is never read locally\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 7)\n" +
+		"3. WARNING in X.java (at line 7)\n" +
 		"	Object o2 = mObj;\n" +
 		"	            ^^^^\n" +
 		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
 		"----------\n" +
-		"6. ERROR in X.java (at line 7)\n" +
+		"4. ERROR in X.java (at line 7)\n" +
 		"	Object o2 = mObj;\n" +
 		"	            ^^^^\n" +
 		"The blank final field mObj may not have been initialized\n" +
 		"----------\n" +
-		"7. WARNING in X.java (at line 8)\n" +
-		"	void foo() {\n" +
-		"	     ^^^^^\n" +
-		"The method foo() from the type new Object(){} is never used locally\n" +
-		"----------\n" +
-		"8. WARNING in X.java (at line 9)\n" +
+		"5. WARNING in X.java (at line 9)\n" +
 		"	Object o3 = mObj;\n" +
 		"	            ^^^^\n" +
 		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
@@ -39636,62 +39558,47 @@ public void test1164() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	private final Object mDependent = new Object() {\n" +
-		"	                     ^^^^^^^^^^\n" +
-		"The field X<T>.mDependent is never read locally\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 5)\n" +
+		"1. WARNING in X.java (at line 5)\n" +
 		"	Object o1 = mObj;\n" +
 		"	            ^^^^\n" +
 		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 5)\n" +
+		"2. ERROR in X.java (at line 5)\n" +
 		"	Object o1 = mObj;\n" +
 		"	            ^^^^\n" +
 		"The blank final field mObj may not have been initialized\n" +
 		"----------\n" +
-		"4. WARNING in X.java (at line 6)\n" +
+		"3. WARNING in X.java (at line 6)\n" +
 		"	mObj = \"1\";\n" +
 		"	^^^^\n" +
 		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
 		"----------\n" +
-		"5. ERROR in X.java (at line 6)\n" +
+		"4. ERROR in X.java (at line 6)\n" +
 		"	mObj = \"1\";\n" +
 		"	^^^^\n" +
 		"The final field X<T>.mObj cannot be assigned\n" +
 		"----------\n" +
-		"6. WARNING in X.java (at line 8)\n" +
-		"	Object o2 = mObj = \"2\";\n" +
-		"	       ^^\n" +
-		"The field new Object(){}.o2 is never read locally\n" +
-		"----------\n" +
-		"7. WARNING in X.java (at line 8)\n" +
+		"5. WARNING in X.java (at line 8)\n" +
 		"	Object o2 = mObj = \"2\";\n" +
 		"	            ^^^^\n" +
 		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
 		"----------\n" +
-		"8. ERROR in X.java (at line 8)\n" +
+		"6. ERROR in X.java (at line 8)\n" +
 		"	Object o2 = mObj = \"2\";\n" +
 		"	            ^^^^\n" +
 		"The final field X<T>.mObj cannot be assigned\n" +
 		"----------\n" +
-		"9. WARNING in X.java (at line 9)\n" +
-		"	void foo() {\n" +
-		"	     ^^^^^\n" +
-		"The method foo() from the type new Object(){} is never used locally\n" +
-		"----------\n" +
-		"10. WARNING in X.java (at line 10)\n" +
+		"7. WARNING in X.java (at line 10)\n" +
 		"	Object o3 = mObj;\n" +
 		"	            ^^^^\n" +
 		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
 		"----------\n" +
-		"11. WARNING in X.java (at line 11)\n" +
+		"8. WARNING in X.java (at line 11)\n" +
 		"	mObj = \"3\";\n" +
 		"	^^^^\n" +
 		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
 		"----------\n" +
-		"12. ERROR in X.java (at line 11)\n" +
+		"9. ERROR in X.java (at line 11)\n" +
 		"	mObj = \"3\";\n" +
 		"	^^^^\n" +
 		"The final field X<T>.mObj cannot be assigned\n" +
@@ -41031,7 +40938,7 @@ public void test1203c() {
 	String[] sources =
 		new String[] {
 			"X.java",
-			"class X extends Y {\n" +
+			"public class X extends Y {\n" +
 			"	public static void main(String[] args) {\n" +
 			"		String s = \"\";\n" +
 			"		new X().<String> a(s);\n" + // fails before 7
@@ -41113,7 +41020,7 @@ public void test1203d() {
 	String[] sources =
 		new String[] {
 			"X.java",
-			"class X implements I {\n" +
+			"public class X implements I {\n" +
 			"	public static void main(String[] args) {\n" +
 			"		String s = \"\";\n" +
 			"		new X().<String> a(s);\n" + // fails before 7
@@ -41580,12 +41487,7 @@ public void test1216() {
 		"The type A.P is not visible\n" +
 		"----------\n" +
 		"----------\n" +
-		"1. WARNING in p\\A.java (at line 9)\n" +
-		"	public int pval;\n" +
-		"	           ^^^^\n" +
-		"The field A.P.pval is never read locally\n" +
-		"----------\n" +
-		"2. WARNING in p\\A.java (at line 18)\n" +
+		"1. WARNING in p\\A.java (at line 18)\n" +
 		"	this.box.set(new P());\n" +
 		"	             ^^^^^^^\n" +
 		"Access to enclosing constructor A.P() is emulated by a synthetic accessor method\n" +
@@ -42618,11 +42520,6 @@ public void test1245() {
 		"	public class X<T extends Secondary.Private> {\n" +
 		"	                         ^^^^^^^^^^^^^^^^^\n" +
 		"The type Secondary.Private is not visible\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" + 
-		"	static private class Private {}\n" + 
-		"	                     ^^^^^^^\n" + 
-		"The type Secondary.Private is never used locally\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216100 - variation
@@ -46336,7 +46233,7 @@ public void test1356() {
 			"done");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
-public void _test1357() {
+public void test1357() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
@@ -46358,10 +46255,20 @@ public void _test1357() {
 				"	private static interface SecondaryPrivate {}\n" + 
 				"}\n", // =================
 			},
-			"done");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	public abstract class X implements Map<X.Private,Secondary.SecondaryPrivate> {\n" + 
+			"	                                       ^^^^^^^^^\n" + 
+			"The type X.Private is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	public abstract class X implements Map<X.Private,Secondary.SecondaryPrivate> {\n" + 
+			"	                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type Secondary.SecondaryPrivate is not visible\n" + 
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422 - variation
-public void _test1358() {
+public void test1358() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
@@ -46376,7 +46283,12 @@ public void _test1358() {
 				"	Inter.Private field;\n" + 
 				"}\n", // =================
 			},
-			"done");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public abstract class X implements List<X.Inter.Private> {\n" + 
+			"	                                        ^^^^^^^^^^^^^^^\n" + 
+			"The type X.Inter.Private is not visible\n" + 
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422 - variation
 public void test1359() {
@@ -50500,12 +50412,7 @@ public void test1462() {
 			"interface IReferencedInterface extends IRecursiveInterface<IReferencedInterface> {}\n"
 		},
 		"----------\n" + 
-		"1. WARNING in AnotherClass.java (at line 3)\n" + 
-		"	private AnotherClass<IReferencedInterface> m_var;\n" + 
-		"	                                           ^^^^^\n" + 
-		"The field ImplementingClass.m_var is never read locally\n" + 
-		"----------\n" + 
-		"2. ERROR in AnotherClass.java (at line 5)\n" + 
+		"1. ERROR in AnotherClass.java (at line 5)\n" + 
 		"	m_var = a;\n" + 
 		"	        ^\n" + 
 		"Type mismatch: cannot convert from AnotherClass<capture#1-of ? extends IReferencedInterface> to AnotherClass<IReferencedInterface>\n" + 

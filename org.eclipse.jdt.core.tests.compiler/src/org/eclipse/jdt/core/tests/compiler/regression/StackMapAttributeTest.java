@@ -34,7 +34,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 46 };
+//		TESTS_NUMBERS = new int[] { 47 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
@@ -6521,5 +6521,31 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			null,
 			true,
 			customOptions);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324848
+	public void test047() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void test() {\n" + 
+				"		final boolean x = true;\n" + 
+				"		new Runnable() {\n" + 
+				"			@Override\n" + 
+				"			public void run() {\n" + 
+				"				synchronized (X.this) {\n" + 
+				"					System.out.println(x);\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	synchronized (X.this) {\n" + 
+			"	              ^^^^^^\n" + 
+			"No enclosing instance of the type X is accessible in scope\n" + 
+			"----------\n");
 	}
 }

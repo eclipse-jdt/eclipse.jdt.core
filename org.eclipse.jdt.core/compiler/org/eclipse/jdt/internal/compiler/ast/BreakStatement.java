@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -82,8 +82,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 }
 
 public StringBuffer printStatement(int tab, StringBuffer output) {
-	printIndent(tab, output).append("break "); //$NON-NLS-1$
-	if (this.label != null) output.append(this.label);
+	printIndent(tab, output).append("break"); //$NON-NLS-1$
+	if (this.label != null) output.append(' ').append(this.label);
 	return output.append(';');
 }
 

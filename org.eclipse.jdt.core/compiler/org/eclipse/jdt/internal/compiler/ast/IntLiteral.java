@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,18 +30,6 @@ public IntLiteral(char[] token, int s,int e, int value) {
 	this(token, s,e);
 	this.value = value;
 }
-
-public IntLiteral(int intValue) {
-	//special optimized constructor : the cst is the argument
-	//value that should not be used
-	//	tokens = null ;
-	//	sourceStart = 0;
-	//	sourceEnd = 0;
-	super(null,0,0);
-	this.constant = IntConstant.fromValue(intValue);
-	this.value = intValue;
-}
-
 public void computeConstant() {
 	//a special constant is use for the potential Integer.MAX_VALUE+1
 	//which is legal if used with a - as prefix....cool....
@@ -133,15 +121,6 @@ public final boolean mayRepresentMIN_VALUE(){
 			(this.source[9] == '8') &&
 			(((this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0));
 }
-
-public StringBuffer printExpression(int indent, StringBuffer output){
-	if (this.source == null) {
-	/* special optimized IntLiteral that are created by the compiler */
-		return output.append(String.valueOf(this.value));
-	}
-	return super.printExpression(indent, output);
-}
-
 public void traverse(ASTVisitor visitor, BlockScope scope) {
 	visitor.visit(this, scope);
 	visitor.endVisit(this, scope);

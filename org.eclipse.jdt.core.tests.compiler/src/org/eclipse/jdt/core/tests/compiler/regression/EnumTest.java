@@ -53,6 +53,9 @@ public class EnumTest extends AbstractComparableTest {
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.ERROR);
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility, CompilerOptions.PRIVATE);
 		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
+		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 		if (this.reportMissingJavadocComments != null)
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, this.reportMissingJavadocComments);
 		return options;
@@ -3755,12 +3758,7 @@ public void test113() {
 			"}\n",
         },
 		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	static int bar;\n" +
-		"	           ^^^\n" +
-		"The field new BugDemo(){}.bar is never read locally\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
+		"1. ERROR in X.java (at line 3)\n" +
 		"	static int bar;\n" +
 		"	           ^^^\n" +
 		"The field bar cannot be declared static; static fields can only be declared in static or top level types\n" +
@@ -6193,12 +6191,7 @@ public void test172() {
 			"}\n"
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 8)\n" + 
-		"	private enum Complaint {       WARNING, ERROR, FATAL_ERROR, PANIC;\n" + 
-		"	             ^^^^^^^^^\n" + 
-		"The type X.Complaint is never used locally\n" + 
-		"----------\n",
+		"",
 		"HELLORED", null, 
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }

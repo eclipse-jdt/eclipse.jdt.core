@@ -2095,7 +2095,7 @@ public void testSwitchLabel() {
 		"    int i;\n" +
 		"    {\n" +
 		"      switch (i) {\n" +
-		"      case <CompleteOnMemberAccess:fred().x> : ;\n" +
+		"      case <CompleteOnMemberAccess:fred().x> :\n" +
 		"      }\n" +
 		"    }\n" +
 		"  }\n" +

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.util.Map;
 
 import junit.framework.Test;
 
@@ -30,6 +31,14 @@ static {
 }
 public InnerEmulationTest(String name) {
 	super(name);
+}
+protected Map getCompilerOptions() {
+	Map options = super.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	return options;
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());
@@ -1460,19 +1469,9 @@ public void test033() {
 		"1. WARNING in p1\\A2.java (at line 18)\n" +
 		"	private class C extends B {	\n" +
 		"	              ^\n" +
-		"The type A2.C is never used locally\n" +
-		"----------\n" +
-		"2. WARNING in p1\\A2.java (at line 18)\n" +
-		"	private class C extends B {	\n" +
-		"	              ^\n" +
 		"Access to enclosing constructor A2.B() is emulated by a synthetic accessor method\n" +
 		"----------\n" +
-		"3. WARNING in p1\\A2.java (at line 19)\n" +
-		"	public void foo() {	\n" +
-		"	            ^^^^^\n" +
-		"The method foo() from the type A2.C is never used locally\n" +
-		"----------\n" +
-		"4. ERROR in p1\\A2.java (at line 20)\n" +
+		"2. ERROR in p1\\A2.java (at line 20)\n" +
 		"	(new D.E(null, null, null, new F(get()) {}) {}).execute();	\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
@@ -1553,19 +1552,9 @@ public void test035() {
 		"1. WARNING in p1\\A2.java (at line 18)\n" +
 		"	private class C extends B {	\n" +
 		"	              ^\n" +
-		"The type A2.C is never used locally\n" +
-		"----------\n" +
-		"2. WARNING in p1\\A2.java (at line 18)\n" +
-		"	private class C extends B {	\n" +
-		"	              ^\n" +
 		"Access to enclosing constructor A2.B() is emulated by a synthetic accessor method\n" +
 		"----------\n" +
-		"3. WARNING in p1\\A2.java (at line 19)\n" +
-		"	public void foo() {	\n" +
-		"	            ^^^^^\n" +
-		"The method foo() from the type A2.C is never used locally\n" +
-		"----------\n" +
-		"4. ERROR in p1\\A2.java (at line 20)\n" +
+		"2. ERROR in p1\\A2.java (at line 20)\n" +
 		"	(new D.E(null, null, null, new F(get()) {})).execute();	\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
@@ -2990,18 +2979,13 @@ public void test076() {
 				"} 	\n"
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 7)\n" +
-			"	class B extends X {	\n" +
-			"	      ^\n" +
-			"The type B is never used locally\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
+			"1. ERROR in X.java (at line 9)\n" +
 			"	super(new A(){	\n" +
 			"				});	\n" +
 			"	      ^^^^^^^^^^^^^^^\n" +
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
 			"----------\n" +
-			"3. WARNING in X.java (at line 9)\n" +
+			"2. WARNING in X.java (at line 9)\n" +
 			"	super(new A(){	\n" +
 			"	          ^^^\n" +
 			"Access to enclosing constructor A() is emulated by a synthetic accessor method\n" +
@@ -3028,12 +3012,7 @@ public void test076() {
 				"} 	\n"
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 7)\n" +
-			"	class B extends X {	\n" +
-			"	      ^\n" +
-			"The type B is never used locally\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
+			"1. ERROR in X.java (at line 9)\n" +
 			"	super(new A(){	\n" +
 			"				});	\n" +
 			"	      ^^^^^^^^^^^^^^^\n" +
@@ -3120,29 +3099,19 @@ public void test078() {
 				"} 	\n"
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 7)\n" +
-			"	class B extends X {	\n" +
-			"	      ^\n" +
-			"The type B is never used locally\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
+			"1. ERROR in X.java (at line 9)\n" +
 			"	super(new A(){	\n" +
 			"					void foo() { System.out.println(X.this);	} \n" +
 			"				});	\n" +
 			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
 			"----------\n" +
-			"3. WARNING in X.java (at line 9)\n" +
+			"2. WARNING in X.java (at line 9)\n" +
 			"	super(new A(){	\n" +
 			"	          ^^^\n" +
 			"Access to enclosing constructor A() is emulated by a synthetic accessor method\n" +
 			"----------\n" +
-			"4. WARNING in X.java (at line 10)\n" +
-			"	void foo() { System.out.println(X.this);	} \n" +
-			"	     ^^^^^\n" +
-			"The method foo() from the type new A(){} is never used locally\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 10)\n" +
+			"3. ERROR in X.java (at line 10)\n" +
 			"	void foo() { System.out.println(X.this);	} \n" +
 			"	                                ^^^^^^\n" +
 			"No enclosing instance of the type X is accessible in scope\n" +
@@ -3170,24 +3139,14 @@ public void test078() {
 				"} 	\n"
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 7)\n" +
-			"	class B extends X {	\n" +
-			"	      ^\n" +
-			"The type B is never used locally\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
+			"1. ERROR in X.java (at line 9)\n" +
 			"	super(new A(){	\n" +
 			"					void foo() { System.out.println(X.this);	} \n" +
 			"				});	\n" +
 			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
 			"----------\n" +
-			"3. WARNING in X.java (at line 10)\n" +
-			"	void foo() { System.out.println(X.this);	} \n" +
-			"	     ^^^^^\n" +
-			"The method foo() from the type new A(){} is never used locally\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 10)\n" +
+			"2. ERROR in X.java (at line 10)\n" +
 			"	void foo() { System.out.println(X.this);	} \n" +
 			"	                                ^^^^^^\n" +
 			"No enclosing instance of the type X is accessible in scope\n" +
@@ -3385,12 +3344,7 @@ public void test085() {
 				"}	\n"
 			},
 		"----------\n" +
-		"1. WARNING in X.java (at line 10)\n" +
-		"	X x = X.this; 	\n" +
-		"	  ^\n" +
-		"The field new B(){}.x is never read locally\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
+		"1. ERROR in X.java (at line 10)\n" +
 		"	X x = X.this; 	\n" +
 		"	      ^^^^^^\n" +
 		"No enclosing instance of the type X is accessible in scope\n" +
@@ -3938,12 +3892,7 @@ public void test107() {
 			"} ",
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 9)\n" +
-		"	private static class B extends X.Y implements X.Z { \n" +
-		"	                     ^\n" +
-		"The type A.B is never used locally\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 11)\n" +
+		"1. ERROR in X.java (at line 11)\n" +
 		"	super(B.this); \n" +
 		"	      ^^^^^^\n" +
 		"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
@@ -3967,12 +3916,7 @@ public void test108() {
 				"}",
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 5)\n" +
-			"	class Local2 extends Local1 {\n" +
-			"	      ^^^^^^\n" +
-			"The type Local2 is never used locally\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
+			"1. ERROR in X.java (at line 5)\n" +
 			"	class Local2 extends Local1 {\n" +
 			"	      ^^^^^^\n" +
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
@@ -4020,22 +3964,7 @@ public void test109() {
 				"}"
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	public void foo() {\n" +
-			"	            ^^^^^\n" +
-			"The method foo() from the type C is never used locally\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 9)\n" +
-			"	public void foo() {\n" +
-			"	            ^^^^^\n" +
-			"The method foo() from the type new X(){} is never used locally\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 13)\n" +
-			"	class D extends C {\n" +
-			"	      ^\n" +
-			"The type D is never used locally\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 13)\n" +
+			"1. ERROR in X.java (at line 13)\n" +
 			"	class D extends C {\n" +
 			"	      ^\n" +
 			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
@@ -4319,11 +4248,6 @@ public void test118() {
 		"	bar();\n" +
 		"	^^^\n" +
 		"Cannot refer to an instance method while explicitly invoking a constructor\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 22)\n" +
-		"	void baz() {\n" +
-		"	     ^^^^^\n" +
-		"The method baz() from the type new Object(){} is never used locally\n" +
 		"----------\n");
 }
 public void test119() {
@@ -4380,21 +4304,6 @@ public void test119() {
 			"	foo(\"0\");\n" +
 			"	^^^^^^^^\n" +
 			"No enclosing instance of the type X is accessible in scope\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 13)\n" +
-			"	void baz() {\n" +
-			"	     ^^^^^\n" +
-			"The method baz() from the type new Object(){} is never used locally\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 18)\n" +
-			"	void baz() {\n" +
-			"	     ^^^^^\n" +
-			"The method baz() from the type Local is never used locally\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 35)\n" +
-			"	void baz() {\n" +
-			"	     ^^^^^\n" +
-			"The method baz() from the type new Object(){} is never used locally\n" +
 			"----------\n");
 		return;
 	}
@@ -4493,45 +4402,20 @@ public void test120() {
 				"}\n",
 			},
 		"----------\n" +
-		"1. WARNING in X.java (at line 7)\n" +
-		"	void baz() {\n" +
-		"	     ^^^^^\n" +
-		"The method baz() from the type new Object(){} is never used locally\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 9)\n" +
-		"	void baz() {\n" +
-		"	     ^^^^^\n" +
-		"The method baz() from the type new Object(){} is never used locally\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 10)\n" +
+		"1. ERROR in X.java (at line 10)\n" +
 		"	foo(); //0\n" +
 		"	^^^^^\n" +
 		"No enclosing instance of the type X is accessible in scope\n" +
 		"----------\n" +
-		"4. WARNING in X.java (at line 14)\n" +
-		"	void baz() {\n" +
-		"	     ^^^^^\n" +
-		"The method baz() from the type Local is never used locally\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 15)\n" +
+		"2. ERROR in X.java (at line 15)\n" +
 		"	foo(); //1\n" +
 		"	^^^^^\n" +
 		"No enclosing instance of the type X is accessible in scope\n" +
 		"----------\n" +
-		"6. ERROR in X.java (at line 19)\n" +
+		"3. ERROR in X.java (at line 19)\n" +
 		"	foo();//2\n" +
 		"	^^^^^\n" +
 		"No enclosing instance of the type X is accessible in scope\n" +
-		"----------\n" +
-		"7. WARNING in X.java (at line 23)\n" +
-		"	void baz() {\n" +
-		"	     ^^^^^\n" +
-		"The method baz() from the type new Object(){} is never used locally\n" +
-		"----------\n" +
-		"8. WARNING in X.java (at line 32)\n" +
-		"	void baz() {\n" +
-		"	     ^^^^^\n" +
-		"The method baz() from the type new Object(){} is never used locally\n" +
 		"----------\n");
 		return;
 	}
@@ -4574,30 +4458,10 @@ public void test120() {
 			"}\n",
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 7)\n" +
-		"	void baz() {\n" +
-		"	     ^^^^^\n" +
-		"The method baz() from the type new Object(){} is never used locally\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 9)\n" +
-		"	void baz() {\n" +
-		"	     ^^^^^\n" +
-		"The method baz() from the type Local is never used locally\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 10)\n" +
+		"1. ERROR in X.java (at line 10)\n" +
 		"	foo(); //1\n" +
 		"	^^^^^\n" +
 		"No enclosing instance of the type X is accessible in scope\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 18)\n" +
-		"	void baz() {\n" +
-		"	     ^^^^^\n" +
-		"The method baz() from the type new Object(){} is never used locally\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 27)\n" +
-		"	void baz() {\n" +
-		"	     ^^^^^\n" +
-		"The method baz() from the type new Object(){} is never used locally\n" +
 		"----------\n");
 }
 public void test121() {
@@ -5338,30 +5202,10 @@ public void test132() {
 			"}", // =================
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	class Local {}\n" +
-		"	      ^^^^^\n" +
-		"The type Local is never used locally\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 4)\n" +
-		"	class Foo {\n" +
-		"	      ^^^\n" +
-		"The type Foo is never used locally\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 5)\n" +
-		"	void foo() {\n" +
-		"	     ^^^^^\n" +
-		"The method foo() from the type Foo is never used locally\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 6)\n" +
+		"1. WARNING in X.java (at line 6)\n" +
 		"	class Local {}\n" +
 		"	      ^^^^^\n" +
 		"The type Local is hiding the type Local\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 6)\n" +
-		"	class Local {}\n" +
-		"	      ^^^^^\n" +
-		"The type Local is never used locally\n" +
 		"----------\n",
 		"",
 		"",
@@ -5568,12 +5412,7 @@ public void test136() {
 			"}", // =================,
 		},
 		"----------\n" +
-		"1. WARNING in p\\X.java (at line 5)\n" +
-		"	String variable = \"my testing\";\n" +
-		"	       ^^^^^^^^\n" +
-		"The field X.Outer.Inner.variable is never read locally\n" + 
-		"----------\n" +
-		"2. ERROR in p\\X.java (at line 11)\n" +
+		"1. ERROR in p\\X.java (at line 11)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
@@ -5627,12 +5466,7 @@ public void test138() {
 			"}", // =================,
 		},
 		"----------\n" +
-		"1. WARNING in p\\X.java (at line 4)\n" + 
-		"	String variable = \"my testing\";\n" +
-		"	       ^^^^^^^^\n" + 
-		"The field X.Outer.Inner.variable is never read locally\n" + 
-		"----------\n" +
-		"2. ERROR in p\\X.java (at line 12)\n" +
+		"1. ERROR in p\\X.java (at line 12)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
@@ -6077,42 +5911,12 @@ public void test151() {
 					"}", // =================
 				},
 				"----------\n" +
-				"1. WARNING in X.java (at line 6)\n" +
-				"	private static class B2F extends X { }\n" +
-				"	                     ^^^\n" +
-				"The type X.B2F is never used locally\n" +
-				"----------\n" +
-				"2. WARNING in X.java (at line 7)\n" +
-				"	private static class F2B extends X { }\n" +
-				"	                     ^^^\n" +
-				"The type X.F2B is never used locally\n" +
-				"----------\n" +
-				"3. WARNING in X.java (at line 13)\n" +
-				"	private static class B2F extends Key {\n" +
-				"	                     ^^^\n" +
-				"The type X.Key.B2F is never used locally\n" +
-				"----------\n" +
-				"4. WARNING in X.java (at line 14)\n" +
-				"	private static B2F create() { return new B2F(); }\n" +
-				"	                   ^^^^^^^^\n" +
-				"The method create() from the type X.Key.B2F is never used locally\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 15)\n" +
+				"1. ERROR in X.java (at line 15)\n" +
 				"	public Key flip() { return F2B.create(); }\n" +
 				"	                           ^^^\n" +
 				"The type F2B is defined in an inherited type and an enclosing scope\n" +
 				"----------\n" +
-				"6. WARNING in X.java (at line 18)\n" +
-				"	private static class F2B extends Key {\n" +
-				"	                     ^^^\n" +
-				"The type X.Key.F2B is never used locally\n" +
-				"----------\n" +
-				"7. WARNING in X.java (at line 19)\n" +
-				"	private static F2B create() { return new F2B(); }\n" +
-				"	                   ^^^^^^^^\n" +
-				"The method create() from the type X.Key.F2B is never used locally\n" +
-				"----------\n" +
-				"8. ERROR in X.java (at line 20)\n" +
+				"2. ERROR in X.java (at line 20)\n" +
 				"	public Key flip() { return B2F.create(); }\n" +
 				"	                           ^^^\n" +
 				"The type B2F is defined in an inherited type and an enclosing scope\n" +
@@ -6211,22 +6015,12 @@ public void test152() {
 					"}", // =================
 				},
 				"----------\n" +
-				"1. WARNING in X.java (at line 14)\n" +
-				"	private static B2F create() { return new B2F(); }\n" +
-				"	                   ^^^^^^^^\n" +
-				"The method create() from the type X.Key.B2F is never used locally\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 15)\n" +
+				"1. ERROR in X.java (at line 15)\n" +
 				"	public Key flip() { return F2B.create(); }\n" +
 				"	                           ^^^\n" +
 				"The type F2B is defined in an inherited type and an enclosing scope\n" +
 				"----------\n" +
-				"3. WARNING in X.java (at line 19)\n" +
-				"	private static F2B create() { return new F2B(); }\n" +
-				"	                   ^^^^^^^^\n" +
-				"The method create() from the type X.Key.F2B is never used locally\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 20)\n" +
+				"2. ERROR in X.java (at line 20)\n" +
 				"	public Key flip() { return B2F.create(); }\n" +
 				"	                           ^^^\n" +
 				"The type B2F is defined in an inherited type and an enclosing scope\n" +
@@ -6324,32 +6118,22 @@ public void _test153() {
 					"}", // =================
 				},
 				"----------\n" +
-				"1. WARNING in X.java (at line 11)\n" +
-				"	private class Test5 {\n" +
-				"	              ^^^^^\n" +
-				"The type X.Test5 is never used locally\n" +
-				"----------\n" +
-				"2. WARNING in X.java (at line 12)\n" +
-				"	private class Test4 extends Test2 {\n" +
-				"	              ^^^^^\n" +
-				"The type X.Test5.Test4 is never used locally\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 16)\n" +
+				"1. ERROR in X.java (at line 16)\n" +
 				"	System.out.println(X.this.var1.trim());\n" +
 				"	                   ^^^^^^\n" +
 				"No enclosing instance of the type X is accessible in scope\n" +
 				"----------\n" +
-				"4. WARNING in X.java (at line 16)\n" +
+				"2. WARNING in X.java (at line 16)\n" +
 				"	System.out.println(X.this.var1.trim());\n" +
 				"	                          ^^^^\n" +
 				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" +
 				"----------\n" +
-				"5. WARNING in X.java (at line 17)\n" +
+				"3. WARNING in X.java (at line 17)\n" +
 				"	System.out.println(var1.trim());\n" +
 				"	                   ^^^^\n" +
 				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" +
 				"----------\n" +
-				"6. ERROR in X.java (at line 17)\n" +
+				"4. ERROR in X.java (at line 17)\n" +
 				"	System.out.println(var1.trim());\n" +
 				"	                   ^^^^\n" +
 				"No enclosing instance of the type X is accessible in scope\n" +
@@ -6417,27 +6201,22 @@ public void test154() {
 					"}", // =================
 				},
 				"----------\n" +
-				"1. WARNING in X.java (at line 12)\n" +
-				"	private class Test4 extends Test2 {\n" +
-				"	              ^^^^^\n" +
-				"The type X.Test4 is never used locally\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 16)\n" +
+				"1. ERROR in X.java (at line 16)\n" +
 				"	System.out.println(X.this.var1.trim());\n" +
 				"	                   ^^^^^^\n" +
 				"No enclosing instance of the type X is accessible in scope\n" +
 				"----------\n" +
-				"3. WARNING in X.java (at line 16)\n" +
+				"2. WARNING in X.java (at line 16)\n" +
 				"	System.out.println(X.this.var1.trim());\n" +
 				"	                          ^^^^\n" +
 				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" +
 				"----------\n" +
-				"4. WARNING in X.java (at line 17)\n" +
+				"3. WARNING in X.java (at line 17)\n" +
 				"	System.out.println(var1.trim());\n" +
 				"	                   ^^^^\n" +
 				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" +
 				"----------\n" +
-				"5. ERROR in X.java (at line 17)\n" +
+				"4. ERROR in X.java (at line 17)\n" +
 				"	System.out.println(var1.trim());\n" +
 				"	                   ^^^^\n" +
 				"No enclosing instance of the type X is accessible in scope\n" +
@@ -7036,27 +6815,22 @@ public void test172() throws Exception {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	private void c() {}\n" + 
-		"	             ^^^\n" + 
-		"The method c() from the type X is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 8)\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
 		"	a(null);\n" + 
 		"	^^^^^^^\n" + 
 		"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 9)\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
 		"	c(null);\n" + 
 		"	^^^^^^^\n" + 
 		"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 14)\n" + 
+		"3. WARNING in X.java (at line 14)\n" + 
 		"	a(null);\n" + 
 		"	^^^^^^^\n" + 
 		"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" + 
 		"----------\n" + 
-		"5. WARNING in X.java (at line 15)\n" + 
+		"4. WARNING in X.java (at line 15)\n" + 
 		"	c(null);\n" + 
 		"	^^^^^^^\n" + 
 		"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" + 

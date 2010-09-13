@@ -40,6 +40,10 @@ protected Map getCompilerOptions() {
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, CompilerOptions.ENABLED);
 	}
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	return options;
 }
 public static Test suite() {
@@ -1752,12 +1756,7 @@ public void test052() {
 			"}"
 		},
 		"----------\n" +
-		"1. WARNING in p\\A.java (at line 6)\n" +
-		"	private int i;\n" +
-		"	            ^\n" +
-		"The field A.i is never read locally\n" +
-		"----------\n" +
-		"2. ERROR in p\\A.java (at line 8)\n" +
+		"1. ERROR in p\\A.java (at line 8)\n" +
 		"	int x = i;\n" +
 		"	        ^\n" +
 		"Cannot make a static reference to the non-static field i\n" +
@@ -1984,26 +1983,11 @@ public void test059() {
 			"}",
 		},
 		// compiler results
-		"----------\n" +  /* expected compiler log */
-		"1. WARNING in p\\FieldQualification.java (at line 5)\n" +
-		"	class Local {\n" +
-		"	      ^^^^^\n" +
-		"The type Local is never used locally\n" +
 		"----------\n" +
-		"2. WARNING in p\\FieldQualification.java (at line 6)\n" +
+		"1. WARNING in p\\FieldQualification.java (at line 6)\n" +
 		"	String field = \"Enclosing field for anonymous type\";\n" +
 		"	       ^^^^^\n" +
 		"The field Local.field is hiding a field from type FieldQualification\n" +
-		"----------\n" +
-		"3. WARNING in p\\FieldQualification.java (at line 6)\n" +
-		"	String field = \"Enclosing field for anonymous type\";\n" +
-		"	       ^^^^^\n" +
-		"The field Local.field is never read locally\n" +
-		"----------\n" +
-		"4. WARNING in p\\FieldQualification.java (at line 7)\n" +
-		"	void foo() {\n" +
-		"	     ^^^^^\n" +
-		"The method foo() from the type Local is never used locally\n" +
 		"----------\n",
 		// runtime results
 		null /* do not check output string */,
@@ -2066,17 +2050,12 @@ public void test061() {
 			"}	\n"
 		},
 		// compiler results
-		"----------\n" +  /* expected compiler log */
-		"1. WARNING in q\\Y.java (at line 3)\n" +
-		"	private static class X {}	\n" +
-		"	                     ^\n" +
-		"The type Y.X is never used locally\n" +
-		"----------\n",
+		"",
 		// runtime results
 		null /* do not check output string */,
 		null /* do not check error string */,
 		// javac options
-		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings /* javac test options */);
+		JavacTestOptions.DEFAULT /* javac test options */);
 }
 /*
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=11435
@@ -2948,27 +2927,7 @@ public void test088() {
 		"	^^^^\n" +
 		"Illegal enclosing instance specification for type Object\n" +
 		"----------\n" +
-		"3. WARNING in p\\X.java (at line 25)\n" +
-		"	private void a() { System.out.println(\"A\");} \n" +
-		"	             ^^^\n" +
-		"The method a() from the type X is never used locally\n" +
-		"----------\n" +
-		"4. WARNING in p\\X.java (at line 31)\n" +
-		"	Class c = b.getClass();\n" +
-		"	^^^^^\n" +
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-		"----------\n" +
-		"5. WARNING in p\\X.java (at line 32)\n" +
-		"	Class _getClasses [] = X.class.getClasses(); \n" +
-		"	^^^^^\n" +
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-		"----------\n" +
-		"6. WARNING in p\\X.java (at line 36)\n" +
-		"	Constructor _getConstructors[] = c.getConstructors(); \n" +
-		"	^^^^^^^^^^^\n" +
-		"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" +
-		"----------\n" +
-		"7. WARNING in p\\X.java (at line 39)\n" +
+		"3. WARNING in p\\X.java (at line 39)\n" +
 		"	Method _getMethod = c.getMethod(\"d\",null);\n" +
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
 		"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" +
@@ -2986,32 +2945,12 @@ public void test088() {
 			"	^^^^\n" +
 			"Illegal enclosing instance specification for type Object\n" +
 			"----------\n" +
-			"3. WARNING in p\\X.java (at line 25)\n" +
-			"	private void a() { System.out.println(\"A\");} \n" +
-			"	             ^^^\n" +
-			"The method a() from the type X is never used locally\n" +
-			"----------\n" +
-			"4. WARNING in p\\X.java (at line 31)\n" +
-			"	Class c = b.getClass();\n" +
-			"	^^^^^\n" +
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-			"----------\n" +
-			"5. WARNING in p\\X.java (at line 32)\n" +
-			"	Class _getClasses [] = X.class.getClasses(); \n" +
-			"	^^^^^\n" +
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-			"----------\n" +
-			"6. WARNING in p\\X.java (at line 36)\n" +
-			"	Constructor _getConstructors[] = c.getConstructors(); \n" +
-			"	^^^^^^^^^^^\n" +
-			"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" +
-			"----------\n" +
-			"7. WARNING in p\\X.java (at line 39)\n" +
+			"3. WARNING in p\\X.java (at line 39)\n" +
 			"	Method _getMethod = c.getMethod(\"d\",null);\n" +
 			"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
 			"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" +
 			"----------\n" +
-			"8. WARNING in p\\X.java (at line 39)\n" +
+			"4. WARNING in p\\X.java (at line 39)\n" +
 			"	Method _getMethod = c.getMethod(\"d\",null);\n" +
 			"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type safety: The method getMethod(String, Class...) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" +

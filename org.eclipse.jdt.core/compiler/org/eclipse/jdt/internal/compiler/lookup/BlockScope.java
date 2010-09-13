@@ -879,7 +879,7 @@ public final boolean needBlankFinalFieldInitializationCheck(FieldBinding binding
  * to abort.
  */
 public ProblemReporter problemReporter() {
-	return outerMostMethodScope().problemReporter();
+	return methodScope().problemReporter();
 }
 
 /*

@@ -38,6 +38,10 @@ protected Map getCompilerOptions() {
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, CompilerOptions.ENABLED);
 	}
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	return options;
 }
 public static Test suite() {
@@ -1676,12 +1680,7 @@ public void test052() {
 			"}"
 		},
 		"----------\n" +
-		"1. WARNING in p\\A.java (at line 6)\n" +
-		"	private int i;\n" +
-		"	            ^\n" +
-		"The field A.i is never read locally\n" +
-		"----------\n" +
-		"2. ERROR in p\\A.java (at line 8)\n" +
+		"1. ERROR in p\\A.java (at line 8)\n" +
 		"	int x = i;\n" +
 		"	        ^\n" +
 		"Cannot make a static reference to the non-static field i\n" +
@@ -1999,12 +1998,6 @@ public void test061() {
 		"	Z someField;	\n" +
 		"	^\n" +
 		"The type Z is defined in an inherited type and an enclosing scope\n" +
-		"----------\n" +
-		"----------\n" +
-		"1. WARNING in q\\Y.java (at line 3)\n" +
-		"	private static class X {}	\n" +
-		"	                     ^\n" +
-		"The type Y.X is never used locally\n" +
 		"----------\n");
 }
 
@@ -2874,11 +2867,6 @@ public void test088() {
 		"	this.super();\n" +
 		"	^^^^\n" +
 		"Illegal enclosing instance specification for type Object\n" +
-		"----------\n" +
-		"3. WARNING in p\\X.java (at line 25)\n" +
-		"	private void a() { System.out.println(\"A\");} \n" +
-		"	             ^^^\n" +
-		"The method a() from the type X is never used locally\n" +
 		"----------\n");
 }
 /*

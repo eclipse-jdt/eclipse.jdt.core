@@ -7863,7 +7863,7 @@ public void test0119_Method(){
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
 	String expectedParentNodeToString =
 			"switch (1) {\n" +
-			"case <CompleteOnName:zzz> : ;\n" +
+			"case <CompleteOnName:zzz> :\n" +
 			"}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
@@ -7874,7 +7874,7 @@ public void test0119_Method(){
 			"  void foo() {\n" +
 			"    {\n" +
 			"      switch (1) {\n" +
-			"      case <CompleteOnName:zzz> : ;\n" +
+			"      case <CompleteOnName:zzz> :\n" +
 			"      }\n" +
 			"    }\n" +
 			"  }\n" +
@@ -7943,8 +7943,8 @@ public void test0120_Method(){
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
 	String expectedParentNodeToString =
 			"switch (1) {\n" +
-			"case Something : ;\n" +
-			"case <CompleteOnName:zzz> : ;\n" +
+			"case Something :\n" +
+			"case <CompleteOnName:zzz> :\n" +
 			"}";
 	String completionIdentifier = "zzz";
 	String expectedReplacedSource = "zzz";
@@ -7955,8 +7955,8 @@ public void test0120_Method(){
 			"  void foo() {\n" +
 			"    {\n" +
 			"      switch (1) {\n" +
-			"      case Something : ;\n" +
-			"      case <CompleteOnName:zzz> : ;\n" +
+			"      case Something :\n" +
+			"      case <CompleteOnName:zzz> :\n" +
 			"      }\n" +
 			"    }\n" +
 			"  }\n" +
