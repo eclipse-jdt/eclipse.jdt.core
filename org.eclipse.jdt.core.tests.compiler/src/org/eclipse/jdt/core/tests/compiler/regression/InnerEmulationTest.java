@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class InnerEmulationTest extends AbstractRegressionTest {
 static {
 //		TESTS_NAMES = new String[] { "Bug58069" };
-		TESTS_NUMBERS = new int[] { 173, 174 };
+//		TESTS_NUMBERS = new int[] { 173, 174 };
 //		TESTS_RANGE = new int[] { 144, -1 };
 }
 public InnerEmulationTest(String name) {
