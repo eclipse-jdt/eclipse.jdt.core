@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 713, -1 };
-		TESTS_NUMBERS =  new int[] { 719 };
+//		TESTS_NUMBERS =  new int[] { 719 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -10543,12 +10543,12 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"com.example.MyCode", //$NON-NLS-1$
 			};
 
-			// none of the well known bindings resolve in a plain AST
+			// all of the well known bindings resolve
 			for (int i = 0; i<wkbs.length; i++) {
 				assertNotNull("No binding for " + wkbs[i], currentAst.resolveWellKnownType(wkbs[i]));
 			}
 
-			// none of the no so well known bindings resolve either
+			// none of the no so well known bindings resolve
 			for (int i = 0; i<nwkbs.length; i++) {
 				assertNull("Binding for " + nwkbs[i], currentAst.resolveWellKnownType(nwkbs[i]));
 			}
