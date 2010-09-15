@@ -20,10 +20,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -37,7 +39,7 @@ import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 public class CompletionTests extends AbstractJavaModelCompletionTests {
 
 static {
-//	TESTS_NAMES = new String[] { "testDeprecationCheck17"};
+//	TESTS_NAMES = new String[] { "testCompletionMethodDeclaration17"};
 }
 public static Test suite() {
 	return buildModelTestSuite(CompletionTests.class);
@@ -12604,6 +12606,41 @@ public void testCompletionMethodDeclaration16() throws JavaModelException {
 	assertResults(
 			"doSomething[METHOD_DECLARATION]{protected other.SuperClass2.Sub doSomething(), Lother.SuperClass2;, ()Lother.SuperClass2$Sub;, doSomething, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
+}
+public void testCompletionMethodDeclaration17() throws JavaModelException {
+	// add the needed jar on the classpath
+	// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
+	IClasspathEntry[] classpath = this.currentProject.getRawClasspath();
+	try {
+		final int length = classpath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[length + 1];
+		System.arraycopy(classpath, 0, newClasspath, 1, length);
+		newClasspath[0] = JavaCore.newLibraryEntry(new Path("/Completion/bug325270.jar"), null, null);
+		this.currentProject.setRawClasspath(newClasspath, null);
+	
+		this.wc = getWorkingCopy(
+				"/Completion/src/CompletionMethodDeclaration17.java",
+				"class CompletionMethodDeclaration17 {\n" + 
+				"	void test() {\n" + 
+				"		new pkg.Foo1.Bar1(\n" + 
+				"	}\n" + 
+				"}" +
+		"}");
+	
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.wc.getSource();
+		String completeBehind = "new pkg.Foo1.Bar1(";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"Bar1[METHOD_REF<CONSTRUCTOR>]{, Lpkg.Foo1$Bar1;, (II)V, Bar1, (a, b), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED)+ "}\n" +
+				"Foo1.Bar1[ANONYMOUS_CLASS_DECLARATION]{, Lpkg.Foo1$Bar1;, (II)V, null, (a, b), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED)+"}",
+				requestor.getResults());
+	} finally {
+		this.currentProject.setRawClasspath(classpath, null);
+	}
 }
 public void testCompletionMethodDeclaration2() throws JavaModelException {
 	ICompilationUnit superClass = null;
