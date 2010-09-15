@@ -511,8 +511,14 @@ public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInf
 		}
 		flowInfo.markAsComparedEqualToNonNull(local);
 			// from thereon it is set
+		if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
+			flowInfo.markedAsNullOrNonNullInAssertExpression(local);
+		}
 		if (flowContext.initsOnFinally != null) {
 			flowContext.initsOnFinally.markAsComparedEqualToNonNull(local);
+			if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
+				flowContext.initsOnFinally.markedAsNullOrNonNullInAssertExpression(local);
+			}
 		}
 	}
 }

@@ -35,7 +35,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug292478g" };
+//		TESTS_NAMES = new String[] { "testBug325229" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -13349,5 +13349,148 @@ public void testBug324762a() {
 			"	Object bar() { return null; }\n" +
 			"}\n"
 		});
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325229
+// instancof expression
+public void testBug325229a() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" +
+				"	void foo(Object a) {\n" +
+				"		assert a instanceof Object;\n " +
+				"		if (a!=null) {\n" +
+				"			System.out.println(\"a is not null\");\n" +
+				"		 } else{\n" +
+				"			System.out.println(\"a is null\");\n" +
+				"		 }\n" +
+				"	}\n" +
+				"	public static void main(String[] args){\n" +
+				"		Test test = new Test();\n" +
+				"		test.foo(null);\n" +
+				"	}\n" +
+				"}\n"},
+			"a is null",
+			null,
+			true,
+			new String[] {"-da"},
+			compilerOptions,
+			null);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325229
+// MessageSend in assert
+public void testBug325229b() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" +
+				"	boolean bar() {\n" +
+				"		return false;\n" +
+				"	}" +
+				"	void foo(Test a) {\n" +
+				"		assert a.bar();\n " +
+				"		if (a!=null) {\n" +
+				"			System.out.println(\"a is not null\");\n" +
+				"		 } else{\n" +
+				"			System.out.println(\"a is null\");\n" +
+				"		 }\n" +
+				"	}\n" +
+				"	public static void main(String[] args){\n" +
+				"		Test test = new Test();\n" +
+				"		test.foo(null);\n" +
+				"	}\n" +
+				"}\n"},
+			"a is null",
+			null,
+			true,
+			new String[] {"-da"},
+			compilerOptions,
+			null);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325229
+// QualifiedNameReference in assert
+public void testBug325229c() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" +
+				"	boolean bar() {\n" +
+				"		return false;\n" +
+				"	}" +
+				"	Test tfield;\n" +
+				"	void foo(Test a) {\n" +
+				"		assert a.tfield.bar();\n " +
+				"		if (a!=null) {\n" +
+				"			System.out.println(\"a is not null\");\n" +
+				"		 } else{\n" +
+				"			System.out.println(\"a is null\");\n" +
+				"		 }\n" +
+				"	}\n" +
+				"	public static void main(String[] args){\n" +
+				"		Test test = new Test();\n" +
+				"		test.foo(null);\n" +
+				"	}\n" +
+				"}\n"},
+			"a is null",
+			null,
+			true,
+			new String[] {"-da"},
+			compilerOptions,
+			null);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325229
+// EqualExpression in assert, comparison against non null
+public void testBug325229d() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" +
+				"	void foo(Object a) {\n" +
+				"		Object b = null;" +
+				"		assert a == b;\n " +
+				"		if (a!=null) {\n" +
+				"			System.out.println(\"a is not null\");\n" +
+				"		 } else{\n" +
+				"			System.out.println(\"a is null\");\n" +
+				"		 }\n" +
+				"		assert a != b;\n " +
+				"		if (a!=null) {\n" +
+				"			System.out.println(\"a is not null\");\n" +
+				"		 } else{\n" +
+				"			System.out.println(\"a is null\");\n" +
+				"		 }\n" +
+				"	}\n" +
+				"	public static void main(String[] args){\n" +
+				"		Test test = new Test();\n" +
+				"		test.foo(null);\n" +
+				"	}\n" +
+				"}\n"},
+			"a is null\n" +
+			"a is null",
+			null,
+			true,
+			new String[] {"-da"},
+			compilerOptions,
+			null);
+	}
 }
 }

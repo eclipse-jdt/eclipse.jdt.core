@@ -56,6 +56,9 @@ public class EqualExpression extends BinaryExpression {
 					flowContext.recordUsingNullReference(scope, local, reference,
 							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
 					initsWhenTrue.markAsComparedEqualToNonNull(local); // from thereon it is set
+					if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
+						initsWhenTrue.markedAsNullOrNonNullInAssertExpression(local);
+					}
 				} else {
 					flowContext.recordUsingNullReference(scope, local, reference,
 							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
