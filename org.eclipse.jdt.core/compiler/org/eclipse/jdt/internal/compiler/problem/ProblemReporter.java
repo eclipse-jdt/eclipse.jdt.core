@@ -6514,7 +6514,7 @@ public void tooManyParametersForSyntheticMethod(AbstractMethodDeclaration method
 	if (binding.isConstructor()) {
 		selector = new String(binding.declaringClass.sourceName());
 	} else {
-		selector = new String(selector);
+		selector = new String(method.selector);
 	}
 	this.handle(
 		IProblem.TooManyParametersForSyntheticMethod,

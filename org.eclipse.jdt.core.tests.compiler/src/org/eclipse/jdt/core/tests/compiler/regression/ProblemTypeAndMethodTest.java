@@ -31,8 +31,8 @@ public ProblemTypeAndMethodTest(String name) {
 // All specified tests which does not belong to the class are skipped...
 static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 108, 109, 110 };
-//		TESTS_RANGE = new int[] { 169, 180 };
+//		TESTS_NUMBERS = new int[] { 109 };
+//		TESTS_RANGE = new int[] { 108, -1 };
 }
 
 public static Test suite() {
@@ -5642,5 +5642,178 @@ public void test110() {
 		"int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
 		"int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
 		"int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
+public void test111() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return; 
+	this.runNegativeTest(
+		new String[] {
+			"SyntheticConstructorTooManyArgs.java", //-----------------------------------------------------------------------
+			"public class SyntheticConstructorTooManyArgs {\n" + 
+			"\n" + 
+			"	class A {\n" + 
+			"		private A(\n" + 
+			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
+			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
+			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
+			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
+			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
+			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
+			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
+			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
+			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
+			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
+			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
+			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
+			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
+			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
+			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
+			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd\n" + 
+			"			) {}\n" + 
+			"	}\n" + 
+			"	@SuppressWarnings(\"synthetic-access\")\n" + 
+			"	A a = new A(\n" + 
+			"		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0\n" + 
+			"		);\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		StringBuilder params = new StringBuilder();\n" + 
+			"		params.append(\"/*this,*/\");\n" + 
+			"		for (int p = 1; p < 255; p++) {\n" + 
+			"			if (p > 1) {\n" + 
+			"				params.append(\", \");\n" + 
+			"				if (p % 16 == 0)\n" + 
+			"					params.append('\\n');\n" + 
+			"			}\n" + 
+			"			params.append(\"int p\"\n" + 
+			"					+ Character.forDigit(p / 16, 16)\n" + 
+			"					+ Character.forDigit(p % 16, 16)\n" + 
+			"					);\n" + 
+			"		}\n" + 
+			"		System.out.println(params);\n" + 
+			"		A.class.getName(); // ClassFormatError\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in SyntheticConstructorTooManyArgs.java (at line 4)\n" + 
+		"	private A(\n" + 
+		"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
+		"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
+		"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
+		"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
+		"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
+		"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
+		"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
+		"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
+		"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
+		"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
+		"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
+		"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
+		"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
+		"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
+		"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
+		"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd\n" + 
+		"			) {}\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The synthetic method created to access A(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int) of type SyntheticConstructorTooManyArgs.A has too many parameters\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
+public void test112() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return; 
+	this.runConformTest(
+		new String[] {
+			"SyntheticConstructorTooManyArgs.java", //-----------------------------------------------------------------------
+			"public class SyntheticConstructorTooManyArgs {\n" + 
+			"\n" + 
+			"	class A {\n" + 
+			"		private A(\n" + 
+			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
+			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
+			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
+			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
+			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
+			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
+			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
+			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
+			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
+			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
+			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
+			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
+			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
+			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
+			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
+			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc\n" + 
+			"			) {}\n" + 
+			"	}\n" + 
+			"	@SuppressWarnings(\"synthetic-access\")\n" + 
+			"	A a = new A(\n" + 
+			"		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0\n" + 
+			"		);\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		StringBuilder params = new StringBuilder();\n" + 
+			"		params.append(\"/*this,*/\");\n" + 
+			"		for (int p = 1; p < 253; p++) {\n" + 
+			"			if (p > 1) {\n" + 
+			"				params.append(\", \");\n" + 
+			"				if (p % 16 == 0)\n" + 
+			"					params.append('\\n');\n" + 
+			"			}\n" + 
+			"			params.append(\"int p\"\n" + 
+			"					+ Character.forDigit(p / 16, 16)\n" + 
+			"					+ Character.forDigit(p % 16, 16)\n" + 
+			"					);\n" + 
+			"		}\n" + 
+			"		System.out.println(params);\n" + 
+			"		A.class.getName(); // ClassFormatError\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
+		"int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
+		"int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
+		"int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
+		"int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
+		"int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
+		"int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
+		"int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
+		"int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
+		"int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
+		"int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
+		"int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
+		"int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
+		"int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
+		"int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
+		"int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc");
 }
 }
