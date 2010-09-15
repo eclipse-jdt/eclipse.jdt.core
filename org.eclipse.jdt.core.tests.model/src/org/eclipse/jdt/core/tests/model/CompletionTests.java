@@ -12607,9 +12607,9 @@ public void testCompletionMethodDeclaration16() throws JavaModelException {
 			"doSomething[METHOD_DECLARATION]{protected other.SuperClass2.Sub doSomething(), Lother.SuperClass2;, ()Lother.SuperClass2$Sub;, doSomething, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=325270
 public void testCompletionMethodDeclaration17() throws JavaModelException {
 	// add the needed jar on the classpath
-	// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
 	IClasspathEntry[] classpath = this.currentProject.getRawClasspath();
 	try {
 		final int length = classpath.length;
