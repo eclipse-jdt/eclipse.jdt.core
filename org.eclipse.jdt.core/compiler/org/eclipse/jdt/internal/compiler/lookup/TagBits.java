@@ -33,6 +33,9 @@ public interface TagBits {
 	// for method
 	long HasUncheckedTypeArgumentForBoundCheck = ASTNode.Bit9;
 	
+	// local variable
+	long NotInitialized = ASTNode.Bit9;
+
 	// set when method has argument(s) that couldn't be resolved
 	long HasUnresolvedArguments = ASTNode.Bit10;
 	
