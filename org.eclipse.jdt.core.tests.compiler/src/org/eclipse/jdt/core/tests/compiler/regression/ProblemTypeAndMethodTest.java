@@ -31,7 +31,7 @@ public ProblemTypeAndMethodTest(String name) {
 // All specified tests which does not belong to the class are skipped...
 static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 113 };
+//		TESTS_NUMBERS = new int[] { 109 };
 //		TESTS_RANGE = new int[] { 108, -1 };
 }
 
@@ -5815,76 +5815,5 @@ public void test112() {
 		"int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
 		"int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
 		"int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc");
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=325567
-public void test113() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"import java.io.IOException;\n" + 
-			"public class X {\n" + 
-			"	public static void bar(int i) {\n" + 
-			"		final String before;\n" + 
-			"		try {\n" + 
-			"			before = foo();\n" + 
-			"		} catch (IOException e) {\n" + 
-			"			// ignore\n" + 
-			"		}\n" + 
-			"		B b = new B(new I() {\n" + 
-			"			public String bar() {\n" + 
-			"				return new String(before);\n" + 
-			"			}\n" + 
-			"		});\n" + 
-			"		try {\n" + 
-			"			b.toString();\n" + 
-			"		} catch(Exception e) {\n" + 
-			"			// ignore\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	private static String foo() throws IOException {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	static class B {\n" + 
-			"		B(I i) {\n" + 
-			"			//ignore\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	static interface I {\n" + 
-			"		String bar();\n" + 
-			"	}\n" + 
-			"}"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	return new String(before);\n" + 
-		"	                  ^^^^^^\n" + 
-		"The local variable before may not have been initialized\n" + 
-		"----------\n",
-		null /* no extra class libraries */,
-		true /* flush output directory */,
-		null /* no custom options */,
-		true /* do not generate output */,
-		false /* do not show category */,
-		false /* do not show warning token */,
-		false  /* do not skip javac for this peculiar test */,
-		false  /* do not perform statements recovery */
-	);
-	this.runConformTest(
-		new String[] {
-			"Y.java", //-----------------------------------------------------------------------
-			"public class Y {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		try {\n" +
-			"			X.bar(3);\n" + 
-			"		} catch(VerifyError e) {\n" +
-			"			System.out.println(\"FAILED\");\n" +
-			"		}\n" +
-			"	}\n" + 
-			"}",
-		},
-		"",
-		null,
-		false,
-		null);
 }
 }

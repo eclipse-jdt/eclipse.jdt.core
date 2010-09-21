@@ -338,61 +338,7 @@ public void test318020k() {
 			"----------\n",
 			null, false, options);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=325567
-public void test325567() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"import java.io.IOException;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		bar(3);\n" + 
-				"	}\n" + 
-				"	public static void bar(int i) {\n" + 
-				"		final String before;\n" + 
-				"		try {\n" + 
-				"			before = foo();\n" + 
-				"		} catch (IOException e) {\n" + 
-				"			// ignore\n" + 
-				"		}\n" + 
-				"		B b = new B(new I() {\n" + 
-				"			public String bar() {\n" + 
-				"				return new String(before);\n" + 
-				"			}\n" + 
-				"		});\n" + 
-				"		try {\n" + 
-				"			b.i.bar();\n" + 
-				"		} catch(Exception e) {\n" + 
-				"			// ignore\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	private static String foo() throws IOException {\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
-				"	\n" + 
-				"	static class B {\n" + 
-				"		I i;\n" + 
-				"		B(I i) {\n" + 
-				"			this.i = i;\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"	static interface I {\n" + 
-				"		String bar();\n" + 
-				"	}\n" + 
-				"}"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 16)\n" + 
-			"	return new String(before);\n" + 
-			"	                  ^^^^^^\n" + 
-			"The local variable before may not have been initialized\n" + 
-			"----------\n",
-			null, false, options);
-}
+
 public static Class testClass() {
 	return InitializationTests.class;
 }
