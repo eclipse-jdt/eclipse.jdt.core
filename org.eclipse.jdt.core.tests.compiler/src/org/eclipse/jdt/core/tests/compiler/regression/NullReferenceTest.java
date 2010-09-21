@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bugs 133125, 292478, 319201 and 320170
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bugs 325755, 133125, 292478, 319201 and 320170
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -13492,5 +13492,77 @@ public void testBug325229d() {
 			compilerOptions,
 			null);
 	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325755 
+// null analysis -- conditional expression
+public void testBug325755a() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static Object foo(String s1, String s2) {\n" + 
+			"		String local1 = s1;\n" + 
+			"		String local2 = s2;\n" + 
+			"		\n" + 
+			"		String local3 = null;\n" + 
+			"		if (local1 != null && local2 != null)\n" + 
+			"			local3 = \"\"; //$NON-NLS-1$\n" + 
+			"		else\n" + 
+			"			local3 = local1 != null ? local1 : local2;\n" + 
+			"\n" + 
+			"		if (local3 != null)\n" + 
+			"			return new Integer(local3.length());\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.print(foo(null, null));\n" + 
+			"		System.out.print(foo(\"p1\", null));\n" + 
+			"		System.out.print(foo(null, \"p2\"));\n" + 
+			"		System.out.print(foo(\"p1\", \"p2\"));\n" + 
+			"	}\n" + 
+			"}"},
+		"null220");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325755 
+// null analysis -- conditional expression, many locals
+public void testBug325755b() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static Object foo(String s1, String s2) {\n" + 
+	          "    int i00, i01, i02, i03, i04, i05, i06, i07, i08, i09;\n" +
+	          "    int i10, i11, i12, i13, i14, i15, i16, i17, i18, i19;\n" +
+	          "    int i20, i21, i22, i23, i24, i25, i26, i27, i28, i29;\n" +
+	          "    int i30, i31, i32, i33, i34, i35, i36, i37, i38, i39;\n" +
+	          "    int i40, i41, i42, i43, i44, i45, i46, i47, i48, i49;\n" +
+	          "    int i50, i51, i52, i53, i54, i55, i56, i57, i58, i59;\n" +
+	          "    int i60, i61, i62, i63, i64, i65, i66, i67, i68, i69;\n" +
+
+			"		String local1 = s1;\n" + 
+			"		String local2 = s2;\n" + 
+			"		\n" + 
+			"		String local3 = null;\n" + 
+			"		if (local1 != null && local2 != null)\n" + 
+			"			local3 = \"\"; //$NON-NLS-1$\n" + 
+			"		else\n" + 
+			"			local3 = local1 != null ? local1 : local2;\n" + 
+			"\n" + 
+			"		if (local3 != null)\n" + 
+			"			return new Integer(local3.length());\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.print(foo(null, null));\n" + 
+			"		System.out.print(foo(\"p1\", null));\n" + 
+			"		System.out.print(foo(null, \"p2\"));\n" + 
+			"		System.out.print(foo(\"p1\", \"p2\"));\n" + 
+			"	}\n" + 
+			"}"},
+		"null220");
 }
 }

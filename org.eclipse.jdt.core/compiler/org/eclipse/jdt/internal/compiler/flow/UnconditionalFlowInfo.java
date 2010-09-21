@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bugs 320170 and 292478   
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bugs 325755, 320170 and 292478   
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -1520,6 +1520,18 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
                         			| na2 & (nb3 | nb2))
                 			| na2 & b3 & b4
                 			| a2 & (nb1 & b4 | a3 & na4 & b1) & nb3);
+    		// the above formulae do not handle the state 0111, do it now explicitly:
+    		long ax = ~a1 & a2 & a3 & a4;
+    		long bx = ~b1 & b2 & b3 & b4;
+    		long x = ax|bx;
+    		if (x != 0) {
+    			// restore state 0111 for all variable ids in x:
+    			this.nullBit1 &= ~x;
+    			this.nullBit2 |= x;
+    			this.nullBit3 |= x;
+    			this.nullBit4 |= x;
+    		}
+		
     		if (COVERAGE_TEST_FLAG) {
     			if(CoverageTestId == 30) {
 	    		  	this.nullBit4 = ~0;
@@ -1664,6 +1676,17 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
                         			| na2 & (nb3 | nb2))
                 			| na2 & b3 & b4
                 			| a2 & (nb1 & b4 | a3 & na4 & b1) & nb3);
+    		// the above formulae do not handle the state 0111, do it now explicitly:
+    		long ax = ~a1 & a2 & a3 & a4;
+    		long bx = ~b1 & b2 & b3 & b4;
+    		long x = ax|bx;
+    		if (x != 0) {
+    			// restore state 0111 for all variable ids in x:
+    			this.extra[2][i] &= ~x;
+    			this.extra[3][i] |= x;
+    			this.extra[4][i] |= x;
+    			this.extra[5][i] |= x;
+    		}
 			thisHasNulls = thisHasNulls ||
 				this.extra[3][i] != 0 ||
 				this.extra[4][i] != 0 ||
