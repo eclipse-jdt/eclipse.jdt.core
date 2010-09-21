@@ -727,6 +727,10 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 	if ((this.bits & ASTNode.RestrictiveFlagMASK) == Binding.LOCAL) {
 		LocalVariableBinding localVariableBinding = (LocalVariableBinding) this.binding;
 		if (localVariableBinding != null) {
+			if ((localVariableBinding.tagBits & TagBits.NotInitialized) != 0) {
+				// local was tagged as uninitialized
+				return;
+			}
 			switch(localVariableBinding.useFlag) {
 				case LocalVariableBinding.FAKE_USED :
 				case LocalVariableBinding.USED :
