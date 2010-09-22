@@ -5975,13 +5975,32 @@ public final class CompletionEngine
 		int receiverEnd) {
 
 		ObjectVector newFieldsFound = new ObjectVector();
+		// if the proposal is being asked inside a field's initialization, we'll record its id
+		int fieldBeingCompletedId = -1;
+		for (int f = fields.length; --f >=0;) {
+			FieldBinding field = fields[f];
+			FieldDeclaration fieldDeclaration = field.sourceField();
+			if (fieldDeclaration != null && fieldDeclaration.initialization != null) {
+				// We're asking for a proposal inside this field's initialization. So record its id
+				fieldBeingCompletedId = field.id;
+				break;
+			}
+		}
 		// Inherited fields which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
 
 		int fieldLength = fieldName.length;
 		next : for (int f = fields.length; --f >= 0;) {
 			FieldBinding field = fields[f];
-
+			
+			// Content assist invoked inside some field's initialization.
+			// bug 310427 and 325481
+			if (fieldBeingCompletedId >= 0 && field.id >= fieldBeingCompletedId) {
+				// Don't propose field which is being declared currently
+				// Don't propose fields declared after the current field declaration statement
+				continue next;
+			}
+			
 			if (field.isSynthetic())	continue next;
 
 			if (onlyStaticFields && !field.isStatic()) continue next;
@@ -6003,15 +6022,6 @@ public final class CompletionEngine
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
 			if (this.assistNodeIsInsideCase && field.type instanceof ArrayBinding)
 				continue next;
-			
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=310427
-			// Don't propose field which is being declared currently
-			// Don't propose fields declared after the current field declaration statement
-			if (this.parser.assistNodeParent instanceof FieldDeclaration) {
-				FieldDeclaration fieldDeclaration = (FieldDeclaration) this.parser.assistNodeParent;
-				if (field.id >= fieldDeclaration.binding.id)
-					continue next;
-			}
 
 			boolean prefixRequired = false;
 

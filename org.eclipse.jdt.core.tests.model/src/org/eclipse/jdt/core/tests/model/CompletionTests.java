@@ -21733,4 +21733,35 @@ public void testBug304006e() throws JavaModelException {
 			"returnZero[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).returnZero(), Ltest.CompletionAfterInstanceOf;, ()I, Ltest.CompletionAfterInstanceOf;, returnZero, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325481
+// To verify that when content assist is invoked inside a field initialization,
+// the field being declared and the ones declared after it are not proposed.
+public void test325481() throws JavaModelException {
+    this.workingCopies = new ICompilationUnit[1];
+    this.workingCopies[0] = getWorkingCopy(
+        "/Completion/src3/test/X.java",
+        "package test;\n" +
+        "public class X {\n" +
+        "    void foo(String s) {}\n" +
+        "    String myString = \"\";\n" +
+        "    String myString2 = \"\";\n" +
+        "    String myString3 = (myString = String.format(String.format(my\n" +
+        "	 String myString4 = \"hello\";\n" +		// should not be proposed
+        "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.workingCopies[0].getSource();
+    final String completeBehind = "String.format(my";
+    int cursorLocation = str.lastIndexOf(completeBehind) +
+    completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+    assertResults(
+            "MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_NON_STATIC + R_UNQUALIFIED) + "}\n" + 
+            "mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE) + "}\n" + 
+            "myString[FIELD_REF]{myString, Ltest.X;, Ljava.lang.String;, myString, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED) + "}\n" +
+            "myString2[FIELD_REF]{myString2, Ltest.X;, Ljava.lang.String;, myString2, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED) + "}",
+            requestor.getResults());
+}
 }
