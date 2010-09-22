@@ -401,7 +401,7 @@ public abstract class TypeConverter {
 					result.sourceEnd = end;
 					return result;
 				case '[' :
-					if (dim == 0) nameFragmentEnd = this.namePos-1;
+					if (dim == 0 && nameFragmentEnd < 0) nameFragmentEnd = this.namePos-1;
 					dim++;
 					break;
 				case ']' :
@@ -414,19 +414,28 @@ public abstract class TypeConverter {
 					identCount ++;
 					break;
 				case '<' :
-					// convert 1.5 specific constructs only if compliance is 1.5 or above
-					if (!this.has1_5Compliance)
-						break typeLoop;
-					if (fragments == null) fragments = new ArrayList(2);
+					/* We need to convert and preserve 1.5 specific constructs only if compliance is 1.5 or above,
+					   but in all cases, we must skip over them to see if there are any applicable type fragments
+					   after the type parameters: i.e we just aren't done having seen a '<' in 1.4 mode. Because of
+					   the way type signatures are encoded, TypeConverter.decodeType(String, int, int, int) is immune
+					   to this problem. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=325633
+					 */
+					if (this.has1_5Compliance) {
+						if (fragments == null) fragments = new ArrayList(2);
+					}
 					nameFragmentEnd = this.namePos-1;
-					char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, this.namePos);
-					fragments.add(identifiers);
+					if (this.has1_5Compliance) {
+						char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, this.namePos);
+						fragments.add(identifiers);
+					}
 					this.namePos++; // skip '<'
 					TypeReference[] arguments = decodeTypeArguments(typeName, length, start, end); // positionned on '>' at end
-					fragments.add(arguments);
-					identCount = 0;
-					nameFragmentStart = -1;
-					nameFragmentEnd = -1;
+					if (this.has1_5Compliance) {
+						fragments.add(arguments);
+						identCount = 0;
+						nameFragmentStart = -1;
+						nameFragmentEnd = -1;
+					}
 					// next increment will skip '>'
 					break;
 			}
