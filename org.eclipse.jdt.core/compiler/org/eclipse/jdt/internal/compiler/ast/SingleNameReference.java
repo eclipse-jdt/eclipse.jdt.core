@@ -7,8 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 292478 - Report potentially null across variable assignment,
- *     											    Contribution for bug 185682 - Increment/decrement operators mark local variables as read
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 292478 - Report potentially null across variable assignment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -79,14 +78,10 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 					currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
 					// we could improve error msg here telling "cannot use compound assignment on final local variable"
 				}
-				if (localBinding.useFlag != LocalVariableBinding.USED) {
-					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
-					// access from compound assignment does not prevent "unused" warning, unless unboxing is involved:
-					if (isReachable && (this.implicitConversion & TypeIds.UNBOXING) != 0) {
-						localBinding.useFlag = LocalVariableBinding.USED;
-					} else {
-						localBinding.useFlag = LocalVariableBinding.FAKE_USED;
-					}
+				if (isReachable) {
+					localBinding.useFlag = LocalVariableBinding.USED;
+				} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
+					localBinding.useFlag = LocalVariableBinding.FAKE_USED;
 				}
 		}
 	}
@@ -467,14 +462,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
  * are optimized in one access: e.g "a = a + 1" optimized into "a++".
  */
 public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired) {
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
-	if (!valueRequired && ((this.bits & ASTNode.RestrictiveFlagMASK) == Binding.LOCAL)) {
-		LocalVariableBinding localBinding = (LocalVariableBinding) this.binding;
-		if (localBinding.useFlag == LocalVariableBinding.FAKE_USED) {
-			// compound assignment is the only usage of this local
-			reportOnlyUselesslyReadLocal(currentScope, localBinding);
-		}
-	}
 	this.generateCompoundAssignment(
 		currentScope,
 		codeStream,
@@ -675,12 +662,6 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 			return;
 		case Binding.LOCAL : // assigning to a local variable
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.binding;
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
-			if (!valueRequired && localBinding.useFlag == LocalVariableBinding.FAKE_USED) {
-				// postIncrement is the only usage of this local
-				reportOnlyUselesslyReadLocal(currentScope, localBinding);
-			}
-
 			// using incr bytecode if possible
 			if (localBinding.type == TypeBinding.INT) {
 				if (valueRequired) {
@@ -854,38 +835,6 @@ public TypeBinding reportError(BlockScope scope) {
 		scope.problemReporter().unresolvableReference(this, this.binding);
 	}
 	return null;
-}
-
-/* report a local/arg that is only read from a 'special operator',
- * i.e., in a postIncrement expression or a compound assignment,
- * where the information is never flowing out off the local/arg. */
-private void reportOnlyUselesslyReadLocal(BlockScope currentScope, LocalVariableBinding localBinding) {
-	if (localBinding.declaration == null)
-		return;  // secret local
-	if ((localBinding.declaration.bits & ASTNode.IsLocalDeclarationReachable) == 0)
-		return;  // declaration is unreachable
-	if (localBinding.declaration instanceof Argument) {
-		// check compiler options to report against unused arguments
-		if (currentScope instanceof MethodScope) {
-			MethodBinding method = ((MethodDeclaration)currentScope.referenceContext()).binding;
-			
-			boolean shouldReport = !method.isMain();
-			if (method.isImplementing()) {
-				shouldReport &= currentScope.compilerOptions().reportUnusedParameterWhenImplementingAbstract;
-			} else if (method.isOverriding()) {
-				shouldReport &= currentScope.compilerOptions().reportUnusedParameterWhenOverridingConcrete;
-			}
-			
-			if (shouldReport) {
-				// report the case of an argument that is unread except through a special operator
-				currentScope.problemReporter().unusedArgument(localBinding.declaration);
-			}
-		}
-	} else {
-		// report the case of a local variable that is unread except for a special operator
-		currentScope.problemReporter().unusedLocalVariable(localBinding.declaration);
-	}
-	localBinding.useFlag = LocalVariableBinding.USED; // don't report again
 }
 
 public TypeBinding resolveType(BlockScope scope) {
