@@ -131,7 +131,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportDeadCodeInTrivialIfStatement =  "org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement"; //$NON-NLS-1$
 	public static final String OPTION_ReportTasks = "org.eclipse.jdt.core.compiler.problem.tasks"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedObjectAllocation = "org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation";  //$NON-NLS-1$
-
+	public static final String OPTION_SuppressNullInfoFromAsserts = "org.eclipse.jdt.core.compiler.problem.suppressNullInfoFromAsserts";  //$NON-NLS-1$
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingAnnotation = "org.eclipse.jdt.core.compiler.problem.missingAnnotation"; //$NON-NLS-1$
@@ -352,6 +352,8 @@ public class CompilerOptions {
 	public boolean generateClassFiles;
 	/** Indicate if method bodies should be ignored */
 	public boolean ignoreMethodBodies;
+	/** Suppress null related warnings for variables tainted inside an assert statement (java 1.5 and above)*/
+	public boolean suppressNullInfoFromAsserts;
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
@@ -914,6 +916,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportDeadCodeInTrivialIfStatement, this.reportDeadCodeInTrivialIfStatement ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportTasks, getSeverityString(Tasks));
 		optionsMap.put(OPTION_ReportUnusedObjectAllocation, getSeverityString(UnusedObjectAllocation));
+		optionsMap.put(OPTION_SuppressNullInfoFromAsserts, this.suppressNullInfoFromAsserts ? ENABLED : DISABLED);
 		return optionsMap;
 	}
 
@@ -1058,6 +1061,9 @@ public class CompilerOptions {
 		
 		// ignore method bodies
 		this.ignoreMethodBodies = false;
+		
+		// allow null info from asserts to be considered downstream by default
+		this.suppressNullInfoFromAsserts = false;
 	}
 
 	public void set(Map optionsMap) {
@@ -1262,6 +1268,13 @@ public class CompilerOptions {
 				this.reportMissingOverrideAnnotationForInterfaceMethodImplementation = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.reportMissingOverrideAnnotationForInterfaceMethodImplementation = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_SuppressNullInfoFromAsserts)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.suppressNullInfoFromAsserts = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.suppressNullInfoFromAsserts = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
@@ -1506,6 +1519,7 @@ public class CompilerOptions {
 		buf.append("\n\t- missing @Override annotation for interface method implementation: ").append(this.reportMissingOverrideAnnotationForInterfaceMethodImplementation ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- missing @Deprecated annotation: ").append(getSeverityString(MissingDeprecatedAnnotation)); //$NON-NLS-1$
 		buf.append("\n\t- incomplete enum switch: ").append(getSeverityString(IncompleteEnumSwitch)); //$NON-NLS-1$
+		buf.append("\n\t- suppress null related warnings for variables tainted in assert statements: ").append(this.suppressNullInfoFromAsserts ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- suppress warnings: ").append(this.suppressWarnings ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- suppress optional errors: ").append(this.suppressOptionalErrors ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unhandled warning token: ").append(getSeverityString(UnhandledWarningToken)); //$NON-NLS-1$

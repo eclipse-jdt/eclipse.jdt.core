@@ -14,6 +14,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -82,6 +83,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// change this if we need to carry null analysis results of the assert
 		// expression downstream
 	} else {
+		CompilerOptions compilerOptions = currentScope.compilerOptions();
+		if (compilerOptions.suppressNullInfoFromAsserts) {
+			// keep just the initializations info, don't include assert's null info
+			return flowInfo.mergedWith(assertInfo.nullInfoLessUnconditionalCopy());
+		}
 		return flowInfo.mergedWith(assertInfo.nullInfoLessUnconditionalCopy()).
 			addInitializationsFrom(assertWhenTrueInfo.discardInitializationInfo());
 		// keep the merge from the initial code for the definite assignment

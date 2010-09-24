@@ -1427,6 +1427,21 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_SUPPRESS_WARNINGS = PLUGIN_ID + ".compiler.problem.suppressWarnings"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Suppress null related warnings arising because of assert statements.
+	 * <p>When enabled, the compiler will not flag null warnings on variables that got marked as maybe or definitely
+	 *  <code>null</code> in an assert statement upstream.</p>
+	 * <p>When disabled, the compiler will flag all null related warnings that have been enabled by the user,
+	 *    irrespective of whether a variable occurred in an assert statement.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.suppressNullInfoFromAsserts"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * </dl>
+	 * @since 3.7
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_SUPPRESS_NULL_INFO_ASSERTS = PLUGIN_ID + ".compiler.problem.suppressNullInfoFromAsserts"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Further Determining the Effect of <code>@SuppressWarnings</code> if also
 	 * {@link #COMPILER_PB_SUPPRESS_WARNINGS} is enabled.
 	 * <p>When enabled, the <code>@SuppressWarnings</code> annotation can additionally be used to suppress 

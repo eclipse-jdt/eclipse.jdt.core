@@ -13494,6 +13494,112 @@ public void testBug325229d() {
 	}
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
+// Null warnings because of assert statements should be suppressed
+// when CompilerOptions.OPTION_SuppressNullInfoFromAsserts is enabled.
+public void testBug325342a() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_SuppressNullInfoFromAsserts, CompilerOptions.ENABLED);
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" +
+				"	void foo(Object a, Object b, Object c) {\n" +
+				"		assert a == null;\n " +
+				"		if (a!=null) {\n" +
+				"			System.out.println(\"a is not null\");\n" +
+				"		 } else{\n" +
+				"			System.out.println(\"a is null\");\n" +
+				"		 }\n" +
+				"		a = null;\n" +
+				"		if (a== null) {}\n" +
+				"		assert b != null;\n " +
+				"		if (b!=null) {\n" +
+				"			System.out.println(\"b is not null\");\n" +
+				"		 } else{\n" +
+				"			System.out.println(\"b is null\");\n" +
+				"		 }\n" +
+				"		assert c == null;\n" +
+				"		if (c.equals(a)) {\n" +
+				"			System.out.println(\"\");\n" +
+				"		 } else{\n" +
+				"			System.out.println(\"\");\n" +
+				"		 }\n" +
+				"	}\n" +
+				"	public static void main(String[] args){\n" +
+				"		Test test = new Test();\n" +
+				"		test.foo(null,null, null);\n" +
+				"	}\n" +
+				"}\n"},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 10)\n" + 
+			"	if (a== null) {}\n" + 
+			"	    ^\n" + 
+			"Redundant null check: The variable a can only be null at this location\n" + 
+			"----------\n",
+			null,
+			true,
+			compilerOptions);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
+// Null warnings because of assert statements should not be suppressed
+// when CompilerOptions.OPTION_SuppressNullInfoFromAsserts is disabled.
+public void testBug325342b() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_SuppressNullInfoFromAsserts, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" +
+				"	void foo(Object a, Object b, Object c) {\n" +
+				"		assert a == null;\n " +
+				"		if (a!=null) {\n" +
+				"			System.out.println(\"a is not null\");\n" +
+				"		 } else{\n" +
+				"			System.out.println(\"a is null\");\n" +
+				"		 }\n" +
+				"		assert b != null;\n " +
+				"		if (b!=null) {\n" +
+				"			System.out.println(\"a is not null\");\n" +
+				"		 } else{\n" +
+				"			System.out.println(\"a is null\");\n" +
+				"		 }\n" +
+				"		assert c == null;\n" +
+				"		if (c.equals(a)) {\n" +
+				"			System.out.println(\"\");\n" +
+				"		 } else{\n" +
+				"			System.out.println(\"\");\n" +
+				"		 }\n" +
+				"	}\n" +
+				"	public static void main(String[] args){\n" +
+				"		Test test = new Test();\n" +
+				"		test.foo(null,null,null);\n" +
+				"	}\n" +
+				"}\n"},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 4)\n" + 
+			"	if (a!=null) {\n" + 
+			"	    ^\n" + 
+			"Null comparison always yields false: The variable a can only be null at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 10)\n" + 
+			"	if (b!=null) {\n" + 
+			"	    ^\n" + 
+			"Redundant null check: The variable b cannot be null at this location\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 16)\n" + 
+			"	if (c.equals(a)) {\n" + 
+			"	    ^\n" + 
+			"Null pointer access: The variable c can only be null at this location\n" + 
+			"----------\n",
+			null, true, compilerOptions);
+	}
+}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325755 
 // null analysis -- conditional expression
 public void testBug325755a() {
