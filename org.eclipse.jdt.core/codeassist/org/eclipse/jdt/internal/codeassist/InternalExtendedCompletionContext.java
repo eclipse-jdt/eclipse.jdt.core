@@ -195,6 +195,15 @@ public class InternalExtendedCompletionContext {
 								if (this.visibleFields.size > 0 && this.visibleFields.contains(fieldDeclaration.binding)) {
 									this.visibleFields.remove(fieldDeclaration.binding);
 								}
+								int count = 0;
+								while (count < this.visibleFields.size) {
+									FieldBinding visibleField = (FieldBinding)this.visibleFields.elementAt(count);
+									if (visibleField.id > fieldDeclaration.binding.id) {
+										this.visibleFields.remove(visibleField);
+										continue;
+									}
+									count++;
+								}
 								break done;
 							}
 							/*(Incase fieldDeclaration != null is not sufficient to infer that

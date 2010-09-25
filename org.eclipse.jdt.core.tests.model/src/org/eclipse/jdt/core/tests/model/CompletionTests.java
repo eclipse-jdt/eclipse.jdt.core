@@ -21764,4 +21764,30 @@ public void test325481() throws JavaModelException {
             "myString2[FIELD_REF]{myString2, Ltest.X;, Ljava.lang.String;, myString2, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED) + "}",
             requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=312603
+public void test312603() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/X.java",
+			"package test;\n" +
+			"public class X {\n" +
+			"    void foo(String s) {}\n" +
+			"    String myString = \"\";\n" +
+			"    String myString2 = foo(my\n" +
+			"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	final String completeBehind = "String myString2 = foo(my";
+	int cursorLocation = str.lastIndexOf(completeBehind) +
+	completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor,
+			this.wcOwner);
+
+	assertResults(
+			"MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, 14}\n" + 
+			"mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, 24}\n" + 
+			"myString[FIELD_REF]{myString, Ltest.X;, Ljava.lang.String;, myString, null, 57}",
+			requestor.getResults());
+}
 }
