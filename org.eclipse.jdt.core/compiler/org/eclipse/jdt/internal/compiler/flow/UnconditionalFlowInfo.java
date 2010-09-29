@@ -1466,6 +1466,7 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 				throw new AssertionFailedException("COVERAGE 28"); //$NON-NLS-1$
 			}
 		}
+		combineNullStatusChangeInAssertInfo(otherInits);
 		return this;
 	}
 	if ((this.tagBits & UNREACHABLE) != 0) {
@@ -1474,6 +1475,7 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 				throw new AssertionFailedException("COVERAGE 29"); //$NON-NLS-1$
 			}
 		}
+		otherInits.combineNullStatusChangeInAssertInfo(this);
 		return (UnconditionalFlowInfo) otherInits.copy(); // make sure otherInits won't be affected
 	}
 
@@ -1761,6 +1763,7 @@ public UnconditionalFlowInfo nullInfoLessUnconditionalCopy() {
 	copy.potentialInits = this.potentialInits;
 	copy.tagBits = this.tagBits & ~NULL_FLAG_MASK;
 	copy.maxFieldCount = this.maxFieldCount;
+	copy.nullStatusChangedInAssert = this.nullStatusChangedInAssert;
 	if (this.extra != null) {
 		int length;
 		copy.extra = new long[extraLength][];

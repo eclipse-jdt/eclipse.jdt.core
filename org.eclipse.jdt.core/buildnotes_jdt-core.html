@@ -48,8 +48,31 @@ Eclipse SDK 3.7M3 - %date% - 3.7.0 M3
 <br>Project org.eclipse.jdt.core v_B16
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B16">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_PB_INCLUDE_ASSERTS_IN_NULL_ANALYSIS added to give the user flexibility to see null related warning arising because of assert statements (see details in <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=325342">bug 325342</a>):
+<pre>
+    /**
+     * Compiler option ID: Raise null related errors or warnings arising because of assert statements.
+     * When enabled, the compiler will flag all null related errors or warnings that have been enabled by the user,
+     * irrespective of whether a variable occurred in an assert statement.
+     * When disabled, the compiler will not flag null related errors or warnings on variables that got marked as maybe or definitely
+     * <code>null</code> in an assert statement upstream.
+     *
+     * Option id:<code>"org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts"</code>
+     * Possible values:<code>{ "enabled", "disabled" }</code>
+     * Default:<code>"disabled"</code>
+     *
+     * @since 3.7
+     * @category CompilerOptionID
+     */
+     public static final String COMPILER_PB_INCLUDE_ASSERTS_IN_NULL_ANALYSIS = PLUGIN_ID + ".compiler.problem.includeNullInfoFromAsserts";
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342">325342</a>
+Add new option for null analysis based on assert result.
 
 <a name="v_B15"></a>
 <hr><h1>

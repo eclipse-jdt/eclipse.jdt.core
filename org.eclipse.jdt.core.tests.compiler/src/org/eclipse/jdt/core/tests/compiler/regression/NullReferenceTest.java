@@ -57,6 +57,7 @@ protected Map getCompilerOptions() {
 	    defaultOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.ERROR);
 	    defaultOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
 		defaultOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+		defaultOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.ENABLED);
     }
     return defaultOptions;
 }
@@ -13496,11 +13497,11 @@ public void testBug325229d() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
 // Null warnings because of assert statements should be suppressed
-// when CompilerOptions.OPTION_SuppressNullInfoFromAsserts is enabled.
+// when CompilerOptions.OPTION_IncludeNullInfoFromAsserts is disabled.
 public void testBug325342a() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map compilerOptions = getCompilerOptions();
-		compilerOptions.put(CompilerOptions.OPTION_SuppressNullInfoFromAsserts, CompilerOptions.ENABLED);
+		compilerOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.DISABLED);
 		this.runNegativeTest(
 			new String[] {
 				"Test.java",
@@ -13546,11 +13547,11 @@ public void testBug325342a() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
 // Null warnings because of assert statements should not be suppressed
-// when CompilerOptions.OPTION_SuppressNullInfoFromAsserts is disabled.
+// when CompilerOptions.OPTION_IncludeNullInfoFromAsserts is enabled.
 public void testBug325342b() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map compilerOptions = getCompilerOptions();
-		compilerOptions.put(CompilerOptions.OPTION_SuppressNullInfoFromAsserts, CompilerOptions.DISABLED);
+		compilerOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.ENABLED);
 		this.runNegativeTest(
 			new String[] {
 				"Test.java",

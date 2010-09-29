@@ -168,6 +168,7 @@ public final class Options {
 						|| token.equals("forbidden")//$NON-NLS-1$
 						|| token.equals("hashCode")//$NON-NLS-1$
 						|| token.equals("hiding")//$NON-NLS-1$
+						|| token.equals("includeAssertNull")//$NON-NLS-1$
 						|| token.equals("incomplete-switch")//$NON-NLS-1$
 						|| token.equals("indirectStatic")//$NON-NLS-1$
 						|| token.equals("interfaceNonInherited")//$NON-NLS-1$
@@ -195,7 +196,6 @@ public final class Options {
 						|| token.equals("staticReceiver")//$NON-NLS-1$
 						|| token.equals("super")//$NON-NLS-1$
 						|| token.equals("suppress")//$NON-NLS-1$
-						|| token.equals("suppressAssertNull")//$NON-NLS-1$
 						|| token.equals("syncOverride")//$NON-NLS-1$
 						|| token.equals("synthetic-access")//$NON-NLS-1$
 						|| token.equals("syntheticAccess")//$NON-NLS-1$

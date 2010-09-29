@@ -1652,86 +1652,65 @@ public void test012b(){
         "{0} {1}\n" +
         "{2}\n" +
         " \n" +
-        " Warning options:\n" +
-        "    -deprecation         + deprecation outside deprecated code\n" +
-        "    -nowarn -warn:none disable all warnings\n" +
-        "    -warn:<warnings separated by ,>    enable exactly the listed warnings\n" +
-        "    -warn:+<warnings separated by ,>   enable additional warnings\n" +
-        "    -warn:-<warnings separated by ,>   disable specific warnings\n" +
-        "      allDeadCode          dead code including trivial if(DEBUG) check\n" +
-        "      allDeprecation       deprecation including inside deprecated code\n" +
-        "      allJavadoc           invalid or missing javadoc\n" +
-        "      allOver-ann          all missing @Override annotations\n" +
-        "      assertIdentifier   + ''assert'' used as identifier\n" +
-        "      boxing               autoboxing conversion\n" +
-        "      charConcat         + char[] in String concat\n" +
-        "      compareIdentical   + comparing identical expressions\n" +
-        "      conditionAssign      possible accidental boolean assignment\n" +
-        "      constructorName    + method with constructor name\n" +
-        "      deadCode           + dead code excluding trivial if (DEBUG) check\n" +
-        "      dep-ann              missing @Deprecated annotation\n" +
-        "      deprecation        + deprecation outside deprecated code\n" +
-        "      discouraged        + use of types matching a discouraged access rule\n" +
-        "      emptyBlock           undocumented empty block\n" +
+        " Warning options:\n" + 
+        "    -deprecation         + deprecation outside deprecated code\n" + 
+        "    -nowarn -warn:none disable all warnings\n" + 
+        "    -warn:<warnings separated by ,>    enable exactly the listed warnings\n" + 
+        "    -warn:+<warnings separated by ,>   enable additional warnings\n" + 
+        "    -warn:-<warnings separated by ,>   disable specific warnings\n" + 
+        "      allDeadCode          dead code including trivial if(DEBUG) check\n" + 
+        "      allDeprecation       deprecation including inside deprecated code\n" + 
+        "      allJavadoc           invalid or missing javadoc\n" + 
+        "      allOver-ann          all missing @Override annotations\n" + 
+        "      assertIdentifier   + ''assert'' used as identifier\n" + 
+        "      boxing               autoboxing conversion\n" + 
+        "      charConcat         + char[] in String concat\n" + 
+        "      compareIdentical   + comparing identical expressions\n" + 
+        "      conditionAssign      possible accidental boolean assignment\n" + 
+        "      constructorName    + method with constructor name\n" + 
+        "      deadCode           + dead code excluding trivial if (DEBUG) check\n" + 
+        "      dep-ann              missing @Deprecated annotation\n" + 
+        "      deprecation        + deprecation outside deprecated code\n" + 
+        "      discouraged        + use of types matching a discouraged access rule\n" + 
+        "      emptyBlock           undocumented empty block\n" + 
         "      enumIdentifier       ''enum'' used as identifier\n" + 
-        "      enumSwitch           incomplete enum switch\n" +
-        "      fallthrough          possible fall-through case\n" +
-        "      fieldHiding          field hiding another variable\n" +
-        "      finalBound           type parameter with final bound\n" +
-        "      finally            + finally block not completing normally\n" +
-        "      forbidden          + use of types matching a forbidden access rule\n" +
+        "      enumSwitch           incomplete enum switch\n" + 
+        "      fallthrough          possible fall-through case\n" + 
+        "      fieldHiding          field hiding another variable\n" + 
+        "      finalBound           type parameter with final bound\n" + 
+        "      finally            + finally block not completing normally\n" + 
+        "      forbidden          + use of types matching a forbidden access rule\n" + 
         "      hashCode              missing hashCode() method when overriding equals()\n" + 
-        "      hiding               macro for fieldHiding, localHiding, typeHiding and\n" +
-        "                           maskedCatchBlock\n" +
-        "      incomplete-switch    same as enumSwitch\n" +
-        "      indirectStatic       indirect reference to static member\n" +
-        "      intfAnnotation     + annotation type used as super interface\n" +
-        "      intfNonInherited   + interface non-inherited method compatibility\n" +
+        "      hiding               macro for fieldHiding, localHiding, typeHiding and\n" + 
+        "                           maskedCatchBlock\n" + 
+        "	   includeAssertNull    raise null warnings for variables\n" + 
+        "							that got tainted in an assert expression\n" + 
+        "      incomplete-switch    same as enumSwitch\n" + 
+        "      indirectStatic       indirect reference to static member\n" + 
+        "      intfAnnotation     + annotation type used as super interface\n" + 
+        "      intfNonInherited   + interface non-inherited method compatibility\n" + 
         "      intfRedundant        find redundant superinterfaces\n" + 
-        "      javadoc              invalid javadoc\n" +
-        "      localHiding          local variable hiding another variable\n" +
-        "      maskedCatchBlock   + hidden catch block\n" +
-        "      nls                  string literal lacking non-nls tag //$NON-NLS-<n>$\n" +
-        "      noEffectAssign     + assignment without effect\n" +
-        "      null                 potential missing or redundant null check\n" +
-        "      nullDereference    + missing null check\n" +
-        "      over-ann             missing @Override annotation (superclass)\n" +
-        "      paramAssign          assignment to a parameter\n" +
-        "      pkgDefaultMethod   + attempt to override package-default method\n" +
-        "      raw                + usage of raw type\n" +
-        "      semicolon            unnecessary semicolon, empty statement\n" +
-        "      serial             + missing serialVersionUID\n" +
-        "      specialParamHiding   constructor or setter parameter hiding a field\n" +
-        "      static-access        macro for indirectStatic and staticReceiver\n" +
-        "      staticReceiver     + non-static reference to static member\n" +
-        "      super                overriding a method without making a super invocation\n" +
+        "      javadoc              invalid javadoc\n" + 
+        "      localHiding          local variable hiding another variable\n" + 
+        "      maskedCatchBlock   + hidden catch block\n" + 
+        "      nls                  string literal lacking non-nls tag //$NON-NLS-<n>$\n" + 
+        "      noEffectAssign     + assignment without effect\n" + 
+        "      null                 potential missing or redundant null check\n" + 
+        "      nullDereference    + missing null check\n" + 
+        "      over-ann             missing @Override annotation (superclass)\n" + 
+        "      paramAssign          assignment to a parameter\n" + 
+        "      pkgDefaultMethod   + attempt to override package-default method\n" + 
+        "      raw                + usage of raw type\n" + 
+        "      semicolon            unnecessary semicolon, empty statement\n" + 
+        "      serial             + missing serialVersionUID\n" + 
+        "      specialParamHiding   constructor or setter parameter hiding a field\n" + 
+        "      static-access        macro for indirectStatic and staticReceiver\n" + 
+        "      staticReceiver     + non-static reference to static member\n" + 
+        "      super                overriding a method without making a super invocation\n" + 
         "      suppress           + enable @SuppressWarnings\n" + 
-        "                           When used with -err:, it can also silent optional\n" +
-        "                           errors and warnings\n" +
-        "	   suppressAssertNull   suppress null warnings for variables\n" +
-        "							that got tainted in an assert expression\n" +
-        "      syncOverride         missing synchronized in synchr. method override\n" +
-        "      syntheticAccess      synthetic access for innerclass\n" +
-        "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" +
-        "      typeHiding         + type parameter hiding another type\n" +
-        "      unchecked          + unchecked type operation\n" +
-        "      unnecessaryElse      unnecessary else clause\n" +
-        "      unqualifiedField     unqualified reference to field\n" +
-        "      unused               macro for unusedAllocation, unusedArgument,\n" +
-        "                               unusedImport, unusedLabel, unusedLocal,\n" +
-        "                               unusedPrivate, unusedThrown, and unusedTypeArgs\n" +
-        "      unusedAllocation     allocating an object that is not used\n" +
-        "      unusedArgument       unread method parameter\n" +
-        "      unusedImport       + unused import declaration\n" +
-        "      unusedLabel        + unused label\n" +
-        "      unusedLocal        + unread local variable\n" +
-        "      unusedPrivate      + unused private member declaration\n" +
-        "      unusedThrown         unused declared thrown exception\n" +
-        "      unusedTypeArgs     + unused type arguments for method\n" +
-        "      uselessTypeCheck     unnecessary cast/instanceof operation\n" +
-        "      varargsCast        + varargs argument need explicit cast\n" +
-        "      warningToken       + unsupported or unnecessary @SuppressWarnings\n" +
-		"\n";
+        "                           When used with -err:, it can also silent optional\n" + 
+        "                           errors and warnings\n" + 
+        "\n";
 	String expandedExpectedOutput =
 		MessageFormat.format(expectedOutput, new String[] {
 				MAIN.bind("compiler.name"),
@@ -1819,6 +1798,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.forbiddenReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.indirectStaticAccess\" value=\"ignore\"/>\n" + 
@@ -1856,7 +1836,6 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantSuperinterface\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.specialParameterHidingField\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressNullInfoFromAsserts\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarnings\" value=\"enabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation\" value=\"ignore\"/>\n" + 
@@ -11129,7 +11108,9 @@ public void test292_warn_options() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
-// -warn option - regression tests to check option suppressAssertNull
+// -warn option - regression tests to check option includeAssertNull
+// No null problems arising from asserts should be reported here
+// since includeAssertNull is not enabled
 public void test293_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11165,15 +11146,30 @@ public void test293_warn_options() {
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -warn:null,suppressAssertNull -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:null,includeAssertNull -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" +
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n" + 
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	if (a!=null) {\n" + 
+		"	    ^\n" + 
+		"Null comparison always yields false: The variable a can only be null at this location\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n" + 
 		"	if (a== null) {}\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable a can only be null at this location\n" + 
 		"----------\n" + 
-		"1 problem (1 warning)",
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 12)\n" + 
+		"	if (b!=null) {\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable b cannot be null at this location\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 18)\n" + 
+		"	if (c.equals(a)) {\n" + 
+		"	    ^\n" +  
+		"Null pointer access: The variable c can only be null at this location\n" + 
+		"----------\n" + 
+		"4 problems (4 warnings)", 
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
