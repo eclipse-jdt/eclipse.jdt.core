@@ -1683,8 +1683,8 @@ public void test012b(){
         "      hashCode              missing hashCode() method when overriding equals()\n" + 
         "      hiding               macro for fieldHiding, localHiding, typeHiding and\n" + 
         "                           maskedCatchBlock\n" + 
-        "	   includeAssertNull    raise null warnings for variables\n" + 
-        "							that got tainted in an assert expression\n" + 
+        "      includeAssertNull    raise null warnings for variables\n" + 
+        "                           that got tainted in an assert expression\n" + 
         "      incomplete-switch    same as enumSwitch\n" + 
         "      indirectStatic       indirect reference to static member\n" + 
         "      intfAnnotation     + annotation type used as super interface\n" + 
