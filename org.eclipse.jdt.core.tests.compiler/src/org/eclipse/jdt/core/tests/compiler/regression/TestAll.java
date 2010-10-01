@@ -172,6 +172,7 @@ public static Test suite() {
 		TestCase.RUN_ONLY_ID = null;
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_7, tests_1_7));
 	}
+	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;
 }
 }

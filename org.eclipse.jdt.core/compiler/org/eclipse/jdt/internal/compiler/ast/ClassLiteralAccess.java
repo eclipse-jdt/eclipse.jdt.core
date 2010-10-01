@@ -40,7 +40,7 @@ public class ClassLiteralAccess extends Expression {
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=22334
 		if (!sourceType.isInterface()
 				&& !this.targetType.isBaseType()
-				&& currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) {
+				&& currentScope.compilerOptions().targetJDK < ClassFileConstants.JDK1_5) {
 			this.syntheticField = sourceType.addSyntheticFieldForClassLiteral(this.targetType, currentScope);
 		}
 		return flowInfo;
