@@ -1710,6 +1710,27 @@ public void test012b(){
         "      suppress           + enable @SuppressWarnings\n" + 
         "                           When used with -err:, it can also silent optional\n" + 
         "                           errors and warnings\n" + 
+        "      syncOverride         missing synchronized in synchr. method override\n" + 
+        "      syntheticAccess      synthetic access for innerclass\n" + 
+        "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" + 
+        "      typeHiding         + type parameter hiding another type\n" + 
+        "      unchecked          + unchecked type operation\n" + 
+        "      unnecessaryElse      unnecessary else clause\n" + 
+        "      unqualifiedField     unqualified reference to field\n" + 
+        "      unused               macro for unusedAllocation, unusedArgument,\n" + 
+        "                               unusedImport, unusedLabel, unusedLocal,\n" + 
+        "                               unusedPrivate, unusedThrown, and unusedTypeArgs\n" + 
+        "      unusedAllocation     allocating an object that is not used\n" + 
+        "      unusedArgument       unread method parameter\n" + 
+        "      unusedImport       + unused import declaration\n" + 
+        "      unusedLabel        + unused label\n" + 
+        "      unusedLocal        + unread local variable\n" + 
+        "      unusedPrivate      + unused private member declaration\n" + 
+        "      unusedThrown         unused declared thrown exception\n" + 
+        "      unusedTypeArgs     + unused type arguments for method\n" + 
+        "      uselessTypeCheck     unnecessary cast/instanceof operation\n" + 
+        "      varargsCast        + varargs argument need explicit cast\n" + 
+        "      warningToken       + unsupported or unnecessary @SuppressWarnings\n" + 
         "\n";
 	String expandedExpectedOutput =
 		MessageFormat.format(expectedOutput, new String[] {
