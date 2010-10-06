@@ -72,6 +72,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 		options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
 		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.ENABLED);
 		return options;
 	}
 	/* (non-Javadoc)
@@ -4143,5 +4144,80 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	" +
 				" }\n"	
 		});
-	}	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322581
+	// To test the javadoc option CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters
+	public void testBug322581a() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			true,
+			new String[] {
+				"X.java",
+				" public class X {\n" +
+					"	/**\n" +
+					"	 * javadoc\n" +
+					"	 */\n" +
+					"	public <T, U, V> void foo(int val, Object obj) {}\n" +
+					"}"
+			},
+			null,
+			options,
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
+			"	                              ^^^\n" + 
+			"Javadoc: Missing tag for parameter val\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
+			"	                                          ^^^\n" + 
+			"Javadoc: Missing tag for parameter obj\n" + 
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322581
+	// To test the javadoc option CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters
+	public void testBug322581b() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			true,
+			new String[] {
+				"ListCallable.java",
+				" import java.util.Collections;\n" +
+				" import java.util.List;\n" +
+				" import java.util.concurrent.Callable;\n" +
+				"/**\n" +
+				" * Callable that returns a list.\n" +
+				" */\n" +
+				"public abstract class ListCallable<V> implements Callable<List<V>> { // good warning\n" +
+				"	public abstract List<V> call() throws Exception;\n" +
+				"    /**\n" +
+				"	 * Returns a {@link ListCallable} that wraps the result from calling <code>callable</code>.\n" +
+				"    * @param callable the {@link Callable} to wrap\n" +
+				"	 * @return the wrapper\n" +
+				"    */\n" + 
+				"	public static <T> ListCallable<T> from(final Callable<T> callable) { // don't warn\n" +
+				"		return new ListCallable<T>() {\n" +
+				"			@Override\n" +
+				"			public List<T> call() throws Exception {\n" +
+				"				return Collections.singletonList(callable.call());\n" +
+				"			}\n" +
+				"		};\n" +
+				"	}\n" +
+				"}"
+			},
+			null,
+			options,
+			"----------\n" +
+			"1. ERROR in ListCallable.java (at line 7)\n" + 
+			"	public abstract class ListCallable<V> implements Callable<List<V>> { // good warning\n" + 
+			"	                                   ^\n" + 
+			"Javadoc: Missing tag for parameter V\n" + 
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+		);
+	}
 }

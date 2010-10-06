@@ -40,6 +40,42 @@
 	</td>
   </tr>
 </table>
+<a name="v_B17"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java development tools core</h1>
+Eclipse SDK 3.7M3 - %date% - 3.7.0 M3
+<br>Project org.eclipse.jdt.core v_B17
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B17">cvs</a>).
+<h2>What's new in this drop</h2>
+<ul>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS_METHOD_TYPE_PARAMETERS added to enable or disable the missing Javadoc tag warning or error for a method
+    paramater without a corresponding <code>@param</code> tag. (see details in <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=325342">bug 325342</a>):
+<pre>
+    /**
+     * Compiler option ID: Reporting Missing Javadoc Tags for Method Type Parameters.
+     * Specify whether a missing <code>@param</code> for a type parameter in a method declaration should be reported.
+     * When enabled, the compiler will issue a missing Javadoc tag error or warning for a type parameter without a 
+     * corresponding <code>@param</code> tag.
+     *	
+     * This option only has an effect if the compiler compliance is 1.5 or greater.
+     * 
+     * Option id:<code>"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsMethodTypeParameters"</code>
+     * Possible values:<code>{ "enabled", "disabled" }</code>
+     * Default:<code>"disabled"</code>
+     * 
+     * @since 3.7
+     * @category CompilerOptionID
+     */
+     public static final String COMPILER_PB_MISSING_JAVADOC_TAGS_METHOD_TYPE_PARAMETERS = PLUGIN_ID + ".compiler.problem.missingJavadocTagsMethodTypeParameters";
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=322581">322581</a>
+[5.0] Add Javadoc compiler option to (not) report missing tags for method type parameters
+
 <a name="v_B16"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>

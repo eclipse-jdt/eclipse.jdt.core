@@ -76,6 +76,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportMissingJavadocTags = "org.eclipse.jdt.core.compiler.problem.missingJavadocTags"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingJavadocTagsVisibility = "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingJavadocTagsOverriding = "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding"; //$NON-NLS-1$
+	public static final String OPTION_ReportMissingJavadocTagsMethodTypeParameters = "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsMethodTypeParameters"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingJavadocComments = "org.eclipse.jdt.core.compiler.problem.missingJavadocComments"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingJavadocTagDescription = "org.eclipse.jdt.core.compiler.problem.missingJavadocTagDescription"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingJavadocCommentsVisibility = "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility"; //$NON-NLS-1$
@@ -326,6 +327,8 @@ public class CompilerOptions {
 	public int reportMissingJavadocTagsVisibility;
 	/** Specify if need to flag missing javadoc tags for overriding method */
 	public boolean reportMissingJavadocTagsOverriding;
+	/** Specify if need to flag missing javadoc tags for method type parameters (java 1.5 and above)*/
+	public boolean reportMissingJavadocTagsMethodTypeParameters;
 	/** Only report missing javadoc comment above a given level of visibility of associated construct */
 	public int reportMissingJavadocCommentsVisibility;
 	/** Specify if need to flag missing javadoc comment for overriding method */
@@ -857,6 +860,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportMissingJavadocTags, getSeverityString(MissingJavadocTags));
 		optionsMap.put(OPTION_ReportMissingJavadocTagsVisibility, getVisibilityString(this.reportMissingJavadocTagsVisibility));
 		optionsMap.put(OPTION_ReportMissingJavadocTagsOverriding, this.reportMissingJavadocTagsOverriding ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportMissingJavadocTagsMethodTypeParameters, this.reportMissingJavadocTagsMethodTypeParameters ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportMissingJavadocComments, getSeverityString(MissingJavadocComments));
 		optionsMap.put(OPTION_ReportMissingJavadocTagDescription, this.reportMissingJavadocTagDescription);
 		optionsMap.put(OPTION_ReportMissingJavadocCommentsVisibility, getVisibilityString(this.reportMissingJavadocCommentsVisibility));
@@ -1018,6 +1022,7 @@ public class CompilerOptions {
 		// check missing javadoc tags
 		this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccPublic;
 		this.reportMissingJavadocTagsOverriding = false;
+		this.reportMissingJavadocTagsMethodTypeParameters = false;
 
 		// check missing javadoc comments
 		this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPublic;
@@ -1399,6 +1404,13 @@ public class CompilerOptions {
 				this.reportMissingJavadocTagsOverriding = false;
 			}
 		}
+		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocTagsMethodTypeParameters)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportMissingJavadocTagsMethodTypeParameters = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportMissingJavadocTagsMethodTypeParameters = false;
+			}
+		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocComments)) != null) {
 			updateSeverity(MissingJavadocComments, optionValue);
 		}
@@ -1476,6 +1488,7 @@ public class CompilerOptions {
 		buf.append("\n\t\t+ visibility level to report invalid javadoc tags: ").append(getVisibilityString(this.reportInvalidJavadocTagsVisibility)); //$NON-NLS-1$
 		buf.append("\n\t\t+ missing javadoc tags: ").append(getSeverityString(MissingJavadocTags)); //$NON-NLS-1$
 		buf.append("\n\t\t+ visibility level to report missing javadoc tags: ").append(getVisibilityString(this.reportMissingJavadocTagsVisibility)); //$NON-NLS-1$
+		buf.append("\n\t\t+ report missing javadoc tags for method type parameters: ").append(this.reportMissingJavadocTagsMethodTypeParameters ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t\t+ report missing javadoc tags in overriding methods: ").append(this.reportMissingJavadocTagsOverriding ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t\t+ missing javadoc comments: ").append(getSeverityString(MissingJavadocComments)); //$NON-NLS-1$
 		buf.append("\n\t\t+ report missing tag description option: ").append(this.reportMissingJavadocTagDescription); //$NON-NLS-1$

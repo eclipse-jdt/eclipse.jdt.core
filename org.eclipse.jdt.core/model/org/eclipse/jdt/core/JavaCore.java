@@ -1206,6 +1206,21 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_MISSING_JAVADOC_TAGS_OVERRIDING = PLUGIN_ID + ".compiler.problem.missingJavadocTagsOverriding"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Reporting Missing Javadoc Tags for Method Type Parameters.
+	 * <p>Specify whether a missing <code>@param</code> for a type parameter in a method declaration should be reported.
+	 *    When enabled, the compiler will issue a missing Javadoc tag error or warning for a type parameter without a 
+	 *    corresponding <code>@param</code> tag.</p>
+	 * <p>This option only has an effect if the compiler compliance is 1.5 or greater.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsMethodTypeParameters"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * </dl>
+	 * @since 3.7
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_MISSING_JAVADOC_TAGS_METHOD_TYPE_PARAMETERS = PLUGIN_ID + ".compiler.problem.missingJavadocTagsMethodTypeParameters"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Reporting Missing Javadoc Comments.
 	 * <p>This is the generic control for the severity of missing Javadoc comment problems.
 	 *    When enabled, the compiler will issue an error or a warning when Javadoc comments are missing.
