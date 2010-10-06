@@ -67,6 +67,7 @@ public class BasicBuildTests extends BuilderTests {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "todo"); //$NON-NLS-1$
+		newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL"); //$NON-NLS-1$
 
 		JavaCore.setOptions(newOptions);
 
