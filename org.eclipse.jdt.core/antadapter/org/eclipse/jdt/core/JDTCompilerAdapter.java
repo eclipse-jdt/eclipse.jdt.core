@@ -119,8 +119,6 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			}
 		}
 
-		Path classpath = new Path(this.project);
-
 		/*
 		 * Eclipse compiler doesn't support -extdirs.
 		 * It is emulated using the classpath. We add extdirs entries after the
@@ -131,11 +129,17 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			cmd.createArgument().setPath(this.extdirs);
 		}
 
+		Path classpath = new Path(this.project);
 		/*
 		 * The java runtime is already handled, so we simply want to retrieve the
 		 * ant runtime and the compile classpath.
 		 */
 		classpath.append(getCompileClasspath());
+		/*
+		 * Set the classpath for the Eclipse compiler.
+		 */
+		cmd.createArgument().setValue("-classpath"); //$NON-NLS-1$
+		createClasspathArgument(cmd, classpath);
 
 		// For -sourcepath, use the "sourcepath" value if present.
 		// Otherwise default to the "srcdir" value.
@@ -164,12 +168,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		} else {
 			sourcepath = this.src;
 		}
-		classpath.append(sourcepath);
-		/*
-		 * Set the classpath for the Eclipse compiler.
-		 */
-		cmd.createArgument().setValue("-classpath"); //$NON-NLS-1$
-		createClasspathArgument(cmd, classpath);
+		cmd.createArgument().setValue("-sourcepath"); //$NON-NLS-1$
+		createClasspathArgument(cmd, sourcepath);
 
 		final String javaVersion = JavaEnvUtils.getJavaVersion();
 		String memoryParameterPrefix = javaVersion.equals(JavaEnvUtils.JAVA_1_1) ? "-J-" : "-J-X";//$NON-NLS-1$//$NON-NLS-2$

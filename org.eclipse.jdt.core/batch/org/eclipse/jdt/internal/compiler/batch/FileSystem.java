@@ -201,13 +201,33 @@ private void initializeKnownFileNames(String[] initialFileNames) {
 			fileName = CharOperation.subarray(fileName, 0, lastIndexOf);
 		}
 		CharOperation.replace(fileName, '\\', '/');
+		boolean globalPathMatches = false;
+		// the most nested path should be the selected one
 		for (int j = 0, max = this.classpaths.length; j < max; j++) {
 			char[] matchCandidate = this.classpaths[j].normalizedPath();
-			if (this.classpaths[j] instanceof  ClasspathDirectory &&
-					CharOperation.prefixEquals(matchCandidate, fileName) &&
-					(matchingPathName == null ||
-							matchCandidate.length < matchingPathName.length)) {
-				matchingPathName = matchCandidate;
+			boolean currentPathMatch = false;
+			if (this.classpaths[j] instanceof ClasspathDirectory
+					&& CharOperation.prefixEquals(matchCandidate, fileName)) {
+				currentPathMatch = true;
+				if (matchingPathName == null) {
+					matchingPathName = matchCandidate;
+				} else {
+					if (currentPathMatch) {
+						// we have a second source folder that matches the path of the source file
+						if (matchCandidate.length > matchingPathName.length) {
+							// we want to preserve the shortest possible path
+							matchingPathName = matchCandidate;
+						}
+					} else {
+						// we want to preserve the shortest possible path
+						if (!globalPathMatches && matchCandidate.length < matchingPathName.length) {
+							matchingPathName = matchCandidate;
+						}
+					}
+				}
+				if (currentPathMatch) {
+					globalPathMatches = true;
+				}
 			}
 		}
 		if (matchingPathName == null) {
