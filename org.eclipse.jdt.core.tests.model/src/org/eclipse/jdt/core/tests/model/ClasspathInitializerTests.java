@@ -971,8 +971,11 @@ public void testContainerInitializer24() throws Exception {
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		simulateExit();
-		deleteResource(JavaCore.getPlugin().getStateLocation().append("variablesAndContainers.dat").toFile());
-		simulateRestart();
+		try {
+			deleteResource(JavaCore.getPlugin().getStateLocation().append("variablesAndContainers.dat").toFile());
+		} finally {
+			simulateRestart();
+		}
 
 		JavaProject.addCPResolutionBPListener(listener);
 		thread.start(new Runnable() {

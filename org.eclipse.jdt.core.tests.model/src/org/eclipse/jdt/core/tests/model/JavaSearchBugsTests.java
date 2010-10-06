@@ -8706,9 +8706,13 @@ public void testBug181488a() throws CoreException {
 	IndexManager manager = JavaModelManager.getIndexManager();
 	Index index = manager.getIndex(JAVA_PROJECT.getPath(), true, false);
 	File indexFile = index.getIndexFile();
+	long lastModified = 0;
 	simulateExit();
-	long lastModified = indexFile.lastModified();
-	simulateRestart();
+	try {
+		lastModified = indexFile.lastModified();
+	} finally {
+		simulateRestart();
+	}
 	waitUntilIndexesReady();
 	Index newIndex = manager.getIndex(JAVA_PROJECT.getPath(), true, false);
 	assertEquals("Index file should be unchanged!!!", lastModified, newIndex.getIndexFile().lastModified());
@@ -10290,8 +10294,11 @@ public void testBug222284() throws Exception {
 
 		// Exit, delete jar and restart
 		simulateExit();
-		deleteExternalResource(jarName);
-		simulateRestart();
+		try {
+			deleteExternalResource(jarName);
+		} finally {
+			simulateRestart();
+		}
 
 		// Search for references to a class of deleted jar file, expect no result
 		search("pack.Ref", TYPE, REFERENCES);

@@ -2836,8 +2836,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void touch(File f) {
 		final int time = 1000;
 		long lastModified = f.lastModified();
-		f.setLastModified(lastModified + time);
 		org.eclipse.jdt.core.tests.util.Util.waitAtLeast(time);
+		f.setLastModified(lastModified + time);
 		// Loop until the last modified time has really changed on the file
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=295619
 		int n = 1;

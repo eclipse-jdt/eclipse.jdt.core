@@ -6685,8 +6685,11 @@ public void testBug313965() throws Exception {
 	try {
 		simulateExit();
 		// Use the literal attribute and not constant. Attribute once documented is not supposed to change.
-		System.setProperty("resolveReferencedLibrariesForContainers", "true");
-		simulateRestart();
+		try {
+			System.setProperty("resolveReferencedLibrariesForContainers", "true");
+		} finally {
+			simulateRestart();
+		}
 		IJavaProject p = this.createJavaProject("P", new String[] {}, "bin");
 		addLibrary(p, "lib.jar", null, new String[0], 
 				new String[] {

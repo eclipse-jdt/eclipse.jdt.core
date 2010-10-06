@@ -210,8 +210,11 @@ public void testExternalJarChanged4() throws CoreException, IOException {
 
 		// exit, change the jar, and restart
 		simulateExit();
-		touch(f);
-		simulateRestart();
+		try {
+			touch(f);
+		} finally {
+			simulateRestart();
+		}
 
 		startDeltas();
 		getJavaModel().refreshExternalArchives(null,null);
@@ -234,6 +237,7 @@ public void testExternalJarChanged4() throws CoreException, IOException {
  * (regression test for bug 93668 Search indexes not rebuild)
  */
 public void testExternalJarChanged5() throws CoreException, IOException {
+	System.out.println("testExternalJarChanged5");
 	File f = null;
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
@@ -248,8 +252,11 @@ public void testExternalJarChanged5() throws CoreException, IOException {
 
 		// exit, change the jar, and restart
 		simulateExit();
-		touch(f);
-		simulateRestart();
+		try {
+			touch(f);
+		} finally {
+			simulateRestart();
+		}
 
 		startDeltas();
 		JavaCore.initializeAfterLoad(null);
