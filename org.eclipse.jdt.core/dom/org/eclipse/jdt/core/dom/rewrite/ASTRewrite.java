@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom.rewrite;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +91,6 @@ import org.eclipse.text.edits.TextEditGroup;
  * @noextend This class is not intended to be subclassed by clients.
  */
 public class ASTRewrite {
-
 	/** root node for the rewrite: Only nodes under this root are accepted */
 	private final AST ast;
 
@@ -103,6 +103,26 @@ public class ASTRewrite {
 	 * @since 3.1
 	 */
 	private TargetSourceRangeComputer targetSourceRangeComputer = null;
+	
+	/**
+	 * Primary field used in representing rewrite properties efficiently.
+	 * If <code>null</code>, this rewrite has no properties.
+	 * If a {@link String}, this is the name of this rewrite's sole property,
+	 * and <code>property2</code> contains its value.
+	 * If a {@link Map}, this is the table of property name-value
+	 * mappings.
+	 * Initially <code>null</code>.
+	 * 
+	 * @see #property2
+	 */
+	private Object property1 = null;
+
+	/**
+	 * Auxiliary field used in representing rewrite properties efficiently.
+	 *
+	 * @see #property1
+	 */
+	private Object property2 = null;
 
 	/**
 	 * Creates a new instance for describing manipulations of
@@ -495,6 +515,36 @@ public class ASTRewrite {
 	}
 
 	/**
+	 * Returns the value of the named property of this rewrite, or <code>null</code> if none.
+	 *
+	 * @param propertyName the property name
+	 * @return the property value, or <code>null</code> if none
+	 * @see #setProperty(String,Object)
+	 * @throws IllegalArgumentException if the given property name is <code>null</code>
+	 * @since 3.7
+	 */
+	public final Object getProperty(String propertyName) {
+		if (propertyName == null) {
+			throw new IllegalArgumentException();
+		}
+		if (this.property1 == null) {
+			// rewrite has no properties at all
+			return null;
+		}
+		if (this.property1 instanceof String) {
+			// rewrite has only a single property
+			if (propertyName.equals(this.property1)) {
+				return this.property2;
+			} else {
+				return null;
+			}
+		}
+		// otherwise rewrite has table of properties
+		Map m = (Map) this.property1;
+		return m.get(propertyName);
+	}
+	
+	/**
 	 * Returns an object that tracks the source range of the given node
 	 * across the rewrite to its AST. Upon return, the result object reflects
 	 * the given node's current source range in the AST. After
@@ -671,6 +721,87 @@ public class ASTRewrite {
 			this.targetSourceRangeComputer = new TargetSourceRangeComputer();
 		}
 		return this.targetSourceRangeComputer;
+	}
+
+	/**
+	 * Sets the named property of this rewrite to the given value,
+	 * or to <code>null</code> to clear it.
+	 * <p>
+	 * Clients should employ property names that are sufficiently unique
+	 * to avoid inadvertent conflicts with other clients that might also be
+	 * setting properties on the same rewrite.
+	 * </p>
+	 * <p>
+	 * Note that modifying a property is not considered a modification to the
+	 * AST itself. This is to allow clients to decorate existing rewrites with
+	 * their own properties without jeopardizing certain things (like the
+	 * validity of bindings), which rely on the underlying tree remaining static.
+	 * </p>
+	 *
+	 * @param propertyName the property name
+	 * @param data the new property value, or <code>null</code> if none
+	 * @see #getProperty(String)
+	 * @throws IllegalArgumentException if the given property name is <code>null</code>
+	 * @since 3.7
+	 */
+	public final void setProperty(String propertyName, Object data) {
+		if (propertyName == null) {
+			throw new IllegalArgumentException();
+		}
+		if (this.property1 == null) {
+			// rewrite has no properties at all
+			if (data == null) {
+				// rewrite already knows this
+				return;
+			}
+			// rewrite gets its fist property
+			this.property1 = propertyName;
+			this.property2 = data;
+			return;
+		}
+		if (this.property1 instanceof String) {
+			// rewrite has only a single property
+			if (propertyName.equals(this.property1)) {
+				// we're in luck
+				if (data == null) {
+					// just delete last property
+					this.property1 = null;
+					this.property2 = null;
+				} else {
+					this.property2 = data;
+				}
+				return;
+			}
+			if (data == null) {
+				// we already know this
+				return;
+			}
+			// rewrite already has one property - getting its second
+			// convert to more flexible representation
+			Map m = new HashMap(3);
+			m.put(this.property1, this.property2);
+			m.put(propertyName, data);
+			this.property1 = m;
+			this.property2 = null;
+			return;
+		}
+		// rewrite has two or more properties
+		Map m = (Map) this.property1;
+		if (data == null) {
+			m.remove(propertyName);
+			// check for just one property left
+			if (m.size() == 1) {
+				// convert to more efficient representation
+				Map.Entry[] entries = (Map.Entry[]) m.entrySet().toArray(new Map.Entry[1]);
+				this.property1 = entries[0].getKey();
+				this.property2 = entries[0].getValue();
+			}
+			return;
+		} else {
+			m.put(propertyName, data);
+			// still has two or more properties
+			return;
+		}
 	}
 
 	/**

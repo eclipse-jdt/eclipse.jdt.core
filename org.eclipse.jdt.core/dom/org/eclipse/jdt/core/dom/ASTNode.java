@@ -966,9 +966,9 @@ public abstract class ASTNode {
 	/**
 	 * Primary field used in representing node properties efficiently.
 	 * If <code>null</code>, this node has no properties.
-	 * If a <code>String</code>, this is the name of this node's sole property,
+	 * If a {@link String}, this is the name of this node's sole property,
 	 * and <code>property2</code> contains its value.
-	 * If a <code>HashMap</code>, this is the table of property name-value
+	 * If a {@link Map}, this is the table of property name-value
 	 * mappings; <code>property2</code>, if non-null is its unmodifiable
 	 * equivalent.
 	 * Initially <code>null</code>.
@@ -2079,7 +2079,7 @@ public abstract class ASTNode {
 	}
 
 	/**
-	 * Returns the named property of this node, or <code>null</code> if none.
+	 * Returns the value of the named property of this node, or <code>null</code> if none.
 	 *
 	 * @param propertyName the property name
 	 * @return the property value, or <code>null</code> if none
@@ -2124,6 +2124,7 @@ public abstract class ASTNode {
 	 * @param propertyName the property name
 	 * @param data the new property value, or <code>null</code> if none
 	 * @see #getProperty(String)
+	 * @throws IllegalArgumentException if the given property name is <code>null</code>
 	 */
 	public final void setProperty(String propertyName, Object data) {
 		if (propertyName == null) {
@@ -2147,11 +2148,12 @@ public abstract class ASTNode {
 			// node has only a single property
 			if (propertyName.equals(this.property1)) {
 				// we're in luck
-				this.property2 = data;
 				if (data == null) {
 					// just deleted last property
 					this.property1 = null;
 					this.property2 = null;
+				} else {
+					this.property2 = data;
 				}
 				return;
 			}
@@ -2161,7 +2163,7 @@ public abstract class ASTNode {
 			}
 			// node already has one property - getting its second
 			// convert to more flexible representation
-			HashMap m = new HashMap(2);
+			Map m = new HashMap(3);
 			m.put(this.property1, this.property2);
 			m.put(propertyName, data);
 			this.property1 = m;
@@ -2170,7 +2172,7 @@ public abstract class ASTNode {
 		}
 
 		// node has two or more properties
-		HashMap m = (HashMap) this.property1;
+		Map m = (Map) this.property1;
 		if (data == null) {
 			m.remove(propertyName);
 			// check for just one property left

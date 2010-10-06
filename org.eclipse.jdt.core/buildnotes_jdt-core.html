@@ -70,10 +70,50 @@ Eclipse SDK 3.7M3 - %date% - 3.7.0 M3
      public static final String COMPILER_PB_MISSING_JAVADOC_TAGS_METHOD_TYPE_PARAMETERS = PLUGIN_ID + ".compiler.problem.missingJavadocTagsMethodTypeParameters";
 </pre>
 </li>
+<li>Added new API on org.eclipse.jdt.core.dom.rewrite.ASTRewrite to store properties (See bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=325131">325131</a>).
+<pre>
+	/**
+	 * Returns the value of the named property of this rewrite, or null if none.
+	 *
+	 * @param propertyName the property name
+	 * @return the property value, or <code>null</code> if none
+	 * @see #setProperty(String,Object)
+	 * @throws IllegalArgumentException if the given property name is null
+	 * @since 3.7
+	 */
+	public final Object getProperty(String propertyName);
+</pre>
+<pre>
+	/**
+	 * Sets the named property of this rewrite to the given value,
+	 * or to null to clear it.
+	 * 
+	 * Clients should employ property names that are sufficiently unique
+	 * to avoid inadvertent conflicts with other clients that might also be
+	 * setting properties on the same rewrite.
+	 * 
+	 * 
+	 * Note that modifying a property is not considered a modification to the
+	 * AST itself. This is to allow clients to decorate existing rewrites with
+	 * their own properties without jeopardizing certain things (like the
+	 * validity of bindings), which rely on the underlying tree remaining static.
+	 * 
+	 *
+	 * @param propertyName the property name
+	 * @param data the new property value, or null if none
+	 * @see #getProperty(String)
+	 * @throws IllegalArgumentException if the given property name is null
+	 * @since 3.7
+	 */
+	public final void setProperty(String propertyName, Object data);
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=322789">322789</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=325131">325131</a>
+ASTRewrite should offer get/setProperty() like ASTNode
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=322789">322789</a>
 package-info.java Won't Build On First Compile Pass
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=322581">322581</a>
 [5.0] Add Javadoc compiler option to (not) report missing tags for method type parameters
