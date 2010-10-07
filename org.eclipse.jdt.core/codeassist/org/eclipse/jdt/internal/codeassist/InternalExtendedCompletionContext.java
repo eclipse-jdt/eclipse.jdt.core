@@ -386,7 +386,7 @@ public class InternalExtendedCompletionContext {
 			next : for (int i = 0; i < size; i++) {
 				try {
 					LocalVariableBinding binding = (LocalVariableBinding) this.visibleLocalVariables.elementAt(i);
-					if (assignableTypeBinding != null && !binding.type.isCompatibleWith(assignableTypeBinding)) continue next;
+					if (binding.type == null || (assignableTypeBinding != null && !binding.type.isCompatibleWith(assignableTypeBinding))) continue next;
 					JavaElement localVariable = getJavaElement(binding);
 					if (localVariable != null) result[elementCount++] = localVariable;
 				} catch(AbortCompilation e) {

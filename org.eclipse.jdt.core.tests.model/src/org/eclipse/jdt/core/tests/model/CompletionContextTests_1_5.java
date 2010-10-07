@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 IBM Corporation and others.
+ * Copyright (c) 2005, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1369,5 +1369,81 @@ public void test0042() throws JavaModelException {
 		"expectedTypesKeys=null\n" +
 		"completion token location=UNKNOWN",
 		result.context);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=311022
+public void testBug311022a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" +
+		"public class X {\n" +
+		"    void foo(Object o) {}\n" +
+		"	 <T> void bar() {\n" +
+		"    	T<T> loc = 12;\n" +
+		"    	foo\n" +
+		"    }\n" +
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("foo");
+	int tokenEnd = tokenStart + "foo".length() - 1;
+	int cursorLocation = str.lastIndexOf("foo") + "foo".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, true, true, "Ljava.lang.Object;");
+	String jclPath = getExternalJCLPathString("1.5");
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"foo\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n" +
+		"completion token location={STATEMENT_START}\n" +
+		"enclosingElement=bar() {key=Ltest/X;.bar<T:Ljava/lang/Object;>()V} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]\n" +
+		"visibleElements={\n" +
+		"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+		"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+		"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+		"}",
+		result.context);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=311022
+public void testBug311022b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test/X.java",
+		"package test;\n" +
+		"public class X<A1,A2> {\n" +
+		"    void foo(Object 0) {}\n" +
+		"	 <T> void bar() {\n" +
+		"    	X<String, String, String> x;\n" +
+		"    	foo\n" +
+		"    }\n" +
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int tokenStart = str.lastIndexOf("foo");
+	int tokenEnd = tokenStart + "foo".length() - 1;
+	int cursorLocation = str.lastIndexOf("foo") + "foo".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, true, true, "Ljava.lang.Object;");
+	String jclPath = getExternalJCLPathString("1.5");
+	assertResults(
+			"completion offset="+(cursorLocation)+"\n" +
+			"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+			"completion token=\"foo\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
+			"completion token location={STATEMENT_START}\n" +
+			"enclosingElement=bar() {key=Ltest/X;.bar<T:Ljava/lang/Object;>()V} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]\n" +
+			"visibleElements={\n" +
+			"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class<+Ljava/lang/Object;>;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"}",
+			result.context);
 }
 }
