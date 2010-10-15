@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!--
-    Copyright (c) 2006, 2009 IBM Corporation and others.
+    Copyright (c) 2006, 2010 IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -42,8 +42,8 @@
 		<mkdir dir="${dest}/checksum" />
 		<checksum file="${dest}/ecj-${buildLabel}.jar" property="md5-ecj.jar" /> 
 		<echo message="${md5-ecj.jar} ecj-${buildLabel}.jar" file="${dest}/checksum/ecj-${buildLabel}.jar.md5" /> 
-		<checksum file="${dest}/ecjsrc-${buildLabel}.zip" property="md5-ecjsrc.zip" /> 
-		<echo message="${md5-ecjsrc.zip} ecjsrc-${buildLabel}.zip" file="${dest}/checksum/ecjsrc-${buildLabel}.zip.md5" /> 
+		<checksum file="${dest}/ecjsrc-${buildLabel}.jar" property="md5-ecjsrc.jar" /> 
+		<echo message="${md5-ecjsrc.jar} ecjsrc-${buildLabel}.jar" file="${dest}/checksum/ecjsrc-${buildLabel}.jar.md5" /> 
 	</target>
 
 	<!-- ===================================================================== -->
@@ -113,13 +113,13 @@
 		</zip>
 		<delete dir="${unjarDestBin}" failonerror="false"/>
 
-		<echo message="UPDATE ecjsrc-${buildLabel}.zip" />
+		<echo message="UPDATE ecjsrc-${buildLabel}.jar" />
 		<property name="unjarDestSrc" value="${basedir}/tempsrc"/>
 		<mkdir dir="${unjarDestSrc}"/>
 		<unzip
-			src="${postingDirectory}/${buildLabel}/ecjsrc-${buildLabel}.zip"
+			src="${postingDirectory}/${buildLabel}/ecjsrc-${buildLabel}.jar"
 			dest="${unjarDestSrc}"/>
-		<zip destfile="${postingDirectory}/${buildLabel}/ecjsrc-${buildLabel}.zip">
+		<zip destfile="${postingDirectory}/${buildLabel}/ecjsrc-${buildLabel}.jar">
 			<zipfileset dir="src" />
 			<zipfileset dir="${unjarDestSrc}" />
 			<zipfileset dir="${basedir}">

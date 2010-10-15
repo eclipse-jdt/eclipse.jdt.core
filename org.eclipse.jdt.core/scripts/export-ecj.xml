@@ -93,13 +93,13 @@
 		</zip>
 
 
-		<echo message="UPDATE ecjsrc-${buildLabel}.zip" />
-		<delete file="${dest}/ecjsrc-${buildLabel}.zip" failonerror="false"/>
+		<echo message="UPDATE ecjsrc-${buildLabel}.jar" />
+		<delete file="${dest}/ecjsrc-${buildLabel}.jar" failonerror="false"/>
 		<copy todir="${ecj-temp-src-folder}">
 			<fileset dir="scripts/source" />
 		</copy>
 		<replace file="${ecj-temp-src-folder}/META-INF/MANIFEST.MF" token="qualifier" value="${buildLabel}"/>
-		<zip zipfile="${dest}/ecjsrc-${buildLabel}.zip">
+		<zip zipfile="${dest}/ecjsrc-${buildLabel}.jar">
 			<zipfileset dir="ecj-temp-src-folder" />
 			<zipfileset dir="batch" />
 			<zipfileset dir="compiler" />
