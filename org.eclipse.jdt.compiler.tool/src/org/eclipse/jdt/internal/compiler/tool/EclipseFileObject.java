@@ -138,7 +138,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	 */
 	@Override
 	public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-		return Util.getCharContents(this, ignoreEncodingErrors, org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(this.f), this.charset.toString());
+		return Util.getCharContents(this, ignoreEncodingErrors, org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(this.f), this.charset.name());
 	}
 
 	/**

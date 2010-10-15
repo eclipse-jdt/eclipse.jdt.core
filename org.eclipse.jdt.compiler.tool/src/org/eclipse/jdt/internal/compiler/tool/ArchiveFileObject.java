@@ -163,7 +163,7 @@ public class ArchiveFileObject implements JavaFileObject {
 	@Override
 	public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
 		if (getKind() == Kind.SOURCE) {
-			return Util.getCharContents(this, ignoreEncodingErrors, org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(this.zipEntry, this.zipFile), this.charset.toString());
+			return Util.getCharContents(this, ignoreEncodingErrors, org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(this.zipEntry, this.zipFile), this.charset.name());
 		}
 		return null;
 	}

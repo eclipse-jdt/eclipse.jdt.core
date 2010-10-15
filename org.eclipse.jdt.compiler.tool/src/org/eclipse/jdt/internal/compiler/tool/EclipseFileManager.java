@@ -271,7 +271,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		ArrayList<FileSystem.Classpath> paths = new ArrayList<FileSystem.Classpath>();
 		ArrayList<File> files = new ArrayList<File>();
 		try {
-			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
+			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.name(), false, false);
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
@@ -341,7 +341,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		ArrayList<FileSystem.Classpath> paths = new ArrayList<FileSystem.Classpath>();
 		ArrayList<File> files = new ArrayList<File>();
 		try {
-			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
+			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.name(), false, false);
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
@@ -355,7 +355,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		ArrayList<FileSystem.Classpath> paths = new ArrayList<FileSystem.Classpath>();
 		ArrayList<File> files = new ArrayList<File>();
 		try {
-			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.toString(), false, false);
+			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.name(), false, false);
 		} catch (IllegalArgumentException e) {
 			return null;
 		}
