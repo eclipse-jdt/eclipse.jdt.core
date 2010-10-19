@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 344 };
+//		TESTS_NUMBERS = new int[] { 345, 346 };
 //		TESTS_RANGE = new int[] { 325, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -11115,4 +11115,45 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		defaultValue = binding.getDefaultValue();
 		assertNull("Got a default value", defaultValue);
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=327931
+	 */
+	public void test0345() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0345/X.java", true/*resolve*/);
+		String contents =
+				"package test0345;\n" + 
+				"public class X extends A {\n" + 
+				"	/*start*/@Test(groups = NAME)/*end*/ int i;\n" + 
+				"}";
+		NormalAnnotation annotation = (NormalAnnotation) buildAST(
+				contents,
+				this.workingCopy);
+		assertNotNull("No annotation", annotation);
+		List values = annotation.values();
+		MemberValuePair pair = (MemberValuePair) values.get(0);
+		SimpleName value = (SimpleName) pair.getValue();
+		String constantValue = (String) value.resolveConstantExpressionValue();
+		assertEquals("Wrong constant value", "a", constantValue);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=327931
+	 */
+	public void test0346() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0346/X.java", true/*resolve*/);
+		String contents =
+				"package test0346;\n" + 
+				"public class X extends A {\n" + 
+				"	/*start*/@Test(groups = NAME)/*end*/ int i;\n" + 
+				"}";
+		NormalAnnotation annotation = (NormalAnnotation) buildAST(
+				contents,
+				this.workingCopy);
+		assertNotNull("No annotation", annotation);
+		List values = annotation.values();
+		MemberValuePair pair = (MemberValuePair) values.get(0);
+		SimpleName value = (SimpleName) pair.getValue();
+		String constantValue = (String) value.resolveConstantExpressionValue();
+		assertEquals("Wrong constant value", "a", constantValue);
+	}
+
 }
