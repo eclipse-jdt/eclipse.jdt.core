@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ public class VarargsTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 60 };
+//		TESTS_NUMBERS = new int[] { 62 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 	public static Test suite() {
@@ -2167,5 +2167,33 @@ public class VarargsTest extends AbstractComparableTest {
 				"	^^^^\n" +
 				"Zork cannot be resolved to a type\n" +
 				"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328247
+	public void test062() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\r\n" + 
+				"	private static final String CONST = \"\";\r\n" + 
+				"\r\n" + 
+				"	public static class A {\r\n" + 
+				"		A(Integer i, String... tab) {}\r\n" + 
+				"	}\r\n" + 
+				"	\r\n" + 
+				"	Object foo(final Float f) {\r\n" + 
+				"		return new A(new Integer(0), CONST) {\r\n" + 
+				"			public String toString() {\r\n" + 
+				"				return f.toString();\r\n" + 
+				"			}\r\n" + 
+				"		};\r\n" + 
+				"	}\r\n" + 
+				"}",
+			},
+			"");
+		String expectedOutput =
+			"  // Method descriptor #10 (LX;Ljava/lang/Integer;[Ljava/lang/String;Ljava/lang/Float;)V\n" + 
+			"  // Stack: 3, Locals: 5\n" + 
+			"  X$1(X arg0, java.lang.Integer $anonymous0, java.lang.String... $anonymous1, java.lang.Float arg3);\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$1.class", "X$1", expectedOutput);
 	}
 }
