@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -195,7 +195,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 
 		TypeVariableBinding[] typeVariables = currentOriginal.typeVariables();
 		if (typeVariables == Binding.NO_TYPE_VARIABLES) { // non generic invoked with arguments
-			boolean isCompliant15 = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
+			boolean isCompliant15 = scope.compilerOptions().originalSourceLevel >= ClassFileConstants.JDK1_5;
 			if ((currentOriginal.tagBits & TagBits.HasMissingType) == 0) {
 				if (isCompliant15) { // below 1.5, already reported as syntax error
 					this.resolvedType = currentType;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 IBM Corporation and others.
+ * Copyright (c) 2005, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /**
  * A parameterized type encapsulates a type with type arguments,
@@ -860,7 +861,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			// arity check
 			TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
 			if (refTypeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
-				if ((resolvedType.tagBits & TagBits.HasMissingType) == 0) {
+				// Below 1.5, we should have already complained about the use of type parameters.
+				boolean isCompliant15 = this.environment.globalOptions.originalSourceLevel >= ClassFileConstants.JDK1_5;
+				if (isCompliant15 && (resolvedType.tagBits & TagBits.HasMissingType) == 0) {
 					this.environment.problemReporter.nonGenericTypeCannotBeParameterized(0, null, resolvedType, this.arguments);
 				}
 				return this;

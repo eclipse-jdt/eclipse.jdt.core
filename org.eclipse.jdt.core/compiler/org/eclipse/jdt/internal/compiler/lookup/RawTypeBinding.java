@@ -126,7 +126,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	}
 
     public boolean isEquivalentTo(TypeBinding otherType) {
-		if (this == otherType)
+		if (this == otherType || erasure() == otherType)
 		    return true;
 	    if (otherType == null)
 	        return false;

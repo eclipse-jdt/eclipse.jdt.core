@@ -384,9 +384,8 @@ public class ClassScope extends Scope {
 
 	    SourceTypeBinding sourceType = this.referenceContext.binding;
 		TypeParameter[] typeParameters = this.referenceContext.typeParameters;
-
-	    // do not construct type variables if source < 1.5
-		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, If they exist at all, process type parameters irrespective of source level.
+		if (typeParameters == null || typeParameters.length == 0) {
 		    sourceType.typeVariables = Binding.NO_TYPE_VARIABLES;
 		    return;
 		}

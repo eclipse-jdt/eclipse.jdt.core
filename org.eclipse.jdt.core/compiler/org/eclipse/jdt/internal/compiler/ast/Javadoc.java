@@ -570,6 +570,8 @@ public class Javadoc extends ASTNode {
 
 		// If no param tags then report a problem for each declaration type parameter
 		if (parameters != null) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, avoid secondary errors when <= 1.4 
+			reportMissing = reportMissing && scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 			int typeParametersLength = parameters.length;
 			if (paramTypeParamLength == 0) {
 				if (reportMissing) {
