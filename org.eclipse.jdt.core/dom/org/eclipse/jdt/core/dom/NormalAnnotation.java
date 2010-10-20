@@ -28,7 +28,7 @@ import java.util.List;
 public final class NormalAnnotation extends Annotation {
 
 	/**
-	 * The "typeName" structural property of this node type.
+	 * The "typeName" structural property of this node type (child type: {@link Name}).
 	 */
 	public static final ChildPropertyDescriptor TYPE_NAME_PROPERTY =
 		internalTypeNamePropertyFactory(NormalAnnotation.class);

@@ -80,7 +80,7 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Returns structural property descriptor for the "modifiers" property
-	 * of this node as used in JLS2.
+	 * of this node as used in JLS2 (type: {@link Integer}).
 	 *
 	 * @return the property descriptor
 	 */
@@ -88,7 +88,7 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Returns structural property descriptor for the "modifiers" property
-	 * of this node as used in JLS3.
+	 * of this node as used in JLS3 (element type: {@link IExtendedModifier}).
 	 *
 	 * @return the property descriptor
 	 */
@@ -96,7 +96,7 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Returns structural property descriptor for the "modifiers" property
-	 * of this node as used in JLS3.
+	 * of this node as used in JLS3 (element type: {@link IExtendedModifier}).
 	 *
 	 * @return the property descriptor
 	 * @since 3.1
@@ -108,7 +108,7 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Returns structural property descriptor for the "javadoc" property
-	 * of this node.
+	 * of this node (child type: {@link Javadoc}).
 	 *
 	 * @return the property descriptor
 	 */
@@ -116,7 +116,7 @@ public abstract class BodyDeclaration extends ASTNode {
 
 	/**
 	 * Returns structural property descriptor for the "javadoc" property
-	 * of this node.
+	 * of this node (child type: {@link Javadoc}).
 	 *
 	 * @return the property descriptor
 	 * @since 3.1

@@ -424,7 +424,7 @@ public class CompilationUnit extends ASTNode {
 	 * </p>
 	 *
 	 * @return an unmodifiable list of comments in increasing order of source
-	 * start position, or <code>null</code> if comment information
+	 * start position (element type: {@link Comment}, or <code>null</code> if comment information
 	 * for this compilation unit is not available
 	 * @see ASTParser
 	 * @since 3.0
@@ -649,7 +649,7 @@ public class CompilationUnit extends ASTNode {
 	 * compilation unit, in order of appearance.
 	 *
 	 * @return the live list of import declaration nodes
-	 *    (elementType: <code>ImportDeclaration</code>)
+	 *    (elementType: {@link ImportDeclaration})
 	 */
 	public List imports() {
 		return this.imports;
@@ -1082,7 +1082,7 @@ public class CompilationUnit extends ASTNode {
      * </p>
 	 *
 	 * @return the live list of top-level type declaration
-	 *    nodes (elementType: <code>AbstractTypeDeclaration</code>)
+	 *    nodes (element type: {@link AbstractTypeDeclaration})
 	 */
 	public List types() {
 		return this.types;

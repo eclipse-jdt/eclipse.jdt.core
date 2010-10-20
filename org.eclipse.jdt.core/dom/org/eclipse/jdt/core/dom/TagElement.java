@@ -356,7 +356,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * of node will trigger an exception.
 	 *
 	 * @return the live list of doc elements in this tag element
-	 * (element type: {@link ASTNode})
+	 * (element type: {@link IDocElement})
 	 */
 	public List fragments() {
 		return this.fragments;

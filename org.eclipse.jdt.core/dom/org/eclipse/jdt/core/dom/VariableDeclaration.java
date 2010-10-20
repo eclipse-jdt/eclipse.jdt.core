@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,7 @@ public abstract class VariableDeclaration extends ASTNode {
 
 	/**
 	 * Returns structural property descriptor for the "extraDimensions" property
-	 * of this node.
+	 * of this node (type: {@link Integer}).
 	 *
 	 * @return the property descriptor
 	 * @since 3.1
@@ -39,7 +39,7 @@ public abstract class VariableDeclaration extends ASTNode {
 
 	/**
 	 * Returns structural property descriptor for the "extraDimensions" property
-	 * of this node.
+	 * of this node (type: {@link Integer}).
 	 *
 	 * @return the property descriptor
 	 * @since 3.1
@@ -50,7 +50,7 @@ public abstract class VariableDeclaration extends ASTNode {
 
 	/**
 	 * Returns structural property descriptor for the "initializer" property
-	 * of this node.
+	 * of this node (child type: {@link Expression}).
 	 *
 	 * @return the property descriptor
 	 * @since 3.1
@@ -59,7 +59,7 @@ public abstract class VariableDeclaration extends ASTNode {
 
 	/**
 	 * Returns structural property descriptor for the "initializer" property
-	 * of this node.
+	 * of this node (child type: {@link Expression}).
 	 *
 	 * @return the property descriptor
 	 * @since 3.1
@@ -70,7 +70,7 @@ public abstract class VariableDeclaration extends ASTNode {
 
 	/**
 	 * Returns structural property descriptor for the "name" property
-	 * of this node.
+	 * of this node (child type: {@link SimpleName}).
 	 *
 	 * @return the property descriptor
 	 * @since 3.1
@@ -79,7 +79,7 @@ public abstract class VariableDeclaration extends ASTNode {
 
 	/**
 	 * Returns structural property descriptor for the "name" property
-	 * of this node.
+	 * of this node (child type: {@link SimpleName}).
 	 *
 	 * @return the property descriptor
 	 * @since 3.1

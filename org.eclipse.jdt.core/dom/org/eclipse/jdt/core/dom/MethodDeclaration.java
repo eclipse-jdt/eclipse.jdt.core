@@ -75,14 +75,14 @@ public class MethodDeclaration extends BodyDeclaration {
 		internalJavadocPropertyFactory(MethodDeclaration.class);
 
 	/**
-	 * The "modifiers" structural property of this node type (JLS2 API only).
+	 * The "modifiers" structural property of this node type (type: {@link Integer}) (JLS2 API only).
 	 * @since 3.0
 	 */
 	public static final SimplePropertyDescriptor MODIFIERS_PROPERTY =
 		internalModifiersPropertyFactory(MethodDeclaration.class);
 
 	/**
-	 * The "modifiers" structural property of this node type (added in JLS3 API).
+	 * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}) (added in JLS3 API).
 	 * @since 3.1
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY =

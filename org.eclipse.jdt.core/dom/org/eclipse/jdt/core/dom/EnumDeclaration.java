@@ -44,19 +44,19 @@ import java.util.List;
 public class EnumDeclaration extends AbstractTypeDeclaration {
 
 	/**
-	 * The "javadoc" structural property of this node type.
+	 * The "javadoc" structural property of this node type (child type: {@link Javadoc}).
 	 */
 	public static final ChildPropertyDescriptor JAVADOC_PROPERTY =
 		internalJavadocPropertyFactory(EnumDeclaration.class);
 
 	/**
-	 * The "modifiers" structural property of this node type (added in JLS3 API).
+	 * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}) (added in JLS3 API).
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY =
 		internalModifiers2PropertyFactory(EnumDeclaration.class);
 
 	/**
-	 * The "name" structural property of this node type.
+	 * The "name" structural property of this node type (child type: {@link SimpleName}).
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		internalNamePropertyFactory(EnumDeclaration.class);
@@ -74,7 +74,7 @@ public class EnumDeclaration extends AbstractTypeDeclaration {
 		new ChildListPropertyDescriptor(EnumDeclaration.class, "enumConstants", EnumConstantDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "bodyDeclarations" structural property of this node type.
+	 * The "bodyDeclarations" structural property of this node type (element type: {@link BodyDeclaration}).
 	 */
 	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY =
 		internalBodyDeclarationPropertyFactory(EnumDeclaration.class);

@@ -26,7 +26,7 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 
 	/**
 	 * Returns structural property descriptor for the "typeName" property
-	 * of this node.
+	 * of this node (child type: {@link Name}).
 	 *
 	 * @return the property descriptor
 	 */
@@ -34,7 +34,7 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 
 	/**
 	 * Returns structural property descriptor for the "typeName" property
-	 * of this node.
+	 * of this node (child type: {@link Name}).
 	 *
 	 * @return the property descriptor
 	 */

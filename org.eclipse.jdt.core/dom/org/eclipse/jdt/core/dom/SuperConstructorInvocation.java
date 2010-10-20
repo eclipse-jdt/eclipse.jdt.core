@@ -49,7 +49,7 @@ public class SuperConstructorInvocation extends Statement {
 		new ChildListPropertyDescriptor(SuperConstructorInvocation.class, "typeArguments", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "arguments" structural property of this node type.
+	 * The "arguments" structural property of this node type (element type: {@link Expression}).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor ARGUMENTS_PROPERTY =

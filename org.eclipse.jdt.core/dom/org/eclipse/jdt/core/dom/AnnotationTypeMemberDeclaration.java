@@ -40,13 +40,13 @@ import java.util.List;
 public class AnnotationTypeMemberDeclaration extends BodyDeclaration {
 
 	/**
-	 * The "javadoc" structural property of this node type.
+	 * The "javadoc" structural property of this node type (child type: {@link Javadoc}).
 	 */
 	public static final ChildPropertyDescriptor JAVADOC_PROPERTY =
 		internalJavadocPropertyFactory(AnnotationTypeMemberDeclaration.class);
 
 	/**
-	 * The "modifiers" structural property of this node type.
+	 * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}).
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY =
 		internalModifiers2PropertyFactory(AnnotationTypeMemberDeclaration.class);

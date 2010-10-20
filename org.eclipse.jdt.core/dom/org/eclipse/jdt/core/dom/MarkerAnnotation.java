@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 IBM Corporation and others.
+ * Copyright (c) 2004, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ import java.util.List;
 public final class MarkerAnnotation extends Annotation {
 
 	/**
-	 * The "typeName" structural property of this node type.
+	 * The "typeName" structural property of this node type (child type: {@link Name}).
 	 */
 	public static final ChildPropertyDescriptor TYPE_NAME_PROPERTY =
 		internalTypeNamePropertyFactory(MarkerAnnotation.class);
