@@ -355,7 +355,7 @@ public class CompilerOptions {
 	public boolean generateClassFiles;
 	/** Indicate if method bodies should be ignored */
 	public boolean ignoreMethodBodies;
-	/** Raise null related warnings for variables tainted inside an assert statement (java 1.5 and above)*/
+	/** Raise null related warnings for variables tainted inside an assert statement (java 1.4 and above)*/
 	public boolean includeNullInfoFromAsserts;
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
