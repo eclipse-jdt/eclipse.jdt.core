@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann  - Contribution for bug 295551
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -9355,7 +9356,7 @@ public void test281() {
 			"1. ERROR in A.java (at line 3)\n" + 
 			"	private int i;\n" + 
 			"	            ^\n" + 
-			"The field A.i is never read locally\n" + 
+			"The value of the field A.i is not used\n" + 
 			"----------\n";
 	runNegativeTest(
 			true,

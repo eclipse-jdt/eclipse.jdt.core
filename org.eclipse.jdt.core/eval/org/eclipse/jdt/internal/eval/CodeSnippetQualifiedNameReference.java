@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
@@ -463,7 +464,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 		}
 		// only last field is actually a write access if any
-		if (isFieldUseDeprecated((FieldBinding) this.binding, scope, (this.bits & IsStrictlyAssigned) !=0 && this.indexOfFirstFieldBinding == length)) {
+		if (isFieldUseDeprecated((FieldBinding) this.binding, scope, this.indexOfFirstFieldBinding == length ? this.bits : 0)) {
 			scope.problemReporter().deprecatedField((FieldBinding) this.binding, this);
 		}
 	}
@@ -510,7 +511,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 		}
 		if (field.isValidBinding()) {
 			// only last field is actually a write access if any
-			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssigned) !=0 && index+1 == length)) {
+			if (isFieldUseDeprecated(field, scope, index+1 == length ? this.bits : 0)) {
 				scope.problemReporter().deprecatedField(field, this);
 			}
 			// constant propagation can only be performed as long as the previous one is a constant too.

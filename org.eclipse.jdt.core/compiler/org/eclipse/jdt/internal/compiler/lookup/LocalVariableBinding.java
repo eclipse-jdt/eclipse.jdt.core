@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -26,7 +27,7 @@ public class LocalVariableBinding extends VariableBinding {
 	public static final int UNUSED = 0;
 	public static final int USED = 1;
 	public static final int FAKE_USED = 2;
-	public int useFlag; // for flow analysis (default is UNUSED)
+	public int useFlag; // for flow analysis (default is UNUSED), values < 0 indicate the number of compound uses (postIncrement or compoundAssignment)
 
 	public BlockScope declaringScope; // back-pointer to its declaring scope
 	public LocalDeclaration declaration; // for source-positions

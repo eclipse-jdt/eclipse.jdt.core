@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Matt McCutchen - partial fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995
  *     Karen Moore - fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=207411
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -357,11 +358,17 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return this;
 	}
 
-	public final boolean isFieldUseDeprecated(FieldBinding field, Scope scope, boolean isStrictlyAssigned) {
-		// ignore references insing Javadoc comments
-		if ((this.bits & ASTNode.InsideJavadoc) == 0 && !isStrictlyAssigned && field.isOrEnclosedByPrivateType() && !scope.isDefinedInField(field)) {
-			// ignore cases where field is used from inside itself
-			field.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+	public final boolean isFieldUseDeprecated(FieldBinding field, Scope scope, int filteredBits) {
+		if ((this.bits & ASTNode.InsideJavadoc) == 0			// ignore references inside Javadoc comments 
+				&& (filteredBits & IsStrictlyAssigned) == 0 	// ignore write access
+				&& field.isOrEnclosedByPrivateType() 
+				&& !scope.isDefinedInField(field)) 				// ignore cases where field is used from inside itself 
+		{		
+			if (((filteredBits & IsCompoundAssigned) != 0))
+				// used, but usage may not be relevant
+				field.original().compoundUseFlag++;
+			else
+				field.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
 
 		if ((field.modifiers & ExtraCompilerModifiers.AccRestrictedAccess) != 0) {

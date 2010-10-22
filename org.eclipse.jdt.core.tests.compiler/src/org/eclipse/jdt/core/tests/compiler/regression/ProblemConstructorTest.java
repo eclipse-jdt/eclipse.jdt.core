@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -185,7 +186,7 @@ public void test004() {
 		"3. WARNING in X.java (at line 6)\n" + 
 		"	public int unusedField = 0;\n" + 
 		"	           ^^^^^^^^^^^\n" + 
-		"The field X.M.unusedField is never read locally\n" + 
+		"The value of the field X.M.unusedField is not used\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 7)\n" + 
 		"	public class N {}\n" + 

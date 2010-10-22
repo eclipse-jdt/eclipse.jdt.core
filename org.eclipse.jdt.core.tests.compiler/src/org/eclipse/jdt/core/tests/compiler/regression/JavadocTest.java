@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -279,7 +280,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		"1. WARNING in test\\AbstractVisibility.java (at line 5)\n" + 
 		"	public int avf_public = avf_private;\n" + 
 		"	           ^^^^^^^^^^\n" + 
-		"The field AbstractVisibility.AvcPrivate.avf_public is never read locally\n" + 
+		"The value of the field AbstractVisibility.AvcPrivate.avf_public is not used\n" + 
 		"----------\n" + 
 		"2. WARNING in test\\AbstractVisibility.java (at line 10)\n" + 
 		"	public int avm_public() {\n" + 
@@ -290,7 +291,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		"1. WARNING in test\\Visibility.java (at line 5)\n" + 
 		"	public int vf_public = vf_private;\n" + 
 		"	           ^^^^^^^^^\n" + 
-		"The field Visibility.VcPrivate.vf_public is never read locally\n" + 
+		"The value of the field Visibility.VcPrivate.vf_public is not used\n" + 
 		"----------\n" + 
 		"2. WARNING in test\\Visibility.java (at line 11)\n" + 
 		"	public int vm_public() {\n" + 
@@ -301,7 +302,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		"1. WARNING in test\\copy\\VisibilityPackage.java (at line 5)\n" + 
 		"	public int vf_public = vf_private;\n" + 
 		"	           ^^^^^^^^^\n" + 
-		"The field VisibilityPackage.VpPrivate.vf_public is never read locally\n" + 
+		"The value of the field VisibilityPackage.VpPrivate.vf_public is not used\n" + 
 		"----------\n" + 
 		"2. WARNING in test\\copy\\VisibilityPackage.java (at line 10)\n" + 
 		"	public int vm_public() {\n" + 
@@ -312,7 +313,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		"1. WARNING in test\\copy\\VisibilityPublic.java (at line 5)\n" + 
 		"	public int vf_public = vf_private;\n" + 
 		"	           ^^^^^^^^^\n" + 
-		"The field VisibilityPublic.VpPrivate.vf_public is never read locally\n" + 
+		"The value of the field VisibilityPublic.VpPrivate.vf_public is not used\n" + 
 		"----------\n" + 
 		"2. WARNING in test\\copy\\VisibilityPublic.java (at line 10)\n" + 
 		"	public int vm_public() {\n" + 

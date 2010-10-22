@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -94,7 +95,7 @@ public void test002() {
 		"1. WARNING in p1\\A.java (at line 3)\n" +
 		"	private int value;								\n" +
 		"	            ^^^^^\n" +
-		"The field A.value is never read locally\n" +
+		"The value of the field A.value is not used\n" +
 		"----------\n" +
 		"2. ERROR in p1\\A.java (at line 6)\n" +
 		"	value = 2;								\n" +
@@ -344,7 +345,7 @@ public void test010() {
 		"1. WARNING in p1\\A.java (at line 3)\n" +
 		"	private String success = \"SUCCESS\";			\n" +
 		"	               ^^^^^^^\n" +
-		"The field A.success is never read locally\n" +
+		"The value of the field A.success is not used\n" +
 		"----------\n" +
 		"2. ERROR in p1\\A.java (at line 7)\n" +
 		"	public void aTask() {System.out.println(A.success);}\n" +
@@ -2263,7 +2264,7 @@ public void test067() {
 				"1. WARNING in com\\internap\\other\\ScopeExample.java (at line 4)\r\n" +
 				"	private static final String LOGGER = \"FAILED\";\r\n" +
 				"	                            ^^^^^^\n" +
-				"The field ScopeExample.LOGGER is never read locally\n" +
+				"The value of the field ScopeExample.LOGGER is not used\n" +
 				"----------\n" +
 				"2. ERROR in com\\internap\\other\\ScopeExample.java (at line 8)\r\n" +
 				"	System.out.println(LOGGER);\r\n" +
@@ -2654,7 +2655,7 @@ public void test078() {
 		"1. WARNING in X.java (at line 2)\n" +
 		"	private String value;\n" +
 		"	               ^^^^^\n" +
-		"The field D.value is never read locally\n" +
+		"The value of the field D.value is not used\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 13)\n" +
 		"	super(getValue());\n" +
@@ -3264,12 +3265,12 @@ public void test101() {
 		"2. WARNING in B.java (at line 3)\n" + 
 		"	public final String length = \"very long\";\n" + 
 		"	                    ^^^^^^\n" + 
-		"The field A.B.length is never read locally\n" + 
+		"The value of the field A.B.length is not used\n" + 
 		"----------\n" + 
 		"3. WARNING in B.java (at line 5)\n" + 
 		"	private int [] B = new int[5];\n" + 
 		"	               ^\n" + 
-		"The field A.B is never read locally\n" + 
+		"The value of the field A.B is not used\n" + 
 		"----------\n" + 
 		"4. ERROR in B.java (at line 9)\n" + 
 		"	System.out.println(A.B.length);\n" + 
@@ -3298,12 +3299,12 @@ public void test102() {
 		"1. WARNING in B.java (at line 3)\n" + 
 		"	private final String length = \"very long\";\n" + 
 		"	                     ^^^^^^\n" + 
-		"The field A.B.length is never read locally\n" + 
+		"The value of the field A.B.length is not used\n" + 
 		"----------\n" + 
 		"2. WARNING in B.java (at line 5)\n" + 
 		"	private int [] B = new int[5];\n" + 
 		"	               ^\n" + 
-		"The field A.B is never read locally\n" + 
+		"The value of the field A.B is not used\n" + 
 		"----------\n" + 
 		"3. ERROR in B.java (at line 9)\n" + 
 		"	System.out.println(A.B.length);\n" + 
@@ -3338,17 +3339,17 @@ public void test103() {
 		"1. WARNING in A.java (at line 2)\n" + 
 		"	private int x;\n" + 
 		"	            ^\n" + 
-		"The field A.x is never read locally\n" + 
+		"The value of the field A.x is not used\n" + 
 		"----------\n" + 
 		"2. WARNING in A.java (at line 4)\n" + 
 		"	private int x;\n" + 
 		"	            ^\n" + 
-		"The field A.B.x is never read locally\n" + 
+		"The value of the field A.B.x is not used\n" + 
 		"----------\n" + 
 		"3. WARNING in A.java (at line 5)\n" + 
 		"	private C c = new C() {\n" + 
 		"	          ^\n" + 
-		"The field A.B.c is never read locally\n" + 
+		"The value of the field A.B.c is not used\n" + 
 		"----------\n" + 
 		"4. WARNING in A.java (at line 6)\n" + 
 		"	void foo() {\n" + 
@@ -3363,7 +3364,7 @@ public void test103() {
 		"6. WARNING in A.java (at line 12)\n" + 
 		"	private int x;\n" + 
 		"	            ^\n" + 
-		"The field A.C.x is never read locally\n" + 
+		"The value of the field A.C.x is not used\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=316956
@@ -3393,17 +3394,17 @@ public void test104() {
 		"1. WARNING in A.java (at line 2)\n" + 
 		"	private int x;\n" + 
 		"	            ^\n" + 
-		"The field A.x is never read locally\n" + 
+		"The value of the field A.x is not used\n" + 
 		"----------\n" + 
 		"2. WARNING in A.java (at line 4)\n" + 
 		"	private int x;\n" + 
 		"	            ^\n" + 
-		"The field A.B.x is never read locally\n" + 
+		"The value of the field A.B.x is not used\n" + 
 		"----------\n" + 
 		"3. WARNING in A.java (at line 5)\n" + 
 		"	private C c = new C() {\n" + 
 		"	          ^\n" + 
-		"The field A.B.c is never read locally\n" + 
+		"The value of the field A.B.c is not used\n" + 
 		"----------\n" + 
 		"4. WARNING in A.java (at line 6)\n" + 
 		"	void foo() {\n" + 
@@ -3435,12 +3436,12 @@ public void test105() {
 		"1. WARNING in A.java (at line 2)\n" + 
 		"	private int x;\n" + 
 		"	            ^\n" + 
-		"The field A.x is never read locally\n" + 
+		"The value of the field A.x is not used\n" + 
 		"----------\n" + 
 		"2. WARNING in A.java (at line 3)\n" + 
 		"	private C c = new C() {\n" + 
 		"	          ^\n" + 
-		"The field A.c is never read locally\n" + 
+		"The value of the field A.c is not used\n" + 
 		"----------\n" + 
 		"3. WARNING in A.java (at line 4)\n" + 
 		"	void foo() {\n" + 
@@ -3455,7 +3456,7 @@ public void test105() {
 		"5. WARNING in A.java (at line 9)\n" + 
 		"	private int x;\n" + 
 		"	            ^\n" + 
-		"The field A.C.x is never read locally\n" + 
+		"The value of the field A.C.x is not used\n" + 
 		"----------\n");
 }
 public static Class testClass() {	return LookupTest.class;

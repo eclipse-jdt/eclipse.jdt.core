@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -223,12 +224,12 @@ public void test004() {
 		"1. WARNING in X.java (at line 4)\n" +
 		"	private final Object o;\n" +
 		"	                     ^\n" +
-		"The field X.Test1.o is never read locally\n" +
+		"The value of the field X.Test1.o is not used\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 13)\n" +
 		"	private final Object o;\n" +
 		"	                     ^\n" +
-		"The field X.Test2.o is never read locally\n" +
+		"The value of the field X.Test2.o is not used\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 25)\n" +
 		"	System.out.println(o); // illegal; o is not definitely assigned\n" +
@@ -238,7 +239,7 @@ public void test004() {
 		"4. WARNING in X.java (at line 42)\n" +
 		"	private final Object o;\n" +
 		"	                     ^\n" +
-		"The field X.Test5.o is never read locally\n" +
+		"The value of the field X.Test5.o is not used\n" +
 		"----------\n" +
 		"5. ERROR in X.java (at line 44)\n" +
 		"	Test5() {\n" +
@@ -253,7 +254,7 @@ public void test004() {
 		"7. WARNING in X.java (at line 52)\n" +
 		"	private final Object o;\n" +
 		"	                     ^\n" +
-		"The field X.Test6.o is never read locally\n" +
+		"The value of the field X.Test6.o is not used\n" +
 		"----------\n" +
 		"8. ERROR in X.java (at line 59)\n" +
 		"	other.o = new Object(); // illegal!  other.o is not assignable\n" +

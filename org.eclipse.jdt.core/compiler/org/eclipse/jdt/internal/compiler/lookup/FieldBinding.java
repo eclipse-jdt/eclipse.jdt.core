@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -19,6 +20,8 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 
 public class FieldBinding extends VariableBinding {
 	public ReferenceBinding declaringClass;
+	public int compoundUseFlag = 0; // number or accesses via postIncrement or compoundAssignment
+	
 protected FieldBinding() {
 	super(null, null, 0, null);
 	// for creating problem field
@@ -332,7 +335,13 @@ public final boolean isTransient() {
 */
 
 public final boolean isUsed() {
-	return (this.modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
+	return (this.modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0 || this.compoundUseFlag > 0;
+}
+/* Answer true if the only use of this field is in compound assignment or post increment
+ */
+
+public final boolean isUsedOnlyInCompound() {
+	return (this.modifiers & ExtraCompilerModifiers.AccLocallyUsed) == 0 && this.compoundUseFlag > 0;
 }
 /* Answer true if the receiver has protected visibility
 */

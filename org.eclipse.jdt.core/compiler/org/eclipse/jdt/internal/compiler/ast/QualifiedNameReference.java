@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -380,6 +381,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 
 public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired) {
 	FieldBinding lastFieldBinding = generateReadSequence(currentScope, codeStream);
+	// check if compound assignment is the only usage of a private field
+	reportOnlyUselesslyReadPrivateField(currentScope, lastFieldBinding, valueRequired);
 	boolean isFirst = lastFieldBinding == this.binding
 		&& (this.indexOfFirstFieldBinding == 1 || lastFieldBinding.declaringClass == currentScope.enclosingReceiverType())
 		&& this.otherBindings == null; // could be dup: next.next.next
@@ -431,6 +434,8 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 	FieldBinding lastFieldBinding = generateReadSequence(currentScope, codeStream);
+	// check if this post increment is the only usage of a private field
+	reportOnlyUselesslyReadPrivateField(currentScope, lastFieldBinding, valueRequired);
 	boolean isFirst = lastFieldBinding == this.binding
 		&& (this.indexOfFirstFieldBinding == 1 || lastFieldBinding.declaringClass == currentScope.enclosingReceiverType())
 		&& this.otherBindings == null; // could be dup: next.next.next
@@ -719,7 +724,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 				}				
 		    }
 			// only last field is actually a write access if any
-			if (isFieldUseDeprecated(field, scope, (this.bits & ASTNode.IsStrictlyAssigned) !=0 && index+1 == length)) {
+			if (isFieldUseDeprecated(field, scope, index+1 == length ? this.bits : 0)) {
 				scope.problemReporter().deprecatedField(field, this);
 			}
 			// constant propagation can only be performed as long as the previous one is a constant too.
@@ -954,7 +959,7 @@ public TypeBinding resolveType(BlockScope scope) {
 							&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
 						scope.problemReporter().forwardReference(this, this.indexOfFirstFieldBinding-1, fieldBinding);
 					}
-					if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & ASTNode.IsStrictlyAssigned) != 0 && this.indexOfFirstFieldBinding == this.tokens.length)) {
+					if (isFieldUseDeprecated(fieldBinding, scope, this.indexOfFirstFieldBinding == this.tokens.length ? this.bits : 0)) {
 						scope.problemReporter().deprecatedField(fieldBinding, this);	
 					}
 					if (fieldBinding.isStatic()) {

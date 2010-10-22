@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -411,7 +412,7 @@ public void test016() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	void bar(int value) { // X#bar(...)\n" +
 		"	             ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -469,17 +470,17 @@ public void test017() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	void foo(int value) { // X#foo(...)\n" +
 		"	             ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 7)\n" +
 		"	void bar(int value) { // X#bar(...)\n" +
 		"	             ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 24)\n" +
 		"	void parent(int value) { /* Parent#parent(...) */}\n" +
 		"	                ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -537,17 +538,17 @@ public void test018() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	void foo(int value) { // X#foo(...)\n" +
 		"	             ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 7)\n" +
 		"	void bar(int value) { // X#bar(...)\n" +
 		"	             ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 24)\n" +
 		"	void parent(int value) { /* Parent#parent(...) */}\n" +
 		"	                ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -605,32 +606,32 @@ public void test019() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	void foo(int value) { // X#foo(...)\n" +
 		"	             ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 7)\n" +
 		"	void bar(int value) { // X#bar(...)\n" +
 		"	             ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 10)\n" +
 		"	void top(int value) { /* X#top(...)*/}\n" +
 		"	             ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 11)\n" +
 		"	void parent(int value) { /* X#parent(...) */}\n" +
 		"	                ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"5. ERROR in X.java (at line 12)\n" +
 		"	public void doit(int value) { /* X#doit(...) */}\n" +
 		"	                     ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"6. ERROR in X.java (at line 24)\n" +
 		"	void parent(int value) { /* Parent#parent(...) */}\n" +
 		"	                ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
@@ -683,32 +684,32 @@ public void test020() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	void foo(int value) { // X#foo(...)\n" +
 		"	             ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 5)\n" +
 		"	void bar(int value) { // X#bar(...)\n" +
 		"	             ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 9)\n" +
 		"	void top(int value) { /* X#top(...)*/}\n" +
 		"	             ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 11)\n" +
 		"	void parent(int value) { /* X#parent(...) */}\n" +
 		"	                ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"5. ERROR in X.java (at line 13)\n" +
 		"	public void doit(int value) { /* X#doit(...) */}\n" +
 		"	                     ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n" +
 		"6. ERROR in X.java (at line 21)\n" +
 		"	void parent(int value) { /* Parent#parent(...) */}\n" +
 		"	                ^^^^^\n" +
-		"The parameter value is never read\n" +
+		"The value of the parameter value is not used\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);

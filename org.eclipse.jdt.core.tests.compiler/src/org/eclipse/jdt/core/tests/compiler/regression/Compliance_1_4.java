@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1713,7 +1714,7 @@ public void test052() {
 		"1. WARNING in p\\A.java (at line 6)\n" +
 		"	private int i;\n" +
 		"	            ^\n" +
-		"The field A.i is never read locally\n" +
+		"The value of the field A.i is not used\n" +
 		"----------\n" +
 		"2. ERROR in p\\A.java (at line 8)\n" +
 		"	int x = i;\n" +
@@ -1946,7 +1947,7 @@ public void test059() {
 		"3. WARNING in p\\FieldQualification.java (at line 6)\n" +
 		"	String field = \"Enclosing field for anonymous type\";\n" +
 		"	       ^^^^^\n" +
-		"The field Local.field is never read locally\n" +
+		"The value of the field Local.field is not used\n" +
 		"----------\n" +
 		"4. WARNING in p\\FieldQualification.java (at line 7)\n" +
 		"	void foo() {\n" +

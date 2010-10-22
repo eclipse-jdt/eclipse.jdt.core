@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -660,7 +661,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"1. WARNING in bug\\C.java (at line 3)\n" +
 			"	private static B b;\n" +
 			"	                 ^\n" +
-			"The field C.b is never read locally\n" +
+			"The value of the field C.b is not used\n" +
 			"----------\n");
 	}
 

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -143,7 +144,7 @@ public void test0002_unread_parameters() {
 		"1. WARNING in X.java (at line 2)\r\n" +
 		"	public void foo(boolean b) {\r\n" +
 		"	                        ^\n" +
-		"The parameter b is never read\n" +
+		"The value of the parameter b is not used\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
@@ -214,7 +215,7 @@ public void test0004_unread_parameters() {
 		"1. WARNING in X.java (at line 3)\n" +
 		"	public void foo(boolean b) {\n" +
 		"	                        ^\n" +
-		"The parameter b is never read\n" +
+		"The value of the parameter b is not used\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
@@ -279,7 +280,7 @@ public void test0006_unread_parameters() {
 		"1. ERROR in X.java (at line 2)\r\n" +
 		"	public void foo(boolean b) {\r\n" +
 		"	                        ^\n" +
-		"The parameter b is never read\n" +
+		"The value of the parameter b is not used\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
@@ -555,7 +556,7 @@ public void test0014_declared_thrown_checked_exceptions_unread_parameters() {
 		"1. WARNING in X.java (at line 3)\n" +
 		"	void foo(int unused) throws IOException {}\n" +
 		"	             ^^^^^^\n" +
-		"The parameter unused is never read\n" +
+		"The value of the parameter unused is not used\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	void foo(int unused) throws IOException {}\n" +
@@ -594,7 +595,7 @@ public void test0015_declared_thrown_checked_exceptions_unread_parameters() {
 		"1. WARNING in X.java (at line 3)\n" +
 		"	void foo(int unused) throws IOException {}\n" +
 		"	             ^^^^^^\n" +
-		"The parameter unused is never read\n" +
+		"The value of the parameter unused is not used\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 3)\n" +
 		"	void foo(int unused) throws IOException {}\n" +
@@ -631,7 +632,7 @@ public void test0016_unread_parameters_constructor() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	public X(boolean b) {\n" +
 		"	                 ^\n" +
-		"The parameter b is never read\n" +
+		"The value of the parameter b is not used\n" +
 		"----------\n" /* expectedCompilerLog */,
 		"" /* expectedOutputString */,
 		false /* forceExecution */,
@@ -1683,4 +1684,441 @@ public void test0045() {
 		"The assignment to variable nvx has no effect\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
+public void test0046() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n" + 
+				"    int foo() {\n" + 
+				"        int i=1;\n" + 
+				"        boolean b=false;\n" + 
+				"        b|=true;\n" + 			// not a relevant usage
+				"        int k = 2;\n" + 
+				"        --k;\n" + 				// not a relevant usage
+				"        k+=3;\n" + 			// not a relevant usage
+				"        Integer j = 3;\n" + 
+				"        j++;\n" + 				// relevant because unboxing is involved
+				"        i++;\n" +				// not relevant but should still not report because next is relevant
+				"        return i++;\n" + 		// value after increment is used
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	boolean b=false;\n" + 
+			"	        ^\n" + 
+			"The value of the local variable b is not used\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	int k = 2;\n" + 
+			"	    ^\n" + 
+			"The value of the local variable k is not used\n" + 
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
+// variant with private fields instead of locals
+public void test0046_field() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n" + 
+				"    private int i=1;\n" + 
+				"    private boolean b=false;\n" + 
+				"    private int k = 2;\n" + 
+				"    private Integer j = 3;\n" + 
+				"    int foo() {\n" + 
+				"        b|=true;\n" + 			// not a relevant usage
+				"        --k;\n" + 				// not a relevant usage
+				"        k+=3;\n" + 			// not a relevant usage
+				"        j++;\n" + 				// relevant because unboxing is involved
+				"        return i++;\n" + 		// value after increment is used
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	private boolean b=false;\n" + 
+			"	                ^\n" + 
+			"The value of the field X.b is not used\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	private int k = 2;\n" + 
+			"	            ^\n" + 
+			"The value of the field X.k is not used\n" + 
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
+// variant with private fields instead of locals - this-qualified access
+public void test0046_field_this_qualified() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n" + 
+				"    private int i=1;\n" + 
+				"    private boolean b=false;\n" + 
+				"    private int k = 2;\n" + 
+				"    private Integer j = 3;\n" + 
+				"    int foo() {\n" + 
+				"        this.b|=true;\n" + 		// not a relevant usage
+				"        --this.k;\n" + 			// not a relevant usage
+				"        getThis().k+=3;\n" + 		// not a relevant usage
+				"        this.j++;\n" + 			// relevant because unboxing is involved
+				"        return this.i++;\n" + 		// value after increment is used
+				"    }\n" +
+				"    X getThis() { return this; }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	private boolean b=false;\n" + 
+			"	                ^\n" + 
+			"The value of the field X.b is not used\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	private int k = 2;\n" + 
+			"	            ^\n" + 
+			"The value of the field X.k is not used\n" + 
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
+// variant with private fields instead of locals - regular qualified access
+public void test0046_field_qualified() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n" + 
+				"    private int i=1;\n" + 
+				"    private boolean b=false;\n" + 
+				"    private int k = 2;\n" + 
+				"    private Integer j = 3;\n" + 
+				"    int foo(X that) {\n" + 
+				"        that.b|=true;\n" + 		// not a relevant usage
+				"        --that.k;\n" + 			// not a relevant usage
+				"        that.k+=3;\n" + 			// not a relevant usage
+				"        that.j++;\n" + 			// relevant because unboxing is involved
+				"        that.i++;\n"+				// not relevant but should still not report because next is relevant
+				"        return that.i++;\n" + 		// value after increment is used
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	private boolean b=false;\n" + 
+			"	                ^\n" + 
+			"The value of the field X.b is not used\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	private int k = 2;\n" + 
+			"	            ^\n" + 
+			"The value of the field X.k is not used\n" + 
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
+// variant with fields inside a private type
+public void test0046_field_in_private_type() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n" +
+				"    private class Y {\n" + 
+				"        int i=1;\n" + 
+				"        public boolean b=false;\n" + 
+				"        protected int k = 2;\n" + 
+				"        Integer j = 3;\n" +
+				"    }\n" + 
+				"    int foo(Y y) {\n" + 
+				"        y.b|=true;\n" + 				// not a relevant usage
+				"        --y.k;\n" + 					// not a relevant usage
+				"        y.k+=3;\n" + 					// not a relevant usage
+				"        y.j++;\n" + 					// relevant because unboxing is involved
+				"        int result = y.i++;\n" + 	// value after increment is used
+				"        y.i++;\n" +					// not relevant, but previous is
+				"        return result;\n" +
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	public boolean b=false;\n" + 
+			"	               ^\n" + 
+			"The value of the field X.Y.b is not used\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	protected int k = 2;\n" + 
+			"	              ^\n" + 
+			"The value of the field X.Y.k is not used\n" + 
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
+public void test0047() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n" + 
+				"    void foo(int param1, int param2, Integer param3) {\n" + 
+				"        boolean b=false;\n" + 
+				"        b|=true;\n" + 			// not a relevant usage
+				"        param1++;\n" + 		// not a relevant usage
+				"        {\n" +
+				"            int val=23;\n" +
+				"            param2 += val;\n" +// not a relevant usage of param2
+				"        }\n" +
+				"        param3++;\n" + 		// relevant because unboxing is involved
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	void foo(int param1, int param2, Integer param3) {\n" + 
+			"	             ^^^^^^\n" + 
+			"The value of the parameter param1 is not used\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 2)\n" + 
+			"	void foo(int param1, int param2, Integer param3) {\n" + 
+			"	                         ^^^^^^\n" + 
+			"The value of the parameter param2 is not used\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 3)\n" + 
+			"	boolean b=false;\n" + 
+			"	        ^\n" + 
+			"The value of the local variable b is not used\n" + 
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
+// To verify that unused parameter warning is not shown for an implementing method's parameter when
+// CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract is disabled
+public void test0048() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends A implements Y{\n" + 
+				"   public void foo(int param1, int param2, Integer param3) {\n" + // implementing method, so dont warn
+				"        boolean b=false;\n" + 
+				"        b|=true;\n" + 			// not a relevant usage
+				"        param1++;\n" + 		// not a relevant usage
+				"        param2 += 1;\n" + 		// not a relevant usage
+				"        param3++;\n" + 		// relevant because unboxing is involved
+				"    }\n" + 
+				"   public void foo(int param1, int param2) {\n" + // warn
+				"        boolean b=false;\n" + 
+				"        b|=true;\n" + 			// not a relevant usage
+				"        param1++;\n" + 		// not a relevant usage
+				"        param2 += 1;\n" + 		// not a relevant usage
+				"    }\n" +
+				"   public void bar(int param1, int param2, Integer param3) {\n" + // implementing method, so dont warn
+				"        param1++;\n" + 		// not a relevant usage
+				"        param2 += 1;\n" + 		// not a relevant usage
+				"        param3++;\n" + 		// relevant because unboxing is involved
+				"    }\n" +
+				"}\n" +
+				"interface Y{\n" +
+				"	public void foo(int param1, int param2, Integer param3);" +
+				"}\n" +
+				"abstract class A{\n" +
+				"	public abstract void bar(int param1, int param2, Integer param3);" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	boolean b=false;\n" + 
+			"	        ^\n" + 
+			"The value of the local variable b is not used\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	public void foo(int param1, int param2) {\n" + 
+			"	                    ^^^^^^\n" + 
+			"The value of the parameter param1 is not used\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	public void foo(int param1, int param2) {\n" + 
+			"	                                ^^^^^^\n" + 
+			"The value of the parameter param2 is not used\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 10)\n" + 
+			"	boolean b=false;\n" + 
+			"	        ^\n" + 
+			"The value of the local variable b is not used\n" + 
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
+// To verify that unused parameter warning is not shown for an overriding method's parameter when
+// CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete is disabled
+public void test0049() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X extends A {\n" + 
+				"   public void foo(int param1, int param2, Integer param3) {\n" + // overriding method, so dont warn
+				"        boolean b=false;\n" + 
+				"        b|=true;\n" + 			// not a relevant usage
+				"        param1++;\n" + 		// not a relevant usage
+				"        param2 += 1;\n" + 		// not a relevant usage
+				"        param3++;\n" + 		// relevant because unboxing is involved
+				"    }\n" + 
+				"   public void foo(int param1, Integer param3) {\n" + // overriding method, so dont warn
+				"        param1++;\n" + 		// not a relevant usage
+				"        param3++;\n" + 		// relevant because unboxing is involved
+				"    }\n" + 
+				"}\n" +
+				"class A{\n" +
+				"   public void foo(int param1, int param2, Integer param3) {\n" +
+				"        param1 -=1;\n" + 		// not a relevant usage
+				"        param2--;\n" + 		// not a relevant usage
+				"        param3--;\n" + 		// relevant because unboxing is involved
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	boolean b=false;\n" + 
+			"	        ^\n" + 
+			"The value of the local variable b is not used\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	public void foo(int param1, Integer param3) {\n" + 
+			"	                    ^^^^^^\n" + 
+			"The value of the parameter param1 is not used\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 15)\n" + 
+			"	public void foo(int param1, int param2, Integer param3) {\n" + 
+			"	                    ^^^^^^\n" + 
+			"The value of the parameter param1 is not used\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 15)\n" + 
+			"	public void foo(int param1, int param2, Integer param3) {\n" + 
+			"	                                ^^^^^^\n" + 
+			"The value of the parameter param2 is not used\n" + 
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
+// To verify that unused local warning is not shown for locals declared in unreachable code
+public void test0050() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n" + 
+				"    int foo() {\n" + 
+				"        int i=1;\n" +
+				"		 if (false) {\n" + 
+				"        	boolean b=false;\n" + // don't complain as unused
+				"        	b|=true;\n" +
+				"		 }\n" + 			// not a relevant usage
+				"        int k = 2;\n" + 
+				"        --k;\n" + 			// not a relevant usage
+				"        k+=3;\n" + 		// not a relevant usage
+				"        Integer j = 3;\n" + 
+				"        j++;\n" + 			// relevant because unboxing is involved
+				"        return i++;\n" + 	// value after increment is used
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	if (false) {\n" + 
+			"        	boolean b=false;\n" + 
+			"        	b|=true;\n" + 
+			"		 }\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	int k = 2;\n" + 
+			"	    ^\n" + 
+			"The value of the local variable k is not used\n" + 
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
+// To verify that a constructor argument is handled correctly
+public void test0051() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"class X {\n" + 
+					"    X(int abc) {\n" + 
+					"        abc++;\n" +    // not a relevant usage
+					"    }\n" + 
+					"}"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	X(int abc) {\n" + 
+			"	      ^^^\n" + 
+			"The value of the parameter abc is not used\n" + 
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+
 }
