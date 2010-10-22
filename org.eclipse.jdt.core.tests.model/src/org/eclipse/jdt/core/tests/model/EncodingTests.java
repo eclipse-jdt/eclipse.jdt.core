@@ -941,53 +941,57 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=303511"
 	 */
 	public void testBug303511() throws JavaModelException, CoreException {
-
-		// Set file encoding
-		String encoding = "Shift-JIS";
-		if (wkspEncoding.equals(encoding))
-			getWorkspaceRoot().setDefaultCharset("UTF-8", null);
-		IFile zipFile = (IFile) this.encodingProject.findMember("testShiftJIS.zip"); //$NON-NLS-1$
-		IFile sourceFile = (IFile) this.encodingProject.findMember("src/testShiftJIS/A.java");
 		
-		assertNotNull("Cannot find class file!", zipFile);
-		zipFile.setCharset(encoding, null);
+		try {
+			// Set file encoding
+			String encoding = "Shift-JIS";
+			if (wkspEncoding.equals(encoding))
+				getWorkspaceRoot().setDefaultCharset("UTF-8", null);
+			IFile zipFile = (IFile) this.encodingProject.findMember("testShiftJIS.zip"); //$NON-NLS-1$
+			IFile sourceFile = (IFile) this.encodingProject.findMember("src/testShiftJIS/A.java");
+			
+			assertNotNull("Cannot find class file!", zipFile);
+			zipFile.setCharset(encoding, null);
 
-		// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
-		IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testShiftJIS.jar");
-		ISourceReference sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
-		assertNotNull(sourceRef);
-		String source = sourceRef.getSource();
-		assertNotNull(source);
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
-		assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+			// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
+			IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testShiftJIS.jar");
+			ISourceReference sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			String source = sourceRef.getSource();
+			assertNotNull(source);
+			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
 
-		// Reset zip file encoding
-		zipFile.setCharset(null, null);
-		String oldEncoding = this.encodingProject.getDefaultCharset();
-		this.encodingProject.setDefaultCharset(encoding, null);
+			// Reset zip file encoding
+			zipFile.setCharset(null, null);
+			String oldEncoding = this.encodingProject.getDefaultCharset();
+			this.encodingProject.setDefaultCharset(encoding, null);
 
-		root = getPackageFragmentRoot("Encoding", "testShiftJIS.jar");
-		sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
-		assertNotNull(sourceRef);
-		source = sourceRef.getSource();
-		assertNotNull(source);
-		encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
-		assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
-		
-		this.encodingProject.setDefaultCharset(null, null);
+			root = getPackageFragmentRoot("Encoding", "testShiftJIS.jar");
+			sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			source = sourceRef.getSource();
+			assertNotNull(source);
+			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+			
+			this.encodingProject.setDefaultCharset(null, null);
 
-		root = getPackageFragmentRoot("Encoding", "testShiftJIS.jar");
-		sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
-		assertNotNull(sourceRef);
-		source = sourceRef.getSource();
-		assertNotNull(source);
-		encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
-		assertFalse("Sources should be decoded the same way", encodedContents.equals(source));		
+			root = getPackageFragmentRoot("Encoding", "testShiftJIS.jar");
+			sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			source = sourceRef.getSource();
+			assertNotNull(source);
+			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			assertFalse("Sources should be decoded the same way", encodedContents.equals(source));		
 
-		// Reset zip file encoding
-		zipFile.setCharset(null, null);
-		this.encodingProject.setDefaultCharset(oldEncoding, null);
-		getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
+			// Reset zip file encoding
+			zipFile.setCharset(null, null);
+			this.encodingProject.setDefaultCharset(oldEncoding, null);
+		}
+		finally {
+			getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
+		}
 	}
 
 	/**
@@ -1000,58 +1004,62 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=303511"
 	 */
 	public void testBug303511a() throws JavaModelException, CoreException {
-		// Set file encoding
-		String encoding = "Shift-JIS";
-		if (wkspEncoding.equals(encoding))
-			getWorkspaceRoot().setDefaultCharset("UTF-8", null);
-		String externalPath = this.encodingProject.getLocation().toOSString() + File.separator + "testShiftJIS.zip";
-		IFile sourceFile = (IFile) this.encodingProject.findMember("src/testShiftJIS/A.java");
-		getWorkspaceRoot().setDefaultCharset(encoding, null);
-		
-		IClasspathEntry[] entries = this.encodingJavaProject.getRawClasspath();
-		IClasspathEntry oldEntry = null;
-		for (int index = 0; index < entries.length; index++) {
-			IClasspathEntry entry = entries[index];
-			if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
-				oldEntry = entry;
-				IClasspathEntry newEntry = JavaCore.newLibraryEntry(entry.getPath(), new Path(externalPath), null);
-				entries[index] = newEntry; 
+		try {
+			// Set file encoding
+			String encoding = "Shift-JIS";
+			if (wkspEncoding.equals(encoding))
+				getWorkspaceRoot().setDefaultCharset("UTF-8", null);
+			String externalPath = this.encodingProject.getLocation().toOSString() + File.separator + "testShiftJIS.zip";
+			IFile sourceFile = (IFile) this.encodingProject.findMember("src/testShiftJIS/A.java");
+			getWorkspaceRoot().setDefaultCharset(encoding, null);
+			
+			IClasspathEntry[] entries = this.encodingJavaProject.getRawClasspath();
+			IClasspathEntry oldEntry = null;
+			for (int index = 0; index < entries.length; index++) {
+				IClasspathEntry entry = entries[index];
+				if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
+					oldEntry = entry;
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(entry.getPath(), new Path(externalPath), null);
+					entries[index] = newEntry; 
+				}
 			}
-		}
-		this.encodingJavaProject.setRawClasspath(entries, null);
-		this.encodingJavaProject.getResolvedClasspath(true);
-		
-		// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
-		IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testShiftJIS.jar");
-		ISourceReference sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
-		assertNotNull(sourceRef);
-		String source = sourceRef.getSource();
-		assertNotNull(source);
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
-		assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+			this.encodingJavaProject.setRawClasspath(entries, null);
+			this.encodingJavaProject.getResolvedClasspath(true);
+			
+			// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
+			IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testShiftJIS.jar");
+			ISourceReference sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			String source = sourceRef.getSource();
+			assertNotNull(source);
+			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
 
-		entries = this.encodingJavaProject.getRawClasspath();
-		String sourcePath = this.encodingProject.getLocation().toOSString() + File.separator + "src";
-		for (int index = 0; index < entries.length; index++) {
-			IClasspathEntry entry = entries[index];
-			if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
-				IClasspathEntry newEntry = JavaCore.newLibraryEntry(entry.getPath(), new Path(sourcePath), null);
-				entries[index] = newEntry; 
+			entries = this.encodingJavaProject.getRawClasspath();
+			String sourcePath = this.encodingProject.getLocation().toOSString() + File.separator + "src";
+			for (int index = 0; index < entries.length; index++) {
+				IClasspathEntry entry = entries[index];
+				if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(entry.getPath(), new Path(sourcePath), null);
+					entries[index] = newEntry; 
+				}
 			}
-		}
-		this.encodingJavaProject.setRawClasspath(entries, null);
-		this.encodingJavaProject.getResolvedClasspath(true);
-		
-		entries = this.encodingJavaProject.getRawClasspath();
-		for (int index = 0; index < entries.length; index++) {
-			IClasspathEntry entry = entries[index];
-			if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
-				entries[index] = oldEntry;
+			this.encodingJavaProject.setRawClasspath(entries, null);
+			this.encodingJavaProject.getResolvedClasspath(true);
+			
+			entries = this.encodingJavaProject.getRawClasspath();
+			for (int index = 0; index < entries.length; index++) {
+				IClasspathEntry entry = entries[index];
+				if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
+					entries[index] = oldEntry;
+				}
 			}
+			this.encodingJavaProject.setRawClasspath(entries, null);
+			this.encodingJavaProject.getResolvedClasspath(true);
 		}
-		this.encodingJavaProject.setRawClasspath(entries, null);
-		this.encodingJavaProject.getResolvedClasspath(true);
-		getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
+		finally {
+			getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
+		}
 	}
 
 	/**
