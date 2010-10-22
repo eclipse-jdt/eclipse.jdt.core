@@ -11112,4 +11112,25 @@ public void test213a() {
 		compilerOptions14,
 		null);
 }
+public void test326354() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X extends Y<I>  implements I {\n" +
+					"    public static void main(String[] args) {\n" +
+					"        ((I) new X()).foo(null);\n" +
+					"    }\n" +
+					"}\n" +
+					"\n" +
+					"interface I {\n" +
+					"    public void foo(I i);\n" +
+					"}\n" +
+					" \n" +
+					"abstract class Y<T> {\n" +
+					"	   public void foo(T t) {}\n" +
+					"}\n"
+			},
+			""
+	);
+}
 }
