@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,9 +24,11 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IOpenable;
@@ -929,7 +931,245 @@ public class EncodingTests extends ModifyingResourceTests {
 			preferences.flush();
 		}
 	}
+	
+	/**
+	 * Bug 303511: Allow to specify encoding for source attachments
+	 * Test whether the source mapper picks the right encoding for the source attachment as a ZIP in workspace.
+	 * The encoding could be explicitly set in the absence of which the inherited value from the project
+	 * is taken.
+	 *
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=303511"
+	 */
+	public void testBug303511() throws JavaModelException, CoreException {
 
+		// Set file encoding
+		String encoding = "Shift-JIS";
+		if (wkspEncoding.equals(encoding))
+			getWorkspaceRoot().setDefaultCharset("UTF-8", null);
+		IFile zipFile = (IFile) this.encodingProject.findMember("testShiftJIS.zip"); //$NON-NLS-1$
+		IFile sourceFile = (IFile) this.encodingProject.findMember("src/testShiftJIS/A.java");
+		
+		assertNotNull("Cannot find class file!", zipFile);
+		zipFile.setCharset(encoding, null);
+
+		// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
+		IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testShiftJIS.jar");
+		ISourceReference sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+		assertNotNull(sourceRef);
+		String source = sourceRef.getSource();
+		assertNotNull(source);
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+		assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+
+		// Reset zip file encoding
+		zipFile.setCharset(null, null);
+		String oldEncoding = this.encodingProject.getDefaultCharset();
+		this.encodingProject.setDefaultCharset(encoding, null);
+
+		root = getPackageFragmentRoot("Encoding", "testShiftJIS.jar");
+		sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+		assertNotNull(sourceRef);
+		source = sourceRef.getSource();
+		assertNotNull(source);
+		encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+		assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+		
+		this.encodingProject.setDefaultCharset(null, null);
+
+		root = getPackageFragmentRoot("Encoding", "testShiftJIS.jar");
+		sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+		assertNotNull(sourceRef);
+		source = sourceRef.getSource();
+		assertNotNull(source);
+		encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+		assertFalse("Sources should be decoded the same way", encodedContents.equals(source));		
+
+		// Reset zip file encoding
+		zipFile.setCharset(null, null);
+		this.encodingProject.setDefaultCharset(oldEncoding, null);
+		getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
+	}
+
+	/**
+	 * Bug 303511: Allow to specify encoding for source attachments
+	 * Test whether the source mapper picks the right encoding for an external source attachment
+	 * The attachment could be an external folder or external archive and have the encoding 
+	 * explicitly set. In the absence of encoding for the source attachment resource, the default
+	 * encoding from the workspace is applied.  
+	 *
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=303511"
+	 */
+	public void testBug303511a() throws JavaModelException, CoreException {
+		// Set file encoding
+		String encoding = "Shift-JIS";
+		if (wkspEncoding.equals(encoding))
+			getWorkspaceRoot().setDefaultCharset("UTF-8", null);
+		String externalPath = this.encodingProject.getLocation().toOSString() + File.separator + "testShiftJIS.zip";
+		IFile sourceFile = (IFile) this.encodingProject.findMember("src/testShiftJIS/A.java");
+		getWorkspaceRoot().setDefaultCharset(encoding, null);
+		
+		IClasspathEntry[] entries = this.encodingJavaProject.getRawClasspath();
+		IClasspathEntry oldEntry = null;
+		for (int index = 0; index < entries.length; index++) {
+			IClasspathEntry entry = entries[index];
+			if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
+				oldEntry = entry;
+				IClasspathEntry newEntry = JavaCore.newLibraryEntry(entry.getPath(), new Path(externalPath), null);
+				entries[index] = newEntry; 
+			}
+		}
+		this.encodingJavaProject.setRawClasspath(entries, null);
+		this.encodingJavaProject.getResolvedClasspath(true);
+		
+		// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
+		IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testShiftJIS.jar");
+		ISourceReference sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+		assertNotNull(sourceRef);
+		String source = sourceRef.getSource();
+		assertNotNull(source);
+		String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+		assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+
+		entries = this.encodingJavaProject.getRawClasspath();
+		String sourcePath = this.encodingProject.getLocation().toOSString() + File.separator + "src";
+		for (int index = 0; index < entries.length; index++) {
+			IClasspathEntry entry = entries[index];
+			if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
+				IClasspathEntry newEntry = JavaCore.newLibraryEntry(entry.getPath(), new Path(sourcePath), null);
+				entries[index] = newEntry; 
+			}
+		}
+		this.encodingJavaProject.setRawClasspath(entries, null);
+		this.encodingJavaProject.getResolvedClasspath(true);
+		
+		entries = this.encodingJavaProject.getRawClasspath();
+		for (int index = 0; index < entries.length; index++) {
+			IClasspathEntry entry = entries[index];
+			if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
+				entries[index] = oldEntry;
+			}
+		}
+		this.encodingJavaProject.setRawClasspath(entries, null);
+		this.encodingJavaProject.getResolvedClasspath(true);
+		getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
+	}
+
+	/**
+	 * Bug 303511: Allow to specify encoding for source attachments
+	 * Test that, for a source attachment in form of archives from another project (in the same workspace), the
+	 * encoding of the archive (IResource), if set, is used. In the absence of explicit encoding, the encoding 
+	 * of the project that contains this archive is used.
+	 *
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=303511"
+	 */
+	public void testBug303511b() throws Exception{
+		try{
+			String encoding = "Shift-JIS";
+			if (wkspEncoding.equals(encoding))
+				getWorkspaceRoot().setDefaultCharset("UTF-8", null);
+			IJavaProject project = this.createJavaProject("Encoding2", new String[] {""}, "");
+			String oldEncoding = this.encodingProject.getDefaultCharset();
+			IFile zipFile = (IFile) this.encodingProject.findMember("testShiftJIS.zip"); //$NON-NLS-1$
+			IFile sourceFile = (IFile) this.encodingProject.findMember("src/testShiftJIS/A.java");
+			assertNotNull("Cannot find class file!", zipFile);
+
+			zipFile.setCharset(encoding, null);
+
+			IClasspathEntry[] entries = this.encodingJavaProject.getRawClasspath();
+			IClasspathEntry newEntry = null;
+			for (int index = 0; index < entries.length; index++) {
+				IClasspathEntry entry = entries[index];
+				if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
+					newEntry = entries[index]; 
+				}
+			}
+			project.setRawClasspath(new IClasspathEntry[]{JavaCore.newLibraryEntry(newEntry.getPath(), new Path("/Encoding/testShiftJIS.zip"), null)}, null);
+
+			IPackageFragmentRoot root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			ISourceReference sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			String source = sourceRef.getSource();
+			assertNotNull(source);
+			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+
+			zipFile.setCharset(null, null);
+			this.encodingProject.setDefaultCharset(encoding, null);
+
+			root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			source = sourceRef.getSource();
+			assertNotNull(source);
+			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+			
+			this.encodingProject.setDefaultCharset(oldEncoding, null);
+		}
+		finally {
+			deleteProject("Encoding2");
+			getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
+		}
+	}
+	/**
+	 * Bug 303511: Allow to specify encoding for source attachments
+	 * Test that, for a source attachment in form of folder from another project (in the same workspace), the
+	 * encoding of the folder (IResource), if set, is used. In the absence of explicit encoding, the encoding 
+	 * of the project which contains this folder is used.
+	 *
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=303511"
+	 */
+	public void testBug303511c() throws Exception{
+		try{
+			String encoding = "Shift-JIS";
+			if (wkspEncoding.equals(encoding))
+				getWorkspaceRoot().setDefaultCharset("UTF-8", null);
+			IJavaProject project = this.createJavaProject("Encoding2", new String[] {""}, "");
+			String oldEncoding = this.encodingProject.getDefaultCharset();
+			IFile zipFile = (IFile) this.encodingProject.findMember("testShiftJIS.zip"); //$NON-NLS-1$
+			IFile sourceFile = (IFile) this.encodingProject.findMember("src/testShiftJIS/A.java");
+			assertNotNull("Cannot find class file!", zipFile);
+			
+			IClasspathEntry[] entries = this.encodingJavaProject.getRawClasspath();
+			IClasspathEntry newEntry = null;
+			for (int index = 0; index < entries.length; index++) {
+				IClasspathEntry entry = entries[index];
+				if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
+					newEntry = entries[index]; 
+				}
+			}
+
+			project.setRawClasspath(new IClasspathEntry[]{JavaCore.newLibraryEntry(newEntry.getPath(), new Path("/Encoding/src"), null)}, null);
+			this.encodingProject.setDefaultCharset(encoding, null);
+			sourceFile.setCharset(null, null);
+			
+			IPackageFragmentRoot root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			ISourceReference sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			String source = sourceRef.getSource();
+			assertNotNull(source);
+			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+			
+			this.encodingProject.setDefaultCharset(oldEncoding, null);
+			sourceFile.setCharset(encoding, null);
+
+			root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			source = sourceRef.getSource();
+			assertNotNull(source);
+			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));	
+			
+			sourceFile.setCharset(null, null);
+		}
+		finally {
+			deleteProject("Encoding2");
+			getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
+		}
+	}
+	
 	private void verifyUtf8BOM(IFile file) throws CoreException {
 		assertNull("File should not have any explicit charset", file.getCharset(false));
 		IContentDescription contentDescription = file.getContentDescription();

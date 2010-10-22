@@ -918,6 +918,7 @@ public class SourceMapper
 	public char[] findSource(String fullName) {
 		char[] source = null;
 		Object target = JavaModel.getTarget(this.sourcePath, true);
+		String charSet = null;
 		if (target instanceof IContainer) {
 			IResource res = ((IContainer)target).findMember(fullName);
 			if (res instanceof IFile) {
@@ -928,6 +929,15 @@ public class SourceMapper
 				}
 			}
 		} else {
+			try {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=303511
+				// For a resource inside the workspace, use the encoding set on the resource
+				if (target instanceof IFile)
+					charSet = ((IFile)target).getCharset();
+			} catch (CoreException e) {
+				// Ignore
+			}
+			
 			// try to get the entry
 			ZipEntry entry = null;
 			ZipFile zip = null;
@@ -937,7 +947,7 @@ public class SourceMapper
 				entry = zip.getEntry(fullName);
 				if (entry != null) {
 					// now read the source code
-					source = readSource(entry, zip);
+					source = readSource(entry, zip, charSet);
 				}
 			} catch (CoreException e) {
 				return null;
@@ -1275,11 +1285,11 @@ public class SourceMapper
 			this.typeDepth = -1;
 		}
 	}
-	private char[] readSource(ZipEntry entry, ZipFile zip) {
+	private char[] readSource(ZipEntry entry, ZipFile zip, String charSet) {
 		try {
 			byte[] bytes = Util.getZipEntryByteContent(entry, zip);
 			if (bytes != null) {
-				return Util.bytesToChar(bytes, this.encoding);
+				return Util.bytesToChar(bytes, charSet == null ? this.encoding : charSet);
 			}
 		} catch (IOException e) {
 			// ignore

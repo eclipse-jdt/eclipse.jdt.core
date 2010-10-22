@@ -5,4 +5,5 @@
     <classpathentry kind="output" path="bin"/>
     <classpathentry kind="lib" sourcepath="src" path="bins"/>
     <classpathentry kind="lib" path="testUTF8.jar" sourcepath="/Encoding/testUTF8.zip" rootpath=""/>
+    <classpathentry kind="lib" path="testShiftJIS.jar" sourcepath="/Encoding/testShiftJIS.zip" rootpath=""/>
 </classpath>
