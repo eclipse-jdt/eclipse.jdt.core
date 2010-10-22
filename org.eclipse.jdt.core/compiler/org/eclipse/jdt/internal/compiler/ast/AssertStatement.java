@@ -86,7 +86,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		CompilerOptions compilerOptions = currentScope.compilerOptions();
 		if (!compilerOptions.includeNullInfoFromAsserts) {
 			// keep just the initializations info, don't include assert's null info
-			return flowInfo.addInitializationsFrom(assertInfo.nullInfoLessUnconditionalCopy());
+			return flowInfo.mergedWith(assertInfo.nullInfoLessUnconditionalCopy());
 		}
 		return flowInfo.mergedWith(assertInfo.nullInfoLessUnconditionalCopy()).
 			addInitializationsFrom(assertWhenTrueInfo.discardInitializationInfo());

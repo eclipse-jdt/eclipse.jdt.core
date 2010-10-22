@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -507,5 +507,114 @@ public class AssertionTest extends AbstractRegressionTest {
 			"The local variable error6 may not have been initialized\n" + 
 			"----------\n");
 	}
-	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
+	public void test018() {
+		this.runNegativeTest(new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static final int i;\n" + 
+			"    static {\n" + 
+			"        assert (i = 0) == 0;\n" + 
+			"        System.out.println(i);\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	static final int i;\n" + 
+		"	                 ^\n" + 
+		"The blank final field i may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	System.out.println(i);\n" + 
+		"	                   ^\n" + 
+		"The blank final field i may not have been initialized\n" + 
+		"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
+	public void test019() {
+		this.runConformTest(new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static final int i;\n" + 
+			"    static {\n" +
+			"        i = 0;\n" + 
+			"        assert i == 0;\n" + 
+			"        System.out.println(i);\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
+	public void test020() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" +
+						"    void method1() {\n" +
+						"		 int i;" +	
+						"        assert (i = 0) == 0;\n" +	
+						"        System.out.println(i);\n" +	
+						"    }\n" +	
+						"}\n"	
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	System.out.println(i);\n" + 
+			"	                   ^\n" + 
+			"The local variable i may not have been initialized\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
+	public void test021() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+					"	public int bar() {\n" +
+					"		return 1;\n" +
+					"	}\n" +
+					"    void method1() {\n" +
+						"		 int i;" +	
+						"        assert (i = this.bar()) == 0;\n" +	
+						"        System.out.println(i);\n" +	
+						"    }\n" +	
+						"}\n"	
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	System.out.println(i);\n" + 
+			"	                   ^\n" + 
+			"The local variable i may not have been initialized\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328361
+	public void test022() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+					"	public int bar() {\n" +
+					"		return 1;\n" +
+					"	}\n" +
+					"    void method1() {\n" +
+						"		 int i;\n" +	
+						"        assert i++ == 0;\n" +	
+						"        System.out.println(i);\n" +	
+						"    }\n" +	
+						"}\n"	
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	assert i++ == 0;\n" + 
+			"	       ^\n" + 
+			"The local variable i may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	System.out.println(i);\n" + 
+			"	                   ^\n" + 
+			"The local variable i may not have been initialized\n" + 
+			"----------\n");
+	}
 }
