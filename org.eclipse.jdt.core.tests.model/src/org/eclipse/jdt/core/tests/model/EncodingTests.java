@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -463,19 +464,24 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Verification is done by comparing source with file contents read directly with UTF-8 encoding...
 	 */
 	public void test022() throws JavaModelException, CoreException {
+		String oldEncoding = this.encodingProject.getDefaultCharset();
+		try{
+			// Set project encoding
+			String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
+			this.encodingProject.setDefaultCharset(vmEncoding, null);
 
-		// Set project encoding
-		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
-		this.encodingProject.setDefaultCharset(encoding, null);
-
-		// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
-		IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testUTF8.jar");
-		this.utf8Source = root.getPackageFragment("testUTF8").getClassFile("Test.class");
-		assertNotNull(this.utf8Source);
-		String source = this.utf8Source.getSource();
-		assertNotNull(source);
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding));
-		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
+			// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
+			IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testUTF8.jar");
+			this.utf8Source = root.getPackageFragment("testUTF8").getClassFile("Test.class");
+			assertNotNull(this.utf8Source);
+			String source = this.utf8Source.getSource();
+			assertNotNull(source);
+			String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding));
+			assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
+		}
+		finally{
+			this.encodingProject.setDefaultCharset(oldEncoding, null);			
+		}
 	}
 
 	/*
@@ -483,24 +489,26 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Verification is done by comparing source with file contents read directly with UTF-8 encoding...
 	 */
 	public void test023() throws JavaModelException, CoreException {
-
-		// Set file encoding
-		String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
 		IFile zipFile = (IFile) this.encodingProject.findMember("testUTF8.zip"); //$NON-NLS-1$
-		assertNotNull("Cannot find class file!", zipFile);
-		zipFile.setCharset(encoding, null);
+		try {
+			// Set file encoding
+			String encoding = "UTF-8".equals(vmEncoding) ? "Cp1252" : "UTF-8";
+			assertNotNull("Cannot find class file!", zipFile);
+			zipFile.setCharset(vmEncoding, null);
 
-		// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
-		IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testUTF8.jar");
-		this.utf8Source = root.getPackageFragment("testUTF8").getClassFile("Test.class");
-		assertNotNull(this.utf8Source);
-		String source = this.utf8Source.getSource();
-		assertNotNull(source);
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding));
-		assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
-
-		// Reset zip file encoding
-		zipFile.setCharset(null, null);
+			// Get class file and compare source (should not be the same as modify charset on zip file has no effect...)
+			IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testUTF8.jar");
+			this.utf8Source = root.getPackageFragment("testUTF8").getClassFile("Test.class");
+			assertNotNull(this.utf8Source);
+			String source = this.utf8Source.getSource();
+			assertNotNull(source);
+			String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, encoding));
+			assertFalse("Sources should not be the same as they were decoded with different encoding!", encodedContents.equals(source));
+		}
+		finally {
+			// Reset zip file encoding
+			zipFile.setCharset(null, null);
+		}
 	}
 
 	/**
@@ -959,7 +967,11 @@ public class EncodingTests extends ModifyingResourceTests {
 			assertNotNull(sourceRef);
 			String source = sourceRef.getSource();
 			assertNotNull(source);
+			char[] charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
 			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
 			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
 
 			// Reset zip file encoding
@@ -973,6 +985,10 @@ public class EncodingTests extends ModifyingResourceTests {
 			source = sourceRef.getSource();
 			assertNotNull(source);
 			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
 			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
 			
 			this.encodingProject.setDefaultCharset(null, null);
@@ -983,6 +999,10 @@ public class EncodingTests extends ModifyingResourceTests {
 			source = sourceRef.getSource();
 			assertNotNull(source);
 			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
 			assertFalse("Sources should be decoded the same way", encodedContents.equals(source));		
 
 			// Reset zip file encoding
@@ -1033,6 +1053,10 @@ public class EncodingTests extends ModifyingResourceTests {
 			String source = sourceRef.getSource();
 			assertNotNull(source);
 			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			char[] charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
 			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
 
 			entries = this.encodingJavaProject.getRawClasspath();
@@ -1099,6 +1123,10 @@ public class EncodingTests extends ModifyingResourceTests {
 			String source = sourceRef.getSource();
 			assertNotNull(source);
 			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			char[] charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
 			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
 
 			zipFile.setCharset(null, null);
@@ -1110,6 +1138,10 @@ public class EncodingTests extends ModifyingResourceTests {
 			source = sourceRef.getSource();
 			assertNotNull(source);
 			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
 			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
 			
 			this.encodingProject.setDefaultCharset(oldEncoding, null);
@@ -1157,6 +1189,10 @@ public class EncodingTests extends ModifyingResourceTests {
 			String source = sourceRef.getSource();
 			assertNotNull(source);
 			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			char[] charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
 			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
 			
 			this.encodingProject.setDefaultCharset(oldEncoding, null);
@@ -1168,6 +1204,10 @@ public class EncodingTests extends ModifyingResourceTests {
 			source = sourceRef.getSource();
 			assertNotNull(source);
 			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
 			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));	
 			
 			sourceFile.setCharset(null, null);
