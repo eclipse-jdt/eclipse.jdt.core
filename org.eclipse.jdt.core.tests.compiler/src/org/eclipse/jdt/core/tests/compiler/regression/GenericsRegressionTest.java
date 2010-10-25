@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 282152 - [1.5][compiler] Generics code rejected by Eclipse but accepted by javac
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -379,4 +380,138 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 			"Incompatible operand types Class<X> and Class<I>\n" + 
 			"----------\n");
 	}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282152
+public void test282152() {
+    this.runConformTest(
+        new String[] {
+            "Test.java",
+            "public interface Test<T extends Number> {\n" +
+            "    public <U> void test(Test<? super U> t, U value);\n" +
+            "    public void setValue(T v);" +
+            "}",
+            "Impl.java",
+            "public class Impl<T extends Number> implements Test<T>{\n" +
+            "    T val;" +
+            "    public <U> void test(Test<? super U> t, U value) {\n" +
+            "        t.setValue(value);\n" +
+            "    }\n" +
+            "    public void setValue(T v) {\n" +
+            "        this.val = v;\n" +
+            "    }\n" +
+            "}",
+            "Client.java",
+            "public class Client {\n" +
+            "    void test() {\n" +
+            "        Impl<Integer> t1 = new Impl<Integer>();\n" +
+            "        Double n = Double.valueOf(3.14);\n" +
+            "        t1.test(new Impl<Number>(), n);\n" +
+            "    }\n" +
+            "}\n"
+        },
+        ""); // no specific success output string
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282152
+// violating lower bound
+public void test282152b() {
+    this.runNegativeTest(
+        new String[] {
+            "Test.java",
+            "public interface Test<T extends Number> {\n" +
+            "    public <U> void test(Test<? super U> t, U value);\n" +
+            "    public void setValue(T v);" +
+            "}",
+            "Impl.java",
+            "public class Impl<T extends Number> implements Test<T>{\n" +
+            "    T val;" +
+            "    public <U> void test(Test<? super U> t, U value) {\n" +
+            "        t.setValue(value);\n" +
+            "    }\n" +
+            "    public void setValue(T v) {\n" +
+            "        this.val = v;\n" +
+            "    }\n" +
+            "}",
+            "Client.java",
+            "public class Client {\n" +
+            "    void test() {\n" +
+            "        Impl<Integer> t1 = new Impl<Integer>();\n" +
+            "        Number n = Double.valueOf(3.14);\n" +
+            "        t1.test(new Impl<Double>(), n);\n" +
+            "    }\n" +
+            "}\n"
+        },
+        "----------\n" + 
+		"1. ERROR in Client.java (at line 5)\n" + 
+		"	t1.test(new Impl<Double>(), n);\n" + 
+		"	   ^^^^\n" + 
+		"The method test(Test<? super U>, U) in the type Impl<Integer> is not applicable for the arguments (Impl<Double>, Number)\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282152
+// contradictory bounds
+public void test282152c() {
+    this.runNegativeTest(
+        new String[] {
+            "Test.java",
+            "public interface Test<T extends Number> {\n" +
+            "    public <U extends Exception> void test(Test<? super U> t, U value);\n" +
+            "    public void setValue(T v);" +
+            "}"
+        },
+        "----------\n" + 
+		"1. ERROR in Test.java (at line 2)\n" + 
+		"	public <U extends Exception> void test(Test<? super U> t, U value);\n" + 
+		"	                                            ^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super U is not a valid substitute for the bounded parameter <T extends Number> of the type Test<T>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282152
+// compatible constraints
+public void test282152d() {
+    this.runConformTest(
+        new String[] {
+            "Test.java",
+            "public interface Test<T extends Number> {\n" +
+            "    public <U extends Integer> void test(Test<? super U> t, U value);\n" +
+            "    public void setValue(T v);" +
+            "}",
+            "Impl.java",
+            "public class Impl<T extends Number> implements Test<T>{\n" +
+            "    T val;" +
+            "    public <U extends Integer> void test(Test<? super U> t, U value) {\n" +
+            "        t.setValue(value);\n" +
+            "    }\n" +
+            "    public void setValue(T v) {\n" +
+            "        this.val = v;\n" +
+            "    }\n" +
+            "}",
+            "Client.java",
+            "public class Client {\n" +
+            "    void test() {\n" +
+            "        Impl<Integer> t1 = new Impl<Integer>();\n" +
+            "        Integer i = Integer.valueOf(3);\n" +
+            "        t1.test(new Impl<Integer>(), i);\n" +
+            "    }\n" +
+            "}\n"
+        },
+        ""); // no specific success output string
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282152
+// direct use of type variable does not involve capture, thus no merging of constraints happens
+public void test282152e() {
+	this.runNegativeTest(
+	    new String[] {
+	        "Test.java",
+	        "public interface Test<T extends Number> {\n" +
+	        "    public <U> void test(Test<U> t, U value);\n" +
+	        "    public void setValue(T v);" +
+	        "}"
+	    },
+	    "----------\n" + 
+		"1. ERROR in Test.java (at line 2)\n" + 
+		"	public <U> void test(Test<U> t, U value);\n" + 
+		"	                          ^\n" + 
+		"Bound mismatch: The type U is not a valid substitute for the bounded parameter <T extends Number> of the type Test<T>\n" + 
+		"----------\n");
+}
 }
