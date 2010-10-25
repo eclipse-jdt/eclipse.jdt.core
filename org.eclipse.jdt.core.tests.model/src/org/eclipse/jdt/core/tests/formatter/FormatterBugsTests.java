@@ -7552,4 +7552,56 @@ public void testBug320754_03() throws JavaModelException {
 	);
 }
 
+/**
+ * @bug 328240: org.eclipse.text.edits.MalformedTreeException: Overlapping text edits
+ * @test Ensure that no exception occurs while formatting the given sample
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=328240"
+ */
+public void testBug328240() {
+	String source =
+		"package com.example;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"\n" +
+		"	/**\n" +
+		"	 * Create a paragraph element suited to be a header of the report. Headers\n" +
+		"	 * are the elements such as \"created by\" on \"created on\" that appear\n" +
+		"	 * underneath the title.\n" +
+		"	 * \n" +
+		"	 * @param reportHeader\n" +
+		"	 *            a <code>String</coe> value that will be the text of\n" +
+		"\n" +
+		"* the paragraph.\n" +
+		"	 * @return a <code>Paragraph</code> containing the the text passed as the\n" +
+		"	 *         reportHeader parameter.\n" +
+		"	 */\n" +
+		"\n" +
+		"	public static String createReportHeader(String reportHeader) {\n" +
+		"		return reportHeader;\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package com.example;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"\n" +
+		"	/**\n" +
+		"	 * Create a paragraph element suited to be a header of the report. Headers\n" +
+		"	 * are the elements such as \"created by\" on \"created on\" that appear\n" +
+		"	 * underneath the title.\n" +
+		"	 * \n" +
+		"	 * @param reportHeader\n" +
+		"	 *            a <code>String</coe> value that will be the text of\n" +
+		"	 * the paragraph.\n" +
+		"	 * @return a <code>Paragraph</code> containing the the text passed as the\n" +
+		"	 *         reportHeader parameter.\n" +
+		"	 */\n" +
+		"\n" +
+		"	public static String createReportHeader(String reportHeader) {\n" +
+		"		return reportHeader;\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
+
 }

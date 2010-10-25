@@ -3784,7 +3784,7 @@ public class Scribe implements IJavaDocTagConstants {
 						newLineString = this.tempBuffer.toString();
 					}
 					addReplaceEdit(end+1, this.scanner.getCurrentTokenEndPosition(), newLineString);
-					textLineStart++;
+					textLineStart = Util.getLineNumber(this.scanner.currentPosition-1, this.lineEnds, textLineStart, this.maxLines);
 				}
 			}
 		}
