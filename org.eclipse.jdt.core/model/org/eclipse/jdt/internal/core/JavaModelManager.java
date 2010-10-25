@@ -18,6 +18,7 @@ import java.net.URI;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -81,6 +82,9 @@ import org.xml.sax.SAXException;
  * the static method <code>JavaModelManager.getJavaModelManager()</code>.
  */
 public class JavaModelManager implements ISaveParticipant, IContentTypeChangeListener {
+
+	private static final String NON_CHAINING_JARS_CACHE = "nonChainingJarsCache"; //$NON-NLS-1$
+	private static final String INVALID_ARCHIVES_CACHE = "invalidArchivesCache";  //$NON-NLS-1$
 
 	/**
 	 * Define a zip cache object.
@@ -1171,8 +1175,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		public synchronized ClasspathChange resetResolvedClasspath() {
-			// clear non-chaining jars cache
-			JavaModelManager.getJavaModelManager().resetNonChainingJarsCache();
+			// clear non-chaining jars cache and invalid jars cache
+			JavaModelManager.getJavaModelManager().resetClasspathListCache();
 			
 			// null out resolved information
 			return setResolvedClasspath(null, null, null, null, this.rawTimeStamp, true/*add classpath change*/);
@@ -1418,6 +1422,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * List of IPath of jars that are known to not contain a chaining (through MANIFEST.MF) to another library
 	 */
 	private Set nonChainingJars;
+	
+	/*
+	 * List of IPath of jars that are known to be invalid - such as not being a valid/known format
+	 */
+	private Set invalidArchives;
 
 	/**
 	 * Update the classpath variable cache
@@ -1549,7 +1558,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		 */
 		if (Platform.isRunning()) {
 			this.indexManager = new IndexManager();
-			this.nonChainingJars = loadNonChainingJarsCache();
+			this.nonChainingJars = loadClasspathListCache(NON_CHAINING_JARS_CACHE);
+			this.invalidArchives = loadClasspathListCache(INVALID_ARCHIVES_CACHE);
 			String includeContainerReferencedLib = System.getProperty(RESOLVE_REFERENCED_LIBRARIES_FOR_CONTAINERS);
 			this.resolveReferencedLibrariesForContainers = TRUE.equalsIgnoreCase(includeContainerReferencedLib);
 		}
@@ -1566,6 +1576,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void addNonChainingJar(IPath path) {
 		if (this.nonChainingJars != null)
 			this.nonChainingJars.add(path);
+	}
+	
+	public void addInvalidArchive(IPath path) {
+		// unlikely to be null
+		if (this.invalidArchives == null) {
+			this.invalidArchives = Collections.synchronizedSet(new HashSet());
+		}
+		if(this.invalidArchives != null) {
+			this.invalidArchives.add(path);
+		}
 	}
 
 	/**
@@ -2545,6 +2565,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return this.workspaceScope;
 	}
 
+	public void verifyArchiveContent(IPath path) throws CoreException {
+		if (isInvalidArchive(path)) {
+			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, new ZipException()));			
+		}
+		ZipFile file = getZipFile(path);
+		closeZipFile(file);
+	}
+	
 	/**
 	 * Returns the open ZipFile at the given path. If the ZipFile
 	 * does not yet exist, it is created, opened, and added to the cache
@@ -2558,6 +2586,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	public ZipFile getZipFile(IPath path) throws CoreException {
 
+		if (isInvalidArchive(path))
+			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, new ZipException()));
+		
 		ZipCache zipCache;
 		ZipFile zipFile;
 		if ((zipCache = (ZipCache)this.zipFiles.get()) != null
@@ -2591,6 +2622,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 			return zipFile;
 		} catch (IOException e) {
+			addInvalidArchive(path);
 			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, e));
 		}
 	}
@@ -2994,6 +3026,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public boolean isNonChainingJar(IPath path) {
 		return this.nonChainingJars != null && this.nonChainingJars.contains(path);
 	}
+	
+	public boolean isInvalidArchive(IPath path) {
+		return this.invalidArchives != null && this.invalidArchives.contains(path);
+	}
 
 	public void setClasspathBeingResolved(IJavaProject project, boolean classpathIsResolved) {
 	    if (classpathIsResolved) {
@@ -3003,19 +3039,19 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	    }
 	}
 	
-	private Set loadNonChainingJarsCache() {
-		Set nonChainingJarsCache = new HashSet();
-		File nonChainingJarsFile = getNonChainingJarsFile();
+	private Set loadClasspathListCache(String cacheName) {
+		Set pathCache = new HashSet();
+		File cacheFile = getClasspathListFile(cacheName);
 		DataInputStream in = null;
 		try {
-			in = new DataInputStream(new BufferedInputStream(new FileInputStream(nonChainingJarsFile)));
+			in = new DataInputStream(new BufferedInputStream(new FileInputStream(cacheFile)));
 			int size = in.readInt();
 			while (size-- > 0) {
 				String path = in.readUTF();
-				nonChainingJarsCache.add(Path.fromPortableString(path));
+				pathCache.add(Path.fromPortableString(path));
 			}
 		} catch (IOException e) {
-			if (nonChainingJarsFile.exists())
+			if (cacheFile.exists())
 				Util.log(e, "Unable to read non-chaining jar cache file"); //$NON-NLS-1$
 		} finally {
 			if (in != null) {
@@ -3026,11 +3062,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				}
 			}
 		}
-		return Collections.synchronizedSet(nonChainingJarsCache);
+		return Collections.synchronizedSet(pathCache);
 	}
-
-	private File getNonChainingJarsFile() {
-		return JavaCore.getPlugin().getStateLocation().append("nonChainingJarsCache").toFile(); //$NON-NLS-1$
+	
+	private File getClasspathListFile(String fileName) {
+		return JavaCore.getPlugin().getStateLocation().append(fileName).toFile(); 
 	}
 	
 	private Set getNonChainingJarsCache() throws CoreException {
@@ -3057,7 +3093,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		this.nonChainingJars = Collections.synchronizedSet(result);
 		return this.nonChainingJars;
 	}
-
+	
+	private Set getClasspathListCache(String cacheName) throws CoreException {
+		if (cacheName == NON_CHAINING_JARS_CACHE) 
+			return getNonChainingJarsCache();
+		else if (cacheName == INVALID_ARCHIVES_CACHE)
+			return this.invalidArchives;
+		else 
+			return null;
+	}
+	
 	public void loadVariablesAndContainers() throws CoreException {
 		// backward compatibility, consider persistent property
 		QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "variables"); //$NON-NLS-1$
@@ -3734,7 +3779,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				info.forgetExternalTimestampsAndIndexes();
 			}
 		}
-		resetNonChainingJarsCache();
+		resetClasspathListCache();
 	}
 
 	/*
@@ -3776,9 +3821,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		this.cache.resetJarTypeCache();
 	}
 	
-	public void resetNonChainingJarsCache() {
+	public void resetClasspathListCache() {
 		if (this.nonChainingJars != null) 
 			this.nonChainingJars.clear();
+		if (this.invalidArchives != null) 
+			this.invalidArchives.clear();
 	}
 
 	/*
@@ -3852,15 +3899,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	}
 
-	private void saveNonChainingJarsCache() throws CoreException {
-		File file = getNonChainingJarsFile();
+	private void saveClasspathListCache(String cacheName) throws CoreException {
+		File file = getClasspathListFile(cacheName);
 		DataOutputStream out = null;
 		try {
 			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-			Set nonChainingJarsCache = getNonChainingJarsCache();
-			synchronized (nonChainingJarsCache) {
-				out.writeInt(nonChainingJarsCache.size());
-				Iterator entries = nonChainingJarsCache.iterator();
+			Set pathCache = getClasspathListCache(cacheName);
+			synchronized (pathCache) {
+				out.writeInt(pathCache.size());
+				Iterator entries = pathCache.iterator();
 				while (entries.hasNext()) {
 					IPath path = (IPath) entries.next();
 					out.writeUTF(path.toPortableString());
@@ -4139,8 +4186,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		switch(context.getKind()) {
 			case ISaveContext.FULL_SAVE : {
-				// save non-chaining jar cache on snapshot/full save
-				saveNonChainingJarsCache();
+				// save non-chaining jar and invalid jar caches on full save
+				saveClasspathListCache(NON_CHAINING_JARS_CACHE);
+				saveClasspathListCache(INVALID_ARCHIVES_CACHE);
 	
 				// will need delta since this save (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658)
 				context.needDelta();

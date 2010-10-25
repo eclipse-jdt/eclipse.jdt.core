@@ -244,13 +244,14 @@ public void testAddExternalLibFolder6() throws CoreException, IOException {
 public void testAddZIPArchive1() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P");
-		createExternalFile("externalLib.abc", "");
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), JavaCore.VERSION_1_4);
 
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
-			"P\n" +
-			"  "+ getExternalPath() + "externalLib.abc",
+			"P\n" + 
+			"  "+ getExternalPath() + "externalLib.abc\n" + 
+			"    <default> (...)",
 			p
 		);
 	} finally {
@@ -319,12 +320,13 @@ public void testAddZIPArchive4() throws Exception {
 		refreshExternalArchives(p);
 		expandAll(p);
 
-		createExternalFile("externalLib.abc", "");
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), JavaCore.VERSION_1_4);
 		refreshExternalArchives(p);
 		assertElementDescendants(
 			"Unexpected project content",
-			"P\n" +
-			"  "+ getExternalPath() + "externalLib.abc",
+			"P\n" + 
+			"  "+ getExternalPath() + "externalLib.abc\n" + 
+			"    <default> (...)",
 			p
 		);
 	} finally {
@@ -372,12 +374,19 @@ public void testAddZIPArchive5() throws Exception {
 public void testAddZIPArchive6() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P");
-		createFile("/P/internalLib.abc", "");
+		addLibrary(p, "internalLib.abc", null, new String[0], 
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Class-Path: lib2.jar\n",
+				},
+				JavaCore.VERSION_1_4);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P/internalLib.abc"), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
-			"P\n" +
-			"  internalLib.abc",
+			"P\n" + 
+			"  internalLib.abc\n" + 
+			"    <default> (...)",
 			p
 		);
 	} finally {
@@ -527,7 +536,7 @@ public void testChangeExternalLibFolder2() throws CoreException, IOException {
  */
 public void testChangeZIPArchive1() throws CoreException, IOException {
 	try {
-		createExternalFile("externalLib.abc", "");
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), JavaCore.VERSION_1_4);
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "bin");
 		refreshExternalArchives(p);
 		expandAll(p);
@@ -607,7 +616,8 @@ public void testChangeZIPArchive2() throws CoreException, IOException {
 public void testChangeZIPArchive3() throws CoreException, IOException {
 	try {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/internalLib.abc"}, "bin");
-		IFile lib = createFile("/P/internalLib.abc", "");
+		String libPath = p.getProject().getLocation().toOSString()+ File.separator + "internalLib.abc";
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(libPath, JavaCore.VERSION_1_4);
 		expandAll(p);
 
 		createJar(
@@ -617,7 +627,7 @@ public void testChangeZIPArchive3() throws CoreException, IOException {
 				"public class X {\n" +
 				"}"
 			},
-			lib.getLocation().toOSString());
+			libPath);
 		p.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		assertElementDescendants(
 			"Unexpected project content",
@@ -2065,9 +2075,9 @@ public void testRemoveExternalLibFolder3() throws CoreException {
 /*
  * Ensures that removing a library entry for an existing external ZIP archive updates the model
  */
-public void testRemoveZIPArchive1() throws CoreException {
+public void testRemoveZIPArchive1() throws CoreException, IOException {
 	try {
-		createExternalFile("externalLib.abc", "");
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), JavaCore.VERSION_1_4);
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
 		expandAll(p);
@@ -2108,9 +2118,9 @@ public void testRemoveZIPArchive2() throws CoreException {
 /*
  * Ensures that removing an external ZIP archive referenced by a library entry and refreshing updates the model
  */
-public void testRemoveZIPArchive3() throws CoreException {
+public void testRemoveZIPArchive3() throws CoreException, IOException {
 	try {
-		createExternalFile("externalLib.abc", "");
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), JavaCore.VERSION_1_4);
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
 		expandAll(p);
@@ -2131,10 +2141,10 @@ public void testRemoveZIPArchive3() throws CoreException {
 /*
  * Ensures that removing a library entry for an existing internal ZIP archive updates the model
  */
-public void testRemoveZIPArchive4() throws CoreException {
+public void testRemoveZIPArchive4() throws CoreException, IOException {
 	try {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/internalLib.abc"}, "");
-		createFile("/P/internalLib.abc", "");
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(p.getProject().getLocation().toOSString()+ File.separator + "internalLib.abc", JavaCore.VERSION_1_4);
 		expandAll(p);
 
 		setClasspath(p, new IClasspathEntry[] {});

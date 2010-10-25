@@ -2063,6 +2063,11 @@ public class ClasspathEntry implements IClasspathEntry {
 								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toString(), project.getElementName()}));
 							}
 						}
+						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=229042
+						// Validate the contents of the archive
+						IJavaModelStatus status = validateLibraryContents(path, project, entryPathMsg);
+						if (status != JavaModelStatus.VERIFIED_OK) 
+							return status;
 						break;
 					case IResource.FOLDER :	// internal binary folder
 						if (sourceAttachment != null
@@ -2083,13 +2088,22 @@ public class ClasspathEntry implements IClasspathEntry {
 					} else {
 						return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalExternalFolder, new String[] {path.toOSString(), project.getElementName()}));
 					}
-				} else if (sourceAttachment != null
-						&& !sourceAttachment.isEmpty()
-						&& JavaModel.getTarget(sourceAttachment, true) == null){
-					if (container != null) {
-						return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachmentInContainedLibrary, new String [] {sourceAttachment.toString(), path.toOSString(), container}));
-					} else {
-						return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toOSString(), project.getElementName()}));
+				} else {
+					if (sourceAttachment != null
+							&& !sourceAttachment.isEmpty()
+							&& JavaModel.getTarget(sourceAttachment, true) == null){
+						if (container != null) {
+							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachmentInContainedLibrary, new String [] {sourceAttachment.toString(), path.toOSString(), container}));
+						} else {
+							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toOSString(), project.getElementName()}));
+						}
+					}
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=229042
+					// Validate the contents of the archive
+					if(file.isFile()) {
+						IJavaModelStatus status = validateLibraryContents(path, project, entryPathMsg);
+						if (status != JavaModelStatus.VERIFIED_OK) 
+							return status;
 					}
 				}
 			} else {
@@ -2118,6 +2132,20 @@ public class ClasspathEntry implements IClasspathEntry {
 				} else {
 					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalLibraryPath, new String[] {entryPathMsg, project.getElementName()}));
 				}
+		}
+		return JavaModelStatus.VERIFIED_OK;
+	}
+
+	private static IJavaModelStatus validateLibraryContents(IPath path, IJavaProject project, String entryPathMsg) {
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		try {
+			manager.verifyArchiveContent(path);
+		} catch (CoreException e) {
+			if (e.getStatus().getMessage() == Messages.status_IOException) {
+				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(
+						Messages.classpath_illegalLibraryArchive,
+						new String[] {entryPathMsg, project.getElementName()}));
+			}
 		}
 		return JavaModelStatus.VERIFIED_OK;
 	}

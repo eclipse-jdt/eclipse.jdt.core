@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -340,6 +340,17 @@ public static void createClassFolder(String[] pathsAndContents, String folderPat
     File classesDir = new File(folderPath);
     flushDirectoryContent(classesDir);
     compile(pathsAndContents, getCompileOptions(compliance), folderPath);
+}
+public static void createEmptyJar(String jarPath, String compliance) throws IOException {
+	org.eclipse.jdt.core.tests.util.Util.createJar(
+			null,
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n",
+			},
+			jarPath,
+			null,
+			compliance);	
 }
 public static void createJar(String[] pathsAndContents, Map options, String jarPath) throws IOException {
 	createJar(pathsAndContents, null, options, null, jarPath);

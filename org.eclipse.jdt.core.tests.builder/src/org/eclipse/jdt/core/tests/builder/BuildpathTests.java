@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.builder;
 import junit.framework.*;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
@@ -25,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.*;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -103,10 +105,29 @@ public void testClasspathFileChange() throws JavaModelException {
 	}
 }
 
-public void testClosedProject() throws JavaModelException {
+public void testClosedProject() throws JavaModelException, IOException {
 	IPath project1Path = env.addProject("CP1"); //$NON-NLS-1$
+	IProject project1 = ResourcesPlugin.getWorkspace().getRoot().getProject("CP1");
 	env.addExternalJars(project1Path, Util.getJavaClassLibs());
-	IPath jarPath = env.addInternalJar(project1Path, "temp.jar", new byte[] {0}); //$NON-NLS-1$
+	
+	String jarFile = project1.getLocation().toOSString() + File.separator + "temp.jar";
+	
+	org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+			jarFile,
+			JavaCore.VERSION_1_4);
+
+	IPath jarPath = null;
+	FileInputStream fis = null;
+	try {
+		fis = new FileInputStream(jarFile);
+		int length = fis.available();
+		byte[] jarContent = new byte[length];
+		fis.read(jarContent); 
+		jarPath = env.addInternalJar(project1Path, "temp.jar", jarContent); //$NON-NLS-1$
+	}
+	finally {
+		if (fis != null) fis.close();
+	}
 
 	IPath project2Path = env.addProject("CP2"); //$NON-NLS-1$
 	env.addExternalJars(project2Path, Util.getJavaClassLibs());

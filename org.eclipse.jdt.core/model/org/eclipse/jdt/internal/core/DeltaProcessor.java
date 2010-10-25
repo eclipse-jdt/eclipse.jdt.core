@@ -2271,7 +2271,11 @@ public class DeltaProcessor {
 				/* check classpath or prefs files change */
 				IFile file = (IFile) resource;
 				String fileName = file.getName();
-				if (fileName.equals(JavaProject.CLASSPATH_FILENAME)) {
+				RootInfo rootInfo = null;
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=229042
+				// Mark a validation if a library with package fragment root in the project has changed
+				if (fileName.equals(JavaProject.CLASSPATH_FILENAME)
+						|| ((rootInfo = rootInfo(file.getFullPath(), delta.getKind())) != null && rootInfo.entryKind == IClasspathEntry.CPE_LIBRARY)) {
 					JavaProject javaProject = (JavaProject)JavaCore.create(file.getProject());
 					this.state.addClasspathValidation(javaProject);
 					affectedProjects.add(file.getProject().getFullPath());

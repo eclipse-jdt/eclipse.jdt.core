@@ -18,6 +18,7 @@ import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
@@ -97,7 +98,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		} catch (CoreException e) {
 			if (e.getCause() instanceof ZipException) {
 				// not a ZIP archive, leave the children empty
-				Util.log(e, "Invalid ZIP archive: " + toStringWithAncestors()); //$NON-NLS-1$
+				Util.log(IStatus.ERROR, "Invalid ZIP archive: " + toStringWithAncestors()); //$NON-NLS-1$
 				children = NO_ELEMENTS;
 			} else if (e instanceof JavaModelException) {
 				throw (JavaModelException)e;

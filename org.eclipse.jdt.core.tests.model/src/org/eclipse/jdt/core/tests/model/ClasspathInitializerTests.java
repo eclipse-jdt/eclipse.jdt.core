@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -1313,7 +1314,7 @@ public void testVariableInitializer11() throws CoreException {
  * @bug 138599: [model][classpath] Need a way to mark a classpath variable as deprecated
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=138599"
  */
-public void testVariableInitializerDeprecated() throws CoreException {
+public void testVariableInitializerDeprecated() throws CoreException, IOException {
 	try {
 		// Create initializer
 		String varName = "TEST_DEPRECATED";
@@ -1326,7 +1327,10 @@ public void testVariableInitializerDeprecated() throws CoreException {
 
 		// Create project
 		IJavaProject project = createJavaProject("P1");
-		createFile("/P1/lib.jar", "");
+		addLibrary(project, "lib.jar", null, new String[0],
+				new String[]{"META-INF/MANIFEST.MF", 
+					"Manifest-Version: 1.0\n"} , 
+					JavaCore.VERSION_1_4);
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
 		assertStatus("Classpath variable 'TEST_DEPRECATED' in project 'P1' is deprecated: Test deprecated flag", status);
@@ -1367,7 +1371,7 @@ public void testVariableInitializerUnboundAndDeprecated() throws CoreException {
  * @bug 156226: [model][classpath] Allow classpath variable to be marked as non modifiable
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156226"
  */
-public void testVariableInitializerReadOnly() throws CoreException {
+public void testVariableInitializerReadOnly() throws CoreException, IOException {
 	try {
 		// Create initializer
 		String varName = "TEST_READ_ONLY";
@@ -1380,7 +1384,10 @@ public void testVariableInitializerReadOnly() throws CoreException {
 
 		// Create project
 		IJavaProject project = createJavaProject("P1");
-		createFile("/P1/lib.jar", "");
+		addLibrary(project, "lib.jar", null, new String[0],
+				new String[]{"META-INF/MANIFEST.MF", 
+					"Manifest-Version: 1.0\n"} , 
+					JavaCore.VERSION_1_4);
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_READ_ONLY"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
 		assertStatus("OK", status);
@@ -1391,7 +1398,7 @@ public void testVariableInitializerReadOnly() throws CoreException {
 		deleteProject("P1");
 	}
 }
-public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException {
+public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException, IOException {
 	try {
 		// Create initializer
 		String varName = "TEST_DEPRECATED_READ_ONLY";
@@ -1405,7 +1412,10 @@ public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException 
 
 		// Create project
 		IJavaProject project = createJavaProject("P1");
-		createFile("/P1/lib.jar", "");
+		addLibrary(project, "lib.jar", null, new String[0],
+				new String[]{"META-INF/MANIFEST.MF", 
+					"Manifest-Version: 1.0\n"} , 
+					JavaCore.VERSION_1_4);
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED_READ_ONLY"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
 		assertStatus("Classpath variable 'TEST_DEPRECATED_READ_ONLY' in project 'P1' is deprecated: A deprecated and read-only initializer", status);
@@ -1422,7 +1432,7 @@ public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException 
  * @bug 172207: [model] Marker for deprecated classpath variable should always have WARNING severity
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=172207"
  */
-public void testVariableInitializerBug172207() throws CoreException {
+public void testVariableInitializerBug172207() throws CoreException, IOException {
 	try {
 		// Create initializer
 		String varName = "TEST_DEPRECATED_READ_ONLY";
@@ -1436,7 +1446,10 @@ public void testVariableInitializerBug172207() throws CoreException {
 
 		// Create project
 		IJavaProject project = createJavaProject("P1");
-		createFile("/P1/lib.jar", "");
+		addLibrary(project, "lib.jar", null, new String[0],
+				new String[]{"META-INF/MANIFEST.MF", 
+					"Manifest-Version: 1.0\n"} , 
+					JavaCore.VERSION_1_4);
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED_READ_ONLY"), null, null);
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;

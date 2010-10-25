@@ -549,10 +549,12 @@ public void testAddExternalLibFolder7() throws CoreException {
 /*
  * Ensures that adding a library entry for an existing external ZIP archive doesn't generate a marker
  */
-public void testAddZIPArchive1() throws CoreException {
+public void testAddZIPArchive1() throws CoreException, IOException {
 	try {
 		IJavaProject p = createJavaProject("P");
-		createExternalFile("externalLib.abc", "");
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				getExternalResourcePath("externalLib.abc"),
+				JavaCore.VERSION_1_4);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertMarkers("Unexpected markers", "", p);
 	} finally {
@@ -564,9 +566,11 @@ public void testAddZIPArchive1() throws CoreException {
 /*
  * Ensures that creating a project with a library entry for an existing external ZIP archive doesn't generate a marker
  */
-public void testAddZIPArchive2() throws CoreException {
+public void testAddZIPArchive2() throws CoreException, IOException {
 	try {
-		createExternalFile("externalLib.abc", "");
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				getExternalResourcePath("externalLib.abc"),
+				JavaCore.VERSION_1_4);
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		assertMarkers("Unexpected markers", "", p);
 	} finally {
@@ -614,13 +618,14 @@ public void testAddZIPArchive4() throws CoreException {
 /*
  * Ensures that creating an external ZIP archive referenced by a library entry and refreshing removes the marker
  */
-public void testAddZIPArchive5() throws CoreException {
+public void testAddZIPArchive5() throws CoreException, IOException {
 	try {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
 		waitForAutoBuild();
-
-		createExternalFile("externalLib.abc", "");
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				getExternalResourcePath("externalLib.abc"),
+				JavaCore.VERSION_1_4);
 		refreshExternalArchives(p);
 		assertMarkers("Unexpected markers", "", p);
 	} finally {
@@ -633,13 +638,14 @@ public void testAddZIPArchive5() throws CoreException {
  * Ensures that creating an external ZIP archive referenced by a library entry and refreshing after a restart
  * removes the marker
  */
-public void testAddZIPArchive6() throws CoreException {
+public void testAddZIPArchive6() throws CoreException, IOException {
 	try {
 		simulateExitRestart();
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
-
-		createExternalFile("externalLib.abc", "");
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				getExternalResourcePath("externalLib.abc"),
+				JavaCore.VERSION_1_4);
 		refreshExternalArchives(p);
 		assertMarkers("Unexpected markers", "", p);
 	} finally {
@@ -651,13 +657,15 @@ public void testAddZIPArchive6() throws CoreException {
 /*
  * Ensures that adding a library entry for an existing internal ZIP archive doesn't generate a marker
  */
-public void testAddZIPArchive7() throws CoreException {
+public void testAddZIPArchive7() throws CoreException, IOException {
 	try {
 		IJavaProject p = createJavaProject("P");
 		refreshExternalArchives(p);
 		waitForAutoBuild();
-
-		createFile("/P/internalLib.abc", "");
+		addLibrary(p, "internalLib.abc", null, new String[0],
+				new String[]{"META-INF/MANIFEST.MF", 
+					"Manifest-Version: 1.0\n"} , 
+					JavaCore.VERSION_1_4);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P/internalLib.abc"), null, null)});
 		assertMarkers("Unexpected markers", "", p);
 	} finally {
@@ -2604,13 +2612,16 @@ public void testDotDotContainerEntry1() throws Exception {
 	String externalJarPath = getWorkspaceRoot().getLocation().removeLastSegments(1).append("external.jar").toOSString();
 	try {
 		IJavaProject p = createJavaProject("P");
-		Util.writeToFile("", externalJarPath);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				externalJarPath,
+				JavaCore.VERSION_1_4);
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "../../external.jar"}));
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"))});
 		assertElementDescendants(
 			"Unexpected project content",
 			"P\n" + 
-			"  "+ getExternalPath() + "external.jar",
+			"  "+ getExternalPath() + "external.jar\n" + 
+			"    <default> (...)",
 			p
 		);
 	} finally {
@@ -2645,12 +2656,15 @@ public void testDotDotLibraryEntry1() throws Exception {
 	String externalJarPath = getWorkspaceRoot().getLocation().append("external.jar").toOSString();
 	try {
 		IJavaProject p = createJavaProject("P");
-		Util.writeToFile("", externalJarPath);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				externalJarPath,
+				JavaCore.VERSION_1_4);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../external.jar"), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
 			"P\n" + 
-			"  "+ getWorkspacePath() + "external.jar",
+			"  "+ getWorkspacePath() + "external.jar\n" + 
+			"    <default> (...)",
 			p
 		);
 	} finally {
@@ -2666,12 +2680,15 @@ public void testDotDotLibraryEntry2() throws Exception {
 	String externalJarPath = getWorkspaceRoot().getLocation().removeLastSegments(1).append("external.jar").toOSString();
 	try {
 		IJavaProject p = createJavaProject("P");
-		Util.writeToFile("", externalJarPath);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				externalJarPath,
+				JavaCore.VERSION_1_4);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../../external.jar"), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
 			"P\n" + 
-			"  "+ getExternalPath() + "external.jar",
+			"  "+ getExternalPath() + "external.jar\n" + 
+			"    <default> (...)",
 			p
 		);
 	} finally {
@@ -2687,12 +2704,15 @@ public void testDotDotLibraryEntry3() throws Exception {
 	String externalJarPath = getWorkspaceRoot().getLocation().removeLastSegments(1).append("external.jar").toOSString();
 	try {
 		IJavaProject p = createJavaProject("P");
-		Util.writeToFile("", externalJarPath);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				externalJarPath,
+				JavaCore.VERSION_1_4);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("src/../../../external.jar"), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
 			"P\n" + 
-			"  "+ getExternalPath() + "external.jar",
+			"  "+ getExternalPath() + "external.jar\n" + 
+			"    <default> (...)",
 			p
 		);
 	} finally {
@@ -2706,15 +2726,20 @@ public void testDotDotLibraryEntry3() throws Exception {
  */
 public void testDotDotLibraryEntry4() throws Exception {
 	try {
-		createProject("P1");
-		createFile("/P1/internal.jar", "");
-		IJavaProject p = createJavaProject("P2");
-		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../P1/internal.jar"), null, null)});
+		IJavaProject p1 = createJavaProject("P1");
+		IJavaProject p2 = createJavaProject("P2");
+		
+		addLibrary(p1, "internal.jar", null, new String[0],
+				new String[]{"META-INF/MANIFEST.MF", 
+					"Manifest-Version: 1.0\n"} , 
+					JavaCore.VERSION_1_4);		
+		setClasspath(p2, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../P1/internal.jar"), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
 			"P2\n" + 
-			"  /P1/internal.jar",
-			p
+			"  /P1/internal.jar\n" + 
+			"    <default> (...)",
+			p2
 		);
 	} finally {
 		deleteProject("P1");
@@ -2729,7 +2754,9 @@ public void testDotDotLibraryEntry5() throws Exception {
 	String externalJarPath = getWorkspaceRoot().getLocation().append("external.jar").toOSString();
 	try {
 		IJavaProject p = createJavaProject("P");
-		Util.writeToFile("", externalJarPath);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				externalJarPath,
+				JavaCore.VERSION_1_4);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../external.jar"), null, null)});
 		assertMarkers(
 			"Unexpected markers", 
@@ -2764,7 +2791,9 @@ public void testDotDotLibraryEntry7() throws Exception {
 	String externalJarPath = getWorkspaceRoot().getLocation().append("external.jar").toOSString();
 	try {
 		IJavaProject p = createJavaProject("P");
-		Util.writeToFile("", externalJarPath);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				externalJarPath,
+				JavaCore.VERSION_1_4);
 		editFile(
 			"/P/.classpath",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
@@ -2778,7 +2807,8 @@ public void testDotDotLibraryEntry7() throws Exception {
 			"P\n" + 
 			"  <project root>\n" + 
 			"    <default> (...)\n" + 
-			"  "+ getWorkspacePath() + "external.jar",
+			"  "+ getWorkspacePath() + "external.jar\n" + 
+			"    <default> (...)",
 			p
 		);
 	} finally {
@@ -2819,12 +2849,15 @@ public void testDotDotVariableEntry1() throws Exception {
 	try {
 		JavaCore.setClasspathVariable("TWO_UP", new Path("../.."), null);
 		IJavaProject p = createJavaProject("P");
-		Util.writeToFile("", externalJarPath);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				externalJarPath,
+				JavaCore.VERSION_1_4);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newVariableEntry(new Path("TWO_UP/external.jar"), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
 			"P\n" + 
-			"  "+ getExternalPath() + "external.jar",
+			"  "+ getExternalPath() + "external.jar\n" + 
+			"    <default> (...)",
 			p
 		);
 	} finally {
@@ -3122,8 +3155,9 @@ public void testExternalJarAdd() throws CoreException, IOException {
 		waitUntilIndexesReady();
 		waitForAutoBuild();
 		// at this point, a marker indicates that test185733.jar has been created: "Project 'P' is missing required library: '[...]\test185733.jar'"
-
-		createFile(new File(getExternalPath()), "test185733.jar", "");
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				getExternalResourcePath("test185733.jar"),
+				JavaCore.VERSION_1_4);
 		refreshExternalArchives(p);
 		assertMarkers(
 			"Unexpected markers",
@@ -3749,13 +3783,16 @@ public void testExtraLibraries17() throws Exception {
  * Ensures that a marker is removed if adding an internal jar that is on the classpath in another project
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=213723 )
  */
-public void testFixClasspath1() throws CoreException {
+public void testFixClasspath1() throws CoreException, IOException {
 	try {
 		createProject("P1");
-		IJavaProject project = createJavaProject("P2", new String[0], new String[] {"/P1/lib.jar"}, "bin");
+		IJavaProject project = createJavaProject("P2", new String[0], new String[0], "bin");
 		waitForAutoBuild();
-
-		createFile("/P1/lib.jar", "");
+		addLibrary(project, "lib.jar", null, new String[0],
+				new String[]{"META-INF/MANIFEST.MF", 
+					"Manifest-Version: 1.0\n"} , 
+					JavaCore.VERSION_1_4);
+		
 		assertMarkers(
 			"Unexpected markers",
 			"",
@@ -3769,11 +3806,13 @@ public void testFixClasspath1() throws CoreException {
  * Ensures that a marker is removed if adding an external jar, restarting and refreshing
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=216446 )
  */
-public void testFixClasspath2() throws CoreException {
+public void testFixClasspath2() throws CoreException, IOException {
 	try {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		waitForAutoBuild(); // 1 marker
-		createExternalFile("externalLib.abc", "");
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
+				getExternalResourcePath("externalLib.abc"),
+				JavaCore.VERSION_1_4);
 		
 		simulateExitRestart();
 		refreshExternalArchives(p);
@@ -3939,11 +3978,15 @@ public void testInvalidInternalJar1() throws CoreException {
  * Ensures that a file not ending with .jar or .zip can be put on the classpath.
  * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=182360 )
  */
-public void testInvalidInternalJar2() throws CoreException {
+public void testInvalidInternalJar2() throws CoreException, IOException {
 	try {
-		createProject("P1");
-		createFile("/P1/existing.txt", "");
-		IJavaProject proj =  createJavaProject("P2", new String[] {}, new String[] {"/P1/existing.txt"}, "bin");
+		IJavaProject proj =  createJavaProject("P1", new String[] {}, new String[0], "bin");
+		
+		addLibrary(proj, "existing.txt", null, new String[0],
+				new String[]{"META-INF/MANIFEST.MF", 
+					"Manifest-Version: 1.0\n"} , 
+					JavaCore.VERSION_1_4);
+		proj =  createJavaProject("P2", new String[] {}, new String[] {"/P1/existing.txt"}, "bin");
 		assertMarkers(
 			"Unexpected markers",
 			"",
@@ -4933,12 +4976,15 @@ public void testDuplicateEntries1() throws CoreException {
  * Ensures that duplicate entries due to resolution are not reported
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=175226 )
  */
-public void testDuplicateEntries2() throws CoreException {
+public void testDuplicateEntries2() throws CoreException, IOException {
 	try {
 		IJavaProject project = createJavaProject("P");
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {"TEST_LIB", "/P/lib.jar"}));
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}));
-		createFile("/P/lib.jar", "");
+		addLibrary(project, "lib.jar", null, new String[0],
+				new String[]{"META-INF/MANIFEST.MF", 
+					"Manifest-Version: 1.0\n"} , 
+					JavaCore.VERSION_1_4);
 		editFile(
 			"/P/.classpath",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -4948,6 +4994,7 @@ public void testDuplicateEntries2() throws CoreException {
 			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
+		waitForAutoBuild();
 		assertMarkers(
 			"Unexpected markers",
 			"",
@@ -5497,13 +5544,18 @@ public void testRemoveZIPArchive5() throws CoreException {
 /*
  * Ensures that removing an internal ZIP archive referenced by a library entry creates a marker
  */
-public void testRemoveZIPArchive6() throws CoreException {
+public void testRemoveZIPArchive6() throws CoreException, IOException {
 	try {
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/internalLib.abc"}, "");
-		createFile("/P/internalLib.abc", "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[0], "");
+		
+		addLibrary(p, "internalLib.abc", null, new String[0],
+				new String[]{"META-INF/MANIFEST.MF", 
+					"Manifest-Version: 1.0\n"} , 
+					JavaCore.VERSION_1_4);
 		waitForAutoBuild();
 
 		deleteFile("/P/internalLib.abc");
+		waitForAutoBuild();
 		assertMarkers(
 			"Unexpected markers",
 			"Project \'P\' is missing required library: \'internalLib.abc\'",
@@ -5517,12 +5569,15 @@ public void testRemoveZIPArchive6() throws CoreException {
  * Ensures that renaming a .jar file and updating the classpath in a PRE_BUILD event doesn't leave markers
  * (regression test for bug 177922 FlexibleProjectContainer refresh logic sporadically leaves project with "missing library" error on rename/delete)
  */
-public void testRenameJar() throws CoreException {
+public void testRenameJar() throws CoreException, IOException {
 	IResourceChangeListener listener = null;
 	try {
-		final IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/lib/test1.jar"}, "");
+		final IJavaProject p = createJavaProject("P", new String[0], new String[0], "");
 		createFolder("/P/lib");
-		createFile("/P/lib/test1.jar", "");
+		addLibrary(p, "lib/test1.jar", null, new String[0],
+				new String[]{"META-INF/MANIFEST.MF", 
+					"Manifest-Version: 1.0\n"} , 
+					JavaCore.VERSION_1_4);
 		// at this point no markers exist
 
 		// register a listener that updates the classpath in a PRE_BUILD event
@@ -6813,6 +6868,41 @@ public void testBug324367() throws Exception {
 		deleteProject("ReferencedProject");
 	}
 }
-
+/**
+ * @bug 229042: [buildpath] could create build path error in case of invalid external JAR format
+ * 
+ * Test that an invalid archive (JAR) creates a buildpath error
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=229042"
+ * @throws Exception
+ */
+public void testBug229042() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		createFile("/P/library.jar", "");
+		setClasspath(p, new IClasspathEntry[] { JavaCore.newLibraryEntry(new Path("/P/library.jar"), null,null)});
+		assertMarkers("Expected marker", 
+				"Illegal type of archive for required library: \'library.jar\' in project \'P\'", p);
+		setClasspath(p, new IClasspathEntry[0]);
+		addLibrary(p, "library.jar", null, new String[0], 
+				new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {}\n",
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n",
+			},
+			JavaCore.VERSION_1_4);
+		IFile file = p.getProject().getFile("library.jar");
+		assertNotNull(file);
+		file.touch(null);
+		waitForAutoBuild();
+		assertMarkers("Unexpected marker", 
+				"", p);
+		
+	} finally {
+		deleteProject("P");
+	}
+}
 
 }
