@@ -2074,7 +2074,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if ((cachedOptions = this.optionsCache) != null) return new Hashtable(cachedOptions);
 
 		if (!Platform.isRunning()) {
-			return this.optionsCache = getDefaultOptionsNoInitialization();
+			this.optionsCache = getDefaultOptionsNoInitialization();
+			return new Hashtable(this.optionsCache);
 		}
 		// init
 		Hashtable options = new Hashtable(10);
