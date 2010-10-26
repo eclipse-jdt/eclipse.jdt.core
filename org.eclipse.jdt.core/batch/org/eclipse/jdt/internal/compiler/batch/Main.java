@@ -605,7 +605,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public void loggingExtraProblems(Main currentMain) {
 			ArrayList problems = currentMain.extraProblems;
 			final int count = problems.size();
-			int localErrorCount = 0;
 			int localProblemCount = 0;
 			if (count != 0) {
 				int errors = 0;
@@ -617,7 +616,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						logExtraProblem(problem, localProblemCount, currentMain.globalProblemsCount);
 						localProblemCount++;
 						if (problem.isError()) {
-							localErrorCount++;
 							errors++;
 							currentMain.globalErrorsCount++;
 						} else if (problem.isWarning()) {

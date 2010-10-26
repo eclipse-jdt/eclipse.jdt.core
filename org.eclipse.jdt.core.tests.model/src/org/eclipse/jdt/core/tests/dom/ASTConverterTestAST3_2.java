@@ -377,10 +377,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			ASTNodesCollectorVisitor nodesCollector = new ASTNodesCollectorVisitor();
 			compilationUnit.accept(nodesCollector);
 			Set detachedNodes = nodesCollector.getDetachedAstNodes();
-			int counter = 0;
 			for (Iterator iterator = detachedNodes.iterator(); iterator.hasNext(); ) {
 				ASTNode detachedNode = (ASTNode) iterator.next();
-				counter++;
 				IBinding binding = (IBinding) bindingsMap.get(detachedNode);
 				assertNotNull(binding);
 				switch(detachedNode.getNodeType()) {

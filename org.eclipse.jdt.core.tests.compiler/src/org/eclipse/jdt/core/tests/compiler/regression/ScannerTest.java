@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -267,10 +267,9 @@ public class ScannerTest extends AbstractRegressionTest {
 		char[] source = "0xaapaf".toCharArray(); //$NON-NLS-1$
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
-		int counter = 0;
 		try {
 			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
-				counter++;
+				// ignore
 			}
 		} catch (InvalidInputException e) {
 			assertTrue(true);
@@ -287,10 +286,9 @@ public class ScannerTest extends AbstractRegressionTest {
 		char[] source = "0xaap.1f".toCharArray(); //$NON-NLS-1$
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
-		int counter = 0;
 		try {
 			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
-				counter++;
+				// ignore
 			}
 		} catch (InvalidInputException e) {
 			assertTrue(true);
@@ -383,10 +381,9 @@ public class ScannerTest extends AbstractRegressionTest {
 		char[] source = "0x".toCharArray(); //$NON-NLS-1$
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
-		int counter = 0;
 		try {
 			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
-				counter++;
+				// ignore
 			}
 		} catch (InvalidInputException e) {
 			assertTrue(true);
@@ -403,10 +400,9 @@ public class ScannerTest extends AbstractRegressionTest {
 		char[] source = "0x".toCharArray(); //$NON-NLS-1$
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
-		int counter = 0;
 		try {
 			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
-				counter++;
+				// ignore
 			}
 		} catch (InvalidInputException e) {
 			assertTrue(true);

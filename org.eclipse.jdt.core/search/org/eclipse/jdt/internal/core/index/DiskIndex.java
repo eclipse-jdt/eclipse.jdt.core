@@ -279,7 +279,6 @@ private String[] computeDocumentNames(String[] onDiskNames, int[] positions, Sim
 
 	// find out if the memory index has any new or deleted documents, if not then the names & positions are the same
 	int numDeletedDocNames = 0;
-	int numReindexedDocNames = 0;
 	nextPath : for (int i = 0, l = docNames.length; i < l; i++) {
 		String docName = (String) docNames[i];
 		if (docName != null) {
@@ -290,7 +289,6 @@ private String[] computeDocumentNames(String[] onDiskNames, int[] positions, Sim
 						numDeletedDocNames++;
 					} else {
 						positions[j] = RE_INDEXED;
-						numReindexedDocNames++;
 					}
 					continue nextPath;
 				}

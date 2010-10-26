@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -300,10 +300,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			ASTNodesCollectorVisitor nodesCollector = new ASTNodesCollectorVisitor();
 			compilationUnit.accept(nodesCollector);
 			Set detachedNodes = nodesCollector.getDetachedAstNodes();
-			int counter = 0;
 			for (Iterator iterator = detachedNodes.iterator(); iterator.hasNext(); ) {
 				ASTNode detachedNode = (ASTNode) iterator.next();
-				counter++;
 				IBinding binding = (IBinding) bindingsMap.get(detachedNode);
 				assertNotNull(binding);
 				switch(detachedNode.getNodeType()) {
