@@ -6882,7 +6882,7 @@ public void testBug229042() throws Exception {
 		createFile("/P/library.jar", "");
 		setClasspath(p, new IClasspathEntry[] { JavaCore.newLibraryEntry(new Path("/P/library.jar"), null,null)});
 		assertMarkers("Expected marker", 
-				"Illegal type of archive for required library: \'library.jar\' in project \'P\'", p);
+				"Archive for required library: \'library.jar\' in project \'P\' cannot be read or is not a valid ZIP file", p);
 		setClasspath(p, new IClasspathEntry[0]);
 		addLibrary(p, "library.jar", null, new String[0], 
 				new String[] {

@@ -151,6 +151,7 @@ public final class Messages extends NLS {
 	public static String classpath_illegalLibraryPath;
 	public static String classpath_illegalLibraryPathInContainer;
 	public static String classpath_illegalLibraryArchive;
+	public static String classpath_archiveReadError;
 	public static String classpath_illegalExternalFolder;
 	public static String classpath_illegalExternalFolderInContainer;
 	public static String classpath_illegalProjectPath;

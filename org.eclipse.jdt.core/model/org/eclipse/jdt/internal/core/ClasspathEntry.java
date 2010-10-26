@@ -2143,7 +2143,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		} catch (CoreException e) {
 			if (e.getStatus().getMessage() == Messages.status_IOException) {
 				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(
-						Messages.classpath_illegalLibraryArchive,
+						Messages.classpath_archiveReadError,
 						new String[] {entryPathMsg, project.getElementName()}));
 			}
 		}
