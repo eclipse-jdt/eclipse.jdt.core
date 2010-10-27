@@ -337,6 +337,21 @@ public void testDeclarationOfAccessedFields3() throws CoreException {
 		this.resultCollector);
 }
 /**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=328554
+ */
+public void testDeclarationOfAccessedFields4() throws CoreException {
+	IMethod method =
+		getCompilationUnit("JavaSearch", "src", "b10", "A.java").
+			getType("A").getMethod("foo", new String[] {});
+	searchDeclarationsOfAccessedFields(
+		method,
+		this.resultCollector
+	);
+	assertSearchResults(
+		"",
+		this.resultCollector);
+}
+/**
  * Declaration of referenced types test.
  */
 public void testDeclarationOfReferencedTypes01() throws CoreException {

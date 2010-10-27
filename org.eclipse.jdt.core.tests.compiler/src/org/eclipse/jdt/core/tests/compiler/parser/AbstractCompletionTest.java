@@ -141,9 +141,10 @@ public void checkMethodParse(
 			parser.parseBlockStatements((AbstractMethodDeclaration)foundMethod, unit);
 		} else {
 			TypeDeclaration type = (TypeDeclaration)foundMethod;
-			if (type.fields != null) {
-				done : for (int i = 0; i < type.fields.length; i++) {
-					FieldDeclaration field = type.fields[i];
+			FieldDeclaration[] fields = type.fields;
+			if (fields != null) {
+				done : for (int i = 0; i < fields.length; i++) {
+					FieldDeclaration field = fields[i];
 					if (field.declarationSourceStart <= cursorLocation && (cursorLocation <= field.declarationSourceEnd || field.declarationSourceEnd == 0)) {
 						if (field instanceof Initializer) {
 							parser.parseBlockStatements((Initializer)field, type, unit);
@@ -359,9 +360,10 @@ private ASTNode findMethod(TypeDeclaration type, int cursorLocation) {
 			}
 		}
 	}
-	if (type.fields != null) {
-		for (int i = 0; i < type.fields.length; i++) {
-			FieldDeclaration field = type.fields[i];
+	FieldDeclaration[] fields = type.fields;
+	if (fields != null) {
+		for (int i = 0; i < fields.length; i++) {
+			FieldDeclaration field = fields[i];
 			if (field instanceof Initializer && field.declarationSourceStart <= cursorLocation && (cursorLocation <= field.declarationSourceEnd || field.declarationSourceEnd == 0)) {
 				return type;
 			}

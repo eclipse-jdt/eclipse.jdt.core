@@ -204,7 +204,8 @@ public class HandleFactory {
 					// inside field or initializer, must find proper one
 					TypeDeclaration type = methodScope.referenceType();
 					int occurenceCount = 1;
-					for (int i = 0, length = type.fields.length; i < length; i++) {
+					int length = type.fields == null ? 0 : type.fields.length;
+					for (int i = 0; i < length; i++) {
 						FieldDeclaration field = type.fields[i];
 						if (field.declarationSourceStart <= elementPosition && elementPosition <= field.declarationSourceEnd) {
 							switch (field.getKind()) {

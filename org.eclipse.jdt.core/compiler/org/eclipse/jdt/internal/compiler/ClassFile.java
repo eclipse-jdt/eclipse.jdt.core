@@ -1998,7 +1998,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 						// report an error and abort: will lead to a problem type classfile creation
 						TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
 						FieldDeclaration[] fieldDecls = typeDeclaration.fields;
-						for (int i = 0, max = fieldDecls.length; i < max; i++) {
+						int max = fieldDecls == null ? 0 : fieldDecls.length;
+						for (int i = 0; i < max; i++) {
 							if (fieldDecls[i].binding == fieldBinding) {
 								// problem should abort
 								typeDeclaration.scope.problemReporter().stringConstantIsExceedingUtf8Limit(

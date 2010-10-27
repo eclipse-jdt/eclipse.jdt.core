@@ -952,8 +952,10 @@ public RecoveredElement buildInitialRecoveryState(){
 			/* Initializer bodies are parsed in the context of the type declaration, we must thus search it inside */
 			if (this.referenceContext instanceof TypeDeclaration){
 				TypeDeclaration type = (TypeDeclaration) this.referenceContext;
-				for (int i = 0; i < type.fields.length; i++){
-					FieldDeclaration field = type.fields[i];
+				FieldDeclaration[] fieldDeclarations = type.fields;
+				int length = fieldDeclarations == null ? 0 : fieldDeclarations.length;
+				for (int i = 0; i < length; i++){
+					FieldDeclaration field = fieldDeclarations[i];
 					if (field != null
 						&& field.getKind() == AbstractVariableDeclaration.INITIALIZER
 						&& ((Initializer) field).block != null

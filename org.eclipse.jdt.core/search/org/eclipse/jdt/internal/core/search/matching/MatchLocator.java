@@ -557,10 +557,11 @@ protected IJavaElement createHandle(FieldDeclaration fieldDeclaration, TypeDecla
 		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=98378
 		return type;
 	}
-	// find occurence count of the given initializer in its type declaration
+	// find occurrence count of the given initializer in its type declaration
 	int occurrenceCount = 0;
 	FieldDeclaration[] fields = typeDeclaration.fields;
-	for (int i = 0, length = fields.length; i < length; i++) {
+	int length = fields == null ? 0 : fields.length;
+	for (int i = 0; i < length; i++) {
 		if (fields[i].getKind() == AbstractVariableDeclaration.INITIALIZER) {
 			occurrenceCount++;
 			if (fields[i].equals(fieldDeclaration)) break;
