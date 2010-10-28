@@ -704,8 +704,8 @@ public abstract class Scope {
 	}
 
 	public TypeVariableBinding[] createTypeVariables(TypeParameter[] typeParameters, Binding declaringElement) {
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, If they exist at all, process type parameters irrespective of source level.
-		if (typeParameters == null || typeParameters.length == 0)
+		// do not construct type variables if source < 1.5
+		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5)
 			return Binding.NO_TYPE_VARIABLES;
 
 		PackageBinding unitPackage = compilationUnitScope().fPackage;

@@ -149,12 +149,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	this.fPackage = packageBinding;
 	this.fileName = binaryType.getFileName();
 
-	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, even in a 1.4 project, we
-	   must internalize type variables and observe any parameterization of super class
-	   and/or super interfaces in order to be able to detect overriding in the presence
-	   of generics.
-	 */
-	char[] typeSignature = binaryType.getGenericSignature();
+	char[] typeSignature = environment.globalOptions.originalSourceLevel >= ClassFileConstants.JDK1_5 ? binaryType.getGenericSignature() : null;
 	this.typeVariables = typeSignature != null && typeSignature.length > 0 && typeSignature[0] == '<'
 		? null // is initialized in cachePartsFrom (called from LookupEnvironment.createBinaryTypeFrom())... must set to null so isGenericType() answers true
 		: Binding.NO_TYPE_VARIABLES;
@@ -266,14 +261,11 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		}
 
 		long sourceLevel = this.environment.globalOptions.originalSourceLevel;
-		/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, even in a 1.4 project, we
-		   must internalize type variables and observe any parameterization of super class
-		   and/or super interfaces in order to be able to detect overriding in the presence
-		   of generics.
-		 */
-		char[] typeSignature = binaryType.getGenericSignature(); // use generic signature even in 1.4
-		this.tagBits |= binaryType.getTagBits();
-		
+		char[] typeSignature = null;
+		if (sourceLevel >= ClassFileConstants.JDK1_5) {
+			typeSignature = binaryType.getGenericSignature();
+			this.tagBits |= binaryType.getTagBits();
+		}
 		char[][][] missingTypeNames = binaryType.getMissingTypeNames();
 		if (typeSignature == null) {
 			char[] superclassName = binaryType.getSuperclassName();
@@ -420,12 +412,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 	TypeBinding returnType = null;
 
 	final boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
-	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, Since a 1.4 project can have a 1.5
-	   type as a super type and the 1.5 type could be generic, we must internalize usages of type
-	   variables properly in order to be able to apply substitutions and thus be able to detect
-	   overriding in the presence of generics. Seeing the erased form is not good enough.
-	 */
-	char[] methodSignature = method.getGenericSignature(); // always use generic signature, even in 1.4
+	char[] methodSignature = use15specifics ? method.getGenericSignature() : null;
 	if (methodSignature == null) { // no generics
 		char[] methodDescriptor = method.getMethodDescriptor();   // of the form (I[Ljava/jang/String;)V
 		int numOfParams = 0;
@@ -489,7 +476,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 	} else {
 		methodModifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		// MethodTypeSignature = ParameterPart(optional) '(' TypeSignatures ')' return_typeSignature ['^' TypeSignature (optional)]
-		SignatureWrapper wrapper = new SignatureWrapper(methodSignature, use15specifics);
+		SignatureWrapper wrapper = new SignatureWrapper(methodSignature);
 		if (wrapper.signature[wrapper.start] == '<') {
 			// <A::Ljava/lang/annotation/Annotation;>(Ljava/lang/Class<TA;>;)TA;
 			// ParameterPart = '<' ParameterSignature(s) '>'

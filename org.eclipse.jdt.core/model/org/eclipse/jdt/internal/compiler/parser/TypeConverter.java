@@ -107,25 +107,11 @@ public abstract class TypeConverter {
 	protected TypeReference createTypeReference(
 		char[] typeName,
 		int start,
-		int end,
-		boolean includeGenericsAnyway) {
-
-		int length = typeName.length;
-		this.namePos = 0;
-		return decodeType(typeName, length, start, end, true);
-	}
-
-	/*
-	 * Build a type reference from a readable name, e.g. java.lang.Object[][]
-	 */
-	protected TypeReference createTypeReference(
-		char[] typeName,
-		int start,
 		int end) {
 
 		int length = typeName.length;
 		this.namePos = 0;
-		return decodeType(typeName, length, start, end, false);
+		return decodeType(typeName, length, start, end);
 	}
 
 	/*
@@ -365,7 +351,7 @@ public abstract class TypeConverter {
 		}
 	}
 
-	private TypeReference decodeType(char[] typeName, int length, int start, int end, boolean includeGenericsAnyway) {
+	private TypeReference decodeType(char[] typeName, int length, int start, int end) {
 		int identCount = 1;
 		int dim = 0;
 		int nameFragmentStart = this.namePos, nameFragmentEnd = -1;
@@ -387,7 +373,7 @@ public abstract class TypeConverter {
 								}
 								this.namePos += max;
 								Wildcard result = new Wildcard(Wildcard.SUPER);
-								result.bound = decodeType(typeName, length, start, end, includeGenericsAnyway);
+								result.bound = decodeType(typeName, length, start, end);
 								result.sourceStart = start;
 								result.sourceEnd = end;
 								return result;
@@ -403,7 +389,7 @@ public abstract class TypeConverter {
 								}
 								this.namePos += max;
 								Wildcard result = new Wildcard(Wildcard.EXTENDS);
-								result.bound = decodeType(typeName, length, start, end, includeGenericsAnyway);
+								result.bound = decodeType(typeName, length, start, end);
 								result.sourceStart = start;
 								result.sourceEnd = end;
 								return result;
@@ -428,27 +414,23 @@ public abstract class TypeConverter {
 					identCount ++;
 					break;
 				case '<' :
-					/* We need to convert and preserve 1.5 specific constructs either if compliance is 1.5 or above,
-					   or the caller has explicitly requested generics to be included. The parameter includeGenericsAnyway
-					   should be used by the caller to signal that in the calling context generics information must be 
-					   internalized even when the requesting project is 1.4. But in all cases, we must skip over them to
-					   see if there are any applicable type fragments after the type parameters: i.e we just aren't done
-					   having seen a '<' in 1.4 mode. 
-					   
-					   Because of the way type signatures are encoded, TypeConverter.decodeType(String, int, int, int) is immune
+					/* We need to convert and preserve 1.5 specific constructs only if compliance is 1.5 or above,
+					   but in all cases, we must skip over them to see if there are any applicable type fragments
+					   after the type parameters: i.e we just aren't done having seen a '<' in 1.4 mode. Because of
+					   the way type signatures are encoded, TypeConverter.decodeType(String, int, int, int) is immune
 					   to this problem. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=325633
 					 */
-					if (this.has1_5Compliance || includeGenericsAnyway) {
+					if (this.has1_5Compliance) {
 						if (fragments == null) fragments = new ArrayList(2);
 					}
 					nameFragmentEnd = this.namePos-1;
-					if (this.has1_5Compliance || includeGenericsAnyway) {
+					if (this.has1_5Compliance) {
 						char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, this.namePos);
 						fragments.add(identifiers);
 					}
 					this.namePos++; // skip '<'
-					TypeReference[] arguments = decodeTypeArguments(typeName, length, start, end, includeGenericsAnyway); // positionned on '>' at end
-					if (this.has1_5Compliance || includeGenericsAnyway) {
+					TypeReference[] arguments = decodeTypeArguments(typeName, length, start, end); // positionned on '>' at end
+					if (this.has1_5Compliance) {
 						fragments.add(arguments);
 						identCount = 0;
 						nameFragmentStart = -1;
@@ -537,11 +519,11 @@ public abstract class TypeConverter {
 		}
 	}
 
-	private TypeReference[] decodeTypeArguments(char[] typeName, int length, int start, int end, boolean includeGenericsAnyway) {
+	private TypeReference[] decodeTypeArguments(char[] typeName, int length, int start, int end) {
 		ArrayList argumentList = new ArrayList(1);
 		int count = 0;
 		argumentsLoop: while (this.namePos < length) {
-			TypeReference argument = decodeType(typeName, length, start, end, includeGenericsAnyway);
+			TypeReference argument = decodeType(typeName, length, start, end);
 			count++;
 			argumentList.add(argument);
 			if (this.namePos >= length) break argumentsLoop;

@@ -1322,12 +1322,9 @@ public MethodVerifier methodVerifier() {
 }
 
 public MethodVerifier newMethodVerifier() {
-	/* Always use MethodVerifier15. Even in a 1.4 project, we must internalize type variables and
-	   observe any parameterization of super class and/or super interfaces in order to be able to
-	   detect overriding in the presence of generics.
-	   See https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850
-	 */
-	return new MethodVerifier15(this);
+	return this.globalOptions.sourceLevel < ClassFileConstants.JDK1_5
+		? new MethodVerifier(this)
+		: new MethodVerifier15(this); // covariance only if sourceLevel is >= 1.5
 }
 
 public void releaseClassFiles(org.eclipse.jdt.internal.compiler.ClassFile[] classFiles) {

@@ -329,8 +329,8 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 	}
 
 	TypeParameter[] typeParameters = method.typeParameters();
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, If they exist at all, process type parameters irrespective of source level.
-    if (typeParameters == null || typeParameters.length == 0) {
+    // do not construct type variables if source < 1.5
+	if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) {
 	    method.binding.typeVariables = Binding.NO_TYPE_VARIABLES;
 	} else {
 		method.binding.typeVariables = createTypeVariables(typeParameters, method.binding);

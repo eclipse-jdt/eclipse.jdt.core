@@ -1446,16 +1446,11 @@ public void test0032() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	public class X <T1 extends String, T2 extends Y {\n" + 
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error on token(s), misplaced construct(s)\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 1)\n" + 
-		"	public class X <T1 extends String, T2 extends Y {\n" + 
-		"	                                              ^\n" + 
-		"Y cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	public class X <T1 extends String, T2 extends Y {\n" +
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Syntax error on token(s), misplaced construct(s)\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -2016,26 +2011,31 @@ public void test0044() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	public <T> X(T t){\n" + 
-		"	        ^\n" + 
-		"Syntax error, type parameters are only available if source level is 1.5\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	}\n" + 
-		"	^\n" + 
-		"Syntax error on token \"}\", delete this token\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
-		"	<String>super(\"SUCCESS\");\n" + 
-		"	 ^^^^^^\n" + 
-		"Syntax error, type parameters are only available if source level is 1.5\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 9)\n" + 
-		"	<String>super(\"SUCCESS\");\n" + 
-		"	 ^^^^^^\n" + 
-		"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	public <T> X(T t){\n" +
+		"	        ^\n" +
+		"Syntax error, type parameters are only available if source level is 1.5\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
+		"	public <T> X(T t){\n" +
+		"	             ^\n" +
+		"T cannot be resolved to a type\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 5)\n" +
+		"	}\n" +
+		"	^\n" +
+		"Syntax error on token \"}\", delete this token\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 9)\n" +
+		"	<String>super(\"SUCCESS\");\n" +
+		"	 ^^^^^^\n" +
+		"Syntax error, type parameters are only available if source level is 1.5\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 9)\n" +
+		"	<String>super(\"SUCCESS\");\n" +
+		"	 ^^^^^^\n" +
+		"Syntax error, parameterized types are only available if source level is 1.5\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
