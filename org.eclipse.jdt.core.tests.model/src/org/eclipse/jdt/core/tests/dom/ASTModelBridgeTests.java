@@ -368,6 +368,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 	}
 
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328969
 	public void testAnnotation9() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
@@ -384,6 +385,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertNull("Got a java element", binding.getJavaElement());
 	}
 
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328969
 	public void testAnnotation10() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
@@ -399,6 +401,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		assertNull("Got a java element", binding.getJavaElement());
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328969
 	public void testAnnotation11() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
@@ -419,7 +422,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				element
 		);
 	}
-
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328969
 	public void testAnnotation12() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
@@ -440,6 +443,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				element
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328969
 	public void testAnnotation13() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
@@ -457,6 +461,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
 		assertNull("Got a java element", binding.getJavaElement());
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328969
 	public void testAnnotation14() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
