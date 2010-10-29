@@ -44,7 +44,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "testLocalVariable6" };
+//		TESTS_NAMES = new String[] { "testAnnotation9" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -368,6 +368,117 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 	}
 
+	public void testAnnotation9() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"/*start*/@MyAnnot/*end*/ void foo() throws MissingException {}\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
+			"}",
+			this.workingCopy,
+			false,
+			true,
+			false
+		);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		assertNull("Got a java element", binding.getJavaElement());
+	}
+
+	public void testAnnotation10() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"/*start*/@MyAnnot/*end*/ MissingType foo;\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
+			"}",
+			this.workingCopy,
+			false,
+			true,
+			false
+		);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		assertNull("Got a java element", binding.getJavaElement());
+	}
+	public void testAnnotation11() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"/*start*/@MyAnnot/*end*/ void foo() throws MissingException {}\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
+			"}",
+			this.workingCopy,
+			false,
+			true,
+			true
+		);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		IJavaElement element = binding.getJavaElement();
+		assertElementExists(
+				"Unexpected Java element",
+				"@MyAnnot [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]",
+				element
+		);
+	}
+
+	public void testAnnotation12() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"/*start*/@MyAnnot/*end*/ MissingType foo;\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
+			"}",
+			this.workingCopy,
+			false,
+			true,
+			true
+		);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		IJavaElement element = binding.getJavaElement();
+		assertElementExists(
+				"Unexpected Java element",
+				"@MyAnnot [in foo [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]",
+				element
+		);
+	}
+	public void testAnnotation13() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"	void bar() {\n" +
+			"		/*start*/@MyAnnot/*end*/ MissingType foo;\n" +
+			"	}\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
+			"}",
+			this.workingCopy,
+			false,
+			true,
+			false
+		);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		assertNull("Got a java element", binding.getJavaElement());
+	}
+	public void testAnnotation14() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"	void bar() {\n" +
+			"		/*start*/@MyAnnot/*end*/ MissingType foo;\n" +
+			"	}\n" +
+			"}\n" +
+			"@interface MyAnnot {\n" +
+			"}",
+			this.workingCopy,
+			false,
+			true,
+			true
+		);
+		IBinding binding = ((Annotation) node).resolveAnnotationBinding();
+		IJavaElement element = binding.getJavaElement();
+		assertElementExists(
+				"Unexpected Java element",
+				"@MyAnnot [in foo [in bar() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]]",
+				element
+		);
+	}
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing an anonymous type is correct.
 	 */

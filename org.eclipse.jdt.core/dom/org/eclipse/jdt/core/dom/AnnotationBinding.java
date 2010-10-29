@@ -120,14 +120,24 @@ class AnnotationBinding implements IAnnotationBinding {
 			break;
 		case ASTNode.FIELD_DECLARATION:
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) ((FieldDeclaration) parent).fragments().get(0);
-			parentElement = fragment.resolveBinding().getJavaElement();
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			if (variableBinding == null) {
+				return null;
+			}
+			parentElement = variableBinding.getJavaElement();
 			break;
 		case ASTNode.METHOD_DECLARATION:
-			parentElement = ((MethodDeclaration) parent).resolveBinding().getJavaElement();
+				IMethodBinding methodBinding = ((MethodDeclaration) parent).resolveBinding();
+				if (methodBinding == null) return null;
+				parentElement = methodBinding.getJavaElement();
 			break;
 		case ASTNode.VARIABLE_DECLARATION_STATEMENT:
 			fragment = (VariableDeclarationFragment) ((VariableDeclarationStatement) parent).fragments().get(0);
-			parentElement = fragment.resolveBinding().getJavaElement();
+			variableBinding = fragment.resolveBinding();
+			if (variableBinding == null) {
+				return null;
+			}
+			parentElement = variableBinding.getJavaElement();
 			break;
 		default:
 			return null;
