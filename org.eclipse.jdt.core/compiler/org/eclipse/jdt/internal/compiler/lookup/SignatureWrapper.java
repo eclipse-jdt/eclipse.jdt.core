@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,11 +17,16 @@ public class SignatureWrapper {
 	public int start;
 	public int end;
 	public int bracket;
+	private boolean use15specifics;
 
-	public SignatureWrapper(char[] signature) {
+	public SignatureWrapper(char[] signature, boolean use15specifics) {
 		this.signature = signature;
 		this.start = 0;
 		this.end = this.bracket = -1;
+		this.use15specifics = use15specifics;
+	}
+	public SignatureWrapper(char [] signature) {
+		this(signature, true);
 	}
 	public boolean atEnd() {
 		return this.start < 0 || this.start >= this.signature.length;
@@ -46,8 +51,32 @@ public class SignatureWrapper {
 				this.end = this.start;
 		}
 
-		this.start = this.end + 1; // skip ';'
+		if (this.use15specifics || this.end != this.bracket) {
+			this.start = this.end + 1; // skip ';'
+		} else {
+			this.start = skipAngleContents(this.end) + 1;  // skip <<>*>;
+			this.bracket = -1;
+		}
 		return this.end;
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, do not expose generics if we shouldn't
+	public int skipAngleContents(int i) {
+		if (this.signature[i] != '<') {
+			return i;
+		}
+		int depth = 0, length = this.signature.length;
+		for (++i; i < length; i++) {
+			switch(this.signature[i]) {
+				case '<' :
+					depth++;
+					break;
+				case '>' :
+					if (--depth < 0)
+						return i + 1;
+					break;
+			}
+		}
+		return i;
 	}
 	public char[] nextWord() {
 		this.end = CharOperation.indexOf(';', this.signature, this.start);

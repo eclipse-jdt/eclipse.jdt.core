@@ -229,7 +229,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 
 			    TypeVariableBinding[] typeVariables = currentOriginal.typeVariables();
 				if (typeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
-					if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) { // below 1.5, already reported as syntax error
+					if (scope.compilerOptions().originalSourceLevel >= ClassFileConstants.JDK1_5) { // below 1.5, already reported as syntax error
 						scope.problemReporter().nonGenericTypeCannotBeParameterized(i, this, currentType, argTypes);
 						return null;
 					}

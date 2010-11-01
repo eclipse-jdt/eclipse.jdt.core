@@ -3379,52 +3379,57 @@ public void test074() {
 				"	^^^^\n" +
 				"The method bar1() from the type X refers to the missing type Zork\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	bar2();\n" + 
+				"	^^^^\n" + 
+				"The method bar2() from the type X refers to the missing type Zork\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" +
 				"	bar3(null);\n" +
 				"	^^^^\n" +
 				"The method bar3(Zork) from the type X refers to the missing type Zork\n" +
 				"----------\n" +
-				"3. ERROR in X.java (at line 7)\n" +
+				"4. ERROR in X.java (at line 7)\n" +
 				"	bar4(null,null);\n" +
 				"	^^^^\n" +
 				"The method bar4(Zork) from the type X refers to the missing type Zork\n" +
 				"----------\n" +
-				"4. ERROR in X.java (at line 9)\n" +
+				"5. ERROR in X.java (at line 9)\n" +
 				"	Zork<String> bar1() {}\n" +
 				"	^^^^\n" +
 				"Zork cannot be resolved to a type\n" +
 				"----------\n" +
-				"5. ERROR in X.java (at line 9)\n" +
+				"6. ERROR in X.java (at line 9)\n" +
 				"	Zork<String> bar1() {}\n" +
 				"	     ^^^^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 10)\n" +
-				"	List<Zork> bar2() {}\n" +
-				"	     ^^^^\n" +
 				"Syntax error, parameterized types are only available if source level is 1.5\n" +
 				"----------\n" +
 				"7. ERROR in X.java (at line 10)\n" +
 				"	List<Zork> bar2() {}\n" +
 				"	     ^^^^\n" +
-				"Zork cannot be resolved to a type\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5\n" +
 				"----------\n" +
-				"8. ERROR in X.java (at line 11)\n" +
-				"	void bar3(Zork<String> z) {}\n" +
-				"	          ^^^^\n" +
+				"8. ERROR in X.java (at line 10)\n" +
+				"	List<Zork> bar2() {}\n" +
+				"	     ^^^^\n" +
 				"Zork cannot be resolved to a type\n" +
 				"----------\n" +
 				"9. ERROR in X.java (at line 11)\n" +
 				"	void bar3(Zork<String> z) {}\n" +
+				"	          ^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
+				"----------\n" +
+				"10. ERROR in X.java (at line 11)\n" +
+				"	void bar3(Zork<String> z) {}\n" +
 				"	               ^^^^^^\n" +
 				"Syntax error, parameterized types are only available if source level is 1.5\n" +
 				"----------\n" +
-				"10. ERROR in X.java (at line 12)\n" +
+				"11. ERROR in X.java (at line 12)\n" +
 				"	void bar4(Zork<String,String> z) {}\n" +
 				"	          ^^^^\n" +
 				"Zork cannot be resolved to a type\n" +
 				"----------\n" +
-				"11. ERROR in X.java (at line 12)\n" +
+				"12. ERROR in X.java (at line 12)\n" +
 				"	void bar4(Zork<String,String> z) {}\n" +
 				"	               ^^^^^^^^^^^^^\n" +
 				"Syntax error, parameterized types are only available if source level is 1.5\n" +
