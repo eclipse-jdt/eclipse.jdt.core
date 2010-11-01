@@ -525,6 +525,7 @@ public abstract class Scope {
 				return null; // incompatible
 
 		if (typeVariables != Binding.NO_TYPE_VARIABLES) { // generic method
+			boolean compliant14 = compilerOptions().complianceLevel < ClassFileConstants.JDK1_5;
 			TypeBinding[] newArgs = null;
 			for (int i = 0; i < argLength; i++) {
 				TypeBinding param = i < paramLength ? parameters[i] : parameters[paramLength - 1];
@@ -534,6 +535,26 @@ public abstract class Scope {
 						System.arraycopy(arguments, 0, newArgs, 0, argLength);
 					}
 					newArgs[i] = environment().computeBoxingType(arguments[i]);
+				} else if (compliant14 && invocationSite instanceof MessageSend
+						   && param.kind() == Binding.PARAMETERIZED_TYPE && param.erasure().id == TypeIds.T_JavaLangClass
+						   && ((ParameterizedTypeBinding) param).arguments.length == 1 
+						   && ((ParameterizedTypeBinding) param).arguments[0] instanceof TypeVariableBinding 
+						   && arguments[i] instanceof BinaryTypeBinding && arguments[i].erasure().id == TypeIds.T_JavaLangClass) {
+					/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=328775. Class literals are special in that
+					   they carry (and are the only expressions that can carry) full parameterization information
+					   even in 1.4 source code. For inference during method selection/invocation to work properly,
+					   resolve class literal expression's type to be a parameterized type if in 1.4 we encounter
+					   a method that expects a parameter of the type Class<>   
+					 */
+					if (newArgs == null) {
+						newArgs = new TypeBinding[argLength];
+						System.arraycopy(arguments, 0, newArgs, 0, argLength);
+					}
+					ClassLiteralAccess classLiteral = (ClassLiteralAccess) ((MessageSend) invocationSite).arguments[i];
+					// Integer.class --> Class<Integer>, perform boxing of base types (int.class --> Class<Integer>)
+					// BundleWiring.class --> Class<BundleWiring>
+					TypeBinding boxedType = boxing(classLiteral.targetType);
+					newArgs[i] = classLiteral.resolvedType = environment().createParameterizedType(((ParameterizedTypeBinding)param).genericType(), new TypeBinding[]{ boxedType }, null /*not a member*/);
 				}
 			}
 			if (newArgs != null)

@@ -101,7 +101,8 @@ public class ClassLiteralAccess extends Expression {
 			scope.problemReporter().illegalClassLiteralForTypeVariable((TypeVariableBinding)this.targetType, this);
 		}
 		ReferenceBinding classType = scope.getJavaLangClass();
-		if (classType.isGenericType()) {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328689
+		if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 			// Integer.class --> Class<Integer>, perform boxing of base types (int.class --> Class<Integer>)
 			TypeBinding boxedType = null;
 			if (this.targetType.id == T_void) {

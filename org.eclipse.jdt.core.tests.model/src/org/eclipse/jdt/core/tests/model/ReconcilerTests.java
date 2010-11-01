@@ -5145,4 +5145,43 @@ public void testGenericAPIUsageFromA14Project8() throws CoreException, IOExcepti
 			deleteProject(project15);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328775
+public void test14ProjectWith15JRE() throws CoreException, IOException {
+	IJavaProject project14 = null;
+	try {
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+
+		createFolder("/Reconciler1415/src/p1");
+		String source = 
+			"package p1;\n" +
+			"public class X {\n" +
+			"	int a;\n" +
+			"   private Class c = a == 1 ? int.class : long.class;\n" + 
+			"}\n";
+		createFile(
+			"/Reconciler1415/src/p1/X.java",
+			source
+		);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 4)\n" + 
+			"	private Class c = a == 1 ? int.class : long.class;\n" + 
+			"	              ^\n" + 
+			"The value of the field X.c is not used\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (project14 != null)
+			deleteProject(project14);
+	}
+}
 }

@@ -11133,4 +11133,53 @@ public void test326354() {
 			""
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328827 
+public void test328827() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"Map.java",
+			"public interface Map<K,V> {}\n",
+			
+			"EventProperties.java",
+			"public class EventProperties implements Map<String, Object> {}\n",
+			
+			"Event.java",
+			"public class Event {\n" +
+			"    public Event(Map<String, ?> properties) {}\n" +
+			"}"
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+	
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	this.runConformTest(
+		new String[] {
+				"Map.java",
+				"public interface Map {}\n",
+				
+				"X.java",
+				"public class X {\n" +
+				"    public void start() {\n" +
+				"        Event event = new Event(new EventProperties());\n" + 
+				"	}\n" +
+				"}"
+		},
+		"",
+		null,
+		false,
+		null,
+		compilerOptions14,
+		null);
+}
 }

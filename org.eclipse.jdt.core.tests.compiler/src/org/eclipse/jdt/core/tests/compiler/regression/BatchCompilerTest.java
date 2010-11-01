@@ -11861,4 +11861,106 @@ public void test0307e(){
 		System.setProperty("user.dir", javaUserDir);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328775 - Compiler fails to warn about invalid cast in 1.4 mode.
+public void testInferenceIn14Project(){
+	String currentWorkingDirectoryPath = System.getProperty("user.dir");
+	if (currentWorkingDirectoryPath == null) {
+		fail("BatchCompilerTest#testInference14 could not access the current working directory " + currentWorkingDirectoryPath);
+	} else if (!new File(currentWorkingDirectoryPath).isDirectory()) {
+		fail("BatchCompilerTest#testInference14 current working directory is not a directory " + currentWorkingDirectoryPath);
+	}
+	String lib1Path = currentWorkingDirectoryPath + File.separator + "lib1.jar";
+	try {
+		Util.createJar(
+				new String[] {
+						"Bundle.java",
+						"public class Bundle {\n" +
+						"    static <A> A adapt(Class<A> type) {\n" +
+						"        return null;\n" +
+						"    }\n" +
+						"}"
+				},
+				null,
+				lib1Path,
+				JavaCore.VERSION_1_5);
+		this.runNegativeTest(
+				new String[] {
+						"src/X.java",
+						"public class X {\n" +
+						"    Bundle b = Bundle.adapt(BundleWiring.class);\n" + 
+						"}\n" +
+						"class BundleWiring {}\n",
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+				+ " -cp lib1.jar" // relative
+				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+				+ " -1.4 -g -preserveAllLocals"
+				+ " -proceedOnError -referenceInfo"
+				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		        "",
+		        "----------\n" + 
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)\n" + 
+		        "	Bundle b = Bundle.adapt(BundleWiring.class);\n" + 
+		        "	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		        "Type mismatch: cannot convert from BundleWiring to Bundle\n" + 
+		        "----------\n" + 
+		        "1 problem (1 error)",
+		        true);
+	} catch (IOException e) {
+		System.err.println("BatchCompilerTest#testInference14 could not write to current working directory " + currentWorkingDirectoryPath);
+	} finally {
+		new File(lib1Path).delete();
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328775 - Compiler fails to warn about invalid cast in 1.4 mode.
+public void testInferenceIn15Project(){  // ensure 1.5 complains too
+	String currentWorkingDirectoryPath = System.getProperty("user.dir");
+	if (currentWorkingDirectoryPath == null) {
+		fail("BatchCompilerTest#testInference14 could not access the current working directory " + currentWorkingDirectoryPath);
+	} else if (!new File(currentWorkingDirectoryPath).isDirectory()) {
+		fail("BatchCompilerTest#testInference14 current working directory is not a directory " + currentWorkingDirectoryPath);
+	}
+	String lib1Path = currentWorkingDirectoryPath + File.separator + "lib1.jar";
+	try {
+		Util.createJar(
+				new String[] {
+						"Bundle.java",
+						"public class Bundle {\n" +
+						"    static <A> A adapt(Class<A> type) {\n" +
+						"        return null;\n" +
+						"    }\n" +
+						"}"
+				},
+				null,
+				lib1Path,
+				JavaCore.VERSION_1_5);
+		this.runNegativeTest(
+				new String[] {
+						"src/X.java",
+						"public class X {\n" +
+						"    Bundle b = Bundle.adapt(BundleWiring.class);\n" + 
+						"}\n" +
+						"class BundleWiring {}\n",
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+				+ " -cp lib1.jar" // relative
+				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+				+ " -1.5 -g -preserveAllLocals"
+				+ " -proceedOnError -referenceInfo"
+				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		        "",
+		        "----------\n" + 
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)\n" + 
+		        "	Bundle b = Bundle.adapt(BundleWiring.class);\n" + 
+		        "	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		        "Type mismatch: cannot convert from BundleWiring to Bundle\n" + 
+		        "----------\n" + 
+		        "1 problem (1 error)",
+		        true);
+	} catch (IOException e) {
+		System.err.println("BatchCompilerTest#testInference14 could not write to current working directory " + currentWorkingDirectoryPath);
+	} finally {
+		new File(lib1Path).delete();
+	}
+}
 }
