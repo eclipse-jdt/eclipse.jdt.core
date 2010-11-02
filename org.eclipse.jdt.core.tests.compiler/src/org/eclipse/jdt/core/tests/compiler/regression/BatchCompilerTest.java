@@ -11963,4 +11963,60 @@ public void testInferenceIn15Project(){  // ensure 1.5 complains too
 		new File(lib1Path).delete();
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=186565 Test interaction between 1.4 and 1.5 class files 
+public void test186565(){
+	String outputDirName = OUTPUT_DIR + File.separator + "d",
+	  metaInfDirName = outputDirName + File.separator + "META-INF",
+	  jarFileName = outputDirName + File.separator + "classB15.jar";
+	this.runConformTest(
+		new String[] {
+			"d/B.java",
+			"public class B<T> extends A<T> {\n" +
+			"}",
+			"d/A.java",
+			"public class A<T> {\n" +
+			"}",
+			},
+	    "\"" + outputDirName + "\""
+	    + " -1.5 -g -preserveAllLocals"
+	    + " -d \"" + outputDirName + "\"",
+		"",
+		"",
+		true /* flush output directory */);
+	File outputDirectory = new File(outputDirName);
+	File metaInfDirectory = new File(metaInfDirName);
+	metaInfDirectory.mkdirs();
+	try {
+		Util.createFile(metaInfDirName + File.separator + "MANIFEST.MF",
+			"Manifest-Version: 1.0\n" +
+			"Class-Path: ../d/classB15.jar\n");
+	} catch (IOException e) {
+		fail("could not create manifest file");
+	}
+	Util.delete(outputDirName + File.separator + "A.class");
+	Util.delete(outputDirName + File.separator + "A.java");
+	try {
+		Util.zip(outputDirectory, jarFileName);
+	} catch (IOException e) {
+		fail("could not create jar file");
+	}
+	Util.delete(outputDirName + File.separator + "B.class");
+	Util.delete(outputDirName + File.separator + "B.java");
+	this.runConformTest(
+		new String[] {
+			"d/A.java",
+			"public class A {\n" +
+			"}",
+			"d/C.java",
+			"public class C extends B<String> {\n" +
+			"}",
+			},
+	    "\"" + outputDirName + "\""
+	    + " -1.5 -g -preserveAllLocals"
+	    + " -cp \"" + jarFileName + "\""
+	    + " -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		false /* do not flush output directory */);
+}
 }

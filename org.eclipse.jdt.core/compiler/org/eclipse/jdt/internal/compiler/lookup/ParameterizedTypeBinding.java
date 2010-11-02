@@ -15,7 +15,6 @@ import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /**
  * A parameterized type encapsulates a type with type arguments,
@@ -868,19 +867,28 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				this.arguments[i] = resolveType;
 				this.tagBits |= resolvedType.tagBits & TagBits.ContainsNestedTypeReferences;
 			}
-			// arity check
-			TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
-			if (refTypeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
-				// Below 1.5, we should have already complained about the use of type parameters.
-				boolean isCompliant15 = this.environment.globalOptions.originalSourceLevel >= ClassFileConstants.JDK1_5;
-				if (isCompliant15 && (resolvedType.tagBits & TagBits.HasMissingType) == 0) {
-					this.environment.problemReporter.nonGenericTypeCannotBeParameterized(0, null, resolvedType, this.arguments);
-				}
-				return this;
-			} else if (argLength != refTypeVariables.length) { // check arity
-				this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, this.arguments);
-				return this; // cannot reach here as AbortCompilation is thrown
-			}
+			/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=186565, Removed generic check
+			   and arity check since we are dealing with binary types here and the fact that
+			   the compiler produced class files for these types at all is proof positive that
+			   the generic check and the arity check passed in the build environment that produced
+			   these class files. Otherwise we don't handle mixed 1.5 and 1.4 projects correctly.
+			   Just as with bounds check below, incremental build will propagate the change and
+			   detect problems in source.
+			 */
+			
+//			// arity check
+//			TypeVariableBinding[] refTypeVariables = resolvedType.typeVariables();
+//			if (refTypeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
+//				// Below 1.5, we should have already complained about the use of type parameters.
+//				boolean isCompliant15 = this.environment.globalOptions.originalSourceLevel >= ClassFileConstants.JDK1_5;
+//				if (isCompliant15 && (resolvedType.tagBits & TagBits.HasMissingType) == 0) {
+//					this.environment.problemReporter.nonGenericTypeCannotBeParameterized(0, null, resolvedType, this.arguments);
+//				}
+//				return this;
+//			} else if (argLength != refTypeVariables.length) { // check arity
+//				this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, this.arguments);
+//				return this; // cannot reach here as AbortCompilation is thrown
+//			}
 			// check argument type compatibility... REMOVED for now since incremental build will propagate change & detect in source
 //			for (int i = 0; i < argLength; i++) {
 //			    TypeBinding resolvedArgument = this.arguments[i];

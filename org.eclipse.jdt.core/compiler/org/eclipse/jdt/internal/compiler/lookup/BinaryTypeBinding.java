@@ -990,6 +990,14 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 		case Binding.WILDCARD_TYPE :
 		case Binding.INTERSECTION_TYPE :
 			return ((WildcardBinding) otherType).boundCheck(this);
+		case Binding.PARAMETERIZED_TYPE:
+		/* With the hybrid 1.4/1.5+ projects modes, while establishing type equivalence, we need to
+	       be prepared for a type such as Map appearing in one of three forms: As (a) a ParameterizedTypeBinding 
+	       e.g Map<String, String>, (b) as RawTypeBinding Map#RAW and finally (c) as a BinaryTypeBinding 
+	       When the usage of a type lacks type parameters, whether we land up with the raw form or not depends
+	       on whether the underlying type was "seen to be" a generic type in the particular build environment or
+	       not. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=186565 && https://bugs.eclipse.org/bugs/show_bug.cgi?id=328827 
+		*/ 
 		case Binding.RAW_TYPE :
 			return otherType.erasure() == this;
 	}

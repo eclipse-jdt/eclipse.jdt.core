@@ -9313,7 +9313,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		assertProblemsSize(unit, 1, "The type A is not generic; it cannot be parameterized with arguments <?>");
+		assertProblemsSize(unit, 0);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=191908
 	public void test0274() throws JavaModelException {
