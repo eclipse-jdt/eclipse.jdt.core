@@ -91,10 +91,9 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 			HashSet cache = new HashSet();
 			for (Iterator iterator = classpaths.iterator(); iterator.hasNext(); ) {
 				FileSystem.Classpath classpath = (FileSystem.Classpath) iterator.next();
-				String path = classpath.getPath();
-				if (!cache.contains(path)) {
+				if (!cache.contains(classpath)) {
 					normalizedClasspath.add(classpath);
-					cache.add(path);
+					cache.add(classpath);
 				}
 			}
 			return normalizedClasspath;
