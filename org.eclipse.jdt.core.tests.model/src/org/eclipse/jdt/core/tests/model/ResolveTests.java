@@ -2609,4 +2609,43 @@ public void test306078() throws JavaModelException {
 			elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=299384
+public void testCodeSelectInHybrid1415Projects() throws CoreException, IOException {
+	String jarName = "bug299384.jar";
+	String srcName = "bug299384_src.zip";
+	try {
+		String[] pathAndContents = new String[] {
+			"TestSuite.java",
+			"public class TestSuite {\n" +
+			"    public TestSuite(final Class<? extends TestCase> p) {}\n" +
+			"}\n" +
+			"class TestCase {}\n"
+		};
+
+		addLibrary(jarName, srcName, pathAndContents, JavaCore.VERSION_1_5);
+
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/Test.java",
+			"public class TextEditTests extends TestCase {\n" +
+			"	{\n" + 
+			"		new TestSuite(TextEditTests.class);\n" +
+			"	}\n" +
+			"}\n");
+
+
+		String str = this.workingCopies[0].getSource();
+		int start = str.lastIndexOf("TestSuite");
+		int length = "TestSuite".length();
+		IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+		assertElementsEqual(
+			"Unexpected elements",
+			"TestSuite(java.lang.Class<? extends TestCase>) [in TestSuite [in TestSuite.class [in <default> [in bug299384.jar [in Resolve]]]]]",
+			elements
+		);
+	} finally {
+		removeLibrary(this.currentProject, jarName, srcName);
+	}
+}
 }
