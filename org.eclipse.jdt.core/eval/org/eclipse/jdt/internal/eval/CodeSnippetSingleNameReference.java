@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 
 /**
  * A single name reference inside a code snippet can denote a field of a remote
@@ -270,6 +271,15 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				break;
 			case Binding.LOCAL : // reading a local
 				LocalVariableBinding localBinding = (LocalVariableBinding) this.binding;
+				if (localBinding.resolvedPosition == -1) {
+					if (valueRequired) {
+						// restart code gen
+						localBinding.useFlag = LocalVariableBinding.USED;
+						throw new AbortMethod(CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE, null);
+					}
+					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					return;
+				}
 				if (!valueRequired)
 					break;
 				// outer local?
@@ -340,6 +350,14 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 			break;
 		case Binding.LOCAL : // assigning to a local variable (cannot assign to outer local)
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.binding;
+			if (localBinding.resolvedPosition == -1) {
+				if (valueRequired) {
+					// restart code gen
+					localBinding.useFlag = LocalVariableBinding.USED;
+					throw new AbortMethod(CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE, null);
+				}
+				return;
+			}
 			// using incr bytecode if possible
 			switch (localBinding.type.id) {
 				case T_JavaLangString :

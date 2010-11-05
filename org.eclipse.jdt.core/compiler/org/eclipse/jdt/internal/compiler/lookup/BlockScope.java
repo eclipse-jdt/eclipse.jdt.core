@@ -191,7 +191,7 @@ void computeLocalVariablePositions(int ilocal, int initOffset, CodeStream codeSt
 			LocalVariableBinding local = this.locals[ilocal]; // if no local at all, will be locals[ilocal]==null
 
 			// check if variable is actually used, and may force it to be preserved
-			boolean generateCurrentLocalVar = (local.useFlag != LocalVariableBinding.UNUSED && local.constant() == Constant.NotAConstant);
+			boolean generateCurrentLocalVar = (local.useFlag > LocalVariableBinding.UNUSED && local.constant() == Constant.NotAConstant);
 
 			// do not report fake used variable
 			if (local.useFlag == LocalVariableBinding.UNUSED

@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public ProgrammingProblemsTest(String name) {
   	// -Dcompliance=1.4 (for example) to lower it if needed
   	static {
 //    	TESTS_NAMES = new String[] { "test001" };
-//		TESTS_NUMBERS = new int[] { 43 };
+//		TESTS_NUMBERS = new int[] { 53 };
 //  	TESTS_RANGE = new int[] { 1, -1 };
   	}
 
@@ -47,7 +48,11 @@ public static Test suite() {
 public static Class testClass() {
     return ProgrammingProblemsTest.class;
 }
-
+protected Map getCompilerOptions() {
+	Map compilerOptions = super.getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal,  CompilerOptions.OPTIMIZE_OUT);
+	return compilerOptions;
+}
 void runTest(
 		String[] testFiles,
 		String[] errorOptions,
@@ -2120,5 +2125,111 @@ public void test0051() {
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+public void test0052() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"    int foo() {\n" + 
+			"        int i=1;\n" +
+			"        return i++;\n" + 	// value is used as it is returned
+			"    }\n" + 
+			"}"
+		},
+		"",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		null,
+		customOptions,
+		null);
+	String expectedOutput =
+		"  // Method descriptor #15 ()I\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  int foo();\n" + 
+		"    0  iconst_1\n" + 
+		"    1  istore_1 [i]\n" + 
+		"    2  iload_1 [i]\n" + 
+		"    3  iinc 1 1 [i]\n" + 
+		"    6  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 2, line: 4]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 7] local: i index: 1 type: int\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+public void test0053() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"    int foo() {\n" + 
+			"        int i=1;\n" +
+			"        i++;\n" + 	// value after increment is still not used
+			"        return 0;\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		null,
+		customOptions,
+		null);
+	String expectedOutput =
+		"  // Method descriptor #15 ()I\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  int foo();\n" + 
+		"    0  iconst_0\n" + 
+		"    1  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 2] local: this index: 0 type: X\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+public void test0054() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"    int foo() {\n" + 
+			"        int i=1;\n" +
+			"        return i+=1;\n" + 	// value is used as it is returned
+			"    }\n" + 
+			"}"
+		},
+		"",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		null,
+		customOptions,
+		null);
+	String expectedOutput =
+		"  // Method descriptor #15 ()I\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  int foo();\n" + 
+		"    0  iconst_1\n" + 
+		"    1  istore_1 [i]\n" + 
+		"    2  iinc 1 1 [i]\n" + 
+		"    5  iload_1 [i]\n" + 
+		"    6  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 2, line: 4]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 7] local: i index: 1 type: int\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
 }

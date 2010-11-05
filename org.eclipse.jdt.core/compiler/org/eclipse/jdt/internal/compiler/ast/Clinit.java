@@ -123,6 +123,10 @@ public class Clinit extends AbstractMethodDeclaration {
 					classFile.contentsOffset = clinitOffset;
 					classFile.methodCount--;
 				}
+			} else if (e.compilationResult == CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE) {
+				classFile.contentsOffset = clinitOffset;
+				classFile.methodCount--;
+				this.generateCode(classFile); // restart method generation
 			} else {
 				// produce a problem method accounting for this fatal error
 				classFile.contentsOffset = clinitOffset;
