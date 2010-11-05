@@ -11392,6 +11392,12 @@ public final class CompletionEngine
 
 							if (local.isSecret())
 								continue next;
+							
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328674
+							if (local.declaration.initialization != null) {
+								// proposal being asked inside field's initialization. Don't propose this field.
+								continue next;
+							}
 												
 							// don't propose array types in case expression
 							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346

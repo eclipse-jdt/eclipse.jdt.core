@@ -21790,4 +21790,70 @@ public void test312603() throws JavaModelException {
 			"myString[FIELD_REF]{myString, Ltest.X;, Ljava.lang.String;, myString, null, 57}",
 			requestor.getResults());
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328674
+public void test328674a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/X.java",
+			"package test;\n" +
+			"public class X {\n" +
+			"    void foo() {\n" +
+			"    	String myString = \"\";\n" +
+			"    	String myString2 = \"\";\n" +
+			"    	String myString3 = bar(my\n" +
+			"    	String myString4 = \"\";\n" +
+			"	 }\n" +
+			"	 void bar(String s){\n" +
+			"	 }\n" +
+			"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	final String completeBehind = "String myString3 = bar(my";
+	int cursorLocation = str.lastIndexOf(completeBehind) +
+	completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor,
+			this.wcOwner);
+
+	assertResults(
+			"MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_NON_STATIC + R_UNQUALIFIED) + "}\n" + 
+			"mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE) + "}\n" + 
+			"myString[LOCAL_VARIABLE_REF]{myString, null, Ljava.lang.String;, myString, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+			"myString2[LOCAL_VARIABLE_REF]{myString2, null, Ljava.lang.String;, myString2, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328674
+public void test328674b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src3/test/X.java",
+			"package test;\n" +
+			"public class X {\n" +
+			"    void foo() {\n" +
+			"    	String myString = \"\";\n" +
+			"    	String myString1 = \"\";\n" +
+			"    	String myString2 = bar(bar(my\n" +
+			"    	String myString3 = \"\";\n" +
+			"	 }\n" +
+			"	 String bar(String s){\n" +
+			"	 }\n" +
+			"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	final String completeBehind = "String myString2 = bar(bar(my";
+	int cursorLocation = str.lastIndexOf(completeBehind) +
+	completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor,
+			this.wcOwner);
+
+	assertResults(
+			"MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_NON_STATIC + R_UNQUALIFIED) + "}\n" + 
+			"mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE) + "}\n" + 
+			"myString[LOCAL_VARIABLE_REF]{myString, null, Ljava.lang.String;, myString, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+			"myString1[LOCAL_VARIABLE_REF]{myString1, null, Ljava.lang.String;, myString1, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			requestor.getResults());
+}
 }
