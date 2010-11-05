@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MethodVerifyTest extends AbstractComparableTest {
 	static {
-//		TESTS_NAMES = new String[] { "test211" };
+//		TESTS_NAMES = new String[] { "test329584_2", "test329584_3" };
 //		TESTS_NUMBERS = new int[] { 213 };
 //		TESTS_RANGE = new int[] { 190, -1};
 	}
@@ -11174,6 +11174,145 @@ public void test328827() {
 				"        Event event = new Event(new EventProperties());\n" + 
 				"	}\n" +
 				"}"
+		},
+		"",
+		null,
+		false,
+		null,
+		compilerOptions14,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=329584 
+public void _test329584() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"I.java",
+			"public interface I {\n" +
+			"	void foo(Object o[], Dictionary<Object, Object> dict);\n" +
+			"}",
+			"Dictionary.java",
+			"public class Dictionary<U, V> {}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+	
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X implements I {\n" +
+			"	public void foo(Object o[], Dictionary dict) {}\n" +
+			"}",
+			"Dictionary.java",
+			"public class Dictionary {}\n",
+		},
+		"",
+		null,
+		false,
+		null,
+		compilerOptions14,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=329588 
+public void _test329588() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"public class A {\n" +
+			"	public O<?> foo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}",
+			"O.java",
+			"public class O<V> {}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+	
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void foo(A a) {\n" +
+			"		O o = (O) a.foo();\r\n" + 
+			"		System.out.println(o);\r\n" + 
+			"	}\n" +
+			"}",
+			"O.java",
+			"public class O {}\n",
+		},
+		"",
+		null,
+		false,
+		null,
+		compilerOptions14,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=329589 
+public void _test329589() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"public class A {\n" +
+			"	public Class<?> foo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}",
+			"java/lang/Class.java",
+			"public class Class<V> {}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+	
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void foo(A a) {\n" +
+			"		if (a.foo() == Boolean.class) {\n" + 
+			"			System.out.println(a);\n" + 
+			"		}\n" +
+			"	}\n" +
+			"}",
+			"java/lang/Class.java",
+			"package java.lang;\n" + 
+			"public class Class {}\n",
 		},
 		"",
 		null,
