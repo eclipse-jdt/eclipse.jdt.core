@@ -595,6 +595,18 @@ private boolean isProvableDistinctSubType(TypeBinding otherType, boolean isClass
  * Returns true if a type is provably distinct from another one,
  */
 public boolean isProvablyDistinct(TypeBinding otherType) {
+
+	/* With the hybrid 1.4/1.5+ projects modes, while establishing type equivalence, we need to
+	   be prepared for a type such as Map appearing in one of three forms: As (a) a ParameterizedTypeBinding 
+	   e.g Map<String, String>, (b) as RawTypeBinding Map#RAW and finally (c) as a BinaryTypeBinding 
+	   When the usage of a type lacks type parameters, whether we land up with the raw form or not depends
+	   on whether the underlying type was "seen to be" a generic type in the particular build environment or
+	   not. See:
+	    https://bugs.eclipse.org/bugs/show_bug.cgi?id=186565
+        https://bugs.eclipse.org/bugs/show_bug.cgi?id=328827 
+        https://bugs.eclipse.org/bugs/show_bug.cgi?id=329588
+	 */ 
+
 	if (this == otherType)
 	    return false;
     if (otherType == null)
@@ -660,19 +672,30 @@ public boolean isProvablyDistinct(TypeBinding otherType) {
 
 		    	case Binding.RAW_TYPE :
 		            return erasure() != otherType.erasure();
+		    	case Binding.TYPE:  // https://bugs.eclipse.org/bugs/show_bug.cgi?id=329588
+		    		return erasure() != otherType;
 		    }
 	        return true;
 
-		case Binding.RAW_TYPE :
+		case Binding.RAW_TYPE : // dead code ??
 
 		    switch(otherType.kind()) {
 
 		    	case Binding.GENERIC_TYPE :
 		    	case Binding.PARAMETERIZED_TYPE :
 		    	case Binding.RAW_TYPE :
+		    	case Binding.TYPE:  // https://bugs.eclipse.org/bugs/show_bug.cgi?id=329588
 		            return erasure() != otherType.erasure();
 		    }
 	        return true;
+
+		case Binding.TYPE: // https://bugs.eclipse.org/bugs/show_bug.cgi?id=329588
+		    switch(otherType.kind()) {
+		    	case Binding.PARAMETERIZED_TYPE :
+		    	case Binding.RAW_TYPE :
+		            return this != otherType.erasure();
+		    }
+		    break;
 
 		default :
 			break;
