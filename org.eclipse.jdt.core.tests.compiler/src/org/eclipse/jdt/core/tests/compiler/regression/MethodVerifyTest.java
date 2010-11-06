@@ -11183,7 +11183,7 @@ public void test328827() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=329584 
-public void _test329584() {
+public void test329584() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);

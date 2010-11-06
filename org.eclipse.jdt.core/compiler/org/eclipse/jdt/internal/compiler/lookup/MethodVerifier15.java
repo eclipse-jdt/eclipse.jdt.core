@@ -89,6 +89,24 @@ boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two) {
 }
 boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 	if (one == two) return true;
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=329584
+	switch(one.kind()) {
+		case Binding.TYPE:
+			switch (two.kind()) {
+				case Binding.PARAMETERIZED_TYPE:
+				case Binding.RAW_TYPE:
+					if (one == two.erasure())
+						return true;
+			}
+			break;
+		case Binding.RAW_TYPE:
+		case Binding.PARAMETERIZED_TYPE:
+			switch(two.kind()) {
+				case Binding.TYPE:
+					if (one.erasure() == two)
+						return true;
+			}
+	}
 
 	// need to consider X<?> and X<? extends Object> as the same 'type'
 	if (one.isParameterizedType() && two.isParameterizedType())
