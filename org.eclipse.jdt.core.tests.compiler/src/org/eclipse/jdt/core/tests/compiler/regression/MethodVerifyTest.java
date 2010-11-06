@@ -7982,7 +7982,7 @@ public void test123() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
 // **
-public void _test124() {
+public void test124() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
