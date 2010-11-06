@@ -41,8 +41,7 @@ public class CodeStream {
 	static LocalVariableBinding[] noLocals = new LocalVariableBinding[LOCALS_INCREMENT];
 	static LocalVariableBinding[] noVisibleLocals = new LocalVariableBinding[LOCALS_INCREMENT];
 	public static final CompilationResult RESTART_IN_WIDE_MODE = new CompilationResult((char[])null, 0, 0, 0);
-	public static final CompilationResult RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE = new CompilationResult((char[])null, 0, 0, 0);
-
+	
 	public int allLocalsCounter;
 	public byte[] bCodeStream;
 	public ClassFile classFile; // The current classfile it is associated to.

@@ -194,10 +194,6 @@ public abstract class AbstractMethodDeclaration
 					System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 					classFile.addProblemMethod(this, this.binding, problemsCopy, problemResetPC);
 				}
-			} else if (e.compilationResult == CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE) {
-				classFile.contentsOffset = problemResetPC;
-				classFile.methodCount--;
-				this.generateCode(classFile); // restart method generation
 			} else {
 				// produce a problem method accounting for this fatal error
 				int problemsLength;

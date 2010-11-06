@@ -228,10 +228,6 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 				System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
 				classFile.addProblemConstructor(this, this.binding, problemsCopy, problemResetPC);
 			}
-		} else if (e.compilationResult == CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE) {
-			classFile.contentsOffset = problemResetPC;
-			classFile.methodCount--;
-			this.generateCode(classFile); // restart method generation
 		} else {
 			int problemsLength;
 			CategorizedProblem[] problems =
