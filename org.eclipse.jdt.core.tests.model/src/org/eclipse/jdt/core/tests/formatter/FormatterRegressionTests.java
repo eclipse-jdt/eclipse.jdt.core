@@ -61,8 +61,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	Map formatterOptions;
 
 	static {
-//		TESTS_NUMBERS = new int[] { 723 };
-//		TESTS_RANGE = new int[] { 715, -1 };
+//		TESTS_NUMBERS = new int[] { 730 };
+//		TESTS_RANGE = new int[] { 730, -1 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -10892,7 +10892,7 @@ public void test728() {
 		"}\n"
 	);
 }
-public void testONLY_729() {
+public void test729() {
 	this.formatterPrefs = null;
 	String profilePath = getResource("profiles", "b308000.xml");
 	this.formatterOptions = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(profilePath, "b308000");
@@ -10918,5 +10918,67 @@ public void testONLY_729() {
 		"}\n"
 	);
 }
-
+public void test730() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	String source = "enum Fail1 {A;;{}}";
+	formatSource(
+		source,
+		"enum Fail1 {\n" + 
+		"	A;\n" + 
+		"	;\n" + 
+		"	{\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+public void test731() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	String source = "enum Fail2 {A,B;;{}}";
+	formatSource(
+		source,
+		"enum Fail2 {\n" + 
+		"	A, B;\n" + 
+		"	;\n" + 
+		"	{\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+public void test732() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	String source = "enum Fail3 {A;;public void foo() {}}";
+	formatSource(
+		source,
+		"enum Fail3 {\n" + 
+		"	A;\n" + 
+		"	;\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+public void test733() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	String source = "enum Fail4 {A;;public int i = 0;}";
+	formatSource(
+		source,
+		"enum Fail4 {\n" + 
+		"	A;\n" + 
+		"	;\n" + 
+		"	public int i = 0;\n" + 
+		"}"
+	);
+}
 }

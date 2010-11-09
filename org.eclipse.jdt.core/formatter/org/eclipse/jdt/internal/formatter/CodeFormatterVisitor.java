@@ -2041,6 +2041,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			do {
 				try {
 					for (int i = startIndex, max = members.length; i < max; i++) {
+						while (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
+							this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+							this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
+						}
+						this.scribe.printNewLine();
 						ASTNode member = members[i];
 						if (member instanceof FieldDeclaration) {
 							isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_FIELD, i, this.scribe.scanner.currentPosition);
