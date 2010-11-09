@@ -41,7 +41,8 @@ public class CodeStream {
 	static LocalVariableBinding[] noLocals = new LocalVariableBinding[LOCALS_INCREMENT];
 	static LocalVariableBinding[] noVisibleLocals = new LocalVariableBinding[LOCALS_INCREMENT];
 	public static final CompilationResult RESTART_IN_WIDE_MODE = new CompilationResult((char[])null, 0, 0, 0);
-	
+	public static final CompilationResult RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE = new CompilationResult((char[])null, 0, 0, 0);
+
 	public int allLocalsCounter;
 	public byte[] bCodeStream;
 	public ClassFile classFile; // The current classfile it is associated to.
@@ -6197,7 +6198,9 @@ public void resetForProblemClinit(ClassFile targetClassFile) {
 public void resetInWideMode() {
 	this.wideMode = true;
 }
-
+public void resetForCodeGenUnusedLocals() {
+	// nothing to do in standard code stream
+}
 private final void resizeByteArray() {
 	int length = this.bCodeStream.length;
 	int requiredSize = length + length;

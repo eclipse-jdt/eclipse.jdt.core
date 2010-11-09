@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,8 +36,8 @@ public ProgrammingProblemsTest(String name) {
   	// Only the highest compliance level is run; add the VM argument
   	// -Dcompliance=1.4 (for example) to lower it if needed
   	static {
-//    	TESTS_NAMES = new String[] { "test001" };
-//		TESTS_NUMBERS = new int[] { 43 };
+//    	TESTS_NAMES = new String[] { "test0055" };
+//		TESTS_NUMBERS = new int[] { 56 };
 //  	TESTS_RANGE = new int[] { 1, -1 };
   	}
 
@@ -47,7 +48,11 @@ public static Test suite() {
 public static Class testClass() {
     return ProgrammingProblemsTest.class;
 }
-
+protected Map getCompilerOptions() {
+	Map compilerOptions = super.getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal,  CompilerOptions.OPTIMIZE_OUT);
+	return compilerOptions;
+}
 void runTest(
 		String[] testFiles,
 		String[] errorOptions,
@@ -141,8 +146,8 @@ public void test0002_unread_parameters() {
 		null /* ignoreOptions */,
 		false /* expectingCompilerErrors */,
 		"----------\n" +
-		"1. WARNING in X.java (at line 2)\r\n" +
-		"	public void foo(boolean b) {\r\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	public void foo(boolean b) {\n" +
 		"	                        ^\n" +
 		"The value of the parameter b is not used\n" +
 		"----------\n" /* expectedCompilerLog */,
@@ -277,8 +282,8 @@ public void test0006_unread_parameters() {
 		null /* ignoreOptions */,
 		true /* expectingCompilerErrors */,
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\r\n" +
-		"	public void foo(boolean b) {\r\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	public void foo(boolean b) {\n" +
 		"	                        ^\n" +
 		"The value of the parameter b is not used\n" +
 		"----------\n" /* expectedCompilerLog */,
@@ -2120,5 +2125,158 @@ public void test0051() {
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+public void test0053() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"    int foo() {\n" + 
+			"        int i=1;\n" +
+			"        i++;\n" + 	// value after increment is still not used
+			"        return 0;\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		null,
+		customOptions,
+		null);
+	String expectedOutput =
+		"  // Method descriptor #15 ()I\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  int foo();\n" + 
+		"    0  iconst_0\n" + 
+		"    1  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 2] local: this index: 0 type: X\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+public void test0054() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n" + 
+			"    int foo() {\n" + 
+			"        int i=1;\n" +
+			"        return i+=1;\n" + 	// value is used as it is returned
+			"    }\n" + 
+			"}"
+		},
+		"",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		null,
+		customOptions,
+		null);
+	String expectedOutput =
+		"  // Method descriptor #15 ()I\n" + 
+		"  // Stack: 1, Locals: 2\n" + 
+		"  int foo();\n" + 
+		"    0  iconst_1\n" + 
+		"    1  istore_1 [i]\n" + 
+		"    2  iinc 1 1 [i]\n" + 
+		"    5  iload_1 [i]\n" + 
+		"    6  ireturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 2, line: 4]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+		"        [pc: 2, pc: 7] local: i index: 1 type: int\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=329613
+// regression caused by https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+public void test0055() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
+	this.runNegativeTest(
+			new String[] {
+					"test1/E.java",
+					"package test1;\n" +
+					"public class E {\n" +
+						"    private void foo() {\n" +
+						"        int a= 10;\n" +
+						"        a++;\n" +
+						"        a--;\n" +
+						"        --a;\n" +
+						"        ++a;\n" +
+						"        for ( ; ; a++) {\n" +
+							"        }\n" +
+							"    }\n" +
+							"}"
+			},
+			"----------\n" +
+			"1. WARNING in test1\\E.java (at line 4)\n" +
+			"	int a= 10;\n" +
+			"	    ^\n" +
+			"The value of the local variable a is not used\n" +
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+public void test0056() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static int foo() {\n" + 
+			"        int i = 2;\n" + 
+			"        int j = 3;\n" + 
+			"        return (i += j *= 3);\n" + 	// value is used as it is returned
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.println(foo());\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"11",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		null,
+		customOptions,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+public void test0057() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main (String args[]) {\n" + 
+			"        int i = 0;\n" + 
+			"        i += 4 + foo();\n" + 
+			"    }\n" + 
+			"    public static int foo() {\n" + 
+			"    	System.out.println(\"OK\");\n" + 
+			"    	return 0;\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"OK",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		null,
+		customOptions,
+		null);
+}
 }

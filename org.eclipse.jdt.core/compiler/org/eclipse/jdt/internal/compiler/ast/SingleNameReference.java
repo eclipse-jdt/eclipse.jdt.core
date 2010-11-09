@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class SingleNameReference extends NameReference implements OperatorIds {
@@ -422,6 +423,15 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				break;
 			case Binding.LOCAL : // reading a local
 				LocalVariableBinding localBinding = (LocalVariableBinding) this.binding;
+				if (localBinding.resolvedPosition == -1) {
+					if (valueRequired) {
+						// restart code gen
+						localBinding.useFlag = LocalVariableBinding.USED;
+						throw new AbortMethod(CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE, null);
+					}
+					codeStream.recordPositionsFrom(pc, this.sourceStart);
+					return;
+				}
 				if (!valueRequired && (this.implicitConversion & TypeIds.UNBOXING) == 0) {
 					// if no valueRequired, optimize out entire gen
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
@@ -525,6 +535,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		case Binding.LOCAL : // assigning to a local variable (cannot assign to outer local)
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.binding;
 			// using incr bytecode if possible
+			Constant assignConstant;
 			switch (localBinding.type.id) {
 				case T_JavaLangString :
 					codeStream.generateStringConcatenationAppend(currentScope, this, expression);
@@ -534,10 +545,25 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 					codeStream.store(localBinding, false);
 					return;
 				case T_int :
-					Constant assignConstant;
-					if (((assignConstant = expression.constant) != Constant.NotAConstant)
+					assignConstant = expression.constant;
+					if (localBinding.resolvedPosition == -1) {
+						if (valueRequired) {
+							/*
+							 * restart code gen because we either:
+							 * - need the value
+							 * - the constant can have potential side-effect
+							 */
+							localBinding.useFlag = LocalVariableBinding.USED;
+							throw new AbortMethod(CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE, null);
+						} else if (assignConstant == Constant.NotAConstant) {
+							// we only need to generate the value of the expression's constant if it is not a constant expression
+							expression.generateCode(currentScope, codeStream, false);
+						}
+						return;
+					}
+					if ((assignConstant != Constant.NotAConstant)
 							&& (assignConstant.typeID() != TypeIds.T_float) // only for integral types
-							&& (assignConstant.typeID() != TypeIds.T_double)) {// TODO (philippe) is this test needed ?
+							&& (assignConstant.typeID() != TypeIds.T_double)) { // TODO (philippe) is this test needed ?
 						switch (operator) {
 							case PLUS :
 								int increment  = assignConstant.intValue();
@@ -559,6 +585,22 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 					}
 					//$FALL-THROUGH$
 				default :
+					if (localBinding.resolvedPosition == -1) {
+						assignConstant = expression.constant;
+						if (valueRequired) {
+							/*
+							 * restart code gen because we either:
+							 * - need the value
+							 * - the constant can have potential side-effect
+							 */
+							localBinding.useFlag = LocalVariableBinding.USED;
+							throw new AbortMethod(CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE, null);
+						} else if (assignConstant == Constant.NotAConstant) {
+							// we only need to generate the value of the expression's constant if it is not a constant expression
+							expression.generateCode(currentScope, codeStream, false);
+						}
+						return;
+					}
 					codeStream.load(localBinding);
 			}
 	}
@@ -687,6 +729,14 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=185682
 			// check if postIncrement is the only usage of this local
 			Reference.reportOnlyUselesslyReadLocal(currentScope, localBinding, valueRequired);
+			if (localBinding.resolvedPosition == -1) {
+				if (valueRequired) {
+					// restart code gen
+					localBinding.useFlag = LocalVariableBinding.USED;
+					throw new AbortMethod(CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE, null);
+				}
+				return;
+			}
 
 			// using incr bytecode if possible
 			if (localBinding.type == TypeBinding.INT) {

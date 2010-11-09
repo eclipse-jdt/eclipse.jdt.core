@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 181 };
+//		TESTS_NUMBERS = new int[] { 182 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -6541,5 +6541,127 @@ public void test181() {
 				"}"
 		},
 		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+public void test182() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String argv[])   {\n" + 
+			"		foo();\n" + 
+			"	}\n" + 
+			"	public static void foo() {\n" + 
+			"		int n = 0;\n" + 
+			"		for (E e : E.values()) {\n" + 
+			"			if (e.val() == E.VALUES[n++] ) {\n" + 
+			"				System.out.print(e.val());\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+			"E.java",
+			"enum E {\n" + 
+			"	a1(1), a2(2);\n" + 
+			"	static int[] VALUES = { 1, 2 };\n" + 
+			"	private int value;\n" + 
+			"	E(int v) {\n" + 
+			"		this.value = v;\n" + 
+			"	}\n" + 
+			"	public int val() {\n" + 
+			"		return this.value;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"12",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		null,
+		customOptions,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+public void test183() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String argv[]) {\n" + 
+			"	}\n" + 
+			"	static {\n" + 
+			"		int n = 0;\n" + 
+			"		for (E e : E.values()) {\n" + 
+			"			if (e.val() == E.VALUES[n++] ) {\n" + 
+			"				System.out.print(e.val());\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+			"E.java",
+			"enum E {\n" + 
+			"	a1(1), a2(2);\n" + 
+			"	static int[] VALUES = { 1, 2 };\n" + 
+			"	private int value;\n" + 
+			"	E(int v) {\n" + 
+			"		this.value = v;\n" + 
+			"	}\n" + 
+			"	public int val() {\n" + 
+			"		return this.value;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"12",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		null,
+		customOptions,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
+public void test184() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String argv[]) {\n" +
+			"		new X();\n" +
+			"	}\n" + 
+			"	X() {\n" + 
+			"		int n = 0;\n" + 
+			"		for (E e : E.values()) {\n" + 
+			"			if (e.val() == E.VALUES[n++] ) {\n" + 
+			"				System.out.print(e.val());\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+			"E.java",
+			"enum E {\n" + 
+			"	a1(1), a2(2);\n" + 
+			"	static int[] VALUES = { 1, 2 };\n" + 
+			"	private int value;\n" + 
+			"	E(int v) {\n" + 
+			"		this.value = v;\n" + 
+			"	}\n" + 
+			"	public int val() {\n" + 
+			"		return this.value;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"12",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		null,
+		customOptions,
+		null);
 }
 }

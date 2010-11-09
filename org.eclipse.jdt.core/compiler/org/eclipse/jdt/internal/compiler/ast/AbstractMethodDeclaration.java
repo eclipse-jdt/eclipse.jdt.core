@@ -173,36 +173,48 @@ public abstract class AbstractMethodDeclaration
 			classFile.addProblemMethod(this, this.binding, problemsCopy);
 			return;
 		}
+		boolean restart = false;
+		boolean abort = false;
 		// regular code generation
-		try {
-			problemResetPC = classFile.contentsOffset;
-			this.generateCode(classFile);
-		} catch (AbortMethod e) {
-			// a fatal error was detected during code generation, need to restart code gen if possible
-			if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
-				// a branch target required a goto_w, restart code gen in wide mode.
-				try {
+		do {
+			try {
+				problemResetPC = classFile.contentsOffset;
+				this.generateCode(classFile);
+				restart = false;
+			} catch (AbortMethod e) {
+				// a fatal error was detected during code generation, need to restart code gen if possible
+				if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
+					// a branch target required a goto_w, restart code gen in wide mode.
+					if (!restart) {
+						classFile.contentsOffset = problemResetPC;
+						classFile.methodCount--;
+						classFile.codeStream.resetInWideMode(); // request wide mode
+						restart = true;
+					} else {
+						// after restarting in wide mode, code generation failed again
+						// report a problem
+						restart = false;
+						abort = true;
+					}
+				} else if (e.compilationResult == CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE) {
 					classFile.contentsOffset = problemResetPC;
 					classFile.methodCount--;
-					classFile.codeStream.resetInWideMode(); // request wide mode
-					this.generateCode(classFile); // restart method generation
-				} catch (AbortMethod e2) {
-					int problemsLength;
-					CategorizedProblem[] problems =
-						this.scope.referenceCompilationUnit().compilationResult.getAllProblems();
-					CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
-					System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
-					classFile.addProblemMethod(this, this.binding, problemsCopy, problemResetPC);
+					classFile.codeStream.resetForCodeGenUnusedLocals();
+					restart = true;
+				} else {
+					restart = false;
+					abort = true; 
 				}
-			} else {
-				// produce a problem method accounting for this fatal error
-				int problemsLength;
-				CategorizedProblem[] problems =
-					this.scope.referenceCompilationUnit().compilationResult.getAllProblems();
-				CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
-				System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
-				classFile.addProblemMethod(this, this.binding, problemsCopy, problemResetPC);
 			}
+		} while (restart);
+		// produce a problem method accounting for this fatal error
+		if (abort) {
+			int problemsLength;
+			CategorizedProblem[] problems =
+				this.scope.referenceCompilationUnit().compilationResult.getAllProblems();
+			CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
+			System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
+			classFile.addProblemMethod(this, this.binding, problemsCopy, problemResetPC);
 		}
 	}
 

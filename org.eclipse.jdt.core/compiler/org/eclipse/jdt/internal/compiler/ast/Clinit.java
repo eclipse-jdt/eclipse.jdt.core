@@ -100,35 +100,46 @@ public class Clinit extends AbstractMethodDeclaration {
 			// should never have to add any <clinit> problem method
 			return;
 		}
-		try {
-			clinitOffset = classFile.contentsOffset;
-			this.generateCode(classScope, classFile, clinitOffset);
-		} catch (AbortMethod e) {
-			// should never occur
-			// the clinit referenceContext is the type declaration
-			// All clinit problems will be reported against the type: AbortType instead of AbortMethod
-			// reset the contentsOffset to the value before generating the clinit code
-			// decrement the number of method info as well.
-			// This is done in the addProblemMethod and addProblemConstructor for other
-			// cases.
-			if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
-				// a branch target required a goto_w, restart code gen in wide mode.
-				try {
+		boolean restart = false;
+		do {
+			try {
+				clinitOffset = classFile.contentsOffset;
+				this.generateCode(classScope, classFile, clinitOffset);
+				restart = false;
+			} catch (AbortMethod e) {
+				// should never occur
+				// the clinit referenceContext is the type declaration
+				// All clinit problems will be reported against the type: AbortType instead of AbortMethod
+				// reset the contentsOffset to the value before generating the clinit code
+				// decrement the number of method info as well.
+				// This is done in the addProblemMethod and addProblemConstructor for other
+				// cases.
+				if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
+					// a branch target required a goto_w, restart code gen in wide mode.
+					if (!restart) {
+						classFile.contentsOffset = clinitOffset;
+						classFile.methodCount--;
+						classFile.codeStream.resetInWideMode(); // request wide mode
+						// restart method generation
+						restart = true;
+					} else {
+						classFile.contentsOffset = clinitOffset;
+						classFile.methodCount--;
+					}
+				} else if (e.compilationResult == CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE) {
 					classFile.contentsOffset = clinitOffset;
 					classFile.methodCount--;
-					classFile.codeStream.resetInWideMode(); // request wide mode
-					this.generateCode(classScope, classFile, clinitOffset);
+					classFile.codeStream.resetForCodeGenUnusedLocals();
 					// restart method generation
-				} catch (AbortMethod e2) {
+					restart = true;
+				} else {
+					// produce a problem method accounting for this fatal error
 					classFile.contentsOffset = clinitOffset;
 					classFile.methodCount--;
+					restart = false;
 				}
-			} else {
-				// produce a problem method accounting for this fatal error
-				classFile.contentsOffset = clinitOffset;
-				classFile.methodCount--;
 			}
-		}
+		} while (restart);
 	}
 
 	/**

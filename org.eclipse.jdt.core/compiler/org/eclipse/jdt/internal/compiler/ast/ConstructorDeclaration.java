@@ -209,33 +209,43 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 		classFile.addProblemConstructor(this, this.binding, problemsCopy);
 		return;
 	}
-	try {
-		problemResetPC = classFile.contentsOffset;
-		internalGenerateCode(classScope, classFile);
-	} catch (AbortMethod e) {
-		if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
-			// a branch target required a goto_w, restart code gen in wide mode.
-			try {
+	boolean restart = false;
+	boolean abort = false;
+	do {
+		try {
+			problemResetPC = classFile.contentsOffset;
+			internalGenerateCode(classScope, classFile);
+			restart = false;
+		} catch (AbortMethod e) {
+			if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
+				// a branch target required a goto_w, restart code gen in wide mode.
+				if (!restart) {
+					classFile.contentsOffset = problemResetPC;
+					classFile.methodCount--;
+					classFile.codeStream.resetInWideMode(); // request wide mode
+					restart = true;
+				} else {
+					restart = false;
+					abort = true;
+				}
+			} else if (e.compilationResult == CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE) {
 				classFile.contentsOffset = problemResetPC;
 				classFile.methodCount--;
-				classFile.codeStream.resetInWideMode(); // request wide mode
-				internalGenerateCode(classScope, classFile); // restart method generation
-			} catch (AbortMethod e2) {
-				int problemsLength;
-				CategorizedProblem[] problems =
-					this.scope.referenceCompilationUnit().compilationResult.getAllProblems();
-				CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
-				System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
-				classFile.addProblemConstructor(this, this.binding, problemsCopy, problemResetPC);
+				classFile.codeStream.resetForCodeGenUnusedLocals();
+				restart = true;
+			} else {
+				restart = false;
+				abort = true;
 			}
-		} else {
-			int problemsLength;
-			CategorizedProblem[] problems =
-				this.scope.referenceCompilationUnit().compilationResult.getAllProblems();
-			CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
-			System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
-			classFile.addProblemConstructor(this, this.binding, problemsCopy, problemResetPC);
 		}
+	} while (restart);
+	if (abort) {
+		int problemsLength;
+		CategorizedProblem[] problems =
+				this.scope.referenceCompilationUnit().compilationResult.getAllProblems();
+		CategorizedProblem[] problemsCopy = new CategorizedProblem[problemsLength = problems.length];
+		System.arraycopy(problems, 0, problemsCopy, 0, problemsLength);
+		classFile.addProblemConstructor(this, this.binding, problemsCopy, problemResetPC);
 	}
 }
 
