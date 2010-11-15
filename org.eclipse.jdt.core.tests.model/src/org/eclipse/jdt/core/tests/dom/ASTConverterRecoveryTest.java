@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2009 IBM Corporation and others.
+ * Copyright (c) 2006, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
@@ -45,7 +46,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0003"};
-//		TESTS_NUMBERS =  new int[] { 624 };
+//		TESTS_NUMBERS =  new int[] { 19, 20 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterRecoveryTest.class);
@@ -991,5 +992,89 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 				"	                        ^\n" + 
 				"Syntax error, insert \") Statement\" to complete BlockStatements\n",
 				result);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=329998
+	public void test0019() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"public class X {\n"+
+			"	void foo() {\n" + 
+			"		return new Object() {hash};\n" + 
+			"	}\n" + 
+			"}\n");
+
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    return new Object(){\n" + 
+			"    }\n" + 
+			";\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not a return statement", statement.getNodeType() == ASTNode.RETURN_STATEMENT); //$NON-NLS-1$
+		ReturnStatement returnStatement = (ReturnStatement) statement;
+		checkSourceRange(returnStatement, "return new Object() {hash};", source); //$NON-NLS-1$
+		Expression expression = returnStatement.getExpression();
+		checkSourceRange(expression, "new Object() {hash}", source); //$NON-NLS-1$
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=329998
+	public void test0020() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter/src/test/X.java",
+			"package test;\n"+
+			"public class X {\n"+
+			"	void foo() {\n" + 
+			"		field= new Object() {hash};\n" + 
+			"	}\n" + 
+			"}\n");
+
+		char[] source = this.workingCopies[0].getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+
+		assertASTNodeEquals(
+			"package test;\n" + 
+			"public class X {\n" + 
+			"  void foo(){\n" + 
+			"    field=new Object(){\n" + 
+			"    }\n" + 
+			";\n" + 
+			"  }\n" + 
+			"}\n",
+			result);
+
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not an expression statement", statement.getNodeType() == ASTNode.EXPRESSION_STATEMENT); //$NON-NLS-1$
+		ExpressionStatement expressionStatement = (ExpressionStatement) statement;
+		checkSourceRange(expressionStatement, "field= new Object() {hash};", source); //$NON-NLS-1$
+		Expression expression = expressionStatement.getExpression();
+		assertTrue("Not an assignment", expression.getNodeType() == ASTNode.ASSIGNMENT); //$NON-NLS-1$
+		Assignment assignment = (Assignment) expression;
+		Expression anonymousClassDeclaration = assignment.getRightHandSide();
+		checkSourceRange(anonymousClassDeclaration, "new Object() {hash}", source); //$NON-NLS-1$
+		checkSourceRange(assignment, "field= new Object() {hash}", source); //$NON-NLS-1$
 	}
 }

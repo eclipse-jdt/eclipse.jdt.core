@@ -926,9 +926,11 @@ class ASTConverter {
 		Expression lhs = convert(expression.lhs);
 		assignment.setLeftHandSide(lhs);
 		assignment.setOperator(Assignment.Operator.ASSIGN);
-		assignment.setRightHandSide(convert(expression.expression));
+		Expression rightHandSide = convert(expression.expression);
+		assignment.setRightHandSide(rightHandSide);
 		int start = lhs.getStartPosition();
-		assignment.setSourceRange(start, expression.sourceEnd - start + 1);
+		int end = rightHandSide.getStartPosition() + rightHandSide.getLength() - 1;
+		assignment.setSourceRange(start, end - start + 1);
 		return assignment;
 	}
 
