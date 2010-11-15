@@ -17,6 +17,7 @@ import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -482,8 +483,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 		// disable auto-build.  We don't want build-time type-generation interfering with
 		// our reconcile tests.
 		String key = ResourcesPlugin.PREF_AUTO_BUILDING;
-		boolean value = false;
-		ResourcesPlugin.getPlugin().getPluginPreferences().setValue(key, value);
+		new InstanceScope().getNode(ResourcesPlugin.PI_RESOURCES).putBoolean(key, false);
 
 		this._problemRequestor = new ProblemRequestor();
 
