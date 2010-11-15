@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -250,6 +250,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		assertEquals("package name not recognized as unconventional2", IStatus.WARNING, validate("Test.sample", PACKAGE_NAME));
 		assertEquals("package name not recognized as valid2", IStatus.OK, validate("com.  sap", PACKAGE_NAME));
 		assertEquals("package name not recognized as invalid6", IStatus.ERROR, validate("co m.sap", PACKAGE_NAME));
+		assertEquals("package name not recognized as valid2", IStatus.OK, validate("elnu", PACKAGE_NAME));
 	}
 	/**
 	 * @see JavaConventions

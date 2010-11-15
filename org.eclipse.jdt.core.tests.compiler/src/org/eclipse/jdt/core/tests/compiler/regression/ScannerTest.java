@@ -31,7 +31,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 52 };
+//		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 
@@ -1121,6 +1121,23 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertTrue("Should fail with InvalidInputException", false);
 		} catch (InvalidInputException e) {
 			assertEquals("Wrong source", "\"\\u00E", new String(scanner.getCurrentTokenSource()));
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330081
+	public void test053() {
+		IScanner scanner = ToolFactory.createScanner(
+				true,
+				true,
+				true,
+				JavaCore.VERSION_1_4,
+				JavaCore.VERSION_1_4);
+		final char[] source = "elnu".toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameIdentifier, scanner.getNextToken());
+		} catch (InvalidInputException e) {
+			assertTrue("Should not fail with InvalidInputException", false);
 		}
 	}
 }
