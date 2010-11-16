@@ -2977,20 +2977,23 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 		case 'e' : //else extends
 			switch (length) {
 				case 4 :
-					if ((data[++index] == 'l') && (data[++index] == 's') && (data[++index] == 'e'))
-						return TokenNameelse;
-					else if ((data[index] == 'n')
-						&& (data[++index] == 'u')
-						&& (data[++index] == 'm')) {
-							if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
-								return TokenNameenum;
-							} else {
-								this.useEnumAsAnIndentifier = true;
-								return TokenNameIdentifier;
-							}
+					if (data[++index] == 'l') {
+						if ((data[++index] == 's') && (data[++index] == 'e')) {
+							return TokenNameelse;
 						} else {
 							return TokenNameIdentifier;
 						}
+					} else if ((data[index] == 'n')
+							&& (data[++index] == 'u')
+							&& (data[++index] == 'm')) {
+						if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
+							return TokenNameenum;
+						} else {
+							this.useEnumAsAnIndentifier = true;
+							return TokenNameIdentifier;
+						}
+					}
+					return TokenNameIdentifier;
 				case 7 :
 					if ((data[++index] == 'x')
 						&& (data[++index] == 't')
