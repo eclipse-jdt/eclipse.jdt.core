@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -831,10 +831,26 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				this.annotationProcessorManager.reset();
 			}
 		} while (newUnitSize != 0 || newClassFilesSize != 0);
-		// one more loop to create possible resources
-		// this loop cannot create any java source files
+		
 		this.annotationProcessorManager.processAnnotations(null, null, true);
-		// TODO we might want to check if this loop created new units
+		// process potential units added in the final round see 329156 
+		ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
+		newUnitSize = newUnits.length;
+		if (newUnitSize != 0) {
+			ICompilationUnit[] newProcessedUnits = (ICompilationUnit[]) newUnits.clone(); // remember new units in case a source type collision occurs
+			try {
+				this.lookupEnvironment.isProcessingAnnotations = true;
+				internalBeginToCompile(newUnits, newUnitSize);
+			} catch (SourceTypeCollisionException e) {
+				e.newAnnotationProcessorUnits = newProcessedUnits;
+				throw e;
+			} finally {
+				this.lookupEnvironment.isProcessingAnnotations = false;
+				this.annotationProcessorManager.reset();
+			}
+		} else {
+			this.annotationProcessorManager.reset();
+		}
 	}
 
 	public void reset() {
