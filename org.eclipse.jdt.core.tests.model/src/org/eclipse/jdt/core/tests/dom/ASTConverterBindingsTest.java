@@ -507,7 +507,6 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 		final int length = compilationUnitscollector.size();
 		ICompilationUnit[] units = new ICompilationUnit[length];
 		compilationUnitscollector.toArray(units);
-		long totalTime = 0;
 		for (int j = 0; j < length; j++) {
 			ICompilationUnit currentUnit = units[j];
 			ASTNode result = runConversion(AST.JLS3, currentUnit, true);
@@ -538,7 +537,6 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 			unit2.accept(collector2);
 			List bindings2 = collector2.getBindings();
 			assertEquals("Wrong size", bindings1.size(), bindings2.size());
-			long time = System.currentTimeMillis();
 			for (int i = 0, max = bindings1.size(); i < max; i++) {
 				final Object object = bindings1.get(i);
 				assertTrue("not a binding", object instanceof IBinding);
@@ -549,10 +547,6 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 				final boolean equalTo = binding.isEqualTo(binding2);
 				assertTrue("not equals", equalTo);
 			}
-			totalTime += (System.currentTimeMillis() - time);
-		}
-		if (DEBUG) {
-			System.out.println("Total time = " + totalTime + "ms");
 		}
 	}
 }

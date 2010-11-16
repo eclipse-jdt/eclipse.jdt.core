@@ -174,7 +174,6 @@ protected String errorReportSource(DefaultProblem problem, char[] source) {
 	int begin = problem.getSourceStart() >= source.length ? source.length - 1 : problem.getSourceStart();
 	int relativeStart = 0;
 	int end = problem.getSourceEnd() >= source.length ? source.length - 1 : problem.getSourceEnd();
-	int relativeEnd = 0;
 	label : for (relativeStart = 0;; relativeStart++) {
 		if (begin == 0)
 			break label;
@@ -182,7 +181,7 @@ protected String errorReportSource(DefaultProblem problem, char[] source) {
 			break label;
 		begin--;
 	}
-	label : for (relativeEnd = 0;; relativeEnd++) {
+	label : for (;;) {
 		if ((end + 1) >= source.length)
 			break label;
 		if ((source[end + 1] == '\r') || (source[end + 1] == '\n')) {
