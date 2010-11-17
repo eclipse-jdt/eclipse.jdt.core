@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2009 Walter Harley and others
+ * Copyright (c) 2008 - 2010 Walter Harley and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.InheritedAnnoProc;
+import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.TestFinalRoundProc;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
@@ -36,9 +37,45 @@ public class BuilderTests extends TestBase
 		return new TestSuite(BuilderTests.class);
 	}
 	
-	// Need this to avoid JUnit complaining that there are no tests in this suite
-	public void testDummy() {
-		assertTrue(true);
+	/**
+	 * Verify that a new type generated in the final round does not get
+	 * annotations processed, but does get compiled. The JSR269 spec is somewhat
+	 * vague about whether it should be possible to generate a new type during
+	 * the final round (since the final round does not happen until after a
+	 * round in which no new types are generated); but apparently javac behaves
+	 * this way.
+	 * <p>
+	 * See <a href="http://bugs.eclipse.org/329156">Bug 329156</a> and <a
+	 * href="http://bugs.sun.com/view_bug.do?bug_id=6634138">the corresponding
+	 * bug in javac</a>, which Sun fixed.
+	 */
+	public void testFinalRound() throws Throwable {
+		ProcessorTestStatus.reset();
+		TestFinalRoundProc.resetNumRounds();
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+		IPath root = projPath.append("src");
+		
+		// The @FinalRoundTestTrigger processor does not generate any files when it
+		// first runs; but on its final round it then generates a new Java type
+		// that is annotated with @FinalRoundTestTrigger.
+		env.addClass(root, "t", "Foo",
+				"package t;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FinalRoundTestTrigger;\n" +
+				"@FinalRoundTestTrigger\n" +
+				"public class Foo {}"
+		);
+		AptConfig.setEnabled(jproj, true);
+		
+		fullBuild();
+		expectingNoProblems();
+		
+		// Processor should have run total of two rounds; compiled classes
+		// should include Foo and FinalRoundGen.
+		assertEquals(2, TestFinalRoundProc.getNumRounds());
+		expectingUniqueCompiledClasses(new String[] {"t.Foo", "g.FinalRoundGen"});
 	}
 	
 	/**

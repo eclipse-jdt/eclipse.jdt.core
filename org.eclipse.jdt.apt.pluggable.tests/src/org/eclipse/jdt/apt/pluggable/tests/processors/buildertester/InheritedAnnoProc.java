@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Walter Harley and others
+ * Copyright (c) 2010 Walter Harley and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,7 @@ import org.eclipse.jdt.apt.pluggable.tests.ProcessorTestStatus;
 @SupportedOptions( {})
 public class InheritedAnnoProc extends AbstractProcessor {
 	
-	private static List<String> processedElements = new ArrayList<String>();
+	private static final List<String> processedElements = new ArrayList<String>();
 
 	public static List<String> getProcessedElements() {
 		return Collections.unmodifiableList(processedElements);
