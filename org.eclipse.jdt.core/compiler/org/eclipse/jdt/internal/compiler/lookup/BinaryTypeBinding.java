@@ -570,8 +570,7 @@ private void createMethods(IBinaryMethod[] iMethods, long sourceLevel, char[][][
 	int[] toSkip = null;
 	if (iMethods != null) {
 		total = initialTotal = iMethods.length;
-		boolean keepBridgeMethods = sourceLevel < ClassFileConstants.JDK1_5
-			&& this.environment.globalOptions.originalComplianceLevel >= ClassFileConstants.JDK1_5;
+		boolean keepBridgeMethods = sourceLevel < ClassFileConstants.JDK1_5; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=330347
 		for (int i = total; --i >= 0;) {
 			IBinaryMethod method = iMethods[i];
 			if ((method.getModifiers() & ClassFileConstants.AccSynthetic) != 0) {

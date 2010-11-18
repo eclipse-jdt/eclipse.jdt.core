@@ -12019,4 +12019,55 @@ public void test186565(){
 		"",
 		false /* do not flush output directory */);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330347 - Test retention of bridge methods.
+public void testBridgeMethodRetention(){
+	String currentWorkingDirectoryPath = System.getProperty("user.dir");
+	if (currentWorkingDirectoryPath == null) {
+		fail("BatchCompilerTest#testBridgeMethodRetention could not access the current working directory " + currentWorkingDirectoryPath);
+	} else if (!new File(currentWorkingDirectoryPath).isDirectory()) {
+		fail("BatchCompilerTest#testBridgeMethodRetention current working directory is not a directory " + currentWorkingDirectoryPath);
+	}
+	String lib1Path = currentWorkingDirectoryPath + File.separator + "lib1.jar";
+	try {
+		Util.createJar(
+				new String[] {
+						"Comparable.java",
+						"public interface Comparable<T> {\n" +
+						"    public int compareTo(T o);\n" +
+						"}\n",
+						"Character.java",
+						"public class Character implements Comparable<Character> {\n" +
+						"	public int compareTo(Character obj) {\n" +
+						"		return 0;\n" +
+						"	}\n" +
+						"}\n"
+				},
+				null,
+				lib1Path,
+				JavaCore.VERSION_1_5);
+		this.runConformTest(
+				new String[] {
+						"src/X.java",
+						"public class X {\n" +
+						"    Object fValue;\n" +
+						"    public int compareTo(Object obj) {\n" +
+						"            return ((Character)fValue).compareTo(obj);\n" +
+						"    }\n" +
+						"}\n",
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+				+ " -cp lib1.jar" // relative
+				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+				+ " -1.4 -g -preserveAllLocals"
+				+ " -proceedOnError -referenceInfo"
+				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		        "",
+		        "",
+		        true);
+	} catch (IOException e) {
+		System.err.println("BatchCompilerTest#testBridgeMethodRetention could not write to current working directory " + currentWorkingDirectoryPath);
+	} finally {
+		new File(lib1Path).delete();
+	}
+}
 }
