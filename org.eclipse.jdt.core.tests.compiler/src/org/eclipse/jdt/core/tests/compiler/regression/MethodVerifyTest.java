@@ -11272,4 +11272,48 @@ public void test329588() {
 		compilerOptions14,
 		null);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330445 
+public void test330445() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"import java.util.Map;\n" + 
+			"public class Y {\n" + 
+			"	static void foo(Map<String, String> map) {\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+	
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Properties;\n" + 
+			"public class X {\n" + 
+			"    static void bar(Object[] args) {\n" + 
+			"        Y.foo(new Properties());\n" + 
+			"    }\r\n" + 
+			"}",
+		},
+		"",
+		null,
+		false,
+		null,
+		compilerOptions14,
+		null);
+}
 }
