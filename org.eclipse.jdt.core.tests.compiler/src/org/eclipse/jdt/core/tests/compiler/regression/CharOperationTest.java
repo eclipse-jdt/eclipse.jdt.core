@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 IBM Corporation and others.
+ * Copyright (c) 2005, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,9 @@ public CharOperationTest(String name) {
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());
 }
-
+public static Class testClass() {
+	return CharOperationTest.class;
+}
 public void test001() {
 	 char[] array = { 'a' , 'b', 'b', 'c', 'a', 'b', 'c', 'a' };
 	 char[] toBeReplaced = { 'b', 'c' };
@@ -120,7 +122,17 @@ public void test009() {
 	char[] array2 = new char[] { 'a' , 'b', 'c', 'a', 'a'};
 	assertTrue(CharOperation.indexOf(array, array2, false, -1) < 0);
 }
-public static Class testClass() {
-	return CharOperationTest.class;
+//test new API org.eclipse.jdt.core.compiler.CharOperation.prefixEquals(char[], char[], boolean, int)
+public void test010() {
+	char[] name = new char[] {  'a' , 'b', 'c', 'a', 'a' };
+	char[] prefix = new char[] { 'c', 'a', 'a' };
+	assertTrue(CharOperation.prefixEquals(prefix, name, false, 2));
+	prefix = new char[] { 'c', 'a', 'a', 'a' };
+	assertFalse(CharOperation.prefixEquals(prefix, name, false, 2));
+	prefix = new char[] { 'c', 'a', 'A' };
+	assertFalse(CharOperation.prefixEquals(prefix, name, true, 2));
+	prefix = new char[] { 'b', 'c' };
+	assertFalse(CharOperation.prefixEquals(prefix, name, false, 2));
+	assertTrue(CharOperation.prefixEquals(prefix, name, false, 1));
 }
 }
