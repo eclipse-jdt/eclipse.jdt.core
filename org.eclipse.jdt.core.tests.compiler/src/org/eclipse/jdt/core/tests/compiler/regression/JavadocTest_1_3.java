@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1511,8 +1511,8 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"5. ERROR in X.java (at line 14)\n" + 
 			"	*  {@link ComparableUtils#compareTo(Object, Object)}.\n" + 
 			"	                          ^^^^^^^^^\n" + 
-			"Javadoc: Bound mismatch: The generic method compareTo(X, X) of type ComparableUtils is not applicable for the arguments (Object, Object). The inferred type Object is not a valid substitute for the bounded parameter <X extends Comparable<? super X>>\n" + 
-			"----------\n");
+			"Javadoc: The method compareTo(Object, Object, Class<T>) in the type ComparableUtils is not applicable for the arguments (Object, Object)\n" + 
+		    "----------\n");
 	}
 
 	/**
@@ -3093,17 +3093,22 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"	                   ^\n" + 
 			"Syntax error, parameterized types are only available if source level is 1.5\n" + 
 			"----------\n" + 
-			"10. ERROR in test\\X.java (at line 32)\n" + 
+			"10. ERROR in test\\X.java (at line 25)\n" + 
+			"	public <T> Y(Class<T> classT) {\n" + 
+			"	                      ^^^^^^\n" + 
+			"Javadoc: Missing tag for parameter classT\n" + 
+			"----------\n" + 
+			"11. ERROR in test\\X.java (at line 32)\n" + 
 			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\n" + 
 			"	        ^^^^^^^^^^^^^^^^\n" + 
 			"Syntax error, type parameters are only available if source level is 1.5\n" + 
 			"----------\n" + 
-			"11. ERROR in test\\X.java (at line 32)\n" + 
+			"12. ERROR in test\\X.java (at line 32)\n" + 
 			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\n" + 
 			"	                                ^\n" + 
 			"Syntax error, parameterized types are only available if source level is 1.5\n" + 
 			"----------\n" + 
-			"12. ERROR in test\\X.java (at line 32)\n" + 
+			"13. ERROR in test\\X.java (at line 32)\n" + 
 			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\n" + 
 			"	                                             ^\n" + 
 			"Syntax error, parameterized types are only available if source level is 1.5\n" + 

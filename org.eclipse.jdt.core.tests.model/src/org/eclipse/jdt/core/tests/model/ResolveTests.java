@@ -2610,7 +2610,7 @@ public void test306078() throws JavaModelException {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=299384
-public void testCodeSelectInHybrid1415Projects() throws CoreException, IOException {
+public void _testCodeSelectInHybrid1415Projects() throws CoreException, IOException {
 	String jarName = "bug299384.jar";
 	String srcName = "bug299384_src.zip";
 	try {

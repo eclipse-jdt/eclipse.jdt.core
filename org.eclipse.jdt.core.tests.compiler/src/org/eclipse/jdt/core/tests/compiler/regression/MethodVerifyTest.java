@@ -11316,4 +11316,101 @@ public void test330445() {
 		compilerOptions14,
 		null);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330435 
+public void test330435() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"public class A {\n" +
+			"	public static <T> B<T> asList(T... tab) {\n" + 
+			"		return null;\n" + 
+			"	}\n" +
+			"}",
+			"B.java",
+			"public interface B<V> {\n" +
+			"	<T> T[] toArray(T[] tab);\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+	    
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	String[] foo(Object[] args) {\n" + 
+			"		String[] a = A.asList(args).toArray(new String[0]);\n" + 
+			"		return a;\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	String[] a = A.asList(args).toArray(new String[0]);\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object[] to String[]\n" + 
+		"----------\n",
+		null,
+		false,
+		compilerOptions14);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330264 
+public void test330264() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"BundleContext.java",
+			"public interface BundleContext {\n" +
+			"    <S> S getService(ServiceReference<S> reference);\n" +
+			"}\n",
+			"ServiceReference.java",
+			"public interface ServiceReference<S> extends Comparable<Object> {}\n"
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+	    
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"Activator.java",
+			"public class Activator  {\n" +
+			"    public void start(BundleContext context, ServiceReference ref) {\n" +
+			"        Runnable r = context.getService(ref);\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in Activator.java (at line 3)\n" + 
+		"	Runnable r = context.getService(ref);\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to Runnable\n" + 
+		"----------\n",
+		null,
+		false,
+		compilerOptions14);
+}
 }

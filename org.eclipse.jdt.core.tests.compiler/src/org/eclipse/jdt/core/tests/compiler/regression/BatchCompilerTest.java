@@ -11902,7 +11902,7 @@ public void testInferenceIn14Project(){
 		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)\n" + 
 		        "	Bundle b = Bundle.adapt(BundleWiring.class);\n" + 
 		        "	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		        "Type mismatch: cannot convert from BundleWiring to Bundle\n" + 
+		        "Type mismatch: cannot convert from Object to Bundle\n" + 
 		        "----------\n" + 
 		        "1 problem (1 error)",
 		        true);

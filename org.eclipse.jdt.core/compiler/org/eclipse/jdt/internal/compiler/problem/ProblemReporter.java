@@ -6621,6 +6621,12 @@ public void typeHiding(TypeParameter typeParam, Binding hidden) {
 		typeParam.sourceEnd);
 }
 public void typeMismatchError(TypeBinding actualType, TypeBinding expectedType, ASTNode location, ASTNode expectingLocation) {
+	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) { // don't expose type variable names, complain on erased types
+		if (actualType instanceof TypeVariableBinding)
+			actualType = actualType.erasure();
+		if (expectedType instanceof TypeVariableBinding)
+			expectedType = expectedType.erasure();
+	}
 	if (actualType != null && (actualType.tagBits & TagBits.HasMissingType) != 0) { // improve secondary error
 		this.handle(
 				IProblem.UndefinedType,
