@@ -6826,49 +6826,6 @@ public void testBug321170() throws Exception {
 	}
 }
 /**
- * @bug 324367: IJavaProject.findPackageFragmentRoots(IClasspathEntry cpe) returns empty list
- * 
- * Test that exported classpath entries from the referenced project are included when invoked
- * the API org.eclipse.jdt.core.IJavaProject.findPackageFragmentRoots(IClasspathEntry)
- * 
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324367"
- * @throws Exception
- */
-public void testBug324367() throws Exception {
-	try {
-		IJavaProject referencingProject = this.createJavaProject("ReferencingProject", new String[] {}, "bin");
-		IJavaProject referencedProject = this.createJavaProject("ReferencedProject", new String[] {"src"}, "bin");
-		
-		addLibrary(referencedProject, "lib.jar", null, new String[0], 
-				new String[] {
-				"META-INF/MANIFEST.MF",
-				"Manifest-Version: 1.0\n",
-			},
-			JavaCore.VERSION_1_4); 
-		IClasspathEntry[] classpath = new IClasspathEntry[2];
-		classpath[0] = JavaCore.newSourceEntry(new Path("/ReferencedProject/src"), new Path[0]);
-		classpath[1] = JavaCore.newLibraryEntry(new Path("/ReferencedProject/lib.jar"), null, null,true);
-		setClasspath(referencedProject, classpath);
-		classpath = new IClasspathEntry[1];
-		classpath[0] = JavaCore.newProjectEntry(new Path("/ReferencedProject"), false);
-		setClasspath(referencingProject, classpath);
-		
-	    IClasspathEntry referencedProjectCPE = null;
-	    IClasspathEntry[] rawClasspath = referencingProject.getRawClasspath();
-	    for(int index = 0; index < rawClasspath.length; index++) {
-	    	IClasspathEntry cpe = rawClasspath[index];
-	    	if (cpe.getPath().equals(referencedProject.getPath())) {
-	    		referencedProjectCPE = cpe;
-	    		break;
-	    	}
-	    }
-	    assertEquals("Incorrect package fragment roots", 2, referencingProject.findPackageFragmentRoots(referencedProjectCPE).length);
-	} finally {
-		deleteProject("ReferencingProject");
-		deleteProject("ReferencedProject");
-	}
-}
-/**
  * @bug 229042: [buildpath] could create build path error in case of invalid external JAR format
  * 
  * Test that an invalid archive (JAR) creates a buildpath error

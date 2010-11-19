@@ -1210,12 +1210,10 @@ public class JavaProject
 			IClasspathEntry[] classpath = getRawClasspath();
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				if (classpath[i].equals(entry)) { // entry may need to be resolved
-					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324367
-					// consider referred projects as per API- IJavaProject#findPackageFragmentRoots
 					return
 						computePackageFragmentRoots(
 							resolveClasspath(new IClasspathEntry[] {entry}),
-							true,
+							false, // don't retrieve exported roots
 							null); /*no reverse map*/
 				}
 			}
