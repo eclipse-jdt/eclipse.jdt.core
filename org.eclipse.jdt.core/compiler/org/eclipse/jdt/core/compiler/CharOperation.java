@@ -2939,24 +2939,62 @@ public static final boolean prefixEquals(
 	char[] prefix,
 	char[] name,
 	boolean isCaseSensitive) {
+	return prefixEquals(prefix, name, isCaseSensitive, 0);
+}
+
+/**
+ * Answers true if the given name, starting from the given index, starts with the given prefix,
+ * false otherwise. isCaseSensitive is used to find out whether or not the comparison should be
+ * case sensitive.
+ * <br>
+ * <br>
+ * For example:
+ * <ol>
+ * <li><pre>
+ *    prefix = { 'a' , 'B' }
+ *    name = { 'c', 'd', 'a' , 'b', 'b', 'a', 'b', 'a' }
+ *    startIndex = 2
+ *    isCaseSensitive = false
+ *    result => true
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    prefix = { 'a' , 'B' }
+ *    name = { 'c', 'd', 'a' , 'b', 'b', 'a', 'b', 'a' }
+ *    startIndex = 2
+ *    isCaseSensitive = true
+ *    result => false
+ * </pre>
+ * </li>
+ * </ol>
+ *
+ * @param prefix the given prefix
+ * @param name the given name
+ * @param isCaseSensitive to find out whether or not the comparison should be case sensitive
+ * @param startIndex index from which the prefix should be searched in the name
+ * @return true if the given name starts with the given prefix, false otherwise
+ * @throws NullPointerException if the given name is null or if the given prefix is null
+ * @since 3.7
+ */
+public static final boolean prefixEquals(
+	char[] prefix,
+	char[] name,
+	boolean isCaseSensitive,
+	int startIndex) {
 
 	int max = prefix.length;
-	if (name.length < max)
+	if (name.length - startIndex < max)
 		return false;
 	if (isCaseSensitive) {
-		for (int i = max;
-			--i >= 0;
-			) // assumes the prefix is not larger than the name
-			if (prefix[i] != name[i])
+		for (int i = max; --i >= 0;) // assumes the prefix is not larger than the name
+			if (prefix[i] != name[startIndex + i])
 				return false;
 		return true;
 	}
 
-	for (int i = max;
-		--i >= 0;
-		) // assumes the prefix is not larger than the name
+	for (int i = max; --i >= 0;) // assumes the prefix is not larger than the name
 		if (ScannerHelper.toLowerCase(prefix[i])
-			!= ScannerHelper.toLowerCase(name[i]))
+			!= ScannerHelper.toLowerCase(name[startIndex + i]))
 			return false;
 	return true;
 }

@@ -145,7 +145,7 @@ public class JavadocContents {
 			for (int i = 0; i < this.tempAnchorIndexesCount; i++) {
 				int anchorEndStart = this.tempAnchorIndexes[i];
 				
-				if (anchorEndStart != -1 && CharOperation.indexOf(anchor, this.content, false, anchorEndStart) == anchorEndStart) {
+				if (anchorEndStart != -1 && CharOperation.prefixEquals(anchor, this.content, false, anchorEndStart)) {
 					
 					this.tempAnchorIndexes[i] = -1;
 					
@@ -165,7 +165,7 @@ public class JavadocContents {
 			
 			this.tempLastAnchorFoundIndex = anchorEndStart;
 			
-			if (CharOperation.indexOf(anchor, this.content, false, anchorEndStart) == anchorEndStart) {
+			if (CharOperation.prefixEquals(anchor, this.content, false, anchorEndStart)) {
 				return computeChildRange(anchorEndStart, anchor, indexOfSectionBottom);
 			} else {
 				if (this.tempAnchorIndexes.length == this.tempAnchorIndexesCount) {
