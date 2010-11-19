@@ -48,6 +48,47 @@ Eclipse SDK 3.7M4 - %date% - 3.7.0 M4
 <br>Project org.eclipse.jdt.core v_B25
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B25">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li> Added a new API in org.eclipse.jdt.core.compiler.CharOperation to find if a given character array starts with a given prefix, at the given index. (see details in bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=329288">329288</a>):
+<pre>
+    /**
+	 * Answers true if the given name, starting from the given index, starts with the given prefix,
+	 * false otherwise. isCaseSensitive is used to find out whether or not the comparison should be
+	 * case sensitive.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    prefix = { 'a' , 'B' }
+	 *    name = { 'c', 'd', 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    startIndex = 2
+	 *    isCaseSensitive = false
+	 *    result => true
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    prefix = { 'a' , 'B' }
+	 *    name = { 'c', 'd', 'a' , 'b', 'b', 'a', 'b', 'a' }
+	 *    startIndex = 2
+	 *    isCaseSensitive = true
+	 *    result => false
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 *
+	 * @param prefix the given prefix
+	 * @param name the given name
+	 * @param isCaseSensitive to find out whether or not the comparison should be case sensitive
+	 * @param startIndex index from which the prefix should be searched in the name
+	 * @return true if the given name starts with the given prefix, false otherwise
+	 * @throws NullPointerException if the given name is null or if the given prefix is null
+	 * @since 3.7
+	 */
+	public static final boolean prefixEquals(char[] prefix,	char[] name, boolean isCaseSensitive, int startIndex)
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=329288">329288</a>
