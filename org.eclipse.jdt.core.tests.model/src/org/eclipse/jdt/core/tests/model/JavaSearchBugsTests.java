@@ -12337,4 +12337,59 @@ public void testBug324109() throws CoreException {
 		"src/b324109/X.java void b324109.X.run() [run] POTENTIAL_MATCH"
 	);
 }
+/**
+ * @bug 329727 Invalid check in the isConstructor() method of the IMethod implementation.
+ * @test check that in a binary type, method's name doesn't contain the enclosing type name and
+ * that IMethod#isContructor returns correct value 
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329727"
+ * @throws CoreException
+ * @throws IOException
+ */
+public void testBug329727() throws CoreException, IOException {
+	IJavaProject project = getJavaProject("JavaSearchBugs");
+	IClasspathEntry[] originalCP = project.getRawClasspath();
+		try {
+			int cpLength = originalCP.length;
+			IClasspathEntry[] newCP = new IClasspathEntry[cpLength + 1];
+			System.arraycopy(originalCP, 0, newCP, 0, cpLength);
+			createLibrary(project, "bug329727.jar", null, new String[] {
+					"p/OuterClass.java",
+					"package p;\n" + "public class OuterClass {\n"
+							+ "	public OuterClass(){}\n"
+							+ "	class InnerClass {\n"
+							+ "		public InnerClass(){}\n" + "	}\n" + "}\n" },
+					new String[0], JavaCore.VERSION_1_4);
+			newCP[cpLength] = JavaCore.newLibraryEntry(
+						new Path("/JavaSearchBugs/bug329727.jar"), null, null);
+			project.setRawClasspath(newCP, null);
+
+			final String txtPattern = "InnerClas*";
+			SearchPattern pattern = SearchPattern.createPattern(txtPattern,
+					IJavaSearchConstants.CONSTRUCTOR,
+					IJavaSearchConstants.DECLARATIONS,
+					SearchPattern.R_CASE_SENSITIVE
+							| SearchPattern.R_PATTERN_MATCH);
+
+			SearchParticipant[] participants = new SearchParticipant[1];
+			participants[0] = SearchEngine.getDefaultSearchParticipant();
+
+			SearchRequestor requestor = new SearchRequestor() {
+				public void acceptSearchMatch(SearchMatch match)
+						throws CoreException {
+					assertTrue("Incorrect Element", match.getElement() instanceof IMethod);
+					assertTrue("Must be a constructor", ((IMethod) match.getElement()).isConstructor());
+					assertEquals("Incorrect Constructor name", "InnerClass", ((IMethod)match.getElement()).getElementName()); 
+				}
+			};
+
+			SearchEngine engine = new SearchEngine();
+			IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+			engine.search(pattern, participants, scope, requestor, null);
+    }
+    finally{
+		project.setRawClasspath(originalCP, null);
+    	deleteFile("/JavaSearchBugs/bug329727.jar");
+    }
+}
 }

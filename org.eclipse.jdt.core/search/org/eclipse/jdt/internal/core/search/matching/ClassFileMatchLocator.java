@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -269,11 +269,9 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 		if (matchBinary(pattern, method, info)) {
 			char[] name;
 			if (method.isConstructor()) {
-				name = info.getName();
-				int lastSlash = CharOperation.lastIndexOf('/', name);
-				if (lastSlash != -1) {
-					name = CharOperation.subarray(name, lastSlash+1, name.length);
-				}
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=329727
+				// We don't need the enclosing type name for the constructor name
+				name = info.getSourceName();
 			} else {
 				name = method.getSelector();
 			}
