@@ -514,4 +514,26 @@ public void test282152e() {
 		"Bound mismatch: The type U is not a valid substitute for the bounded parameter <T extends Number> of the type Test<T>\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330869
+public void _test330869() {
+    this.runConformTest(
+            new String[] {
+                    "X.java",
+                    "public class X {\n" +
+                    "    public <T> T getAdapter(Class<? extends T> adapterType) {\n" +
+                    "        T result = null;\n" +
+                    "        if (adapterType == Foo.class) {\n" +
+                    "        }\n" +
+                    "        else if (adapterType == Bar.class) {\n" +
+                    "        }\n" +
+                    "        return  result;\n" +
+                    "     }\n" +
+                    "     public class Foo {\n" +
+                    "     }\n" +
+                    "     public interface Bar {\n" +
+                    "     }\n" +
+                    "}\n"
+            },
+            ""); // no specific success output string
+}
 }
