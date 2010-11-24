@@ -45,7 +45,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 		return compilerOptions;
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
-	public void test322531a() {
+	public void _test322531a() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -215,7 +215,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
-	public void test322531g() {
+	public void _test322531g() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -240,7 +240,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
-	public void test322531h() {
+	public void _test322531h() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -333,7 +333,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
-	public void test322531j() {
+	public void _test322531j() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -515,7 +515,7 @@ public void test282152e() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=330869
-public void _test330869() {
+public void test330869() {
     this.runConformTest(
             new String[] {
                     "X.java",

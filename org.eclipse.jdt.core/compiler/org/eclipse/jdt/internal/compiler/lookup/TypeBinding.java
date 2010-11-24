@@ -568,7 +568,7 @@ private boolean isProvableDistinctSubType(TypeBinding otherType, boolean isClass
 		if (isInterface())
 			return false;
 		if (isArrayType()
-				|| isClassLiteral // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
+			//	|| isClassLiteral // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
 				|| ((this instanceof ReferenceBinding) && ((ReferenceBinding) this).isFinal())
 				|| (isTypeVariable() && ((TypeVariableBinding)this).superclass().isFinal())) {
 			return !isCompatibleWith(otherType);
@@ -577,7 +577,7 @@ private boolean isProvableDistinctSubType(TypeBinding otherType, boolean isClass
 	} else {
 		if (isInterface()) {
 			if (otherType.isArrayType()
-					|| isClassLiteral // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
+				//	|| isClassLiteral // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
 					|| ((otherType instanceof ReferenceBinding) && ((ReferenceBinding) otherType).isFinal())
 					|| (otherType.isTypeVariable() && ((TypeVariableBinding)otherType).superclass().isFinal())) {
 				return !isCompatibleWith(otherType);
