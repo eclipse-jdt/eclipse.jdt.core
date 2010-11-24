@@ -7994,10 +7994,14 @@ public void test124() {
 			"    return two;\n" +
 			"  }\n" +
 			"  public static void main(String args[]) {\n" +
-			"    System.out.println(choose(\"a\", \"b\"));\n" +
+			"    try {\n" +
+			"        System.out.println(choose(\"a\", \"b\"));\n" +
+			"    } catch (StackOverflowError e) {\n" +
+			"        System.out.println(\"Stack Overflow\");\n" +
+			"    }\n" +
 			"  }\n" +
 			"}"},
-		"ab");
+			this.complianceLevel <= ClassFileConstants.JDK1_6 ? "ab" : "Stack Overflow");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
 // variant
