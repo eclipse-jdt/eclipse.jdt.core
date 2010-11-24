@@ -220,7 +220,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			int flags = Integer.parseInt(memento.nextToken());
 			memento.nextToken(); // JEM_COUNT
 			if (!memento.hasMoreTokens()) return this;
-			boolean isParameter = Boolean.getBoolean(memento.nextToken());
+			boolean isParameter = Boolean.valueOf(memento.nextToken()).booleanValue();
 			return new LocalVariable(this, varName, declarationStart, declarationEnd, nameStart, nameEnd, typeSignature, null, flags, isParameter);
 		case JEM_TYPE_PARAMETER:
 			if (!memento.hasMoreTokens()) return this;

@@ -1732,7 +1732,7 @@ public class JavaProject
 		if (resource == null) {
 			// resource doesn't exist in workspace
 			if (path.getFileExtension() != null) {
-				if (!workspaceRoot.getProject(path.lastSegment()).exists()) {
+				if (!workspaceRoot.getProject(path.segment(0)).exists()) {
 					// assume it is an external ZIP archive
 					return getPackageFragmentRoot0(path);
 				} else {
