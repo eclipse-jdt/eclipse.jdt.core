@@ -21856,4 +21856,41 @@ public void test328674b() throws JavaModelException {
 			"myString1[LOCAL_VARIABLE_REF]{myString1, null, Ljava.lang.String;, myString1, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
 			requestor.getResults());
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325481
+// To verify that the fix doesnt cause grief when proposing fields in another
+// compilation unit.
+public void test325481b() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+		COMPLETION_PROJECT.setOptions(options);
+		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test325481", "Main.java");
+
+		String str = cu.getSource();
+		String completeBehind = "IAttributeDefinitionDescriptor.";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		
+		cu.codeComplete(cursorLocation, requestor);
+		int relevance = R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED;
+		assumeEquals(
+				"should have two completions",
+				"element:ADD_CUSTOM_ATTRIBUTES    completion:ADD_CUSTOM_ATTRIBUTES    relevance:" + relevance +"\n" + 
+				"element:ATTRIBUTE    completion:ATTRIBUTE    relevance:" + relevance +"\n" + 
+				"element:BUILT_ATTRIBUTE    completion:BUILT_ATTRIBUTE    relevance:" + relevance +"\n" + 
+				"element:RANKING_ATTRIBUTE    completion:RANKING_ATTRIBUTE    relevance:" + relevance +"\n" + 
+				"element:RANKING_ATTRIBUTE_V2    completion:RANKING_ATTRIBUTE_V2    relevance:" + relevance +"\n" + 
+				"element:REFERENCE_ATTRIBUTE    completion:REFERENCE_ATTRIBUTE    relevance:" + relevance +"\n" + 
+				"element:WORK_ATTRIBUTE    completion:WORK_ATTRIBUTE    relevance:" + relevance +"\n" + 
+				"element:class    completion:class    relevance:" + relevance +"\n" + 
+				"element:this    completion:this    relevance:" + relevance,
+				requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
 }
