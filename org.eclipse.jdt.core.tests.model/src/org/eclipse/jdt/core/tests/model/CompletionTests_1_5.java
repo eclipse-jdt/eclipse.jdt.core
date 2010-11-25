@@ -2423,6 +2423,8 @@ public void test0087() throws JavaModelException {
 	} else {
 		assertResults(
 				"interface[KEYWORD]{interface, null, null, interface, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+				"_ConfigurationData[TYPE_REF]{test325481._ConfigurationData, test325481, Ltest325481._ConfigurationData;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+				"_Path[TYPE_REF]{test325481._Path, test325481, Ltest325481._Path;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 				"Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}\n" +
 				"TestAnnotation[TYPE_REF]{TestAnnotation, test0087, Ltest0087.TestAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 				requestor.getResults());
@@ -9019,6 +9021,8 @@ public void test0290() throws JavaModelException {
 	assertResults(
 			"interface[KEYWORD]{interface, null, null, interface, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"_ConfigurationData[TYPE_REF]{test325481._ConfigurationData, test325481, Ltest325481._ConfigurationData;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+			"_Path[TYPE_REF]{test325481._Path, test325481, Ltest325481._Path;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 			"Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
