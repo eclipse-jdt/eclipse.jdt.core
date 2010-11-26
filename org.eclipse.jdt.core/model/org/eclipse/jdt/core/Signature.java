@@ -974,7 +974,9 @@ public static char[] getElementType(char[] typeSignature) throws IllegalArgument
  *   correct
  */
 public static String getElementType(String typeSignature) throws IllegalArgumentException {
-	return new String(getElementType(typeSignature.toCharArray()));
+	char[] signature = typeSignature.toCharArray();
+	char[] elementType = getElementType(signature);
+	return signature == elementType ? typeSignature : new String(elementType);
 }
 /**
  * Returns the number of parameter types in the given method signature.
@@ -1387,7 +1389,9 @@ public static char[] getTypeErasure(char[] parameterizedTypeSignature) throws Il
  * @since 3.1
  */
 public static String getTypeErasure(String parameterizedTypeSignature) throws IllegalArgumentException {
-	return new String(getTypeErasure(parameterizedTypeSignature.toCharArray()));
+	char[] signature = parameterizedTypeSignature.toCharArray();
+	char[] erasure = getTypeErasure(signature);
+	return signature == erasure ? parameterizedTypeSignature : new String(erasure);
 }
 
 /**

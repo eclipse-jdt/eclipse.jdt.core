@@ -173,6 +173,10 @@ public void testGetElementType() {
 		"Signature#getElementType not correct", "Qlist<Qstring;>;",
 		Signature.getElementType("[[[[Qlist<Qstring;>;"));
 }
+public void testGetElementType2() {
+	String typeSign = "Ljava.util.List;";
+	assertTrue(Signature.getElementType(typeSign) == typeSign);
+}
 /**
  * @see Signature
  */
@@ -768,6 +772,18 @@ public void testGetTypeErasure8() {
 	assertEquals(
 		"QX.Member;",
 		Signature.getTypeErasure("QX<QList<QT;>;QMap<QU;QABC<QT;>;>;>.Member<QObject;>;")
+	);
+}
+
+public void testGetTypeErasure9() {
+	String sign = "Ljava.util.List;";
+	assertTrue(Signature.getTypeErasure(sign) == sign);
+}
+
+public void testGetTypeErasure10() {
+	assertEquals(
+			"Ljava.util.List;",
+			Signature.getTypeErasure("Ljava.util.List<-[Ljava.lang.Number;>;")
 	);
 }
 
