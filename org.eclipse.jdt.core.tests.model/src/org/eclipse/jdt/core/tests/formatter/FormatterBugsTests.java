@@ -7604,4 +7604,28 @@ public void testBug328240() {
 	);
 }
 
+/**
+ * @bug 328362: [formatter] Format regions does not format as expected
+ * @test Ensure that the given regions are well formatted
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=328362"
+ */
+public void testBug328362() throws Exception {
+	String source =
+		"package test1;\n" + 
+		"\n" + 
+		"[#    class  A {#]\n" + 
+		"\n" + 
+		"[#        int  i;#]\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package test1;\n" + 
+		"\n" + 
+		"class A {\n" + 
+		"\n" + 
+		"	int i;\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
 }

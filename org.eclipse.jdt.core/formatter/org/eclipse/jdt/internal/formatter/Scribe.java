@@ -418,8 +418,10 @@ public class Scribe implements IJavaDocTagConstants {
 										}
 									}
 									// Update the replacement string
-									if (replacementStart >= length) {
+									if (replacementStart > length || (replacementStart == length && spacesOutsideLength > 0)) {
 										edit.offset = -1;
+									} else if (spacesOutsideLength == 0 && replacementStart == length) {
+										edit.replacement = ""; //$NON-NLS-1$
 									} else {
 										edit.replacement = edit.replacement.substring(replacementStart);
 									}
