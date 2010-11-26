@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,15 +13,18 @@ package org.eclipse.jdt.core.tests.rewrite.describing;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
@@ -846,7 +849,51 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		assertEqualString(preview, buf.toString());
 	}
-
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=331111
+	public void _testListRemoves3() throws Exception {
+		Map options = this.project1.getOptions(true);
+		Map newOptions = this.project1.getOptions(true);
+		try {
+			newOptions.put(
+					DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_METHOD_DECLARATION,
+					JavaCore.INSERT);
+			newOptions.put(
+					DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_METHOD_DECLARATION,
+					JavaCore.INSERT);
+			newOptions.put(
+					DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BETWEEN_EMPTY_PARENS_IN_METHOD_DECLARATION,
+					JavaCore.DO_NOT_INSERT);
+			this.project1.setOptions(newOptions);
+			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo( String s ) {}\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+			CompilationUnit astRoot= createAST(cu);	
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+			TypeDeclaration type = (TypeDeclaration) astRoot.types().get(0);
+	
+			{ // delete param, insert new
+				MethodDeclaration methodDecl= (MethodDeclaration) type.bodyDeclarations().get(0);
+				List parameters= methodDecl.parameters();
+				rewrite.remove((ASTNode) parameters.get(0), null);
+			}
+			String preview= evaluateRewrite(cu, rewrite);
+	
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo() {}\n");
+			buf.append("}\n");
+	
+			assertEqualString(preview, buf.toString());
+		} finally {
+			this.project1.setOptions(options);
+		}
+	}
 
 	public void testListInserts() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
