@@ -2610,7 +2610,7 @@ public void test306078() throws JavaModelException {
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=299384
-public void _testCodeSelectInHybrid1415Projects() throws CoreException, IOException {
+public void testCodeSelectInHybrid1415Projects() throws CoreException, IOException {
 	String jarName = "bug299384.jar";
 	String srcName = "bug299384_src.zip";
 	try {
@@ -2641,7 +2641,7 @@ public void _testCodeSelectInHybrid1415Projects() throws CoreException, IOExcept
 
 		assertElementsEqual(
 			"Unexpected elements",
-			"TestSuite(java.lang.Class<? extends TestCase>) [in TestSuite [in TestSuite.class [in <default> [in bug299384.jar [in Resolve]]]]]",
+			"TestSuite(java.lang.Class) [in TestSuite [in TestSuite.class [in <default> [in bug299384.jar [in Resolve]]]]]",
 			elements
 		);
 	} finally {

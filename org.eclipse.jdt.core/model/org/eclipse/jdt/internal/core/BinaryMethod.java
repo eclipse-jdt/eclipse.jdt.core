@@ -28,10 +28,12 @@ import org.eclipse.jdt.internal.core.util.Util;
 /* package */ class BinaryMethod extends BinaryMember implements IMethod {
 	/**
 	 * The parameter type signatures of the method - stored locally
-	 * to perform equality test. <code>null</code> indicates no
+	 * to perform equality test. <code>CharOperation.NO_STRINGS</code> indicates no
 	 * parameters.
 	 */
 	protected String[] parameterTypes;
+	protected String [] erasedParamaterTypes; // lazily initialized via call to getErasedParameterTypes
+	
 	/**
 	 * The parameter names for the method.
 	 */
@@ -52,7 +54,7 @@ protected BinaryMethod(JavaElement parent, String name, String[] paramTypes) {
 }
 public boolean equals(Object o) {
 	if (!(o instanceof BinaryMethod)) return false;
-	return super.equals(o) && Util.equalArraysOrNull(this.parameterTypes, ((BinaryMethod)o).parameterTypes);
+	return super.equals(o) && Util.equalArraysOrNull(getErasedParameterTypes(), ((BinaryMethod)o).getErasedParameterTypes());
 }
 public IAnnotation[] getAnnotations() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
@@ -372,6 +374,29 @@ public String[] getParameterTypes() {
 	return this.parameterTypes;
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=299384
+private String [] getErasedParameterTypes() {
+	if (this.erasedParamaterTypes == null) {
+		int paramCount = this.parameterTypes.length;
+		String [] erasedTypes = new String [paramCount];
+		boolean erasureNeeded = false;
+		for (int i = 0; i < paramCount; i++) {
+			String parameterType = this.parameterTypes[i];
+			if (parameterType.indexOf(Signature.C_GENERIC_START, 0) >= 0) {
+				erasedTypes[i] = new String(Signature.getTypeErasure(parameterType.toCharArray()));
+				erasureNeeded = true;
+			} else {
+				erasedTypes[i] = parameterType;
+			}
+		}
+		this.erasedParamaterTypes = erasureNeeded ? erasedTypes : this.parameterTypes;
+	}
+	return this.erasedParamaterTypes;
+}
+private String getErasedParameterType(int index) {
+	return getErasedParameterTypes()[index];
+}
+
 public ITypeParameter getTypeParameter(String typeParameterName) {
 	return new TypeParameter(this, typeParameterName);
 }
@@ -446,7 +471,7 @@ public String getSignature() throws JavaModelException {
 public int hashCode() {
    int hash = super.hashCode();
 	for (int i = 0, length = this.parameterTypes.length; i < length; i++) {
-	    hash = Util.combineHashCodes(hash, this.parameterTypes[i].hashCode());
+	    hash = Util.combineHashCodes(hash, getErasedParameterType(i).hashCode());
 	}
 	return hash;
 }
