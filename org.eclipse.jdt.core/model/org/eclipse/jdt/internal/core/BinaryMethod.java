@@ -382,12 +382,8 @@ private String [] getErasedParameterTypes() {
 		boolean erasureNeeded = false;
 		for (int i = 0; i < paramCount; i++) {
 			String parameterType = this.parameterTypes[i];
-			if (parameterType.indexOf(Signature.C_GENERIC_START, 0) >= 0) {
-				erasedTypes[i] = new String(Signature.getTypeErasure(parameterType.toCharArray()));
+			if ((erasedTypes[i] = Signature.getTypeErasure(parameterType)) != parameterType)
 				erasureNeeded = true;
-			} else {
-				erasedTypes[i] = parameterType;
-			}
 		}
 		this.erasedParamaterTypes = erasureNeeded ? erasedTypes : this.parameterTypes;
 	}
