@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeDetector;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
 import org.eclipse.jdt.internal.codeassist.impl.AssistCompilationUnit;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -186,49 +187,41 @@ public class InternalExtendedCompletionContext {
 								break done;
 							}
 						} else {
-							FieldDeclaration fieldDeclaration = fields[i];
+							FieldDeclaration fieldDeclaration = fields[i];							
 							if (fieldDeclaration.initialization != null) {
-								// completion is inside a field initializer
-								searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
-								// remove this field from visibleFields list because completion is being asked in its
-								// intialization and so this has not yet been declared successfully.
-								if (this.visibleFields.size > 0 && this.visibleFields.contains(fieldDeclaration.binding)) {
-									this.visibleFields.remove(fieldDeclaration.binding);
-								}
-								int count = 0;
-								while (count < this.visibleFields.size) {
-									FieldBinding visibleField = (FieldBinding)this.visibleFields.elementAt(count);
-									if (visibleField.id > fieldDeclaration.binding.id) {
-										this.visibleFields.remove(visibleField);
-										continue;
-									}
-									count++;
-								}
-								break done;
-							}
-							/*(Incase fieldDeclaration != null is not sufficient to infer that
-							  proposal is being asked inside initializer of field decl, use the below if
-							  block instead of the above)
-							if (fieldDeclaration.initialization != null) {
-							 
+								boolean isInsideInitializer = false;
 								if (fieldDeclaration.initialization.sourceEnd > 0) {
 									if (fieldDeclaration.initialization.sourceStart <= astNode.sourceStart &&
 											astNode.sourceEnd <= fieldDeclaration.initialization.sourceEnd) {
 										// completion is inside a field initializer
-										searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
+										isInsideInitializer = true;
 									}
 								} else { // The sourceEnd may not yet be set
 									CompletionNodeDetector detector = new CompletionNodeDetector(this.assistNode, fieldDeclaration.initialization);
 									if (detector.containsCompletionNode()) {
-										searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
+										// completion is inside a field initializer
+										isInsideInitializer = true;
 									}
 								}
-								// remove this field from visibleFields list because completion is being asked in its
-								// intialization and so this has not yet been declared successfully.
-								if (this.visibleFields.size > 0 && this.visibleFields.contains(fieldDeclaration.binding)) {
-									this.visibleFields.remove(fieldDeclaration.binding);
+								if (isInsideInitializer) {
+									searchVisibleVariablesAndMethods(scope, this.visibleLocalVariables, this.visibleFields, this.visibleMethods, notInJavadoc);
+									// remove this field from visibleFields list because completion is being asked in its
+									// intialization and so this has not yet been declared successfully.
+									if (this.visibleFields.size > 0 && this.visibleFields.contains(fieldDeclaration.binding)) {
+										this.visibleFields.remove(fieldDeclaration.binding);
+									}
+									int count = 0;
+									while (count < this.visibleFields.size) {
+										FieldBinding visibleField = (FieldBinding)this.visibleFields.elementAt(count);
+										if (visibleField.id > fieldDeclaration.binding.id) {
+											this.visibleFields.remove(visibleField);
+											continue;
+										}
+										count++;
+									}
+									break done;
 								}
-							}*/
+							}
 						}
 					}
 				}
