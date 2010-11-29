@@ -2421,4 +2421,101 @@ public void testBug288698() throws JavaModelException {
 		"  <anonymous #1> [in testIt() [in BugTest2Buggy [in BugTest2Buggy.java [in p288698 [in src288698.classbug [in TypeHierarchy]]]]]]\n",
 		hierarchy);
 }
+/**
+ * @bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
+ * @test that when two selected regions contains the same interface, it's not reported twice in the hierarchy.
+ * 
+ * @throws JavaModelException
+ * @throws CoreException
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663"
+ */
+public void testBug329663() throws JavaModelException, CoreException {
+	try {
+		IJavaProject p1 = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[0], "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createFolder("/P1/p");
+		createFile(
+				"/P1/p/I.java",
+				"package p;\n" +
+				"public interface I{}");
+		createFile(
+				"/P1/p/X.java",
+				"package p;\n" +
+				"public class X implements I{\n" +
+				"}"
+		);
+		createFolder("/P2/q");
+		createFile(
+				"/P2/q/Y.java",
+				"package q;\n" +
+				"import p.*;\n" +
+				"public class Y implements I {\n" +
+					"}"
+		);
+		IRegion region = JavaCore.newRegion();
+		region.add(p1);
+		region.add(p2);
+		ITypeHierarchy hierarchy = JavaCore.newTypeHierarchy(region, null, null);
+		IType[] types = hierarchy.getRootInterfaces();
+		assertTypesEqual("Unexpected super interfaces", 
+				"java.io.Serializable\n" + 
+				"p.I\n", 
+				types);
+	}
+	finally{
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/**
+ * @bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
+ * @test that when two selected regions contains interfaces with same name but different, they are reported individually
+ * in the hierarchy.
+ * 
+ * @throws JavaModelException
+ * @throws CoreException
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663"
+ */
+public void testBug329663a() throws JavaModelException, CoreException {
+try {
+	IJavaProject p1 = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[0], "");
+	IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+	createFolder("/P1/p");
+	createFile(
+			"/P1/p/I.java",
+			"package p;\n" +
+			"public interface I{}");
+	createFile(
+			"/P1/p/X.java",
+			"package p;\n" +
+			"public class X implements I{\n" +
+				"}"
+	);
+	createFolder("/P2/q");
+	createFile(
+			"/P2/q/I.java",
+			"package q;\n" +
+			"public interface I{}");
+	createFile(
+			"/P2/q/Y.java",
+			"package q;\n" +
+			"public class Y implements I {\n" +
+				"}"
+	);
+	IRegion region = JavaCore.newRegion();
+	region.add(p1);
+	region.add(p2);
+	ITypeHierarchy hierarchy = JavaCore.newTypeHierarchy(region, null, null);
+	IType[] types = hierarchy.getRootInterfaces();
+	assertTypesEqual("Unexpected super interfaces", 
+			"java.io.Serializable\n" + 
+			"p.I\n" + 
+			"q.I\n", 
+			types);
+}
+finally{
+	deleteProject("P1");
+	deleteProject("P2");
+}
+}
 }

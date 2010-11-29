@@ -167,7 +167,9 @@ public abstract class HierarchyBuilder {
 				break;
 			case TypeDeclaration.INTERFACE_DECL :
 			case TypeDeclaration.ANNOTATION_TYPE_DECL :
-				this.hierarchy.addInterface(typeHandle);
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663
+				if (this.hierarchy.typeToSuperInterfaces.get(typeHandle) == null)
+					this.hierarchy.addInterface(typeHandle);
 				break;
 		}
 		if (superinterfaceHandles == null) {
