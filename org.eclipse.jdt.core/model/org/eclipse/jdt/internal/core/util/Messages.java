@@ -187,6 +187,7 @@ public final class Messages extends NLS {
 	public static String cache_invalidLoadFactor;
 	public static String savedState_jobName;
 	public static String refreshing_external_folders;
+	public static String updating_external_archives_jobName;
 	public static String convention_unit_nullName;
 	public static String convention_unit_notJavaName;
 	public static String convention_classFile_nullName;

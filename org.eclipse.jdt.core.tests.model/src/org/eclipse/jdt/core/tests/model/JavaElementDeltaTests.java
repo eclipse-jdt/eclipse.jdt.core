@@ -3030,5 +3030,26 @@ public void testWorkingCopyCommit() throws CoreException {
 		deleteProject("P");
 	}
 }
+public void testChangeExternalJar() throws CoreException {
+	String jarName = "externalLib.jar";
+	try {
+		createExternalFile(jarName, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath(jarName)}, "");
+		refreshExternalArchives(p);
+
+		startDeltas();
+		touch(getExternalFile(jarName));
+		refresh(p);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" +
+			"	"+ getExternalPath() + "externalLib.jar[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalResource(jarName);
+		deleteProject("P");
+	}
+}
 }
 
