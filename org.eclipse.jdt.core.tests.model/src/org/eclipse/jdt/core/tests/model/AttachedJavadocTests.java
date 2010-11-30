@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -34,6 +35,9 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.BinaryType;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 
 public class AttachedJavadocTests extends ModifyingResourceTests {
 	private static final String DEFAULT_DOC_FOLDER = "doc";
@@ -716,6 +720,67 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			assertTrue("Should happen", true);
 		} finally {
 			setJavadocLocationAttribute(DEFAULT_DOC_FOLDER);
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=329671
+	public void testBug329671() throws CoreException, IOException {
+		Map options = this.project.getOptions(true);
+		Object timeout = options.get(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC);
+		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "0"); //$NON-NLS-1$
+		this.project.setOptions(options);
+		IClasspathEntry[] entries = this.project.getRawClasspath();
+
+		try {
+			IClasspathAttribute attribute =
+					JavaCore.newClasspathAttribute(
+							IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME,
+							"jar:platform:/resource/AttachedJavadocProject/bug329671_doc.zip!/");
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug329671.jar"), null, null, null, new IClasspathAttribute[] { attribute}, false);
+			this.project.setRawClasspath(new IClasspathEntry[]{newEntry}, null);
+			this.project.getResolvedClasspath(false);
+
+			IPackageFragmentRoot jarRoot = this.project.getPackageFragmentRoot(getFile("/AttachedJavadocProject/bug329671.jar"));
+			final IType type = jarRoot.getPackageFragment("bug").getClassFile("X.class").getType();
+			IMethod method = type.getMethod("foo", new String[]{"Ljava.lang.Object;"});
+			assertNotNull(method);
+
+			String[] paramNames = method.getParameterNames();
+			assertStringsEqual("Parameter names", new String[]{"arg0"}, paramNames);
+			final PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.project.getProject());
+			final Object varThis = this;
+			Thread thread = new Thread(){
+				public void run() {
+					Object javadocContent = projectInfo.javadocCache.get(type);
+					while(javadocContent == null || javadocContent == BinaryType.EMPTY_JAVADOC) {
+						try {
+							Thread.sleep(50);
+							javadocContent = projectInfo.javadocCache.get(type);
+						} catch (InterruptedException e) {
+						}
+						synchronized (varThis) {
+							varThis.notify();
+						}
+					}
+				}
+			};
+			thread.start();
+			synchronized (varThis) {
+				try {
+					varThis.wait(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			projectInfo.javadocCache.flush();
+			options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "5000"); //$NON-NLS-1$
+			this.project.setOptions(options);
+			paramNames = method.getParameterNames();
+			assertStringsEqual("Parameter names", new String[]{"param"}, paramNames);
+		} finally {
+			this.project.setRawClasspath(entries, null);
+			if (timeout != null)
+				options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, timeout);
+			this.project.setOptions(options);
 		}
 	}
 }

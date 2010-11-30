@@ -222,8 +222,8 @@ public String[] getParameterNames() throws JavaModelException {
 				// ignore
 			}
 			if (timeOut == 0) {
-				// don't try to fetch the values
-				return this.parameterNames = getRawParameterNames(paramCount);
+				// don't try to fetch the values and don't cache either (https://bugs.eclipse.org/bugs/show_bug.cgi?id=329671)
+				return getRawParameterNames(paramCount);
 			}
 			final class ParametersNameCollector {
 				String javadoc;
@@ -304,8 +304,8 @@ public String[] getParameterNames() throws JavaModelException {
 			return this.parameterNames = names;
 		}
 	}
-	// if still no parameter names, produce fake ones
-	return this.parameterNames = getRawParameterNames(paramCount);
+	// If still no parameter names, produce fake ones, but don't cache them (https://bugs.eclipse.org/bugs/show_bug.cgi?id=329671)
+	return getRawParameterNames(paramCount);
 }
 private char[][] splitParameters(char[] parametersSource, int paramCount) {
 	// we have generic types as one of the parameter types
