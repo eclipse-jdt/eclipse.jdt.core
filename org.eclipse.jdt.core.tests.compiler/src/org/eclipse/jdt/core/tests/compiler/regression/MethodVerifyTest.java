@@ -11116,6 +11116,122 @@ public void test213a() {
 		compilerOptions14,
 		null);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850
+public void test213b() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"ConsoleSession.java",
+			"public abstract class ConsoleSession implements ServiceFactory<Object> {\n" +
+			"	public final void ungetService(Bundle bundle, ServiceRegistration<Object> registration, Object service) {\n" +
+			"	}\n" +
+			"	\n" +
+			"	public final Object getService(Bundle bundle, ServiceRegistration<Object> registration) {\n" +
+			"		return this;\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class Bundle {}\n" +
+			"\n" +
+			"interface ServiceFactory<S> {\n" +
+			"	public void ungetService(Bundle b, ServiceRegistration<S> registration, S service);\n" +
+			"	public S getService(Bundle bundle, ServiceRegistration<S> registration);\n" +
+			"}\n" +
+			"\n" +
+			"interface ServiceRegistration<T> {\n" +
+			"\n" +
+			"}\n"
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
+	this.runConformTest(
+			new String[] {
+					"OSGiConsole.java",
+					"public class OSGiConsole {\n" +
+					"	OSGiConsole() {\n" +
+					"		new ConsoleSession() {\n" +
+					"		};\n" +
+					"	}\n" +
+					"}\n",
+			},
+		"",
+		null,
+		false,
+		null,
+		compilerOptions14,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850
+public void test213c() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"ConsoleSession.java",
+			"public abstract class ConsoleSession implements ServiceFactory<ConsoleSession> {\n" +
+			"	public final void ungetService(Bundle bundle, ServiceRegistration<ConsoleSession> registration, ConsoleSession service) {\n" +
+			"	}\n" +
+			"	\n" +
+			"	public final ConsoleSession getService(Bundle bundle, ServiceRegistration<ConsoleSession> registration) {\n" +
+			"		return this;\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class Bundle {}\n" +
+			"\n" +
+			"interface ServiceFactory<S> {\n" +
+			"	public void ungetService(Bundle b, ServiceRegistration<S> registration, S service);\n" +
+			"	public S getService(Bundle bundle, ServiceRegistration<S> registration);\n" +
+			"}\n" +
+			"\n" +
+			"interface ServiceRegistration<T> {\n" +
+			"\n" +
+			"}\n"
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
+	this.runConformTest(
+			new String[] {
+					"OSGiConsole.java",
+					"public class OSGiConsole {\n" +
+					"	OSGiConsole() {\n" +
+					"		new ConsoleSession() {\n" +
+					"		};\n" +
+					"	}\n" +
+					"}\n",
+			},
+		"",
+		null,
+		false,
+		null,
+		compilerOptions14,
+		null);
+}
 public void test326354() {
 	this.runConformTest(
 			new String[] {
