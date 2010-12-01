@@ -5227,4 +5227,74 @@ public void testJsr14TargetProjectWith14JRE() throws CoreException, IOException 
 			deleteProject(project14);
 	}
 }
+public void _testGenericAPIUsageFromA14Project9() throws CoreException {
+	IJavaProject project14 = null;
+	IJavaProject project15 = null;
+	try {
+		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		createFolder("/Reconciler15API/src/p1");
+		createFile(
+				"/Reconciler15API/src/p1/Y.java",
+				"package p1;\n" +
+				"public class Y {\n" +
+				"    static <T> void foo(List<T> expected) {}\n" +
+				"    public static <T> void foo(T expected) {}\n" +
+				"}\n"
+			);
+		createFile(
+				"/Reconciler15API/src/p1/List.java",
+				"package p1;\n" +
+				"public class List<T> {}\n"
+			);
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		
+		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
+		int oldLength = oldClasspath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
+		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
+		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
+		project14.setRawClasspath(newClasspath, null);
+		
+		createFolder("/Reconciler1415/src/p1");
+		String source = 
+			"package p1;\n" +
+			"public class X {\n" +
+			"	private int unused = 0;\n" + 
+			"    X(List l) {\n" +
+			"        Y.foo(l);\n" +
+			"    }\n" +
+			"}\n";
+
+		createFile(
+			"/Reconciler1415/src/p1/X.java",
+			source
+		);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 3)\n" + 
+			"	private int unused = 0;\n" + 
+			"	            ^^^^^^\n" + 
+			"The value of the field X.unused is not used\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (project14 != null)
+			deleteProject(project14);
+		if (project15 != null)
+			deleteProject(project15);
+	}
+}
 }
