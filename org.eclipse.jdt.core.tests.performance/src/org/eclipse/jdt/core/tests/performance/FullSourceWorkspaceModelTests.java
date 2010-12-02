@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1280,6 +1280,94 @@ public void testGetSourceBigJarNoAttachment() throws CoreException {
 	} finally {
 		if (project != null)
 			project.getProject().delete(false, null);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331632
+public void testReopenSingleProject() throws CoreException {
+	tagAsSummary("Reopen a single project in a workspace", false); // do NOT put in fingerprint
+
+	// First close all Eclipse projects
+	long startTime = 0;
+	if (PRINT) {
+		System.out.print("Close all Eclipse projects...");
+		startTime = System.currentTimeMillis();
+	}
+	int length=ALL_PROJECTS.length;
+	for (int j=0; j<length; j++) {
+		ALL_PROJECTS[j].getProject().close(null);
+	}		
+	AbstractJavaModelTests.waitUntilIndexesReady();
+	AbstractJavaModelTests.waitForAutoBuild();
+	if (PRINT) {
+		System.out.println((System.currentTimeMillis()-startTime)+"ms");
+	}
+	
+
+	// Warm-up
+	if (PRINT) {
+		System.out.print("Warmup test...");
+		startTime = System.currentTimeMillis();
+	}
+	final int warmup = WARMUP_COUNT / 10;
+	for (int i=0; i<warmup; i++) {
+		BIG_PROJECT.getProject().close(null);
+		AbstractJavaModelTests.waitUntilIndexesReady();
+		AbstractJavaModelTests.waitForAutoBuild();
+		BIG_PROJECT.getProject().open(null);
+		AbstractJavaModelTests.waitUntilIndexesReady();
+		AbstractJavaModelTests.waitForAutoBuild();
+		AbstractJavaModelTests.waitForManualRefresh();
+	}
+	if (PRINT) {
+		System.out.println((System.currentTimeMillis()-startTime)+"ms");
+	}
+
+	// Measures
+	if (PRINT) {
+		System.out.println();
+		System.out.println("Start measures:");
+		startTime = System.currentTimeMillis();
+	}
+	for (int i=0; i<MEASURES_COUNT; i++) {
+		runGc();
+		BIG_PROJECT.getProject().close(null);
+		AbstractJavaModelTests.waitUntilIndexesReady();
+		AbstractJavaModelTests.waitForAutoBuild();
+		startMeasuring();
+		BIG_PROJECT.getProject().open(null);
+		AbstractJavaModelTests.waitUntilIndexesReady();
+		AbstractJavaModelTests.waitForAutoBuild();
+		AbstractJavaModelTests.waitForManualRefresh();
+		stopMeasuring();
+	}
+	if (PRINT) {
+		System.out.println("	total time: "+((System.currentTimeMillis()-startTime)/1000.0)+"s");
+	}
+
+	// Commit
+	if (PRINT) {
+		System.out.println();
+		System.out.println("Commit measures:");
+		startTime = System.currentTimeMillis();
+	}
+	commitMeasurements();
+	assertPerformance();
+
+	// Finally reopen all Eclipse projects
+	if (PRINT) {
+		System.out.print("Reopen Eclipse projects...");
+		startTime = System.currentTimeMillis();
+	}
+	for (int i=0; i<length; i++) {
+		ALL_PROJECTS[i].getProject().open(null);
+	}
+	AbstractJavaModelTests.waitUntilIndexesReady();
+	AbstractJavaModelTests.waitForAutoBuild();
+	AbstractJavaModelTests.waitForManualRefresh();
+	runGc();
+	if (PRINT) {
+		System.out.println((System.currentTimeMillis()-startTime)+"ms");
 	}
 }
 
