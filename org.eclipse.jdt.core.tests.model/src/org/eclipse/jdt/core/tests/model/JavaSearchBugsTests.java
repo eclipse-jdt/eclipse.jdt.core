@@ -19,6 +19,7 @@ import java.util.List;
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -44,6 +45,7 @@ import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.index.DiskIndex;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexRequest;
 import org.eclipse.jdt.internal.core.search.matching.AndPattern;
@@ -12315,6 +12317,165 @@ public void testBug322979h() throws CoreException {
 			"Test.java Test [public class Test extends Object implements I1<!|String|!>, I2<Object>{] EXACT_MATCH"
 		);
 	} finally {
+		deleteProject("P");
+	}
+}
+
+/**
+ * @bug 323514: Search indexes are not correctly updated
+ * @test [indexing] The Java Indexer is taking longer to run in eclipse 3.6 when opening projects
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=323514"
+ */
+public void testBug323514() throws Exception {
+	String libPath = getExternalResourcePath("lib323514.jar");
+	waitUntilIndexesReady();
+	try {
+		// Create project and external jar file
+		Util.createJar(
+			new String[] {
+				"p323514/Y323514.java",
+				"package p323514;\n" +
+				"public class Y323514 {}"
+			},
+			new HashMap(),
+			libPath);
+		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {libPath}, "");
+		waitUntilIndexesReady();
+		
+		// Close the project
+		IProject project = javaProject.getProject();
+		project.close(null);
+		assertNotNull("External jar file index should not have been removed!!!", JavaModelManager.getIndexManager().getIndex(new Path(libPath), false, false));
+		
+		// Reopen the project
+		project.open(null);
+		project.refreshLocal(IResource.DEPTH_INFINITE, null);
+		waitUntilIndexesReady();
+		// Search
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			null,
+			BasicSearchEngine.createJavaSearchScope(new IJavaElement[] { javaProject }),
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertSearchResults(
+			"Y323514 (not open) [in Y323514.class [in p323514 [in "+ getExternalPath() + "lib323514.jar]]]",
+			collector);
+	} finally {
+		deleteExternalFile(libPath);
+		deleteProject("P");
+		org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = false;
+	}
+}
+public void testBug323514a() throws Exception {
+	String libPath = getExternalResourcePath("lib323514.jar");
+	waitUntilIndexesReady();
+	try {
+		// Create project and external jar file
+		Util.createJar(
+			new String[] {
+				"p323514/Y323514.java",
+				"package p323514;\n" +
+				"public class Y323514 {}"
+			},
+			new HashMap(),
+			libPath);
+		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {libPath}, "");
+		waitUntilIndexesReady();
+		
+		// Close project and delete external jar file
+		IProject project = javaProject.getProject();
+		waitUntilIndexesReady();
+		project.close(null);
+		deleteExternalFile(libPath);
+		// Open project and recreate external jar file
+		Util.createJar(
+			new String[] {
+				"p323514/X323514.java",
+				"package p323514;\n" +
+				"public class X323514 {}"
+			},
+			new HashMap(),
+			libPath);
+		project.open(null);
+		// A refresh external archives seems to be necessary when the external
+		// archive has been modified while the project was closed... like a refresh
+		// in the workspace to see external files changes.
+		project.refreshLocal(IResource.DEPTH_INFINITE, null);
+		waitUntilIndexesReady();
+		
+		// Search
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			null,
+			BasicSearchEngine.createJavaSearchScope(new IJavaElement[] { javaProject }),
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertSearchResults(
+			"X323514 (not open) [in X323514.class [in p323514 [in "+ getExternalPath() + "lib323514.jar]]]",
+			collector);
+	} finally {
+		deleteExternalFile(libPath);
+		deleteProject("P");
+	}
+}
+public void testBug323514b() throws Exception {
+	String libPath = getExternalResourcePath("lib323514.jar");
+	waitUntilIndexesReady();
+	boolean isDebugging = false; // turn to true to verify using the trace that the external jar file is not re-indexed while opening the project
+	org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = isDebugging;
+	try {
+		// Create project and external jar file
+		Util.createJar(
+			new String[] {
+				"p323514/Y323514.java",
+				"package p323514;\n" +
+				"public class Y323514 {}"
+			},
+			new HashMap(),
+			libPath);
+		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {libPath}, "");
+		waitUntilIndexesReady();
+		
+		// Close project
+		IProject project = javaProject.getProject();
+		project.close(null);
+		waitUntilIndexesReady();
+		
+		// Open project and modify the external jar file content
+		Util.createJar(
+			new String[] {
+				"p323514/X323514.java",
+				"package p323514;\n" +
+				"public class X323514 {}"
+			},
+			new HashMap(),
+			libPath);
+		project.open(null);
+		// A refresh external archives seems to be necessary when the external
+		// archive has been modified while the project was closed... like a refresh
+		// in the workspace to see external files changes.
+		project.refreshLocal(IResource.DEPTH_INFINITE, null);
+		waitUntilIndexesReady();
+		
+		// Search
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			null,
+			BasicSearchEngine.createJavaSearchScope(new IJavaElement[] { javaProject }),
+			collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+		assertSearchResults(
+			"X323514 (not open) [in X323514.class [in p323514 [in "+ getExternalPath() + "lib323514.jar]]]",
+			collector);
+	} finally {
+		deleteExternalFile(libPath);
 		deleteProject("P");
 	}
 }
