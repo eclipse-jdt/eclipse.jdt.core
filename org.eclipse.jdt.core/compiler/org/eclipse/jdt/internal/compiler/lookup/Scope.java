@@ -2842,13 +2842,21 @@ public abstract class Scope {
 		int oneParamsLength = oneParams.length;
 		int twoParamsLength = twoParams.length;
 		if (oneParamsLength == twoParamsLength) {
+			/* Below 1.5, discard any generics we have left in for the method verifier's benefit, (so it
+			   can detect method overriding properly in the presence of generic super types.) This is so
+			   as to allow us to determine whether we have been handed an acceptable method in 1.4 terms
+			   without all the 1.5isms below kicking in and spoiling the party.
+			   See https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
+			*/
+			boolean applyErasure =  environment().globalOptions.sourceLevel < ClassFileConstants.JDK1_5;
 			next : for (int i = 0; i < oneParamsLength; i++) {
-				TypeBinding oneParam = oneParams[i];
-				TypeBinding twoParam = twoParams[i];
+				TypeBinding oneParam = applyErasure ? oneParams[i].erasure() : oneParams[i];
+				TypeBinding twoParam = applyErasure ? twoParams[i].erasure() : twoParams[i];
 				if (oneParam == twoParam || oneParam.isCompatibleWith(twoParam)) {
 					if (two.declaringClass.isRawType()) continue next;
 
-					TypeBinding originalTwoParam = two.original().parameters[i].leafComponentType();
+					TypeBinding leafComponentType = two.original().parameters[i].leafComponentType();
+					TypeBinding originalTwoParam = applyErasure ? leafComponentType.erasure() : leafComponentType; 
 					switch (originalTwoParam.kind()) {
 					   	case Binding.TYPE_PARAMETER :
 					   		if (((TypeVariableBinding) originalTwoParam).hasOnlyRawBounds())

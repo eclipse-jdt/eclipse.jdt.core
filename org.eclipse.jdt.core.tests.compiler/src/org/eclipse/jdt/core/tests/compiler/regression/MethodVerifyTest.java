@@ -11533,8 +11533,8 @@ public void test330264() {
 		false,
 		compilerOptions14);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446 
-public void _test331446() {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
+public void test331446() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
@@ -11573,9 +11573,6 @@ public void _test331446() {
 		null);
 
 	Map compilerOptions14 = getCompilerOptions();
-//	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-//	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-//	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
@@ -11606,20 +11603,38 @@ public void _test331446() {
 		compilerOptions14,
 		null);
 }
-public void test1415Mix() {
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
+public void test331446a() {
 	Map compilerOptions15 = getCompilerOptions();
-	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
-	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_4);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 	this.runConformTest(
 		new String[] {
-			"Abstract.java",
-			"abstract class Generic<T> {\n" +
-			"	abstract void foo(T t);\n" +
-			"}\n" +
-			"public abstract class Abstract extends Generic<String> {\n" +
-			"}"
-			},
+			"Test.java",
+			"import java.util.Comparator;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	public static  void assertEquals(String message,\n" + 
+			"			Comparator comparator, List expected, List actual) {\n" + 
+			"		if (expected.size() != actual.size()) {\n" + 
+			"			//failNotEquals(message, expected, actual);\n" + 
+			"		}\n" + 
+			"		for (int i = 0, l = expected.size(); i < l; i++) {\n" + 
+			"			assertEquals(message, comparator, expected.get(i), actual.get(i));\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static void assertEquals(String message,\n" + 
+			"			Comparator comparator, Object expected, Object actual) {\n" + 
+			"		if (comparator.compare(expected, actual) == 0) {\n" + 
+			"			return;\n" + 
+			"		}\n" + 
+			"		//failNotEquals(message, expected, actual);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			""
+		},
 		"",
 		null,
 		true,
@@ -11632,64 +11647,34 @@ public void test1415Mix() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
-			"Concrete.java",
-			"public class Concrete extends Abstract {\n" +
-			"}",
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Comparator;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void testAmbiguity() {\n" + 
+			"		Comparator comparator = new Comparator() {\n" + 
+			"			\n" + 
+			"			public int compare(Object o1, Object o2) {\n" + 
+			"				return 0;\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"		Test.assertEquals(\"Test\", comparator, new ArrayList(), new ArrayList());\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"",
 		},
-		"----------\n" + 
-		"1. ERROR in Concrete.java (at line 1)\n" + 
-		"	public class Concrete extends Abstract {\n" + 
-		"	             ^^^^^^^^\n" + 
-		"The type Concrete must implement the inherited abstract method Generic<String>.foo(String)\n" + 
-		"----------\n",
+		"",
 		null,
 		false,
-		compilerOptions14);	
-}
-public void test1415Mix2() {
-	Map compilerOptions15 = getCompilerOptions();
-	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
-	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
-			"Abstract.java",
-			"abstract class Generic<T> {\n" +
-			"	abstract void foo(T t);\n" +
-			"}\n" +
-			"public abstract class Abstract extends Generic<String> {\n" +
-			"}"
-			},
-		"",
 		null,
-		true,
-		null,
-		compilerOptions15,
+		compilerOptions14,
 		null);
-
-	Map compilerOptions14 = getCompilerOptions();
-	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
-	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runConformTest(
-			new String[] {
-					"Concrete.java",
-					"public class Concrete extends Abstract {\n" +
-					"    void foo(String s) {}\n" +
-					"}",
-			},
-			"",
-			null,
-			false,
-			null,
-			compilerOptions14,
-			null);	
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446 (all 1.4)
-public void test331446a() {
+public void test331446b() {
 	Map compilerOptions14 = getCompilerOptions();
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
@@ -11727,7 +11712,7 @@ public void test331446a() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446 (1.4/1.5 mix)
-public void _test331446b() {
+public void test331446c() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
@@ -11770,7 +11755,7 @@ public void _test331446b() {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446 (all 1.5)
-public void test331446c() {
+public void test331446d() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
@@ -11804,6 +11789,90 @@ public void test331446c() {
 		false,
 		null,
 		compilerOptions15,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
+public void test1415Mix() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"Abstract.java",
+			"abstract class Generic<T> {\n" +
+			"	abstract void foo(T t);\n" +
+			"}\n" +
+			"public abstract class Abstract extends Generic<String> {\n" +
+			"}"
+			},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"Concrete.java",
+			"public class Concrete extends Abstract {\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in Concrete.java (at line 1)\n" + 
+		"	public class Concrete extends Abstract {\n" + 
+		"	             ^^^^^^^^\n" + 
+		"The type Concrete must implement the inherited abstract method Generic<String>.foo(String)\n" + 
+		"----------\n",
+		null,
+		false,
+		compilerOptions14);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
+public void test1415Mix2() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"Abstract.java",
+			"abstract class Generic<T> {\n" +
+			"	abstract void foo(T t);\n" +
+			"}\n" +
+			"public abstract class Abstract extends Generic<String> {\n" +
+			"}"
+			},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
+	this.runConformTest(
+		new String[] {
+				"Concrete.java",
+				"public class Concrete extends Abstract {\n" +
+				"    void foo(String s) {}\n" +
+				"}",
+		},
+		"",
+		null,
+		false,
+		null,
+		compilerOptions14,
 		null);
 }
 }

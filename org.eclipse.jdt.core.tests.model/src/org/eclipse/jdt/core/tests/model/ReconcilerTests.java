@@ -5227,7 +5227,7 @@ public void testJsr14TargetProjectWith14JRE() throws CoreException, IOException 
 			deleteProject(project14);
 	}
 }
-public void _testGenericAPIUsageFromA14Project9() throws CoreException {
+public void testGenericAPIUsageFromA14Project9() throws CoreException {
 	IJavaProject project14 = null;
 	IJavaProject project15 = null;
 	try {
