@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for Bug 331872 - [compiler] NPE in Scope.createArrayType when attempting qualified access from type parameter
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
@@ -22,6 +23,9 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ArrayTest extends AbstractRegressionTest {
 
+	static {
+//		TESTS_NUMBERS = new int[] { 18 };
+	}
 	public ArrayTest(String name) {
 		super(name);
 	}
@@ -543,5 +547,33 @@ public void test017() throws Exception {
 	if (index == -1) {
 		assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
 	}		
+}
+
+// https://bugs.eclipse.org/331872 -  [compiler] NPE in Scope.createArrayType when attempting qualified access from type parameter
+public void test018() throws Exception {
+	if (new CompilerOptions(getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<p> {\n" + 
+			"	void foo(p.O[] elems)  {\n" + 
+			"	}\n" +
+			"   void bar() {\n" +
+			"        foo(new Object[0]);\n" +
+			"   }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	void foo(p.O[] elems)  {\n" + 
+		"	         ^^^^^\n" + 
+		"Illegal qualified access from the type parameter p\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	foo(new Object[0]);\n" + 
+		"	^^^\n" + 
+		"The method foo(Object[]) is undefined for the type X<p>\n" + 
+		"----------\n");
 }
 }
