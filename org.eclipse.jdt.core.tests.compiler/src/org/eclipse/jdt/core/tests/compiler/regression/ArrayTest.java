@@ -551,7 +551,7 @@ public void test017() throws Exception {
 
 // https://bugs.eclipse.org/331872 -  [compiler] NPE in Scope.createArrayType when attempting qualified access from type parameter
 public void test018() throws Exception {
-	if (new CompilerOptions(getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_5)
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return;
 	this.runNegativeTest(
 		new String[] {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,9 @@ public class JavadocArgumentExpression extends Expression {
 				typeRef.resolvedType = this.resolvedType;
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=195374
 				// reproduce javadoc 1.3.1 / 1.4.2 behavior
+				if (this.resolvedType == null) {
+					return null;
+				}
 				if (typeRef instanceof SingleTypeReference &&
 						this.resolvedType.leafComponentType().enclosingType() != null &&
 						scope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_4) {

@@ -38,7 +38,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "testBug95521";
-//		TESTS_NAMES = new String[] { "testBug209936" };
+//		TESTS_NAMES = new String[] { "testBug331872d" };
 //		TESTS_NUMBERS = new int[] { 101283 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
@@ -4216,6 +4216,130 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	public abstract class ListCallable<V> implements Callable<List<V>> { // good warning\n" + 
 			"	                                   ^\n" + 
 			"Javadoc: Missing tag for parameter V\n" + 
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331872
+	public void testBug331872() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			true,
+			new String[] {
+				"X.java",
+				"/**\n" +
+				" * @param <p> the given type parameter\n" +
+				" */\n" +
+				"public class X<p> {\n" +
+				"	/**\n" +
+				"	 * @param o the given object\n" +
+				"	 * @see #foo(p.O[])\n" +
+				"	 */\n" + 
+				"	public void foo(Object o) {\n" +
+				"	}\n" +
+				"}"
+			},
+			null,
+			options,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	* @see #foo(p.O[])\n" + 
+			"	            ^^^\n" + 
+			"Illegal qualified access from the type parameter p\n" + 
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331872
+	public void testBug331872b() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			true,
+			new String[] {
+				"X.java",
+				"/**\n" +
+				" * @param <p> the given type parameter\n" +
+				" */\n" +
+				"public class X<p> {\n" +
+				"	/**\n" +
+				"	 * @param o the given object\n" +
+				"	 * @see #foo(O[])\n" +
+				"	 */\n" + 
+				"	public void foo(Object o) {\n" +
+				"	}\n" +
+				"}"
+			},
+			null,
+			options,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	* @see #foo(O[])\n" + 
+			"	            ^\n" + 
+			"Javadoc: O[] cannot be resolved to a type\n" + 
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331872
+	public void testBug331872c() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			true,
+			new String[] {
+				"X.java",
+				"/**\n" +
+				" * @param <p> the given type parameter\n" +
+				" */\n" +
+				"public class X<p> {\n" +
+				"	/**\n" +
+				"	 * @param o the given object\n" +
+				"	 * @see #foo(test.O[])\n" +
+				"	 */\n" + 
+				"	public void foo(Object o) {\n" +
+				"	}\n" +
+				"}"
+			},
+			null,
+			options,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	* @see #foo(test.O[])\n" + 
+			"	            ^^^^^^\n" + 
+			"Javadoc: test[] cannot be resolved to a type\n" + 
+			"----------\n",
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331872
+	public void testBug331872d() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			true,
+			new String[] {
+				"X.java",
+				"/**\n" +
+				" * @param <p> the given type parameter\n" +
+				" */\n" +
+				"public class X<p> {\n" +
+				"	/**\n" +
+				"	 * @param o the given object\n" +
+				"	 * @see #foo(test.O)\n" +
+				"	 */\n" + 
+				"	public void foo(Object o) {\n" +
+				"	}\n" +
+				"}"
+			},
+			null,
+			options,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	* @see #foo(test.O)\n" + 
+			"	            ^^^^^^\n" + 
+			"Javadoc: test cannot be resolved to a type\n" + 
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
