@@ -12390,6 +12390,7 @@ public void testBug323514a() throws Exception {
 		waitUntilIndexesReady();
 		project.close(null);
 		deleteExternalFile(libPath);
+		Thread.sleep(1000);	// necessary for filesystems with timestamps only upto seconds (eg. Mac)
 		// Open project and recreate external jar file
 		Util.createJar(
 			new String[] {
@@ -12445,7 +12446,7 @@ public void testBug323514b() throws Exception {
 		IProject project = javaProject.getProject();
 		project.close(null);
 		waitUntilIndexesReady();
-		
+		Thread.sleep(1000);	// necessary for filesystems with timestamps only upto seconds (eg. Mac)
 		// Open project and modify the external jar file content
 		Util.createJar(
 			new String[] {
