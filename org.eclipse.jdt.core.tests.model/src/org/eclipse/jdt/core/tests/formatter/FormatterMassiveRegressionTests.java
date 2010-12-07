@@ -418,7 +418,7 @@ public static Test suite() {
 protected static Test suite(File inputDir, String profile, Map directories) {
 
 	String name = "FormatterMassiveRegressionTests on "+inputDir.getName();
-	if (profile == null || profile.length() == 0) {
+	if (profile != null && profile.length() > 0) {
 		name += " " + profile;
 	}
 	TestSuite suite = new Suite(name);
@@ -566,19 +566,19 @@ private static String buildProfileString() {
 		String separator = "";
 		if (JOIN_LINES != null) {
 			buffer.append("join_lines="+JOIN_LINES);
-			separator = ", ";
+			separator = ",";
 		}
 		if (NO_COMMENTS) {
 			buffer.append(separator+"no_comments");
-			separator = ", ";
+			separator = ",";
 		}
 		if (BRACES != null) {
 			buffer.append(separator+"braces="+BRACES);
-			separator = ", ";
+			separator = ",";
 		}
 		if (PRESERVED_LINES != -1) {
 			buffer.append(separator+"preserved_lines="+PRESERVED_LINES);
-			separator = ", ";
+			separator = ",";
 		}
 		builtProfile = buffer.toString();
 	}
