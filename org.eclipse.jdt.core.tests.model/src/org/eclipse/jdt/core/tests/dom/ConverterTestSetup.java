@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -559,6 +559,9 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	protected void checkSourceRange(ASTNode node, String expectedContents, char[] source) {
+		checkSourceRange(node, expectedContents, source, false);
+	}
+	protected void checkSourceRange(ASTNode node, String expectedContents, char[] source, boolean expectMalformed) {
 		assertNotNull("The node is null", node); //$NON-NLS-1$
 		assertTrue("The node(" + node.getClass() + ").getLength() == 0", node.getLength() != 0); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue("The node.getStartPosition() == -1", node.getStartPosition() != -1); //$NON-NLS-1$
@@ -568,6 +571,11 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		System.arraycopy(source, start, actualContents, 0, length);
 		String actualContentsString = new String(actualContents);
 		assertSourceEquals("Unexpected source", Util.convertToIndependantLineDelimiter(expectedContents), Util.convertToIndependantLineDelimiter(actualContentsString));
+		if (expectMalformed) {
+			assertTrue("Is not malformed", isMalformed(node));
+		} else {
+			assertFalse("Is malformed", isMalformed(node));
+		}
 	}
 
 	protected boolean isMalformed(ASTNode node) {

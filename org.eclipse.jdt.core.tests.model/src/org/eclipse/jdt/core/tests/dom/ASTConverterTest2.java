@@ -1908,7 +1908,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		assertTrue("Is a constructor", !methodDeclaration.isConstructor());
-		checkSourceRange(methodDeclaration, "private void foo(){", source);
+		checkSourceRange(methodDeclaration, "private void foo(){", source, true/*expectMalformed*/);
 		node = getASTNode(compilationUnit, 0, 1);
 		assertNotNull("No node", node);
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -3125,7 +3125,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("Not a constructor declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration declaration = (MethodDeclaration) node;
 		assertTrue("A constructor", !declaration.isConstructor());
-		checkSourceRange(declaration, "public method(final int parameter);", source);
+		checkSourceRange(declaration, "public method(final int parameter);", source, true/*expectMalformed*/);
 	}
 
 	/**
@@ -3143,7 +3143,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("Not a constructor declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration declaration = (MethodDeclaration) node;
 		assertTrue("A constructor", !declaration.isConstructor());
-		checkSourceRange(declaration, "public method(final int parameter) {     }", source);
+		checkSourceRange(declaration, "public method(final int parameter) {     }", source, true/*expectMalformed*/);
 	}
 
 	/**
@@ -3280,7 +3280,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration declaration = (MethodDeclaration) node;
 		assertTrue("Not a constructor", declaration.isConstructor());
-		checkSourceRange(declaration, "public A();", source);
+		checkSourceRange(declaration, "public A();", source, true /*expectMalformed*/);
 	}
 
 	/**

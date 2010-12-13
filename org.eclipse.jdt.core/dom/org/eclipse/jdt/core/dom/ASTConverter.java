@@ -122,7 +122,10 @@ class ASTConverter {
 		}
 	}
 
-	protected void buildBodyDeclarations(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration, AbstractTypeDeclaration typeDecl) {
+	protected void buildBodyDeclarations(
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration,
+			AbstractTypeDeclaration typeDecl,
+			boolean isInterface) {
 		// add body declaration in the lexical order
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = typeDeclaration.memberTypes;
 		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = typeDeclaration.fields;
@@ -177,7 +180,7 @@ class ASTConverter {
 				case 1 :
 					methodsIndex++;
 					if (!nextMethodDeclaration.isDefaultConstructor() && !nextMethodDeclaration.isClinit()) {
-						typeDecl.bodyDeclarations().add(convert(nextMethodDeclaration));
+						typeDecl.bodyDeclarations().add(convert(isInterface, nextMethodDeclaration));
 					}
 					break;
 				case 2 :
@@ -249,7 +252,7 @@ class ASTConverter {
 				case 1 :
 					methodsIndex++;
 					if (!nextMethodDeclaration.isDefaultConstructor() && !nextMethodDeclaration.isClinit()) {
-						enumDeclaration.bodyDeclarations().add(convert(nextMethodDeclaration));
+						enumDeclaration.bodyDeclarations().add(convert(false, nextMethodDeclaration));
 					}
 					break;
 				case 2 :
@@ -316,7 +319,7 @@ class ASTConverter {
 				case 1 :
 					methodsIndex++;
 					if (!nextMethodDeclaration.isDefaultConstructor() && !nextMethodDeclaration.isClinit()) {
-						anonymousClassDeclaration.bodyDeclarations().add(convert(nextMethodDeclaration));
+						anonymousClassDeclaration.bodyDeclarations().add(convert(false, nextMethodDeclaration));
 					}
 					break;
 				case 2 :
@@ -415,7 +418,7 @@ class ASTConverter {
 		}
 	}
 
-	public ASTNode convert(org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration methodDeclaration) {
+	public ASTNode convert(boolean isInterface, org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration methodDeclaration) {
 		checkCanceled();
 		if (methodDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration) methodDeclaration);
@@ -457,6 +460,10 @@ class ASTConverter {
 		}
 		org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall explicitConstructorCall = null;
 		if (isConstructor) {
+			if (isInterface) {
+				// interface cannot have a constructor
+				methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
+			}
 			org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration constructorDeclaration = (org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration) methodDeclaration;
 			explicitConstructorCall = constructorDeclaration.constructorCall;
 			switch(this.ast.apiLevel) {
@@ -481,19 +488,20 @@ class ASTConverter {
 				methodDecl.setExtraDimensions(extraDimensions);
 				setTypeForMethodDeclaration(methodDecl, returnType, extraDimensions);
 			} else {
+				// no return type for a method that is not a constructor
+				methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
 				switch(this.ast.apiLevel) {
-					case AST.JLS2_INTERNAL :
-						methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
-						break;
 					case AST.JLS3 :
 						methodDecl.setReturnType2(null);
 				}
 			}
 		}
 		int declarationSourceStart = methodDeclaration.declarationSourceStart;
-		int declarationSourceEnd = methodDeclaration.bodyEnd;
-		methodDecl.setSourceRange(declarationSourceStart, declarationSourceEnd - declarationSourceStart + 1);
-		int closingPosition = retrieveRightBraceOrSemiColonPosition(methodDeclaration.bodyEnd + 1, methodDeclaration.declarationSourceEnd);
+		int bodyEnd = methodDeclaration.bodyEnd;
+		methodDecl.setSourceRange(declarationSourceStart, bodyEnd - declarationSourceStart + 1);
+		int declarationSourceEnd = methodDeclaration.declarationSourceEnd;
+		int rightBraceOrSemiColonPositionStart = bodyEnd == declarationSourceEnd ? bodyEnd : bodyEnd + 1;
+		int closingPosition = retrieveRightBraceOrSemiColonPosition(rightBraceOrSemiColonPositionStart, declarationSourceEnd);
 		if (closingPosition != -1) {
 			int startPosition = methodDecl.getStartPosition();
 			methodDecl.setSourceRange(startPosition, closingPosition - startPosition + 1);
@@ -502,7 +510,7 @@ class ASTConverter {
 
 			start = retrieveStartBlockPosition(methodHeaderEnd, methodDeclaration.bodyStart);
 			if (start == -1) start = methodDeclaration.bodyStart; // use recovery position for body start
-			end = retrieveRightBrace(methodDeclaration.bodyEnd, methodDeclaration.declarationSourceEnd);
+			end = retrieveRightBrace(methodDeclaration.bodyEnd, declarationSourceEnd);
 			Block block = null;
 			if (start != -1 && end != -1) {
 				/*
@@ -528,14 +536,17 @@ class ASTConverter {
 					}
 				}
 			}
-			if (block != null && (Modifier.isAbstract(methodDecl.getModifiers()) || Modifier.isNative(methodDecl.getModifiers()))) {
+			if (block != null
+					&& (Modifier.isAbstract(methodDecl.getModifiers())
+							|| Modifier.isNative(methodDecl.getModifiers())
+							|| isInterface)) {
 				methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
 			}
 		} else {
 			// syntax error in this method declaration
 			methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
 			if (!methodDeclaration.isNative() && !methodDeclaration.isAbstract()) {
-				start = retrieveStartBlockPosition(methodHeaderEnd, declarationSourceEnd);
+				start = retrieveStartBlockPosition(methodHeaderEnd, bodyEnd);
 				if (start == -1) start = methodDeclaration.bodyStart; // use recovery position for body start
 				end = methodDeclaration.bodyEnd;
 				// try to get the best end position
@@ -708,7 +719,7 @@ class ASTConverter {
 		typeDecl.setName(typeName);
 		typeDecl.setSourceRange(typeDeclaration.declarationSourceStart, typeDeclaration.bodyEnd - typeDeclaration.declarationSourceStart + 1);
 
-		buildBodyDeclarations(typeDeclaration, typeDecl);
+		buildBodyDeclarations(typeDeclaration, typeDecl, false);
 		// The javadoc comment is now got from list store in compilation unit declaration
 		if (this.resolveBindings) {
 			recordNodes(typeDecl, typeDeclaration);
@@ -970,7 +981,7 @@ class ASTConverter {
 			} else if(node instanceof org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration) {
 				AbstractMethodDeclaration nextMethodDeclaration = (AbstractMethodDeclaration) node;
 				if (!nextMethodDeclaration.isDefaultConstructor() && !nextMethodDeclaration.isClinit()) {
-					typeDecl.bodyDeclarations().add(convert(nextMethodDeclaration));
+					typeDecl.bodyDeclarations().add(convert(false, nextMethodDeclaration));
 				}
 			} else if(node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration nextMemberDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
@@ -2662,7 +2673,8 @@ class ASTConverter {
 		if (typeDeclaration.modifiersSourceStart != -1) {
 			setModifiers(typeDecl, typeDeclaration);
 		}
-		typeDecl.setInterface(kind == org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.INTERFACE_DECL);
+		boolean isInterface = kind == org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.INTERFACE_DECL;
+		typeDecl.setInterface(isInterface);
 		final SimpleName typeName = new SimpleName(this.ast);
 		typeName.internalSetIdentifier(new String(typeDeclaration.name));
 		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
@@ -2708,7 +2720,7 @@ class ASTConverter {
 					}
 			}
 		}
-		buildBodyDeclarations(typeDeclaration, typeDecl);
+		buildBodyDeclarations(typeDeclaration, typeDecl, isInterface);
 		if (this.resolveBindings) {
 			recordNodes(typeDecl, typeDeclaration);
 			recordNodes(typeName, typeDeclaration);

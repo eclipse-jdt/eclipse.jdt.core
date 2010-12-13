@@ -122,7 +122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 713, -1 };
-//		TESTS_NUMBERS =  new int[] { 719 };
+//		TESTS_NUMBERS =  new int[] { 504, 505, 512, 720 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -1988,7 +1988,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		assertTrue("Is a constructor", !methodDeclaration.isConstructor());
-		checkSourceRange(methodDeclaration, "private void foo(){", source);
+		checkSourceRange(methodDeclaration, "private void foo(){", source, true/*expectMalformed*/);
 		node = getASTNode(compilationUnit, 0, 1);
 		assertNotNull("No node", node);
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -3203,7 +3203,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertTrue("Not a constructor declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration declaration = (MethodDeclaration) node;
 		assertTrue("A constructor", !declaration.isConstructor());
-		checkSourceRange(declaration, "public method(final int parameter);", source);
+		checkSourceRange(declaration, "public method(final int parameter);", source, true/*expectMalformed*/);
 	}
 
 	/**
@@ -3221,7 +3221,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertTrue("Not a constructor declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration declaration = (MethodDeclaration) node;
 		assertTrue("A constructor", !declaration.isConstructor());
-		checkSourceRange(declaration, "public method(final int parameter) {     }", source);
+		checkSourceRange(declaration, "public method(final int parameter) {     }", source, true/*expectMalformed*/);
 	}
 
 	/**
@@ -3358,7 +3358,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration declaration = (MethodDeclaration) node;
 		assertTrue("Not a constructor", declaration.isConstructor());
-		checkSourceRange(declaration, "public A();", source);
+		checkSourceRange(declaration, "public A();", source, true/*expectMalformed*/);
 	}
 
 	/**
@@ -5493,7 +5493,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			node = getASTNode(compilationUnit, 0, 0);
 			assertEquals("wrong type", ASTNode.FIELD_DECLARATION, node.getNodeType());
 			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-			checkSourceRange(fieldDeclaration, "d String[][]", source.toCharArray());
+			checkSourceRange(fieldDeclaration, "d String[][]", source.toCharArray(), true/*expectMalformed*/);
 			Type type = fieldDeclaration.getType();
 			assertTrue("Not a simple type", type.isSimpleType());
 			List fragments = fieldDeclaration.fragments();
@@ -7243,7 +7243,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		List fragments = fieldDeclaration.fragments();
 		assertEquals("wrong size", 1, fragments.size());
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
-		checkSourceRange(fragment, "s =  {\"\",,,", source);
+		checkSourceRange(fragment, "s =  {\"\",,,", source, true/*expectMalformed*/);
 		assertTrue("Not initializer", fragment.getInitializer() == null);
 		assertTrue("Not a malformed node", isMalformed(fragment));
 	}
@@ -10555,5 +10555,22 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 			}
 		}
+	}
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=47396
+	 */
+	public void test0720() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0720", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+		ASTNode node = getASTNode(unit, 1, 0);
+		assertNotNull(node);
+		assertTrue("Not a constructor declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration declaration = (MethodDeclaration) node;
+		assertTrue("A constructor", !declaration.isConstructor());
+		checkSourceRange(declaration, "public void method(final int parameter) {     }", source, true/*expectMalformed*/);
 	}
 }

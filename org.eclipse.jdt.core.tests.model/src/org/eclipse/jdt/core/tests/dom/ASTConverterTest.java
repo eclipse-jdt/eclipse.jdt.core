@@ -35,7 +35,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 305 };
+//		TESTS_NUMBERS = new int[] { 339 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTest.class);
@@ -7116,7 +7116,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 				"public void fails() {\n" + //$NON-NLS-1$
 				"		foo()\n" + //$NON-NLS-1$
 				"	}"; //$NON-NLS-1$
-		checkSourceRange(methodDeclaration, expectedSource, source);
+		checkSourceRange(methodDeclaration, expectedSource, source, true/*expectMalformed*/);
 		Block block = methodDeclaration.getBody();
 		expectedSource =
 				"{\n" + //$NON-NLS-1$
@@ -7171,7 +7171,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 				"public void fails() {\n" + //$NON-NLS-1$
 				"		foo()\n" + //$NON-NLS-1$
 				"	}"; //$NON-NLS-1$
-		checkSourceRange(methodDeclaration, expectedSource, source);
+		checkSourceRange(methodDeclaration, expectedSource, source, true/*expectMalformed*/);
 		Block block = methodDeclaration.getBody();
 		expectedSource =
 				"{\n" + //$NON-NLS-1$
@@ -8350,7 +8350,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 			"		z\n" +  //$NON-NLS-1$
 			"	}\n" +  //$NON-NLS-1$
 			"}"; //$NON-NLS-1$
-		checkSourceRange(node, expectedSource, source);
+		checkSourceRange(node, expectedSource, source, true /*expectMalformed*/);
 		int methodEndPosition = node.getStartPosition() + node.getLength();
 		node = getASTNode(compilationUnit, 0);
 		assertNotNull("not null", node); //$NON-NLS-1$
