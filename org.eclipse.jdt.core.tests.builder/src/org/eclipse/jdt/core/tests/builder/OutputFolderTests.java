@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -117,7 +117,7 @@ public class OutputFolderTests extends BuilderTests {
 		// simulate exit/restart
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		JavaProject project = (JavaProject)manager.getJavaModel().getJavaProject("P"); //$NON-NLS-1$
-		manager.removePerProjectInfo(project);
+		manager.removePerProjectInfo(project, true /* remove external jar files indexes and timestamps*/);
 
 		// change cu and build
 		IPath cuPath = env.addClass(projectPath, "src", "A", //$NON-NLS-1$ //$NON-NLS-2$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,7 +52,7 @@ public void testDeadlock01() throws CoreException {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		manager.previousSessionContainers = new HashMap(5);
 		manager.containers = new HashMap(5);
-		manager.removePerProjectInfo((JavaProject)project);
+		manager.removePerProjectInfo((JavaProject)project, true /* remove external jar files indexes and timestamps*/);
 
 		// use a thread to hold the lock, so as to recreate potential deadlock situation
 		final Semaphore step1 = new Semaphore("<1:permission to populate JavaModel inducing containers inits>", 0); // first acquisition will wait
