@@ -302,7 +302,7 @@ public class SearchEngine {
 	 *   if {@link IJavaSearchScope#APPLICATION_LIBRARIES} is specified</li>
 	 * <li>its system libraries (internal and external jars, class folders that are coming from an
 	 *   IClasspathContainer with the K_SYSTEM kind)
-	 *   if {@link IJavaSearchScope#APPLICATION_LIBRARIES} is specified</li>
+	 *   if {@link IJavaSearchScope#SYSTEM_LIBRARIES} is specified</li>
 	 * <li>its referenced projects (with their source folders and jars, recursively)
 	 *   if {@link IJavaSearchScope#REFERENCED_PROJECTS} is specified.</li>
 	 * </ul>
