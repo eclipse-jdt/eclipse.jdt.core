@@ -7,7 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bugs 325755, 320170 and 292478   
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for 
+ *     						bugs 325755, 320170, 292478 and 332637   
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -87,16 +88,25 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	public int[] nullStatusChangedInAssert; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
 
 public FlowInfo addInitializationsFrom(FlowInfo inits) {
+	return addInfoFrom(inits, true);
+}
+public FlowInfo addNullInfoFrom(FlowInfo inits) {
+	return addInfoFrom(inits, false);
+}
+private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 	if (this == DEAD_END)
 		return this;
 	if (inits == DEAD_END)
 		return this;
 	UnconditionalFlowInfo otherInits = inits.unconditionalInits();
 
-	// union of definitely assigned variables,
-	this.definiteInits |= otherInits.definiteInits;
-	// union of potentially set ones
-	this.potentialInits |= otherInits.potentialInits;
+	if (handleInits) {
+		// union of definitely assigned variables,
+		this.definiteInits |= otherInits.definiteInits;
+		// union of potentially set ones
+		this.potentialInits |= otherInits.potentialInits;
+	}
+	
 	// combine null information
 	boolean thisHadNulls = (this.tagBits & NULL_FLAG_MASK) != 0,
 		otherHasNulls = (otherInits.tagBits & NULL_FLAG_MASK) != 0;
@@ -218,14 +228,17 @@ public FlowInfo addInitializationsFrom(FlowInfo inits) {
 			}
 		}
 		int i;
-		// manage definite assignment info
-		for (i = 0; i < mergeLimit; i++) {
-			this.extra[0][i] |= otherInits.extra[0][i];
-			this.extra[1][i] |= otherInits.extra[1][i];
-		}
-		for (; i < copyLimit; i++) {
-			this.extra[0][i] = otherInits.extra[0][i];
-			this.extra[1][i] = otherInits.extra[1][i];
+		if (handleInits) {
+			// manage definite assignment info
+			for (i = 0; i < mergeLimit; i++) {
+				this.extra[0][i] |= otherInits.extra[0][i];
+				this.extra[1][i] |= otherInits.extra[1][i];
+			}
+			for (; i < copyLimit; i++) {
+				this.extra[0][i] = otherInits.extra[0][i];
+				this.extra[1][i] = otherInits.extra[1][i];
+			
+			}
 		}
 		// tweak limits for nulls
 		if (!thisHadNulls) {
