@@ -245,16 +245,16 @@ public class SearchEngine {
 	 * The Java elements resulting from a search with this scope will
 	 * be children of the given elements.
 	 * <p>
-	 * If an element is an IJavaProject, then the project's source folders,
+	 * If an element is an {@link IJavaProject}, then the project's source folders,
 	 * its jars (external and internal) and its referenced projects (with their source
-	 * folders and jars, recursively) will be included.
-	 * If an element is an IPackageFragmentRoot, then only the package fragments of
-	 * this package fragment root will be included.
-	 * If an element is an IPackageFragment, then only the compilation unit and class
+	 * folders and jars, recursively) will be included.</p>
+	 * <p>If an element is an {@link IPackageFragmentRoot}, then only the package fragments of
+	 * this package fragment root will be included.</p>
+	 * <p>If an element is an {@link IPackageFragment}, then only the compilation unit and class
 	 * files of this package fragment will be included. Subpackages will NOT be
 	 * included.</p>
-	 * <p>
-	 * In other words, this is equivalent to using SearchEngine.createJavaSearchScope(elements, true).</p>
+	 *
+	 * <p>In other words, this is equivalent to using SearchEngine.createJavaSearchScope(elements, true).</p>
 	 *
 	 * @param elements the Java elements the scope is limited to
 	 * @return a new Java search scope
@@ -269,14 +269,14 @@ public class SearchEngine {
 	 * The Java elements resulting from a search with this scope will
 	 * be children of the given elements.
 	 *
-	 * If an element is an IJavaProject, then the project's source folders,
+	 * <p>If an element is an {@link IJavaProject}, then the project's source folders,
 	 * its jars (external and internal) and - if specified - its referenced projects
-	 * (with their source folders and jars, recursively) will be included.
-	 * If an element is an IPackageFragmentRoot, then only the package fragments of
-	 * this package fragment root will be included.
-	 * If an element is an IPackageFragment, then only the compilation unit and class
+	 * (with their source folders and jars, recursively) will be included.</p>
+	 * <p>If an element is an {@link IPackageFragmentRoot}, then only the package fragments of
+	 * this package fragment root will be included.</p>
+	 * <p>If an element is an {@link IPackageFragment}, then only the compilation unit and class
 	 * files of this package fragment will be included. Subpackages will NOT be
-	 * included.
+	 * included.</p>
 	 *
 	 * @param elements the Java elements the scope is limited to
 	 * @param includeReferencedProjects a flag indicating if referenced projects must be
@@ -293,22 +293,24 @@ public class SearchEngine {
 	 * The Java elements resulting from a search with this scope will
 	 * be children of the given elements.
 	 *
-	 * If an element is an IJavaProject, then it includes:
-	 * - its source folders if IJavaSearchScope.SOURCES is specified,
-	 * - its application libraries (internal and external jars, class folders that are on the raw classpath,
+	 * <p>If an element is an IJavaProject, then it includes:</p>
+	 * <ul>
+	 * <li>its source folders if {@link IJavaSearchScope#SOURCES} is specified,</li>
+	 * <li>its application libraries (internal and external jars, class folders that are on the raw classpath,
 	 *   or the ones that are coming from a classpath path variable,
 	 *   or the ones that are coming from a classpath container with the K_APPLICATION kind)
-	 *   if IJavaSearchScope.APPLICATION_LIBRARIES is specified
-	 * - its system libraries (internal and external jars, class folders that are coming from an
+	 *   if {@link IJavaSearchScope#APPLICATION_LIBRARIES} is specified</li>
+	 * <li>its system libraries (internal and external jars, class folders that are coming from an
 	 *   IClasspathContainer with the K_SYSTEM kind)
-	 *   if IJavaSearchScope.APPLICATION_LIBRARIES is specified
-	 * - its referenced projects (with their source folders and jars, recursively)
-	 *   if IJavaSearchScope.REFERENCED_PROJECTS is specified.
-	 * If an element is an IPackageFragmentRoot, then only the package fragments of
-	 * this package fragment root will be included.
-	 * If an element is an IPackageFragment, then only the compilation unit and class
+	 *   if {@link IJavaSearchScope#APPLICATION_LIBRARIES} is specified</li>
+	 * <li>its referenced projects (with their source folders and jars, recursively)
+	 *   if {@link IJavaSearchScope#REFERENCED_PROJECTS} is specified.</li>
+	 * </ul>
+	 * <p>If an element is an {@link IPackageFragmentRoot}, then only the package fragments of
+	 * this package fragment root will be included.</p>
+	 * <p>If an element is an {@link IPackageFragment}, then only the compilation unit and class
 	 * files of this package fragment will be included. Subpackages will NOT be
-	 * included.
+	 * included.</p>
 	 *
 	 * @param elements the Java elements the scope is limited to
 	 * @param includeMask the bit-wise OR of all include types of interest
