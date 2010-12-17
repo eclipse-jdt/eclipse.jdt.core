@@ -134,6 +134,8 @@ public class CompilerOptions {
 	public static final String OPTION_ReportTasks = "org.eclipse.jdt.core.compiler.problem.tasks"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedObjectAllocation = "org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation";  //$NON-NLS-1$
 	public static final String OPTION_IncludeNullInfoFromAsserts = "org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts";  //$NON-NLS-1$
+	public static final String OPTION_ReportMethodCanBeStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic";  //$NON-NLS-1$
+	public static final String OPTION_ReportMethodCanBePotentiallyStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic";  //$NON-NLS-1$
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingAnnotation = "org.eclipse.jdt.core.compiler.problem.missingAnnotation"; //$NON-NLS-1$
@@ -239,6 +241,8 @@ public class CompilerOptions {
 	public static final int DeadCode = IrritantSet.GROUP2 | ASTNode.Bit2;
 	public static final int Tasks = IrritantSet.GROUP2 | ASTNode.Bit3;
 	public static final int UnusedObjectAllocation = IrritantSet.GROUP2 | ASTNode.Bit4;
+	public static final int MethodCanBeStatic = IrritantSet.GROUP2 | ASTNode.Bit5;
+	public static final int MethodCanBePotentiallyStatic = IrritantSet.GROUP2 | ASTNode.Bit6;
 
 	// Severity level for handlers
 	/** 
@@ -378,6 +382,7 @@ public class CompilerOptions {
 		"rawtypes", //$NON-NLS-1$
 		"serial", //$NON-NLS-1$
 		"static-access", //$NON-NLS-1$
+		"static-method", //$NON-NLS-1$
 		"super", //$NON-NLS-1$
 		"synthetic-access", //$NON-NLS-1$
 		"unchecked", //$NON-NLS-1$
@@ -542,6 +547,10 @@ public class CompilerOptions {
 				return OPTION_ReportDeadCode;
 			case UnusedObjectAllocation:
 				return OPTION_ReportUnusedObjectAllocation;
+			case MethodCanBeStatic :
+				return OPTION_ReportMethodCanBeStatic;
+			case MethodCanBePotentiallyStatic :
+				return OPTION_ReportMethodCanBePotentiallyStatic;
 		}
 		return null;
 	}
@@ -641,6 +650,8 @@ public class CompilerOptions {
 			OPTION_ReportInvalidJavadoc,
 			OPTION_ReportLocalVariableHiding,
 			OPTION_ReportMethodWithConstructorName,
+			OPTION_ReportMethodCanBeStatic,
+			OPTION_ReportMethodCanBePotentiallyStatic,
 			OPTION_ReportMissingDeprecatedAnnotation,
 			OPTION_ReportMissingJavadocComments,
 			OPTION_ReportMissingJavadocTagDescription,
@@ -742,6 +753,9 @@ public class CompilerOptions {
 				return "fallthrough"; //$NON-NLS-1$
 			case OverridingMethodWithoutSuperInvocation :
 				return "super"; //$NON-NLS-1$
+			case MethodCanBeStatic :
+			case MethodCanBePotentiallyStatic :
+				return "static-method"; //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -799,6 +813,8 @@ public class CompilerOptions {
 					return IrritantSet.SERIAL;
 				if ("static-access".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.STATIC_ACCESS;
+				if ("static-method".equals(warningToken)) //$NON-NLS-1$
+					return IrritantSet.STATIC_METHOD;
 				if ("synthetic-access".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.SYNTHETIC_ACCESS;
 				if ("super".equals(warningToken)) { //$NON-NLS-1$
@@ -925,6 +941,8 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportTasks, getSeverityString(Tasks));
 		optionsMap.put(OPTION_ReportUnusedObjectAllocation, getSeverityString(UnusedObjectAllocation));
 		optionsMap.put(OPTION_IncludeNullInfoFromAsserts, this.includeNullInfoFromAsserts ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportMethodCanBeStatic, getSeverityString(MethodCanBeStatic));
+		optionsMap.put(OPTION_ReportMethodCanBePotentiallyStatic, getSeverityString(MethodCanBePotentiallyStatic));
 		return optionsMap;
 	}
 
@@ -1352,6 +1370,8 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportDeadCode)) != null) updateSeverity(DeadCode, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportTasks)) != null) updateSeverity(Tasks, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedObjectAllocation)) != null) updateSeverity(UnusedObjectAllocation, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportMethodCanBeStatic)) != null) updateSeverity(MethodCanBeStatic, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportMethodCanBePotentiallyStatic)) != null) updateSeverity(MethodCanBePotentiallyStatic, optionValue);
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -1565,6 +1585,8 @@ public class CompilerOptions {
 		buf.append("\n\t- dead code in trivial if statement: ").append(this.reportDeadCodeInTrivialIfStatement ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- tasks severity: ").append(getSeverityString(Tasks)); //$NON-NLS-1$
 		buf.append("\n\t- unused object allocation: ").append(getSeverityString(UnusedObjectAllocation)); //$NON-NLS-1$
+		buf.append("\n\t- method can be static: ").append(getSeverityString(MethodCanBeStatic)); //$NON-NLS-1$
+		buf.append("\n\t- method can be potentially static: ").append(getSeverityString(MethodCanBePotentiallyStatic)); //$NON-NLS-1$
 		return buf.toString();
 	}
 	

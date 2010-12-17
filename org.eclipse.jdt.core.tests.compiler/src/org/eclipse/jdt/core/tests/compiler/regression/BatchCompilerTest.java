@@ -48,7 +48,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 	private static final Main MAIN = new Main(null/*outWriter*/, null/*errWriter*/, false/*systemExit*/, null/*options*/, null/*progress*/);
 
 	static {
-//		TESTS_NAMES = new String[] { "test292_warn_options" };
+//		TESTS_NAMES = new String[] { "test295_warn_options" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -1663,6 +1663,7 @@ public void test012b(){
         "      allDeprecation       deprecation including inside deprecated code\n" + 
         "      allJavadoc           invalid or missing javadoc\n" + 
         "      allOver-ann          all missing @Override annotations\n" + 
+        "      all-static-method    all method can be declared as static warnings\n" +
         "      assertIdentifier   + ''assert'' used as identifier\n" + 
         "      boxing               autoboxing conversion\n" + 
         "      charConcat         + char[] in String concat\n" + 
@@ -1705,6 +1706,7 @@ public void test012b(){
         "      semicolon            unnecessary semicolon, empty statement\n" + 
         "      serial             + missing serialVersionUID\n" + 
         "      specialParamHiding   constructor or setter parameter hiding a field\n" + 
+        "      static-method        method can be declared as static\n" + 
         "      static-access        macro for indirectStatic and staticReceiver\n" + 
         "      staticReceiver     + non-static reference to static member\n" + 
         "      super                overriding a method without making a super invocation\n" + 
@@ -1857,6 +1859,8 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantNullCheck\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantSuperinterface\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.specialParameterHidingField\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors\" value=\"disabled\"/>\n" + 
@@ -11196,6 +11200,126 @@ public void test293_warn_options() {
 		"4 problems (4 warnings)", 
 		true);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// -warn option - regression test to check option static-method
+// Method can be static warning should be given
+public void test294_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static int field1;\n" +
+			"	public static int field2;\n" + 
+			"	public void bar(int i) {\n" + 
+			"		System.out.println(foo());\n" +
+			"		foo();" +
+			"		System.out.println(X.field1);\n" +
+			"		System.out.println(field2);\n" +
+			"		field2 = 1;\n" +
+			"	}\n" + 
+			"	private static String foo() {\n" + 
+			"		return null;\n" + 
+			"	}\n" +
+			"	private void foo1() {\n" +
+			"		System.out.println();\n" +
+			"	}\n" +
+			"	public final void foo2() {\n" +
+			"		System.out.println();\n" +
+			"	}\n" + 
+			"}\n" +
+			"final class A {" +
+			"	public void foo() {\n" +
+			"		System.out.println();\n" +
+			"	}\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:static-method -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" + 
+		"	private void foo1() {\n" + 
+		"	             ^^^^^^\n" + 
+		"The method foo1() from the type X can be declared as static\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 16)\n" + 
+		"	public final void foo2() {\n" + 
+		"	                  ^^^^^^\n" + 
+		"The method foo2() from the type X can be declared as static\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 20)\n" + 
+		"	final class A {	public void foo() {\n" + 
+		"	               	            ^^^^^\n" + 
+		"The method foo() from the type A can be declared as static\n" + 
+		"----------\n" + 
+		"3 problems (3 warnings)", 
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// -warn option - regression test to check option all-static-method
+// Method can be static warning should be given
+public void test295_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static int field1;\n" +
+			"	public static int field2;\n" + 
+			"	public void bar(int i) {\n" + 
+			"		System.out.println(foo());\n" +
+			"		foo();" +
+			"		System.out.println(X.field1);\n" +
+			"		System.out.println(field2);\n" +
+			"		field2 = 1;\n" +
+			"	}\n" + 
+			"	private static String foo() {\n" + 
+			"		return null;\n" + 
+			"	}\n" +
+			"	private void foo1() {\n" +
+			"		System.out.println();\n" +
+			"	}\n" +
+			"	public final void foo2() {\n" +
+			"		System.out.println();\n" +
+			"	}\n" + 
+			"}\n" +
+			"final class A {" +
+			"	public void foo() {\n" +
+			"		System.out.println();\n" +
+			"	}\n" + 
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:all-static-method -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	public void bar(int i) {\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"The method bar(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" + 
+		"	private void foo1() {\n" + 
+		"	             ^^^^^^\n" + 
+		"The method foo1() from the type X can be declared as static\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 16)\n" + 
+		"	public final void foo2() {\n" + 
+		"	                  ^^^^^^\n" + 
+		"The method foo2() from the type X can be declared as static\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 20)\n" + 
+		"	final class A {	public void foo() {\n" + 
+		"	               	            ^^^^^\n" + 
+		"The method foo() from the type A can be declared as static\n" + 
+		"----------\n" + 
+		"4 problems (4 warnings)", 
+		true);
+}
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
 public void test293(){
 	createCascadedJars();

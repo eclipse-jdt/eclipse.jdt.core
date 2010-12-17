@@ -50,6 +50,44 @@ Eclipse SDK 3.7M5 - %date% - 3.7.0 M5
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B30">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_PB_MISSING_STATIC_ON_METHOD added to raise warning or error for a method
+    which qualifies to be declared as <code>static</code>, but not been declared as one.(see details in bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=322581">318682</a>):
+<pre>
+	/**
+	 * Compiler option ID: Reporting a method that qualifies as static, but not declared static.
+	 * When enabled, the compiler will issue an error or a warning if a method has
+	 * not been declared as <code>static</code>, even though it qualifies as one.
+	 * 
+	 * Option id:<code>"org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic"</code>
+	 * Possible values:<code>{ "error", "warning", "ignore" }</code>
+	 * Default:<code>"ignore"</code>
+	 * 
+	 * @since 3.7
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_MISSING_STATIC_ON_METHOD = PLUGIN_ID + ".compiler.problem.reportMethodCanBeStatic";
+	</pre>
+</li>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_PB_POTENTIALLY_MISSING_STATIC_ON_METHOD added to raise warning or error for a method
+    which may qualify to be declared as <code>static</code> when another method doesn't override it,
+    but not been declared as one.(see details in bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=322581">318682</a>):
+<pre>
+	/**
+	 * Compiler option ID: Reporting a method that may qualify as static, but not declared static.
+	 * When enabled, the compiler will issue an error or a warning if a method has
+	 * not been declared as <code>static</code>, even though it may qualify as one,
+	 * when another method doesn't override it.
+	 * 
+	 * Option id:<code>"org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic"</code>
+	 * Possible values:<code>{ "error", "warning", "ignore" }</code>
+	 * Default:<code>"ignore"</code>
+	 * 
+	 * @since 3.7
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_POTENTIALLY_MISSING_STATIC_ON_METHOD = PLUGIN_ID + ".compiler.problem.reportMethodCanBePotentiallyStatic";
+</pre>
+</li>
 <li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_PB_UNAVOIDABLE_GENERIC_TYPE_PROBLEMS added to give the user control over whether forced and unavoidable generic type problems should be reported by the compiler or not (see details in <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817">bug 322817</a>):
 <pre>
 	/**
@@ -72,7 +110,9 @@ Eclipse SDK 3.7M5 - %date% - 3.7.0 M5
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817">322817</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682">318682</a>
+Enhancement request: Warning if no fields are used and the method is still not static
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817">322817</a>
 Compiler option to ignore unavoidable type safety problems due to raw APIs
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=332451">332451</a>
 Javadoc cleanup in SearchEngine#createJavaSearchScope(IJavaElement[], int)

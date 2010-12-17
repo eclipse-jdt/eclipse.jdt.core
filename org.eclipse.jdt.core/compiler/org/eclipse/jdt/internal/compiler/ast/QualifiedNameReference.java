@@ -81,6 +81,9 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 					currentScope.problemReporter().uninitializedBlankFinalField(lastFieldBinding, this);
 				}
 			}
+			if (!lastFieldBinding.isStatic()) {
+				currentScope.resetEnclosingMethodStaticFlag();
+			}
 			break;
 		case Binding.LOCAL :
 			// first binding is a local variable
@@ -176,8 +179,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (needValue || complyTo14) {
 				manageSyntheticAccessIfNecessary(currentScope, (FieldBinding) this.binding, 0, flowInfo);
 			}
+			FieldBinding fieldBinding = (FieldBinding) this.binding;
 			if (this.indexOfFirstFieldBinding == 1) { // was an implicit reference to the first field binding
-				FieldBinding fieldBinding = (FieldBinding) this.binding;
 				// check if reading a final blank field
 				if (fieldBinding.isBlankFinal()
 						&& currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
@@ -186,6 +189,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 						currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 					}
 				}
+			}
+			if (!fieldBinding.isStatic()) {
+				currentScope.resetEnclosingMethodStaticFlag();
 			}
 			break;
 		case Binding.LOCAL : // reading a local variable

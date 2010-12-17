@@ -1330,6 +1330,33 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_PARAMETER_ASSIGNMENT = PLUGIN_ID + ".compiler.problem.parameterAssignment"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Reporting a method that qualifies as static, but not declared static.
+	 * <p>When enabled, the compiler will issue an error or a warning if a method has
+	 *    not been declared as <code>static</code>, even though it qualifies as one.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
+	 * </dl>
+	 * @since 3.7
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_MISSING_STATIC_ON_METHOD = PLUGIN_ID + ".compiler.problem.reportMethodCanBeStatic"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Reporting a method that may qualify as static, but not declared static.
+	 * <p>When enabled, the compiler will issue an error or a warning if a method has
+	 *    not been declared as <code>static</code>, even though it may qualify as one,
+	 *    when another method doesn't override it.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
+	 * </dl>
+	 * @since 3.7
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_POTENTIALLY_MISSING_STATIC_ON_METHOD = PLUGIN_ID + ".compiler.problem.reportMethodCanBePotentiallyStatic"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Setting Source Compatibility Mode.
 	 * <p>Specify whether which source level compatibility is used. From 1.4 on, <code>'assert'</code> is a keyword
 	 *    reserved for assertion support. Also note, than when toggling to 1.4 mode, the target VM

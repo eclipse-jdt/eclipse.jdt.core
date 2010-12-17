@@ -63,13 +63,17 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 	if (isCompound) { // check the variable part is initialized if blank final
 		switch (this.bits & ASTNode.RestrictiveFlagMASK) {
 			case Binding.FIELD : // reading a field
-				FieldBinding fieldBinding;
-				if ((fieldBinding = (FieldBinding) this.binding).isBlankFinal()
+				FieldBinding fieldBinding = (FieldBinding) this.binding;
+				if (fieldBinding.isBlankFinal()
 						&& currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
 					FlowInfo fieldInits = flowContext.getInitsForFinalBlankInitializationCheck(fieldBinding.declaringClass.original(), flowInfo);
 					if (!fieldInits.isDefinitelyAssigned(fieldBinding)) {
 						currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 					}
+				}
+				if (!fieldBinding.isStatic()) {
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+					currentScope.resetEnclosingMethodStaticFlag();
 				}
 				manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 				break;
@@ -114,6 +118,10 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 				} else {
 					currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this);
 				}
+			}
+			if (!fieldBinding.isStatic()) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+				currentScope.resetEnclosingMethodStaticFlag();
 			}
 			break;
 		case Binding.LOCAL : // assigning to a local variable
@@ -163,6 +171,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				if (!fieldInits.isDefinitelyAssigned(fieldBinding)) {
 					currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 				}
+			}
+			if (!fieldBinding.isStatic()) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+				currentScope.resetEnclosingMethodStaticFlag();
 			}
 			break;
 		case Binding.LOCAL : // reading a local variable

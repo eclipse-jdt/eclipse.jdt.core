@@ -30,7 +30,7 @@ public ProblemTypeAndMethodTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test127" };
+//		TESTS_NAMES = new String[] { "test123" };
 //		TESTS_NUMBERS = new int[] { 113 };
 //		TESTS_RANGE = new int[] { 108, -1 };
 }
@@ -5891,5 +5891,746 @@ public void test113() {
 		null,
 		false,
 		null);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// QualifiedNameReference, SingleNameReference and MessageSend
+// Can be static warning shown
+public void test114() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"public class X {\n" +
+			"	public static int field1;\n" +
+			"	public static int field2;\n" + 
+			"	public void bar(int i) {\n" + 
+			"		System.out.println(foo());\n" +
+			"		foo();" +
+			"		System.out.println(X.field1);\n" +
+			"		System.out.println(field2);\n" +
+			"		field2 = 1;\n" +
+			"	}\n" + 
+			"	public final void bar2(int i) {\n" + 
+			"		System.out.println(foo());\n" +
+			"		foo();" +
+			"		System.out.println(X.field1);\n" +
+			"		System.out.println(field2);\n" +
+			"		field2 = 1;\n" +
+			"	}\n" +
+			"	private void bar3(int i) {\n" + 
+			"		System.out.println(foo());\n" +
+			"		foo();" +
+			"		System.out.println(X.field1);\n" +
+			"		System.out.println(field2);\n" +
+			"		field2 = 1;\n" +
+			"	}\n" +
+			"	private static String foo() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	public void bar(int i) {\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"The method bar(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	public final void bar2(int i) {\n" + 
+		"	                  ^^^^^^^^^^^\n" + 
+		"The method bar2(int) from the type X can be declared as static\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 16)\n" + 
+		"	private void bar3(int i) {\n" + 
+		"	             ^^^^^^^^^^^\n" + 
+		"The method bar3(int) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 16)\n" + 
+		"	private void bar3(int i) {\n" + 
+		"	             ^^^^^^^^^^^\n" + 
+		"The method bar3(int) from the type X can be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// FieldReference and MessageSend
+// Can be static warning shown
+public void test115() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends B{\n" +
+			"	public static int field1;\n" +
+			"	public static int field2;\n" +
+			"	public void bar(int i) {\n" + 
+			"		System.out.println(foo());\n" +
+			"		X.field2 = 2;\n" +
+			"		System.out.println(field1);\n" +
+			"		A a = new A();\n" +
+			"		a.a1();\n" +
+			"	}\n" + 
+			"	private static String foo() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" +
+			"class A{\n" +
+			"	public void a1() {\n" +
+			"	}\n" +
+			"}\n" +
+			"class B{\n" +
+			"	public void b1(){\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	public void bar(int i) {\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"The method bar(int) from the type X can potentially be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// MessageSend in different ways
+public void test116a() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends B{\n" +
+			"	public static int field1;\n" +
+			"	public X xfield;\n" +
+			"	public void bar1(int i) {\n" + 
+			"		baz();\n" +
+			"	}\n" +
+			"	public void bar2(int i) {\n" + 
+			"		this.baz();\n" +
+			"	}\n" +
+			"	public void bar3(int i) {\n" + 
+			"		this.xfield.baz();\n" +
+			"	}\n" +
+			"	public void bar4(int i) {\n" + 
+			"		xfield.baz();\n" +
+			"	}\n" +
+			"	public void bar5(int i) {\n" + 
+			"		X x = new X();\n" +
+			"		x.baz();\n" +
+			"	}\n" +
+			"	public void bar6(int i) {\n" + 
+			"		A.xA.baz();\n" +
+			"	}\n" +
+			"	public void bar7(int i) {\n" + 
+			"		b1();\n" +
+			"	}\n" +
+			"	public void bar8(int i) {\n" + 
+			"		this.b1();\n" +
+			"	}\n" +
+			"	public void bar9(int i) {\n" + 
+			"		new X().b1();\n" +
+			"	}\n" +
+			"	public void baz() {\n" +
+			"	}\n" + 
+			"}\n" +
+			"class A{\n" +
+			"	public static X xA;\n" +
+			"}\n" +
+			"class B{\n" +
+			"	public void b1(){\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	public void bar5(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar5(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 20)\n" + 
+		"	public void bar6(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar6(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 29)\n" + 
+		"	public void bar9(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar9(int) from the type X can potentially be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// MessageSend in different ways, referencing a static method.
+public void test116b() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends B{\n" +
+			"	public static int field1;\n" +
+			"	public static X xfield;\n" +
+			"	public void bar1(int i) {\n" + 
+			"		baz();\n" +
+			"	}\n" +
+			"	public void bar2(int i) {\n" + 
+			"		this.baz();\n" +
+			"	}\n" +
+			"	public void bar3(int i) {\n" + 
+			"		this.xfield.baz();\n" +
+			"	}\n" +
+			"	public void bar4(int i) {\n" + 
+			"		xfield.baz();\n" +
+			"	}\n" +
+			"	public void bar5(int i) {\n" + 
+			"		X x = new X();\n" +
+			"		x.baz();\n" +
+			"	}\n" +
+			"	public void bar6(int i) {\n" + 
+			"		A.xA.baz();\n" +
+			"	}\n" +
+			"	public void bar7(int i) {\n" + 
+			"		b1();\n" +
+			"	}\n" +
+			"	public void bar8(int i) {\n" + 
+			"		this.b1();\n" +
+			"	}\n" +
+			"	public void bar9(int i) {\n" + 
+			"		new X().b1();\n" +
+			"	}\n" +
+			"	public static void baz() {\n" +
+			"	}\n" + 
+			"}\n" +
+			"class A{\n" +
+			"	public static X xA;\n" +
+			"}\n" +
+			"class B{\n" +
+			"	public static void b1(){\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	public void bar1(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar1(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	public void bar4(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar4(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 16)\n" + 
+		"	public void bar5(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar5(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 20)\n" + 
+		"	public void bar6(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar6(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 23)\n" + 
+		"	public void bar7(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar7(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 29)\n" + 
+		"	public void bar9(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar9(int) from the type X can potentially be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// Referring a field in different ways, accessing non-static field.
+public void test117a() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends B{\n" +
+			"	public int field1;\n" +
+			"	public X xfield;\n" +
+			"	public void bar1(int i) {\n" + 
+			"		field1 = 1;\n" +
+			"	}\n" +
+			"	public void bar2(int i) {\n" + 
+			"		this.field1 = 1;\n" +
+			"	}\n" +
+			"	public void bar3(int i) {\n" + 
+			"		System.out.println(field1);\n" +
+			"	}\n" +
+			"	public void bar4(int i) {\n" + 
+			"		System.out.println(this.field1);\n" +
+			"	}\n" +
+			"	public void bar5(int i) {\n" + 
+			"		X x = new X();\n" +
+			"		x.field1 = 1;\n" +
+			"	}\n" +
+			"	public void bar6(int i) {\n" + 
+			"		A.xA.field1 = 1;\n" +
+			"	}\n" +
+			"	public void bar7(int i) {\n" + 
+			"		b1 = 1;\n" +
+			"	}\n" +
+			"	public void bar8(int i) {\n" + 
+			"		this.b1 = 1;\n" +
+			"	}\n" +
+			"	public void bar9(int i) {\n" + 
+			"		new X().b1 = 1;\n" +
+			"	}\n" +
+			"	public void bar10(int i) {\n" + 
+			"		this.xfield.field1 = 1;\n" +
+			"	}\n" +
+			"	public void bar11(int i) {\n" + 
+			"		System.out.println(this.xfield.field1);\n" +
+			"	}\n" +
+			"	public void bar12(int i) {\n" + 
+			"		System.out.println(new X().b1);\n" +
+			"	}\n" +
+			"	public void bar13(int i) {\n" + 
+			"		System.out.println(b1);\n" +
+			"	}\n" +
+			"	public void bar14(int i) {\n" + 
+			"		System.out.println(this.b1);\n" +
+			"	}\n" +
+			"	public void bar15(int i) {\n" + 
+			"		xfield.field1 = 1;\n" +
+			"	}\n" +
+			"	public void bar16(int i) {\n" + 
+			"		System.out.println(xfield.field1);\n" +
+			"	}\n" +
+			"	public void baz() {\n" +
+			"	}\n" + 
+			"}\n" +
+			"class A{\n" +
+			"	public static X xA;\n" +
+			"}\n" +
+			"class B{\n" +
+			"	public int b1;\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	public void bar5(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar5(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 20)\n" + 
+		"	public void bar6(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar6(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 29)\n" + 
+		"	public void bar9(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar9(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 38)\n" + 
+		"	public void bar12(int i) {\n" + 
+		"	            ^^^^^^^^^^^^\n" + 
+		"The method bar12(int) from the type X can potentially be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// Referring a field in different ways, accessing non-static field.
+public void test117b() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X extends B{\n" +
+			"	public static int field1;\n" +
+			"	public static X xfield;\n" +
+			"	public void bar1(int i) {\n" + 
+			"		field1 = 1;\n" +
+			"	}\n" +
+			"	public void bar2(int i) {\n" + 
+			"		this.field1 = 1;\n" +
+			"	}\n" +
+			"	public void bar3(int i) {\n" + 
+			"		System.out.println(field1);\n" +
+			"	}\n" +
+			"	public void bar4(int i) {\n" + 
+			"		System.out.println(this.field1);\n" +
+			"	}\n" +
+			"	public void bar5(int i) {\n" + 
+			"		X x = new X();\n" +
+			"		x.field1 = 1;\n" +
+			"	}\n" +
+			"	public void bar6(int i) {\n" + 
+			"		A.xA.field1 = 1;\n" +
+			"	}\n" +
+			"	public void bar7(int i) {\n" + 
+			"		b1 = 1;\n" +
+			"	}\n" +
+			"	public void bar8(int i) {\n" + 
+			"		this.b1 = 1;\n" +
+			"	}\n" +
+			"	public void bar9(int i) {\n" + 
+			"		new X().b1 = 1;\n" +
+			"	}\n" +
+			"	public void bar10(int i) {\n" + 
+			"		this.xfield.field1 = 1;\n" +
+			"	}\n" +
+			"	public void bar11(int i) {\n" + 
+			"		System.out.println(this.xfield.field1);\n" +
+			"	}\n" +
+			"	public void bar12(int i) {\n" + 
+			"		System.out.println(new X().b1);\n" +
+			"	}\n" +
+			"	public void bar13(int i) {\n" + 
+			"		System.out.println(b1);\n" +
+			"	}\n" +
+			"	public void bar14(int i) {\n" + 
+			"		System.out.println(this.b1);\n" +
+			"	}\n" +
+			"	public void bar15(int i) {\n" + 
+			"		xfield.field1 = 1;\n" +
+			"	}\n" +
+			"	public void bar16(int i) {\n" + 
+			"		System.out.println(xfield.field1);\n" +
+			"	}\n" +
+			"	public void baz() {\n" +
+			"	}\n" + 
+			"}\n" +
+			"class A{\n" +
+			"	public static X xA;\n" +
+			"}\n" +
+			"class B{\n" +
+			"	public static int b1;\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	public void bar1(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar1(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	public void bar3(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar3(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 16)\n" + 
+		"	public void bar5(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar5(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 20)\n" + 
+		"	public void bar6(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar6(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 23)\n" + 
+		"	public void bar7(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar7(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 29)\n" + 
+		"	public void bar9(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar9(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 38)\n" + 
+		"	public void bar12(int i) {\n" + 
+		"	            ^^^^^^^^^^^^\n" + 
+		"The method bar12(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 41)\n" + 
+		"	public void bar13(int i) {\n" + 
+		"	            ^^^^^^^^^^^^\n" + 
+		"The method bar13(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 47)\n" + 
+		"	public void bar15(int i) {\n" + 
+		"	            ^^^^^^^^^^^^\n" + 
+		"The method bar15(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 50)\n" + 
+		"	public void bar16(int i) {\n" + 
+		"	            ^^^^^^^^^^^^\n" + 
+		"The method bar16(int) from the type X can potentially be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// Final class -> can be static (and not potentially be static) warning shown
+public void test118() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"final public class X {\n" +
+				"	public static int field1;\n" +
+				"	public static int field2;\n" + 
+				"	public void bar(int i) {\n" + 
+				"		System.out.println(foo());\n" +
+				"		foo();" +
+				"		System.out.println(X.field1);\n" +
+				"		System.out.println(field2);\n" +
+				"		field2 = 1;\n" +
+				"	}\n" +
+				"	public static int foo(){ return 1;}\n" + 
+				"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	public void bar(int i) {\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"The method bar(int) from the type X can be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// Method of a local class -> can't be static, so no warning
+// Also method with such a local class accessing a member of the outer class can't be static
+public void test119() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X {\n" +
+					"	public static int field1;\n" +
+					"	public int field2;\n" + 
+					"	public void bar(int i) {\n" + 	// don't warn
+					"		(new Object() {\n" +
+					"			public boolean foo1() {\n" +	// don't warn for foo1
+					"				return X.this.field2 == 1;\n" +
+					"			}\n" +
+					"		}).foo1();\n" +
+					"	System.out.println(X.field1);\n" +
+					"	}\n" + 
+					"	public void bar2(int i) {\n" + 	// warn
+					"		(new Object() {\n" +
+					"			public boolean foo1() {\n" +	// don't warn for foo1
+					"				System.out.println(X.field1);\n" +
+					"				return true;" +
+					"			}\n" +
+					"		}).foo1();\n" +
+					"	System.out.println(X.field1);\n" +
+					"	}\n" + 
+					"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	public void bar2(int i) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method bar2(int) from the type X can potentially be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// Method using type parameters declared by enclosing class can't be static, so don't warn
+public void test120() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X<T> {\n" +
+				"	public static int field1;\n" +
+				"	public int field2;\n" + 
+				"	public void bar(T t) {\n" + 	// don't warn
+				"		X.field1 = 1;\n" +
+				"		System.out.println(t);\n" +
+				"	}\n" + 
+				"	public <E> void bar2(E e) {\n" + 	// warn
+				"		X.field1 = 1;\n" +
+				"		System.out.println(e);\n" +
+				"	}\n" +
+				"	public <E> void bar3() {\n" + 	// don't warn
+				"		T a;\n" +
+				"		System.out.println();\n" +
+				"	}\n" + 
+				"	public <E,Y> void bar4() {\n" + 	// warn
+				"		Y a;\n" +
+				"		System.out.println();\n" +
+				"	}\n" + 
+				"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	public <E> void bar2(E e) {\n" + 
+		"	                ^^^^^^^^^\n" + 
+		"The method bar2(E) from the type X<T> can potentially be declared as static\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 16)\n" + 
+		"	public <E,Y> void bar4() {\n" + 
+		"	                  ^^^^^^\n" + 
+		"The method bar4() from the type X<T> can potentially be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// Access to super in a method disqualifies it from being static
+public void test121() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X extends A{\n" +
+				"	public static int field1;\n" +
+				"	public int field2;\n" + 
+				"	public void methodA() {\n" + 	// don't warn
+				"		super.methodA();\n" +
+				"	}\n" + 
+				"	public void bar() {\n" + 	// don't warn
+				"		super.fieldA = 1;\n" +
+				"	}\n" +
+				"	public void bar2() {\n" + 	// don't warn
+				"		System.out.println(super.fieldA);\n" +
+				"	}\n" +
+				"	public void bar3() {\n" + 	// warn
+				"		System.out.println(X.fieldA);\n" +
+				"	}\n" +
+				"}\n" +
+				"class A{\n" +
+				"	public static int fieldA;\n" +
+				"   public void methodA(){\n" +
+				"   }\n" +
+				"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	public void bar3() {\n" + 
+		"	            ^^^^^^\n" + 
+		"The method bar3() from the type X can potentially be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// Methods of non-static member types can't be static
+public void test122() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X {\n" +
+				"	class A{\n" +
+				"   	void methodA() {\n" +	// don't warn
+				"			System.out.println();\n" +
+				"		}\n" +
+				"   }\n" +
+				"	static class B{\n" +
+				"   	void methodB() {\n" +	// warn
+				"			System.out.println();\n" +
+				"		}\n" +
+				"   }\n" +
+				"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	void methodB() {\n" + 
+		"	     ^^^^^^^^^\n" + 
+		"The method methodB() from the type X.B can potentially be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+// If method returns type parameter not declared by it, it cannot be static
+public void test123() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X<T> {\n" +
+				"	<E,Y> T method1() {\n" + 	// don't warn
+				"		return null;\n" +
+				"	}\n" + 
+				"	<E,Y> E method2() {\n" + 	// warn
+				"		return null;\n" +
+				"	}\n" + 
+				"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	<E,Y> E method2() {\n" + 
+		"	        ^^^^^^^^^\n" + 
+		"The method method2() from the type X<T> can potentially be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
 }
 }

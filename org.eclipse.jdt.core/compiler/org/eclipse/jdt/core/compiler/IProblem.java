@@ -401,6 +401,10 @@ void setSourceStart(int sourceStart);
 	int IndirectAccessToStaticMethod = Internal + MethodRelated + 119;
 	/** @since 3.4 */
 	int MissingTypeInMethod = MethodRelated + 120;
+	/** @since 3.7 */
+	int MethodCanBeStatic = Internal + MethodRelated + 121;
+	/** @since 3.7 */
+	int MethodCanBePotentiallyStatic = Internal + MethodRelated + 122;
 
 	// constructors
 	/** @since 3.4 */

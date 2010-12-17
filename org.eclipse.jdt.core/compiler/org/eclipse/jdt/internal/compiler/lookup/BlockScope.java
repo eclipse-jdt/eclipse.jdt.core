@@ -941,4 +941,18 @@ public String toString(int tab) {
 			s += ((BlockScope) this.subscopes[i]).toString(tab + 1) + "\n"; //$NON-NLS-1$
 	return s;
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+public void resetEnclosingMethodStaticFlag() {
+	MethodScope methodScope = methodScope();
+	while (methodScope != null && methodScope.referenceContext instanceof MethodDeclaration) {
+		MethodDeclaration methodDeclaration= (MethodDeclaration) methodScope.referenceContext;
+		methodDeclaration.bits &= ~ASTNode.CanBeStatic;
+		ClassScope enclosingClassScope = methodScope.enclosingClassScope();
+		if (enclosingClassScope != null) {
+			methodScope = enclosingClassScope.methodScope();
+		} else {
+			break;
+		}
+	}
+}
 }

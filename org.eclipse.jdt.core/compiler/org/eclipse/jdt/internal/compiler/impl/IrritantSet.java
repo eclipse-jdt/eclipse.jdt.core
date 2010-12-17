@@ -51,6 +51,7 @@ public class IrritantSet {
 	public static final IrritantSet RESTRICTION = new IrritantSet(CompilerOptions.ForbiddenReference);
 	public static final IrritantSet SERIAL = new IrritantSet(CompilerOptions.MissingSerialVersion);
 	public static final IrritantSet STATIC_ACCESS = new IrritantSet(CompilerOptions.IndirectStaticAccess);
+	public static final IrritantSet STATIC_METHOD = new IrritantSet(CompilerOptions.MethodCanBeStatic);
 	public static final IrritantSet SYNTHETIC_ACCESS = new IrritantSet(CompilerOptions.AccessEmulation);
 	public static final IrritantSet SUPER = new IrritantSet(CompilerOptions.OverridingMethodWithoutSuperInvocation);
 	public static final IrritantSet UNUSED = new IrritantSet(CompilerOptions.UnusedLocalVariable);
@@ -119,6 +120,8 @@ public class IrritantSet {
 			.set(CompilerOptions.RedundantSuperinterface)
 			.set(CompilerOptions.DeadCode)
 			.set(CompilerOptions.UnusedObjectAllocation);
+		STATIC_METHOD
+		    .set(CompilerOptions.MethodCanBePotentiallyStatic);
 		String suppressRawWhenUnchecked = System.getProperty("suppressRawWhenUnchecked"); //$NON-NLS-1$
 		if (suppressRawWhenUnchecked != null && "true".equalsIgnoreCase(suppressRawWhenUnchecked)) { //$NON-NLS-1$
 			UNCHECKED.set(CompilerOptions.RawTypeReference);

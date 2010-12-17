@@ -3228,6 +3228,10 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 					CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
 					isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 				return;
+			} else if (token.equals("all-static-method")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportMethodCanBeStatic, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, severity, isEnabling);
+				return;
 			}
 			break;
 		case 'b' :
@@ -3458,6 +3462,9 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				return;
 			} else if (token.equals("super")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, severity, isEnabling);
+				return;
+			} else if (token.equals("static-method")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportMethodCanBeStatic, severity, isEnabling);
 				return;
 			}
 			break;

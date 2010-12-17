@@ -39,6 +39,30 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 		this.bits |= ASTNode.IsLocalDeclarationReachable; // only set if actually reached
 	}
+	if (this.binding != null && this.type.resolvedType instanceof TypeVariableBinding) {
+		MethodScope methodScope= this.binding.declaringScope.methodScope();
+		AbstractMethodDeclaration methodDeclaration = methodScope.referenceMethod();
+		if (methodDeclaration != null && ((methodDeclaration.bits & ASTNode.CanBeStatic) != 0) && methodDeclaration.binding != null) {
+			TypeVariableBinding[] typeVariables = methodDeclaration.binding.typeVariables();
+			if (typeVariables == Binding.NO_TYPE_VARIABLES) {
+				// Method declares no type variables.
+				currentScope.resetEnclosingMethodStaticFlag();
+			} else {
+				// to check whether the resolved type for this is declared by enclosing method as a type variable
+				boolean usesEnclosingTypeVar = false; 
+				for (int i = 0; i < typeVariables.length ; i ++) {
+					if (typeVariables[i] == this.type.resolvedType){
+						usesEnclosingTypeVar = true;
+						break;
+					}
+				}
+				if (!usesEnclosingTypeVar) {
+					// uses a type variable not declared by enclosing method
+					currentScope.resetEnclosingMethodStaticFlag();
+				}
+			}
+		}
+	}
 	if (this.initialization == null) {
 		return flowInfo;
 	}

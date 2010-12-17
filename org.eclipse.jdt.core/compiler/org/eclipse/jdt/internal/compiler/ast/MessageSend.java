@@ -61,6 +61,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	flowInfo = this.receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
 	if (nonStatic) {
 		this.receiver.checkNPE(currentScope, flowContext, flowInfo);
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+		if (this.receiver.isThis()) {
+			// accessing non-static method without an object
+			currentScope.resetEnclosingMethodStaticFlag();
+		}
+	} else if (this.receiver.isThis()) {
+		if ((this.receiver.bits & ASTNode.IsImplicitThis) == 0) {
+			// explicit this receiver, not allowed in static context
+			currentScope.resetEnclosingMethodStaticFlag();
+		}
 	}
 
 	if (this.arguments != null) {

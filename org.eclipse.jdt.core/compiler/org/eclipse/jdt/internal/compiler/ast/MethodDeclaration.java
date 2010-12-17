@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,11 +18,15 @@ import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MemberTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -78,7 +82,18 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if (this.arguments != null) {
 				for (int i = 0, count = this.arguments.length; i < count; i++) {
 					flowInfo.markAsDefinitelyAssigned(this.arguments[i].binding);
+					// if this method uses a type parameter declared by the declaring class,
+					// it can't be static. https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+					if (this.arguments[i].binding != null && (this.arguments[i].binding.type instanceof TypeVariableBinding)) {
+						Binding declaringElement = ((TypeVariableBinding)this.arguments[i].binding.type).declaringElement;
+						if (this.binding != null && this.binding.declaringClass == declaringElement)
+							this.bits &= ~ASTNode.CanBeStatic;
+					}
 				}
+			}
+			if (this.binding.declaringClass instanceof MemberTypeBinding && !this.binding.declaringClass.isStatic()) {
+				// method of a non-static member type can't be static.
+				this.bits &= ~ASTNode.CanBeStatic;
 			}
 			// propagate to statements
 			if (this.statements != null) {
@@ -89,6 +104,9 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 						flowInfo = stat.analyseCode(this.scope, methodContext, flowInfo);
 					}
 				}
+			} else {
+				// method with empty body should not be flagged as static.
+				this.bits &= ~ASTNode.CanBeStatic;
 			}
 			// check for missing returning path
 			TypeBinding returnTypeBinding = this.binding.returnType;
@@ -105,6 +123,17 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			methodContext.complainIfUnusedExceptionHandlers(this);
 			// check unused parameters
 			this.scope.checkUnusedParameters(this.binding);
+			// check if the method could have been static
+			if (!this.binding.isStatic() && (this.bits & ASTNode.CanBeStatic) != 0) {
+				if(!this.binding.isOverriding() && !this.binding.isImplementing()) {
+					if (this.binding.isPrivate() || this.binding.isFinal() || this.binding.declaringClass.isFinal()) {
+						this.scope.problemReporter().methodCanBeDeclaredStatic(this);
+					} else {
+						this.scope.problemReporter().methodCanBePotentiallyDeclaredStatic(this);
+					}
+				}
+					
+			}
 		} catch (AbortMethod e) {
 			this.ignoreFurtherInvestigation = true;
 		}
@@ -134,10 +163,17 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		if (CharOperation.equals(this.scope.enclosingSourceType().sourceName, this.selector)) {
 			this.scope.problemReporter().methodWithConstructorName(this);
 		}
-
+		// to check whether the method returns a type parameter not declared by it.
+		boolean returnsUndeclTypeVar = false;
+		if (this.returnType != null && this.returnType.resolvedType instanceof TypeVariableBinding) {
+			returnsUndeclTypeVar = true;
+		}
 		if (this.typeParameters != null) {
 			for (int i = 0, length = this.typeParameters.length; i < length; i++) {
 				this.typeParameters[i].resolve(this.scope);
+				if (returnsUndeclTypeVar && this.typeParameters[i].binding == this.returnType.resolvedType) {
+					returnsUndeclTypeVar = false;
+				}
 			}
 		}
 
@@ -207,6 +243,10 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					// the method HAS a body --> abstract native modifiers are forbiden
 					if (((this.modifiers & ClassFileConstants.AccNative) != 0) || ((this.modifiers & ClassFileConstants.AccAbstract) != 0))
 						this.scope.problemReporter().methodNeedingNoBody(this);
+					else if (this.binding != null && !this.binding.isStatic() && !(this.binding.declaringClass instanceof LocalTypeBinding) && !returnsUndeclTypeVar) {
+						// Not a method of local type - can be static
+						this.bits |= ASTNode.CanBeStatic;
+					}
 				}
 		}
 		super.resolveStatements();
