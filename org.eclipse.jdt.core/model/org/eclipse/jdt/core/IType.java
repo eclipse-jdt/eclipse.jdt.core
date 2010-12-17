@@ -282,7 +282,7 @@ public interface IType extends IMember, IAnnotatable {
 	 *     private final static int TIMEOUT = 500; //ms
 	 *     private long endTime;
 	 *     public void beginTask(String name, int totalWork) {
-	 *         fEndTime= System.currentTimeMillis() + TIMEOUT;
+	 *         endTime= System.currentTimeMillis() + TIMEOUT;
 	 *     }
 	 *     public boolean isCanceled() {
 	 *         return endTime <= System.currentTimeMillis();
