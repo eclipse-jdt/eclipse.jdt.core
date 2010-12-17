@@ -94,6 +94,9 @@ public abstract class Binding {
 	public boolean isVolatile() {
 		return false;
 	}
+	public boolean isParameter() {
+		return false;
+	}
 	/* API
 	* Answer the problem id associated with the receiver.
 	* NoError if the receiver is a valid binding.

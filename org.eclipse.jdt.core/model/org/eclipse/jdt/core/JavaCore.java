@@ -900,6 +900,22 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_RAW_TYPE_REFERENCE = PLUGIN_ID + ".compiler.problem.rawTypeReference"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Reporting of Unavoidable Generic Type Problems.
+	 * <p> When enabled, the compiler will issue an error or warning even when it detects a generic type problem
+	 *     that could not have been avoided by the programmer. As an example, a type may be forced to use raw types
+	 *     in its method signatures and return types because the methods it overrides from a super type are declared to
+	 *     use raw types in the first place.  
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unavoidableGenericTypeProblems"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"enabled"</code></dd>
+	 * </dl>
+	 * @since 3.7
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_UNAVOIDABLE_GENERIC_TYPE_PROBLEMS = PLUGIN_ID + ".compiler.problem.unavoidableGenericTypeProblems"; //$NON-NLS-1$
+
+	/**
 	 * Compiler option ID: Reporting final Bound for Type Parameter.
 	 * <p>When enabled, the compiler will issue an error or a warning whenever a generic type parameter is associated with a
 	 *    bound corresponding to a final type; since final types cannot be further extended, the parameter is pretty useless.

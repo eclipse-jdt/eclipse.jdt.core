@@ -343,7 +343,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		if ((invocationStatus & INVOCATION_ARGUMENT_WILDCARD) != 0) {
 		    scope.problemReporter().wildcardInvocation((ASTNode)invocationSite, receiverType, method, argumentTypes);
 		} else if (!method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && method.hasSubstitutedParameters()) {
-		    scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, method);
+			if (scope.compilerOptions().reportUnavoidableGenericTypeProblems || receiver == null || !receiver.forcedToBeRaw(scope.referenceContext())) {
+				scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, method);
+			}
 		} else if (rawOriginalGenericMethod != null 
 				|| uncheckedBoundCheck
 				|| ((invocationStatus & INVOCATION_ARGUMENT_UNCHECKED) != 0 

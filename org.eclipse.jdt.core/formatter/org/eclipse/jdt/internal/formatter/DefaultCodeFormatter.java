@@ -336,6 +336,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
 			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED);
 			optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
+			optionsMap.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.ENABLED);
 			optionsMap.put(CompilerOptions.OPTION_MaxProblemPerUnit, String.valueOf(100));
 			optionsMap.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.DISABLED);
 			this.defaultCompilerOptions = optionsMap;

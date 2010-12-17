@@ -536,4 +536,625 @@ public void test330869() {
             },
             ""); // no specific success output string
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817
+public void test322817() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface Adaptable {\n" +
+					"    public Object getAdapter(Class clazz);    \n" +
+					"}\n" +
+					"public class X implements Adaptable {\n" +
+					"    public Object getAdapter(Class clazz) {\n" +
+					"        return null;\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	public Object getAdapter(Class clazz);    \n" + 
+			"	                         ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817
+public void test322817b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface Adaptable {\n" +
+					"    public Object getAdapter(Class clazz);    \n" +
+					"}\n" +
+					"public class X implements Adaptable {\n" +
+					"    public Object getAdapter(Class clazz) {\n" +
+					"        return null;\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	public Object getAdapter(Class clazz);    \n" + 
+			"	                         ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	public Object getAdapter(Class clazz) {\n" + 
+			"	                         ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817
+public void test322817c() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface Adaptable {\n" +
+					"    public Object getAdapter(Class<String> clazz);    \n" +
+					"}\n" +
+					"public class X implements Adaptable {\n" +
+					"    public Object getAdapter(Class clazz) {\n" +
+					"        return null;\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public Object getAdapter(Class clazz) {\n" + 
+			"	                         ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817
+public void test322817d() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface Adaptable {\n" +
+					"    public Object getAdapter(Class<String> clazz);    \n" +
+					"}\n" +
+					"public class X implements Adaptable {\n" +
+					"    public Object getAdapter(Class clazz) {\n" +
+					"        return null;\n" +
+					"    }\n" +
+					"}\n" +
+					"class Y extends X {\n" +
+					"    @Override\n" +
+					"    public Object getAdapter(Class clazz) {\n" +
+					"        return null;\n" +
+					"    }\n" +
+					"}\n"
+
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public Object getAdapter(Class clazz) {\n" + 
+			"	                         ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817
+public void test322817e() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"class Top {\n" +
+					"    public void set(List arg) { } // OK to warn in 1.5 code\n" +
+					"    public List get() { return null; } // OK to warn in 1.5 code\n" +
+					"}\n" +
+					"class Sub extends Top {\n" +
+					"    @Override\n" +
+					"    public void set(List arg) { // should not warn (overrides)\n" +
+					"    }\n" +
+					"    @Override\n" +
+					"    public List get() { // should not warn (overrides)\n" +
+					"        return super.get();\n" +
+					"    }\n" +
+					"}\n" +
+					"public class X {\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	public void set(List arg) { } // OK to warn in 1.5 code\n" + 
+			"	                ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	public List get() { return null; } // OK to warn in 1.5 code\n" + 
+			"	       ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817
+public void test322817f() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"class Top {\n" +
+					"    public void set(List arg) { } // OK to warn in 1.5 code\n" +
+					"    public List<String> get() { return null; }\n" +
+					"}\n" +
+					"class Sub extends Top {\n" +
+					"    @Override\n" +
+					"    public void set(List arg) { // should not warn (overrides)\n" +
+					"    }\n" +
+					"    @Override\n" +
+					"    public List get() { // should warn (super's return type is not raw)\n" +
+					"        return super.get();\n" +
+					"    }\n" +
+					"}\n" +
+					"public class X {\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	public void set(List arg) { } // OK to warn in 1.5 code\n" + 
+			"	                ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 11)\n" + 
+			"	public List get() { // should warn (super\'s return type is not raw)\n" + 
+			"	       ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 11)\n" + 
+			"	public List get() { // should warn (super\'s return type is not raw)\n" + 
+			"	       ^^^^\n" + 
+			"Type safety: The return type List for get() from the type Sub needs unchecked conversion to conform to List<String> from the type Top\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817 (Disable reporting of unavoidable problems)
+public void test322817g() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+					"Top.java",
+					"import java.util.List;\n" +
+					"public class Top {\n" +
+					"    public void set(List arg) { } // OK to warn in 1.5 code\n" +
+					"    public List get() { return null; } // OK to warn in 1.5 code\n" +
+					"    List list; // OK to warn in 1.5 code\n" +
+					"}\n",
+					"Sub.java",
+					"import java.util.List;\n" +
+					"public class Sub extends Top {\n" +
+					"    @Override\n" +
+					"    public void set(List arg) { // should not warn (overrides)\n" +
+					"        super.set(arg);\n" +
+					"        arg.set(0, \"A\"); // should not warn ('arg' is forced raw)\n" +
+					"    }\n" +
+					"    @Override\n" +
+					"    public List get() { // should not warn (overrides)\n" +
+					"        return super.get();\n" +
+					"    }\n" +
+					"}\n",
+					"X.java",
+					"import java.util.List;\n" +
+					"public class X {\n" +
+					"    void run() {\n" +
+					"        new Top().list.add(\"arg\"); // should not warn (uses raw field declared elsewhere)\n" +
+					"        new Top().get().add(\"arg\"); // should not warn (uses raw API)\n" +
+					"        List raw= new Top().get(); // OK to warn ('raw' declared here)\n" +
+					"        raw.add(\"arg\"); // OK to warn ('raw' declared here)\n" +
+					"        // When Top#get() is generified, both of the following will fail\n" +
+					"        // with a compile error if type arguments don't match:\n" +
+					"        List<String> unchecked= new Top().get(); // should not warn (forced)\n" +
+					"        unchecked.add(\"x\");\n" +
+					"        // Should not warn about unchecked cast, but should warn about\n" +
+					"        // unnecessary cast:\n" +
+					"        List<String> cast= (List<String>) new Top().get();\n" +
+					"        cast.add(\"x\");\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in Top.java (at line 3)\n" + 
+			"	public void set(List arg) { } // OK to warn in 1.5 code\n" + 
+			"	                ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in Top.java (at line 4)\n" + 
+			"	public List get() { return null; } // OK to warn in 1.5 code\n" + 
+			"	       ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in Top.java (at line 5)\n" + 
+			"	List list; // OK to warn in 1.5 code\n" + 
+			"	^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	List raw= new Top().get(); // OK to warn (\'raw\' declared here)\n" + 
+			"	^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	raw.add(\"arg\"); // OK to warn (\'raw\' declared here)\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 14)\n" + 
+			"	List<String> cast= (List<String>) new Top().get();\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from List to List<String>\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817 (Enable reporting of unavoidable problems)
+public void test322817h() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+			new String[] {
+					"Top.java",
+					"import java.util.List;\n" +
+					"public class Top {\n" +
+					"    public void set(List arg) { }\n" +
+					"    public List get() { return null; }\n" +
+					"    List list;\n" +
+					"}\n",
+					"Sub.java",
+					"import java.util.List;\n" +
+					"public class Sub extends Top {\n" +
+					"    @Override\n" +
+					"    public void set(List arg) {\n" +
+					"        super.set(arg);\n" +
+					"        arg.set(0, \"A\");\n" +
+					"    }\n" +
+					"    @Override\n" +
+					"    public List get() {\n" +
+					"        return super.get();\n" +
+					"    }\n" +
+					"}\n",
+					"X.java",
+					"import java.util.List;\n" +
+					"public class X {\n" +
+					"    void run() {\n" +
+					"        new Top().list.add(\"arg\");\n" +
+					"        new Top().get().add(\"arg\");\n" +
+					"        List raw= new Top().get();\n" +
+					"        raw.add(\"arg\");\n" +
+					"        List<String> unchecked= new Top().get();\n" +
+					"        unchecked.add(\"x\");\n" +
+					"        List<String> cast= (List<String>) new Top().get();\n" +
+					"        cast.add(\"x\");\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in Top.java (at line 3)\n" + 
+			"	public void set(List arg) { }\n" + 
+			"	                ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in Top.java (at line 4)\n" + 
+			"	public List get() { return null; }\n" + 
+			"	       ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in Top.java (at line 5)\n" + 
+			"	List list;\n" + 
+			"	^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in Sub.java (at line 4)\n" + 
+			"	public void set(List arg) {\n" + 
+			"	                ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in Sub.java (at line 6)\n" + 
+			"	arg.set(0, \"A\");\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method set(int, Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in Sub.java (at line 9)\n" + 
+			"	public List get() {\n" + 
+			"	       ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	new Top().list.add(\"arg\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	new Top().get().add(\"arg\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	List raw= new Top().get();\n" + 
+			"	^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 7)\n" + 
+			"	raw.add(\"arg\");\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 8)\n" + 
+			"	List<String> unchecked= new Top().get();\n" + 
+			"	                        ^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 10)\n" + 
+			"	List<String> cast= (List<String>) new Top().get();\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from List to List<String>\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 10)\n" + 
+			"	List<String> cast= (List<String>) new Top().get();\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from List to List<String>\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817 (Default options)
+public void test322817i() {
+	Map customOptions = getCompilerOptions();
+	this.runNegativeTest(
+			new String[] {
+					"Top.java",
+					"import java.util.List;\n" +
+					"public class Top {\n" +
+					"    public void set(List arg) { }\n" +
+					"    public List get() { return null; }\n" +
+					"    List list;\n" +
+					"}\n",
+					"Sub.java",
+					"import java.util.List;\n" +
+					"public class Sub extends Top {\n" +
+					"    @Override\n" +
+					"    public void set(List arg) {\n" +
+					"        super.set(arg);\n" +
+					"        arg.set(0, \"A\");\n" +
+					"    }\n" +
+					"    @Override\n" +
+					"    public List get() {\n" +
+					"        return super.get();\n" +
+					"    }\n" +
+					"}\n",
+					"X.java",
+					"import java.util.List;\n" +
+					"public class X {\n" +
+					"    void run() {\n" +
+					"        new Top().list.add(\"arg\");\n" +
+					"        new Top().get().add(\"arg\");\n" +
+					"        List raw= new Top().get();\n" +
+					"        raw.add(\"arg\");\n" +
+					"        List<String> unchecked= new Top().get();\n" +
+					"        unchecked.add(\"x\");\n" +
+					"        List<String> cast= (List<String>) new Top().get();\n" +
+					"        cast.add(\"x\");\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in Top.java (at line 3)\n" + 
+			"	public void set(List arg) { }\n" + 
+			"	                ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in Top.java (at line 4)\n" + 
+			"	public List get() { return null; }\n" + 
+			"	       ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in Top.java (at line 5)\n" + 
+			"	List list;\n" + 
+			"	^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in Sub.java (at line 4)\n" + 
+			"	public void set(List arg) {\n" + 
+			"	                ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in Sub.java (at line 6)\n" + 
+			"	arg.set(0, \"A\");\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method set(int, Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in Sub.java (at line 9)\n" + 
+			"	public List get() {\n" + 
+			"	       ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	new Top().list.add(\"arg\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	new Top().get().add(\"arg\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	List raw= new Top().get();\n" + 
+			"	^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 7)\n" + 
+			"	raw.add(\"arg\");\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 8)\n" + 
+			"	List<String> unchecked= new Top().get();\n" + 
+			"	                        ^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 10)\n" + 
+			"	List<String> cast= (List<String>) new Top().get();\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from List to List<String>\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 10)\n" + 
+			"	List<String> cast= (List<String>) new Top().get();\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from List to List<String>\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817 (all in same file)
+public void test322817j() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"class Top {\n" +
+					"    public void set(List arg) { } // OK to warn in 1.5 code\n" +
+					"    public List get() { return null; } // OK to warn in 1.5 code\n" +
+					"}\n" +
+					"class Sub extends Top {\n" +
+					"    @Override\n" +
+					"    public void set(List arg) { // should not warn (overrides)\n" +
+					"        super.set(arg);\n" +
+					"        arg.set(0, \"A\"); // should not warn ('arg' is forced raw)\n" +
+					"    }\n" +
+					"    @Override\n" +
+					"    public List get() { // should not warn (overrides)\n" +
+					"        return super.get();\n" +
+					"    }\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    void run() {\n" +
+					"        new Top().get().add(\"arg\");\n" +
+					"        List raw= new Top().get(); // OK to warn ('raw' declared here)\n" +
+					"        raw.add(\"arg\"); // OK to warn ('raw' declared here)\n" +
+					"        List<String> unchecked= new Top().get();\n" +
+					"        unchecked.add(\"x\");\n" +
+					"        List<String> cast= (List<String>) new Top().get();\n" +
+					"        cast.add(\"x\");\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	public void set(List arg) { } // OK to warn in 1.5 code\n" + 
+			"	                ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	public List get() { return null; } // OK to warn in 1.5 code\n" + 
+			"	       ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 19)\n" + 
+			"	new Top().get().add(\"arg\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 20)\n" + 
+			"	List raw= new Top().get(); // OK to warn (\'raw\' declared here)\n" + 
+			"	^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 21)\n" + 
+			"	raw.add(\"arg\"); // OK to warn (\'raw\' declared here)\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 22)\n" + 
+			"	List<String> unchecked= new Top().get();\n" + 
+			"	                        ^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 24)\n" + 
+			"	List<String> cast= (List<String>) new Top().get();\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from List to List<String>\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 24)\n" + 
+			"	List<String> cast= (List<String>) new Top().get();\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from List to List<String>\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817 (make sure there is no NPE when receiver is null)
+public void test322817k() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.Arrays;\n" +
+					"import java.util.Set;\n" +
+					"import java.util.HashSet;\n" +
+					"public class X {\n" +
+					"    public void foo(String[] elements) {\n" +
+					"	     Set set= new HashSet(Arrays.asList(elements));\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	Set set= new HashSet(Arrays.asList(elements));\n" + 
+			"	^^^\n" + 
+			"Set is a raw type. References to generic type Set<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	Set set= new HashSet(Arrays.asList(elements));\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The constructor HashSet(Collection) belongs to the raw type HashSet. References to generic type HashSet<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	Set set= new HashSet(Arrays.asList(elements));\n" + 
+			"	             ^^^^^^^\n" + 
+			"HashSet is a raw type. References to generic type HashSet<E> should be parameterized\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
+}
 }

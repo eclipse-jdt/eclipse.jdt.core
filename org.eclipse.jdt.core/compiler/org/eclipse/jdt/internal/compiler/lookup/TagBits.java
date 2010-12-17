@@ -35,6 +35,9 @@ public interface TagBits {
 	
 	// local variable
 	long NotInitialized = ASTNode.Bit9;
+	
+	// local variable
+	long ForcedToBeRawType = ASTNode.Bit10;
 
 	// set when method has argument(s) that couldn't be resolved
 	long HasUnresolvedArguments = ASTNode.Bit10;

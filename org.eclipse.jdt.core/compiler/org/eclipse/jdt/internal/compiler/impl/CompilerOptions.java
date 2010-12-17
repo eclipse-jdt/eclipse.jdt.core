@@ -87,6 +87,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference = "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable = "org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionExemptExceptionAndThrowable"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnqualifiedFieldAccess = "org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnavoidableGenericTypeProblems = "org.eclipse.jdt.core.compiler.problem.unavoidableGenericTypeProblems"; //$NON-NLS-1$
 	public static final String OPTION_ReportUncheckedTypeOperation = "org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation"; //$NON-NLS-1$
 	public static final String OPTION_ReportRawTypeReference =  "org.eclipse.jdt.core.compiler.problem.rawTypeReference"; //$NON-NLS-1$
 	public static final String OPTION_ReportFinalParameterBound = "org.eclipse.jdt.core.compiler.problem.finalParameterBound"; //$NON-NLS-1$
@@ -357,6 +358,8 @@ public class CompilerOptions {
 	public boolean ignoreMethodBodies;
 	/** Raise null related warnings for variables tainted inside an assert statement (java 1.4 and above)*/
 	public boolean includeNullInfoFromAsserts;
+	/** Controls whether forced generic type problems get reported  */
+	public boolean reportUnavoidableGenericTypeProblems;
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
@@ -871,6 +874,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference, this.reportUnusedDeclaredThrownExceptionIncludeDocCommentReference ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable, this.reportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnqualifiedFieldAccess, getSeverityString(UnqualifiedFieldAccess));
+		optionsMap.put(OPTION_ReportUnavoidableGenericTypeProblems, this.reportUnavoidableGenericTypeProblems ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUncheckedTypeOperation, getSeverityString(UncheckedTypeOperation));
 		optionsMap.put(OPTION_ReportRawTypeReference, getSeverityString(RawTypeReference));
 		optionsMap.put(OPTION_ReportFinalParameterBound, getSeverityString(FinalParameterBound));
@@ -1011,6 +1015,8 @@ public class CompilerOptions {
 		
 		// constructor/setter parameter hiding
 		this.reportSpecialParameterHidingField = false;
+
+		this.reportUnavoidableGenericTypeProblems = true;
 
 		// check javadoc comments tags
 		this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPublic;
@@ -1191,6 +1197,13 @@ public class CompilerOptions {
 				this.reportSpecialParameterHidingField = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.reportSpecialParameterHidingField = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ReportUnavoidableGenericTypeProblems)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.reportUnavoidableGenericTypeProblems = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.reportUnavoidableGenericTypeProblems = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportDeadCodeInTrivialIfStatement )) != null) {
@@ -1516,6 +1529,7 @@ public class CompilerOptions {
 		buf.append("\n\t- report unused parameter include doc comment reference : ").append(this.reportUnusedParameterIncludeDocCommentReference ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- report constructor/setter parameter hiding existing field : ").append(this.reportSpecialParameterHidingField ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- inline JSR bytecode : ").append(this.inlineJsrBytecode ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- report unavoidable generic type problems : ").append(this.reportUnavoidableGenericTypeProblems ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unsafe type operation: ").append(getSeverityString(UncheckedTypeOperation)); //$NON-NLS-1$
 		buf.append("\n\t- unsafe raw type: ").append(getSeverityString(RawTypeReference)); //$NON-NLS-1$
 		buf.append("\n\t- final bound for type parameter: ").append(getSeverityString(FinalParameterBound)); //$NON-NLS-1$

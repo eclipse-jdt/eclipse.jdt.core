@@ -1800,7 +1800,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.debug.sourceFile\" value=\"generate\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.doc.comment.support\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.generateClassFiles\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.maxProblemPerUnit\" value=\"100\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.maxProblemPerUnit\" value=\"100\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.annotationSuperInterface\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.assertIdentifier\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.autoboxing\" value=\"ignore\"/>\n" + 
@@ -1864,6 +1864,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.tasks\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.typeParameterHiding\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unavoidableGenericTypeProblems\" value=\"enabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unhandledWarningToken\" value=\"warning\"/>\n" + 
@@ -12069,5 +12070,74 @@ public void testBridgeMethodRetention(){
 	} finally {
 		new File(lib1Path).delete();
 	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817 -- with new option kicking in
+public void testReportingUnavoidableGenericProblems() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Adaptable {\n" +
+			"    public Object getAdapter(Class clazz);    \n" +
+			"}\n" +
+			"public class X implements Adaptable {\n" +
+			"    public Object getAdapter(Class clazz) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"    Zork z;\n" +
+			"}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.5 -warn:-unavoidableGenericProblems -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	public Object getAdapter(Class clazz);    \n" + 
+		"	                         ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 8)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2 problems (1 error, 1 warning)",
+		true);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817  -- without new option kicking in
+public void testReportingUnavoidableGenericProblems2() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Adaptable {\n" +
+			"    public Object getAdapter(Class clazz);    \n" +
+			"}\n" +
+			"public class X implements Adaptable {\n" +
+			"    public Object getAdapter(Class clazz) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"    Zork z;\n" +
+			"}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -1.5 -warn:+unavoidableGenericProblems -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	public Object getAdapter(Class clazz);    \n" + 
+		"	                         ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+		"	public Object getAdapter(Class clazz) {\n" + 
+		"	                         ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 8)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3 problems (1 error, 2 warnings)",
+		true);
 }
 }

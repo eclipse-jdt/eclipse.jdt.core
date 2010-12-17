@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -957,6 +958,30 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTy
 		}
 	}
 	return expressionType;
+}
+/**
+ * Returns true if the receiver is forced to be of raw type either to satisfy the contract imposed
+ * by a super type or because it *is* raw and the current type has no control over it (i.e the rawness
+ * originates from some other file.
+ */
+public boolean forcedToBeRaw(ReferenceContext referenceContext) {
+	if (this instanceof NameReference) {
+		final Binding receiverBinding = ((NameReference) this).binding;
+		if (receiverBinding.isParameter() && (((LocalVariableBinding) receiverBinding).tagBits & TagBits.ForcedToBeRawType) != 0) {
+			return true;  // parameter is forced to be raw since super method uses raw types.
+		}
+	} else if (this instanceof MessageSend) {
+		if (!CharOperation.equals(((MessageSend) this).binding.declaringClass.getFileName(),
+				referenceContext.compilationResult().getFileName())) {  // problem is rooted elsewhere
+			return true;
+		}
+	} else if (this instanceof FieldReference) {
+		if (!CharOperation.equals(((FieldReference) this).binding.declaringClass.getFileName(),
+				referenceContext.compilationResult().getFileName())) { // problem is rooted elsewhere
+			return true;
+		}
+	}
+	return false;
 }
 
 /**

@@ -494,7 +494,9 @@ public TypeBinding resolveType(BlockScope scope) {
 				if (isLegal) {
 					this.expression.computeConversion(scope, castType, expressionType);
 					if ((this.bits & ASTNode.UnsafeCast) != 0) { // unsafe cast
-						scope.problemReporter().unsafeCast(this, scope);
+						if (scope.compilerOptions().reportUnavoidableGenericTypeProblems || !this.expression.forcedToBeRaw(scope.referenceContext())) {
+							scope.problemReporter().unsafeCast(this, scope);
+						}
 					} else {
 						if (castType.isRawType() && scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore){
 							scope.problemReporter().rawTypeReference(this.type, castType);

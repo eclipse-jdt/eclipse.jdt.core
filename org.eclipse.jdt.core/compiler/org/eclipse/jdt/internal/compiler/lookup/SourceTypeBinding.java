@@ -1365,7 +1365,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 		if (count < size)
 			System.arraycopy(method.thrownExceptions, 0, method.thrownExceptions = new ReferenceBinding[count], 0, count);
 	}
-
+	final boolean reportUnavoidableGenericTypeProblems = this.scope.compilerOptions().reportUnavoidableGenericTypeProblems;
 	boolean foundArgProblem = false;
 	Argument[] arguments = methodDecl.arguments;
 	if (arguments != null) {
@@ -1377,7 +1377,20 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 			if (arg.annotations != null) {
 				method.tagBits |= TagBits.HasParameterAnnotations;
 			}
-			TypeBinding parameterType = arg.type.resolveType(methodDecl.scope, true /* check bounds*/);
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817
+			boolean deferRawTypeCheck = !reportUnavoidableGenericTypeProblems && (arg.type.bits & ASTNode.IgnoreRawTypeCheck) == 0;
+			TypeBinding parameterType;
+			if (deferRawTypeCheck) {
+				arg.type.bits |= ASTNode.IgnoreRawTypeCheck;
+			}
+			try {
+				parameterType = arg.type.resolveType(methodDecl.scope, true /* check bounds*/);
+			} finally {
+				if (deferRawTypeCheck) { 
+					arg.type.bits &= ~ASTNode.IgnoreRawTypeCheck;
+				}
+			}
+		
 			if (parameterType == null) {
 				foundArgProblem = true;
 			} else if (parameterType == TypeBinding.VOID) {
@@ -1410,7 +1423,19 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 			method.returnType = null;
 			foundReturnTypeProblem = true;
 		} else {
-			TypeBinding methodType = returnType.resolveType(methodDecl.scope, true /* check bounds*/);
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817
+			boolean deferRawTypeCheck = !reportUnavoidableGenericTypeProblems && (returnType.bits & ASTNode.IgnoreRawTypeCheck) == 0;
+			TypeBinding methodType;
+			if (deferRawTypeCheck) {
+				returnType.bits |= ASTNode.IgnoreRawTypeCheck;
+			}
+			try {
+				methodType = returnType.resolveType(methodDecl.scope, true /* check bounds*/);
+			} finally {
+				if (deferRawTypeCheck) { 
+					returnType.bits &= ~ASTNode.IgnoreRawTypeCheck;
+				}
+			}
 			if (methodType == null) {
 				foundReturnTypeProblem = true;
 			} else if (methodType.isArrayType() && ((ArrayBinding) methodType).leafComponentType == TypeBinding.VOID) {

@@ -158,7 +158,7 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 				if (reportIncompatibleReturnTypeError(currentMethod, inheritedMethod))
 					continue nextMethod;
 			}
-
+			reportRawReferences(currentMethod, inheritedMethod); // if they were deferred, emit them now.
 			if (currentMethod.thrownExceptions != Binding.NO_EXCEPTIONS)
 				checkExceptions(currentMethod, inheritedMethod);
 			if (inheritedMethod.isFinal())
@@ -185,6 +185,9 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 	}
 }
 
+public void reportRawReferences(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	// nothing to do here. Real action happens at 1.5+
+}
 void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
 	// Remember that interfaces can only define public instance methods
 	if (concreteMethod.isStatic())

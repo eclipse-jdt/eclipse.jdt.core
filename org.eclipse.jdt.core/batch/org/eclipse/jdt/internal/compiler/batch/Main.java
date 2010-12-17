@@ -3530,6 +3530,11 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			} else if (token.equals("unusedTypeArgs")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, severity, isEnabling);
 				return;
+			} else if (token.equals("unavoidableGenericProblems")) { //$NON-NLS-1$
+				this.options.put(
+					CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems,
+					isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+				return;
 			}
 			break;
 		case 'v' :

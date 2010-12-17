@@ -10,8 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
@@ -398,6 +406,94 @@ boolean checkInheritedReturnTypes(MethodBinding method, MethodBinding otherMetho
 
 	return false;
 }
+
+void reportRawReferences() {
+	CompilerOptions compilerOptions = this.type.scope.compilerOptions();
+	if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_5 // shouldn't whine at all
+			|| compilerOptions.reportUnavoidableGenericTypeProblems) { // must have already whined 
+		return;
+	}
+	/* Code below is only for a method that does not override/implement a super type method. If it were to,
+	   it would have been handled in checkAgainstInheritedMethods.
+	*/
+	Object [] methodArray = this.currentMethods.valueTable;
+	for (int s = methodArray.length; --s >= 0;) {
+		if (methodArray[s] == null) continue;
+		MethodBinding[] current = (MethodBinding[]) methodArray[s];
+		for (int i = 0, length = current.length; i < length; i++) {
+			MethodBinding currentMethod = current[i];
+			if ((currentMethod.modifiers & (ExtraCompilerModifiers.AccImplementing | ExtraCompilerModifiers.AccOverriding)) == 0) {
+				AbstractMethodDeclaration methodDecl = currentMethod.sourceMethod();
+				if (methodDecl == null) return;
+				TypeBinding [] parameterTypes = currentMethod.parameters;
+				Argument[] arguments = methodDecl.arguments;
+				for (int j = 0, size = currentMethod.parameters.length; j < size; j++) {
+					TypeBinding parameterType = parameterTypes[j];
+					Argument arg = arguments[j];
+					if (parameterType.leafComponentType().isRawType()
+						&& compilerOptions.getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore
+			      		&& (arg.type.bits & ASTNode.IgnoreRawTypeCheck) == 0) {
+						methodDecl.scope.problemReporter().rawTypeReference(arg.type, parameterType);
+			    	}
+				}
+				if (!methodDecl.isConstructor() && methodDecl instanceof MethodDeclaration) {
+					TypeReference returnType = ((MethodDeclaration) methodDecl).returnType;
+					TypeBinding methodType = currentMethod.returnType;
+					if (returnType != null) {
+						if (methodType.leafComponentType().isRawType()
+								&& compilerOptions.getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore
+								&& (returnType.bits & ASTNode.IgnoreRawTypeCheck) == 0) {
+							methodDecl.scope.problemReporter().rawTypeReference(returnType, methodType);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+public void reportRawReferences(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	CompilerOptions compilerOptions = this.type.scope.compilerOptions();
+	if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_5 // shouldn't whine at all
+			|| compilerOptions.reportUnavoidableGenericTypeProblems) { // must have already whined 
+		return;
+	}
+	AbstractMethodDeclaration methodDecl = currentMethod.sourceMethod();
+	if (methodDecl == null) return;
+	TypeBinding [] parameterTypes = currentMethod.parameters;
+	TypeBinding [] inheritedParameterTypes = inheritedMethod.parameters;
+	Argument[] arguments = methodDecl.arguments;
+	for (int j = 0, size = currentMethod.parameters.length; j < size; j++) {
+		TypeBinding parameterType = parameterTypes[j];
+		TypeBinding inheritedParameterType = inheritedParameterTypes[j];
+		Argument arg = arguments[j];
+		if (parameterType.leafComponentType().isRawType()) {
+			if (inheritedParameterType.leafComponentType().isRawType()) {
+				arg.binding.tagBits |= TagBits.ForcedToBeRawType;
+			} else {
+				if (compilerOptions.getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore
+						&& (arg.type.bits & ASTNode.IgnoreRawTypeCheck) == 0) {
+					methodDecl.scope.problemReporter().rawTypeReference(arg.type, parameterType);
+				}
+			}
+    	}
+    }
+	TypeReference returnType = null;
+	if (!methodDecl.isConstructor() && methodDecl instanceof MethodDeclaration && (returnType = ((MethodDeclaration) methodDecl).returnType) != null) {
+		final TypeBinding inheritedMethodType = inheritedMethod.returnType;
+		final TypeBinding methodType = currentMethod.returnType;
+		if (methodType.leafComponentType().isRawType()) {
+			if (inheritedMethodType.leafComponentType().isRawType()) {
+				// 
+			} else {
+				if ((returnType.bits & ASTNode.IgnoreRawTypeCheck) == 0
+						&& compilerOptions.getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
+					methodDecl.scope.problemReporter().rawTypeReference(returnType, methodType);
+				}
+			}
+		}
+	}
+ }
+
 void checkMethods() {
 	boolean mustImplementAbstractMethods = mustImplementAbstractMethods();
 	boolean skipInheritedMethods = mustImplementAbstractMethods && canSkipInheritedMethods(); // have a single concrete superclass so only check overridden methods
@@ -903,6 +999,8 @@ void verify() {
 		this.type.detectAnnotationCycle();
 
 	super.verify();
+	
+	reportRawReferences();
 
 	for (int i = this.type.typeVariables.length; --i >= 0;) {
 		TypeVariableBinding var = this.type.typeVariables[i];
