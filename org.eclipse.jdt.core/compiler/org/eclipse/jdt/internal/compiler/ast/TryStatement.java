@@ -236,15 +236,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 								addPotentialInitializationsFrom(
 									handlingContext.initsOnReturn));
 				}else {
+					FlowInfo initsOnException = handlingContext.initsOnException(this.caughtExceptionTypes[i]);
 					catchInfo =
-						flowInfo.unconditionalCopy()
+						flowInfo.nullInfoLessUnconditionalCopy()
+							.addPotentialInitializationsFrom(initsOnException)
+							.addNullInfoFrom(initsOnException)	// null info only from here, this is the only way to enter the catch block
 							.addPotentialInitializationsFrom(
-								handlingContext.initsOnException(
-									this.caughtExceptionTypes[i]))
-									.addPotentialInitializationsFrom(tryInfo.unconditionalCopy())
+									tryInfo.nullInfoLessUnconditionalCopy())
 							.addPotentialInitializationsFrom(
-									handlingContext.initsOnReturn.
-									nullInfoLessUnconditionalCopy());
+									handlingContext.initsOnReturn.nullInfoLessUnconditionalCopy());
 				}
 
 				// catch var is always set

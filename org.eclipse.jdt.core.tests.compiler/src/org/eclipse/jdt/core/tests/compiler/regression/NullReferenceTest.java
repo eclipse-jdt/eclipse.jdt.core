@@ -13738,4 +13738,72 @@ public void testBug332637() {
 		"number = 3\n" + 
 		"-1");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=332637 
+// Dead Code detection removing code that isn't dead
+public void testBug332637b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	this.runConformTest(
+		new String[] {
+			"DeadCodeExample.java",
+			"public class DeadCodeExample {\n" + 
+			"\n" + 
+			"	private class CanceledException extends Exception {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private interface ProgressMonitor {\n" + 
+			"		boolean isCanceled();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private void checkForCancellation(ProgressMonitor monitor)\n" + 
+			"			throws CanceledException {\n" + 
+			"		if (monitor.isCanceled()) {\n" + 
+			"			throw new CanceledException();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private int run() {\n" + 
+			"\n" + 
+			"		ProgressMonitor monitor = new ProgressMonitor() {\n" + 
+			"			private int i = 0;\n" + 
+			"\n" + 
+			"			public boolean isCanceled() {\n" + 
+			"				return (++i == 5);\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"\n" + 
+			"		Integer number = null;\n" + 
+			"\n" + 
+			"		try {\n" + 
+			"			checkForCancellation(monitor);\n" + 
+			"\n" + 
+			"			number = Integer.valueOf(0);\n" + 
+			"\n" + 
+			"			for (String s : new String[10]) {\n" + 
+			"				checkForCancellation(monitor);\n" + 
+			"				number++;\n" + 
+			"			}\n" + 
+			"			return 0;\n" + 
+			"		} catch (CanceledException e) {\n" + 
+			"			System.out.println(\"Canceled after \" + number\n" + 
+			"				+ \" times through the loop\");\n" + 
+			"			if (number != null) {\n" + 
+			"				System.out.println(\"number = \" + number);\n" + 
+			"			}\n" + 
+			"			return -1;\n" + 
+			"		} finally {\n" +
+			"			System.out.println(\"Done\");\n" +
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(new DeadCodeExample().run());\n" + 
+			"	}\n" + 
+			"}\n"				
+		},
+		"Canceled after 3 times through the loop\n" + 
+		"number = 3\n" + 
+		"Done\n" + 
+		"-1");
+}
 }
