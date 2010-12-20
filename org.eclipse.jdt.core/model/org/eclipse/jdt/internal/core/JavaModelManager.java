@@ -3965,38 +3965,23 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		void save(ISaveContext context) throws IOException, JavaModelException {
-			IProject project = context.getProject();
-			if (project == null) { // save all projects if none specified (snapshot or full save)
-				saveProjects(getJavaModel().getJavaProjects());
-			}
-			else {
-				saveProjects(new IJavaProject[] {JavaCore.create(project)});
-			}
+			saveProjects(getJavaModel().getJavaProjects());
+			// remove variables that should not be saved
+			HashMap varsToSave = null;
+			Iterator iterator = JavaModelManager.this.variables.entrySet().iterator();
+			IEclipsePreferences defaultPreferences = getDefaultPreferences();
+			while (iterator.hasNext()) {
+				Map.Entry entry = (Map.Entry) iterator.next();
+				String varName = (String) entry.getKey();
+				if (defaultPreferences.get(CP_VARIABLE_PREFERENCES_PREFIX + varName, null) != null // don't save classpath variables from the default preferences as there is no delta if they are removed
+						|| CP_ENTRY_IGNORE_PATH.equals(entry.getValue())) {
 
-			switch (context.getKind()) {
-				case ISaveContext.FULL_SAVE :
-					// TODO (eric) - investigate after 3.3 if variables should be saved for a SNAPSHOT
-				case ISaveContext.SNAPSHOT :
-					// remove variables that should not be saved
-					HashMap varsToSave = null;
-					Iterator iterator = JavaModelManager.this.variables.entrySet().iterator();
-					IEclipsePreferences defaultPreferences = getDefaultPreferences();
-					while (iterator.hasNext()) {
-						Map.Entry entry = (Map.Entry) iterator.next();
-						String varName = (String) entry.getKey();
-						if (defaultPreferences.get(CP_VARIABLE_PREFERENCES_PREFIX + varName, null) != null // don't save classpath variables from the default preferences as there is no delta if they are removed
-								|| CP_ENTRY_IGNORE_PATH.equals(entry.getValue())) {
-
-							if (varsToSave == null)
-								varsToSave = new HashMap(JavaModelManager.this.variables);
-							varsToSave.remove(varName);
-						}
-					}
-					saveVariables(varsToSave != null ? varsToSave : JavaModelManager.this.variables);
-					break;
-				default :
-					// do nothing
+					if (varsToSave == null)
+						varsToSave = new HashMap(JavaModelManager.this.variables);
+					varsToSave.remove(varName);
+				}
 			}
+			saveVariables(varsToSave != null ? varsToSave : JavaModelManager.this.variables);
 		}
 
 		private void saveAccessRule(ClasspathAccessRule rule) throws IOException {

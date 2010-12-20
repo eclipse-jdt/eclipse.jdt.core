@@ -1034,6 +1034,40 @@ public void testContainerInitializer25() throws CoreException {
 	}
 }
 
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=327471
+ * [java.io.EOFException at java.io.DataInputStream.readInt(Unknown Source)]
+ * This test ensures that there is no exception on a restart of eclipse after
+ * the project is closed after the workspace save
+ */
+public void testContainerInitializer26() throws CoreException {
+	try {
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
+		IJavaProject p2 = createJavaProject(
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
+				"");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
+		
+		waitForAutoBuild();
+		getWorkspace().save(true/*full save*/, null/*no progress*/);		
+		p2.getProject().close(null); // close the project after the save and before the shutdown
+		JavaModelManager.getJavaModelManager().shutdown();
+		
+		startLogListening();
+		simulateRestart();
+		assertLogEquals(""); // no error should be logged
+
+	} finally {
+		stopLogListening();
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
 public void testVariableInitializer01() throws CoreException {
 	try {
 		createProject("P1");
