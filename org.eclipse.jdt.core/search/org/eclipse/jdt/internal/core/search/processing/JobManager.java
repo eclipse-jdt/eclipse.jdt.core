@@ -226,7 +226,7 @@ public abstract class JobManager implements Runnable {
 								float lastWorked = 0;
 								float totalWorked = 0;
 								while ((awaitingJobsCount = awaitingJobsCount()) > 0) {
-									if (subProgress != null && subProgress.isCanceled())
+									if (subProgress != null && subProgress.isCanceled() && this.processingThread == null)
 										throw new OperationCanceledException();
 									IJob currentJob = currentJob();
 									// currentJob can be null when jobs have been added to the queue but job manager is not enabled
