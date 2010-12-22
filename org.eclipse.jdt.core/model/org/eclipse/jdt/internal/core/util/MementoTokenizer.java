@@ -13,21 +13,21 @@ package org.eclipse.jdt.internal.core.util;
 import org.eclipse.jdt.internal.core.JavaElement;
 
 public class MementoTokenizer {
-	private static final String COUNT = Character.toString(JavaElement.JEM_COUNT);
-	private static final String JAVAPROJECT = Character.toString(JavaElement.JEM_JAVAPROJECT);
-	private static final String PACKAGEFRAGMENTROOT = Character.toString(JavaElement.JEM_PACKAGEFRAGMENTROOT);
-	private static final String PACKAGEFRAGMENT = Character.toString(JavaElement.JEM_PACKAGEFRAGMENT);
-	private static final String FIELD = Character.toString(JavaElement.JEM_FIELD);
-	private static final String METHOD = Character.toString(JavaElement.JEM_METHOD);
-	private static final String INITIALIZER = Character.toString(JavaElement.JEM_INITIALIZER);
-	private static final String COMPILATIONUNIT = Character.toString(JavaElement.JEM_COMPILATIONUNIT);
-	private static final String CLASSFILE = Character.toString(JavaElement.JEM_CLASSFILE);
-	private static final String TYPE = Character.toString(JavaElement.JEM_TYPE);
-	private static final String PACKAGEDECLARATION = Character.toString(JavaElement.JEM_PACKAGEDECLARATION);
-	private static final String IMPORTDECLARATION = Character.toString(JavaElement.JEM_IMPORTDECLARATION);
-	private static final String LOCALVARIABLE = Character.toString(JavaElement.JEM_LOCALVARIABLE);
-	private static final String TYPE_PARAMETER = Character.toString(JavaElement.JEM_TYPE_PARAMETER);
-	private static final String ANNOTATION = Character.toString(JavaElement.JEM_ANNOTATION);
+	public static final String COUNT = Character.toString(JavaElement.JEM_COUNT);
+	public static final String JAVAPROJECT = Character.toString(JavaElement.JEM_JAVAPROJECT);
+	public static final String PACKAGEFRAGMENTROOT = Character.toString(JavaElement.JEM_PACKAGEFRAGMENTROOT);
+	public static final String PACKAGEFRAGMENT = Character.toString(JavaElement.JEM_PACKAGEFRAGMENT);
+	public static final String FIELD = Character.toString(JavaElement.JEM_FIELD);
+	public static final String METHOD = Character.toString(JavaElement.JEM_METHOD);
+	public static final String INITIALIZER = Character.toString(JavaElement.JEM_INITIALIZER);
+	public static final String COMPILATIONUNIT = Character.toString(JavaElement.JEM_COMPILATIONUNIT);
+	public static final String CLASSFILE = Character.toString(JavaElement.JEM_CLASSFILE);
+	public static final String TYPE = Character.toString(JavaElement.JEM_TYPE);
+	public static final String PACKAGEDECLARATION = Character.toString(JavaElement.JEM_PACKAGEDECLARATION);
+	public static final String IMPORTDECLARATION = Character.toString(JavaElement.JEM_IMPORTDECLARATION);
+	public static final String LOCALVARIABLE = Character.toString(JavaElement.JEM_LOCALVARIABLE);
+	public static final String TYPE_PARAMETER = Character.toString(JavaElement.JEM_TYPE_PARAMETER);
+	public static final String ANNOTATION = Character.toString(JavaElement.JEM_ANNOTATION);
 
 	private final char[] memento;
 	private final int length;

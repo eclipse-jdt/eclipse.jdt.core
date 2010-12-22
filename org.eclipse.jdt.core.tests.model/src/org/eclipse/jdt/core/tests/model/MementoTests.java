@@ -92,7 +92,7 @@ public void setUpSuite() throws Exception {
 		"1.4");
 	this.createJavaProject(
 			"P",
-			new String[] {"src"},
+			new String[] {"src", "!"},
 			new String[] {
 				getExternalJCLPathString(),
 				"/P/lib",
@@ -793,5 +793,16 @@ public void testTypeParameter2() {
 	assertMemento(
 		"=P/src<p{X.java[X~foo]T",
 		typeParameter);
+}
+/*
+ * Test that a package fragment root name starting with '!' can be reconstructed from
+ * the handle identifier.
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=331821
+ */
+public void testBug331821() throws JavaModelException {
+	IPackageFragmentRoot root = getPackageFragmentRoot("P", "!");
+	String handleIdentifier = root.getHandleIdentifier();
+	IPackageFragmentRoot newRoot = (IPackageFragmentRoot) JavaCore.create(handleIdentifier);
+	assertEquals(root, newRoot);
 }
 }

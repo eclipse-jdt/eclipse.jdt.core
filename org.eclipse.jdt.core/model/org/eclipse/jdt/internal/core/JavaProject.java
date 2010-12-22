@@ -1555,12 +1555,11 @@ public class JavaProject
 				token = null;
 				while (memento.hasMoreTokens()) {
 					token = memento.nextToken();
-					char firstChar = token.charAt(0);
-					if (firstChar != JEM_PACKAGEFRAGMENT && firstChar != JEM_COUNT) {
-						rootPath += token;
-					} else {
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331821
+					if (token == MementoTokenizer.PACKAGEFRAGMENT || token == MementoTokenizer.COUNT) {
 						break;
 					}
+					rootPath += token;
 				}
 				JavaElement root = (JavaElement)getPackageFragmentRoot(new Path(rootPath));
 				if (token != null && token.charAt(0) == JEM_PACKAGEFRAGMENT) {
