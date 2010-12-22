@@ -1156,6 +1156,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					this.scribe.printNewLine();
 				}
 			} else if (hasConstants) {
+				this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
 				// only had a new line if there is at least one enum constant
 				this.scribe.printNewLine();
 			}

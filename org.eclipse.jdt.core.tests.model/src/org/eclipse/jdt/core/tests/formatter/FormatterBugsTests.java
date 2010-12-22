@@ -7628,4 +7628,23 @@ public void testBug328362() throws Exception {
 		"}\n"
 	);
 }
+
+/**
+ * @bug 332877: [formatter] line comment wrongly put on a new line
+ * @test Ensure that the comment on last enum constant is not wrongly put on a new line
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=332877"
+ */
+public void testBug332877() throws Exception {
+	String source =
+		"public enum Environment {\n" + 
+		"    PROD,       // Production level environments\n" + 
+		"    STAGING    // Staging\n" + 
+		"}\n";
+	formatSource(source,
+		"public enum Environment {\n" + 
+		"	PROD, // Production level environments\n" + 
+		"	STAGING // Staging\n" + 
+		"}\n"
+	);
+}
 }
