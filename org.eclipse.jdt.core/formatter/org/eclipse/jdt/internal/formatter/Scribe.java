@@ -1004,6 +1004,7 @@ public class Scribe implements IJavaDocTagConstants {
 				for (int i = 0; i < linesNumber; i++) {
 					printIndentationIfNecessary(this.tempBuffer);
 					this.tempBuffer.append(this.lineSeparator);
+					this.column = 1;
 				}
 				emptyLines = this.tempBuffer.toString();
 			} else {
@@ -1020,6 +1021,7 @@ public class Scribe implements IJavaDocTagConstants {
 				for (int i = 0; i < linesNumber; i++) {
 					printIndentationIfNecessary(this.tempBuffer);
 					this.tempBuffer.append(this.lineSeparator);
+					this.column = 1;
 				}
 				emptyLines = this.tempBuffer.toString();
 			} else {
@@ -1041,6 +1043,7 @@ public class Scribe implements IJavaDocTagConstants {
 				for (int i = 0; i < realNewLineNumber; i++) {
 					printIndentationIfNecessary(this.tempBuffer);
 					this.tempBuffer.append(this.lineSeparator);
+					this.column = 1;
 				}
 				emptyLines = this.tempBuffer.toString();
 			} else {

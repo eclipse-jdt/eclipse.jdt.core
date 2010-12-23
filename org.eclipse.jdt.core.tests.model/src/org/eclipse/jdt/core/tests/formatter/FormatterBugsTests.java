@@ -7630,6 +7630,59 @@ public void testBug328362() throws Exception {
 }
 
 /**
+ * @bug 332818: [formatter] Java formatter, Blank Lines tab, only 1st line indented when multiple lines is set
+ * @test Ensure that the indentation is set on all blank lines
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=332818"
+ */
+public void testBug332818() throws Exception {
+	this.formatterPrefs.indent_empty_lines = true;
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 99;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		" \n" + 
+		"  \n" + 
+		"   \n" + 
+		"    \n" + 
+		"	\n" + 
+		"    private String f1;\n" + 
+		"    \n" + 
+		"   \n" + 
+		"  \n" + 
+		" \n" + 
+		"\n" + 
+		"	\n" + 
+		"	private String f2;\n" + 
+		"	\n" + 
+		"		\n" + 
+		"			\n" + 
+		"	\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	private String f1;\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	private String f2;\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"	\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 332877: [formatter] line comment wrongly put on a new line
  * @test Ensure that the comment on last enum constant is not wrongly put on a new line
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=332877"
