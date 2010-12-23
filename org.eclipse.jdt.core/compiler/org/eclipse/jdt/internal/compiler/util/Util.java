@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     daolaf@gmail.com - Contribution for bug 3292227
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
@@ -677,7 +678,7 @@ public class Util implements SuffixConstants {
 	public static void reverseQuickSort(char[][] list, int left, int right) {
 		int original_left= left;
 		int original_right= right;
-		char[] mid= list[(right + left) / 2];
+		char[] mid= list[left + ((right-left)/2)];
 		do {
 			while (CharOperation.compareTo(list[left], mid) > 0) {
 				left++;
@@ -703,7 +704,7 @@ public class Util implements SuffixConstants {
 	public static void reverseQuickSort(char[][] list, int left, int right, int[] result) {
 		int original_left= left;
 		int original_right= right;
-		char[] mid= list[(right + left) / 2];
+		char[] mid= list[left + ((right-left)/2)];
 		do {
 			while (CharOperation.compareTo(list[left], mid) > 0) {
 				left++;

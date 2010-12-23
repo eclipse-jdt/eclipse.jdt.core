@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2009 IBM Corporation and others.
+ * Copyright (c) 2004, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -492,7 +492,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	protected CompletionProposal[] quickSort(CompletionProposal[] collection, int left, int right) {
 		int original_left = left;
 		int original_right = right;
-		CompletionProposal mid = collection[ (left + right) / 2];
+		CompletionProposal mid = collection[left + ((right - left)/2)];
 		do {
 			while (compare(mid, collection[left]) > 0)
 				// s[left] >= mid
