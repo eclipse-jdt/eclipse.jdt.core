@@ -1220,4 +1220,8 @@ public String toString() {
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
 	return this.methods;
 }
+
+public FieldBinding[] unResolvedFields() {
+	return this.fields;
+}
 }

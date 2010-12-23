@@ -1376,4 +1376,8 @@ public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
 	return methods();
 }
+
+public FieldBinding[] unResolvedFields() {
+	return Binding.NO_FIELDS;
+}
 }
