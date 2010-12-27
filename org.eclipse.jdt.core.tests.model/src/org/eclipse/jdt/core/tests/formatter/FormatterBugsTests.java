@@ -1242,7 +1242,8 @@ public void testBug198074_c1() throws JavaModelException {
 		"public class Test {\n" +
 		"\n" +
 		"	String foo(boolean enabled) {\n" +
-		"		if (enabled) {\n" +
+		"		if (enabled)\n" +
+		"		{\n" +
 		"			// we need x\n" +
 		"			// we need a select\n" +
 		"			return \"select x \"\n" +
@@ -1272,7 +1273,8 @@ public void testBug198074_c1b() throws JavaModelException {
 		"public class Test {\n" +
 		"\n" +
 		"    String foo(boolean enabled) {\n" +
-		"        if (enabled) {\n" +
+		"        if (enabled)\n" +
+		"        {\n" +
 		"            // we need x\n" +
 		"            // we need a select\n" +
 		"            return \"select x \"\n" +
@@ -1897,8 +1899,8 @@ public void testBug281655() throws JavaModelException {
 	formatSource(source,
 		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\",\n" + 
 		"		activationConfig = {\n" + 
-		"			@ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
-		"					propertyValue = \"0/10 * * * * ?\")\n" + 
+		"				@ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
+		"						propertyValue = \"0/10 * * * * ?\")\n" + 
 		"		})\n" + 
 		"@RunAs(\"admin\")\n" + 
 		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
@@ -2621,8 +2623,10 @@ public void testBug286601() throws JavaModelException {
 		"    }\n" +
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" +
-		"	public void aMethod() {\n" +
+		"public class Test\n" +
+		"{\n" +
+		"	public void aMethod()\n" +
+		"	{\n" +
 		"		Object anObject = new Object()\n" +
 		"		{\n" +
 		"			boolean aVariable;\n" +
@@ -2689,8 +2693,10 @@ public void testBug286601c() {
 		"    }\n" +
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" +
-		"	public void aMethod() {\n" +
+		"public class Test\n" +
+		"{\n" +
+		"	public void aMethod()\n" +
+		"	{\n" +
 		"		Object anObject = new Object()\n" +
 		"		{\n" +
 		"			boolean aVariable;\n" +
@@ -2721,8 +2727,10 @@ public void testBug286601d() {
 		"    }\n" +
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" +
-		"	public void aMethod() {\n" +
+		"public class Test\n" +
+		"{\n" +
+		"	public void aMethod()\n" +
+		"	{\n" +
 		"		Object anObject = new Object() /* comment */\n" +
 		"		{\n" +
 		"			boolean aVariable;\n" +
@@ -2735,384 +2743,216 @@ public void testBug286601d() {
 		"}\n"
 	);
 }
-public void testBug286601e() {
+public void testBug286601_massive_01() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
 	String source =
-		"public class Test\n" +
-		"{\n" +
-		"    public void build(String href) {\n" +
-		"        // set the href on the related topic\n" +
-		"        if (href == null)\n" +
-		"            setHref(\"\"); //$NON-NLS-1$\n" +
-		"        else {\n" +
-		"            if (!href.equals(\"\") // no empty link //$NON-NLS-1$\n" +
-		"                    && !href.startsWith(\"/\") // no help url //$NON-NLS-1$\n" +
-		"                    && href.indexOf(\':\') == -1) // no other protocols\n" +
-		"            {\n" +
-		"                setHref(\"/test/\" + href); //$NON-NLS-1$ //$NON-NLS-2$\n" +
-		"            }\n" +
-		"        }\n" +
-		"    }\n" +
+		"package massive;\n" + 
+		"public class X01 {\n" + 
+		"    public void build(String href) {\n" + 
+		"        // set the href on the related topic\n" + 
+		"        if (href == null)\n" + 
+		"            setHref(\"\"); //$NON-NLS-1$\n" + 
+		"        else {\n" + 
+		"            if (!href.equals(\"\") // no empty link //$NON-NLS-1$\n" + 
+		"                    && !href.startsWith(\"/\") // no help url //$NON-NLS-1$\n" + 
+		"                    && href.indexOf(\':\') == -1) // no other protocols\n" + 
+		"            {\n" + 
+		"                setHref(\"/test/\" + href); //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		"            }\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"\n" + 
+		"    private void setHref(String string)\n" + 
+		"    {\n" + 
+		"        \n" + 
+		"    }\n" + 
 		"}\n";
 	formatSource(source,
-		"public class Test\n" +
-		"{\n" +
-		"	public void build(String href)\n" +
-		"	{\n" +
-		"		// set the href on the related topic\n" +
-		"		if (href == null)\n" +
-		"			setHref(\"\"); //$NON-NLS-1$\n" +
-		"		else\n" +
-		"		{\n" +
-		"			if (!href.equals(\"\") // no empty link //$NON-NLS-1$\n" +
-		"					&& !href.startsWith(\"/\") // no help url //$NON-NLS-1$\n" +
-		"					&& href.indexOf(\':\') == -1) // no other protocols\n" +
-		"			{\n" +
-		"				setHref(\"/test/\" + href); //$NON-NLS-1$ //$NON-NLS-2$\n" +
-		"			}\n" +
-		"		}\n" +
-		"	}\n" +
+		"package massive;\n" + 
+		"\n" + 
+		"public class X01\n" + 
+		"{\n" + 
+		"	public void build(String href)\n" + 
+		"	{\n" + 
+		"		// set the href on the related topic\n" + 
+		"		if (href == null)\n" + 
+		"			setHref(\"\"); //$NON-NLS-1$\n" + 
+		"		else\n" + 
+		"		{\n" + 
+		"			if (!href.equals(\"\") // no empty link //$NON-NLS-1$\n" + 
+		"					&& !href.startsWith(\"/\") // no help url //$NON-NLS-1$\n" + 
+		"					&& href.indexOf(\':\') == -1) // no other protocols\n" + 
+		"			{\n" + 
+		"				setHref(\"/test/\" + href); //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	private void setHref(String string)\n" + 
+		"	{\n" + 
+		"\n" + 
+		"	}\n" + 
 		"}\n"
 	);
 }
-public void testBug286601f() {
+public void testBug286601_massive_02() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
 	String source =
-		"public class Test\n" +
-		"{\n" +
-		"    \n" +
-		"    private AntModel getAntModel(final File buildFile) {\n" +
-		"        AntModel model= new AntModel(XMLCore.getDefault(), doc, null, new LocationProvider(null) {\n" +
-		"            /* (non-Javadoc)\n" +
-		"             * @see org.eclipse.ant.internal.ui.editor.outline.ILocationProvider#getLocation()\n" +
-		"             */\n" +
-		"            public IPath getLocation() {\n" +
-		"                return new Path(buildFile.getAbsolutePath());\n" +
-		"            }\n" +
-		"        });\n" +
-		"        model.reconcile(null);\n" +
-		"        return model;\n" +
-		"    }\n" +
+		"package massive;\n" + 
+		"\n" + 
+		"public class X02\n" + 
+		"{\n" + 
+		"    \n" + 
+		"    private AntModel getAntModel(final File buildFile) {\n" + 
+		"        AntModel model= new AntModel(XMLCore.getDefault(), doc, null, new LocationProvider(null) {\n" + 
+		"            /* (non-Javadoc)\n" + 
+		"             * @see org.eclipse.ant.internal.ui.editor.outline.ILocationProvider#getLocation()\n" + 
+		"             */\n" + 
+		"            public IPath getLocation() {\n" + 
+		"                return new Path(buildFile.getAbsolutePath());\n" + 
+		"            }\n" + 
+		"        });\n" + 
+		"        model.reconcile(null);\n" + 
+		"        return model;\n" + 
+		"    }\n" + 
 		"}\n";
 	formatSource(source,
-		"public class Test\n" +
-		"{\n" +
-		"\n" +
-		"	private AntModel getAntModel(final File buildFile)\n" +
-		"	{\n" +
-		"		AntModel model = new AntModel(XMLCore.getDefault(), doc, null,\n" +
-		"				new LocationProvider(null)\n" +
-		"				{\n" +
-		"					/*\n" +
-		"					 * (non-Javadoc)\n" +
-		"					 * \n" +
-		"					 * @see\n" +
-		"					 * org.eclipse.ant.internal.ui.editor.outline.ILocationProvider\n" +
-		"					 * #getLocation()\n" +
-		"					 */\n" +
-		"					public IPath getLocation()\n" +
-		"					{\n" +
-		"						return new Path(buildFile.getAbsolutePath());\n" +
-		"					}\n" +
-		"				});\n" +
-		"		model.reconcile(null);\n" +
-		"		return model;\n" +
-		"	}\n" +
+		"package massive;\n" + 
+		"\n" + 
+		"public class X02\n" + 
+		"{\n" + 
+		"\n" + 
+		"	private AntModel getAntModel(final File buildFile)\n" + 
+		"	{\n" + 
+		"		AntModel model = new AntModel(XMLCore.getDefault(), doc, null,\n" + 
+		"				new LocationProvider(null)\n" + 
+		"				{\n" + 
+		"					/*\n" + 
+		"					 * (non-Javadoc)\n" + 
+		"					 * \n" + 
+		"					 * @see\n" + 
+		"					 * org.eclipse.ant.internal.ui.editor.outline.ILocationProvider\n" + 
+		"					 * #getLocation()\n" + 
+		"					 */\n" + 
+		"					public IPath getLocation()\n" + 
+		"					{\n" + 
+		"						return new Path(buildFile.getAbsolutePath());\n" + 
+		"					}\n" + 
+		"				});\n" + 
+		"		model.reconcile(null);\n" + 
+		"		return model;\n" + 
+		"	}\n" + 
 		"}\n"
 	);
 }
-public void testBug286601g() {
+public void testBug286601_massive_03() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	String source =
-		"package massive;\n" +
-		"\n" +
-		"public class X05\n" +
-		"{\n" +
-		"\n" +
-		"    public void foo() throws NullPointerException {\n" +
-		"\n" +
-		"        Object body = new Object() {\n" +
-		"            public void run(StringBuffer monitor) throws IllegalArgumentException {\n" +
-		"                IResourceVisitor visitor = new IResourceVisitor() {\n" +
-		"                    public boolean visit(String resource) throws IllegalArgumentException {\n" +
-		"                        return true;\n" +
-		"                    }\n" +
-		"                };\n" +
-		"            }\n" +
-		"        };\n" +
-		"    }\n" +
-		"\n" +
-		"}\n" +
-		"interface IResourceVisitor {\n" +
+		"package massive;\n" + 
+		"\n" + 
+		"public class X03\n" + 
+		"{\n" + 
+		"\n" + 
+		"    public void foo() throws NullPointerException {\n" + 
+		"\n" + 
+		"        Object body = new Object() {\n" + 
+		"            public void run(StringBuffer monitor) throws IllegalArgumentException {\n" + 
+		"                IResourceVisitor visitor = new IResourceVisitor() {\n" + 
+		"                    public boolean visit(String resource) throws IllegalArgumentException {\n" + 
+		"                        return true;\n" + 
+		"                    }\n" + 
+		"                };\n" + 
+		"            }\n" + 
+		"        };\n" + 
+		"    }\n" + 
+		"\n" + 
+		"}\n" + 
+		"interface IResourceVisitor {\n" + 
 		"}\n";
 	formatSource(source,
-		"package massive;\n" +
-		"\n" +
-		"public class X05 {\n" +
-		"\n" +
-		"	public void foo() throws NullPointerException {\n" +
-		"\n" +
-		"		Object body = new Object() {\n" +
-		"			public void run(StringBuffer monitor)\n" +
-		"					throws IllegalArgumentException {\n" +
-		"				IResourceVisitor visitor = new IResourceVisitor() {\n" +
-		"					public boolean visit(String resource)\n" +
-		"							throws IllegalArgumentException {\n" +
-		"						return true;\n" +
-		"					}\n" +
-		"				};\n" +
-		"			}\n" +
-		"		};\n" +
-		"	}\n" +
-		"\n" +
-		"}\n" +
-		"\n" +
-		"interface IResourceVisitor {\n" +
+		"package massive;\n" + 
+		"\n" + 
+		"public class X03\n" +
+		"{\n" + 
+		"\n" + 
+		"	public void foo() throws NullPointerException {\n" + 
+		"\n" + 
+		"		Object body = new Object() {\n" + 
+		"			public void run(StringBuffer monitor)\n" + 
+		"					throws IllegalArgumentException {\n" + 
+		"				IResourceVisitor visitor = new IResourceVisitor() {\n" + 
+		"					public boolean visit(String resource)\n" + 
+		"							throws IllegalArgumentException {\n" + 
+		"						return true;\n" + 
+		"					}\n" + 
+		"				};\n" + 
+		"			}\n" + 
+		"		};\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n" + 
+		"\n" + 
+		"interface IResourceVisitor {\n" + 
 		"}\n"
 	);
 }
-public void testBug286601h() {
+public void testBug286601_wksp_03b() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
 	String source =
-		"package massive;\n" +
-		"\n" +
-		"public class X05\n" +
-		"{\n" +
-		"\n" +
-		"    public void foo() throws NullPointerException {\n" +
-		"\n" +
-		"        Object body = new Object() {\n" +
-		"            public void run(StringBuffer monitor) throws IllegalArgumentException {\n" +
-		"                IResourceVisitor visitor = new IResourceVisitor() {\n" +
-		"                    public boolean visit(String resource) throws IllegalArgumentException {\n" +
-		"                        return true;\n" +
-		"                    }\n" +
-		"                };\n" +
-		"            }\n" +
-		"        };\n" +
-		"    }\n" +
-		"\n" +
-		"}\n" +
-		"interface IResourceVisitor {\n" +
+		"package massive;\n" + 
+		"\n" + 
+		"public class X03\n" + 
+		"{\n" + 
+		"\n" + 
+		"    public void foo() throws NullPointerException {\n" + 
+		"\n" + 
+		"        Object body = new Object() {\n" + 
+		"            public void run(StringBuffer monitor) throws IllegalArgumentException {\n" + 
+		"                IResourceVisitor visitor = new IResourceVisitor() {\n" + 
+		"                    public boolean visit(String resource) throws IllegalArgumentException {\n" + 
+		"                        return true;\n" + 
+		"                    }\n" + 
+		"                };\n" + 
+		"            }\n" + 
+		"        };\n" + 
+		"    }\n" + 
+		"\n" + 
+		"}\n" + 
+		"interface IResourceVisitor {\n" + 
 		"}\n";
 	formatSource(source,
-		"package massive;\n" +
-		"\n" +
-		"public class X05\n" +
-		"{\n" +
-		"\n" +
-		"	public void foo() throws NullPointerException\n" +
-		"	{\n" +
-		"\n" +
-		"		Object body = new Object()\n" +
-		"		{\n" +
-		"			public void run(StringBuffer monitor)\n" +
-		"					throws IllegalArgumentException\n" +
-		"			{\n" +
-		"				IResourceVisitor visitor = new IResourceVisitor()\n" +
-		"				{\n" +
-		"					public boolean visit(String resource)\n" +
-		"							throws IllegalArgumentException\n" +
-		"					{\n" +
-		"						return true;\n" +
-		"					}\n" +
-		"				};\n" +
-		"			}\n" +
-		"		};\n" +
-		"	}\n" +
-		"\n" +
-		"}\n" +
-		"\n" +
-		"interface IResourceVisitor\n" +
-		"{\n" +
-		"}\n"
-	);
-}
-public void testBug286601i1() {
-	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
-	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
-	String source =
-		"package massive;\n" +
-		"\n" +
-		"public class X06a {\n" +
-		"\n" +
-		"    \n" +
-		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" +
-		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" +
-		"    /* Comment 1 */\n" +
-		"    /* Comment 2 */ { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
-		"    /* Comment 3 */ { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
-		"    };\n" +
-		"\n" +
-		"}\n";
-	formatSource(source,
-		"package massive;\n" +
-		"\n" +
-		"public class X06a\n" +
-		"{\n" +
-		"\n" +
-		"	// Table to merge access modes for condition statements (e.g branch[x] ||\n" +
-		"	// branch[y]).\n" +
-		"	private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" +
-		"	{\n" +
-		"		/* Comment 1 */\n" +
-		"		/* Comment 2 */{ \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
-		"		/* Comment 3 */{ \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
-		"	};\n" +
-		"\n" +
-		"}\n"
-	);
-}
-public void testBug286601i2() {
-	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
-	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
-	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
-	String source =
-		"package massive;\n" +
-		"\n" +
-		"public class X06a {\n" +
-		"\n" +
-		"    \n" +
-		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" +
-		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" +
-		"    /* Comment 1 */\n" +
-		"    /* Comment 2 */ { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
-		"    /* Comment 3 */ { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
-		"    };\n" +
-		"\n" +
-		"}\n";
-	formatSource(source,
-		"package massive;\n" +
-		"\n" +
-		"public class X06a\n" +
-		"{\n" +
-		"\n" +
-		"    // Table to merge access modes for condition statements (e.g branch[x] ||\n" +
-		"    // branch[y]).\n" +
-		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" +
-		"    {\n" +
-		"     /* Comment 1 */\n" +
-		"     /* Comment 2 */{ \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
-		"     /* Comment 3 */{ \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
-		"    };\n" +
-		"\n" +
-		"}\n"
-	);
-}
-public void testBug286601j1() {
-	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
-	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
-	String source =
-		"package massive;\n" +
-		"\n" +
-		"public class X06b {\n" +
-		"\n" +
-		"    \n" +
-		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" +
-		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" +
-		"    { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
-		"    { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
-		"    };\n" +
-		"\n" +
-		"}\n";
-	formatSource(source,
-		"package massive;\n" +
-		"\n" +
-		"public class X06b\n" +
-		"{\n" +
-		"\n" +
-		"	// Table to merge access modes for condition statements (e.g branch[x] ||\n" +
-		"	// branch[y]).\n" +
-		"	private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" +
-		"	{\n" +
-		"		{ \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
-		"		{ \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
-		"	};\n" +
-		"\n" +
-		"}\n"
-	);
-}
-public void testBug286601j2() {
-	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
-	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
-	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
-	String source =
-		"package massive;\n" +
-		"\n" +
-		"public class X06b {\n" +
-		"\n" +
-		"    \n" +
-		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" +
-		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" +
-		"    { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
-		"    { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
-		"    };\n" +
-		"\n" +
-		"}\n";
-	formatSource(source,
-		"package massive;\n" +
-		"\n" +
-		"public class X06b\n" +
-		"{\n" +
-		"\n" +
-		"    // Table to merge access modes for condition statements (e.g branch[x] ||\n" +
-		"    // branch[y]).\n" +
-		"    private static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" +
-		"    {\n" +
-		"     { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" +
-		"     { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" +
-		"    };\n" +
-		"\n" +
-		"}\n"
-	);
-}
-public void testBug286601k() {
-	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
-	this.formatterPrefs.alignment_for_expressions_in_array_initializer = DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE;
-	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
-	String source =
-		"package massive;\n" +
-		"\n" +
-		"public class X07 {\n" +
-		"    private MinimizedFileSystemElement selectFiles(final Object rootFileSystemObject, final IImportStructureProvider structureProvider) {\n" +
-		"\n" +
-		"        BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {\n" +
-		"            public void run() {\n" +
-		"                //Create the root element from the supplied file system object\n" +
-		"            }\n" +
-		"        });\n" +
-		"\n" +
-		"        return null;\n" +
-		"    }\n" +
-		"}\n";
-	formatSource(source,
-		"package massive;\n" +
-		"\n" +
-		"public class X07\n" +
-		"{\n" +
-		"    private MinimizedFileSystemElement selectFiles(\n" +
-		"            final Object rootFileSystemObject,\n" +
-		"            final IImportStructureProvider structureProvider)\n" +
-		"    {\n" +
-		"\n" +
-		"        BusyIndicator.showWhile(getShell().getDisplay(), new Runnable()\n" +
-		"        {\n" +
-		"            public void run()\n" +
-		"            {\n" +
-		"                // Create the root element from the supplied file system object\n" +
-		"            }\n" +
-		"        });\n" +
-		"\n" +
-		"        return null;\n" +
-		"    }\n" +
+		"package massive;\n" + 
+		"\n" + 
+		"public class X03\n" + 
+		"{\n" + 
+		"\n" + 
+		"	public void foo() throws NullPointerException\n" + 
+		"	{\n" + 
+		"\n" + 
+		"		Object body = new Object()\n" + 
+		"		{\n" + 
+		"			public void run(StringBuffer monitor)\n" + 
+		"					throws IllegalArgumentException\n" + 
+		"			{\n" + 
+		"				IResourceVisitor visitor = new IResourceVisitor()\n" + 
+		"				{\n" + 
+		"					public boolean visit(String resource)\n" + 
+		"							throws IllegalArgumentException\n" + 
+		"					{\n" + 
+		"						return true;\n" + 
+		"					}\n" + 
+		"				};\n" + 
+		"			}\n" + 
+		"		};\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n" + 
+		"\n" + 
+		"interface IResourceVisitor\n" + 
+		"{\n" + 
 		"}\n"
 	);
 }
@@ -7019,14 +6859,14 @@ public void testBug313524_wksp1_02() throws JavaModelException {
 		"					MessageFormat\n" + 
 		"							.format(InternalAntMessages\n" + 
 		"									.getString(\"InternalAntRunner.Buildfile__{0}_does_not_exist_!_1\"), //$NON-NLS-1$\n" + 
-		"							new String[] { buildFile.getAbsolutePath() }));\n" + 
+		"									new String[] { buildFile.getAbsolutePath() }));\n" + 
 		"		}\n" + 
 		"		if (!buildFile.isFile()) {\n" + 
 		"			throw new BuildException(\n" + 
 		"					MessageFormat\n" + 
 		"							.format(InternalAntMessages\n" + 
 		"									.getString(\"InternalAntRunner.Buildfile__{0}_is_not_a_file_1\"), //$NON-NLS-1$\n" + 
-		"							new String[] { buildFile.getAbsolutePath() }));\n" + 
+		"									new String[] { buildFile.getAbsolutePath() }));\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -7625,6 +7465,2851 @@ public void testBug328362() throws Exception {
 		"\n" + 
 		"	int i;\n" + 
 		"\n" + 
+		"}\n"
+	);
+}
+
+/**
+ * @bug 330313: [formatter] 'Never join already wrapped lines' formatter option does correctly indent
+ * @test Ensure that indentation is correct when 'Never join already wrapped lines' is set
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=330313"
+ */
+public void testBug330313() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Test {\n" + 
+		"	private void helper2(\n" + 
+		"			 boolean[] booleans) {\n" + 
+		"		if (booleans[0]) {\n" + 
+		"\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	private void helper2(\n" + 
+		"			boolean[] booleans) {\n" + 
+		"		if (booleans[0]) {\n" + 
+		"\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313a() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Test {\n" + 
+		"	private void helper2(\n" + 
+		"			boolean[] booleans) {\n" + 
+		"		if (booleans[0]) {\n" + 
+		"\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source);
+}
+public void testBug330313b() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Test {\n" + 
+		"	private void helper2(\n" + 
+		"                boolean[] booleans) {\n" + 
+		"		if (booleans[0]) {\n" + 
+		"\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	private void helper2(\n" + 
+		"			boolean[] booleans) {\n" + 
+		"		if (booleans[0]) {\n" + 
+		"\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313c() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Test {\n" + 
+		"	private void helper2(\n" + 
+		"boolean[] booleans) {\n" + 
+		"		if (booleans[0]) {\n" + 
+		"\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	private void helper2(\n" + 
+		"			boolean[] booleans) {\n" + 
+		"		if (booleans[0]) {\n" + 
+		"\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313d() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Test {\n" + 
+		"	private void helper2(\n" + 
+		"			boolean[] booleans) {\n" + 
+		"		if (booleans[0]) {\n" + 
+		"\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	private void helper2(\n" + 
+		"			boolean[] booleans) {\n" + 
+		"		if (booleans[0]) {\n" + 
+		"\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_regression_187a() {
+	String source =
+		"import java.io.File;\n" + 
+		"\n" + 
+		"public class RegressionTest_187 {\n" + 
+		"\n" + 
+		"	private String createC42PDFCommandLine(String documentName) {\n" + 
+		"		return (Registry.getConvertToolPath() + File.separator +\n" + 
+		"			   Registry.getConvertToolName() +\n" + 
+		"			   \" -o \" + _workingDir + File.separator + documentName +\n" + 
+		"			   \" -l \" + _workingDir + File.separator + _fileList);\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"import java.io.File;\n" + 
+		"\n" + 
+		"public class RegressionTest_187 {\n" + 
+		"\n" + 
+		"	private String createC42PDFCommandLine(String documentName) {\n" + 
+		"		return (Registry.getConvertToolPath() + File.separator\n" + 
+		"				+ Registry.getConvertToolName() + \" -o \" + _workingDir\n" + 
+		"				+ File.separator + documentName + \" -l \" + _workingDir\n" + 
+		"				+ File.separator + _fileList);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_regression_187b() {
+	String source =
+		"import java.io.File;\n" + 
+		"\n" + 
+		"public class RegressionTest_187 {\n" + 
+		"\n" + 
+		"	private String createC42PDFCommandLine(String documentName) {\n" + 
+		"		return (Registry.getConvertToolPath() + File.separator +\n" + 
+		"			   Registry.getConvertToolName() +\n" + 
+		"			   (\" -o \" + _workingDir + File.separator + documentName +\n" + 
+		"			   (\" -l \" + _workingDir + File.separator + _fileList)));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"import java.io.File;\n" + 
+		"\n" + 
+		"public class RegressionTest_187 {\n" + 
+		"\n" + 
+		"	private String createC42PDFCommandLine(String documentName) {\n" + 
+		"		return (Registry.getConvertToolPath() + File.separator\n" + 
+		"				+ Registry.getConvertToolName() + (\" -o \" + _workingDir\n" + 
+		"				+ File.separator + documentName + (\" -l \" + _workingDir\n" + 
+		"				+ File.separator + _fileList)));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//static { TESTS_PREFIX = "testBug330313_wksp1"; }
+public void testBug330313_wksp1_01_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"    protected String getPrefixFromDocument(String aDocumentText, int anOffset) {\n" + 
+		"        int startOfWordToken = anOffset;\n" + 
+		"        \n" + 
+		"        char token= \'a\';\n" + 
+		"        if (startOfWordToken > 0) {\n" + 
+		"			token= aDocumentText.charAt(startOfWordToken - 1);\n" + 
+		"        }\n" + 
+		"        \n" + 
+		"        while (startOfWordToken > 0 \n" + 
+		"                && (Character.isJavaIdentifierPart(token) \n" + 
+		"                    || \'.\' == token\n" + 
+		"					|| \'-\' == token\n" + 
+		"        			|| \';\' == token)\n" + 
+		"                && !(\'$\' == token)) {\n" + 
+		"            startOfWordToken--;\n" + 
+		"            if (startOfWordToken == 0) {\n" + 
+		"            	break; //word goes right to the beginning of the doc\n" + 
+		"            }\n" + 
+		"			token= aDocumentText.charAt(startOfWordToken - 1);\n" + 
+		"        }\n" + 
+		"        return \"\";\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	protected String getPrefixFromDocument(String aDocumentText, int anOffset) {\n" + 
+		"		int startOfWordToken = anOffset;\n" + 
+		"\n" + 
+		"		char token = \'a\';\n" + 
+		"		if (startOfWordToken > 0) {\n" + 
+		"			token = aDocumentText.charAt(startOfWordToken - 1);\n" + 
+		"		}\n" + 
+		"\n" + 
+		"		while (startOfWordToken > 0\n" + 
+		"				&& (Character.isJavaIdentifierPart(token)\n" + 
+		"						|| \'.\' == token\n" + 
+		"						|| \'-\' == token\n" + 
+		"						|| \';\' == token)\n" + 
+		"				&& !(\'$\' == token)) {\n" + 
+		"			startOfWordToken--;\n" + 
+		"			if (startOfWordToken == 0) {\n" + 
+		"				break; // word goes right to the beginning of the doc\n" + 
+		"			}\n" + 
+		"			token = aDocumentText.charAt(startOfWordToken - 1);\n" + 
+		"		}\n" + 
+		"		return \"\";\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_02_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"  public void testMethod(String currentTokenVal,\n" + 
+		"                         int[][] expectedTokenSequencesVal,\n" + 
+		"                         String[] tokenImageVal\n" + 
+		"                        )\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X02 {\n" + 
+		"	public void testMethod(String currentTokenVal,\n" + 
+		"			int[][] expectedTokenSequencesVal,\n" + 
+		"			String[] tokenImageVal\n" + 
+		"			)\n" +
+		"	{\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_03_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X03 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"			if (declaringClass.isNestedType()){\n" + 
+		"				NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;\n" + 
+		"				this.scope.extraSyntheticArguments = nestedType.syntheticOuterLocalVariables();\n" + 
+		"				scope.computeLocalVariablePositions(// consider synthetic arguments if any\n" + 
+		"					nestedType.enclosingInstancesSlotSize + 1,\n" + 
+		"					codeStream);\n" + 
+		"				argSlotSize += nestedType.enclosingInstancesSlotSize;\n" + 
+		"				argSlotSize += nestedType.outerLocalVariablesSlotSize;\n" + 
+		"			} else {\n" + 
+		"				scope.computeLocalVariablePositions(1,  codeStream);\n" + 
+		"			}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X03 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		if (declaringClass.isNestedType()) {\n" + 
+		"			NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;\n" + 
+		"			this.scope.extraSyntheticArguments = nestedType\n" + 
+		"					.syntheticOuterLocalVariables();\n" + 
+		"			scope.computeLocalVariablePositions(// consider synthetic arguments\n" + 
+		"												// if any\n" + 
+		"					nestedType.enclosingInstancesSlotSize + 1,\n" + 
+		"					codeStream);\n" + 
+		"			argSlotSize += nestedType.enclosingInstancesSlotSize;\n" + 
+		"			argSlotSize += nestedType.outerLocalVariablesSlotSize;\n" + 
+		"		} else {\n" + 
+		"			scope.computeLocalVariablePositions(1, codeStream);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_04() {
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		for (;;) {\n" + 
+		"			if (act <= NUM_RULES) {               // reduce action\n" + 
+		"				tempStackTop--;\n" + 
+		"			} else if (act < ACCEPT_ACTION ||     // shift action\n" + 
+		"					 act > ERROR_ACTION) {        // shift-reduce action\n" + 
+		"				if (indx == MAX_DISTANCE)\n" + 
+		"					return indx;\n" + 
+		"				indx++;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		for (;;) {\n" + 
+		"			if (act <= NUM_RULES) { // reduce action\n" + 
+		"				tempStackTop--;\n" + 
+		"			} else if (act < ACCEPT_ACTION || // shift action\n" + 
+		"					act > ERROR_ACTION) { // shift-reduce action\n" + 
+		"				if (indx == MAX_DISTANCE)\n" + 
+		"					return indx;\n" + 
+		"				indx++;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_04_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		for (;;) {\n" + 
+		"			if (act <= NUM_RULES) {               // reduce action\n" + 
+		"				tempStackTop--;\n" + 
+		"			} else if (act < ACCEPT_ACTION ||     // shift action\n" + 
+		"					 act > ERROR_ACTION) {        // shift-reduce action\n" + 
+		"				if (indx == MAX_DISTANCE)\n" + 
+		"					return indx;\n" + 
+		"				indx++;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		for (;;) {\n" + 
+		"			if (act <= NUM_RULES) { // reduce action\n" + 
+		"				tempStackTop--;\n" + 
+		"			} else if (act < ACCEPT_ACTION || // shift action\n" + 
+		"					act > ERROR_ACTION) { // shift-reduce action\n" + 
+		"				if (indx == MAX_DISTANCE)\n" + 
+		"					return indx;\n" + 
+		"				indx++;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_05_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"\n" + 
+		"	private void foo() {\n" + 
+		"		setBuildFileLocation.invoke(runner, new Object[] { buildFileLocation });\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X05\n" + 
+		"{\n" + 
+		"\n" + 
+		"	private void foo()\n" + 
+		"	{\n" + 
+		"		setBuildFileLocation.invoke(runner, new Object[]\n" + 
+		"		{ buildFileLocation });\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_06_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X06 {\n" + 
+		"\n" + 
+		"	public void foo(Object index) {\n" + 
+		"\n" + 
+		"		try {\n" + 
+		"			index = this.manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);\n" + 
+		"		}\n" + 
+		"		finally {}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X06\n" + 
+		"{\n" + 
+		"\n" + 
+		"	public void foo(Object index)\n" + 
+		"	{\n" + 
+		"\n" + 
+		"		try\n" + 
+		"		{\n" + 
+		"			index = this.manager.getIndexForUpdate(this.containerPath, true, /*\n" + 
+		"																			 * reuse\n" + 
+		"																			 * index\n" + 
+		"																			 * file\n" + 
+		"																			 */\n" + 
+		"					true /* create if none */);\n" + 
+		"		} finally\n" + 
+		"		{\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_07() {
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X07 {\n" + 
+		"\n" + 
+		"static final long[] jjtoToken = {\n" + 
+		"   0x7fbfecffL, \n" + 
+		"};\n" + 
+		"static final long[] jjtoSkip = {\n" + 
+		"   0x400000L, \n" + 
+		"};\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X07 {\n" + 
+		"\n" + 
+		"	static final long[] jjtoToken = { 0x7fbfecffL, };\n" + 
+		"	static final long[] jjtoSkip = { 0x400000L, };\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_07_bnl() {
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X07 {\n" + 
+		"\n" + 
+		"static final long[] jjtoToken = {\n" + 
+		"   0x7fbfecffL, \n" + 
+		"};\n" + 
+		"static final long[] jjtoSkip = {\n" + 
+		"   0x400000L, \n" + 
+		"};\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X07\n" + 
+		"{\n" + 
+		"\n" + 
+		"	static final long[] jjtoToken =\n" + 
+		"	{ 0x7fbfecffL, };\n" + 
+		"	static final long[] jjtoSkip =\n" + 
+		"	{ 0x400000L, };\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_07_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X07 {\n" + 
+		"\n" + 
+		"static final long[] jjtoToken = {\n" + 
+		"   0x7fbfecffL, \n" + 
+		"};\n" + 
+		"static final long[] jjtoSkip = {\n" + 
+		"   0x400000L, \n" + 
+		"};\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X07 {\n" + 
+		"\n" + 
+		"	static final long[] jjtoToken = {\n" + 
+		"			0x7fbfecffL,\n" + 
+		"	};\n" + 
+		"	static final long[] jjtoSkip = {\n" + 
+		"			0x400000L,\n" + 
+		"	};\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_07_njl_bnl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X07 {\n" + 
+		"\n" + 
+		"static final long[] jjtoToken = {\n" + 
+		"   0x7fbfecffL, \n" + 
+		"};\n" + 
+		"static final long[] jjtoSkip = {\n" + 
+		"   0x400000L, \n" + 
+		"};\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X07\n" + 
+		"{\n" + 
+		"\n" + 
+		"	static final long[] jjtoToken =\n" + 
+		"	{\n" + 
+		"			0x7fbfecffL,\n" + 
+		"	};\n" + 
+		"	static final long[] jjtoSkip =\n" + 
+		"	{\n" + 
+		"			0x400000L,\n" + 
+		"	};\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_08_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X08 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		MinimizedFileSystemElement dummyParent =\n" + 
+		"			new MinimizedFileSystemElement(\"\", null, true);//$NON-NLS-1$\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X08 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		MinimizedFileSystemElement dummyParent =\n" + 
+		"				new MinimizedFileSystemElement(\"\", null, true);//$NON-NLS-1$\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// testCompare1159_1: org.eclipse.debug.internal.ui.DebugUIPropertiesAdapterFactory
+public void testBug330313_wksp1_09_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X09 {\n" + 
+		"	public Class[] getAdapterList() {\n" + 
+		"		return new Class[] {\n" + 
+		"			IWorkbenchAdapter.class\n" + 
+		"		};\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X09 {\n" + 
+		"	public Class[] getAdapterList() {\n" + 
+		"		return new Class[] {\n" + 
+		"				IWorkbenchAdapter.class\n" + 
+		"		};\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// testCompare1723_1: org.eclipse.jdt.internal.compiler.ast.DoubleLiteral
+public void testBug330313_wksp1_10_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X10 {\n" + 
+		"\n" + 
+		"public void computeConstant() {\n" + 
+		"\n" + 
+		"	if (true)\n" + 
+		"	{	//only a true 0 can be made of zeros\n" + 
+		"		//2.00000000000000000e-324 is illegal .... \n" + 
+		"	}}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X10 {\n" + 
+		"\n" + 
+		"	public void computeConstant() {\n" + 
+		"\n" + 
+		"		if (true)\n" + 
+		"		{ // only a true 0 can be made of zeros\n" + 
+		"			// 2.00000000000000000e-324 is illegal ....\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// testCompare1794_1: org.eclipse.jdt.internal.compiler.ast.ClassFile
+public void testBug330313_wksp1_11_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X11 {\n" + 
+		"	X11() {\n" + 
+		"		accessFlags\n" + 
+		"			&= ~(\n" + 
+		"				AccStrictfp\n" + 
+		"					| AccProtected\n" + 
+		"					| AccPrivate\n" + 
+		"					| AccStatic\n" + 
+		"					| AccSynchronized\n" + 
+		"					| AccNative);\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X11 {\n" + 
+		"	X11() {\n" + 
+		"		accessFlags &= ~(\n" + 
+		"				AccStrictfp\n" + 
+		"						| AccProtected\n" + 
+		"						| AccPrivate\n" + 
+		"						| AccStatic\n" + 
+		"						| AccSynchronized\n" + 
+		"						| AccNative);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// rg.eclipse.ant.ui/Ant Editor/org/eclipse/ant/internal/ui/editor/formatter/XmlFormatter.java
+public void testBug330313_wksp1_12() {
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X12 {\n" + 
+		"\n" + 
+		"    private static Document createDocument(String string, Position[] positions) throws IllegalArgumentException {\n" + 
+		"		Document doc= new Document(string);\n" + 
+		"		try {\n" + 
+		"			if (positions != null) {\n" + 
+		"				doc.addPositionUpdater(new DefaultPositionUpdater(POS_CATEGORY) {\n" + 
+		"					protected boolean notDeleted() {\n" + 
+		"						if (fOffset < fPosition.offset && (fPosition.offset + fPosition.length < fOffset + fLength)) {\n" + 
+		"							return false;\n" + 
+		"						}\n" + 
+		"						return true;\n" + 
+		"					}\n" + 
+		"				});\n" + 
+		"			}\n" + 
+		"		} catch (BadPositionCategoryException cannotHappen) {\n" + 
+		"			// can not happen: category is correctly set up\n" + 
+		"		}\n" + 
+		"		return doc;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X12 {\n" + 
+		"\n" + 
+		"	private static Document createDocument(String string, Position[] positions)\n" + 
+		"			throws IllegalArgumentException {\n" + 
+		"		Document doc = new Document(string);\n" + 
+		"		try {\n" + 
+		"			if (positions != null) {\n" + 
+		"				doc.addPositionUpdater(new DefaultPositionUpdater(POS_CATEGORY) {\n" + 
+		"					protected boolean notDeleted() {\n" + 
+		"						if (fOffset < fPosition.offset\n" + 
+		"								&& (fPosition.offset + fPosition.length < fOffset\n" + 
+		"										+ fLength)) {\n" + 
+		"							return false;\n" + 
+		"						}\n" + 
+		"						return true;\n" + 
+		"					}\n" + 
+		"				});\n" + 
+		"			}\n" + 
+		"		} catch (BadPositionCategoryException cannotHappen) {\n" + 
+		"			// can not happen: category is correctly set up\n" + 
+		"		}\n" + 
+		"		return doc;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_12_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X12 {\n" + 
+		"\n" + 
+		"    private static Document createDocument(String string, Position[] positions) throws IllegalArgumentException {\n" + 
+		"		Document doc= new Document(string);\n" + 
+		"		try {\n" + 
+		"			if (positions != null) {\n" + 
+		"				doc.addPositionUpdater(new DefaultPositionUpdater(POS_CATEGORY) {\n" + 
+		"					protected boolean notDeleted() {\n" + 
+		"						if (fOffset < fPosition.offset && (fPosition.offset + fPosition.length < fOffset + fLength)) {\n" + 
+		"							return false;\n" + 
+		"						}\n" + 
+		"						return true;\n" + 
+		"					}\n" + 
+		"				});\n" + 
+		"			}\n" + 
+		"		} catch (BadPositionCategoryException cannotHappen) {\n" + 
+		"			// can not happen: category is correctly set up\n" + 
+		"		}\n" + 
+		"		return doc;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X12 {\n" + 
+		"\n" + 
+		"	private static Document createDocument(String string, Position[] positions)\n" + 
+		"			throws IllegalArgumentException {\n" + 
+		"		Document doc = new Document(string);\n" + 
+		"		try {\n" + 
+		"			if (positions != null) {\n" + 
+		"				doc.addPositionUpdater(new DefaultPositionUpdater(POS_CATEGORY) {\n" + 
+		"					protected boolean notDeleted() {\n" + 
+		"						if (fOffset < fPosition.offset\n" + 
+		"								&& (fPosition.offset + fPosition.length < fOffset\n" + 
+		"										+ fLength)) {\n" + 
+		"							return false;\n" + 
+		"						}\n" + 
+		"						return true;\n" + 
+		"					}\n" + 
+		"				});\n" + 
+		"			}\n" + 
+		"		} catch (BadPositionCategoryException cannotHappen) {\n" + 
+		"			// can not happen: category is correctly set up\n" + 
+		"		}\n" + 
+		"		return doc;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case extracted from org.eclipse.ant.ui/org/eclipse/core/internal/dtree/NodeInfo.java
+public void testBug330313_wksp1_13() {
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X13 {\n" + 
+		"\n" + 
+		"	public boolean isEmptyDelta() {\n" + 
+		"		return (this.getType() == AbstractDataTreeNode.T_NO_DATA_DELTA_NODE && this.getNamesOfChildren().length == 0 && this.getNamesOfDeletedChildren().length == 0);\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X13 {\n" + 
+		"\n" + 
+		"	public boolean isEmptyDelta() {\n" + 
+		"		return (this.getType() == AbstractDataTreeNode.T_NO_DATA_DELTA_NODE\n" + 
+		"				&& this.getNamesOfChildren().length == 0 && this\n" + 
+		"					.getNamesOfDeletedChildren().length == 0);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_13_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X13 {\n" + 
+		"\n" + 
+		"	public boolean isEmptyDelta() {\n" + 
+		"		return (this.getType() == AbstractDataTreeNode.T_NO_DATA_DELTA_NODE && this.getNamesOfChildren().length == 0 && this.getNamesOfDeletedChildren().length == 0);\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X13 {\n" + 
+		"\n" + 
+		"	public boolean isEmptyDelta() {\n" + 
+		"		return (this.getType() == AbstractDataTreeNode.T_NO_DATA_DELTA_NODE\n" + 
+		"				&& this.getNamesOfChildren().length == 0 && this\n" + 
+		"					.getNamesOfDeletedChildren().length == 0);\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case extracted from org.eclipse.jdt.core/org/eclipse/jdt/internal/compiler/ast/SingleNameReference.java
+public void testBug330313_wksp1_14() {
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X14 {\n" + 
+		"	public void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			if (((bits & DepthMASK) != 0)\n" + 
+		"				&& (fieldBinding.isPrivate() // private access\n" + 
+		"					|| (fieldBinding.isProtected() // implicit protected access\n" + 
+		"							&& fieldBinding.declaringClass.getPackage() \n" + 
+		"								!= currentScope.enclosingSourceType().getPackage()))) {\n" + 
+		"				return;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X14 {\n" + 
+		"	public void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			if (((bits & DepthMASK) != 0) && (fieldBinding.isPrivate() // private\n" + 
+		"																		// access\n" + 
+		"					|| (fieldBinding.isProtected() // implicit protected access\n" + 
+		"					&& fieldBinding.declaringClass.getPackage() != currentScope\n" + 
+		"							.enclosingSourceType().getPackage()))) {\n" + 
+		"				return;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_14_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X14 {\n" + 
+		"	public void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			if (((bits & DepthMASK) != 0)\n" + 
+		"				&& (fieldBinding.isPrivate() // private access\n" + 
+		"					|| (fieldBinding.isProtected() // implicit protected access\n" + 
+		"							&& fieldBinding.declaringClass.getPackage() \n" + 
+		"								!= currentScope.enclosingSourceType().getPackage()))) {\n" + 
+		"				return;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X14 {\n" + 
+		"	public void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			if (((bits & DepthMASK) != 0)\n" + 
+		"					&& (fieldBinding.isPrivate() // private access\n" + 
+		"					|| (fieldBinding.isProtected() // implicit protected access\n" + 
+		"					&& fieldBinding.declaringClass.getPackage()\n" + 
+		"						!= currentScope.enclosingSourceType().getPackage()))) {\n" + 
+		"				return;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case extracted from org.eclipse.jdt.core/org/eclipse/jdt/internal/compiler/ast/SingleNameReference.java
+public void testBug330313_wksp1_15_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X15 {\n" + 
+		"	public void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			if (fieldBinding.declaringClass != this.actualReceiverType\n" + 
+		"				&& !this.actualReceiverType.isArrayType()	\n" + 
+		"				&& fieldBinding.declaringClass != null\n" + 
+		"				&& fieldBinding.constant == NotAConstant\n" + 
+		"				&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2 \n" + 
+		"						&& !fieldBinding.isStatic()\n" + 
+		"						&& fieldBinding.declaringClass.id != T_Object) // no change for Object fields (if there was any)\n" + 
+		"					|| !fieldBinding.declaringClass.canBeSeenBy(currentScope))){\n" + 
+		"				this.codegenBinding = currentScope.enclosingSourceType().getUpdatedFieldBinding(fieldBinding, (ReferenceBinding)this.actualReceiverType);\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X15 {\n" + 
+		"	public void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			if (fieldBinding.declaringClass != this.actualReceiverType\n" + 
+		"					&& !this.actualReceiverType.isArrayType()\n" + 
+		"					&& fieldBinding.declaringClass != null\n" + 
+		"					&& fieldBinding.constant == NotAConstant\n" + 
+		"					&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2\n" + 
+		"							&& !fieldBinding.isStatic()\n" + 
+		"							&& fieldBinding.declaringClass.id != T_Object) // no\n" + 
+		"																			// change\n" + 
+		"																			// for\n" + 
+		"																			// Object\n" + 
+		"																			// fields\n" + 
+		"																			// (if\n" + 
+		"																			// there\n" + 
+		"																			// was\n" + 
+		"																			// any)\n" + 
+		"							|| !fieldBinding.declaringClass\n" + 
+		"								.canBeSeenBy(currentScope))) {\n" + 
+		"				this.codegenBinding = currentScope.enclosingSourceType()\n" + 
+		"						.getUpdatedFieldBinding(fieldBinding,\n" + 
+		"								(ReferenceBinding) this.actualReceiverType);\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case 1941_1 (extracted from org.eclipse.jdt.core/org/eclipse/jdt/internal/compiler/ast/Parser.java)
+public void testBug330313_wksp1_16() {
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X16 {\n" + 
+		"void foo() {\n" + 
+		"	// recovery\n" + 
+		"	if (this.currentElement != null) {\n" + 
+		"		if (!(this.currentElement instanceof RecoveredType)\n" + 
+		"			&& (this.currentToken == TokenNameDOT\n" + 
+		"				//|| declaration.modifiers != 0\n" + 
+		"				|| (this.scanner.getLineNumber(declaration.type.sourceStart)\n" + 
+		"						!= this.scanner.getLineNumber((int) (namePosition >>> 32))))){\n" + 
+		"			return;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X16 {\n" + 
+		"	void foo() {\n" + 
+		"		// recovery\n" + 
+		"		if (this.currentElement != null) {\n" + 
+		"			if (!(this.currentElement instanceof RecoveredType)\n" + 
+		"					&& (this.currentToken == TokenNameDOT\n" + 
+		"					// || declaration.modifiers != 0\n" + 
+		"					|| (this.scanner\n" + 
+		"							.getLineNumber(declaration.type.sourceStart) != this.scanner\n" + 
+		"							.getLineNumber((int) (namePosition >>> 32))))) {\n" + 
+		"				return;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_16_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X16 {\n" + 
+		"void foo() {\n" + 
+		"	// recovery\n" + 
+		"	if (this.currentElement != null) {\n" + 
+		"		if (!(this.currentElement instanceof RecoveredType)\n" + 
+		"			&& (this.currentToken == TokenNameDOT\n" + 
+		"				//|| declaration.modifiers != 0\n" + 
+		"				|| (this.scanner.getLineNumber(declaration.type.sourceStart)\n" + 
+		"						!= this.scanner.getLineNumber((int) (namePosition >>> 32))))){\n" + 
+		"			return;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X16 {\n" + 
+		"	void foo() {\n" + 
+		"		// recovery\n" + 
+		"		if (this.currentElement != null) {\n" + 
+		"			if (!(this.currentElement instanceof RecoveredType)\n" + 
+		"					&& (this.currentToken == TokenNameDOT\n" + 
+		"					// || declaration.modifiers != 0\n" + 
+		"					|| (this.scanner\n" + 
+		"							.getLineNumber(declaration.type.sourceStart)\n" + 
+		"						!= this.scanner\n" + 
+		"							.getLineNumber((int) (namePosition >>> 32))))) {\n" + 
+		"				return;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case 1872_1 (extracted from org.eclipse.jdt.core/org/eclipse/jdt/internal/compiler/lookup/BlockScope.java)
+public void testBug330313_wksp1_17_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X17 {\n" + 
+		"	void foo() {\n" + 
+		"		if ((currentMethodScope = this.methodScope())\n" + 
+		"			!= outerLocalVariable.declaringScope.methodScope()) {\n" + 
+		"			return;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X17 {\n" + 
+		"	void foo() {\n" + 
+		"		if ((currentMethodScope = this.methodScope())\n" + 
+		"				!= outerLocalVariable.declaringScope.methodScope()) {\n" + 
+		"			return;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case 1964_1 (extracted from org.eclipse.jdt.core/org/eclipse/jdt/core/dom/ASTMatcher.java)
+public void testBug330313_wksp1_18_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X18 {\n" + 
+		"	public boolean foo() {\n" + 
+		"		return (\n" + 
+		"			safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())\n" + 
+		"				&& safeSubtreeListMatch(node.modifiers(), o.modifiers())\n" + 
+		"				&& safeSubtreeMatch(node.getName(), o.getName())\n" + 
+		"				&& safeSubtreeListMatch(node.arguments(), o.arguments())\n" + 
+		"				&& safeSubtreeListMatch(\n" + 
+		"					node.bodyDeclarations(),\n" + 
+		"					o.bodyDeclarations()));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X18 {\n" + 
+		"	public boolean foo() {\n" + 
+		"		return (safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())\n" + 
+		"				&& safeSubtreeListMatch(node.modifiers(), o.modifiers())\n" + 
+		"				&& safeSubtreeMatch(node.getName(), o.getName())\n" + 
+		"				&& safeSubtreeListMatch(node.arguments(), o.arguments())\n" + 
+		"				&& safeSubtreeListMatch(\n" + 
+		"					node.bodyDeclarations(),\n" + 
+		"					o.bodyDeclarations()));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_19_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X19 {\n" + 
+		"	public boolean foo() {\n" + 
+		"		return (\n" + 
+		"			safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())\n" + 
+		"				&& safeSubtreeListMatch(node.modifiers(), o.modifiers())\n" + 
+		"				&& safeSubtreeMatch(node.getName(), o.getName())\n" + 
+		"				&& safeSubtreeListMatch(node.superInterfaceTypes(), o.superInterfaceTypes())\n" + 
+		"				&& safeSubtreeListMatch(\n" + 
+		"					node.bodyDeclarations(),\n" + 
+		"					o.bodyDeclarations()));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X19 {\n" + 
+		"	public boolean foo() {\n" + 
+		"		return (safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())\n" + 
+		"				&& safeSubtreeListMatch(node.modifiers(), o.modifiers())\n" + 
+		"				&& safeSubtreeMatch(node.getName(), o.getName())\n" + 
+		"				&& safeSubtreeListMatch(node.superInterfaceTypes(),\n" + 
+		"						o.superInterfaceTypes())\n" + 
+		"				&& safeSubtreeListMatch(\n" + 
+		"					node.bodyDeclarations(),\n" + 
+		"					o.bodyDeclarations()));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case extracted from org.eclipse.debug.ui/ui/org/eclipse/debug/ui/AbstractDebugView.java
+public void testBug330313_wksp1_20_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X20 {\n" + 
+		"\n" + 
+		"  static final String decode(String entity) {\n" + 
+		"    if (true) {\n" + 
+		"      if (entity.charAt(2) == \'X\' || entity.charAt(2) == \'x\') {\n" + 
+		"      }\n" + 
+		"      Character c =\n" + 
+		"	new Character((char)Integer.parseInt(entity.substring(start), radix));\n" + 
+		"      return c.toString();\n" + 
+		"    }\n" + 
+		"	return \"\";\n" + 
+		"  }\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X20 {\n" + 
+		"\n" + 
+		"	static final String decode(String entity) {\n" + 
+		"		if (true) {\n" + 
+		"			if (entity.charAt(2) == \'X\' || entity.charAt(2) == \'x\') {\n" + 
+		"			}\n" + 
+		"			Character c =\n" + 
+		"					new Character((char) Integer.parseInt(\n" + 
+		"							entity.substring(start), radix));\n" + 
+		"			return c.toString();\n" + 
+		"		}\n" + 
+		"		return \"\";\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case extracted from org.apache.lucene/src/org/apache/lucene/demo/html/Entities.java
+public void testBug330313_wksp1_21_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X21 {\n" + 
+		"	public boolean isAvailable() {\n" + 
+		"		return !(getViewer() == null || getViewer().getControl() == null || getViewer().getControl().isDisposed());\n" + 
+		"	}	\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X21 {\n" + 
+		"	public boolean isAvailable() {\n" + 
+		"		return !(getViewer() == null || getViewer().getControl() == null || getViewer()\n" + 
+		"				.getControl().isDisposed());\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case extracted from differences noticed with patch v27.txt
+public void testBug330313_wksp1_22_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X22 {\n" + 
+		"	public boolean foo() {\n" + 
+		"		return (\n" + 
+		"				(node.isInterface() == o.isInterface())\n" + 
+		"				&& safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())\n" + 
+		"				&& safeSubtreeMatch(node.getName(), o.getName())\n" + 
+		"				&& safeSubtreeListMatch(node.bodyDeclarations(), o.bodyDeclarations()));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X22 {\n" + 
+		"	public boolean foo() {\n" + 
+		"		return ((node.isInterface() == o.isInterface())\n" + 
+		"				&& safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())\n" + 
+		"				&& safeSubtreeMatch(node.getName(), o.getName())\n" +
+		"				&& safeSubtreeListMatch(node.bodyDeclarations(),\n" + 
+		"					o.bodyDeclarations()));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_23_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X23 {\n" + 
+		"	void foo() {\n" + 
+		"		boolean wasError = IMarker.SEVERITY_ERROR\n" + 
+		"				== pb.getAttribute(IMarker.SEVERITY,\n" + 
+		"						IMarker.SEVERITY_ERROR);\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	);
+}
+public void testBug330313_wksp1_24_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X24 {\n" + 
+		"\n" + 
+		"	protected boolean canRunEvaluation() {\n" + 
+		"		// NOTE similar to #canStep, except a quiet suspend state is OK\n" + 
+		"		try {\n" + 
+		"			return isSuspendedQuiet() || (isSuspended()\n" + 
+		"					&& !(isPerformingEvaluation() || isInvokingMethod())\n" + 
+		"					&& !isStepping()\n" + 
+		"					&& getTopStackFrame() != null\n" + 
+		"					&& !getJavaDebugTarget().isPerformingHotCodeReplace());\n" + 
+		"		} catch (DebugException e) {\n" + 
+		"			return false;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	);
+}
+public void testBug330313_wksp1_25_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X25 {\n" + 
+		"\n" + 
+		"	void unloadIcon(ImageData icon) {\n" + 
+		"		int sizeImage = (((icon.width * icon.depth + 31) / 32 * 4) +\n" + 
+		"				((icon.width + 31) / 32 * 4)) * icon.height;\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	);
+}
+public void testBug330313_wksp1_26_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X26 {\n" + 
+		"\n" + 
+		"void foo() {\n" + 
+		"	for (int i = 0; i < data.length; i++) {\n" + 
+		"		byte s = data[i];\n" + 
+		"		sourceData[i] = (byte)(((s & 0x80) >> 7) |\n" + 
+		"			((s & 0x40) >> 5) |\n" + 
+		"			((s & 0x20) >> 3) |\n" + 
+		"			((s & 0x10) >> 1) |\n" + 
+		"			((s & 0x08) << 1) |\n" + 
+		"			((s & 0x04) << 3) |\n" + 
+		"			((s & 0x02) << 5) |\n" + 
+		"			((s & 0x01) << 7));\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X26 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		for (int i = 0; i < data.length; i++) {\n" + 
+		"			byte s = data[i];\n" + 
+		"			sourceData[i] = (byte) (((s & 0x80) >> 7) |\n" + 
+		"					((s & 0x40) >> 5) |\n" + 
+		"					((s & 0x20) >> 3) |\n" + 
+		"					((s & 0x10) >> 1) |\n" + 
+		"					((s & 0x08) << 1) |\n" + 
+		"					((s & 0x04) << 3) |\n" + 
+		"					((s & 0x02) << 5) |\n" + 
+		"					((s & 0x01) << 7));\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_27_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X27 {\n" + 
+		"	private void foo() {\n" + 
+		"\n" + 
+		"		if (_VerificationResult.getVerificationCode()\n" + 
+		"			== IVerificationResult.TYPE_ENTRY_SIGNED_UNRECOGNIZED\n" + 
+		"			|| _VerificationResult.getVerificationCode()\n" + 
+		"				== IVerificationResult.TYPE_ENTRY_SIGNED_RECOGNIZED) {\n" + 
+		"			// Group box\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X27 {\n" + 
+		"	private void foo() {\n" + 
+		"\n" + 
+		"		if (_VerificationResult.getVerificationCode()\n" + 
+		"					== IVerificationResult.TYPE_ENTRY_SIGNED_UNRECOGNIZED\n" + 
+		"				|| _VerificationResult.getVerificationCode()\n" + 
+		"					== IVerificationResult.TYPE_ENTRY_SIGNED_RECOGNIZED) {\n" + 
+		"			// Group box\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_28_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X28 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		if (fieldBinding.declaringClass != lastReceiverType\n" + 
+		"			&& !lastReceiverType.isArrayType()			\n" + 
+		"			&& fieldBinding.declaringClass != null\n" + 
+		"			&& fieldBinding.constant == NotAConstant\n" + 
+		"			&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2\n" + 
+		"					&& (fieldBinding != this.binding || this.indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())\n" + 
+		"					&& fieldBinding.declaringClass.id != T_Object)\n" + 
+		"				|| !(useDelegate\n" + 
+		"						? new CodeSnippetScope(currentScope).canBeSeenByForCodeSnippet(fieldBinding.declaringClass, (ReferenceBinding) this.delegateThis.type)\n" + 
+		"						: fieldBinding.declaringClass.canBeSeenBy(currentScope)))){\n" + 
+		"			// code\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X28 {\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		if (fieldBinding.declaringClass != lastReceiverType\n" + 
+		"				&& !lastReceiverType.isArrayType()\n" + 
+		"				&& fieldBinding.declaringClass != null\n" + 
+		"				&& fieldBinding.constant == NotAConstant\n" + 
+		"				&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2\n" + 
+		"						&& (fieldBinding != this.binding\n" + 
+		"								|| this.indexOfFirstFieldBinding > 1 || !fieldBinding\n" + 
+		"									.isStatic())\n" + 
+		"						&& fieldBinding.declaringClass.id != T_Object)\n" + 
+		"						|| !(useDelegate\n" + 
+		"							? new CodeSnippetScope(currentScope)\n" + 
+		"									.canBeSeenByForCodeSnippet(\n" + 
+		"											fieldBinding.declaringClass,\n" + 
+		"											(ReferenceBinding) this.delegateThis.type)\n" + 
+		"							: fieldBinding.declaringClass\n" +
+		"									.canBeSeenBy(currentScope)))) {\n" + 
+		"			// code\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_29_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X29 {\n" + 
+		"\n" + 
+		"	boolean foo() {\n" + 
+		"		return (pack != null && otherpack != null && isSamePackage(pack, otherpack));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X29 {\n" + 
+		"\n" + 
+		"	boolean foo() {\n" + 
+		"		return (pack != null && otherpack != null && isSamePackage(pack,\n" + 
+		"				otherpack));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_30_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X30 {\n" + 
+		"	private boolean isInTypeNestedInInputType(ASTNode node, TypeDeclaration inputType){\n" + 
+		"		return (isInAnonymousTypeInsideInputType(node, inputType) ||\n" + 
+		"				isInLocalTypeInsideInputType(node, inputType) ||\n" + 
+		"				isInNonStaticMemberTypeInsideInputType(node, inputType));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X30 {\n" + 
+		"	private boolean isInTypeNestedInInputType(ASTNode node,\n" + 
+		"			TypeDeclaration inputType) {\n" + 
+		"		return (isInAnonymousTypeInsideInputType(node, inputType) ||\n" + 
+		"				isInLocalTypeInsideInputType(node, inputType) || isInNonStaticMemberTypeInsideInputType(\n" + 
+		"					node, inputType));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_31_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X31 {\n" + 
+		"	void foo(int i) {\n" + 
+		"		if (true) {\n" + 
+		"			switch (i) {\n" + 
+		"				case 0:\n" + 
+		"					if (!((offset == (hashable.length - 1)) && !has95 && hasOneOf(meta63, hashable, offset - 2, 2) && !hasOneOf(meta64, hashable, offset - 4, 2)))\n" + 
+		"						buffer.append(\'R\');\n" + 
+		"					break;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X31 {\n" + 
+		"	void foo(int i) {\n" + 
+		"		if (true) {\n" + 
+		"			switch (i) {\n" + 
+		"			case 0:\n" + 
+		"				if (!((offset == (hashable.length - 1)) && !has95\n" + 
+		"						&& hasOneOf(meta63, hashable, offset - 2, 2) && !hasOneOf(\n" + 
+		"							meta64, hashable, offset - 4, 2)))\n" + 
+		"					buffer.append(\'R\');\n" + 
+		"				break;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_32_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X32 {\n" + 
+		"	public boolean equals(Object object) {\n" + 
+		"		TextAttribute a= (TextAttribute) object;\n" + 
+		"		return (a.style == style && equals(a.foreground, foreground) && equals(a.background, background));\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X32 {\n" + 
+		"	public boolean equals(Object object) {\n" + 
+		"		TextAttribute a = (TextAttribute) object;\n" + 
+		"		return (a.style == style && equals(a.foreground, foreground) && equals(\n" + 
+		"				a.background, background));\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case extracted from differences noticed with patch v29.txt
+public void testBug330313_wksp1_33() {
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X33 {\n" + 
+		"	void foo() {\n" + 
+		"        if(inMetaTag &&\n" + 
+		"                        (  t1.image.equalsIgnoreCase(\"name\") ||\n" + 
+		"                           t1.image.equalsIgnoreCase(\"HTTP-EQUIV\")\n" + 
+		"                        )\n" + 
+		"           && t2 != null)\n" + 
+		"        {\n" + 
+		"                currentMetaTag=t2.image.toLowerCase();\n" + 
+		"        }\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X33 {\n" + 
+		"	void foo() {\n" + 
+		"		if (inMetaTag\n" + 
+		"				&& (t1.image.equalsIgnoreCase(\"name\") || t1.image\n" + 
+		"						.equalsIgnoreCase(\"HTTP-EQUIV\")) && t2 != null) {\n" + 
+		"			currentMetaTag = t2.image.toLowerCase();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_33_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X33 {\n" + 
+		"	void foo() {\n" + 
+		"        if(inMetaTag &&\n" + 
+		"                        (  t1.image.equalsIgnoreCase(\"name\") ||\n" + 
+		"                           t1.image.equalsIgnoreCase(\"HTTP-EQUIV\")\n" + 
+		"                        )\n" + 
+		"           && t2 != null)\n" + 
+		"        {\n" + 
+		"                currentMetaTag=t2.image.toLowerCase();\n" + 
+		"        }\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X33 {\n" + 
+		"	void foo() {\n" + 
+		"		if (inMetaTag &&\n" + 
+		"				(t1.image.equalsIgnoreCase(\"name\") ||\n" + 
+		"				t1.image.equalsIgnoreCase(\"HTTP-EQUIV\")\n" + 
+		"				)\n" + 
+		"				&& t2 != null)\n" + 
+		"		{\n" + 
+		"			currentMetaTag = t2.image.toLowerCase();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_34_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X34 {\n" + 
+		"	private boolean compareMarkers(ResourceInfo oldElement, ResourceInfo newElement) {\n" + 
+		"		boolean bothNull = oldElement.getMarkers(false) == null && newElement.getMarkers(false) == null;\n" + 
+		"		return bothNull || oldElement.getMarkerGenerationCount() == newElement.getMarkerGenerationCount();\n" + 
+		"	}\n" + 
+		"	private boolean compareSync(ResourceInfo oldElement, ResourceInfo newElement) {\n" + 
+		"		return oldElement.getSyncInfoGenerationCount() == newElement.getSyncInfoGenerationCount();\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X34 {\n" + 
+		"	private boolean compareMarkers(ResourceInfo oldElement,\n" + 
+		"			ResourceInfo newElement) {\n" + 
+		"		boolean bothNull = oldElement.getMarkers(false) == null\n" + 
+		"				&& newElement.getMarkers(false) == null;\n" + 
+		"		return bothNull\n" + 
+		"				|| oldElement.getMarkerGenerationCount() == newElement\n" + 
+		"						.getMarkerGenerationCount();\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	private boolean compareSync(ResourceInfo oldElement, ResourceInfo newElement) {\n" + 
+		"		return oldElement.getSyncInfoGenerationCount() == newElement\n" + 
+		"				.getSyncInfoGenerationCount();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case extracted from differences noticed with patch v30.txt
+public void testBug330313_wksp1_35_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X35 {\n" + 
+		"	void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			if (20+lineNum*printGC.getFontMetrics().getHeight() > printer.getClientArea().height) {\n" + 
+		"				//\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X35 {\n" + 
+		"	void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			if (20 + lineNum * printGC.getFontMetrics().getHeight() > printer\n" + 
+		"					.getClientArea().height) {\n" + 
+		"				//\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case extracted from differences noticed with patch v32.txt
+public void testBug330313_wksp1_36_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X36 {\n" + 
+		"	public static boolean isRuntimeException(ITypeBinding thrownException) {\n" + 
+		"		if (thrownException == null || thrownException.isPrimitive() || thrownException.isArray())\n" + 
+		"			return false;\n" + 
+		"		return findTypeInHierarchy(thrownException, \"java.lang.RuntimeException\") != null; //$NON-NLS-1$\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X36 {\n" + 
+		"	public static boolean isRuntimeException(ITypeBinding thrownException) {\n" + 
+		"		if (thrownException == null || thrownException.isPrimitive()\n" + 
+		"				|| thrownException.isArray())\n" + 
+		"			return false;\n" + 
+		"		return findTypeInHierarchy(thrownException,\n" + 
+		"				\"java.lang.RuntimeException\") != null; //$NON-NLS-1$\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_37_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X37 {\n" + 
+		"	void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			if (ignoreQuickDiffPrefPage && (info.getAnnotationType().equals(\"org.eclipse.ui.workbench.texteditor.quickdiffChange\") //$NON-NLS-1$\n" + 
+		"					|| (info.getAnnotationType().equals(\"org.eclipse.ui.workbench.texteditor.quickdiffAddition\")) //$NON-NLS-1$\n" + 
+		"					|| (info.getAnnotationType().equals(\"org.eclipse.ui.workbench.texteditor.quickdiffDeletion\")) //$NON-NLS-1$\n" + 
+		"				)) \n" + 
+		"				continue;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X37 {\n" + 
+		"	void foo() {\n" + 
+		"		if (true) {\n" + 
+		"			if (ignoreQuickDiffPrefPage\n" + 
+		"					&& (info.getAnnotationType()\n" + 
+		"							.equals(\"org.eclipse.ui.workbench.texteditor.quickdiffChange\") //$NON-NLS-1$\n" + 
+		"							|| (info.getAnnotationType()\n" + 
+		"									.equals(\"org.eclipse.ui.workbench.texteditor.quickdiffAddition\")) //$NON-NLS-1$\n" + 
+		"					|| (info.getAnnotationType()\n" + 
+		"							.equals(\"org.eclipse.ui.workbench.texteditor.quickdiffDeletion\")) //$NON-NLS-1$\n" + 
+		"					))\n" + 
+		"				continue;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// Test case extracted from differences noticed with patch v33.txt
+public void testBug330313_wksp1_38_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X38 {\n" + 
+		"	void foo(boolean condition) {\n" + 
+		"		if (condition)\n" + 
+		"		{\n" + 
+		"			// block 1\n" + 
+		"		}\n" + 
+		"		else\n" + 
+		"		{\n" + 
+		"			// block 2\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	);
+}
+public void testBug330313_wksp1_39_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X39 {\n" + 
+		"/**\n" + 
+		" * <pre>\n" + 
+		" *		RadioGroupFieldEditor editor= new RadioGroupFieldEditor(\n" + 
+		" *			\"GeneralPage.DoubleClick\", resName, 1,\n" + 
+		" *			new String[][] {\n" + 
+		" *				{\"Open Browser\", \"open\"},\n" + 
+		" *				{\"Expand Tree\", \"expand\"}\n" + 
+		" *			},\n" + 
+		" *          parent);	\n" + 
+		" * </pre>\n" + 
+		" */\n" + 
+		"public void foo() {\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X39 {\n" + 
+		"	/**\n" + 
+		"	 * <pre>\n" + 
+		"	 * RadioGroupFieldEditor editor = new RadioGroupFieldEditor(\n" + 
+		"	 * 		&quot;GeneralPage.DoubleClick&quot;, resName, 1,\n" + 
+		"	 * 		new String[][] {\n" + 
+		"	 * 				{ &quot;Open Browser&quot;, &quot;open&quot; },\n" + 
+		"	 * 				{ &quot;Expand Tree&quot;, &quot;expand&quot; }\n" + 
+		"	 * 		},\n" + 
+		"	 * 		parent);\n" + 
+		"	 * </pre>\n" + 
+		"	 */\n" + 
+		"	public void foo() {\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_40_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X40 {\n" + 
+		"	protected final static String[][] TABLE= new String[][] {\n" + 
+		"								/*INACTIVE*/	/*PARTLY_ACTIVE */	/*ACTIVE */\n" + 
+		"		/* INACTIVE */		{	\"INACTIVE\",		\"PARTLY_ACTIVE\",		\"PARTLY_ACTIVE\" },\n" + 
+		"		/* PARTLY_ACTIVE*/	{	\"PARTLY_ACTIVE\", 	\"PARTLY_ACTIVE\",		\"PARTLY_ACTIVE\" },\n" + 
+		"		/* ACTIVE */		{	\"PARTLY_ACTIVE\", 	\"PARTLY_ACTIVE\",		\"ACTIVE\"}\n" + 
+		"	};\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X40 {\n" + 
+		"	protected final static String[][] TABLE = new String[][] {\n" + 
+		"			/* INACTIVE *//* PARTLY_ACTIVE *//* ACTIVE */\n" + 
+		"			/* INACTIVE */{ \"INACTIVE\", \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\" },\n" + 
+		"			/* PARTLY_ACTIVE */{ \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\",\n" + 
+		"					\"PARTLY_ACTIVE\" },\n" + 
+		"			/* ACTIVE */{ \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\", \"ACTIVE\" }\n" + 
+		"	};\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_41_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X41 {\n" + 
+		"	static final int [][] TABLE = {\n" + 
+		"		\n" + 
+		"		/* First */\n" + 
+		"		{1,	2},\n" + 
+		"		{3,	4},\n" + 
+		"		{5,	6},\n" + 
+		"//		{7????,	8},\n" + 
+		"\n" + 
+		"		/* Second */		\n" + 
+		"//		{11, 12},\n" + 
+		"//		{13, 14},\n" + 
+		"//		{15, 16},\n" + 
+		"		\n" + 
+		"		\n" + 
+		"		/* Third */\n" + 
+		"		{21,	22},\n" + 
+		"		{23,	24},\n" + 
+		"		{25,	26},\n" + 
+		"//		{27????,	28},\n" + 
+		"\n" + 
+		"		/* Others */\n" + 
+		"		{31,	32},\n" + 
+		"		{33,	34},\n" + 
+		"		{35,	36},\n" + 
+		"//		{37????,	38},\n" + 
+		"		\n" + 
+		"	};\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X41 {\n" + 
+		"	static final int[][] TABLE = {\n" + 
+		"\n" + 
+		"			/* First */\n" + 
+		"			{ 1, 2 },\n" + 
+		"			{ 3, 4 },\n" + 
+		"			{ 5, 6 },\n" + 
+		"			// {7????, 8},\n" + 
+		"\n" + 
+		"			/* Second */\n" + 
+		"			// {11, 12},\n" + 
+		"			// {13, 14},\n" + 
+		"			// {15, 16},\n" + 
+		"\n" + 
+		"			/* Third */\n" + 
+		"			{ 21, 22 },\n" + 
+		"			{ 23, 24 },\n" + 
+		"			{ 25, 26 },\n" + 
+		"			// {27????, 28},\n" + 
+		"\n" + 
+		"			/* Others */\n" + 
+		"			{ 31, 32 },\n" + 
+		"			{ 33, 34 },\n" + 
+		"			{ 35, 36 },\n" + 
+		"			// {37????, 38},\n" + 
+		"\n" + 
+		"	};\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_42_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X42 {\n" + 
+		"	static final byte[][] DashList = {\n" + 
+		"		{ },                   // SWT.LINE_SOLID\n" + 
+		"		{ 10, 4 },             // SWT.LINE_DASH\n" + 
+		"		{ 2, 2 },              // SWT.LINE_DOT\n" + 
+		"		{ 10, 4, 2, 4 },       // SWT.LINE_DASHDOT\n" + 
+		"		{ 10, 4, 2, 4, 2, 4 }  // SWT.LINE_DASHDOTDOT\n" + 
+		"	};\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X42 {\n" + 
+		"	static final byte[][] DashList = {\n" + 
+		"			{}, // SWT.LINE_SOLID\n" + 
+		"			{ 10, 4 }, // SWT.LINE_DASH\n" + 
+		"			{ 2, 2 }, // SWT.LINE_DOT\n" + 
+		"			{ 10, 4, 2, 4 }, // SWT.LINE_DASHDOT\n" + 
+		"			{ 10, 4, 2, 4, 2, 4 } // SWT.LINE_DASHDOTDOT\n" + 
+		"	};\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_43_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X43 {\n" + 
+		"	Cloneable clone;\n" + 
+		"X43() {\n" + 
+		"	this.clone = new Cloneable() {\n" + 
+		"		void foo(int x) {\n" + 
+		"			switch (x) {\n" + 
+		"				case 1:\n" + 
+		"				case 2:\n" + 
+		"					if (true) break;\n" + 
+		"					// FALL THROUGH\n" + 
+		"				case 3:\n" + 
+		"				case 4:\n" + 
+		"					break;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	};\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X43 {\n" + 
+		"	Cloneable clone;\n" + 
+		"\n" + 
+		"	X43() {\n" + 
+		"		this.clone = new Cloneable() {\n" + 
+		"			void foo(int x) {\n" + 
+		"				switch (x) {\n" + 
+		"				case 1:\n" + 
+		"				case 2:\n" + 
+		"					if (true)\n" + 
+		"						break;\n" + 
+		"					// FALL THROUGH\n" + 
+		"				case 3:\n" + 
+		"				case 4:\n" + 
+		"					break;\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		};\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_44_njl() {
+	// TODO Could be improved to put the all array statements at the same indentation...
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X44 {\n" + 
+		"	String foo() {\n" + 
+		"		return Policy.bind(\"CVSAnnotateBlock.6\", new Object[] { //$NON-NLS-1$\n" + 
+		"			user,\n" + 
+		"			revision,\n" + 
+		"			String.valueOf(delta),\n" + 
+		"			line\n" + 
+		"		});\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X44 {\n" + 
+		"	String foo() {\n" + 
+		"		return Policy.bind(\"CVSAnnotateBlock.6\", new Object[] { //$NON-NLS-1$\n" + 
+		"				user,\n" + 
+		"						revision,\n" + 
+		"						String.valueOf(delta),\n" + 
+		"						line\n" + 
+		"		});\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_45_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X45 {\n" + 
+		"		private String[][] TABLE  = {\n" + 
+		"			{\"COL_REVISION\", \"COL_DATE\", \"COL_AUTHOR\", \"COL_COMMENT\", \"COL_TAGS\"},	/* revision */ \n" + 
+		"			{\"COL_TAGS\", \"COL_REVISION\", \"COL_DATE\", \"COL_AUTHOR\", \"COL_COMMENT\"},	/* tags */\n" + 
+		"			{\"COL_DATE\", \"COL_REVISION\", \"COL_AUTHOR\", \"COL_COMMENT\", \"COL_TAGS\"},	/* date */\n" + 
+		"			{\"COL_AUTHOR\", \"COL_REVISION\", \"COL_DATE\", \"COL_COMMENT\", \"COL_TAGS\"},	/* author */\n" + 
+		"			{\"COL_COMMENT\", \"COL_REVISION\", \"COL_DATE\", \"COL_AUTHOR\", \"COL_TAGS\"}		/* comment */\n" + 
+		"		};\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X45 {\n" + 
+		"	private String[][] TABLE = {\n" + 
+		"			{ \"COL_REVISION\", \"COL_DATE\", \"COL_AUTHOR\", \"COL_COMMENT\",\n" + 
+		"					\"COL_TAGS\" }, /* revision */\n" + 
+		"			{ \"COL_TAGS\", \"COL_REVISION\", \"COL_DATE\", \"COL_AUTHOR\",\n" + 
+		"					\"COL_COMMENT\" }, /* tags */\n" + 
+		"			{ \"COL_DATE\", \"COL_REVISION\", \"COL_AUTHOR\", \"COL_COMMENT\",\n" + 
+		"					\"COL_TAGS\" }, /* date */\n" + 
+		"			{ \"COL_AUTHOR\", \"COL_REVISION\", \"COL_DATE\", \"COL_COMMENT\",\n" + 
+		"					\"COL_TAGS\" }, /* author */\n" + 
+		"			{ \"COL_COMMENT\", \"COL_REVISION\", \"COL_DATE\", \"COL_AUTHOR\",\n" + 
+		"					\"COL_TAGS\" } /* comment */\n" + 
+		"	};\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_46_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X46 {\n" + 
+		"	void foo() {\n" + 
+		"	    if (getActive() == StackPresentation.AS_ACTIVE_NOFOCUS) {\n" + 
+		"	        drawGradient(\n" + 
+		"	                colorRegistry.get(IWorkbenchThemeConstants.INACTIVE_TAB_TEXT_COLOR), \n" + 
+		"	                new Color [] {\n" + 
+		"	                        colorRegistry.get(IWorkbenchThemeConstants.INACTIVE_TAB_BG_START) \n" + 
+		"	                }, \n" + 
+		"	                new int [0],\n" + 
+		"	                true);	        \n" + 
+		"	    }\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X46 {\n" + 
+		"	void foo() {\n" + 
+		"		if (getActive() == StackPresentation.AS_ACTIVE_NOFOCUS) {\n" + 
+		"			drawGradient(\n" + 
+		"					colorRegistry\n" + 
+		"							.get(IWorkbenchThemeConstants.INACTIVE_TAB_TEXT_COLOR),\n" + 
+		"					new Color[] {\n" + 
+		"					colorRegistry\n" + 
+		"							.get(IWorkbenchThemeConstants.INACTIVE_TAB_BG_START)\n" + 
+		"					},\n" + 
+		"					new int[0],\n" + 
+		"					true);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_47_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X47 {\n" + 
+		"	void foo(int x) {\n" + 
+		"		switch (x) {\n" + 
+		"			case 0 :\n" + 
+		"				// case 0\n" + 
+		"				break;\n" + 
+		"			case 3 :\n" + 
+		"				// case 3\n" + 
+		"				break;\n" + 
+		"			//case -1 :\n" + 
+		"			// internal failure: trying to load variable not supposed to be generated\n" + 
+		"			//	break;\n" + 
+		"			default :\n" + 
+		"				// default\n" + 
+		"		}\n" + 
+		"		// last comment\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X47 {\n" + 
+		"	void foo(int x) {\n" + 
+		"		switch (x) {\n" + 
+		"		case 0:\n" + 
+		"			// case 0\n" + 
+		"			break;\n" + 
+		"		case 3:\n" + 
+		"			// case 3\n" + 
+		"			break;\n" + 
+		"		// case -1 :\n" + 
+		"		// internal failure: trying to load variable not supposed to be\n" + 
+		"		// generated\n" + 
+		"		// break;\n" + 
+		"		default:\n" + 
+		"			// default\n" + 
+		"		}\n" + 
+		"		// last comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_48_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X48 {\n" + 
+		"	void foo(int x) {\n" + 
+		"		switch (x) {\n" + 
+		"			case 0 :\n" + 
+		"				// case 0\n" + 
+		"				break;\n" + 
+		"			case 3 :\n" + 
+		"				// case 3\n" + 
+		"				break;\n" + 
+		"			//case -1 :\n" + 
+		"			// internal failure: trying to load variable not supposed to be generated\n" + 
+		"			//	break;\n" + 
+		"		}\n" + 
+		"		// last comment\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X48 {\n" + 
+		"	void foo(int x) {\n" + 
+		"		switch (x) {\n" + 
+		"		case 0:\n" + 
+		"			// case 0\n" + 
+		"			break;\n" + 
+		"		case 3:\n" + 
+		"			// case 3\n" + 
+		"			break;\n" + 
+		"		// case -1 :\n" + 
+		"		// internal failure: trying to load variable not supposed to be\n" + 
+		"		// generated\n" + 
+		"		// break;\n" + 
+		"		}\n" + 
+		"		// last comment\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_49_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X49 {\n" + 
+		"	void foo(int i) {\n" + 
+		"		if (true) {\n" + 
+		"			if (true) {\n" + 
+		"				this.foundTaskPositions[this.foundTaskCount] = new int[] { i, i + tagLength - 1 };\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X49 {\n" + 
+		"	void foo(int i) {\n" + 
+		"		if (true) {\n" + 
+		"			if (true) {\n" + 
+		"				this.foundTaskPositions[this.foundTaskCount] = new int[] { i,\n" + 
+		"						i + tagLength - 1 };\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_50_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X50 {\n" + 
+		"private void deployCodeSnippetClassIfNeeded(IRequestor requestor) {\n" + 
+		"	if (this.codeSnippetBinary == null) {\n" + 
+		"		// Deploy CodeSnippet class (only once)\n" + 
+		"		requestor.acceptClassFiles(\n" + 
+		"			new ClassFile[] {\n" + 
+		"				new ClassFile() {\n" + 
+		"					public byte[] getBytes() {\n" + 
+		"						return getCodeSnippetBytes();\n" + 
+		"					}\n" + 
+		"					public char[][] getCompoundName() {\n" + 
+		"						return EvaluationConstants.ROOT_COMPOUND_NAME;\n" + 
+		"					}\n" + 
+		"				}\n" + 
+		"			}, \n" + 
+		"			null);\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X50 {\n" + 
+		"	private void deployCodeSnippetClassIfNeeded(IRequestor requestor) {\n" + 
+		"		if (this.codeSnippetBinary == null) {\n" + 
+		"			// Deploy CodeSnippet class (only once)\n" + 
+		"			requestor.acceptClassFiles(\n" + 
+		"					new ClassFile[] {\n" + 
+		"					new ClassFile() {\n" + 
+		"						public byte[] getBytes() {\n" + 
+		"							return getCodeSnippetBytes();\n" + 
+		"						}\n" + 
+		"\n" + 
+		"						public char[][] getCompoundName() {\n" + 
+		"							return EvaluationConstants.ROOT_COMPOUND_NAME;\n" + 
+		"						}\n" + 
+		"					}\n" + 
+		"					},\n" + 
+		"					null);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_51_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X51 {\n" + 
+		"\n" + 
+		"protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreException {\n" + 
+		"	for (int i = 0, l = sourceLocations.length; i < l; i++) {\n" + 
+		"		sourceLocation.sourceFolder.accept(\n" + 
+		"			new IResourceProxyVisitor() {\n" + 
+		"				public boolean visit(IResourceProxy proxy) throws CoreException {\n" + 
+		"					IResource resource = null;\n" + 
+		"					switch(proxy.getType()) {\n" + 
+		"						case IResource.FILE :\n" + 
+		"							if (exclusionPatterns != null || inclusionPatterns != null) {\n" + 
+		"								resource = proxy.requestResource();\n" + 
+		"								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;\n" + 
+		"							}\n" + 
+		"							if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {\n" + 
+		"								if (resource == null)\n" + 
+		"									resource = proxy.requestResource();\n" + 
+		"								sourceFiles.add(new SourceFile((IFile) resource, sourceLocation));\n" + 
+		"							}\n" + 
+		"							return false;\n" + 
+		"						case IResource.FOLDER :\n" + 
+		"							if (exclusionPatterns != null && inclusionPatterns == null) {\n" + 
+		"								// if there are inclusion patterns then we must walk the children\n" + 
+		"								resource = proxy.requestResource();\n" + 
+		"								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;\n" + 
+		"							}\n" + 
+		"							if (isAlsoProject && isExcludedFromProject(proxy.requestFullPath())) return false;\n" + 
+		"					}\n" + 
+		"					return true;\n" + 
+		"				}\n" + 
+		"			},\n" + 
+		"			IResource.NONE\n" + 
+		"		);\n" + 
+		"		notifier.checkCancel();\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X51 {\n" + 
+		"\n" + 
+		"	protected void addAllSourceFiles(final ArrayList sourceFiles)\n" + 
+		"			throws CoreException {\n" + 
+		"		for (int i = 0, l = sourceLocations.length; i < l; i++) {\n" + 
+		"			sourceLocation.sourceFolder.accept(\n" + 
+		"					new IResourceProxyVisitor() {\n" + 
+		"						public boolean visit(IResourceProxy proxy)\n" + 
+		"								throws CoreException {\n" + 
+		"							IResource resource = null;\n" + 
+		"							switch (proxy.getType()) {\n" + 
+		"							case IResource.FILE:\n" + 
+		"								if (exclusionPatterns != null\n" + 
+		"										|| inclusionPatterns != null) {\n" + 
+		"									resource = proxy.requestResource();\n" + 
+		"									if (Util.isExcluded(resource,\n" + 
+		"											inclusionPatterns,\n" + 
+		"											exclusionPatterns))\n" + 
+		"										return false;\n" + 
+		"								}\n" + 
+		"								if (org.eclipse.jdt.internal.compiler.util.Util\n" + 
+		"										.isJavaFileName(proxy.getName())) {\n" + 
+		"									if (resource == null)\n" + 
+		"										resource = proxy.requestResource();\n" + 
+		"									sourceFiles.add(new SourceFile(\n" + 
+		"											(IFile) resource, sourceLocation));\n" + 
+		"								}\n" + 
+		"								return false;\n" + 
+		"							case IResource.FOLDER:\n" + 
+		"								if (exclusionPatterns != null\n" + 
+		"										&& inclusionPatterns == null) {\n" + 
+		"									// if there are inclusion patterns then we\n" + 
+		"									// must walk the children\n" + 
+		"									resource = proxy.requestResource();\n" + 
+		"									if (Util.isExcluded(resource,\n" + 
+		"											inclusionPatterns,\n" + 
+		"											exclusionPatterns))\n" + 
+		"										return false;\n" + 
+		"								}\n" + 
+		"								if (isAlsoProject\n" + 
+		"										&& isExcludedFromProject(proxy\n" + 
+		"												.requestFullPath()))\n" + 
+		"									return false;\n" + 
+		"							}\n" + 
+		"							return true;\n" + 
+		"						}\n" + 
+		"					},\n" + 
+		"					IResource.NONE\n" + 
+		"					);\n" + 
+		"			notifier.checkCancel();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_52_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X52 {\n" + 
+		"	protected FastSyncInfoFilter getKnownFailureCases() {\n" + 
+		"		return new OrSyncInfoFilter(new FastSyncInfoFilter[] {\n" + 
+		"			// Conflicting additions of files will fail\n" + 
+		"			new AndSyncInfoFilter(new FastSyncInfoFilter[] {\n" + 
+		"				FastSyncInfoFilter.getDirectionAndChangeFilter(SyncInfo.CONFLICTING, SyncInfo.ADDITION),\n" + 
+		"				new FastSyncInfoFilter() {\n" + 
+		"					public boolean select(SyncInfo info) {\n" + 
+		"						return info.getLocal().getType() == IResource.FILE;\n" + 
+		"					}\n" + 
+		"				}\n" + 
+		"			}),\n" + 
+		"			// Conflicting changes of files will fail if the local is not managed\n" + 
+		"			// or is an addition\n" + 
+		"			new AndSyncInfoFilter(new FastSyncInfoFilter[] {\n" + 
+		"				FastSyncInfoFilter.getDirectionAndChangeFilter(SyncInfo.CONFLICTING, SyncInfo.CHANGE),\n" + 
+		"				new FastSyncInfoFilter() {\n" + 
+		"					public boolean select(SyncInfo info) {\n" + 
+		"						if (info.getLocal().getType() == IResource.FILE) {\n" + 
+		"							try {\n" + 
+		"								ICVSFile cvsFile = CVSWorkspaceRoot.getCVSFileFor((IFile)info.getLocal());\n" + 
+		"								byte[] syncBytes = cvsFile.getSyncBytes();\n" + 
+		"								return (syncBytes == null || ResourceSyncInfo.isAddition(syncBytes));\n" + 
+		"							} catch (CVSException e) {\n" + 
+		"								CVSUIPlugin.log(e);\n" + 
+		"								// Fall though and try to update\n" + 
+		"							}\n" + 
+		"						}\n" + 
+		"						return false;\n" + 
+		"					}\n" + 
+		"				}\n" + 
+		"			}),\n" + 
+		"			// Conflicting changes involving a deletion on one side will aways fail\n" + 
+		"			new AndSyncInfoFilter(new FastSyncInfoFilter[] {\n" + 
+		"				FastSyncInfoFilter.getDirectionAndChangeFilter(SyncInfo.CONFLICTING, SyncInfo.CHANGE),\n" + 
+		"				new FastSyncInfoFilter() {\n" + 
+		"					public boolean select(SyncInfo info) {\n" + 
+		"						IResourceVariant remote = info.getRemote();\n" + 
+		"						IResourceVariant base = info.getBase();\n" + 
+		"						if (info.getLocal().exists()) {\n" + 
+		"							// local != base and no remote will fail\n" + 
+		"							return (base != null && remote == null);\n" + 
+		"						} else {\n" + 
+		"							// no local and base != remote\n" + 
+		"							return (base != null && remote != null && !base.equals(remote));\n" + 
+		"						}\n" + 
+		"					}\n" + 
+		"				}\n" + 
+		"			}),\n" + 
+		"			// Conflicts where the file type is binary will work but are not merged\n" + 
+		"			// so they should be skipped\n" + 
+		"			new AndSyncInfoFilter(new FastSyncInfoFilter[] {\n" + 
+		"				FastSyncInfoFilter.getDirectionAndChangeFilter(SyncInfo.CONFLICTING, SyncInfo.CHANGE),\n" + 
+		"				new FastSyncInfoFilter() {\n" + 
+		"					public boolean select(SyncInfo info) {\n" + 
+		"						IResource local = info.getLocal();\n" + 
+		"						if (local.getType() == IResource.FILE) {\n" + 
+		"							try {\n" + 
+		"								ICVSFile file = CVSWorkspaceRoot.getCVSFileFor((IFile)local);\n" + 
+		"								byte[] syncBytes = file.getSyncBytes();\n" + 
+		"								if (syncBytes != null) {\n" + 
+		"									return ResourceSyncInfo.isBinary(syncBytes);\n" + 
+		"								}\n" + 
+		"							} catch (CVSException e) {\n" + 
+		"								// There was an error obtaining or interpreting the sync bytes\n" + 
+		"								// Log it and skip the file\n" + 
+		"								CVSProviderPlugin.log(e);\n" + 
+		"								return true;\n" + 
+		"							}\n" + 
+		"						}\n" + 
+		"						return false;\n" + 
+		"					}\n" + 
+		"				}\n" + 
+		"			}),\n" + 
+		"			// Outgoing changes may not fail but they are skipped as well\n" + 
+		"			new SyncInfoDirectionFilter(SyncInfo.OUTGOING)\n" + 
+		"		});\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X52 {\n" + 
+		"	protected FastSyncInfoFilter getKnownFailureCases() {\n" + 
+		"		return new OrSyncInfoFilter(new FastSyncInfoFilter[] {\n" + 
+		"				// Conflicting additions of files will fail\n" + 
+		"				new AndSyncInfoFilter(new FastSyncInfoFilter[] {\n" + 
+		"						FastSyncInfoFilter.getDirectionAndChangeFilter(\n" + 
+		"								SyncInfo.CONFLICTING, SyncInfo.ADDITION),\n" + 
+		"						new FastSyncInfoFilter() {\n" + 
+		"							public boolean select(SyncInfo info) {\n" + 
+		"								return info.getLocal().getType() == IResource.FILE;\n" + 
+		"							}\n" + 
+		"						}\n" + 
+		"				}),\n" + 
+		"				// Conflicting changes of files will fail if the local is not\n" + 
+		"				// managed\n" + 
+		"				// or is an addition\n" + 
+		"				new AndSyncInfoFilter(new FastSyncInfoFilter[] {\n" + 
+		"						FastSyncInfoFilter.getDirectionAndChangeFilter(\n" + 
+		"								SyncInfo.CONFLICTING, SyncInfo.CHANGE),\n" + 
+		"						new FastSyncInfoFilter() {\n" + 
+		"							public boolean select(SyncInfo info) {\n" + 
+		"								if (info.getLocal().getType() == IResource.FILE) {\n" + 
+		"									try {\n" + 
+		"										ICVSFile cvsFile = CVSWorkspaceRoot\n" + 
+		"												.getCVSFileFor((IFile) info\n" + 
+		"														.getLocal());\n" + 
+		"										byte[] syncBytes = cvsFile\n" + 
+		"												.getSyncBytes();\n" + 
+		"										return (syncBytes == null || ResourceSyncInfo\n" + 
+		"												.isAddition(syncBytes));\n" + 
+		"									} catch (CVSException e) {\n" + 
+		"										CVSUIPlugin.log(e);\n" + 
+		"										// Fall though and try to update\n" + 
+		"									}\n" + 
+		"								}\n" + 
+		"								return false;\n" + 
+		"							}\n" + 
+		"						}\n" + 
+		"				}),\n" + 
+		"				// Conflicting changes involving a deletion on one side will\n" + 
+		"				// aways fail\n" + 
+		"				new AndSyncInfoFilter(new FastSyncInfoFilter[] {\n" + 
+		"						FastSyncInfoFilter.getDirectionAndChangeFilter(\n" + 
+		"								SyncInfo.CONFLICTING, SyncInfo.CHANGE),\n" + 
+		"						new FastSyncInfoFilter() {\n" + 
+		"							public boolean select(SyncInfo info) {\n" + 
+		"								IResourceVariant remote = info.getRemote();\n" + 
+		"								IResourceVariant base = info.getBase();\n" + 
+		"								if (info.getLocal().exists()) {\n" + 
+		"									// local != base and no remote will fail\n" + 
+		"									return (base != null && remote == null);\n" + 
+		"								} else {\n" + 
+		"									// no local and base != remote\n" + 
+		"									return (base != null && remote != null && !base\n" + 
+		"											.equals(remote));\n" + 
+		"								}\n" + 
+		"							}\n" + 
+		"						}\n" + 
+		"				}),\n" + 
+		"				// Conflicts where the file type is binary will work but are not\n" + 
+		"				// merged\n" + 
+		"				// so they should be skipped\n" + 
+		"				new AndSyncInfoFilter(new FastSyncInfoFilter[] {\n" + 
+		"						FastSyncInfoFilter.getDirectionAndChangeFilter(\n" + 
+		"								SyncInfo.CONFLICTING, SyncInfo.CHANGE),\n" + 
+		"						new FastSyncInfoFilter() {\n" + 
+		"							public boolean select(SyncInfo info) {\n" + 
+		"								IResource local = info.getLocal();\n" + 
+		"								if (local.getType() == IResource.FILE) {\n" + 
+		"									try {\n" + 
+		"										ICVSFile file = CVSWorkspaceRoot\n" + 
+		"												.getCVSFileFor((IFile) local);\n" + 
+		"										byte[] syncBytes = file.getSyncBytes();\n" + 
+		"										if (syncBytes != null) {\n" + 
+		"											return ResourceSyncInfo\n" + 
+		"													.isBinary(syncBytes);\n" + 
+		"										}\n" + 
+		"									} catch (CVSException e) {\n" + 
+		"										// There was an error obtaining or\n" + 
+		"										// interpreting the sync bytes\n" + 
+		"										// Log it and skip the file\n" + 
+		"										CVSProviderPlugin.log(e);\n" + 
+		"										return true;\n" + 
+		"									}\n" + 
+		"								}\n" + 
+		"								return false;\n" + 
+		"							}\n" + 
+		"						}\n" + 
+		"				}),\n" + 
+		"				// Outgoing changes may not fail but they are skipped as well\n" + 
+		"				new SyncInfoDirectionFilter(SyncInfo.OUTGOING)\n" + 
+		"		});\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp1_53_njl_bnl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X53 {\n" + 
+		"	static final short[][][] BLACK_CODE = {\n" + 
+		"		/* 9 bits  */\n" + 
+		"		{{24, 15}},\n" + 
+		"		/* 10 bits */\n" + 
+		"		{{8, 18}, {15, 64}, {23, 16}, {24, 17}, {55, 0}},\n" + 
+		"		/* 11 bits */\n" + 
+		"		{/* EOL */{0, -1}, {8, 1792}, {23, 24}, {24, 25}, {40, 23}, {55, 22}, {103, 19},\n" + 
+		"		{104, 20}, {108, 21}, {12, 1856}, {13, 1920}},\n" + 
+		"	};\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp1;\n" + 
+		"\n" + 
+		"public class X53\n" + 
+		"{\n" + 
+		"	static final short[][][] BLACK_CODE =\n" + 
+		"	{\n" + 
+		"			/* 9 bits */\n" + 
+		"			{\n" + 
+		"			{ 24, 15 } },\n" + 
+		"			/* 10 bits */\n" + 
+		"			{\n" + 
+		"			{ 8, 18 },\n" + 
+		"			{ 15, 64 },\n" + 
+		"			{ 23, 16 },\n" + 
+		"			{ 24, 17 },\n" + 
+		"			{ 55, 0 } },\n" + 
+		"			/* 11 bits */\n" + 
+		"			{/* EOL */\n" + 
+		"			{ 0, -1 },\n" + 
+		"			{ 8, 1792 },\n" + 
+		"			{ 23, 24 },\n" + 
+		"			{ 24, 25 },\n" + 
+		"			{ 40, 23 },\n" + 
+		"			{ 55, 22 },\n" + 
+		"			{ 103, 19 },\n" + 
+		"			{ 104, 20 },\n" + 
+		"			{ 108, 21 },\n" + 
+		"			{ 12, 1856 },\n" + 
+		"			{ 13, 1920 } },\n" + 
+		"	};\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp2_01 () {
+	String source =
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"    static final Object[][] contents = {\n" + 
+		"        // comment\n" + 
+		"        { \"STR1\",\n" + 
+		"        	// comment\n" + 
+		"            new String[] { \"STR\",     // comment\n" + 
+		"                           \"STR\",     // comment\n" + 
+		"                           \"STR\"}     // comment\n" + 
+		"        }\n" + 
+		"\n" + 
+		"    };\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package wksp2;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"\n" + 
+		"	static final Object[][] contents = {\n" + 
+		"	// comment\n" + 
+		"	{ \"STR1\",\n" + 
+		"			// comment\n" + 
+		"			new String[] { \"STR\", // comment\n" + 
+		"					\"STR\", // comment\n" + 
+		"					\"STR\" } // comment\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	};\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_wksp3_X01_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"package wksp3;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"    private static final String foo[][] = {\n" + 
+		"        // line 1\n" + 
+		"        // line 2\n" + 
+		"        {\"A\", \"B\", \"C\", \"D\", \"E\"} // comment\n" + 
+		"    };\n" + 
+		"}\n";
+	formatSource(source	,
+		"package wksp3;\n" + 
+		"\n" + 
+		"public class X01 {\n" + 
+		"	private static final String foo[][] = {\n" + 
+		"			// line 1\n" + 
+		"			// line 2\n" + 
+		"			{ \"A\", \"B\", \"C\", \"D\", \"E\" } // comment\n" + 
+		"	};\n" + 
+		"}\n"
+	);
+}
+// Test cases added from bug 286601
+public void testBug330313_b286601_04() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_ONE_PER_LINE_SPLIT;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package b286601;\n" + 
+		"\n" + 
+		"public class X04 {\n" + 
+		"\n" + 
+		"    \n" + 
+		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" + 
+		"    private static final int[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" + 
+		"    /*                        UNUSED           READ             READ_POTENTIAL   WRTIE            WRITE_POTENTIAL  UNKNOWN */\n" + 
+		"    /* UNUSED */            { UNUSED,          READ_POTENTIAL,  READ_POTENTIAL,  WRITE_POTENTIAL, WRITE_POTENTIAL, UNKNOWN },\n" + 
+		"    /* READ */              { READ_POTENTIAL,  READ,            READ_POTENTIAL,  UNKNOWN,         UNKNOWN,         UNKNOWN },\n" + 
+		"    /* READ_POTENTIAL */    { READ_POTENTIAL,  READ_POTENTIAL,  READ_POTENTIAL,  UNKNOWN,         UNKNOWN,         UNKNOWN },\n" + 
+		"    /* WRITE */             { WRITE_POTENTIAL, UNKNOWN,         UNKNOWN,         WRITE,           WRITE_POTENTIAL, UNKNOWN },\n" + 
+		"    /* WRITE_POTENTIAL */   { WRITE_POTENTIAL, UNKNOWN,         UNKNOWN,         WRITE_POTENTIAL, WRITE_POTENTIAL, UNKNOWN },\n" + 
+		"    /* UNKNOWN */           { UNKNOWN,         UNKNOWN,         UNKNOWN,         UNKNOWN,         UNKNOWN,         UNKNOWN }\n" + 
+		"    };\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package b286601;\n" + 
+		"\n" + 
+		"public class X04\n" + 
+		"{\n" + 
+		"\n" + 
+		"	// Table to merge access modes for condition statements (e.g branch[x] ||\n" + 
+		"	// branch[y]).\n" + 
+		"	private static final int[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" + 
+		"	{\n" + 
+		"			/* UNUSED READ READ_POTENTIAL WRTIE WRITE_POTENTIAL UNKNOWN */\n" + 
+		"			/* UNUSED */{\n" + 
+		"					UNUSED,\n" + 
+		"					READ_POTENTIAL,\n" + 
+		"					READ_POTENTIAL,\n" + 
+		"					WRITE_POTENTIAL,\n" + 
+		"					WRITE_POTENTIAL,\n" + 
+		"					UNKNOWN },\n" + 
+		"			/* READ */{\n" + 
+		"					READ_POTENTIAL,\n" + 
+		"					READ,\n" + 
+		"					READ_POTENTIAL,\n" + 
+		"					UNKNOWN,\n" + 
+		"					UNKNOWN,\n" + 
+		"					UNKNOWN },\n" + 
+		"			/* READ_POTENTIAL */{\n" + 
+		"					READ_POTENTIAL,\n" + 
+		"					READ_POTENTIAL,\n" + 
+		"					READ_POTENTIAL,\n" + 
+		"					UNKNOWN,\n" + 
+		"					UNKNOWN,\n" + 
+		"					UNKNOWN },\n" + 
+		"			/* WRITE */{\n" + 
+		"					WRITE_POTENTIAL,\n" + 
+		"					UNKNOWN,\n" + 
+		"					UNKNOWN,\n" + 
+		"					WRITE,\n" + 
+		"					WRITE_POTENTIAL,\n" + 
+		"					UNKNOWN },\n" + 
+		"			/* WRITE_POTENTIAL */{\n" + 
+		"					WRITE_POTENTIAL,\n" + 
+		"					UNKNOWN,\n" + 
+		"					UNKNOWN,\n" + 
+		"					WRITE_POTENTIAL,\n" + 
+		"					WRITE_POTENTIAL,\n" + 
+		"					UNKNOWN },\n" + 
+		"			/* UNKNOWN */{ UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN }\n" + 
+		// Should be slip but that has been broken since 3.4.2 (i.e. 3.3.2 is OK)
+//		"			/* UNKNOWN */{\n" + 
+//		"					UNKNOWN,\n" + 
+//		"					UNKNOWN,\n" + 
+//		"					UNKNOWN,\n" + 
+//		"					UNKNOWN,\n" + 
+//		"					UNKNOWN,\n" + 
+//		"					UNKNOWN }\n" + 
+		"	};\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_b286601_05() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_ONE_PER_LINE_SPLIT;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package b286601;\n" + 
+		"\n" + 
+		"public class X05 {\n" + 
+		"\n" + 
+		"    \n" + 
+		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" + 
+		"    static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" + 
+		"    { \"UNUSED\",          \"READ_POTENTIAL\",  \"READ_POTENTIAL\",  \"WRITE_POTENTIAL\", \"WRITE_POTENTIAL\", \"UNKNOWN\" },\n" + 
+		"    { \"READ_POTENTIAL\",  \"READ\",            \"READ_POTENTIAL\",  \"UNKNOWN\",         \"UNKNOWN\",         \"UNKNOWN\" },\n" + 
+		"    };\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package b286601;\n" + 
+		"\n" + 
+		"public class X05\n" + 
+		"{\n" + 
+		"\n" + 
+		"	// Table to merge access modes for condition statements (e.g branch[x] ||\n" + 
+		"	// branch[y]).\n" + 
+		"	static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" + 
+		"	{\n" + 
+		"			{\n" + 
+		"					\"UNUSED\",\n" + 
+		"					\"READ_POTENTIAL\",\n" + 
+		"					\"READ_POTENTIAL\",\n" + 
+		"					\"WRITE_POTENTIAL\",\n" + 
+		"					\"WRITE_POTENTIAL\",\n" + 
+		"					\"UNKNOWN\" },\n" + 
+		"			{\n" + 
+		"					\"READ_POTENTIAL\",\n" + 
+		"					\"READ\",\n" + 
+		"					\"READ_POTENTIAL\",\n" + 
+		"					\"UNKNOWN\",\n" + 
+		"					\"UNKNOWN\",\n" + 
+		"					\"UNKNOWN\" },\n" + 
+		"	};\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_b286601_06() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_ONE_PER_LINE_SPLIT;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package b286601;\n" + 
+		"\n" + 
+		"public class X06 {\n" + 
+		"\n" + 
+		"    \n" + 
+		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" + 
+		"    static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" + 
+		"    /* Comment 1 */\n" + 
+		"    /* Comment 2 */ { \"UNUSED\",          \"READ_POTENTIAL\",  \"READ_POTENTIAL\",  \"WRITE_POTENTIAL\", \"WRITE_POTENTIAL\", \"UNKNOWN\" },\n" + 
+		"    /* Comment 3 */ { \"READ_POTENTIAL\",  \"READ\",            \"READ_POTENTIAL\",  \"UNKNOWN\",         \"UNKNOWN\",         \"UNKNOWN\" },\n" + 
+		"    };\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package b286601;\n" + 
+		"\n" + 
+		"public class X06\n" + 
+		"{\n" + 
+		"\n" + 
+		"	// Table to merge access modes for condition statements (e.g branch[x] ||\n" + 
+		"	// branch[y]).\n" + 
+		"	static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" + 
+		"	{\n" + 
+		"			/* Comment 1 */\n" + 
+		"			/* Comment 2 */{\n" + 
+		"					\"UNUSED\",\n" + 
+		"					\"READ_POTENTIAL\",\n" + 
+		"					\"READ_POTENTIAL\",\n" + 
+		"					\"WRITE_POTENTIAL\",\n" + 
+		"					\"WRITE_POTENTIAL\",\n" + 
+		"					\"UNKNOWN\" },\n" + 
+		"			/* Comment 3 */{\n" + 
+		"					\"READ_POTENTIAL\",\n" + 
+		"					\"READ\",\n" + 
+		"					\"READ_POTENTIAL\",\n" + 
+		"					\"UNKNOWN\",\n" + 
+		"					\"UNKNOWN\",\n" + 
+		"					\"UNKNOWN\" },\n" + 
+		"	};\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_b286601_07() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_ONE_PER_LINE_SPLIT;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package b286601;\n" + 
+		"\n" + 
+		"public class X07 {\n" + 
+		"\n" + 
+		"    \n" + 
+		"    // Table to merge access modes for condition statements (e.g branch[x] || branch[y]). \n" + 
+		"    static final String[][] ACCESS_MODE_CONDITIONAL_TABLE= {\n" + 
+		"    /* Comment 1 */\n" + 
+		"    /* Comment 2 */ { \"1234567890123456789012345678901234567890\", \"1234567890123456789012345678901234567890\" },\n" + 
+		"    /* Comment 3 */ { \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\", \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" + 
+		"    };\n" + 
+		"\n" + 
+		"}\n";
+	formatSource(source,
+		"package b286601;\n" + 
+		"\n" + 
+		"public class X07\n" + 
+		"{\n" + 
+		"\n" + 
+		"    // Table to merge access modes for condition statements (e.g branch[x] ||\n" + 
+		"    // branch[y]).\n" + 
+		"    static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" + 
+		"    {\n" + 
+		"            /* Comment 1 */\n" + 
+		"            /* Comment 2 */{\n" + 
+		"                    \"1234567890123456789012345678901234567890\",\n" + 
+		"                    \"1234567890123456789012345678901234567890\" },\n" + 
+		"            /* Comment 3 */{\n" + 
+		"                    \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\",\n" + 
+		"                    \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" + 
+		"    };\n" + 
+		"\n" + 
+		"}\n"
+	);
+}
+public void testBug330313_b286601_08() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_ONE_PER_LINE_SPLIT;
+	setUpBracesPreferences(DefaultCodeFormatterConstants.NEXT_LINE);
+	String source =
+		"package b286601;\n" + 
+		"\n" + 
+		"public class X08 {\n" + 
+		"    private MinimizedFileSystemElement selectFiles(final Object rootFileSystemObject, final IImportStructureProvider structureProvider) {\n" + 
+		"\n" + 
+		"        BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {\n" + 
+		"            public void run() {\n" + 
+		"                //Create the root element from the supplied file system object\n" + 
+		"            }\n" + 
+		"        });\n" + 
+		"\n" + 
+		"        return null;\n" + 
+		"    }\n" + 
+		"}\n";
+	formatSource(source,
+		"package b286601;\n" + 
+		"\n" + 
+		"public class X08\n" + 
+		"{\n" + 
+		"	private MinimizedFileSystemElement selectFiles(\n" + 
+		"			final Object rootFileSystemObject,\n" + 
+		"			final IImportStructureProvider structureProvider)\n" + 
+		"	{\n" + 
+		"\n" + 
+		"		BusyIndicator.showWhile(getShell().getDisplay(), new Runnable()\n" + 
+		"		{\n" + 
+		"			public void run()\n" + 
+		"			{\n" + 
+		"				// Create the root element from the supplied file system object\n" + 
+		"			}\n" + 
+		"		});\n" + 
+		"\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
 		"}\n"
 	);
 }

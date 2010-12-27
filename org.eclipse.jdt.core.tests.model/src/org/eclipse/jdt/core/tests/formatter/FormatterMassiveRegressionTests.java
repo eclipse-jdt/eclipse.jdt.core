@@ -569,7 +569,7 @@ private static String buildProfileString() {
 			separator = ",";
 		}
 		if (NO_COMMENTS) {
-			buffer.append(separator+"no_comments");
+			buffer.append(separator+"no_comments=true");
 			separator = ",";
 		}
 		if (BRACES != null) {
@@ -660,14 +660,17 @@ private static void initDirectories(File inputDir, int profiles, boolean verify)
 			} else if (token.equals("list")) {
 				LIST = true;
 			} else if (token.equals("tmp")) {
-				if (JDT_CORE_HEAD) {
-					TEMP_OUTPUT = "HEAD";
+				if (PATCH_BUG != null) {
+					TEMP_OUTPUT = "patch";
+				}
+				else if (JDT_CORE_HEAD) {
+					TEMP_OUTPUT = "head";
 				}
 			}
 		}
 		setOutputDir(inputDir, outputDir, profiles);
 		if (CLEAN) {
-			if (PATCH_BUG != null || (TEMP_OUTPUT == null && JDT_CORE_HEAD)) {
+			if ((PATCH_BUG != null || JDT_CORE_HEAD) && TEMP_OUTPUT == null) {
 				System.err.println("Reference can only be updated using a version (i.e. with a closed buildnotes_jdt-core.html)!");
 				System.exit(1);
 			}
@@ -705,51 +708,55 @@ private static void initDirectories(File inputDir, int profiles, boolean verify)
 private static void setLogDir(File inputDir, int profiles, boolean verify) throws CoreException {
 
 	// Compute log dir
-	File logDir = new File(System.getProperty("logDir"));
-	if (!logDir.exists()) {
-		if (!logDir.mkdirs()) {
-			System.err.println("Cannot create specified log directory: "+logDir+"!!!");
+	File rootLogDir = new File(System.getProperty("logDir"));
+	if (!rootLogDir.exists()) {
+		if (!rootLogDir.mkdirs()) {
+			System.err.println("Cannot create specified log directory: "+rootLogDir+"!!!");
 			return;
 		}
 	}
 
 	// Compute log sub-directories depending on version
-	logDir = new File(logDir, ECLIPSE_VERSION);
+	rootLogDir = new File(rootLogDir, ECLIPSE_VERSION);
+	String subRootDir;
 	if (PATCH_BUG != null) {
-		logDir = new File(logDir, "tests");
-		logDir = new File(logDir, PATCH_BUG);
-		logDir = new File(logDir, PATCH_VERSION);
+		rootLogDir = new File(rootLogDir, "tests");
+		rootLogDir = new File(rootLogDir, PATCH_BUG);
+		subRootDir = PATCH_VERSION;
 	} else if (JDT_CORE_HEAD) {
-		logDir = new File(logDir, "HEAD");
+		subRootDir = "HEAD";
 	} else {
-		logDir = new File(logDir, ECLIPSE_MILESTONE);
-		logDir = new File(logDir, JDT_CORE_VERSION);
+		rootLogDir = new File(rootLogDir, ECLIPSE_MILESTONE);
+		subRootDir = JDT_CORE_VERSION;
 	}
 
 	// Compute log sub-directories depending on profiles
+	List subDirs = new ArrayList();
 	if (profiles > 0) {
-		logDir = new File(logDir, "profiles");
-		logDir = setProfilesDir(profiles, logDir);
+		subDirs.add("profiles");
+		setProfilesDir(profiles, subDirs);
 	}
 
 	if (FILES_FILTER_KIND > 0) {
-		logDir = new File(new File(logDir, "filter"), FILES_FILTER.replace('?', '_').replace('*', '%'));
+		subDirs.add("filter");
+		subDirs.add(FILES_FILTER.replace('?', '_').replace('*', '%'));
 	}
 
 	// Create log stream
-	logDir.mkdirs();
+	File logDir = createDir(new File (rootLogDir, subRootDir), subDirs);
 	String filePrefix = inputDir.getName().replaceAll("\\.", "");
 	String logFileName = filePrefix+".txt";
 	LOG_FILE = new File(logDir, logFileName);
 	if (verify && LOG_FILE.exists()) {
-		File saveDir = new File(logDir, "save");
-		saveDir.mkdir();
+		File saveDir = new File(new File(rootLogDir, "save"), subRootDir);
+		saveDir.mkdirs();
 		int i=0;
 		while (true) {
-			String newFileName = filePrefix+"_";
-			if (i<10) newFileName += "0";
-			newFileName += i+".txt";
-			File renamedFile = new File(saveDir, newFileName);
+			String dirN = Integer.toString(i);
+			if (i<10) dirN = "0" + dirN;
+			saveDir = new File(saveDir, dirN);
+			logDir = createDir(saveDir, subDirs);
+			File renamedFile = new File(logDir, logFileName);
 			if (LOG_FILE.renameTo(renamedFile)) break;
 			i++;
 		}
@@ -768,7 +775,22 @@ private static void setLogDir(File inputDir, int profiles, boolean verify) throw
 //	LOG_BUFFER = new StringBuffer();
 }
 
+private static File createDir(File rootDir, List subDirs) {
+	File dir = rootDir;
+	for (int i=0, s=subDirs.size(); i<s; i++) {
+		dir = new File (dir, (String) subDirs.get(i));
+	}
+	dir.mkdirs();
+	return dir;
+}
+
 private static File setProfilesDir(int profiles, File dir) {
+	List subDirs = new ArrayList();
+	setProfilesDir(profiles, subDirs);
+	return createDir(dir, subDirs);
+}
+
+private static void setProfilesDir(int profiles, List subDirs) {
 	String joinLines = null;
 	switch (profiles & PROFILE_JOIN_LINES_MASK) {
 		case PROFILE_NEVER_JOIN_LINES:
@@ -782,10 +804,11 @@ private static File setProfilesDir(int profiles, File dir) {
 			break;
 	}
 	if (joinLines != null) {
-		dir = new File(new File(dir, "join_lines"), joinLines);
+		subDirs.add("join_lines");
+		subDirs.add(joinLines);
 	}
 	if ((profiles & PROFILE_NO_COMMENTS) != 0) {
-		dir = new File(dir, "no_comments");
+		subDirs.add("no_comments");
 	}
 	String braces = null;
 	switch (profiles & PROFILE_BRACES_MASK) {
@@ -800,13 +823,14 @@ private static File setProfilesDir(int profiles, File dir) {
 			break;
 	}
 	if (braces != null) {
-		dir = new File(new File(dir, "braces"), braces);
+		subDirs.add("braces");
+		subDirs.add(braces);
 	}
 	if ((profiles & PROFILE_PRESERVED_LINES_MASK) != 0) {
 		int lines = (profiles & PROFILE_PRESERVED_LINES_MASK) >> 5;
-		dir = new File(new File(dir, "preserved_lines"), Integer.toString(lines));
+		subDirs.add("preserved_lines");
+		subDirs.add(Integer.toString(lines));
 	}
-	return dir;
 }
 
 private static void appendProfiles(int profiles, StringBuffer buffer) {
@@ -1135,9 +1159,18 @@ public void setUpSuite() throws Exception {
 	}
 
 	// Dump the version
-	File versionFile = new Path(OUTPUT_DIR.getPath()).append("version.txt").toFile();
-	OUTPUT_DIR.mkdirs();
-	Util.writeToFile(JDT_CORE_VERSION, versionFile.getAbsolutePath());
+	if (CLEAN) {
+		File versionFile = new Path(OUTPUT_DIR.getPath()).append("version.txt").toFile();
+		OUTPUT_DIR.mkdirs();
+		String version = JDT_CORE_VERSION;
+		if (TEMP_OUTPUT != null) {
+				version += " + " + TEMP_OUTPUT;
+			if (PATCH_BUG != null) {
+				version += " " + PATCH_VERSION + " of " + PATCH_BUG;
+			}
+		}
+		Util.writeToFile(version, versionFile.getAbsolutePath());
+	}
 
 	// Init time measuring
 	TIME_MEASURES = new TimeMeasuring();
