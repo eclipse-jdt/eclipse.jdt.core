@@ -7103,6 +7103,50 @@ public void testBug313524_wksp1_12() throws JavaModelException {
 }
 
 /**
+ * @bug 317039: [formatter] Code Formatter fails on inner class source indentation
+ * @test Ensure formatter is stable when 'Never Join Lines' preference is checked
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=317039"
+ */
+public void testBug317039_njl() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class X01\n" + 
+		"  {\n" + 
+		"\n" + 
+		"    public void innerThread()\n" + 
+		"      {\n" + 
+		"\n" + 
+		"        new Thread(new Runnable()\n" + 
+		"          {\n" + 
+		"            @Override\n" + 
+		"            public void run()\n" + 
+		"              {\n" + 
+		"                // TODO Auto-generated method stub\n" + 
+		"                }\n" + 
+		"            }).start();\n" + 
+		"        }\n" + 
+		"    }\n";
+	formatSource(source,
+		"public class X01\n" + 
+		"{\n" + 
+		"\n" + 
+		"	public void innerThread()\n" + 
+		"	{\n" + 
+		"\n" + 
+		"		new Thread(new Runnable()\n" + 
+		"		{\n" + 
+		"			@Override\n" + 
+		"			public void run()\n" + 
+		"			{\n" + 
+		"				// TODO Auto-generated method stub\n" + 
+		"			}\n" + 
+		"		}).start();\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+
+/**
  * @bug 320754: [formatter] formatter:off/on tags does not work correctly
  * @test Ensure disabling/enabling tags work properly around annotations
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=320754"
