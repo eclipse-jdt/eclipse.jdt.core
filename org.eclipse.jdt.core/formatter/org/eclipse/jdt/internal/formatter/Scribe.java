@@ -821,6 +821,9 @@ public class Scribe implements IJavaDocTagConstants {
 		this.formatter.lastLocalDeclarationSourceStart = alignment.location.lastLocalDeclarationSourceStart;
 		if (discardAlignment){
 			this.currentAlignment = alignment.enclosing;
+			if (this.currentAlignment == null) {
+				this.formatter.lastBinaryExpressionAlignmentBreakIndentation = 0;
+			}
 		}
 	}
 
