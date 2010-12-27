@@ -659,13 +659,8 @@ private static void initDirectories(File inputDir, int profiles, boolean verify)
 				MAINTENANCE = true;
 			} else if (token.equals("list")) {
 				LIST = true;
-			} else if (token.equals("tmp")) {
-				if (PATCH_BUG != null) {
-					TEMP_OUTPUT = "patch";
-				}
-				else if (JDT_CORE_HEAD) {
-					TEMP_OUTPUT = "head";
-				}
+			} else {
+				TEMP_OUTPUT = token;
 			}
 		}
 		setOutputDir(inputDir, outputDir, profiles);
@@ -900,7 +895,10 @@ private static void setOutputDir(File inputDir, String dir, int profiles) {
 
 	// Add the temporary output if any
 	if (TEMP_OUTPUT != null) {
-		OUTPUT_DIR = new File(OUTPUT_DIR, TEMP_OUTPUT);
+		StringTokenizer tokenizer = new StringTokenizer(TEMP_OUTPUT, "/");
+		while (tokenizer.hasMoreTokens()) {
+			OUTPUT_DIR = new File(OUTPUT_DIR, tokenizer.nextToken());
+		}
 	}
 
 	// Compute output sub-directories depending on profiles
