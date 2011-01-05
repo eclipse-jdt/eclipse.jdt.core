@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -99,7 +99,7 @@ public class BuilderTests extends TestCase {
 			System.out.println("OUTPUT\n"); //$NON-NLS-1$
 			System.out.println(Util.displayString(actualOutput));
 		}
-		assertTrue("unexpected output", actualOutput.indexOf(expectingOutput) != -1); //$NON-NLS-1$
+		assertTrue("unexpected output :" + actualOutput + " expected: " + expectingOutput, actualOutput.indexOf(expectingOutput) != -1); //$NON-NLS-1$
 
 	}
 
