@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,11 +26,13 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 
 public class Clinit extends AbstractMethodDeclaration {
+	private static int ENUM_CONSTANTS_THRESHOLD = 2000;
 
 	private FieldBinding assertionSyntheticFieldBinding = null;
 	private FieldBinding classLiteralSyntheticField = null;
@@ -191,16 +193,44 @@ public class Clinit extends AbstractMethodDeclaration {
 		// generate static fields/initializers/enum constants
 		final FieldDeclaration[] fieldDeclarations = declaringType.fields;
 		BlockScope lastInitializerScope = null;
+		int remainingFieldCount = 0;
 		if (TypeDeclaration.kind(declaringType.modifiers) == TypeDeclaration.ENUM_DECL) {
-			int enumCount = 0;
-			int remainingFieldCount = 0;
-			if (fieldDeclarations != null) {
+			int enumCount = declaringType.enumConstantsCounter;
+			if (enumCount > ENUM_CONSTANTS_THRESHOLD) {
+				// generate synthetic methods to initialize all the enum constants
+				int begin = -1;
+				int count = 0;
+				if (fieldDeclarations != null) {
+					int max = fieldDeclarations.length;
+					for (int i = 0; i < max; i++) {
+						FieldDeclaration fieldDecl = fieldDeclarations[i];
+						if (fieldDecl.isStatic()) {
+							if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+								if (begin == -1) {
+									begin = i;
+								}
+								count++;
+								if (count > ENUM_CONSTANTS_THRESHOLD) {
+									SyntheticMethodBinding syntheticMethod = declaringType.binding.addSyntheticMethodForEnumInitialization(begin, i);
+									codeStream.invoke(Opcodes.OPC_invokestatic, syntheticMethod, null /* default declaringClass */);
+									begin = -1;
+									count = 0;
+								}
+							}
+						}
+					}
+					if (count != 0) {
+						// add last synthetic method
+						SyntheticMethodBinding syntheticMethod = declaringType.binding.addSyntheticMethodForEnumInitialization(begin, max);
+						codeStream.invoke(Opcodes.OPC_invokestatic, syntheticMethod, null /* default declaringClass */);
+					}
+				}
+			} else if (fieldDeclarations != null) {
 				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
 					FieldDeclaration fieldDecl = fieldDeclarations[i];
 					if (fieldDecl.isStatic()) {
 						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 							fieldDecl.generateCode(staticInitializerScope, codeStream);
-							enumCount++;
 						} else {
 							remainingFieldCount++;
 						}
@@ -228,20 +258,24 @@ public class Clinit extends AbstractMethodDeclaration {
 			codeStream.fieldAccess(Opcodes.OPC_putstatic, declaringType.enumValuesSyntheticfield, null /* default declaringClass */);
 			if (remainingFieldCount != 0) {
 				// if fields that are not enum constants need to be generated (static initializer/static field)
-				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
+				for (int i = 0, max = fieldDeclarations.length; i < max && remainingFieldCount >= 0; i++) {
 					FieldDeclaration fieldDecl = fieldDeclarations[i];
 					switch (fieldDecl.getKind()) {
 						case AbstractVariableDeclaration.ENUM_CONSTANT :
 							break;
 						case AbstractVariableDeclaration.INITIALIZER :
-							if (!fieldDecl.isStatic())
+							if (!fieldDecl.isStatic()) {
 								break;
+							}
+							remainingFieldCount--;
 							lastInitializerScope = ((Initializer) fieldDecl).block.scope;
 							fieldDecl.generateCode(staticInitializerScope, codeStream);
 							break;
 						case AbstractVariableDeclaration.FIELD :
-							if (!fieldDecl.binding.isStatic())
+							if (!fieldDecl.binding.isStatic()) {
 								break;
+							}
+							remainingFieldCount--;
 							lastInitializerScope = null;
 							fieldDecl.generateCode(staticInitializerScope, codeStream);
 							break;

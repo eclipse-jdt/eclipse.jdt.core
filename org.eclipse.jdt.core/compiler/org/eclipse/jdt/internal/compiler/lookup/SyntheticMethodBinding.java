@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,8 +21,12 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public FieldBinding targetWriteField;		// write access to a field
 	public MethodBinding targetMethod;			// method or constructor
 	public TypeBinding targetEnumType; 			// enum type
-
+	
 	public int purpose;
+
+	// fields used to generate enum constants when too many
+	public int startIndex;
+	public int endIndex;
 
 	public final static int FieldReadAccess = 1; 		// field read
 	public final static int FieldWriteAccess = 2; 		// field write
@@ -35,6 +39,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public final static int EnumValues = 9; // enum #values()
 	public final static int EnumValueOf = 10; // enum #valueOf(String)
 	public final static int SwitchTable = 11; // switch table method
+	public final static int TooManyEnumsConstants = 12; // too many enum constants
 
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
@@ -265,6 +270,26 @@ public class SyntheticMethodBinding extends MethodBinding {
 		}
 	}
 	
+	/**
+	 * Construct enum special methods: values or valueOf methods
+	 */
+	public SyntheticMethodBinding(SourceTypeBinding declaringEnum, int startIndex, int endIndex) {
+		this.declaringClass = declaringEnum;
+		SyntheticMethodBinding[] knownAccessMethods = declaringEnum.syntheticMethods();
+		this.index = knownAccessMethods == null ? 0 : knownAccessMethods.length;
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(TypeConstants.SYNTHETIC_ENUM_CONSTANT_INITIALIZATION_METHOD_PREFIX).append(this.index);
+		this.selector = String.valueOf(buffer).toCharArray(); 
+		this.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.purpose = SyntheticMethodBinding.TooManyEnumsConstants;
+		this.thrownExceptions = Binding.NO_EXCEPTIONS;
+		this.returnType = TypeBinding.VOID;
+		this.parameters = Binding.NO_PARAMETERS;
+		this.startIndex = startIndex;
+		this.endIndex = endIndex;
+	}
+
 	// Create a synthetic method that will simply call the super classes method.
 	// Used when a public method is inherited from a non-public class into a public class.
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658

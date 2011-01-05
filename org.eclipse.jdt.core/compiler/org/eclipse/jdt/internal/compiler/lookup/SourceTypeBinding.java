@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -478,6 +478,18 @@ public SyntheticMethodBinding addSyntheticMethodForSwitchEnum(TypeBinding enumBi
 			accessors[0] = accessMethod;
 		}
 	}
+	return accessMethod;
+}
+public SyntheticMethodBinding addSyntheticMethodForEnumInitialization(int begin, int end) {
+	if (this.synthetics == null)
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
+	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+
+	SyntheticMethodBinding accessMethod = new SyntheticMethodBinding(this, begin, end);
+	SyntheticMethodBinding[] accessors = new SyntheticMethodBinding[2]; 
+	this.synthetics[SourceTypeBinding.METHOD_EMUL].put(accessMethod.selector, accessors);
+	accessors[0] = accessMethod;
 	return accessMethod;
 }
 /* Add a new synthetic access method for access to <targetMethod>.
@@ -1500,7 +1512,6 @@ public ReferenceBinding superclass() {
 public ReferenceBinding[] superInterfaces() {
 	return this.superInterfaces;
 }
-
 public SyntheticMethodBinding[] syntheticMethods() {
 	if (this.synthetics == null 
 			|| this.synthetics[SourceTypeBinding.METHOD_EMUL] == null 

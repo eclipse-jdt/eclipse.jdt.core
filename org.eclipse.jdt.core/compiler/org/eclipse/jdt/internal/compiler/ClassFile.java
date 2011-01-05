@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -823,6 +823,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 					case SyntheticMethodBinding.SwitchTable :
 						// generate a method info to define the switch table synthetic method
 						addSyntheticSwitchTable(syntheticMethod);
+						break;
+					case SyntheticMethodBinding.TooManyEnumsConstants :
+						addSyntheticEnumInitializationMethod(syntheticMethod);
 				}
 			}
 		}
@@ -918,6 +921,29 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
 
+	public void addSyntheticEnumInitializationMethod(SyntheticMethodBinding methodBinding) {
+		generateMethodInfoHeader(methodBinding);
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
+		// Code attribute
+		int codeAttributeOffset = this.contentsOffset;
+		attributeNumber++; // add code attribute
+		generateCodeAttributeHeader();
+		this.codeStream.init(this);
+		this.codeStream.generateSyntheticBodyForEnumInitializationMethod(methodBinding);
+		completeCodeAttributeForSyntheticMethod(
+			methodBinding,
+			codeAttributeOffset,
+			((SourceTypeBinding) methodBinding.declaringClass)
+				.scope
+				.referenceCompilationUnit()
+				.compilationResult
+				.getLineSeparatorPositions());
+		// update the number of attributes
+		this.contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[methodAttributeOffset] = (byte) attributeNumber;
+	}
 	/**
 	 * INTERNAL USE-ONLY
 	 * Generate the byte for a problem method info that correspond to a synthetic method that

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -94,7 +94,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	int pc = codeStream.position;
 	boolean isStatic;
 	if (this.initialization != null
-		&& !((isStatic = this.binding.isStatic()) && this.binding.constant() != Constant.NotAConstant)) {
+			&& !((isStatic = this.binding.isStatic()) && this.binding.constant() != Constant.NotAConstant)) {
 		// non-static field, need receiver
 		if (!isStatic)
 			codeStream.aload_0();

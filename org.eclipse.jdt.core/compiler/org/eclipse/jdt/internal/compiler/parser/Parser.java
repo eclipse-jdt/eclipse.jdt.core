@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8277,92 +8277,93 @@ protected void dispatchDeclarationInto(int length) {
 protected void dispatchDeclarationIntoEnumDeclaration(int length) {
 
 	if (length == 0)
-      return;
-   int[] flag = new int[length + 1]; //plus one -- see <HERE>
-   int size1 = 0, size2 = 0, size3 = 0;
-   TypeDeclaration enumDeclaration = (TypeDeclaration) this.astStack[this.astPtr - length];
-   boolean hasAbstractMethods = false;
-   for (int i = length - 1; i >= 0; i--) {
-      ASTNode astNode = this.astStack[this.astPtr--];
-      if (astNode instanceof AbstractMethodDeclaration) {
-         //methods and constructors have been regrouped into one single list
-         flag[i] = 2;
-         size2++;
-		if (((AbstractMethodDeclaration) astNode).isAbstract()) {
-			hasAbstractMethods = true;
+		return;
+	int[] flag = new int[length + 1]; //plus one -- see <HERE>
+	int size1 = 0, size2 = 0, size3 = 0;
+	TypeDeclaration enumDeclaration = (TypeDeclaration) this.astStack[this.astPtr - length];
+	boolean hasAbstractMethods = false;
+	int enumConstantsCounter = 0;
+	for (int i = length - 1; i >= 0; i--) {
+		ASTNode astNode = this.astStack[this.astPtr--];
+		if (astNode instanceof AbstractMethodDeclaration) {
+			//methods and constructors have been regrouped into one single list
+			flag[i] = 2;
+			size2++;
+			if (((AbstractMethodDeclaration) astNode).isAbstract()) {
+				hasAbstractMethods = true;
+			}
+		} else if (astNode instanceof TypeDeclaration) {
+			flag[i] = 3;
+			size3++;
+		} else if (astNode instanceof FieldDeclaration) {
+			flag[i] = 1;
+			size1++;
+			if (((FieldDeclaration) astNode).getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+				enumConstantsCounter++;
+			}
 		}
-      } else if (astNode instanceof TypeDeclaration) {
-         flag[i] = 3;
-         size3++;
-      } else if (astNode instanceof FieldDeclaration) {
-         flag[i] = 1;
-         size1++;
-//         if(astNode instanceof EnumConstant) {
-//            EnumConstant constant = (EnumConstant) astNode;
-//            ((AllocationExpression)constant.initialization).type = new SingleTypeReference(enumDeclaration.name,
-//                  (((long) enumDeclaration.sourceStart) << 32) + enumDeclaration.sourceEnd);
-//         }
-      }
-   }
+	}
 
-   //arrays creation
-   if (size1 != 0) {
-      enumDeclaration.fields = new FieldDeclaration[size1];
-   }
-   if (size2 != 0) {
-      enumDeclaration.methods = new AbstractMethodDeclaration[size2];
-      if (hasAbstractMethods) enumDeclaration.bits |= ASTNode.HasAbstractMethods;
-   }
-   if (size3 != 0) {
-      enumDeclaration.memberTypes = new TypeDeclaration[size3];
-   }
+	//arrays creation
+	if (size1 != 0) {
+		enumDeclaration.fields = new FieldDeclaration[size1];
+	}
+	if (size2 != 0) {
+		enumDeclaration.methods = new AbstractMethodDeclaration[size2];
+		if (hasAbstractMethods) enumDeclaration.bits |= ASTNode.HasAbstractMethods;
+	}
+	if (size3 != 0) {
+		enumDeclaration.memberTypes = new TypeDeclaration[size3];
+	}
 
-   //arrays fill up
-   size1 = size2 = size3 = 0;
-   int flagI = flag[0], start = 0;
-   int length2;
-   for (int end = 0; end <= length; end++) //<HERE> the plus one allows to
-      {
-      if (flagI != flag[end]) //treat the last element as a ended flag.....
-         { //array copy
-         switch (flagI) {
-            case 1 :
-               size1 += (length2 = end - start);
-               System.arraycopy(
-                  this.astStack,
-                  this.astPtr + start + 1,
-                  enumDeclaration.fields,
-                  size1 - length2,
-                  length2);
-               break;
-            case 2 :
-               size2 += (length2 = end - start);
-               System.arraycopy(
-                  this.astStack,
-                  this.astPtr + start + 1,
-                  enumDeclaration.methods,
-                  size2 - length2,
-                  length2);
-               break;
-            case 3 :
-               size3 += (length2 = end - start);
-               System.arraycopy(
-                  this.astStack,
-                  this.astPtr + start + 1,
-                  enumDeclaration.memberTypes,
-                  size3 - length2,
-                  length2);
-               break;
-         }
-         flagI = flag[start = end];
-      }
-   }
+	//arrays fill up
+	size1 = size2 = size3 = 0;
+	int flagI = flag[0], start = 0;
+	int length2;
+	for (int end = 0; end <= length; end++) //<HERE> the plus one allows to
+	{
+		if (flagI != flag[end]) //treat the last element as a ended flag.....
+		{ //array copy
+			switch (flagI) {
+				case 1 :
+					size1 += (length2 = end - start);
+					System.arraycopy(
+							this.astStack,
+							this.astPtr + start + 1,
+							enumDeclaration.fields,
+							size1 - length2,
+							length2);
+					break;
+				case 2 :
+					size2 += (length2 = end - start);
+					System.arraycopy(
+							this.astStack,
+							this.astPtr + start + 1,
+							enumDeclaration.methods,
+							size2 - length2,
+							length2);
+					break;
+				case 3 :
+					size3 += (length2 = end - start);
+					System.arraycopy(
+							this.astStack,
+							this.astPtr + start + 1,
+							enumDeclaration.memberTypes,
+							size3 - length2,
+							length2);
+					break;
+			}
+			flagI = flag[start = end];
+		}
+	}
 
-   if (enumDeclaration.memberTypes != null) {
-      for (int i = enumDeclaration.memberTypes.length - 1; i >= 0; i--) {
-         enumDeclaration.memberTypes[i].enclosingType = enumDeclaration;
-      }
-   }}
+	if (enumDeclaration.memberTypes != null) {
+		for (int i = enumDeclaration.memberTypes.length - 1; i >= 0; i--) {
+			enumDeclaration.memberTypes[i].enclosingType = enumDeclaration;
+		}
+	}
+	enumDeclaration.enumConstantsCounter = enumConstantsCounter;
+}
 protected CompilationUnitDeclaration endParse(int act) {
 
 	this.lastAct = act;

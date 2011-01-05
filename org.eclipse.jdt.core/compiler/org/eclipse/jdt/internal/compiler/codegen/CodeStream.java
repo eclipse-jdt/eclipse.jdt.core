@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,10 +15,13 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -2445,7 +2448,24 @@ public void generateSyntheticBodyForEnumValues(SyntheticMethodBinding methodBind
 	aload_2();
 	areturn();
 }
-
+public void generateSyntheticBodyForEnumInitializationMethod(SyntheticMethodBinding methodBinding) {
+	// no local used
+	this.maxLocals = 0;
+	// generate all enum constants
+	SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) methodBinding.declaringClass;
+	TypeDeclaration typeDeclaration = sourceTypeBinding.scope.referenceContext;
+	BlockScope staticInitializerScope = typeDeclaration.staticInitializerScope;
+	FieldDeclaration[] fieldDeclarations = typeDeclaration.fields;
+	for (int i = methodBinding.startIndex, max = methodBinding.endIndex; i < max; i++) {
+		FieldDeclaration fieldDecl = fieldDeclarations[i];
+		if (fieldDecl.isStatic()) {
+			if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+				fieldDecl.generateCode(staticInitializerScope, this);
+			}
+		}
+	}
+	return_();
+}
 public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding accessMethod) {
 	initializeMaxLocals(accessMethod);
 	FieldBinding fieldBinding = accessMethod.targetReadField;
