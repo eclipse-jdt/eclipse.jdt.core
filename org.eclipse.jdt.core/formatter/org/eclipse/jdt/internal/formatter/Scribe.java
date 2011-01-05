@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -468,15 +468,17 @@ public class Scribe implements IJavaDocTagConstants {
     			if (edit.length == 0) {
     				int nrLength = 0;
     				int rLength = edit.replacement.length();
-    				int ch = edit.replacement.charAt(nrLength);
-    				loop: while (nrLength < rLength) {
-	    				switch (ch) {
-	    					case ' ':
-	    					case '\t':
-	    						nrLength++;
-	    						break;
-	    					default:
-	    						break loop;
+    				if (nrLength < rLength) {
+	    				int ch = edit.replacement.charAt(nrLength);
+	    				loop: while (nrLength < rLength) {
+		    				switch (ch) {
+		    					case ' ':
+		    					case '\t':
+		    						nrLength++;
+		    						break;
+		    					default:
+		    						break loop;
+		    				}
 	    				}
     				}
     				if (nrLength > 0) {
@@ -696,10 +698,6 @@ public class Scribe implements IJavaDocTagConstants {
 
 	public Alignment createAlignment(int kind, int mode, int count, int sourceRestart){
 		return createAlignment(kind, mode, Alignment.R_INNERMOST, count, sourceRestart);
-	}
-
-	public Alignment createAlignment(int kind, int mode, int count, int sourceRestart, boolean adjust){
-		return createAlignment(kind, mode, Alignment.R_INNERMOST, count, sourceRestart, adjust);
 	}
 
 	public Alignment createAlignment(int kind, int mode, int tieBreakRule, int count, int sourceRestart){
