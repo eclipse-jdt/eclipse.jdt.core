@@ -21893,4 +21893,62 @@ public void test325481b() throws JavaModelException {
 		COMPLETION_PROJECT.setOptions(options);	
 	}
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=332268
+// To verify that we DO get proposals for static fields that have not yet been declared
+// inside a field declaration statement, iff current field is not static
+public void testBug332268a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"       int myVar1 = 1;\n" +
+		"		int myVar2 = 1;\n" +
+		"		int myVar3 = myVar;\n" +
+		"       int myVar4 = 1;\n" +
+		"		static int myVar5 = 1;\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "int myVar3 = myVar";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"myVar1[FIELD_REF]{myVar1, Ltest.Test;, I, myVar1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+			"myVar2[FIELD_REF]{myVar2, Ltest.Test;, I, myVar2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+			"myVar5[FIELD_REF]{myVar5, Ltest.Test;, I, myVar5, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=332268
+// To verify that we do not get proposals for static fields that have not yet been declared
+// inside a field declaration statement, if current field is static
+public void testBug332268b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"       static int myVar1 = 1;\n" +
+		"		int myVar2 = 1;\n" +
+		"		static int myVar3 = myVar;\n" +
+		"       int myVar4 = 1;\n" +
+		"		static int myVar5 = 1;\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "int myVar3 = myVar";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"myVar1[FIELD_REF]{myVar1, Ltest.Test;, I, myVar1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			requestor.getResults());
+}
 }

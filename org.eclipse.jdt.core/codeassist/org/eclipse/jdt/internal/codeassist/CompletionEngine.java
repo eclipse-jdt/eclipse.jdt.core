@@ -5977,6 +5977,7 @@ public final class CompletionEngine
 		ObjectVector newFieldsFound = new ObjectVector();
 		// if the proposal is being asked inside a field's initialization, we'll record its id
 		int fieldBeingCompletedId = -1;
+		boolean isFieldBeingCompletedStatic = false;
 		for (int f = fields.length; --f >=0;) {
 			FieldBinding field = fields[f];
 			FieldDeclaration fieldDeclaration = field.sourceField();
@@ -5988,12 +5989,14 @@ public final class CompletionEngine
 						astNode.sourceEnd <= fieldDeclaration.initialization.sourceEnd) {
 						// completion is inside a field initializer
 						fieldBeingCompletedId = field.id;
+						isFieldBeingCompletedStatic = field.isStatic();
 						break;
 					}
 				} else { // The sourceEnd may not yet be set
 					CompletionNodeDetector detector = new CompletionNodeDetector(astNode, fieldDeclaration.initialization);
 					if (detector.containsCompletionNode()) {  // completion is inside a field initializer
 						fieldBeingCompletedId = field.id;
+						isFieldBeingCompletedStatic = field.isStatic();
 						break;
 					}
 				}
@@ -6011,7 +6014,14 @@ public final class CompletionEngine
 			if (fieldBeingCompletedId >= 0 && field.id >= fieldBeingCompletedId) {
 				// Don't propose field which is being declared currently
 				// Don't propose fields declared after the current field declaration statement
-				continue next;
+				// Though, if field is static, then it can be still be proposed
+				if (!field.isStatic()) { 
+					continue next;
+				} else if (isFieldBeingCompletedStatic) {
+					// static fields can't be proposed before they are actually declared if the 
+					// field currently being declared is also static
+					continue next;
+				}
 			}
 			
 			if (field.isSynthetic())	continue next;
