@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	static {
 //		TESTS_PREFIX = "testInvalidCompilerOptions";
 //		TESTS_NAMES = new String[] { "test028"};
+//		TESTS_NUMBERS = new int[] { 56 };
 	}
 
 	public BindingKeyTests(String name) {
@@ -627,5 +628,15 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 */
 	public void test055() {
 		assertFalse("Should not be a raw type", new BindingKey("Ltest/ZZ<Ljava/lang/Object>;").isRawType());
+	}
+
+	/*
+	 * Ensures that the type arguments for a parameterized type binding key are correct for secondary type
+	 */
+	public void test056() {
+		assertBindingKeyTypeArgumentsEqual(
+			"[LOuter<Ljava.lang.Integer;>.Inner<Ljava.lang.Double;>;\n",
+			"LNullBinding~One<[LNullBinding~Outer<Ljava/lang/Integer;>.Inner<Ljava/lang/Double;>;>;"
+		);
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -234,8 +234,15 @@ public class KeyToSignature extends BindingKeyParser {
 	public void consumeSecondaryType(char[] simpleTypeName) {
 		this.signature.append('~');
 		this.mainTypeStart = this.signature.lastIndexOf(".") + 1; //$NON-NLS-1$
-		if (this.mainTypeStart == 0)
-			this.mainTypeStart = 1; // default package
+		if (this.mainTypeStart == 0) {
+			this.mainTypeStart = 1; // default package (1 for the 'L')
+			int i = 0;
+			// we need to preserve the array if needed
+			while (this.signature.charAt(i) == Signature.C_ARRAY) {
+				this.mainTypeStart ++;
+				i++;
+			}
+		}
 		this.mainTypeEnd = this.signature.length();
 		this.signature.append(simpleTypeName);
 	}
