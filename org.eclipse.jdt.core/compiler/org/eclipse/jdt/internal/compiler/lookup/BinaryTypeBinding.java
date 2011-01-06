@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -953,7 +953,13 @@ private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBi
 	if (wrapper.signature[wrapper.start] == ':') {
 		type = this.environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
 	} else {
-		type = (ReferenceBinding) this.environment.getTypeFromTypeSignature(wrapper, existingVariables, this, missingTypeNames);
+		TypeBinding typeFromTypeSignature = this.environment.getTypeFromTypeSignature(wrapper, existingVariables, this, missingTypeNames);
+		if (typeFromTypeSignature instanceof ReferenceBinding) {
+			type = (ReferenceBinding) typeFromTypeSignature;
+		} else {
+			// this should only happen if the signature is corrupted (332423)
+			type = this.environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
+		}
 		firstBound = type;
 	}
 
