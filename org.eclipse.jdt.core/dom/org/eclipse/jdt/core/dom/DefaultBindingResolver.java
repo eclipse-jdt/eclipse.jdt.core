@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1518,6 +1518,20 @@ class DefaultBindingResolver extends BindingResolver {
 			if (node instanceof ParameterizedQualifiedTypeReference) {
  				ParameterizedQualifiedTypeReference typeReference = (ParameterizedQualifiedTypeReference) node;
 				org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = typeReference.resolvedType;
+				if (type.isArrayType()) {
+					if (this.scope == null) {
+						return null;
+					}
+					ArrayType arrayType = (ArrayType) type;
+					if (typeBinding.isArrayType()) {
+						ArrayBinding arrayBinding = (ArrayBinding) typeBinding;
+						return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, arrayType.getDimensions()));
+					}
+					return getTypeBinding(this.scope.createArrayType(binding, arrayType.getDimensions()));
+				}
+				if (typeBinding.isArrayType()) {
+					typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
+				}
 				int index;
 				if (type.isQualifiedType()) {
 					index = ((QualifiedType) type).index;
@@ -1550,21 +1564,19 @@ class DefaultBindingResolver extends BindingResolver {
 			if (binding != null) {
 				if (type.isArrayType()) {
 					ArrayType arrayType = (ArrayType) type;
-					if (this.scope == null) return null;
+					if (this.scope == null) {
+						return null;
+					}
 					if (binding.isArrayType()) {
 						ArrayBinding arrayBinding = (ArrayBinding) binding;
 						return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, arrayType.getDimensions()));
-					} else {
-						return getTypeBinding(this.scope.createArrayType(binding, arrayType.getDimensions()));
 					}
-				} else {
-					if (binding.isArrayType()) {
-						ArrayBinding arrayBinding = (ArrayBinding) binding;
-						return getTypeBinding(arrayBinding.leafComponentType);
-					} else {
-						return getTypeBinding(binding);
-					}
+					return getTypeBinding(this.scope.createArrayType(binding, arrayType.getDimensions()));
+				} else if (binding.isArrayType()) {
+					ArrayBinding arrayBinding = (ArrayBinding) binding;
+					return getTypeBinding(arrayBinding.leafComponentType);
 				}
+				return getTypeBinding(binding);
 			}
 		} else if (type.isPrimitiveType()) {
 			/* Handle the void primitive type returned by getReturnType for a method declaration

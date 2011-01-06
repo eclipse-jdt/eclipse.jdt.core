@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 345, 346 };
+//		TESTS_NUMBERS = new int[] { 347 };
 //		TESTS_RANGE = new int[] { 325, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -11156,4 +11156,48 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong constant value", "a", constantValue);
 	}
 
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=333360
+	 */
+	public void test0347() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0347/X.java", true/*resolve*/);
+		String contents =
+				"package test0347;\n" + 
+				"public class X implements One</*start*/Outer<Integer>.Inner<Double>[]/*end*/> {\n" + 
+				"}\n" + 
+				"interface One<T> {}\n" + 
+				"class Outer<T> {\n" + 
+				"	public class Inner<S> {}\n" + 
+				"}";
+		ArrayType type = (ArrayType) buildAST(
+				contents,
+				this.workingCopy);
+		assertNotNull("No annotation", type);
+		ITypeBinding binding = type.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong qualified name", "test0347.Outer<java.lang.Integer>.Inner<java.lang.Double>[]", binding.getQualifiedName());
+		Type componentType = type.getComponentType();
+		binding = componentType.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong qualified name", "test0347.Outer<java.lang.Integer>.Inner<java.lang.Double>", binding.getQualifiedName());
+		assertTrue("Not parameterized", componentType.isParameterizedType());
+		ParameterizedType parameterizedType = (ParameterizedType) componentType;
+		Type type2 = parameterizedType.getType();
+		assertTrue("Not qualified", type2.isQualifiedType());
+		QualifiedType qualifiedType = (QualifiedType) type2;
+		binding = qualifiedType.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong qualified name", "test0347.Outer<java.lang.Integer>.Inner<java.lang.Double>", binding.getQualifiedName());
+		Type qualifier = qualifiedType.getQualifier();
+		assertTrue("Not parameterized", qualifier.isParameterizedType());
+		binding = qualifier.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong qualified name", "test0347.Outer<java.lang.Integer>", binding.getQualifiedName());
+		parameterizedType = (ParameterizedType) qualifier;
+		type2 = parameterizedType.getType();
+		assertTrue("Not simple type", type2.isSimpleType());
+		binding = type2.resolveBinding();
+		assertNotNull("No binding", binding);
+		assertEquals("Wrong qualified name", "test0347.Outer<java.lang.Integer>", binding.getQualifiedName());
+	}
 }
