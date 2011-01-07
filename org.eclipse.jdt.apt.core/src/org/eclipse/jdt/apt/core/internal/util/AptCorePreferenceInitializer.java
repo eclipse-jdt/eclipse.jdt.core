@@ -26,7 +26,7 @@ public class AptCorePreferenceInitializer extends AbstractPreferenceInitializer 
 
 	@Override
 	public void initializeDefaultPreferences() {
-	 	IEclipsePreferences defaultPreferences = new DefaultScope().getNode(AptPlugin.PLUGIN_ID);
+	 	IEclipsePreferences defaultPreferences = DefaultScope.INSTANCE.getNode(AptPlugin.PLUGIN_ID);
 	 	for (Map.Entry<String,String> entry : AptPreferenceConstants.DEFAULT_OPTIONS_MAP.entrySet()) {
 	 		defaultPreferences.put(entry.getKey(), entry.getValue());
 	 	}
