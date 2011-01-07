@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9161,6 +9161,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertTrue("Not a recovered binding", typeBinding.isRecovered());
 			IJavaElement javaElement = typeBinding.getJavaElement();
 			assertNotNull("No java element", javaElement);
+			assertEquals("Wrong java element type", IJavaElement.TYPE, javaElement.getElementType());
 			assertTrue("Javalement exists", !javaElement.exists());
 			IPackageBinding packageBinding = typeBinding.getPackage();
 			assertNotNull("No package", packageBinding);
@@ -9293,6 +9294,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertTrue("Not a recovered binding", typeBinding.isRecovered());
 		IJavaElement javaElement = typeBinding.getJavaElement();
 		assertNotNull("No java element", javaElement);
+		assertEquals("Wrong java element type", IJavaElement.TYPE, javaElement.getElementType());
 		assertTrue("Java element exists", !javaElement.exists());
 		IPackageBinding packageBinding = typeBinding.getPackage();
 		assertNotNull("No package", packageBinding);

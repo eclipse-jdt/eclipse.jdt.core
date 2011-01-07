@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -555,8 +555,8 @@ class RecoveredTypeBinding implements ITypeBinding {
 		if (packageBinding != null) {
 			final IJavaElement javaElement = packageBinding.getJavaElement();
 			if (javaElement != null && javaElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
-				// best effort: we don't know if the recovered binding is a binary or source binding, so go with a compilation unit
-				return ((PackageFragment) javaElement).getCompilationUnit(getInternalName() + SuffixConstants.SUFFIX_STRING_java);
+				// best effort: we don't know if the recovered binding is a binary or source binding, so go with a simple source type
+				return ((PackageFragment) javaElement).getCompilationUnit(getInternalName() + SuffixConstants.SUFFIX_STRING_java).getType(this.getName());
 			}
 		}
 		return null;

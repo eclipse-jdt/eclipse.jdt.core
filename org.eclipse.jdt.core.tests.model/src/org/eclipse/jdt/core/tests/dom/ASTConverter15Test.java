@@ -9669,7 +9669,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a recovered binding", binding3.isRecovered());
 		final IJavaElement javaElement = binding3.getJavaElement();
 		assertNotNull("No java element", javaElement);
-		assertEquals("Not a compilation unit", IJavaElement.COMPILATION_UNIT, javaElement.getElementType());
+		assertEquals("Not a compilation unit", IJavaElement.TYPE, javaElement.getElementType());
 		assertNotNull("No parent", javaElement.getParent());
 	}
 
