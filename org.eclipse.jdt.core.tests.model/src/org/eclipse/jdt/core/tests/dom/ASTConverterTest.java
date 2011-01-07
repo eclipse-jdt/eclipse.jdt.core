@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8561,7 +8561,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		String compiler_compliance = null;
 		try {
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0344", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
+			preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
 			pb_assert = preferences.get(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, "");
 			compiler_source = preferences.get(JavaCore.COMPILER_SOURCE, "");
 			compiler_compliance = preferences.get(JavaCore.COMPILER_COMPLIANCE, "");

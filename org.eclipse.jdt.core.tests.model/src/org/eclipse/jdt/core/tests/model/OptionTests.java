@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -632,7 +632,7 @@ public void testBug125360() throws CoreException, BackingStoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=131707"
  */
 public void testBug131707() throws CoreException {
-	IEclipsePreferences defaultPreferences = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
+	IEclipsePreferences defaultPreferences = DefaultScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
 	try {
 		defaultPreferences.put("org.eclipse.jdt.core.classpathVariable.MY_DEFAULT_LIB", "c:\\temp\\lib.jar");
 		simulateExitRestart();

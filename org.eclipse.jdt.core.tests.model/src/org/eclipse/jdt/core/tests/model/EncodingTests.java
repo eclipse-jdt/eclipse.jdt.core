@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -135,7 +135,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	public void testCreateCompilationUnitAndImportContainer() throws Exception {
 		String savedEncoding = null;
 		String resourcesPluginId = ResourcesPlugin.getPlugin().getBundle().getSymbolicName();
-		IEclipsePreferences preferences = new InstanceScope().getNode(resourcesPluginId);
+		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(resourcesPluginId);
 		try {
 			savedEncoding = preferences.get(ResourcesPlugin.PREF_ENCODING, "");
 			String encoding = "UTF-8";
@@ -926,7 +926,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	public void testBug255501() throws Exception {
 		String savedEncoding = null;
 		String resourcesPluginId = ResourcesPlugin.getPlugin().getBundle().getSymbolicName();
-		IEclipsePreferences preferences = new InstanceScope().getNode(resourcesPluginId);
+		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(resourcesPluginId);
 		try {
 			savedEncoding = preferences.get(ResourcesPlugin.PREF_ENCODING, "");
 			JavaCore.getOptions(); // force options to be cached

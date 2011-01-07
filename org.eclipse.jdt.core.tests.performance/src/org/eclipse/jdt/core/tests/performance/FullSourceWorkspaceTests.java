@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -609,7 +609,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
 
 		// Modify resources workspace preferences to avoid disturbing tests while running them
-		IEclipsePreferences resourcesPreferences = new InstanceScope().getNode(ResourcesPlugin.PI_RESOURCES);
+		IEclipsePreferences resourcesPreferences = InstanceScope.INSTANCE.getNode(ResourcesPlugin.PI_RESOURCES);
 		resourcesPreferences.put(ResourcesPlugin.PREF_AUTO_REFRESH, "false");
 		workspace.getDescription().setSnapshotInterval(Long.MAX_VALUE);
 		workspace.getDescription().setAutoBuilding(false);
