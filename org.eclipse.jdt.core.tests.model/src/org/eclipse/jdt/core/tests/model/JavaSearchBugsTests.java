@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8789,6 +8789,7 @@ public void testBug185452() throws CoreException {
 		"lib/b166348.jar pack [No source]\n" +
 		"lib/b166348.jar test [No source]\n" +
 		"lib/b317264 b317264\n" +
+		"lib/b327654 b327654\n" +
 		"lib/b86293.jar  [No source]\n" +
 		"lib/b87627.jar  [No source]\n" +
 		"lib/b87627.jar b87627 [No source]\n" +
@@ -12553,5 +12554,37 @@ public void testBug329727() throws CoreException, IOException {
 		project.setRawClasspath(originalCP, null);
     	deleteFile("/JavaSearchBugs/bug329727.jar");
     }
+}
+
+/**
+ * @bug 327654: FUP of bug 317264: Refactoring is impossible with commons-lang.jar is in the path
+ * @test types in enum package should not be reported for 1.5 projects
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=327654"
+ */
+public void testBug327654() throws CoreException {
+	IJavaProject project = null;
+	try
+	{
+		project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b327654/commons-lang.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		
+		waitUntilIndexesReady();
+		TypeNameMatchCollector collector = new TypeNameMatchCollector();
+		new SearchEngine().searchAllTypeNames(
+				"org.apache.commons.lang.enum".toCharArray(),
+				SearchPattern.R_EXACT_MATCH,
+				"".toCharArray(),
+				SearchPattern.R_PREFIX_MATCH,
+				IJavaSearchConstants.TYPE,
+				scope,
+				collector,
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+		assertSearchResults("Unexpected search results!", "", collector);		
+	} finally {
+		deleteProject(project);
+	}
 }
 }
