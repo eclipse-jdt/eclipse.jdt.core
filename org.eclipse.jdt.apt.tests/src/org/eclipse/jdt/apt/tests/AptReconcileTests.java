@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2011 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    mkaufman@bea.com - initial API and implementation
- *    
+ *    IBM Corporation  - remove deprecated warning
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests;
@@ -483,7 +483,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 		// disable auto-build.  We don't want build-time type-generation interfering with
 		// our reconcile tests.
 		String key = ResourcesPlugin.PREF_AUTO_BUILDING;
-		new InstanceScope().getNode(ResourcesPlugin.PI_RESOURCES).putBoolean(key, false);
+		InstanceScope.INSTANCE.getNode(ResourcesPlugin.PI_RESOURCES).putBoolean(key, false);
 
 		this._problemRequestor = new ProblemRequestor();
 

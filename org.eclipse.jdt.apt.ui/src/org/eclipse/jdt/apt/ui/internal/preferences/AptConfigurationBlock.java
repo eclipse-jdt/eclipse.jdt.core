@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 BEA Systems, Inc. and others.
+ * Copyright (c) 2005, 2011 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     BEA Systems Inc. - initial API and implementation
+ *     IBM Corporation  - fix deprecation warnings
  *******************************************************************************/
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
@@ -413,7 +414,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 */
 	private void setJDTProcessAnnotationsSetting(boolean enable) {
 		IScopeContext context = (null != fJProj) ?
-				new ProjectScope(fJProj.getProject()) : new InstanceScope();
+				new ProjectScope(fJProj.getProject()) : InstanceScope.INSTANCE;
 		IEclipsePreferences node = context.getNode(JavaCore.PLUGIN_ID);
 		final String value = enable ? AptPreferenceConstants.ENABLED : AptPreferenceConstants.DISABLED;
 		node.put(AptPreferenceConstants.APT_PROCESSANNOTATIONS, value);

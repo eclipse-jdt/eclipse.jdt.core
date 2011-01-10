@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2011 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *   wharley@bea.com - initial API and implementation
+ *   IBM Corporation - fix deprecation warnings
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.ui.internal.preferences;
@@ -218,14 +219,14 @@ public abstract class BaseConfigurationBlock {
 		if (fProject != null) {
 			fLookupOrder= new IScopeContext[] {
 				new ProjectScope(fProject),
-				new InstanceScope(),
-				new DefaultScope()
+				InstanceScope.INSTANCE,
+				DefaultScope.INSTANCE
 			};
 			fAptProject = AptPlugin.getAptProject(JavaCore.create(fProject));
 		} else {
 			fLookupOrder= new IScopeContext[] {
-				new InstanceScope(),
-				new DefaultScope()
+				InstanceScope.INSTANCE,
+				DefaultScope.INSTANCE
 			};
 			fAptProject = null;
 		}
@@ -645,12 +646,12 @@ public abstract class BaseConfigurationBlock {
 		IScopeContext[] lookupOrder; // not same as fLookupOrder!  Starts one layer deeper.
 		if (fProject != null) {
 			lookupOrder= new IScopeContext[] {
-				new InstanceScope(),
-				new DefaultScope()
+				InstanceScope.INSTANCE,
+				DefaultScope.INSTANCE
 			};
 		} else {
 			lookupOrder= new IScopeContext[] {
-				new DefaultScope()
+				DefaultScope.INSTANCE
 			};
 		}
 
