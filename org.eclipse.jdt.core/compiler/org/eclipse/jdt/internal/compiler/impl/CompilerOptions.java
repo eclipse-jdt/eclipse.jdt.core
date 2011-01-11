@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -640,8 +640,8 @@ public class CompilerOptions {
 			OPTION_ReportEnumIdentifier,
 			OPTION_ReportFallthroughCase,
 			OPTION_ReportFieldHiding,
-			OPTION_ReportFinalParameterBound,
 			OPTION_ReportFinallyBlockNotCompletingNormally,
+			OPTION_ReportFinalParameterBound,
 			OPTION_ReportForbiddenReference,
 			OPTION_ReportHiddenCatchBlock,
 			OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
@@ -649,9 +649,9 @@ public class CompilerOptions {
 			OPTION_ReportIndirectStaticAccess,
 			OPTION_ReportInvalidJavadoc,
 			OPTION_ReportLocalVariableHiding,
-			OPTION_ReportMethodWithConstructorName,
-			OPTION_ReportMethodCanBeStatic,
 			OPTION_ReportMethodCanBePotentiallyStatic,
+			OPTION_ReportMethodCanBeStatic,
+			OPTION_ReportMethodWithConstructorName,
 			OPTION_ReportMissingDeprecatedAnnotation,
 			OPTION_ReportMissingJavadocComments,
 			OPTION_ReportMissingJavadocTagDescription,
@@ -663,16 +663,18 @@ public class CompilerOptions {
 			OPTION_ReportNonExternalizedStringLiteral,
 			OPTION_ReportNonStaticAccessToStatic,
 			OPTION_ReportNullReference,
-			OPTION_ReportPotentialNullReference,
-			OPTION_ReportRedundantNullCheck,
-			OPTION_ReportRedundantSuperinterface,
+			OPTION_ReportOverridingMethodWithoutSuperInvocation,
 			OPTION_ReportOverridingPackageDefaultMethod,
 			OPTION_ReportParameterAssignment,
 			OPTION_ReportPossibleAccidentalBooleanAssignment,
+			OPTION_ReportPotentialNullReference,
+			OPTION_ReportRedundantNullCheck,
+			OPTION_ReportRedundantSuperinterface,
 			OPTION_ReportSyntheticAccessEmulation,
 			OPTION_ReportTypeParameterHiding,
 			OPTION_ReportUncheckedTypeOperation,
 			OPTION_ReportUndocumentedEmptyBlock,
+			OPTION_ReportUnhandledWarningToken,
 			OPTION_ReportUnnecessaryElse,
 			OPTION_ReportUnnecessaryTypeCheck,
 			OPTION_ReportUnqualifiedFieldAccess,
@@ -682,11 +684,9 @@ public class CompilerOptions {
 			OPTION_ReportUnusedObjectAllocation,
 			OPTION_ReportUnusedParameter,
 			OPTION_ReportUnusedPrivateMember,
-			OPTION_ReportVarargsArgumentNeedCast,
-			OPTION_ReportUnhandledWarningToken,
-			OPTION_ReportUnusedWarningToken,
-			OPTION_ReportOverridingMethodWithoutSuperInvocation,
 			OPTION_ReportUnusedTypeArgumentsForMethodInvocation,
+			OPTION_ReportUnusedWarningToken,
+			OPTION_ReportVarargsArgumentNeedCast,
 		};
 		return result;
 	}
