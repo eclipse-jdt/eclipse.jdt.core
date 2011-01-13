@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -348,7 +348,6 @@ public void test009() {
 public void test010() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
-	customOptions.put(CompilerOptions.OPTION_ReportInvalidAnnotation, CompilerOptions.WARNING);
 	this.runNegativeTest(
 		new String[] {
             "X.java",

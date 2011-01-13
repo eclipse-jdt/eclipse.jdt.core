@@ -136,11 +136,6 @@ public class CompilerOptions {
 	public static final String OPTION_IncludeNullInfoFromAsserts = "org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts";  //$NON-NLS-1$
 	public static final String OPTION_ReportMethodCanBeStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic";  //$NON-NLS-1$
 	public static final String OPTION_ReportMethodCanBePotentiallyStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic";  //$NON-NLS-1$
-	// Backward compatibility
-	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
-	public static final String OPTION_ReportMissingAnnotation = "org.eclipse.jdt.core.compiler.problem.missingAnnotation"; //$NON-NLS-1$
-	public static final String OPTION_ReportMissingJavadoc = "org.eclipse.jdt.core.compiler.problem.missingJavadoc"; //$NON-NLS-1$
-
 	/**
 	 * Possible values for configurable options
 	 */
@@ -626,15 +621,18 @@ public class CompilerOptions {
 	/**
 	 * Return all warning option names for use as keys in compiler options maps.
 	 * @return all warning option names
-	 * TODO (maxime) revise for ensuring completeness
 	 */
 	public static String[] warningOptionNames() {
 		String[] result = {
 			OPTION_ReportAnnotationSuperInterface,
 			OPTION_ReportAssertIdentifier,
 			OPTION_ReportAutoboxing,
+			OPTION_ReportComparingIdentical,
 			OPTION_ReportDeadCode,
+			OPTION_ReportDeadCodeInTrivialIfStatement,
 			OPTION_ReportDeprecation,
+			OPTION_ReportDeprecationInDeprecatedCode,
+			OPTION_ReportDeprecationWhenOverridingDeprecatedMethod,
 			OPTION_ReportDiscouragedReference,
 			OPTION_ReportEmptyStatement,
 			OPTION_ReportEnumIdentifier,
@@ -648,16 +646,28 @@ public class CompilerOptions {
 			OPTION_ReportIncompleteEnumSwitch,
 			OPTION_ReportIndirectStaticAccess,
 			OPTION_ReportInvalidJavadoc,
+			OPTION_ReportInvalidJavadocTags,
+			OPTION_ReportInvalidJavadocTagsDeprecatedRef,
+			OPTION_ReportInvalidJavadocTagsNotVisibleRef,
+			OPTION_ReportInvalidJavadocTagsVisibility,
 			OPTION_ReportLocalVariableHiding,
 			OPTION_ReportMethodCanBePotentiallyStatic,
 			OPTION_ReportMethodCanBeStatic,
 			OPTION_ReportMethodWithConstructorName,
 			OPTION_ReportMissingDeprecatedAnnotation,
+			OPTION_ReportMissingHashCodeMethod,
 			OPTION_ReportMissingJavadocComments,
+			OPTION_ReportMissingJavadocCommentsOverriding,
+			OPTION_ReportMissingJavadocCommentsVisibility,
 			OPTION_ReportMissingJavadocTagDescription,
 			OPTION_ReportMissingJavadocTags,
+			OPTION_ReportMissingJavadocTagsMethodTypeParameters,
+			OPTION_ReportMissingJavadocTagsOverriding,
+			OPTION_ReportMissingJavadocTagsVisibility,
 			OPTION_ReportMissingOverrideAnnotation,
+			OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation,
 			OPTION_ReportMissingSerialVersion,
+			OPTION_ReportMissingSynchronizedOnInheritedMethod,
 			OPTION_ReportNoEffectAssignment,
 			OPTION_ReportNoImplicitStringConversion,
 			OPTION_ReportNonExternalizedStringLiteral,
@@ -668,10 +678,14 @@ public class CompilerOptions {
 			OPTION_ReportParameterAssignment,
 			OPTION_ReportPossibleAccidentalBooleanAssignment,
 			OPTION_ReportPotentialNullReference,
+			OPTION_ReportRawTypeReference,
 			OPTION_ReportRedundantNullCheck,
 			OPTION_ReportRedundantSuperinterface,
+			OPTION_ReportSpecialParameterHidingField,
 			OPTION_ReportSyntheticAccessEmulation,
+			OPTION_ReportTasks,
 			OPTION_ReportTypeParameterHiding,
+			OPTION_ReportUnavoidableGenericTypeProblems,
 			OPTION_ReportUncheckedTypeOperation,
 			OPTION_ReportUndocumentedEmptyBlock,
 			OPTION_ReportUnhandledWarningToken,
@@ -679,10 +693,17 @@ public class CompilerOptions {
 			OPTION_ReportUnnecessaryTypeCheck,
 			OPTION_ReportUnqualifiedFieldAccess,
 			OPTION_ReportUnusedDeclaredThrownException,
+			OPTION_ReportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable,
+			OPTION_ReportUnusedDeclaredThrownExceptionIncludeDocCommentReference,
+			OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding,
 			OPTION_ReportUnusedImport,
+			OPTION_ReportUnusedLabel,
 			OPTION_ReportUnusedLocal,
 			OPTION_ReportUnusedObjectAllocation,
 			OPTION_ReportUnusedParameter,
+			OPTION_ReportUnusedParameterIncludeDocCommentReference,
+			OPTION_ReportUnusedParameterWhenImplementingAbstract,
+			OPTION_ReportUnusedParameterWhenOverridingConcrete,
 			OPTION_ReportUnusedPrivateMember,
 			OPTION_ReportUnusedTypeArgumentsForMethodInvocation,
 			OPTION_ReportUnusedWarningToken,
