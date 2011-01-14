@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1579,9 +1579,9 @@ public void test029() throws Exception {
 			false,
 			false);
 
-	// check Y superclass in problem classfile
+	// check Y superclass in problem classfile: shoud not be Z otherwise the class cannot load
 	String expectedOutput =
-		"public class Y extends Z {\n";
+		"public class Y {\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "Y.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);

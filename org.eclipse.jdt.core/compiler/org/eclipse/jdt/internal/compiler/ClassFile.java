@@ -3901,20 +3901,35 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (aType.isInterface()) {
 			superclassNameIndex = this.constantPool.literalIndexForType(ConstantPool.JavaLangObjectConstantPoolName);
 		} else {
-			superclassNameIndex =
-				(aType.superclass == null ? 0 : this.constantPool.literalIndexForType(aType.superclass));
+			if (aType.superclass != null) {
+				 if ((aType.superclass.tagBits & TagBits.HasMissingType) != 0) {
+						superclassNameIndex = this.constantPool.literalIndexForType(ConstantPool.JavaLangObjectConstantPoolName);
+				 } else {
+						superclassNameIndex = this.constantPool.literalIndexForType(aType.superclass);
+				 }
+			} else {
+				superclassNameIndex = 0;
+			}
 		}
 		this.contents[this.contentsOffset++] = (byte) (superclassNameIndex >> 8);
 		this.contents[this.contentsOffset++] = (byte) superclassNameIndex;
 		ReferenceBinding[] superInterfacesBinding = aType.superInterfaces();
 		int interfacesCount = superInterfacesBinding.length;
-		this.contents[this.contentsOffset++] = (byte) (interfacesCount >> 8);
-		this.contents[this.contentsOffset++] = (byte) interfacesCount;
+		int interfacesCountPosition = this.contentsOffset;
+		this.contentsOffset += 2;
+		int interfaceCounter = 0;
 		for (int i = 0; i < interfacesCount; i++) {
-			int interfaceIndex = this.constantPool.literalIndexForType(superInterfacesBinding[i]);
+			ReferenceBinding binding = superInterfacesBinding[i];
+			if ((binding.tagBits & TagBits.HasMissingType) != 0) {
+				continue;
+			}
+			interfaceCounter++;
+			int interfaceIndex = this.constantPool.literalIndexForType(binding);
 			this.contents[this.contentsOffset++] = (byte) (interfaceIndex >> 8);
 			this.contents[this.contentsOffset++] = (byte) interfaceIndex;
 		}
+		this.contents[interfacesCountPosition++] = (byte) (interfaceCounter >> 8);
+		this.contents[interfacesCountPosition] = (byte) interfaceCounter;
 		this.creatingProblemType = createProblemType;
 
 		// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
