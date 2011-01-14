@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2009 IBM Corporation and others.
+ * Copyright (c) 2006, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -183,6 +183,7 @@ protected void writeBatchFile(String fileName, Vector commandLine) {
 		out.close();
 	} catch (IOException e) {
 		e.printStackTrace();
+	} finally {
 		if (output != null) {
 			try {
 				output.close();
