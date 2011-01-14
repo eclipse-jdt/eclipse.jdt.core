@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 BEA Systems, Inc.
+ * Copyright (c) 2005, 2011 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *    IBM Corporation - implemented methods from IBinding
  *    IBM Corporation - renamed from ResolvedMemberValuePair to MemberValuePairBinding
  *    jgarms@bea.com - Fix for IllegalStateException
+ *    IBM Corporation - Fix for 223225
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 

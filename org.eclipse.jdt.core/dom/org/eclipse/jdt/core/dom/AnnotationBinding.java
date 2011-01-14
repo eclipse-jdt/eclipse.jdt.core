@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc.
+ * Copyright (c) 2005, 2011 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *    tyeung@bea.com - initial API and implementation
  *    IBM Corporation - implemented methods from IBinding
  *    IBM Corporation - renamed from ResolvedAnnotation to AnnotationBinding
+ *    IBM Corporation - Fix for 328969
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
