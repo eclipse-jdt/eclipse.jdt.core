@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for Bug 186342 - [compiler][null]Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -99,6 +100,12 @@ public abstract class AbstractMethodDeclaration
 					paramAnnotations[i] = argument.binding.getAnnotations();
 				} else if (paramAnnotations != null) {
 					paramAnnotations[i] = Binding.NO_ANNOTATIONS;
+				}
+				// transfer nullness info from the argument to the method:
+				if ((argument.binding.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) != 0) {
+					if (this.binding.parameterNonNullness == null)
+						this.binding.parameterNonNullness = new Boolean[this.arguments.length];
+					this.binding.parameterNonNullness[i] = Boolean.valueOf((argument.binding.tagBits & TagBits.AnnotationNonNull) != 0);
 				}
 			}
 			if (paramAnnotations != null)
@@ -415,7 +422,6 @@ public abstract class AbstractMethodDeclaration
 		}
 
 		try {
-			bindArguments();
 			bindThrownExceptions();
 			resolveJavadoc();
 			resolveAnnotations(this.scope, this.annotations, this.binding);

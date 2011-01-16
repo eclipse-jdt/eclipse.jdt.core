@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,10 @@
  *     Tom Tromey - Contribution for bug 125961
  *     Tom Tromey - Contribution for bug 159641
  *     Benjamin Muskalla - Contribution for bug 239066
- *     Stephan Herrmann  - Contribution for bug 236385
- *     Stephan Herrmann  - Contribution for bug 295551
+ *     Stephan Herrmann  - Contributions for 
+ *     							bug 236385 - [compiler] Warn for potential programming problem if an object is created but not used
+ *     							bug 295551 - Add option to automatically promote all warnings to errors 
+ *     							bug 186342 - [compiler][null]Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -2386,6 +2388,27 @@ public void configure(String[] argv) {
 				}
 				if (currentArg.equals("-properties")) { //$NON-NLS-1$
 					mode = INSIDE_WARNINGS_PROPERTIES;
+					continue;
+				}
+				if (currentArg.startsWith("-nullAnnotations:")) { //$NON-NLS-1$
+					StringTokenizer tokenizer =
+						new StringTokenizer(currentArg.substring("-nullAnnotations:".length()), ","); //$NON-NLS-1$ //$NON-NLS-2$
+					while (tokenizer.hasMoreTokens()) {
+						String token = tokenizer.nextToken();
+						if (token.startsWith("nullable=")) { //$NON-NLS-1$
+							this.options.put(CompilerOptions.OPTION_NullableAnnotationName, token.substring("nullable=".length())); //$NON-NLS-1$
+						} else if (token.startsWith("nonnull=")) { //$NON-NLS-1$
+							this.options.put(CompilerOptions.OPTION_NonNullAnnotationName, token.substring("nonnull=".length())); //$NON-NLS-1$
+						} else if (token.equals("emulate")) { //$NON-NLS-1$
+							this.options.put(CompilerOptions.OPTION_EmulateNullAnnotationTypes, CompilerOptions.ENABLED);
+						} else if (token.equals("import")) { //$NON-NLS-1$
+							this.options.put(CompilerOptions.OPTION_DefaultImportNullAnnotationTypes, CompilerOptions.ENABLED);
+						} else {
+							throw new IllegalArgumentException(
+								this.bind("configure.unrecognized.nullannotation.option", token)); //$NON-NLS-1$
+						}
+					}
+					mode = DEFAULT;
 					continue;
 				}
 				break;

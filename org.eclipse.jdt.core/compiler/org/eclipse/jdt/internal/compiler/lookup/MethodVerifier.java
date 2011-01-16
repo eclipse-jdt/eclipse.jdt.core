@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
+ *     Stephan Herrmann  - Contribution for Bug 186342 - [compiler][null]Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -152,6 +153,8 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 				// interface I { @Override Object clone(); } does not override Object#clone()
 				currentMethod.modifiers |= ExtraCompilerModifiers.AccOverriding;
 			}
+			if (!currentMethod.isStatic())
+				checkNullContractCompatibility(currentMethod, inheritedMethod);
 
 			if (!areReturnTypesCompatible(currentMethod, inheritedMethod)
 					&& (currentMethod.returnType.tagBits & TagBits.HasMissingType) == 0) {
@@ -184,7 +187,9 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 		checkForBridgeMethod(currentMethod, inheritedMethod, allInheritedMethods);
 	}
 }
-
+protected void checkNullContractCompatibility(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	// nothing to do here. Real action happens at 1.5+
+}
 public void reportRawReferences(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	// nothing to do here. Real action happens at 1.5+
 }

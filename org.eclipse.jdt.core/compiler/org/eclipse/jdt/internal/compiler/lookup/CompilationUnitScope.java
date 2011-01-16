@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Erling Ellingsen -  patch for bug 125570
+ *     Erling Ellingsen - patch for bug 125570
+ *     Stephan Herrmann - Contribution for Bug 186342 - [compiler][null]Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -160,7 +161,10 @@ void checkAndSetImports() {
 
 	// allocate the import array, add java.lang.* by default
 	int numberOfStatements = this.referenceContext.imports.length;
-	int numberOfImports = numberOfStatements + 1;
+	int numberOfDefaultImports = 1;
+	if (this.environment.globalOptions.defaultImportNullAnnotationTypes)
+		numberOfDefaultImports += 2;
+	int numberOfImports = numberOfStatements + numberOfDefaultImports;
 	for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
 		if (((importReference.bits & ASTNode.OnDemand) != 0) && CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens) && !importReference.isStatic()) {
@@ -169,8 +173,11 @@ void checkAndSetImports() {
 		}
 	}
 	ImportBinding[] resolvedImports = new ImportBinding[numberOfImports];
-	resolvedImports[0] = getDefaultImports()[0];
-	int index = 1;
+	ImportBinding[] defaultImports = getDefaultImports(); // consistent number of default imports is ensured in LookupEnvironment.makeNullAnnotationTypeImports()
+	for (int i = 0; i < numberOfDefaultImports; i++) {
+		resolvedImports[i] = defaultImports[i];
+	}
+	int index = numberOfDefaultImports;
 
 	nextImport : for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
@@ -303,6 +310,13 @@ void faultInImports() {
 		return; // can be called when a field constant is resolved before static imports
 	if (this.referenceContext.imports == null) {
 		this.typeOrPackageCache = new HashtableOfObject(1);
+		for (int i = 0; i < this.imports.length; i++) {
+			// cache default-imported null annotation types:
+			if (!this.imports[i].onDemand) {
+				char[][] importName = this.imports[i].compoundName;
+				this.typeOrPackageCache.put(importName[importName.length-1], this.imports[i].resolvedImport);
+			}
+		}
 		return;
 	}
 
@@ -327,9 +341,18 @@ void faultInImports() {
 			break;
 		}
 	}
+	int numberOfDefaultImports = 1;
+	if (this.environment.globalOptions.defaultImportNullAnnotationTypes) {
+		numberOfDefaultImports += 2;
+		numberOfImports += 2;
+	}
 	ImportBinding[] resolvedImports = new ImportBinding[numberOfImports];
-	resolvedImports[0] = getDefaultImports()[0];
-	int index = 1;
+	ImportBinding[] defaultImports = getDefaultImports(); // consistent number of default imports is ensured in LookupEnvironment.makeNullAnnotationTypeImports()
+	for (int i = 0; i < numberOfDefaultImports; i++) {
+		resolvedImports[i] = defaultImports[i];
+	}
+
+	int index = numberOfDefaultImports;
 
 	// keep static imports with normal imports until there is a reason to split them up
 	// on demand imports continue to be packages & types. need to check on demand type imports for fields/methods
@@ -613,7 +636,19 @@ ImportBinding[] getDefaultImports() {
 		importBinding = missingObject.fPackage;
 	}
 
-	return this.environment.defaultImports = new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
+	ImportBinding javaLangImport = new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null);
+	ImportBinding[] nullAnnotationImports = this.environment.makeNullAnnotationTypeImports(); // trigger regardless of option below
+	if (this.environment.globalOptions.defaultImportNullAnnotationTypes) {
+		ImportBinding[] allDefaultImports = new ImportBinding[nullAnnotationImports.length+1];// java.lang.* + null-annotations
+		allDefaultImports[0] = javaLangImport;
+		System.arraycopy(nullAnnotationImports, 0,
+						 allDefaultImports, 1,
+						 nullAnnotationImports.length);
+		this.environment.defaultImports = allDefaultImports;
+	} else {
+		this.environment.defaultImports = new ImportBinding[] {javaLangImport};
+	}
+	return this.environment.defaultImports;
 }
 // NOT Public API
 public final Binding getImport(char[][] compoundName, boolean onDemand, boolean isStaticImport) {

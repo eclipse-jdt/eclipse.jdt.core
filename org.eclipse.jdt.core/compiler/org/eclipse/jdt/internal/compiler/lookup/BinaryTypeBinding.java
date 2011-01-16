@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for Bug 186342 - [compiler][null]Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -553,6 +554,8 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 			isAnnotationType() ? convertMemberValue(method.getDefaultValue(), this.environment, missingTypeNames) : null,
 			this.environment);
 
+	scanForNullAnnotation(method, result);
+
 	if (use15specifics)
 		result.tagBits |= method.getTagBits();
 	result.typeVariables = typeVars;
@@ -1091,6 +1094,53 @@ MethodBinding resolveTypesFor(MethodBinding method) {
 }
 AnnotationBinding[] retrieveAnnotations(Binding binding) {
 	return AnnotationBinding.addStandardAnnotations(super.retrieveAnnotations(binding), binding.getAnnotationTagBits(), this.environment);
+}
+private void scanForNullAnnotation(IBinaryMethod method, MethodBinding result) {
+	char[][] nullableAnnotationName = this.environment.globalOptions.nullableAnnotationName;
+	char[][] nonNullAnnotationName = this.environment.globalOptions.nonNullAnnotationName;
+	if (nullableAnnotationName == null || nonNullAnnotationName == null)
+		return; // not configured to use null annotations
+
+	IBinaryAnnotation[] annotations = method.getAnnotations();
+	if (annotations != null) {
+		for (int i = 0; i < annotations.length; i++) {
+			char[] annotationTypeName = annotations[i].getTypeName();
+			if (annotationTypeName[0] != 'L')
+				continue;
+			char[][] typeName = CharOperation.splitOn('/', annotationTypeName, 1, annotationTypeName.length-1); // cut of leading 'L' and trailing ';'
+			if (CharOperation.equals(typeName, nonNullAnnotationName)) {
+				result.tagBits |= TagBits.AnnotationNonNull;
+				return;
+			}
+			if (CharOperation.equals(typeName, nullableAnnotationName)) {
+				result.tagBits |= TagBits.AnnotationNullable;
+				return;
+			}
+		}
+	}
+
+	for (int j = 0; j < result.parameters.length; j++) {
+		IBinaryAnnotation[] paramAnnotations = method.getParameterAnnotations(j); 
+		if (paramAnnotations != null) {
+			for (int i = 0; i < paramAnnotations.length; i++) {
+				char[] annotationTypeName = paramAnnotations[i].getTypeName();
+				if (annotationTypeName[0] != 'L')
+					continue;
+				char[][] typeName = CharOperation.splitOn('/', annotationTypeName, 1, annotationTypeName.length-1); // cut of leading 'L' and trailing ';'
+				if (CharOperation.equals(typeName, nonNullAnnotationName)) {
+					if (result.parameterNonNullness == null)
+						result.parameterNonNullness = new Boolean[result.parameters.length];
+					result.parameterNonNullness[j] = Boolean.TRUE;
+					break;
+				} else if (CharOperation.equals(typeName, nullableAnnotationName)) {
+					if (result.parameterNonNullness == null)
+						result.parameterNonNullness = new Boolean[result.parameters.length];
+					result.parameterNonNullness[j] = Boolean.FALSE;
+					break;
+				}
+			}
+		}
+	}
 }
 SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	if (forceInitialize && this.storedAnnotations == null) {

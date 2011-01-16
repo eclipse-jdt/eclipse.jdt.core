@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for Bug 186342 - [compiler][null]Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -89,6 +90,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 						if (this.binding != null && this.binding.declaringClass == declaringElement)
 							this.bits &= ~ASTNode.CanBeStatic;
 					}
+					// leverage null-info from parameter annotations:
+					long argumentTagBits = this.arguments[i].binding.tagBits;
+					if ((argumentTagBits & TagBits.AnnotationNullable) != 0)
+						flowInfo.markPotentiallyNullBit(this.arguments[i].binding);
+					else if ((argumentTagBits & TagBits.AnnotationNonNull) != 0)
+						flowInfo.markAsDefinitelyNonNull(this.arguments[i].binding);
 				}
 			}
 			if (this.binding.declaringClass instanceof MemberTypeBinding && !this.binding.declaringClass.isStatic()) {
