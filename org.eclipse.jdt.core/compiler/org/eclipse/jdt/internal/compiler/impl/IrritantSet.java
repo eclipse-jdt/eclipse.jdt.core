@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for Bug 186342 - [compiler][null]Using annotations for null checking
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.impl;
@@ -59,12 +58,9 @@ public class IrritantSet {
 	public static final IrritantSet UNCHECKED = new IrritantSet(CompilerOptions.UncheckedTypeOperation);
 	public static final IrritantSet UNQUALIFIED_FIELD_ACCESS = new IrritantSet(CompilerOptions.UnqualifiedFieldAccess);
 
-	public static final IrritantSet COMPILER_DEFAULT_ERRORS = new IrritantSet(0); // see static initializer below	
+	public static final IrritantSet COMPILER_DEFAULT_ERRORS = new IrritantSet(0); // no optional error by default	
 	public static final IrritantSet COMPILER_DEFAULT_WARNINGS = new IrritantSet(0); // see static initializer below
 	static {
-		COMPILER_DEFAULT_ERRORS
-			.set(CompilerOptions.NullContractViolation
-				 | CompilerOptions.PotentialNullContractViolation);
 		COMPILER_DEFAULT_WARNINGS
 			// group-0 warnings enabled by default
 			.set(
@@ -102,8 +98,7 @@ public class IrritantSet {
 			// group-2 warnings enabled by default
 			.set(
 				CompilerOptions.DeadCode
-				| CompilerOptions.Tasks
-				| CompilerOptions.NullContractInsufficientInfo);
+				|CompilerOptions.Tasks);
 			
 		ALL.setAll();
 		HIDING
@@ -112,10 +107,7 @@ public class IrritantSet {
 			.set(CompilerOptions.TypeHiding);
 		NULL
 			.set(CompilerOptions.PotentialNullReference)
-			.set(CompilerOptions.RedundantNullCheck)
-			.set(CompilerOptions.NullContractViolation)
-			.set(CompilerOptions.PotentialNullContractViolation)
-			.set(CompilerOptions.NullContractInsufficientInfo);
+			.set(CompilerOptions.RedundantNullCheck);
 		RESTRICTION.set(CompilerOptions.DiscouragedReference);
 		STATIC_ACCESS.set(CompilerOptions.NonStaticAccessToStatic);
 		UNUSED

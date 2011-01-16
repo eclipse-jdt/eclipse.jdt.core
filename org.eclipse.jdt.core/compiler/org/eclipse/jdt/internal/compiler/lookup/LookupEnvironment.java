@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for Bug 186342 - [compiler][null]Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1315,74 +1314,6 @@ boolean isPackage(char[][] compoundName, char[] name) {
 		return this.nameEnvironment.isPackage(null, name);
 	return this.nameEnvironment.isPackage(compoundName, name);
 }
-
-private ReferenceBinding makeNullAnnotationType(char[][] compoundName, int typeId) {
-	char[][] packageName = CharOperation.subarray(compoundName, 0, compoundName.length-1);
-	PackageBinding packageBinding = createPackage(packageName);
-	ReferenceBinding typeBinding = packageBinding.getType(compoundName[compoundName.length-1]);
-	if (typeBinding != null && typeBinding.isValidBinding())
-		this.problemReporter.conflictingTypeEmulation(compoundName); // does not return
-
-	BinaryTypeBinding emulatedType = new BinaryTypeBinding();
-	emulatedType.compoundName = compoundName;
-	emulatedType.sourceName = compoundName[compoundName.length-1];
-	emulatedType.modifiers = ClassFileConstants.AccAnnotation | ClassFileConstants.AccPublic;
-	emulatedType.fields = Binding.NO_FIELDS;
-	emulatedType.methods = Binding.NO_METHODS;
-	emulatedType.memberTypes = Binding.NO_MEMBER_TYPES;
-	emulatedType.superclass = getType(TypeConstants.JAVA_LANG_OBJECT);
-	emulatedType.superInterfaces = Binding.NO_SUPERINTERFACES;
-	emulatedType.fPackage = packageBinding;
-	emulatedType.typeVariables = Binding.NO_TYPE_VARIABLES;
-	emulatedType.tagBits = TagBits.AreFieldsComplete | TagBits.AreFieldsSorted 
-							| TagBits.AreMethodsComplete | TagBits.AreMethodsSorted 
-							| TagBits.HasNoMemberTypes | TagBits.TypeVariablesAreConnected
-							| TagBits.AnnotationClassRetention 
-							| TagBits.AnnotationForMethod | TagBits.AnnotationForParameter 
-							| TagBits.AnnotationForLocalVariable ;
-	emulatedType.id = typeId;
-	
-	packageBinding.addType(emulatedType);
-
-	return emulatedType;
-}
-
-protected ImportBinding[] makeNullAnnotationTypeImports() {
-	char[][] nullableAnnotationName = this.globalOptions.nullableAnnotationName;
-	char[][] nonNullAnnotationName = this.globalOptions.nonNullAnnotationName;
-	if (nullableAnnotationName == null || nonNullAnnotationName == null) {
-		if (this.globalOptions.emulateNullAnnotationTypes || this.globalOptions.defaultImportNullAnnotationTypes)
-			// shouldn't happen by construction of CompilerOptions.set(Map)
-			this.problemReporter.abortDueToInternalError("Inconsistent null annotation options"); //$NON-NLS-1$
-		return new ImportBinding[0];
-	}
-	// fetch annotation types for emulation and/or default import:
-	ReferenceBinding nullableAnnotationType = null;
-	ReferenceBinding nonNullAnnotationType = null;
-	if (this.globalOptions.emulateNullAnnotationTypes) {
-		nullableAnnotationType = makeNullAnnotationType(nullableAnnotationName, TypeIds.T_ConfiguredAnnotationNullable);
-		nonNullAnnotationType  = makeNullAnnotationType(nonNullAnnotationName, TypeIds.T_ConfiguredAnnotationNonNull);
-	} else { // not emulated means those types should exist (and need to be marked):
-		nullableAnnotationType = getType(nullableAnnotationName);
-		if (nullableAnnotationType != null && nullableAnnotationType.isValidBinding())
-			nullableAnnotationType.id = TypeIds.T_ConfiguredAnnotationNullable;
-		else if (this.globalOptions.defaultImportNullAnnotationTypes)
-			this.problemReporter.missingNullAnnotationType(nullableAnnotationName);
-
-		nonNullAnnotationType  = getType(nonNullAnnotationName);
-		if (nonNullAnnotationType != null && nonNullAnnotationType.isValidBinding())
-			nonNullAnnotationType.id = TypeIds.T_ConfiguredAnnotationNonNull;
-		else if (this.globalOptions.defaultImportNullAnnotationTypes)
-			this.problemReporter.missingNullAnnotationType(nonNullAnnotationName);
-	}
-	if (this.globalOptions.defaultImportNullAnnotationTypes)
-		return new ImportBinding[] {
-				new ImportBinding(nullableAnnotationName, false, nullableAnnotationType, null),
-				new ImportBinding(nonNullAnnotationName, false, nonNullAnnotationType, null)
-		};
-	return new ImportBinding[0];
-}
-
 // The method verifier is lazily initialized to guarantee the receiver, the compiler & the oracle are ready.
 public MethodVerifier methodVerifier() {
 	if (this.verifier == null)

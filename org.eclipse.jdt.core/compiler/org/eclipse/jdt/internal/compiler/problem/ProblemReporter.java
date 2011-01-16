@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,9 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
- *     Stephan Herrmann  - Contributions for 
- *     							bug 236385 - [compiler] Warn for potential programming problem if an object is created but not used
- *     							bug 186342 - [compiler][null]Using annotations for null checking
+ *     Stephan Herrmann  - Contribution for bug 236385
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -83,7 +81,6 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -296,22 +293,6 @@ public static int getIrritant(int problemID) {
 		case IProblem.NullLocalVariableInstanceofYieldsFalse:
 			return CompilerOptions.RedundantNullCheck;
 
-		case IProblem.DefiniteNullFromNonNullMethod:
-		case IProblem.DefiniteNullToNonNullLocal:
-		case IProblem.DefiniteNullToNonNullParameter:
-		case IProblem.IllegalRedefinitionToNullableReturn:
-		case IProblem.IllegalRedefinitionToNonNullParameter:
-		case IProblem.IllegalDefinitionToNonNullParameter:
-			return CompilerOptions.NullContractViolation;
-		case IProblem.PotentialNullFromNonNullMethod:
-		case IProblem.PotentialNullToNonNullLocal:
-		case IProblem.PotentialNullToNonNullParameter:
-			return CompilerOptions.PotentialNullContractViolation;
-		case IProblem.NonNullLocalInsufficientInfo:
-		case IProblem.NonNullParameterInsufficientInfo:
-		case IProblem.NonNullReturnInsufficientInfo:
-			return CompilerOptions.NullContractInsufficientInfo;
-
 		case IProblem.BoxingConversion :
 		case IProblem.UnboxingConversion :
 			return CompilerOptions.AutoBoxing;
@@ -488,9 +469,6 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.NullReference :
 			case CompilerOptions.PotentialNullReference :
 			case CompilerOptions.RedundantNullCheck :
-			case CompilerOptions.NullContractViolation :
-			case CompilerOptions.PotentialNullContractViolation :
-			case CompilerOptions.NullContractInsufficientInfo :
 			case CompilerOptions.IncompleteEnumSwitch :
 			case CompilerOptions.FallthroughCase :
 			case CompilerOptions.OverridingMethodWithoutSuperInvocation :
@@ -552,8 +530,6 @@ public static int getProblemCategory(int severity, int problemID) {
 	switch (problemID) {
 		case IProblem.IsClassPathCorrect :
 		case IProblem.CorruptedSignature :
-		case IProblem.ConflictingTypeEmulation :
-		case IProblem.MissingNullAnnotationType :
 			return CategorizedProblem.CAT_BUILDPATH;
 
 		default :
@@ -1354,15 +1330,6 @@ public void conflictingImport(ImportReference importRef) {
 		arguments,
 		importRef.sourceStart,
 		importRef.sourceEnd);
-}
-public void conflictingTypeEmulation(char[][] compoundName) {
-	String[] arguments = new String[] {CharOperation.toString(compoundName)};
-	this.handle(
-		IProblem.ConflictingTypeEmulation,
-		arguments,
-		arguments,
-		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal, // not configurable
-		0, 0);	
 }
 public void constantOutOfRange(Literal literal, TypeBinding literalType) {
 	String[] arguments = new String[] {new String(literalType.readableName()), new String(literal.source())};
@@ -2469,32 +2436,6 @@ public void illegalQualifiedParameterizedTypeAllocation(TypeReference qualifiedT
 		new String[] { new String(allocatedType.shortReadableName()), new String(allocatedType.enclosingType().shortReadableName()), },
 		qualifiedTypeReference.sourceStart,
 		qualifiedTypeReference.sourceEnd);
-}
-public void illegalRedefinitionToNonNullParameter(Argument argument, ReferenceBinding declaringClass, char[][] inheritedAnnotationName) {
-	if (inheritedAnnotationName == null) {
-		this.handle(
-			IProblem.IllegalDefinitionToNonNullParameter, 
-			new String[] { new String(argument.name), new String(declaringClass.readableName()) },
-			new String[] { new String(argument.name), new String(declaringClass.shortReadableName()) },
-			argument.sourceStart, 
-			argument.sourceEnd);
-		
-	} else {
-		this.handle(
-			IProblem.IllegalRedefinitionToNonNullParameter, 
-			new String[] { new String(argument.name), new String(declaringClass.readableName()), CharOperation.toString(inheritedAnnotationName)},
-			new String[] { new String(argument.name), new String(declaringClass.shortReadableName()), new String(inheritedAnnotationName[inheritedAnnotationName.length-1])},
-			argument.sourceStart, 
-			argument.sourceEnd);
-	}
-}
-public void illegalRedefinitionToNullableReturn(AbstractMethodDeclaration methodDecl, ReferenceBinding declaringClass, char[][] nonNullAnnotationName) {
-	this.handle(
-		IProblem.IllegalRedefinitionToNullableReturn, 
-		new String[] { new String(declaringClass.readableName()), CharOperation.toString(nonNullAnnotationName)},
-		new String[] { new String(declaringClass.shortReadableName()), new String(nonNullAnnotationName[nonNullAnnotationName.length-1])},
-		methodDecl.sourceStart, 
-		methodDecl.sourceEnd);	
 }
 public void illegalStaticModifierForMemberType(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};
@@ -5175,11 +5116,6 @@ public void missingEnumConstantCase(SwitchStatement switchStatement, FieldBindin
 		switchStatement.expression.sourceStart,
 		switchStatement.expression.sourceEnd);
 }
-
-public void missingNullAnnotationType(char[][] nullAnnotationName) {
-	String[] args = { new String(CharOperation.concatWith(nullAnnotationName, '.')) };
-	this.handle(IProblem.MissingNullAnnotationType, args, args, 0, 0);	
-}
 public void missingOverrideAnnotation(AbstractMethodDeclaration method) {
 	int severity = computeSeverity(IProblem.MissingOverrideAnnotation);
 	if (severity == ProblemSeverities.Ignore) return;
@@ -6141,51 +6077,6 @@ public void possibleFallThroughCase(CaseStatement caseStatement) {
 		NoArgument,
 		caseStatement.sourceStart,
 		caseStatement.sourceEnd);
-}
-public void possiblyNullFromNonNullMethod(ReturnStatement returnStatement, int nullStatus, char[] annotationName) {
-	int problemId = IProblem.NonNullReturnInsufficientInfo;
-	if ((nullStatus & FlowInfo.NULL) != 0)
-		problemId = IProblem.DefiniteNullFromNonNullMethod;
-	if ((nullStatus & FlowInfo.POTENTIALLY_NULL) != 0)
-		problemId = IProblem.PotentialNullFromNonNullMethod;
-	String[] arguments = new String[] { String.valueOf(annotationName) };
-	this.handle(
-		problemId,
-		arguments,
-		arguments,
-		returnStatement.sourceStart,
-		returnStatement.sourceEnd);
-}
-public void possiblyNullToNonNullLocal(char[] variableName, Expression expression, int nullStatus, char[][] annotationName) {
-	int problemId = IProblem.NonNullLocalInsufficientInfo;
-	if ((nullStatus & FlowInfo.NULL) != 0)
-		problemId = IProblem.DefiniteNullToNonNullLocal;
-	else if ((nullStatus & FlowInfo.POTENTIALLY_NULL) != 0)
-		problemId = IProblem.PotentialNullToNonNullLocal;
-	String[] arguments = new String[] {
-			String.valueOf(variableName),
-			String.valueOf(annotationName[annotationName.length-1]) 
-	};
-	this.handle(
-		problemId,
-		arguments,
-		arguments,
-		expression.sourceStart,
-		expression.sourceEnd);
-}
-public void possiblyNullToNonNullParameter(Expression argument, int nullStatus, char[] annotationName) {
-	int problemId = IProblem.NonNullParameterInsufficientInfo;
-	if ((nullStatus & FlowInfo.NULL) != 0)
-		problemId = IProblem.DefiniteNullToNonNullParameter;
-	else if ((nullStatus & FlowInfo.POTENTIALLY_NULL) != 0)
-		problemId = IProblem.PotentialNullToNonNullParameter;
-	String[] arguments = new String[] { String.valueOf(annotationName) };
-	this.handle(
-		problemId,
-		arguments,
-		arguments,
-		argument.sourceStart,
-		argument.sourceEnd);
 }
 public void publicClassMustMatchFileName(CompilationUnitDeclaration compUnitDecl, TypeDeclaration typeDecl) {
 	this.referenceContext = typeDecl; // report the problem against the type not the entire compilation unit

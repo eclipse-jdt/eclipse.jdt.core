@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,7 @@
  *     Benjamin Muskalla - Contribution for bug 239066
  *     Stephan Herrmann  - Contribution for bug 236385
  *     Stephan Herrmann  - Contribution for bug 295551
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for 
- *     						bug 185682 - Increment/decrement operators mark local variables as read
- *     						bug 186342 - [compiler][null]Using annotations for null checking
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -50,7 +48,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 	private static final Main MAIN = new Main(null/*outWriter*/, null/*errWriter*/, false/*systemExit*/, null/*options*/, null/*progress*/);
 
 	static {
-//		TESTS_NAMES = new String[] { "testNullAnnotations" };
+//		TESTS_NAMES = new String[] { "test295_warn_options" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -1591,22 +1589,6 @@ public void test012(){
         "    -classNames <className1[,className2,...]>\n" +
         "                         qualified names of binary classes to process\n" +
         " \n" +
-        " Null annotation options:\n" +
-		"    -nullAnnotations:<suboptions>\n" +
-		"                      enable use of annotations for specifying null contracts;\n" +
-		"                      <suboptions> is a non-empty, comma-separated list of:\n" +
-		"        nullable=<typename>\n" +
-		"                      specifies the fully qualified name of an annotation type\n" +
-		"                      to be used for marking types whose values include null\n" +
-		"        nonnull=<typename>\n" +
-		"                      specifies the fully qualified name of an annotation type\n" +
-		"                      to be used for marking types whose values cannot be null\n" +
-		"        emulate       tells the compiler to emulate the above annotation types\n" +
-		"                      although they do not exist on the classpath\n" +
-		"        import        tells the compiler to import the above annotation types\n" +
-		"                      without specific mention in the sources such that their\n" +
-		"                      simple names can be used without explicit imports\n" +
-		" \n" +
         " Advanced options:\n" +
         "    @<file>            read command line arguments from file\n" +
         "    -maxProblems <n>   max number of problems per compilation unit (100 by\n" +
@@ -1811,8 +1793,6 @@ public void test012b(){
 			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---\"/>\n" + 
 			"	</command_line>\n" + 
 			"	<options>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.defaultImport\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.emulate\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.5\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.unusedLocal\" value=\"optimize out\"/>\n" + 
@@ -1870,14 +1850,11 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullContractInsufficientInfo\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullContractViolation\" value=\"error\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.parameterAssignment\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentialNullContractViolation\" value=\"error\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentialNullReference\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantNullCheck\" value=\"ignore\"/>\n" + 
@@ -12285,70 +12262,6 @@ public void testReportingUnavoidableGenericProblems2() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"3 problems (1 error, 2 warnings)",
-		true);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342  -- minimal options passed
-public void testNullAnnotations1() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"    @org.eclipse.jdt.annotation.NonNull Object foo(boolean b) {\n" +
-			"          return null;\n" +
-			"    }\n" +
-			"}\n"
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.5 -nullAnnotations:emulate -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		"	return null;\n" + 
-		"	^^^^^^^^^^^^\n" + 
-		"Null contract violation: returning null from a method declared as @NonNull.\n" +
-		"----------\n" + 
-		"1 problem (1 error)",
-		true);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342  -- full options passed
-public void testNullAnnotations2() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"    @NichtNull Object foo(boolean b) {\n" +
-			"          return null;\n" +
-			"    }\n" +
-			"}\n"
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.5 -nullAnnotations:nullable=org.foo.Nullish,emulate,import,nonnull=de.foo.NichtNull -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		"	return null;\n" + 
-		"	^^^^^^^^^^^^\n" + 
-		"Null contract violation: returning null from a method declared as @NichtNull.\n" +
-		"----------\n" + 
-		"1 problem (1 error)",
-		true);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342  -- unrecognized sub-option
-public void testNullAnnotations3() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"    @NichtNull Object foo(boolean b) {\n" +
-			"          return null;\n" +
-			"    }\n" +
-			"}\n"
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -1.5 -nullAnnotations:wrong -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"Unrecognized sub-option of -nullAnnotations: wrong,\n" + 
-		"legal values are nullable=.., nonnull=.., emulate and import\n",
 		true);
 }
 }

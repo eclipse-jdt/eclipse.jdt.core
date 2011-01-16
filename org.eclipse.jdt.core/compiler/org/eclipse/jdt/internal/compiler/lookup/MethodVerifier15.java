@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for Bug 186342 - [compiler][null]Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -406,62 +405,6 @@ boolean checkInheritedReturnTypes(MethodBinding method, MethodBinding otherMetho
 	}
 
 	return false;
-}
-
-protected void checkNullContractCompatibility(MethodBinding currentMethod, MethodBinding inheritedMethod) {
-	// return type:
-	if ((inheritedMethod.tagBits & TagBits.AnnotationNonNull) != 0) {
-		if ((currentMethod.tagBits & TagBits.AnnotationNullable) != 0) {
-			AbstractMethodDeclaration methodDecl = currentMethod.sourceMethod();
-			this.type.scope.problemReporter().illegalRedefinitionToNullableReturn(methodDecl, inheritedMethod.declaringClass, 
-																			this.environment.globalOptions.nonNullAnnotationName);
-		}
-	}
-	if ((currentMethod.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
-		currentMethod.tagBits |= (inheritedMethod.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable));
-
-	// parameters:
-	if (inheritedMethod.parameterNonNullness != null) {
-		// inherited method has null-annotations, check and possibly transfer:
-		
-		// prepare for transfering (contract inheritance):
-		if (currentMethod.parameterNonNullness == null)
-			currentMethod.parameterNonNullness = new Boolean[currentMethod.parameters.length];
-		
-		for (int i = 0; i < inheritedMethod.parameterNonNullness.length; i++) {
-			
-			Boolean inheritedNonNullNess = inheritedMethod.parameterNonNullness[i];
-			if (inheritedNonNullNess != Boolean.TRUE) { 	 				 // super parameter is not restricted to @NonNull
-				if (currentMethod.parameterNonNullness[i] == Boolean.TRUE) { // current parameter is restricted to @NonNull
-					this.type.scope.problemReporter().illegalRedefinitionToNonNullParameter(
-																	currentMethod.sourceMethod().arguments[i],
-																	inheritedMethod.declaringClass,
-																	inheritedNonNullNess == null
-																	? null
-																	: this.environment.globalOptions.nullableAnnotationName);
-					continue;
-				} 
-			}
-			
-			if (currentMethod.parameterNonNullness[i] == null && inheritedNonNullNess != null) {
-				// inherit this annotation as the current method has no annotation:
-				currentMethod.parameterNonNullness[i] = inheritedNonNullNess;
-				VariableBinding argumentBinding = currentMethod.sourceMethod().arguments[i].binding;
-				argumentBinding.tagBits |= inheritedNonNullNess.booleanValue()
-												? TagBits.AnnotationNonNull : TagBits.AnnotationNullable;
-			}
-		}
-	} else if (currentMethod.parameterNonNullness != null) {
-		// super method has no annotations but current has
-		for (int i = 0; i < currentMethod.parameterNonNullness.length; i++) {
-			if (currentMethod.parameterNonNullness[i] == Boolean.TRUE) { // tightening from unconstrained to @NonNull
-				this.type.scope.problemReporter().illegalRedefinitionToNonNullParameter(
-																currentMethod.sourceMethod().arguments[i],
-																inheritedMethod.declaringClass,
-																null);
-			}
-		}
-	}
 }
 
 void reportRawReferences() {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -116,21 +116,7 @@
  *		Benjamin Muskalla - added the following constants
  *									MissingSynchronizedModifierInInheritedMethod
  *		Stephan Herrmann  - added the following constants
- *									UnusedObjectAllocation
- *									DefiniteNullFromNonNullMethod
- *									PotentialNullFromNonNullMethod
- *									NonNullReturnInsufficientInfo
- *									DefiniteNullToNonNullParameter
- *									PotentialNullToNonNullParameter
- *									NonNullParameterInsufficientInfo
- *									DefiniteNullToNonNullLocal
- *									PotentialNullToNonNullLocal
- *									NonNullLocalInsufficientInfo
- *									ConflictingTypeEmulation
- *									MissingNullAnnotationType
- *									IllegalRedefinitionToNullableReturn
- *									IllegalRedefinitionToNonNullParameter
- *									IllegalDefinitionToNonNullParameter
+ *									UnusedObjectAllocation									
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -1352,38 +1338,6 @@ void setSourceStart(int sourceStart);
 	int JavadocParameterizedConstructorArgumentTypeMismatch = Javadoc + Internal + 858;
 	/** @since 3.1 */
 	int JavadocTypeArgumentsForRawGenericConstructor = Javadoc + Internal + 859;
-
-	/**
-	 * Null Annotations
-	 */
-	/** @since 3.7 */
-	int DefiniteNullFromNonNullMethod = MethodRelated + 880;
-	/** @since 3.7 */
-	int PotentialNullFromNonNullMethod = MethodRelated + 881;
-	/** @since 3.7 */
-	int NonNullReturnInsufficientInfo = MethodRelated + 882;
-	/** @since 3.7 */
-	int DefiniteNullToNonNullParameter = MethodRelated + 883;
-	/** @since 3.7 */
-	int PotentialNullToNonNullParameter = MethodRelated + 884;
-	/** @since 3.7 */
-	int NonNullParameterInsufficientInfo = MethodRelated + 885;
-	/** @since 3.7 */
-	int DefiniteNullToNonNullLocal = Internal + 886;
-	/** @since 3.7 */
-	int PotentialNullToNonNullLocal = Internal + 887;
-	/** @since 3.7 */
-	int NonNullLocalInsufficientInfo = Internal + 888;
-	/** @since 3.7 */
-	int ConflictingTypeEmulation = ImportRelated + 889;
-	/** @since 3.7 */
-	int MissingNullAnnotationType = ImportRelated + 890;
-	/** @since 3.7 */
-	int IllegalRedefinitionToNullableReturn = MethodRelated + 891;
-	/** @since 3.7 */
-	int IllegalRedefinitionToNonNullParameter = MethodRelated + 892;
-	/** @since 3.7 */
-	int IllegalDefinitionToNonNullParameter = MethodRelated + 893;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

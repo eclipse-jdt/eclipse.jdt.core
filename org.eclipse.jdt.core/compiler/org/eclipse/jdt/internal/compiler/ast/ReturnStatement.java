@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contributions for 
- *     						bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
- *     						bug 186342 - [compiler][null]Using annotations for null checking
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -41,18 +39,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
 		if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
 			this.expression.checkNPE(currentScope, flowContext, flowInfo);
-		}
-		if (this.expression.nullStatus(flowInfo) != FlowInfo.NON_NULL) {
-			// if we can't prove non-null check against declared null-ness of the enclosing method:
-			AbstractMethodDeclaration referenceMethod = currentScope.methodScope().referenceMethod();
-			if (referenceMethod != null) {
-				MethodBinding method = referenceMethod.binding;
-				if ((method.tagBits & TagBits.AnnotationNonNull) != 0) {
-					char[][] annotationName = currentScope.environment().globalOptions.nonNullAnnotationName;
-					currentScope.problemReporter().possiblyNullFromNonNullMethod(this, this.expression.nullStatus(flowInfo), 
-																				 annotationName[annotationName.length-1]);
-				}
-			}
 		}
 	}
 	this.initStateIndex =

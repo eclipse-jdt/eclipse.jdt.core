@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for Bug 186342 - [compiler][null]Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -120,13 +119,10 @@ public interface TagBits {
 	long AnnotationInherited = ASTNode.Bit49L;
 	long AnnotationOverride = ASTNode.Bit50L;
 	long AnnotationSuppressWarnings = ASTNode.Bit51L;
-	long AnnotationNullable = ASTNode.Bit52L;
-	long AnnotationNonNull = ASTNode.Bit53L;
-	long AllStandardAnnotationsMask = AnnotationTargetMASK | AnnotationRetentionMASK | AnnotationDeprecated | AnnotationDocumented 
-				| AnnotationInherited |  AnnotationOverride | AnnotationSuppressWarnings | AnnotationNullable | AnnotationNonNull;
+	long AllStandardAnnotationsMask = AnnotationTargetMASK | AnnotationRetentionMASK | AnnotationDeprecated | AnnotationDocumented | AnnotationInherited |  AnnotationOverride | AnnotationSuppressWarnings;
 
-	long DefaultValueResolved = ASTNode.Bit54L;
+	long DefaultValueResolved = ASTNode.Bit52L;
 
 	// set when type contains non-private constructor(s)
-	long HasNonPrivateConstructor = ASTNode.Bit55L;
+	long HasNonPrivateConstructor = ASTNode.Bit53L;
 }

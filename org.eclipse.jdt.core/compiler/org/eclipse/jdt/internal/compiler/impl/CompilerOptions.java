@@ -8,10 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
- *     Stephan Herrmann  - Contributions for 
- *     							bug 236385 - [compiler] Warn for potential programming problem if an object is created but not used 
- *     							bug 295551 - Add option to automatically promote all warnings to errors
- *     							bug 186342 - [compiler][null]Using annotations for null checking
+ *     Stephan Herrmann  - Contribution for bug 236385
+ *     Stephan Herrmann  - Contribution for bug 295551
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
@@ -108,9 +106,6 @@ public class CompilerOptions {
 	public static final String OPTION_ReportNullReference = "org.eclipse.jdt.core.compiler.problem.nullReference"; //$NON-NLS-1$
 	public static final String OPTION_ReportPotentialNullReference = "org.eclipse.jdt.core.compiler.problem.potentialNullReference"; //$NON-NLS-1$
 	public static final String OPTION_ReportRedundantNullCheck = "org.eclipse.jdt.core.compiler.problem.redundantNullCheck"; //$NON-NLS-1$
-	public static final String OPTION_ReportNullContractViolation = "org.eclipse.jdt.core.compiler.problem.nullContractViolation";  //$NON-NLS-1$
-	public static final String OPTION_ReportPotentialNullContractViolation = "org.eclipse.jdt.core.compiler.problem.potentialNullContractViolation";  //$NON-NLS-1$
-	public static final String OPTION_ReportNullContractInsufficientInfo = "org.eclipse.jdt.core.compiler.problem.nullContractInsufficientInfo";  //$NON-NLS-1$
 	public static final String OPTION_ReportAutoboxing = "org.eclipse.jdt.core.compiler.problem.autoboxing"; //$NON-NLS-1$
 	public static final String OPTION_ReportAnnotationSuperInterface = "org.eclipse.jdt.core.compiler.problem.annotationSuperInterface"; //$NON-NLS-1$
 	public static final String OPTION_ReportMissingOverrideAnnotation = "org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation"; //$NON-NLS-1$
@@ -141,10 +136,6 @@ public class CompilerOptions {
 	public static final String OPTION_IncludeNullInfoFromAsserts = "org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts";  //$NON-NLS-1$
 	public static final String OPTION_ReportMethodCanBeStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic";  //$NON-NLS-1$
 	public static final String OPTION_ReportMethodCanBePotentiallyStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic";  //$NON-NLS-1$
-	public static final String OPTION_NullableAnnotationName = "org.eclipse.jdt.core.compiler.annotation.nullable"; //$NON-NLS-1$
-	public static final String OPTION_NonNullAnnotationName = "org.eclipse.jdt.core.compiler.annotation.nonnull"; //$NON-NLS-1$
-	public static final String OPTION_EmulateNullAnnotationTypes = "org.eclipse.jdt.core.compiler.annotation.emulate"; //$NON-NLS-1$
-	public static final String OPTION_DefaultImportNullAnnotationTypes = "org.eclipse.jdt.core.compiler.annotation.defaultImport"; //$NON-NLS-1$
 	/**
 	 * Possible values for configurable options
 	 */
@@ -173,9 +164,6 @@ public class CompilerOptions {
 	public static final String RETURN_TAG = "return_tag";	//$NON-NLS-1$
 	public static final String NO_TAG = "no_tag";	//$NON-NLS-1$
 	public static final String ALL_STANDARD_TAGS = "all_standard_tags";	//$NON-NLS-1$
-
-	private static final char[][] DEFAULT_NONNULL_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.NonNull".toCharArray()); //$NON-NLS-1$
-	private static final char[][] DEFAULT_NULLABLE_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.Nullable".toCharArray()); //$NON-NLS-1$
 
 	/**
 	 * Bit mask for configurable problems (error/warning threshold)
@@ -250,9 +238,6 @@ public class CompilerOptions {
 	public static final int UnusedObjectAllocation = IrritantSet.GROUP2 | ASTNode.Bit4;
 	public static final int MethodCanBeStatic = IrritantSet.GROUP2 | ASTNode.Bit5;
 	public static final int MethodCanBePotentiallyStatic = IrritantSet.GROUP2 | ASTNode.Bit6;
-	public static final int NullContractViolation = IrritantSet.GROUP2 | ASTNode.Bit7;
-	public static final int PotentialNullContractViolation = IrritantSet.GROUP2 | ASTNode.Bit8;
-	public static final int NullContractInsufficientInfo = IrritantSet.GROUP2 | ASTNode.Bit9;
 
 	// Severity level for handlers
 	/** 
@@ -374,14 +359,6 @@ public class CompilerOptions {
 	public boolean includeNullInfoFromAsserts;
 	/** Controls whether forced generic type problems get reported  */
 	public boolean reportUnavoidableGenericTypeProblems;
-	/** Fully qualified name of annotation to use as marker for nullable types. */
-	public char[][] nullableAnnotationName;
-	/** Fully qualified name of annotation to use as marker for nonnull types. */
-	public char[][] nonNullAnnotationName;
-	/** Should null annotation types be emulated by synthetic bindings? */
-	public boolean emulateNullAnnotationTypes;
-	/** Should null annotation types be imported by default? */
-	public boolean defaultImportNullAnnotationTypes;
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
@@ -521,12 +498,6 @@ public class CompilerOptions {
 				return OPTION_ReportPotentialNullReference;
 			case RedundantNullCheck :
 				return OPTION_ReportRedundantNullCheck;
-			case NullContractViolation :
-				return OPTION_ReportNullContractViolation;
-			case PotentialNullContractViolation :
-				return OPTION_ReportPotentialNullContractViolation;
-			case NullContractInsufficientInfo :
-				return OPTION_ReportNullContractInsufficientInfo;
 			case AutoBoxing :
 				return OPTION_ReportAutoboxing;
 			case AnnotationSuperInterface :
@@ -798,9 +769,6 @@ public class CompilerOptions {
 			case NullReference :
 			case PotentialNullReference :
 			case RedundantNullCheck :
-			case NullContractViolation :
-			case PotentialNullContractViolation :
-			case NullContractInsufficientInfo :
 				return "null"; //$NON-NLS-1$
 			case FallthroughCase :
 				return "fallthrough"; //$NON-NLS-1$
@@ -976,9 +944,6 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportNullReference, getSeverityString(NullReference));
 		optionsMap.put(OPTION_ReportPotentialNullReference, getSeverityString(PotentialNullReference));
 		optionsMap.put(OPTION_ReportRedundantNullCheck, getSeverityString(RedundantNullCheck));
-		optionsMap.put(OPTION_ReportNullContractViolation, getSeverityString(NullContractViolation));
-		optionsMap.put(OPTION_ReportPotentialNullContractViolation, getSeverityString(PotentialNullContractViolation));
-		optionsMap.put(OPTION_ReportNullContractInsufficientInfo, getSeverityString(NullContractInsufficientInfo));
 		optionsMap.put(OPTION_SuppressWarnings, this.suppressWarnings ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_SuppressOptionalErrors, this.suppressOptionalErrors ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnhandledWarningToken, getSeverityString(UnhandledWarningToken));
@@ -999,16 +964,6 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_IncludeNullInfoFromAsserts, this.includeNullInfoFromAsserts ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportMethodCanBeStatic, getSeverityString(MethodCanBeStatic));
 		optionsMap.put(OPTION_ReportMethodCanBePotentiallyStatic, getSeverityString(MethodCanBePotentiallyStatic));
-		if (this.nullableAnnotationName != null) {
-			char[] compoundName = CharOperation.concatWith(this.nullableAnnotationName, '.');
-			optionsMap.put(OPTION_NullableAnnotationName, String.valueOf(compoundName));
-		}
-		if (this.nonNullAnnotationName != null) {
-			char[] compoundName = CharOperation.concatWith(this.nonNullAnnotationName, '.');
-			optionsMap.put(OPTION_NonNullAnnotationName, String.valueOf(compoundName));
-		}
-		optionsMap.put(OPTION_EmulateNullAnnotationTypes, this.emulateNullAnnotationTypes ? ENABLED : DISABLED);
-		optionsMap.put(OPTION_DefaultImportNullAnnotationTypes, this.defaultImportNullAnnotationTypes ? ENABLED : DISABLED);
 		return optionsMap;
 	}
 
@@ -1417,9 +1372,6 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportNullReference)) != null) updateSeverity(NullReference, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportPotentialNullReference)) != null) updateSeverity(PotentialNullReference, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportRedundantNullCheck)) != null) updateSeverity(RedundantNullCheck, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportNullContractViolation)) != null) updateSeverity(NullContractViolation, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportPotentialNullContractViolation)) != null) updateSeverity(PotentialNullContractViolation, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportNullContractInsufficientInfo)) != null) updateSeverity(NullContractInsufficientInfo, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAutoboxing)) != null) updateSeverity(AutoBoxing, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAnnotationSuperInterface)) != null) updateSeverity(AnnotationSuperInterface, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingOverrideAnnotation)) != null) updateSeverity(MissingOverrideAnnotation, optionValue);
@@ -1554,36 +1506,6 @@ public class CompilerOptions {
 				this.storeAnnotations = false;
 			}
 		}
-		if ((optionValue = optionsMap.get(OPTION_NullableAnnotationName)) != null) {
-			this.nullableAnnotationName = CharOperation.splitAndTrimOn('.', ((String)optionValue).toCharArray());
-		}
-		if ((optionValue = optionsMap.get(OPTION_NonNullAnnotationName)) != null) {
-			this.nonNullAnnotationName = CharOperation.splitAndTrimOn('.', ((String)optionValue).toCharArray());
-		}
-		if ((optionValue = optionsMap.get(OPTION_EmulateNullAnnotationTypes)) != null) {
-			if (ENABLED.equals(optionValue)) {
-				this.emulateNullAnnotationTypes = true;
-				// ensure that we actually have annotation names to emulate:
-				if (this.nullableAnnotationName == null)
-					this.nullableAnnotationName = DEFAULT_NULLABLE_ANNOTATION_NAME;
-				if (this.nonNullAnnotationName == null)
-					this.nonNullAnnotationName = DEFAULT_NONNULL_ANNOTATION_NAME;
-			} else if (DISABLED.equals(optionValue)) {
-				this.emulateNullAnnotationTypes = false;
-			}
-		}
-		if ((optionValue = optionsMap.get(OPTION_DefaultImportNullAnnotationTypes)) != null) {
-			if (ENABLED.equals(optionValue)) {
-				this.defaultImportNullAnnotationTypes = true;
-				// ensure that we actually have annotation names to be used for default imports:
-				if (this.nullableAnnotationName == null)
-					this.nullableAnnotationName = DEFAULT_NULLABLE_ANNOTATION_NAME;
-				if (this.nonNullAnnotationName == null)
-					this.nonNullAnnotationName = DEFAULT_NONNULL_ANNOTATION_NAME;
-			} else if (DISABLED.equals(optionValue)) {
-				this.defaultImportNullAnnotationTypes = false;
-			}
-		}
 	}
 	public String toString() {
 		StringBuffer buf = new StringBuffer("CompilerOptions:"); //$NON-NLS-1$
@@ -1659,9 +1581,6 @@ public class CompilerOptions {
 		buf.append("\n\t- null reference: ").append(getSeverityString(NullReference)); //$NON-NLS-1$
 		buf.append("\n\t- potential null reference: ").append(getSeverityString(PotentialNullReference)); //$NON-NLS-1$
 		buf.append("\n\t- redundant null check: ").append(getSeverityString(RedundantNullCheck)); //$NON-NLS-1$
-		buf.append("\n\t- null contract violation: ").append(getSeverityString(NullContractViolation)); //$NON-NLS-1$
-		buf.append("\n\t- potential null contract vialotation: ").append(getSeverityString(PotentialNullContractViolation)); //$NON-NLS-1$
-		buf.append("\n\t- insufficient information for checking null contract: ").append(getSeverityString(NullContractInsufficientInfo)); //$NON-NLS-1$
 		buf.append("\n\t- autoboxing: ").append(getSeverityString(AutoBoxing)); //$NON-NLS-1$
 		buf.append("\n\t- annotation super interface: ").append(getSeverityString(AnnotationSuperInterface)); //$NON-NLS-1$
 		buf.append("\n\t- missing @Override annotation: ").append(getSeverityString(MissingOverrideAnnotation)); //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,9 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Nick Teryaev - fix for bug (https://bugs.eclipse.org/bugs/show_bug.cgi?id=40752)
- *     Stephan Herrmann - Contributions for
- *     						bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
- *     						bug 186342 - [compiler][null]Using annotations for null checking
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -82,15 +80,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);
 			}
 			flowInfo = this.arguments[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
-			// compare actual null-status against parameter annotations of the called method:
-			int nullStatus = this.arguments[i].nullStatus(flowInfo);
-			if (nullStatus != FlowInfo.NON_NULL 
-					&& this.binding.parameterNonNullness != null
-					&& this.binding.parameterNonNullness[i].booleanValue()) // if @NonNull is required
-			{
-				char[][] annotationName = currentScope.environment().globalOptions.nonNullAnnotationName;
-				currentScope.problemReporter().possiblyNullToNonNullParameter(this.arguments[i], nullStatus, annotationName[annotationName.length-1]);
-			}
 		}
 	}
 	ReferenceBinding[] thrownExceptions;
@@ -261,14 +250,6 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	}
 }
 public int nullStatus(FlowInfo flowInfo) {
-	if (this.binding.isValidBinding()) {
-		// try to retrieve null status of this message send from an annotation of the called method:
-		long tagBits = this.binding.tagBits;
-		if ((tagBits & TagBits.AnnotationNonNull) != 0)
-			return FlowInfo.NON_NULL;
-		if ((tagBits & TagBits.AnnotationNullable) != 0)
-			return FlowInfo.POTENTIALLY_NULL;
-	}
 	return FlowInfo.UNKNOWN;
 }
 

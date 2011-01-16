@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,16 +81,8 @@
  *                                 COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_EXEMPT_EXCEPTION_AND_THROWABLE
  *     IBM Corporation - added getOptionForConfigurableSeverity(int)
  *     Benjamin Muskalla - added COMPILER_PB_MISSING_SYNCHRONIZED_ON_INHERITED_METHOD
- *     Stephan Herrmann  - added the following constants:
- *     								COMPILER_PB_UNUSED_OBJECT_ALLOCATION
- *     								COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS
- *     								COMPILER_NULLABLE_ANNOTATION_NAME
- *     								COMPILER_NONNULL_ANNOTATION_NAME
- *     								COMPILER_EMULATE_NULL_ANNOTATION_TYPES
- *     								COMPILER_DEFAULT_IMPORT_NULL_ANNOTATION_TYPES
- *     								COMPILER_PB_NULL_CONTRACT_VIOLATION
- *     							 	COMPILER_PB_POTENTIAL_NULL_CONTRACT_VIOLATION
- *     							 	COMPILER_PB_NULL_CONTRACT_INSUFFICIENT_INFO
+ *     Stephan Herrmann  - added COMPILER_PB_UNUSED_OBJECT_ALLOCATION
+ *     Stephan Herrmann  - added COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS
  *******************************************************************************/
 
 package org.eclipse.jdt.core;
@@ -1583,172 +1575,6 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_POTENTIAL_NULL_REFERENCE = PLUGIN_ID + ".compiler.problem.potentialNullReference"; //$NON-NLS-1$
-	/**
-	 * Compiler option ID: Name of Annotation Type for Nullable Types.
-	 * <p>This option defines a fully qualified Java type name that the compiler may use
-	 *    to perform special null analysis.</p>
-	 * <p>If the annotation specified by this option is applied to a type in a method
-	 *    signature or variable declaration this will be interpreted as a contract that 
-	 *    <code>null</code> is a legal value in that position. Currently supported
-	 *    positions are: method parameters, method return type and local variables.</p>
-	 * <p>If a value whose type
-	 *    is annotated with this annotation is dereferenced without checking for null
-	 *    the compiler will trigger a diagnostic as further controlled by 
-	 *    {@link #COMPILER_PB_POTENTIAL_NULL_REFERENCE}.</p>
-	 * <p>The compiler may furthermore check adherence to the null contract as further
-	 *    controlled by {@link #COMPILER_PB_NULL_CONTRACT_VIOLATION}, 
-	 *    {@link #COMPILER_PB_POTENTIAL_NULL_CONTRACT_VIOLATION} and
-	 *    {@link #COMPILER_PB_NULL_CONTRACT_INSUFFICIENT_INFO}.
-	 * </p>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nullable"</code></dd>
-	 * <dt>Possible values:</dt><dd>any legal Java type name</dd>
-	 * <dt>Default:</dt><dd><code>"org.eclipse.jdt.annotation.Nullable"</code></dd>
-	 * @since 3.7
-	 * @category CompilerOptionID
-	 */
-	public static final String COMPILER_NULLABLE_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nullable"; //$NON-NLS-1$
-	/**
-	 * Compiler option ID: Name of Annotation Type for Non-Null Types.
-	 * <p>This option defines a fully qualified Java type name that the compiler may use
-	 *    to perform special null analysis.</p>
-	 * <p>If the annotation specified by this option is applied to a type in a method
-	 *    signature or variable declaration this will be interpreted as a contract that 
-	 *    <code>null</code> is <b>not</b> a legal value in that position. Currently 
-	 *    supported positions are: method parameters, method return type and local variables.</p>
-	 * <p>For values declared with this annotation the compiler will never trigger a null
-	 *    reference diagnostic (as controlled by {@link #COMPILER_PB_POTENTIAL_NULL_REFERENCE}
-	 *    and {@link #COMPILER_PB_NULL_REFERENCE}), because the assumption is made that null
-	 *    will never occur at runtime in these positions.</p>
-	 * <p>The compiler may furthermore check adherence to the null contract as further
-	 *    controlled by {@link #COMPILER_PB_NULL_CONTRACT_VIOLATION}, 
-	 *    {@link #COMPILER_PB_POTENTIAL_NULL_CONTRACT_VIOLATION} and
-	 *    {@link #COMPILER_PB_NULL_CONTRACT_INSUFFICIENT_INFO}.
-	 * </p>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnull"</code></dd>
-	 * <dt>Possible values:</dt><dd>any legal Java type name</dd>
-	 * <dt>Default:</dt><dd><code>"org.eclipse.jdt.annotation.NonNull"</code></dd>
-	 * @since 3.7
-	 * @category CompilerOptionID
-	 */
-	public static final String COMPILER_NONNULL_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nonnull"; //$NON-NLS-1$
-	/**
-	 * Compiler option ID: Emulate Null Annotation Types.
-	 * <p>When enabled, the compiler will use the annotation types specified in
-	 *    {@link #COMPILER_NONNULL_ANNOTATION_NAME} and {@link #COMPILER_NULLABLE_ANNOTATION_NAME}
-	 *    without searching for a corresponding type definition, ie., these annotation
-	 *    types don't have to actually exist.</p>
-	 * <p>This option is used to make null contract analysis independent of any additional
-	 *    classes that would otherwise need to be supplied at compile time.</p>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.emulate"</code></dd>
-	 * <dt>Possible values:</dt><dd>{ "disabled", "enabled" }</dd>
-	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
-	 * @since 3.7
-	 * @category CompilerOptionID
-	 */
-	public static final String COMPILER_EMULATE_NULL_ANNOTATION_TYPES = PLUGIN_ID + ".compiler.annotation.emulate"; //$NON-NLS-1$
-	/**
-	 * Compiler option ID: Default Import of Null Annotation Types.
-	 * <p>When enabled, the compiler will be able to resolve the annotation types specified in
-	 *    {@link #COMPILER_NONNULL_ANNOTATION_NAME} and {@link #COMPILER_NULLABLE_ANNOTATION_NAME}
-	 *    by their simple names without an explicit import statement.</p>
-	 * <p>This option is used to avoid mentioning the fully qualified annotation names
-	 *    in any source files, as to facility the migration from one set of annotations
-	 *    to another, e.g., when standard annotations for this purpose will be defined
-	 *    in the future.
-	 * </p> 
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.defaultImport"</code></dd>
-	 * <dt>Possible values:</dt><dd>{ "disabled", "enabled" }</dd>
-	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
-	 * @since 3.7
-	 * @category CompilerOptionID
-	 */
-	public static final String COMPILER_DEFAULT_IMPORT_NULL_ANNOTATION_TYPES = PLUGIN_ID + ".compiler.annotation.defaultImport"; //$NON-NLS-1$
-	/**
-	 * Compiler option ID: Reporting Violations of Null Contracts.
-	 * <p>When enabled, the compiler will issue an error or a warning whenever one of the 
-	 *    following situations is detected:
-	 *    <ol>
-	 *    <li>A method declared with a nonnull annotation returns an expression that is 
-	 *    	  statically known to evaluate to a null value.</li>
-	 *    <li>An expression that is statically known to evaluate to a null value is passed 
-	 *        as an argument in a method call where the corresponding parameter of the called
-	 *        method is declared with a nonnull annotation.</li>
-	 *    <li>A method that overrides or implements an inherited method declared with a nonnull
-	 *        annotation tries to relax that contract by specifying a nullable annotation
-	 *        (prohibition of contravariant return).</li>
-	 *    <li>A method that overrides or implements an inherited method which has a nullable
-	 *        declaration for at least one of its parameters, tries to tighten that null contract
-	 *        by specifying a nonnull annotation for its corresponding parameter
-	 *        (prohibition of covariant parameters).</li>
-	 *    </ol>         
-	 * </p>
-	 * <p>The compiler options {@link #COMPILER_NONNULL_ANNOTATION_NAME} and
-	 *    {@link #COMPILER_NULLABLE_ANNOTATION_NAME} control which annotations the compiler
-	 *    shall interpret as nonnull or nullable annotations, respectively.
-	 * </p>
-	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.nullContractViolation"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"error"</code></dd>
-	 * </dl>
-	 * @since 3.7
-	 * @category CompilerOptionID
-	 */
-	public static final String COMPILER_PB_NULL_CONTRACT_VIOLATION = PLUGIN_ID + ".compiler.problem.nullContractViolation"; //$NON-NLS-1$
-	/**
-	 * Compiler option ID: Reporting Violations of Null Contracts with Potential Null Value.
-	 * <p>When enabled, the compiler will issue an error or a warning whenever one of the 
-	 *    following situations is detected:
-	 *    <ol>
-	 *    <li>A method declared with a nonnull annotation returns an expression that is 
-	 *    	  statically known to evaluate to a null value on some flow.</li>
-	 *    <li>An expression that is statically known to evaluate to a null value on some flow
-	 *        is passed as an argument in a method call where the corresponding parameter of 
-	 *        the called method is declared with a nonnull annotation.</li>
-	 *    </ol>         
-	 * </p>
-	 * <p>The compiler options {@link #COMPILER_NONNULL_ANNOTATION_NAME} and
-	 *    {@link #COMPILER_NULLABLE_ANNOTATION_NAME} control which annotations the compiler
-	 *    shall interpret as nonnull or nullable annotations, respectively.
-	 * </p>
-	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.potentialNullContractViolation"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"error"</code></dd>
-	 * </dl>
-	 * @since 3.7
-	 * @category CompilerOptionID
-	 */
-	public static final String COMPILER_PB_POTENTIAL_NULL_CONTRACT_VIOLATION = PLUGIN_ID + ".compiler.problem.potentialNullContractViolation"; //$NON-NLS-1$
-	/**
-	 * Compiler option ID: Reporting Insufficient Information for Analysing Adherence to Null Contracts.
-	 * <p>When enabled, the compiler will issue an error or a warning whenever one of the 
-	 *    following situations is detected:
-	 *    <ol>
-	 *    <li>A method declared with a nonnull annotation returns an expression for which 
-	 *        insufficient nullness information is available for statically proving that no
-	 *        flow will pass a null value at runtime.</li>
-	 *    <li>An expression for which insufficient nullness information is available for 
-	 *        statically proving that it will never evaluate to a null value at runtime
-	 *        is passed as an argument in a method call where the corresponding parameter of 
-	 *        the called method is declared with a nonnull annotation.</li>
-	 *    </ol>
-	 *    Insufficient nullness information is usually a consequence of using other unannotated
-	 *    variables or methods.
-	 * </p>
-	 * <p>The compiler options {@link #COMPILER_NONNULL_ANNOTATION_NAME} and
-	 *    {@link #COMPILER_NULLABLE_ANNOTATION_NAME} control which annotations the compiler
-	 *    shall interpret as nonnull or nullable annotations, respectively.
-	 * </p>
-	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.nullContractInsufficientInfo"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
-	 * </dl>
-	 * @since 3.7
-	 * @category CompilerOptionID
-	 */
-	public static final String COMPILER_PB_NULL_CONTRACT_INSUFFICIENT_INFO = PLUGIN_ID + ".compiler.problem.nullContractInsufficientInfo"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Redundant Null Check.
 	 * <p>When enabled, the compiler will issue an error or a warning whenever a

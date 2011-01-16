@@ -7,7 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for Bug 186342 - [compiler][null]Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1421,12 +1420,9 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 			}
 		}
 		// only assign parameters if no problems are found
-		if (foundArgProblem) {
-			methodDecl.binding = null;
-		} else {
+		if (!foundArgProblem) {
 			method.parameters = newParameters;
 		}
-		methodDecl.bindArguments();
 	}
 
 	boolean foundReturnTypeProblem = false;
@@ -1469,6 +1465,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 		}
 	}
 	if (foundArgProblem) {
+		methodDecl.binding = null;
 		method.parameters = Binding.NO_PARAMETERS; // see 107004
 		// nullify type parameter bindings as well as they have a backpointer to the method binding
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=81134)
