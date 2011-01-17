@@ -12587,4 +12587,144 @@ public void testBug327654() throws CoreException {
 		deleteProject(project);
 	}
 }
+/**
+ * @bug 325418: [search] Search for method declarations returns spurious potential matches for anonymous classes
+ * @test search of method declarations of binary anonymous classes using 
+ * 		 enclosing method's type variables should yield correct results.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=325418"
+ */
+public void testBug325418a() throws Exception {
+	try
+	{
+		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"/P/lib325418.jar","JCL15_LIB"}, "","1.5");
+		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+				"p325418/Test.java",
+				"package p325418;\n" +
+				"public class Test{\n"+	
+				"	public <T> T foo() {\n"+	
+				"		return new Inner<T>() {T  run() {  return null;  }}.run();\n"+		 
+				"	}\n"+	
+				"}\n"+	
+				"abstract class Inner <T> {\n"+	
+				"	 abstract T run();\n"+	
+				"}\n"
+			}, p.getProject().getLocation().append("lib325418.jar").toOSString(), "1.5");
+			refresh(p);
+		//addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b325418.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, mask);
+		search("Inner.run()", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", 
+				"lib325418.jar T p325418.Inner.run() [No source] EXACT_MATCH\n" + 
+				"lib325418.jar T p325418.<anonymous>.run() [No source] EXACT_MATCH",
+				this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+// local named class instead of anonymous class
+public void testBug325418b() throws Exception {
+	try
+	{
+		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"/P/lib325418.jar","JCL15_LIB"}, "","1.5");
+		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+				"p325418/Test.java",
+				"package p325418;\n" +
+				"public class Test {\n" +	
+				"	public <T> T foo() {\n" +
+				"		class ExtendsInner extends Inner<T> {\n" +
+				"			T run() { return null; } \n" +
+				"		} \n" +
+				"		return null; \n" +	 
+				"	} \n" +
+				"} \n" +
+				"abstract class Inner <T> {\n" +
+				"	 abstract T run();\n" +
+				"}"
+			}, p.getProject().getLocation().append("lib325418.jar").toOSString(), "1.5");
+			refresh(p);
+		//addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b325418.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, mask);
+		search("Inner.run", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", 
+				"lib325418.jar T p325418.Inner.run() [No source] EXACT_MATCH\n" + 
+				"lib325418.jar T p325418.ExtendsInner.run() [No source] EXACT_MATCH",
+				this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+// should work good even if both the inner type and the enclosing methods have type variables
+public void testBug325418c() throws Exception {
+	try
+	{
+		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"/P/lib325418.jar","JCL15_LIB"}, "","1.5");
+		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+				"p325418/Test.java",
+				"package p325418;\n" +
+				"public class Test {\n" +	
+				"	public <T> T foo() {\n" +
+				"		class ExtendsInner<U> extends Inner<T, U> {\n" +
+				"			T run() { return null; } \n" +
+				"			T run(U obj) { return null; } \n" +
+				"		} \n" +
+				"		return null; \n" +	 
+				"	} \n" +
+				"} \n" +
+				"abstract class Inner <T, U> {\n" +
+				"	 abstract T run();\n" +
+				"	 abstract T run(U obj);\n" +
+				"}"
+			}, p.getProject().getLocation().append("lib325418.jar").toOSString(), "1.5");
+			refresh(p);
+		//addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b325418.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, mask);
+		search("Inner.run", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", 
+				"lib325418.jar T p325418.Inner.run() [No source] EXACT_MATCH\n" + 
+				"lib325418.jar T p325418.Inner.run(U) [No source] EXACT_MATCH\n" + 
+				"lib325418.jar T p325418.ExtendsInner.run() [No source] EXACT_MATCH\n" + 
+				"lib325418.jar T p325418.ExtendsInner.run(U) [No source] EXACT_MATCH",
+				this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+// should work good even if the enclosing method having type variables is more than one level
+public void testBug325418d() throws Exception {
+	try
+	{
+		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"/P/lib325418.jar","JCL15_LIB"}, "","1.5");
+		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+				"p325418/Test.java",
+				"package p325418;\n" +
+				"public class Test {\n" +
+				"	public <T> T foo() {\n" +
+				"		class Inner {\n" +
+				"			T run() {\n" +
+				"				return new TwoLevelInner<T>() {T  run() {  return null;  }}.run();\n" +
+				"			}\n" +
+				"		}\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"abstract class TwoLevelInner <T> {\n" +
+				"	 abstract T run();\n" +
+				"}\n"
+			}, p.getProject().getLocation().append("lib325418.jar").toOSString(), "1.5");
+			refresh(p);
+		//addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b325418.jar"), null, null));
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, mask);
+		search("TwoLevelInner.run", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", 
+				"lib325418.jar T p325418.<anonymous>.run() [No source] EXACT_MATCH\n" + 
+				"lib325418.jar T p325418.TwoLevelInner.run() [No source] EXACT_MATCH",
+				this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
 }
