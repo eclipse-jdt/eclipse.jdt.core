@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -390,8 +390,11 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 									return false;
 							} else {
 								// pre1.5 semantics - no covariance allowed (even if 1.5 compliant, but 1.4 source)
-								MethodBinding[] castTypeMethods = getAllInheritedMethods((ReferenceBinding) castType);
-								MethodBinding[] expressionTypeMethods = getAllInheritedMethods((ReferenceBinding) expressionType);
+								// look at original methods rather than the parameterized variants at 1.4 to detect
+								// covariance. Otherwise when confronted with one raw type and one parameterized type,
+								// we could mistakenly detect covariance and scream foul. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=332744
+								MethodBinding[] castTypeMethods = getAllOriginalInheritedMethods((ReferenceBinding) castType);
+								MethodBinding[] expressionTypeMethods = getAllOriginalInheritedMethods((ReferenceBinding) expressionType);
 								int exprMethodsLength = expressionTypeMethods.length;
 								for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++) {
 									for (int j = 0; j < exprMethodsLength; j++) {
@@ -739,9 +742,12 @@ public void generateOptimizedStringConcatenationCreation(BlockScope blockScope, 
 	codeStream.invokeStringConcatenationStringConstructor();
 }
 
-private MethodBinding[] getAllInheritedMethods(ReferenceBinding binding) {
+private MethodBinding[] getAllOriginalInheritedMethods(ReferenceBinding binding) {
 	ArrayList collector = new ArrayList();
 	getAllInheritedMethods0(binding, collector);
+	for (int i = 0, len = collector.size(); i < len; i++) {
+		collector.set(i, ((MethodBinding)collector.get(i)).original());
+	}
 	return (MethodBinding[]) collector.toArray(new MethodBinding[collector.size()]);
 }
 

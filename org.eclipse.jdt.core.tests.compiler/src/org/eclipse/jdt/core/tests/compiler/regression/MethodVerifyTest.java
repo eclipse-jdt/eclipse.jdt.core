@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11868,6 +11868,99 @@ public void test1415Mix2() {
 				"    void foo(String s) {}\n" +
 				"}",
 		},
+		"",
+		null,
+		false,
+		null,
+		compilerOptions14,
+		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=332744 (all 1.5+)
+public void test332744() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"EList.java",
+			"import java.util.List;\n" +
+			"public interface EList<E> extends List<E> {\n" +
+			"}\n",
+			"FeatureMap.java",
+			"public interface FeatureMap extends EList<FeatureMap.Entry> {\n" +
+			"    interface Entry {\n" +
+			"    }\n" +
+			"}\n",
+			"InternalEList.java",
+			"public interface InternalEList<E> extends EList<E> {\n" +
+			"}\n"
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+
+	this.runConformTest(
+		new String[] {
+			"Client.java",
+			"public class Client {\n" +
+			"    Client(FeatureMap fm) {\n" +
+			"		InternalEList e = (InternalEList) fm;\n" +
+			"	}\n" +
+			"}\n"
+			},
+		"",
+		null,
+		false,
+		null,
+		compilerOptions15,
+		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=332744 (1.4/1.5 mix)
+public void test332744b() {
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"EList.java",
+			"import java.util.List;\n" +
+			"public interface EList<E> extends List<E> {\n" +
+			"}\n",
+			"FeatureMap.java",
+			"public interface FeatureMap extends EList<FeatureMap.Entry> {\n" +
+			"    interface Entry {\n" +
+			"    }\n" +
+			"}\n",
+			"InternalEList.java",
+			"public interface InternalEList<E> extends EList<E> {\n" +
+			"}\n"
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions15,
+		null);
+
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
+	this.runConformTest(
+		new String[] {
+			"Client.java",
+			"public class Client {\n" +
+			"    Client(FeatureMap fm) {\n" +
+			"		InternalEList e = (InternalEList) fm;\n" +
+			"	}\n" +
+			"}\n"
+			},
 		"",
 		null,
 		false,
