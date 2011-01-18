@@ -733,7 +733,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		try {
 			URL docUrl = new URL(docUrlValue);
 			URLConnection connection = docUrl.openConnection();
-			connection.setReadTimeout(5000);
+			String timeoutVal = "10000"; //$NON-NLS-1$
+			System.setProperty("sun.net.client.defaultConnectTimeout", timeoutVal);  //$NON-NLS-1$
+			System.setProperty("sun.net.client.defaultReadTimeout", timeoutVal); //$NON-NLS-1$
 			if (connection instanceof JarURLConnection) {
 				connection2 = (JarURLConnection) connection;
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=156307
