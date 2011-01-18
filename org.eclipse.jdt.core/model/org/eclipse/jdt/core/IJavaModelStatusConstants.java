@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -314,7 +314,7 @@ public interface IJavaModelStatusConstants {
 //	public static final int INVALID_COMPILER_OPTION = 1007;
 	/**
 	 * <p>Status constant indicating that the attached javadoc content cannot be retrieved due to multiple reasons:
-	 * invalid url, timed-out,...</p>
+	 * invalid url, incorrect proxy, wrong authentication,...</p>
 	 *
 	 * @since 3.2
 	 */
@@ -339,4 +339,10 @@ public interface IJavaModelStatusConstants {
 	 * @since 3.4
 	 */
 	public static final int BAD_TEXT_EDIT_LOCATION = 1011;
+	
+	/**
+	 * <p>Status constant indicating that the attached javadoc content cannot be retrieved due to timeout
+	 * @since 3.7
+	 */
+	public static final int CANNOT_RETRIEVE_ATTACHED_JAVADOC_TIMEOUT = 1012;
 }

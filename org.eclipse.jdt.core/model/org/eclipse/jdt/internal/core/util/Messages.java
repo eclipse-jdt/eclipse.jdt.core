@@ -108,6 +108,7 @@ public final class Messages extends NLS {
 	public static String build_prereqProjectMustBeRebuilt;
 	public static String build_abortDueToClasspathProblems;
 	public static String status_cannot_retrieve_attached_javadoc;
+	public static String status_timeout_javadoc;
 	public static String status_cannotUseDeviceOnPath;
 	public static String status_coreException;
 	public static String status_defaultPackageReadOnly;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -373,6 +373,18 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 					}
 					if (this.string != null) {
 						return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, this.string, "");//$NON-NLS-1$
+					}
+					break;
+					
+				case CANNOT_RETRIEVE_ATTACHED_JAVADOC_TIMEOUT :
+					if (this.elements != null && this.elements.length == 1) {
+						if (this.string != null) {
+							return Messages.bind(Messages.status_timeout_javadoc, ((JavaElement)this.elements[0]).toStringWithAncestors(), this.string);
+						}
+						return Messages.bind(Messages.status_timeout_javadoc, ((JavaElement)this.elements[0]).toStringWithAncestors(), ""); //$NON-NLS-1$
+					}
+					if (this.string != null) {
+						return Messages.bind(Messages.status_timeout_javadoc, this.string, "");//$NON-NLS-1$
 					}
 					break;
 
