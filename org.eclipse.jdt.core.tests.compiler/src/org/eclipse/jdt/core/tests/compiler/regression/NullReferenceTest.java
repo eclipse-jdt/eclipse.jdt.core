@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13805,5 +13805,31 @@ public void testBug332637b() {
 		"number = 3\n" + 
 		"Done\n" + 
 		"-1");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=333089 
+// null analysis -- to make sure no AIOOBE or NPE is thrown while calling UnconditionalFlowInfo.markNullStatus(..)
+public void testBug333089() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo(Object s1) {\n" + 
+	        "    int i00, i01, i02, i03, i04, i05, i06, i07, i08, i09;\n" +
+	        "    int i10, i11, i12, i13, i14, i15, i16, i17, i18, i19;\n" +
+	        "    int i20, i21, i22, i23, i24, i25, i26, i27, i28, i29;\n" +
+	        "    int i30, i31, i32, i33, i34, i35, i36, i37, i38, i39;\n" +
+	        "    int i40, i41, i42, i43, i44, i45, i46, i47, i48, i49;\n" +
+	        "    int i50, i51, i52, i53, i54, i55, i56, i57, i58, i59;\n" +
+	        "    int i60, i61, i62, i63, i64, i65, i66, i67, i68, i69;\n" +
+			"	 Object local1;\n" + 
+			"	 if (s1 == null){}\n" + 
+			"	 try {" +
+			"		local1 = s1;\n" +
+			"	 } finally {\n" +
+			"	 }\n" + 
+			"	}\n" + 
+			"}"},
+		"");
 }
 }

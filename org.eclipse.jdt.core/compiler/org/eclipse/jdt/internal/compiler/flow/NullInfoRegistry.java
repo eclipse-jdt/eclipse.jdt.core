@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2010 IBM Corporation and others.
+ * Copyright (c) 2006, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -400,6 +400,149 @@ public String toString(){
 				nullS += ",..."; //$NON-NLS-1$
 			}
 			return nullS + "]>"; //$NON-NLS-1$
+	}
+}
+
+/**
+ * Mark a local as potentially having been assigned to an unknown value.
+ * @param local the local to mark
+ */
+public void markPotentiallyUnknownBit(LocalVariableBinding local) {
+	// protected from non-object locals in calling methods
+	if (this != DEAD_END) {
+		this.tagBits |= NULL_FLAG_MASK;
+        int position;
+        long mask;
+        if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
+            // use bits
+        	mask = 1L << position;
+        	isTrue((this.nullBit1 & mask) == 0, "Adding 'unknown' mark in unexpected state"); //$NON-NLS-1$
+            this.nullBit4 |= mask;
+            if (COVERAGE_TEST_FLAG) {
+				if(CoverageTestId == 46) {
+				  	this.nullBit4 = ~0;
+				}
+			}
+        } else {
+    		// use extra vector
+    		int vectorIndex = (position / BitCacheSize) - 1;
+    		if (this.extra == null) {
+    			int length = vectorIndex + 1;
+    			this.extra = new long[extraLength][];
+    			for (int j = 2; j < extraLength; j++) {
+    				this.extra[j] = new long[length];
+    			}
+    		} else {
+    			int oldLength; // might need to grow the arrays
+    			if (vectorIndex >= (oldLength = this.extra[2].length)) {
+    				for (int j = 2; j < extraLength; j++) {
+    					System.arraycopy(this.extra[j], 0,
+    						(this.extra[j] = new long[vectorIndex + 1]), 0,
+    						oldLength);
+    				}
+    			}
+    		}
+    		mask = 1L << (position % BitCacheSize);
+    		isTrue((this.extra[2][vectorIndex] & mask) == 0, "Adding 'unknown' mark in unexpected state"); //$NON-NLS-1$
+    		this.extra[5][vectorIndex] |= mask;
+    		if (COVERAGE_TEST_FLAG) {
+				if(CoverageTestId == 47) {
+					this.extra[5][vectorIndex] = ~0;
+				}
+			}
+    	}
+	}
+}
+
+public void markPotentiallyNullBit(LocalVariableBinding local) {
+	if (this != DEAD_END) {
+		this.tagBits |= NULL_FLAG_MASK;
+        int position;
+        long mask;
+        if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
+            // use bits
+        	mask = 1L << position;
+        	isTrue((this.nullBit1 & mask) == 0, "Adding 'potentially null' mark in unexpected state"); //$NON-NLS-1$
+            this.nullBit2 |= mask;
+            if (COVERAGE_TEST_FLAG) {
+				if(CoverageTestId == 40) {
+				  	this.nullBit4 = ~0;
+				}
+			}
+        } else {
+    		// use extra vector
+    		int vectorIndex = (position / BitCacheSize) - 1;
+    		if (this.extra == null) {
+    			int length = vectorIndex + 1;
+    			this.extra = new long[extraLength][];
+    			for (int j = 2; j < extraLength; j++) {
+    				this.extra[j] = new long[length];
+    			}
+    		} else {
+    			int oldLength; // might need to grow the arrays
+    			if (vectorIndex >= (oldLength = this.extra[2].length)) {
+    				for (int j = 2; j < extraLength; j++) {
+    					System.arraycopy(this.extra[j], 0,
+    						(this.extra[j] = new long[vectorIndex + 1]), 0,
+    						oldLength);
+    				}
+    			}
+    		}
+    		mask = 1L << (position % BitCacheSize);
+    		this.extra[3][vectorIndex] |= mask;
+    		isTrue((this.extra[2][vectorIndex] & mask) == 0, "Adding 'potentially null' mark in unexpected state"); //$NON-NLS-1$
+    		if (COVERAGE_TEST_FLAG) {
+				if(CoverageTestId == 41) {
+					this.extra[5][vectorIndex] = ~0;
+				}
+			}
+    	}
+	}
+}
+
+public void markPotentiallyNonNullBit(LocalVariableBinding local) {
+	if (this != DEAD_END) {
+		this.tagBits |= NULL_FLAG_MASK;
+        int position;
+        long mask;
+        if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
+            // use bits
+        	mask = 1L << position;
+        	isTrue((this.nullBit1 & mask) == 0, "Adding 'potentially non-null' mark in unexpected state"); //$NON-NLS-1$
+            this.nullBit3 |= mask;
+            if (COVERAGE_TEST_FLAG) {
+				if(CoverageTestId == 42) {
+				  	this.nullBit4 = ~0;
+				}
+			}
+        } else {
+    		// use extra vector
+    		int vectorIndex  = (position / BitCacheSize) - 1;
+    		if (this.extra == null) {
+    			int length = vectorIndex + 1;
+    			this.extra = new long[extraLength][];
+    			for (int j = 2; j < extraLength; j++) {
+    				this.extra[j] = new long[length];
+    			}
+    		} else {
+    			int oldLength; // might need to grow the arrays
+    			if (vectorIndex >= (oldLength = this.extra[2].length)) {
+    				for (int j = 2; j < extraLength; j++) {
+    					System.arraycopy(this.extra[j], 0,
+    						(this.extra[j] = new long[vectorIndex + 1]), 0,
+    						oldLength);
+    				}
+    			}
+    		}
+    		mask = 1L << (position % BitCacheSize);
+    		isTrue((this.extra[2][vectorIndex] & mask) == 0, "Adding 'potentially non-null' mark in unexpected state"); //$NON-NLS-1$
+    		this.extra[4][vectorIndex] |= mask;
+    		if (COVERAGE_TEST_FLAG) {
+				if(CoverageTestId == 43) {
+					this.extra[5][vectorIndex] = ~0;
+				}
+			}
+    	}
 	}
 }
 }

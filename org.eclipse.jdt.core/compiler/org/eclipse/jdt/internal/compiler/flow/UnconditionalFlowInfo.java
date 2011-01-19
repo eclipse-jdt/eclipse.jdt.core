@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -996,7 +996,7 @@ final public boolean isProtectedNull(LocalVariableBinding local) {
  * @return <code>true</code> if the check passes (does not return
  *    if the check fails)
  */
-private static boolean isTrue(boolean expression, String message) {
+protected static boolean isTrue(boolean expression, String message) {
 	if (!expression)
 		throw new AssertionFailedException("assertion failed: " + message); //$NON-NLS-1$
 	return expression;
@@ -1367,8 +1367,13 @@ public void resetNullInfo(LocalVariableBinding local) {
             this.nullBit4 &= mask;
         } else {
     		// use extra vector
-    		int vectorIndex ;
-    		this.extra[2][vectorIndex = (position / BitCacheSize) - 1]
+    		int vectorIndex = (position / BitCacheSize) - 1;
+    		if (this.extra == null || vectorIndex >= this.extra[2].length) {
+    			// in case we attempt to reset the null info of a variable that has not been encountered
+    			// before and for which no null bits exist.
+    			return;
+    		}
+    		this.extra[2][vectorIndex]
     		    &= (mask = ~(1L << (position % BitCacheSize)));
     		this.extra[3][vectorIndex] &= mask;
     		this.extra[4][vectorIndex] &= mask;
@@ -1400,6 +1405,23 @@ public void markPotentiallyUnknownBit(LocalVariableBinding local) {
         } else {
     		// use extra vector
     		int vectorIndex = (position / BitCacheSize) - 1;
+    		if (this.extra == null) {
+				int length = vectorIndex + 1;
+				this.extra = new long[extraLength][];
+				for (int j = 0; j < extraLength; j++) {
+					this.extra[j] = new long[length];
+				}
+			}
+			else {
+				int oldLength; // might need to grow the arrays
+				if (vectorIndex >= (oldLength = this.extra[0].length)) {
+					for (int j = 0; j < extraLength; j++) {
+						System.arraycopy(this.extra[j], 0,
+							(this.extra[j] = new long[vectorIndex + 1]), 0,
+							oldLength);
+					}
+				}
+			}
     		mask = 1L << (position % BitCacheSize);
     		isTrue((this.extra[2][vectorIndex] & mask) == 0, "Adding 'unknown' mark in unexpected state"); //$NON-NLS-1$
     		this.extra[5][vectorIndex] |= mask;
@@ -1430,6 +1452,23 @@ public void markPotentiallyNullBit(LocalVariableBinding local) {
         } else {
     		// use extra vector
     		int vectorIndex = (position / BitCacheSize) - 1;
+    		if (this.extra == null) {
+				int length = vectorIndex + 1;
+				this.extra = new long[extraLength][];
+				for (int j = 0; j < extraLength; j++) {
+					this.extra[j] = new long[length];
+				}
+			}
+			else {
+				int oldLength; // might need to grow the arrays
+				if (vectorIndex >= (oldLength = this.extra[0].length)) {
+					for (int j = 0; j < extraLength; j++) {
+						System.arraycopy(this.extra[j], 0,
+							(this.extra[j] = new long[vectorIndex + 1]), 0,
+							oldLength);
+					}
+				}
+			}
     		mask = 1L << (position % BitCacheSize);
     		this.extra[3][vectorIndex] |= mask;
     		isTrue((this.extra[2][vectorIndex] & mask) == 0, "Adding 'potentially null' mark in unexpected state"); //$NON-NLS-1$
@@ -1460,6 +1499,23 @@ public void markPotentiallyNonNullBit(LocalVariableBinding local) {
         } else {
     		// use extra vector
     		int vectorIndex  = (position / BitCacheSize) - 1;
+    		if (this.extra == null) {
+				int length = vectorIndex + 1;
+				this.extra = new long[extraLength][];
+				for (int j = 0; j < extraLength; j++) {
+					this.extra[j] = new long[length];
+				}
+			}
+			else {
+				int oldLength; // might need to grow the arrays
+				if (vectorIndex >= (oldLength = this.extra[0].length)) {
+					for (int j = 0; j < extraLength; j++) {
+						System.arraycopy(this.extra[j], 0,
+							(this.extra[j] = new long[vectorIndex + 1]), 0,
+							oldLength);
+					}
+				}
+			}
     		mask = 1L << (position % BitCacheSize);
     		isTrue((this.extra[2][vectorIndex] & mask) == 0, "Adding 'potentially non-null' mark in unexpected state"); //$NON-NLS-1$
     		this.extra[4][vectorIndex] |= mask;
