@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 IBM Corporation and others.
+ * Copyright (c) 2009, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -378,31 +377,19 @@ public class JavadocContents {
 		IType declaringType = this.type;
 		if (declaringType.isMember()) {
 			int depth = 0;
-			final String packageFragmentName = declaringType.getPackageFragment().getElementName();
 			// might need to remove a part of the signature corresponding to the synthetic argument
-			final IJavaProject javaProject = declaringType.getJavaProject();
-			char[][] typeNames = CharOperation.splitOn('.', typeQualifiedName.toCharArray());
-			if (!Flags.isStatic(declaringType.getFlags())) depth++;
-			StringBuffer typeName = new StringBuffer();
-			for (int i = 0, max = typeNames.length; i < max; i++) {
-				if (typeName.length() == 0) {
-					typeName.append(typeNames[i]);
-				} else {
-					typeName.append('.').append(typeNames[i]);
-				}
-				IType resolvedType = javaProject.findType(packageFragmentName, String.valueOf(typeName));
-				if (resolvedType != null && resolvedType.isMember() && !Flags.isStatic(resolvedType.getFlags())) depth++;
+			if (!Flags.isStatic(declaringType.getFlags())) {
+				depth++;
 			}
 			if (depth != 0) {
+				// depth is 1
 				int indexOfOpeningParen = anchor.indexOf('(');
 				if (indexOfOpeningParen == -1) return null;
 				int index = indexOfOpeningParen;
 				indexOfOpeningParen++;
-				for (int i = 0; i < depth; i++) {
-					int indexOfComma = anchor.indexOf(',', index);
-					if (indexOfComma != -1) {
-						index = indexOfComma + 2;
-					}
+				int indexOfComma = anchor.indexOf(',', index);
+				if (indexOfComma != -1) {
+					index = indexOfComma + 2;
 				}
 				anchor = anchor.substring(0, indexOfOpeningParen) + anchor.substring(index);
 			}

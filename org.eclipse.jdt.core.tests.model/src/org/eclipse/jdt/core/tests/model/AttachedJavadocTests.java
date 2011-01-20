@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	private static final String DEFAULT_DOC_FOLDER = "doc";
 
 	static {
-//		TESTS_NAMES = new String[] { "test010" };
+//		TESTS_NAMES = new String[] { "testBug334652_4" };
 //		TESTS_NUMBERS = new int[] { 24 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
@@ -781,6 +781,151 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			if (timeout != null)
 				options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, timeout);
 			this.project.setOptions(options);
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=334652
+	public void testBug334652() throws CoreException, IOException {
+		IClasspathEntry[] entries = this.project.getRawClasspath();
+
+		try {
+			IClasspathAttribute attribute =
+					JavaCore.newClasspathAttribute(
+							IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME,
+							"jar:platform:/resource/AttachedJavadocProject/bug334652_doc.zip!/NoJavaDocForInnerClass/doc");
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug334652.jar"), null, null, null, new IClasspathAttribute[] { attribute}, false);
+			this.project.setRawClasspath(new IClasspathEntry[]{newEntry}, null);
+			this.project.getResolvedClasspath(false);
+
+			IPackageFragmentRoot jarRoot = this.project.getPackageFragmentRoot(getFile("/AttachedJavadocProject/bug334652.jar"));
+			final IType type = jarRoot.getPackageFragment("com.test").getClassFile("PublicAbstractClass$InnerFinalException.class").getType();
+			IMethod method = type.getMethod("InnerFinalException", new String[] { "Lcom.test.PublicAbstractClass;", "Ljava.lang.String;", "Ljava.lang.String;"});
+			assertNotNull(method);
+			assertTrue("Does not exist", method.exists());
+
+			String javadoc = method.getAttachedJavadoc(null);
+			assertNotNull(javadoc);
+			assertEquals("Wrong contents", "<H3>\r\n" + 
+					"PublicAbstractClass.InnerFinalException</H3>\r\n" + 
+					"<PRE>\r\n" + 
+					"public <B>PublicAbstractClass.InnerFinalException</B>(java.lang.String&nbsp;property,\r\n" + 
+					"                                               java.lang.String&nbsp;msg)</PRE>\r\n" + 
+					"<DL>\r\n" + 
+					"<DD>javadoc for InnerFinalException(String property, String msg)\r\n" + 
+					"<P>\r\n" + 
+					"<DL>\r\n" + 
+					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" + 
+					"</DL>\r\n", javadoc);
+		} finally {
+			this.project.setRawClasspath(entries, null);
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=334652
+	public void testBug334652_2() throws CoreException, IOException {
+		IClasspathEntry[] entries = this.project.getRawClasspath();
+
+		try {
+			IClasspathAttribute attribute =
+					JavaCore.newClasspathAttribute(
+							IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME,
+							"jar:platform:/resource/AttachedJavadocProject/bug334652(2)_doc.zip!/doc");
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug334652(2).jar"), null, null, null, new IClasspathAttribute[] { attribute}, false);
+			this.project.setRawClasspath(new IClasspathEntry[]{newEntry}, null);
+			this.project.getResolvedClasspath(false);
+
+			IPackageFragmentRoot jarRoot = this.project.getPackageFragmentRoot(getFile("/AttachedJavadocProject/bug334652(2).jar"));
+			final IType type = jarRoot.getPackageFragment("com.test").getClassFile("PublicAbstractClass$InnerFinalException.class").getType();
+			IMethod method = type.getMethod("InnerFinalException", new String[] { "Ljava.lang.String;", "Ljava.lang.String;"});
+			assertNotNull(method);
+			assertTrue("Does not exist", method.exists());
+
+			String javadoc = method.getAttachedJavadoc(null);
+			assertNotNull(javadoc);
+			assertEquals("Wrong contents", "<H3>\r\n" + 
+					"PublicAbstractClass.InnerFinalException</H3>\r\n" + 
+					"<PRE>\r\n" + 
+					"public <B>PublicAbstractClass.InnerFinalException</B>(java.lang.String&nbsp;property,\r\n" + 
+					"                                               java.lang.String&nbsp;msg)</PRE>\r\n" + 
+					"<DL>\r\n" + 
+					"<DD>javadoc for InnerFinalException(String property, String msg)\r\n" + 
+					"<P>\r\n" + 
+					"<DL>\r\n" + 
+					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" + 
+					"</DL>\r\n", javadoc);
+		} finally {
+			this.project.setRawClasspath(entries, null);
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=334652
+	public void testBug334652_3() throws CoreException, IOException {
+		IClasspathEntry[] entries = this.project.getRawClasspath();
+
+		try {
+			IClasspathAttribute attribute =
+					JavaCore.newClasspathAttribute(
+							IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME,
+							"jar:platform:/resource/AttachedJavadocProject/bug334652(3)_doc.zip!/doc");
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug334652(3).jar"), null, null, null, new IClasspathAttribute[] { attribute}, false);
+			this.project.setRawClasspath(new IClasspathEntry[]{newEntry}, null);
+			this.project.getResolvedClasspath(false);
+
+			IPackageFragmentRoot jarRoot = this.project.getPackageFragmentRoot(getFile("/AttachedJavadocProject/bug334652(3).jar"));
+			final IType type = jarRoot.getPackageFragment("com.test").getClassFile("PublicAbstractClass$A$InnerFinalException.class").getType();
+			IMethod method = type.getMethod("InnerFinalException", new String[] { "Lcom.test.PublicAbstractClass$A;", "Ljava.lang.String;", "Ljava.lang.String;"});
+			assertNotNull(method);
+			assertTrue("Does not exist", method.exists());
+
+			String javadoc = method.getAttachedJavadoc(null);
+			assertNotNull(javadoc);
+			assertEquals("Wrong contents",
+					"<H3>\r\n" + 
+					"PublicAbstractClass.A.InnerFinalException</H3>\r\n" + 
+					"<PRE>\r\n" + 
+					"public <B>PublicAbstractClass.A.InnerFinalException</B>(java.lang.String&nbsp;property,\r\n" + 
+					"                                                 java.lang.String&nbsp;msg)</PRE>\r\n" + 
+					"<DL>\r\n" + 
+					"<DD>javadoc for InnerFinalException(String property, String msg)\r\n" + 
+					"<P>\r\n" + 
+					"<DL>\r\n" + 
+					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" + 
+					"</DL>\r\n", javadoc);
+		} finally {
+			this.project.setRawClasspath(entries, null);
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=334652
+	public void testBug334652_4() throws CoreException, IOException {
+		IClasspathEntry[] entries = this.project.getRawClasspath();
+
+		try {
+			IClasspathAttribute attribute =
+					JavaCore.newClasspathAttribute(
+							IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME,
+							"jar:platform:/resource/AttachedJavadocProject/bug334652(4)_doc.zip!/doc");
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug334652(4).jar"), null, null, null, new IClasspathAttribute[] { attribute}, false);
+			this.project.setRawClasspath(new IClasspathEntry[]{newEntry}, null);
+			this.project.getResolvedClasspath(false);
+
+			IPackageFragmentRoot jarRoot = this.project.getPackageFragmentRoot(getFile("/AttachedJavadocProject/bug334652(4).jar"));
+			final IType type = jarRoot.getPackageFragment("com.test").getClassFile("PublicAbstractClass$A$InnerFinalException.class").getType();
+			IMethod method = type.getMethod("InnerFinalException", new String[] { "Lcom.test.PublicAbstractClass$A;", "Ljava.lang.String;", "Ljava.lang.String;"});
+			assertNotNull(method);
+			assertTrue("Does not exist", method.exists());
+
+			String javadoc = method.getAttachedJavadoc(null);
+			assertNotNull(javadoc);
+			assertEquals("Wrong contents", "<H3>\r\n" + 
+					"PublicAbstractClass.A.InnerFinalException</H3>\r\n" + 
+					"<PRE>\r\n" + 
+					"public <B>PublicAbstractClass.A.InnerFinalException</B>(java.lang.String&nbsp;property,\r\n" + 
+					"                                                 java.lang.String&nbsp;msg)</PRE>\r\n" + 
+					"<DL>\r\n" + 
+					"<DD>javadoc for InnerFinalException(String property, String msg)\r\n" + 
+					"<P>\r\n" + 
+					"<DL>\r\n" + 
+					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" + 
+					"</DL>\r\n", javadoc);
+		} finally {
+			this.project.setRawClasspath(entries, null);
 		}
 	}
 }
