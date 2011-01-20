@@ -49,7 +49,24 @@ Eclipse SDK 3.7M5 - %date% - 3.7.0 M5
 <br>Project org.eclipse.jdt.core v_B34
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B34">cvs</a>).
 <h2>What's new in this drop</h2>
-
+<ul>
+<li>New code formatter option to preserve existing white space between code and line comments.
+<br>See details in bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=282988">282988</a>:
+<pre>
+	/**
+	 * FORMATTER / Option to control whether the white space between code and line comments should be preserved or replaced with a single space
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.preserve_white_space_between_code_and_line_comments"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 *
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.7
+	 */
+	public final static String FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT = "org.eclipse.jdt.core.formatter.comment.preserve_white_space_between_code_and_line_comments";
+</pre>
+</li>
+</ul>
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=282988">282988</a>
 [formatter] Option to align single-line comments in a column
