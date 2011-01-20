@@ -1,5 +1,5 @@
  /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2011 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    mkaufman@bea.com - initial API and implementation
+ *    IBM Corporation - modified to split files
  *******************************************************************************/
 
 
@@ -104,6 +105,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	}
 	
 	private static final BuildContext[] NO_FILES_TO_PROCESS = new BuildContext[0];
+	private static final int MAX_FILES_PER_ITERATION = 1000;
 	private /*final*/ BuildContext[] _filesWithAnnotation = null;
 	private /*final*/ BuildContext[] _filesWithoutAnnotation = null;
 	private /*final*/ Map<IFile, CategorizedProblem[]> _problemRecorder = null;
@@ -114,7 +116,13 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	/** Batch processor dispatched in the current round */
 	private Set<AnnotationProcessorFactory> _currentDispatchBatchFactories = Collections.emptySet();
 	private final boolean _isFullBuild;
+	private static final boolean SPLIT_FILES;
+	private static final String SPLIT_FILES_PROPERTY = "org.eclipse.jdt.apt.core.split_files"; //$NON-NLS-1$
 	
+	static {
+		String setting = System.getProperty(SPLIT_FILES_PROPERTY);
+		SPLIT_FILES = setting == null || setting.equalsIgnoreCase("true"); //$NON-NLS-1$
+	}
 	
 	public static Set<AnnotationProcessorFactory> runAPTDuringBuild(
 			BuildContext[] filesWithAnnotations, 
@@ -265,14 +273,33 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 					build((BuildEnv)env);
 				}
 			};
-			
-			// Construct build environment, this invokes the build inside a callback
-			// in order to keep open the DOM AST pipeline
-			BuildEnv.newBuildEnv( 
-					_filesWithAnnotation, 
-					_filesWithoutAnnotation, 
-					_aptProject.getJavaProject(),
-					buildCallback);
+			boolean split = false;
+			if (SPLIT_FILES && !hasBatchFactory()) { // don't split the files if batch processors are present
+				split = _filesWithAnnotation.length > MAX_FILES_PER_ITERATION ? true : false;
+			}
+			if (!split) {
+				// Construct build environment, this invokes the build inside a callback
+				// in order to keep open the DOM AST pipeline
+				BuildEnv.newBuildEnv(
+						_filesWithAnnotation,
+						_filesWithoutAnnotation,
+						_aptProject.getJavaProject(),
+						buildCallback);
+			} else {
+				for (int index = 0; index < _filesWithAnnotation.length;) {
+					int numberToProcess = (index + MAX_FILES_PER_ITERATION) > _filesWithAnnotation.length ? _filesWithAnnotation.length - index : MAX_FILES_PER_ITERATION;
+					BuildContext[] filesToProcess = new BuildContext[numberToProcess];			 
+					System.arraycopy(_filesWithAnnotation, index, filesToProcess, 0, numberToProcess);
+					// Construct build environment, this invokes the build inside a callback
+					// in order to keep open the DOM AST pipeline
+					BuildEnv.newBuildEnv( 
+							filesToProcess, 
+							_filesWithoutAnnotation, 
+							_aptProject.getJavaProject(),
+							buildCallback);
+					 index += numberToProcess;
+				}
+			}
 		}
 		
 		// We need to save the file dependency state regardless of whether any Java 5 processing
