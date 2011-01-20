@@ -1,3 +1,0 @@
-# Debug tracing for org.eclipse.jdt.apt.pluggable.core plugin
-# Includes traces needed for most client-visible problems
-org.eclipse.jdt.apt.pluggable.core/debug=false
