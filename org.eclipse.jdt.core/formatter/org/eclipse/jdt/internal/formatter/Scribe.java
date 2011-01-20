@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -2810,7 +2811,11 @@ public class Scribe implements IJavaDocTagConstants {
 		
 		// Add pending space if necessary
     	if (this.pendingSpace) {
-    		addInsertEdit(currentTokenStartPosition, " "); //$NON-NLS-1$
+    		if (this.formatter.preferences.comment_preserve_white_space_between_code_and_line_comments) {
+    			addInsertEdit(currentTokenStartPosition, new String(this.lastLineComment.leadingSpaces));
+    		} else {
+    			addInsertEdit(currentTokenStartPosition, " "); //$NON-NLS-1$
+    		}
     	}
     	this.needSpace = false;
     	this.pendingSpace = false;

@@ -1,13 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *     Brock Janiczak - Contribution for bug 150741
+ *     IBM Corporation  - initial API and implementation
+ *     Brock Janiczak   - Contribution for bug 150741
+ *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
  *******************************************************************************/
 package org.eclipse.jdt.core.formatter;
 
@@ -670,6 +671,19 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.6
 	 */
 	public static final String FORMATTER_COMMENT_FORMAT_LINE_COMMENT_STARTING_ON_FIRST_COLUMN = JavaCore.PLUGIN_ID + ".formatter.format_line_comment_starting_on_first_column"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether the white space between code and line comments should be preserved or replaced with a single space
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.preserve_white_space_between_code_and_line_comments"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.7
+	 */
+	public final static String FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT = "org.eclipse.jdt.core.formatter.comment.preserve_white_space_between_code_and_line_comments"; //$NON-NLS-1$
 
 	/**
 	 * <pre>

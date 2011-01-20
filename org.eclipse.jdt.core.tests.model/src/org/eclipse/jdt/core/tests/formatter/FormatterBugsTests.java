@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -10428,5 +10429,37 @@ public void testBug332877() throws Exception {
 		"	STAGING // Staging\n" + 
 		"}\n"
 	);
+}
+
+/**
+ * @bug 282988: [formatter] Option to align single-line comments in a column
+ * @test Ensure that with line comment formatting turned off comment alignment doesn't change 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=282988"
+ */
+public void testBug282988() throws Exception {
+	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(java.nio.ByteBuffer buffer) throws Exception {\n" +
+		"		buffer.clear();\n" +
+		"		buffer.putLong(0);     // backlink to previous version of this object\n" +
+		"		buffer.putInt(1);      // version identifier\n" +
+		"		buffer.flip();         // prepare to write\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(java.nio.ByteBuffer buffer) throws Exception {\n" +
+		"		buffer.clear();\n" +
+		"		buffer.putLong(0);     // backlink to previous version of this object\n" +
+		"		buffer.putInt(1);      // version identifier\n" +
+		"		buffer.flip();         // prepare to write\n" +
+		"	}\n" +
+		"}\n"
+    );
 }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Brock Janiczak - Contribution for bug 150741
+ *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -61,8 +62,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	Map formatterOptions;
 
 	static {
-//		TESTS_NUMBERS = new int[] { 730 };
-//		TESTS_RANGE = new int[] { 730, -1 };
+//		TESTS_NUMBERS = new int[] { 736 };
+		TESTS_RANGE = new int[] { 734, -1 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -10979,6 +10980,126 @@ public void test733() {
 		"	;\n" + 
 		"	public int i = 0;\n" + 
 		"}"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=282988
+public void test734() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT, DefaultCodeFormatterConstants.TRUE);
+	String source =
+		"package p;\n" + 
+		"\n" + 
+		"public class Comment {\n" + 
+		"	public static void main(String[] args) {\n" +
+		"		//                         internal indentation\n" +
+		"		int i = 1;				// tabs\n" + 
+		"		int j = 2;              // spaces\n" +
+		"		int k = 3;			    // mixed tabs and spaces\n" +
+		"		System.out.print(i);	/* does not affect block comments */\n" +
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package p;\n" + 
+		"\n" + 
+		"public class Comment {\n" + 
+		"	public static void main(String[] args) {\n" +
+		"		// internal indentation\n" +
+		"		int i = 1;				// tabs\n" + 
+		"		int j = 2;              // spaces\n" +
+		"		int k = 3;			    // mixed tabs and spaces\n" +
+		"		System.out.print(i); /* does not affect block comments */\n" +
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=282988
+public void test735() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT, DefaultCodeFormatterConstants.FALSE);
+	String source =
+		"package p;\n" + 
+		"\n" + 
+		"public class Comment {\n" + 
+		"	public static void main(String[] args) {\n" +
+		"		//                         internal indentation\n" +
+		"		int i = 1;				// tabs\n" + 
+		"		int j = 2;              // spaces\n" +
+		"		int k = 3;			    // mixed tabs and spaces\n" +
+		"		System.out.print(i);	/* does not affect block comments */\n" +
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package p;\n" + 
+		"\n" + 
+		"public class Comment {\n" + 
+		"	public static void main(String[] args) {\n" +
+		"		// internal indentation\n" +
+		"		int i = 1; // tabs\n" + 
+		"		int j = 2; // spaces\n" +
+		"		int k = 3; // mixed tabs and spaces\n" +
+		"		System.out.print(i); /* does not affect block comments */\n" +
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=282988
+public void test736() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT, DefaultCodeFormatterConstants.TRUE);
+	String source =
+		"package p;\n" + 
+		"\n" + 
+		"public class Comment {\n" + 
+		"	public static void main(String[] args) {\n" +
+		"		//                         internal indentation\n" +
+		"		int i = 1;// tabs\n" + 
+		"		int j = 2;// spaces\n" +
+		"		int k = 3;// mixed tabs and spaces\n" +
+		"		System.out.print(i);	/* does not affect block comments */\n" +
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package p;\n" + 
+		"\n" + 
+		"public class Comment {\n" + 
+		"	public static void main(String[] args) {\n" +
+		"		// internal indentation\n" +
+		"		int i = 1;// tabs\n" + 
+		"		int j = 2;// spaces\n" +
+		"		int k = 3;// mixed tabs and spaces\n" +
+		"		System.out.print(i); /* does not affect block comments */\n" +
+		"	}\n" + 
+		"}\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=282988
+public void test737() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT, DefaultCodeFormatterConstants.FALSE);
+	String source =
+		"package p;\n" + 
+		"\n" + 
+		"public class Comment {\n" + 
+		"	public static void main(String[] args) {\n" +
+		"		//                         internal indentation\n" +
+		"		int i = 1;// tabs\n" + 
+		"		int j = 2;// spaces\n" +
+		"		int k = 3;// mixed tabs and spaces\n" +
+		"		System.out.print(i);	/* does not affect block comments */\n" +
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package p;\n" + 
+		"\n" + 
+		"public class Comment {\n" + 
+		"	public static void main(String[] args) {\n" +
+		"		// internal indentation\n" +
+		"		int i = 1;// tabs\n" + 
+		"		int j = 2;// spaces\n" +
+		"		int k = 3;// mixed tabs and spaces\n" +
+		"		System.out.print(i); /* does not affect block comments */\n" +
+		"	}\n" + 
+		"}\n"
 	);
 }
 }

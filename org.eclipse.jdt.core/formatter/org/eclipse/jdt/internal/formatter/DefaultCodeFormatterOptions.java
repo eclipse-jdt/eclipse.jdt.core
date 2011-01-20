@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Brock Janiczak - Contribution for bug 150741
+ *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -115,6 +116,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean comment_indent_root_tags;
 	public boolean comment_insert_empty_line_before_root_tags;
 	public boolean comment_insert_new_line_for_parameter;
+	public boolean comment_preserve_white_space_between_code_and_line_comments;
 	public int comment_line_length;
 
 	public boolean use_tags;
@@ -398,6 +400,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_ROOT_TAGS, this.comment_indent_root_tags ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, this.comment_insert_empty_line_before_root_tags ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_NEW_LINE_FOR_PARAMETER, this.comment_insert_new_line_for_parameter ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT, this.comment_preserve_white_space_between_code_and_line_comments ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, Integer.toString(this.comment_line_length));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION, Integer.toString(this.continuation_indentation));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION_FOR_ARRAY_INITIALIZER, Integer.toString(this.continuation_indentation_for_array_initializer));
@@ -1130,6 +1133,10 @@ public class DefaultCodeFormatterOptions {
 		final Object commentInsertNewLineForParameterOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_NEW_LINE_FOR_PARAMETER);
 		if (commentInsertNewLineForParameterOption != null) {
 			this.comment_insert_new_line_for_parameter = JavaCore.INSERT.equals(commentInsertNewLineForParameterOption);
+		}
+		final Object commentPreserveWhiteSpaceBetweenCodeAndLineCommentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT);
+		if (commentPreserveWhiteSpaceBetweenCodeAndLineCommentsOption != null) {
+			this.comment_preserve_white_space_between_code_and_line_comments = DefaultCodeFormatterConstants.TRUE.equals(commentPreserveWhiteSpaceBetweenCodeAndLineCommentsOption);
 		}
 		final Object commentLineLengthOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH);
 		if (commentLineLengthOption != null) {
@@ -2132,6 +2139,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_new_lines_at_block_boundaries = true;
 		this.comment_new_lines_at_javadoc_boundaries = true;
 		this.comment_line_length = 80;
+		this.comment_preserve_white_space_between_code_and_line_comments= false; 
 		this.continuation_indentation = 2;
 		this.continuation_indentation_for_array_initializer = 2;
 		this.blank_lines_after_imports = 0;
@@ -2410,6 +2418,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_new_lines_at_block_boundaries = true;
 		this.comment_new_lines_at_javadoc_boundaries = true;
 		this.comment_line_length = 80;
+		this.comment_preserve_white_space_between_code_and_line_comments= false; 
 		this.continuation_indentation = 2;
 		this.continuation_indentation_for_array_initializer = 2;
 		this.blank_lines_after_imports = 1;
