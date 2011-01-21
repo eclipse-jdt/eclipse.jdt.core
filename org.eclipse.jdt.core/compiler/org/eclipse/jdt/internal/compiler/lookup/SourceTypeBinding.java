@@ -639,7 +639,12 @@ public char[] computeUniqueKey(boolean isLeaf) {
 		start = CharOperation.lastIndexOf('/', uniqueKey) + 1;
 		if (start == 0)
 			start = 1; // start after L
-		end = CharOperation.indexOf('$', uniqueKey, start);
+		if (this.isMemberType()) {
+			end = CharOperation.indexOf('$', uniqueKey, start);
+		} else {
+			// '$' is part of the type name
+			end = -1;
+		}
 		if (end == -1)
 			end = CharOperation.indexOf('<', uniqueKey, start);
 		if (end == -1)
