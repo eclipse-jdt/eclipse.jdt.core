@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -598,6 +602,16 @@ void setSourceStart(int sourceStart);
 	int InvalidHighSurrogate = Syntax + Internal + 264;
 	/** @since 3.2 */
 	int UnnecessaryNLSTag = Internal + 265;
+	/** @since 3.7 */
+	int InvalidBinary = Syntax + Internal + 266;
+	/** @since 3.7 */
+	int IllegalBinaryLiteral = Syntax + Internal + 267;
+	/** @since 3.7 */
+	int IllegalUnderscorePosition = Syntax + Internal + 268;
+	/** @since 3.7 */
+	int IllegalUsageOfUnderscore = Syntax + Internal + 269;
+	/** @since 3.7 */
+	int IllegalHexaLiteral = Syntax + Internal + 270;
 
 	// type related problems
 	/** @since 3.1 */

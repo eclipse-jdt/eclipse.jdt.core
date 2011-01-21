@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -4476,7 +4480,26 @@ public void invokeStringConcatenationToString() {
 			ConstantPool.ToString,
 			ConstantPool.ToStringSignature);
 }
-
+public void invokeStringEquals() {
+	// invokevirtual: java.lang.String.equals()
+	invoke(
+			Opcodes.OPC_invokevirtual,
+			2, // receiverAndArgsSize
+			1, // return type size
+			ConstantPool.JavaLangStringConstantPoolName,
+			ConstantPool.Equals,
+			ConstantPool.EqualsSignature);
+}
+public void invokeStringHashCode() {
+	// invokevirtual: java.lang.String.hashCode()
+	invoke(
+			Opcodes.OPC_invokevirtual,
+			1, // receiverAndArgsSize
+			1, // return type size
+			ConstantPool.JavaLangStringConstantPoolName,
+			ConstantPool.HashCode,
+			ConstantPool.HashCodeSignature);
+}
 public void invokeStringIntern() {
 	// invokevirtual: java.lang.String.intern()
 	invoke(
@@ -4487,7 +4510,6 @@ public void invokeStringIntern() {
 			ConstantPool.Intern,
 			ConstantPool.InternSignature);
 }
-
 public void invokeStringValueOf(int typeID) {
 	// invokestatic: java.lang.String.valueOf(argumentType)
 	char[] signature;

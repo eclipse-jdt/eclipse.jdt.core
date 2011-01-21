@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -3983,17 +3987,7 @@ private boolean isKeyword(int token) {
 	}
 }
 private boolean isLiteral(int token) {
-	switch(token) {
-		case TerminalTokens.TokenNameIntegerLiteral:
-		case TerminalTokens.TokenNameLongLiteral:
-		case TerminalTokens.TokenNameFloatingPointLiteral:
-		case TerminalTokens.TokenNameDoubleLiteral:
-		case TerminalTokens.TokenNameStringLiteral:
-		case TerminalTokens.TokenNameCharacterLiteral:
-			return true;
-		default:
-			return false;
-	}
+	return Scanner.isLiteral(token);
 }
 
 private boolean isRecoveredName(char[] simpleName) {
@@ -6297,6 +6291,8 @@ public void scannerError(Parser parser, String errorTokenName) {
 		flag = IProblem.EndOfSource;
 	else if (errorTokenName.equals(Scanner.INVALID_HEXA))
 		flag = IProblem.InvalidHexa;
+	else if (errorTokenName.equals(Scanner.ILLEGAL_HEXA_LITERAL))
+		flag = IProblem.IllegalHexaLiteral;
 	else if (errorTokenName.equals(Scanner.INVALID_OCTAL))
 		flag = IProblem.InvalidOctal;
 	else if (errorTokenName.equals(Scanner.INVALID_CHARACTER_CONSTANT))
@@ -6336,6 +6332,14 @@ public void scannerError(Parser parser, String errorTokenName) {
 		flag = IProblem.UnterminatedString;
 	else if (errorTokenName.equals(Scanner.INVALID_DIGIT))
 		flag = IProblem.InvalidDigit;
+	else if (errorTokenName.equals(Scanner.INVALID_BINARY))
+		flag = IProblem.InvalidBinary;
+	else if (errorTokenName.equals(Scanner.ILLEGAL_BINARY_LITERAL))
+		flag = IProblem.IllegalBinaryLiteral;
+	else if (errorTokenName.equals(Scanner.INVALID_UNDERSCORE))
+		flag = IProblem.IllegalUnderscorePosition;
+	else if (errorTokenName.equals(Scanner.INVALID_USAGE_OF_UNDERSCORE))
+		flag = IProblem.IllegalUsageOfUnderscore;
 
 	String[] arguments = flag == IProblem.ParsingErrorNoSuggestion
 			? new String[] {errorTokenName}

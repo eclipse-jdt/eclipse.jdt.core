@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -26,7 +30,7 @@ public void computeConstant() {
 	//the overflow (when radix=10) is tested using the fact that
 	//the value should always grow during its computation
 	int length = this.source.length - 1; //minus one because the last char is 'l' or 'L'
-	long computedValue ;
+	long computedValue = 0;
 	if (this.source[0] == '0') {
 		if (length == 1) {
 			this.constant = LongConstant.fromValue(0L);
@@ -49,35 +53,41 @@ public void computeConstant() {
 			}
 		}
 
-		int digitValue ;
-		if ((digitValue = ScannerHelper.digit(this.source[j++],radix)) < 0 ) {
-			return; /*constant stays null*/
-		}
-		if (digitValue >= 8)
-			nbDigit = 4;
-		else if (digitValue >= 4)
-			nbDigit = 3;
-		else if (digitValue >= 2)
-			nbDigit = 2;
-		else
-			nbDigit = 1; //digitValue is not 0
-		computedValue = digitValue ;
-		while (j<length) {
-			if ((digitValue = ScannerHelper.digit(this.source[j++],radix)) < 0) {
+		char currentChar = this.source[j++];
+		if (currentChar != '_') {
+			int digitValue ;
+			if ((digitValue = ScannerHelper.digit(currentChar,radix)) < 0 ) {
 				return; /*constant stays null*/
 			}
-			if ((nbDigit += shift) > 64)
-				return; /*constant stays null*/
-			computedValue = (computedValue<<shift) | digitValue ;
+			if (digitValue >= 8)
+				nbDigit = 4;
+			else if (digitValue >= 4)
+				nbDigit = 3;
+			else if (digitValue >= 2)
+				nbDigit = 2;
+			else
+				nbDigit = 1; //digitValue is not 0
+			computedValue = digitValue ;
+			while (j<length) {
+				currentChar = this.source[j++];
+				if (currentChar == '_') continue;
+				if ((digitValue = ScannerHelper.digit(currentChar,radix)) < 0) {
+					return; /*constant stays null*/
+				}
+				if ((nbDigit += shift) > 64)
+					return; /*constant stays null*/
+				computedValue = (computedValue<<shift) | digitValue ;
+			}
 		}
 	} else {
 		//-----------case radix=10-----------------
 		long previous = 0;
-		computedValue = 0;
 		final long limit = Long.MAX_VALUE / 10; // needed to check prior to the multiplication
-		for (int i = 0 ; i < length; i++) {
+		loop: for (int i = 0 ; i < length; i++) {
 			int digitValue ;
-			if ((digitValue = ScannerHelper.digit(this.source[i], 10)) < 0 ) return /*constant stays null*/;
+			char currentChar = this.source[i];
+			if (currentChar == '_') continue loop;
+			if ((digitValue = ScannerHelper.digit(currentChar, 10)) < 0 ) return /*constant stays null*/;
 			previous = computedValue;
 			if (computedValue > limit)
 				return; /*constant stays null*/
