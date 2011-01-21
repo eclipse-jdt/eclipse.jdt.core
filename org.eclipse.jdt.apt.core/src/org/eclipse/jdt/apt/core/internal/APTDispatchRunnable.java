@@ -286,6 +286,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 						_aptProject.getJavaProject(),
 						buildCallback);
 			} else {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=301894
 				for (int index = 0; index < _filesWithAnnotation.length;) {
 					int numberToProcess = (index + MAX_FILES_PER_ITERATION) > _filesWithAnnotation.length ? _filesWithAnnotation.length - index : MAX_FILES_PER_ITERATION;
 					BuildContext[] filesToProcess = new BuildContext[numberToProcess];			 
