@@ -668,15 +668,19 @@ FormalParameter ::= Modifiersopt Type '...' VariableDeclaratorId
 /:$recovery_template Identifier Identifier:/
 
 CatchFormalParameter ::= Modifiersopt CatchType VariableDeclaratorId
-/.$putCase consumeFormalParameter(false); $break ./
+/.$putCase consumeCatchFormalParameter(); $break ./
 /:$readableName FormalParameter:/
 /:$compliance 1.5:/
 /:$recovery_template Identifier Identifier:/
 
-CatchType -> DisjonctiveType
+CatchType ::= DisjonctiveType
+/.$putCase consumeCatchType(); $break ./
+/:$readableName CatchType:/
+/:$compliance 1.7:/
+
 DisjonctiveType ::= ClassType
 /.$putCase consumeDisjonctiveTypeAsClassType(); $break ./
-DisjonctiveType ::= ClassType '|' DisjonctiveType
+DisjonctiveType ::= DisjonctiveType '|' ClassType
 /.$putCase consumeDisjonctiveType(); $break ./
 /:$readableName DisjonctiveType:/
 /:$compliance 1.7:/
