@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -731,6 +731,9 @@ public class BindingKeyParser {
 		if (!this.scanner.isAtMemberTypeStart() || this.scanner.nextToken() != Scanner.TYPE)
 			return;
 		char[] typeName = this.scanner.getTokenSource();
+		// Might not actually be an inner type but came here as a consequence of '$' being present in type name
+		if (typeName.length == 0)
+			return;
 		if (Character.isDigit(typeName[0])) {
 			// anonymous or local type
 			int nextToken = Scanner.TYPE;

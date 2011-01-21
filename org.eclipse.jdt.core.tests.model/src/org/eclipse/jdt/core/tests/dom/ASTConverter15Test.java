@@ -11226,4 +11226,40 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			}
 		}
 	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=334119
+	 * Ensures that dollar in a type name is not confused as the starting of member type
+	 */
+	public void test0349() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/p/X$Y.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			"package p;\n" +
+			"/*start*/public class X$Y {\n" +
+			"}/*end*/",
+			this.workingCopy,
+			false);
+		IBinding binding = ((TypeDeclaration) node).resolveBinding();
+		assertBindingKeyEquals(
+				"Lp/X$Y;",	// should not be Lp/X$Y-X$Y;
+			binding.getKey());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=334119
+	 * Ensures that dollar in a type name is not confused as the starting of member type
+	 */
+	public void test0348b() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/p/X$.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			"package p;\n" +
+			"/*start*/public class X$ {\n" +
+			"}/*end*/",
+			this.workingCopy,
+			false);
+		IBinding binding = ((TypeDeclaration) node).resolveBinding();
+		assertBindingKeyEquals(
+				"Lp/X$;",	// should not be Lp/X$~X$;
+			binding.getKey());
+	}
 }
