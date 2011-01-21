@@ -12727,4 +12727,86 @@ public void testBug325418d() throws Exception {
 		deleteProject("P");
 	}
 }
+
+/**
+ * @bug 324189: [search] Method Search returns false results
+ * @test Search for Worker.run() should not return results like TestWorker
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324189"
+ */
+public void testBug324189a() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b324189/X.java",
+		"package b324189;\n" +
+		"public class TestWorker{\n" +
+		" public void run() {}\n" +
+		"class AWorker {\n" + 
+		" public void run() {}\n" +
+		"}\n"+
+		"}\n"
+	);
+	search("Worker.run()", METHOD, DECLARATIONS);
+	assertSearchResults("");
+}
+
+// Worker in the default package should be in the result
+public void testBug324189b() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Worker.java",
+		"public class Worker{\n" +
+		" public void run() {}\n" +
+		"}\n"
+	);
+	search("Worker.run()", METHOD, DECLARATIONS);
+	assertSearchResults("src/Worker.java void Worker.run() [run] EXACT_MATCH");
+}
+// bWorker in the package name should also not be in the search result
+public void testBug324189c() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/bWorker/X.java",
+		"package bWorker;\n" +
+		"public class X{\n" +
+		" public void run() {}\n" +
+		"}"
+	);
+	search("Worker.X.run()", METHOD, DECLARATIONS);
+	assertSearchResults("");
+}
+// TestWorker in a class file also should not be in the search result
+public void testBug324189d() throws CoreException, IOException {
+	String libPath = getExternalResourcePath("lib324189.jar");
+	try {
+		// Create project and external jar file
+		Util.createJar(
+			new String[] {
+				"b324189/TestWorker.java",
+				"package b324189;\n" +
+				"public class TestWorker{\n" +
+				" public void run() {}\n" +
+				"class Worker{\n" +
+				" public void run() {}\n" +
+				"}\n"+
+				"}",
+				"b324189/Worker.java",
+				"package b324189;\n" +
+				"public class Worker{\n" +
+				" public void run() {}\n" +
+				"}"
+			},
+			new HashMap(),
+			libPath);
+		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {libPath}, "");
+		waitUntilIndexesReady();
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { javaProject }, mask);
+		this.resultCollector.showSelection();
+		search("Worker.run()", METHOD, DECLARATIONS, scope);
+		assertSearchResults(
+				getExternalPath() + "lib324189.jar void b324189.TestWorker$Worker.run() EXACT_MATCH\n" + 
+				getExternalPath() + "lib324189.jar void b324189.Worker.run() EXACT_MATCH"
+		);
+	} finally {
+		deleteExternalFile(libPath);
+		deleteProject("P");
+	}
+}
 }
