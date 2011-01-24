@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,8 +8,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genady Beriozkin - added support for reporting assignment with no effect
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
- *     												and bug 292478 - Report potentially null across variable assignment
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for 
+ * 							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ * 							bug 292478 - Report potentially null across variable assignment
+ *     						bug 335093 - [compiler][null] minimal hook for future null annotation support
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -52,6 +54,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	flowInfo = ((Reference) this.lhs)
 		.analyseAssignment(currentScope, flowContext, flowInfo, this, false)
 		.unconditionalInits();
+	nullStatus = checkAgainstNullAnnotation(currentScope, local, nullStatus);
 	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
 		flowInfo.markNullStatus(local, nullStatus);
 		if (flowContext.initsOnFinally != null)
