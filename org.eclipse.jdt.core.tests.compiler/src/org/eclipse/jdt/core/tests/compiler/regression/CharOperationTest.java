@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -134,5 +134,37 @@ public void test010() {
 	prefix = new char[] { 'b', 'c' };
 	assertFalse(CharOperation.prefixEquals(prefix, name, false, 2));
 	assertTrue(CharOperation.prefixEquals(prefix, name, false, 1));
+}
+// test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=324189
+public void test011() {
+	char[] pattern = new char[] { 'a' };
+	char[] name = "AnotherA".toCharArray();
+	assertFalse("Should not match", CharOperation.match(
+			pattern,
+			0,
+			1,
+			name,
+			0,
+			8,
+			false));
+}
+// test the javadoc examples
+public void test012() {
+	assertTrue("Should match", CharOperation.match(
+			new char[] { '?', 'b', '*' },
+			1,
+			3,
+			new char[] { 'a', 'b', 'c' , 'd' },
+			1,
+			4,
+			true));
+	assertFalse("Should not match", CharOperation.match(
+			new char[] { '?', 'b', '*' },
+			1,
+			2,
+			new char[] { 'a', 'b', 'c' , 'd' },
+			1,
+			4,
+			true));
 }
 }
