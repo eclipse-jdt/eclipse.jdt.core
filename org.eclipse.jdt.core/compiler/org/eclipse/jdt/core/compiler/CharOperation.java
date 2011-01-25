@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2475,7 +2475,7 @@ public static final boolean match(
  *    patternEnd = 2
  *    name = { 'a', 'b', 'c' , 'd' }
  *    nameStart = 1
- *    nameEnd = 2
+ *    nameEnd = 4
  *    isCaseSensitive = true
  *    result => false
  * </pre>
@@ -2514,10 +2514,17 @@ public static final boolean match(
 
 	/* check first segment */
 	char patternChar = 0;
-	while ((iPattern < patternEnd)
-		&& (patternChar = pattern[iPattern]) != '*') {
-		if (iName == nameEnd)
-			return false;
+	while (true) {
+		if (iPattern == patternEnd) {
+			if (iName == nameEnd) return true; // the chars match
+			return false; // pattern has ended but not the name, no match
+		} 
+		if ((patternChar = pattern[iPattern]) == '*') {
+			break;
+		}
+		if (iName == nameEnd) {
+			return false; // name has ended but not the pattern
+		}
 		if (patternChar
 			!= (isCaseSensitive
 				? name[iName]

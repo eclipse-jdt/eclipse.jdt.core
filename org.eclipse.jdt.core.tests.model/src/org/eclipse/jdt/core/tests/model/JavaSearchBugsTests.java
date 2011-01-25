@@ -12809,4 +12809,19 @@ public void testBug324189d() throws CoreException, IOException {
 		deleteProject("P");
 	}
 }
+// Test the special case in comment 20 of bug 324189
+public void testBug324189e() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b324189/A.java",
+		"package b324189;\n" +
+		"public class A{\n" +
+		" public void run() {}\n" +
+		"}\n"+
+		"class AnotherA {" +
+		" public void run() {} \n" +
+		" }\n"
+	);
+	search("A.run()", METHOD, DECLARATIONS);
+	assertSearchResults("src/b324189/A.java void b324189.A.run() [run] EXACT_MATCH");
+}
 }
