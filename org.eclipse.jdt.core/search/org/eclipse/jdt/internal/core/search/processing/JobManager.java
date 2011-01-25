@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -226,7 +226,8 @@ public abstract class JobManager implements Runnable {
 								float lastWorked = 0;
 								float totalWorked = 0;
 								while ((awaitingJobsCount = awaitingJobsCount()) > 0) {
-									if (subProgress != null && subProgress.isCanceled() && this.processingThread == null)
+									if ((subProgress != null && subProgress.isCanceled())
+											|| this.processingThread == null)
 										throw new OperationCanceledException();
 									IJob currentJob = currentJob();
 									// currentJob can be null when jobs have been added to the queue but job manager is not enabled
