@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -93,6 +97,44 @@ public void checkComment() {
  *
  * INTERNAL USE-ONLY
  */
+protected void consumeCatchFormalParameter() {
+	// FormalParameter ::= Type VariableDeclaratorId ==> false
+	// FormalParameter ::= Modifiers Type VariableDeclaratorId ==> true
+	/*
+	astStack :
+	identifierStack : type identifier
+	intStack : dim dim
+	 ==>
+	astStack : Argument
+	identifierStack :
+	intStack :
+	*/
+
+	this.identifierLengthPtr--;
+	char[] parameterName = this.identifierStack[this.identifierPtr];
+	long namePositions = this.identifierPositionStack[this.identifierPtr--];
+	this.intPtr--; // dimension from the variabledeclaratorid
+	TypeReference type = (TypeReference) this.astStack[this.astPtr--];
+	this.intPtr -= 3;
+	Argument arg =
+		new Argument(
+			parameterName,
+			namePositions,
+			type,
+			this.intStack[this.intPtr + 1]);// modifiers
+	// consume annotations
+	int length;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack,
+			(this.expressionPtr -= length) + 1,
+			arg.annotations = new Annotation[length],
+			0,
+			length);
+	}
+	pushOnAstStack(arg);
+	this.intArrayPtr--;
+}
 protected void consumeClassBodyDeclaration() {
 	// ClassBodyDeclaration ::= Diet Block
 	//push an Initializer

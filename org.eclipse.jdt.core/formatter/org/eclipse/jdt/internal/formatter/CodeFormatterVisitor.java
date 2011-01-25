@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2002, 2010 IBM Corporation and others.
+ * Copyright (c) 2002, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Brock Janiczak - Contribution for bug 150741
@@ -168,8 +172,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	};
 	private static final int[] CLOSING_GENERICS_EXPECTEDTOKENS = new int[] {
 		TerminalTokens.TokenNameRIGHT_SHIFT,
+		TerminalTokens.TokenNameGREATER,
 		TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT,
-		TerminalTokens.TokenNameGREATER
 	};
 	public int lastLocalDeclarationSourceStart;
 	int lastBinaryExpressionAlignmentBreakIndentation;
@@ -4530,7 +4534,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		for (int i = 0; i < length; i++) {
 			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
 			TypeReference[] typeArgument = typeArguments[i];
-			if (typeArgument != null) {
+			if (typeArgument != null && typeArgument.length != 0) {
 				this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
 				if (this.preferences.insert_space_after_opening_angle_bracket_in_parameterized_type_reference) {
 					this.scribe.space();

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Brock Janiczak - Contribution for bug 150741
@@ -62,8 +66,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	Map formatterOptions;
 
 	static {
-//		TESTS_NUMBERS = new int[] { 736 };
-		TESTS_RANGE = new int[] { 734, -1 };
+//		TESTS_NUMBERS = new int[] { 583 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);

@@ -678,9 +678,9 @@ CatchType ::= DisjonctiveType
 /:$readableName CatchType:/
 /:$compliance 1.7:/
 
-DisjonctiveType ::= ClassType
+DisjonctiveType ::= Type
 /.$putCase consumeDisjonctiveTypeAsClassType(); $break ./
-DisjonctiveType ::= DisjonctiveType '|' ClassType
+DisjonctiveType ::= DisjonctiveType '|' Type
 /.$putCase consumeDisjonctiveType(); $break ./
 /:$readableName DisjonctiveType:/
 /:$compliance 1.7:/

@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -280,6 +284,60 @@ protected void consumeCastExpressionWithPrimitiveType() {
 protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	popElement(K_CAST_STATEMENT);
 	super.consumeCastExpressionWithQualifiedGenericsArray();
+}
+protected void consumeCatchFormalParameter() {
+	if (this.indexOfAssistIdentifier() < 0) {
+		super.consumeCatchFormalParameter();
+		if((!this.diet || this.dietInt != 0) && this.astPtr > -1) {
+			Argument argument = (Argument) this.astStack[this.astPtr];
+			if(argument.type == this.assistNode) {
+				this.isOrphanCompletionNode = true;
+				this.restartRecovery	= true;	// force to restart in recovery mode
+				this.lastIgnoredToken = -1;
+			}
+		}
+	} else {
+		this.identifierLengthPtr--;
+		char[] identifierName = this.identifierStack[this.identifierPtr];
+		long namePositions = this.identifierPositionStack[this.identifierPtr--];
+		this.intPtr--; // dimension from the variabledeclaratorid
+		TypeReference type = (TypeReference) this.astStack[this.astPtr--];
+		int modifierPositions = this.intStack[this.intPtr--];
+		this.intPtr--;
+		Argument arg =
+			new SelectionOnArgumentName(
+				identifierName,
+				namePositions,
+				type,
+				this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated); // modifiers
+		arg.declarationSourceStart = modifierPositions;
+
+		// consume annotations
+		int length;
+		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+			System.arraycopy(
+				this.expressionStack,
+				(this.expressionPtr -= length) + 1,
+				arg.annotations = new Annotation[length],
+				0,
+				length);
+		}
+
+		pushOnAstStack(arg);
+
+		this.assistNode = arg;
+		this.lastCheckPoint = (int) namePositions;
+		this.isOrphanCompletionNode = true;
+
+		if (!this.diet){
+			this.restartRecovery	= true;	// force to restart in recovery mode
+			this.lastIgnoredToken = -1;
+		}
+
+		/* if incomplete method header, listLength counter will not have been reset,
+			indicating that some arguments are available on the stack */
+		this.listLength++;
+	}
 }
 protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() {
 	// ClassInstanceCreationExpression ::= Primary '.' 'new' TypeArguments SimpleName '(' ArgumentListopt ')' ClassBodyopt

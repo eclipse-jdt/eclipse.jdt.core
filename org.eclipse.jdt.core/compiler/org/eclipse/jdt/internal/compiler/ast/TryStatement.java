@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -726,7 +726,7 @@ public boolean isSubRoutineEscaping() {
 }
 
 public StringBuffer printStatement(int indent, StringBuffer output) {
-	printIndent(indent, output).append("try \n"); //$NON-NLS-1$
+	printIndent(indent, output).append("try\n"); //$NON-NLS-1$
 	this.tryBlock.printStatement(indent + 1, output);
 
 	//catches
@@ -734,7 +734,7 @@ public StringBuffer printStatement(int indent, StringBuffer output) {
 		for (int i = 0; i < this.catchBlocks.length; i++) {
 				output.append('\n');
 				printIndent(indent, output).append("catch ("); //$NON-NLS-1$
-				this.catchArguments[i].print(0, output).append(") "); //$NON-NLS-1$
+				this.catchArguments[i].print(0, output).append(")\n"); //$NON-NLS-1$
 				this.catchBlocks[i].printStatement(indent + 1, output);
 		}
 	//finally

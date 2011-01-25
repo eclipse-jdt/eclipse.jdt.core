@@ -31,15 +31,13 @@ public class DisjonctiveTypeReference extends TypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#copyDims(int)
 	 */
 	public TypeReference copyDims(int dim) {
-		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getLastToken()
 	 */
 	public char[] getLastToken() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -47,7 +45,6 @@ public class DisjonctiveTypeReference extends TypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
 	 */
 	protected TypeBinding getTypeBinding(Scope scope) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -55,7 +52,6 @@ public class DisjonctiveTypeReference extends TypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeName()
 	 */
 	public char[][] getTypeName() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -63,24 +59,35 @@ public class DisjonctiveTypeReference extends TypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		// TODO Auto-generated method stub
-
+		int length = this.typeReferences == null ? 0 : this.typeReferences.length;
+		for (int i = 0; i < length; i++) {
+			this.typeReferences[i].traverse(visitor, scope);
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
 	 */
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
-		// TODO Auto-generated method stub
-
+		int length = this.typeReferences == null ? 0 : this.typeReferences.length;
+		for (int i = 0; i < length; i++) {
+			this.typeReferences[i].traverse(visitor, scope);
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#printExpression(int, java.lang.StringBuffer)
 	 */
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-		// TODO Auto-generated method stub
-		return null;
+		int length = this.typeReferences == null ? 0 : this.typeReferences.length;
+		printIndent(indent, output);
+		for (int i = 0; i < length; i++) {
+			this.typeReferences[i].printExpression(0, output);
+			if (i != length - 1) {
+				output.append(" | "); //$NON-NLS-1$
+			}
+		}
+		return output;
 	}
 
 }

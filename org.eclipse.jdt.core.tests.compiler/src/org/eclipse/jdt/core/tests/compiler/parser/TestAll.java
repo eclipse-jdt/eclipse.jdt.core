@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -119,6 +123,7 @@ public static Test suite() {
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_7) != 0) {
 		ArrayList tests_1_7 = (ArrayList)testClasses.clone();
 		tests_1_7.addAll(TEST_CLASSES_1_5);
+		tests_1_7.add(ParserTest1_7.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

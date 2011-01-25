@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -2101,6 +2105,49 @@ protected void consumeCastExpressionWithNameArray() {
 protected void consumeCastExpressionLL1() {
 	popElement(K_CAST_STATEMENT);
 	super.consumeCastExpressionLL1();
+}
+protected void consumeCatchFormalParameter() {
+	if (this.indexOfAssistIdentifier() < 0) {
+		super.consumeCatchFormalParameter();
+		if (this.pendingAnnotation != null) {
+			this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
+			this.pendingAnnotation = null;
+		}
+	} else {
+		this.identifierLengthPtr--;
+		char[] identifierName = this.identifierStack[this.identifierPtr];
+		long namePositions = this.identifierPositionStack[this.identifierPtr--];
+		this.intPtr--; // dimension from the variabledeclaratorid
+		TypeReference type = (TypeReference) this.astStack[this.astPtr--];
+		this.intPtr -= 2;
+		CompletionOnArgumentName arg =
+			new CompletionOnArgumentName(
+				identifierName,
+				namePositions,
+				type,
+				this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated); // modifiers
+		// consume annotations
+		int length;
+		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+			System.arraycopy(
+				this.expressionStack,
+				(this.expressionPtr -= length) + 1,
+				arg.annotations = new Annotation[length],
+				0,
+				length);
+		}
+
+		arg.isCatchArgument = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CATCH_AND_RIGHT_PAREN;
+		pushOnAstStack(arg);
+
+		this.assistNode = arg;
+		this.lastCheckPoint = (int) namePositions;
+		this.isOrphanCompletionNode = true;
+
+		/* if incomplete method header, listLength counter will not have been reset,
+			indicating that some arguments are available on the stack */
+		this.listLength++;
+	}
 }
 protected void consumeClassBodyDeclaration() {
 	popElement(K_BLOCK_DELIMITER);
