@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -679,6 +683,32 @@ public class ASTMatcher {
 		}
 		ContinueStatement o = (ContinueStatement) other;
 		return safeSubtreeMatch(node.getLabel(), o.getLabel());
+	}
+
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 *
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
+	 * @since 3.7
+	 */
+	public boolean match(DisjunctiveType node, Object other) {
+		if (!(other instanceof DisjunctiveType)) {
+			return false;
+		}
+		DisjunctiveType o = (DisjunctiveType) other;
+		return
+			safeSubtreeListMatch(
+				node.types(),
+				o.types());
 	}
 
 	/**

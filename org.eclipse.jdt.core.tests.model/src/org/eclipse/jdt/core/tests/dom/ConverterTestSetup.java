@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -64,12 +68,14 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			this.deleteProject("Converter"); //$NON-NLS-1$
 			this.deleteProject("Converter15"); //$NON-NLS-1$
 			this.deleteProject("Converter16"); //$NON-NLS-1$
+			this.deleteProject("Converter17"); //$NON-NLS-1$
 		} else {
 			TEST_SUITES.remove(getClass());
 			if (TEST_SUITES.size() == 0) {
 				this.deleteProject("Converter"); //$NON-NLS-1$
 				this.deleteProject("Converter15"); //$NON-NLS-1$
 				this.deleteProject("Converter16"); //$NON-NLS-1$
+				this.deleteProject("Converter17"); //$NON-NLS-1$
 			}
 		}
 
@@ -107,6 +113,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			setUpJavaProject("Converter"); //$NON-NLS-1$
 			setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
 			setUpJavaProject("Converter16", "1.6"); //$NON-NLS-1$ //$NON-NLS-2$
+			setUpJavaProject("Converter17", "1.7"); //$NON-NLS-1$ //$NON-NLS-2$
 			waitUntilIndexesReady(); // needed to find secondary types
 			PROJECT_SETUP = true;
 		}

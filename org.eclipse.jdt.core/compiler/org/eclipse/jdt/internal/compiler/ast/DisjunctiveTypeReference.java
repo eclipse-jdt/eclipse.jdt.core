@@ -20,10 +20,10 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class DisjonctiveTypeReference extends TypeReference {
+public class DisjunctiveTypeReference extends TypeReference {
 	public TypeReference[] typeReferences;
 
-	public DisjonctiveTypeReference(TypeReference[] typeReferences) {
+	public DisjunctiveTypeReference(TypeReference[] typeReferences) {
 		this.typeReferences = typeReferences; 
 	}
 

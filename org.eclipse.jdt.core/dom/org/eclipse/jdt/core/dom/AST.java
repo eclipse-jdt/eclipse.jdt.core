@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -129,6 +133,21 @@ public final class AST {
 	 * @since 3.1
 	 */
 	public static final int JLS3 = 3;
+	
+	/**
+	 * Constant for indicating the AST API that handles JLS4.
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Third Edition (JLS3) plus all the new language
+	 * features described in the JSR334.
+     * JLS4 is a superset of all earlier versions of the
+     * Java language, and the JLS4 API can be used to manipulate
+     * programs written in all versions of the Java language
+     * up to and including J2SE 7 (aka JDK 1.7).
+     *
+	 * @since 3.7
+	 */
+	public static final int JLS4 = 4;
 
 	/**
 	 * The binding resolver for this AST. Initially a binding resolver that
@@ -206,9 +225,13 @@ public final class AST {
      * @since 3.0
 	 */
 	private AST(int level) {
-		if ((level != AST.JLS2)
-			&& (level != AST.JLS3)) {
-			throw new IllegalArgumentException();
+		switch(level) {
+			case JLS2_INTERNAL :
+			case JLS3 :
+			case JLS4 :
+				break;
+			default:
+				throw new IllegalArgumentException("Unsupported JLS level"); //$NON-NLS-1$
 		}
 		this.apiLevel = level;
 		// initialize a scanner
@@ -346,6 +369,8 @@ public final class AST {
 			sourceLevel = ClassFileConstants.JDK1_4;
 		} else if (JavaCore.VERSION_1_5.equals(sourceLevelOption)) {
 			sourceLevel = ClassFileConstants.JDK1_5;
+		} else if (JavaCore.VERSION_1_7.equals(sourceLevelOption)) {
+			sourceLevel = ClassFileConstants.JDK1_7;
 		}
 		Object complianceLevelOption = options.get(JavaCore.COMPILER_COMPLIANCE);
 		long complianceLevel = ClassFileConstants.JDK1_3;
@@ -353,6 +378,8 @@ public final class AST {
 			complianceLevel = ClassFileConstants.JDK1_4;
 		} else if (JavaCore.VERSION_1_5.equals(complianceLevelOption)) {
 			complianceLevel = ClassFileConstants.JDK1_5;
+		} else if (JavaCore.VERSION_1_7.equals(complianceLevelOption)) {
+			complianceLevel = ClassFileConstants.JDK1_7;
 		}
 		// override scanner if 1.4 or 1.5 asked for
 		this.scanner = new Scanner(
@@ -370,7 +397,7 @@ public final class AST {
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules.
      * <p>
-     * Clients should use this method specifing {@link #JLS3} as the
+     * Clients should use this method specifying {@link #JLS3} as the
      * AST level in all cases, even when dealing with JDK 1.3 or 1.4..
      * </p>
      *
@@ -383,10 +410,6 @@ public final class AST {
      * @since 3.0
 	 */
 	public static AST newAST(int level) {
-		if ((level != AST.JLS2)
-			&& (level != AST.JLS3)) {
-			throw new IllegalArgumentException();
-		}
 		return new AST(level);
 	}
 

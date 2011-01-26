@@ -2169,7 +2169,7 @@ protected void consumeCatchHeader() {
 	this.lastIgnoredToken = -1;
 }
 protected void consumeCatchType() {
-	// CatchType ::= DisjonctiveType
+	// CatchType ::= DisjunctiveType
 	int length = this.astLengthStack[this.astLengthPtr--];
 	if (length != 1) {
 		TypeReference[] typeReferences;
@@ -2179,7 +2179,7 @@ protected void consumeCatchType() {
 				(typeReferences = new TypeReference[length]),
 				0,
 				length);
-		DisjonctiveTypeReference typeReference = new DisjonctiveTypeReference(typeReferences);
+		DisjunctiveTypeReference typeReference = new DisjunctiveTypeReference(typeReferences);
 		pushOnAstStack(typeReference);
 	} else {
 		// push back the type reference
@@ -2845,13 +2845,13 @@ protected void consumeDimWithOrWithOutExprs() {
 	// DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr
 	concatExpressionLists();
 }
-protected void consumeDisjonctiveType() {
-	// DisjonctiveType ::= DisjonctiveType '|' Type
+protected void consumeDisjunctiveType() {
+	// DisjunctiveType ::= DisjunctiveType '|' Type
 	pushOnAstStack(getTypeReference(this.intStack[this.intPtr--]));
 	optimizedConcatNodeLists();
 }
-protected void consumeDisjonctiveTypeAsClassType() {
-	// DisjonctiveType ::= Type
+protected void consumeDisjunctiveTypeAsClassType() {
+	// DisjunctiveType ::= Type
 	pushOnAstStack(getTypeReference(this.intStack[this.intPtr--]));
 }
 protected void consumeEmptyAnnotationTypeMemberDeclarationsopt() {
@@ -5542,16 +5542,16 @@ protected void consumeRule(int act) {
 		    consumeCatchFormalParameter();  
 			break;
  
-    case 183 : if (DEBUG) { System.out.println("CatchType ::= DisjonctiveType"); }  //$NON-NLS-1$
+    case 183 : if (DEBUG) { System.out.println("CatchType ::= DisjunctiveType"); }  //$NON-NLS-1$
 		    consumeCatchType();  
 			break;
  
-    case 184 : if (DEBUG) { System.out.println("DisjonctiveType ::= Type"); }  //$NON-NLS-1$
-		    consumeDisjonctiveTypeAsClassType();  
+    case 184 : if (DEBUG) { System.out.println("DisjunctiveType ::= Type"); }  //$NON-NLS-1$
+		    consumeDisjunctiveTypeAsClassType();  
 			break;
  
-    case 185 : if (DEBUG) { System.out.println("DisjonctiveType ::= DisjonctiveType OR Type"); }  //$NON-NLS-1$
-		    consumeDisjonctiveType();  
+    case 185 : if (DEBUG) { System.out.println("DisjunctiveType ::= DisjunctiveType OR Type"); }  //$NON-NLS-1$
+		    consumeDisjunctiveType();  
 			break;
  
     case 187 : if (DEBUG) { System.out.println("ClassTypeList ::= ClassTypeList COMMA ClassTypeElt"); }  //$NON-NLS-1$

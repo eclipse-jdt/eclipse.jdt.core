@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 IBM Corporation and others.
+ * Copyright (c) 2004, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -20,6 +24,7 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IProblemRequestor;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -53,6 +58,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.WildcardType;
 import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AbstractASTTests extends ModifyingResourceTests implements DefaultMarkedNodeLabelProviderOptions {
 
@@ -417,19 +424,25 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		newContents = markerInfo.source;
 
 		CompilationUnit unit;
+		String option = cu.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
+		long jdkLevel = CompilerOptions.versionToJdkLevel(option);
+		int JLSLevel = AST.JLS3;
+		if (jdkLevel >= ClassFileConstants.JDK1_7) {
+			JLSLevel = AST.JLS4;
+		}
 		if (cu.isWorkingCopy()) {
 			cu.getBuffer().setContents(newContents);
 			int flags = 0;
 			if (reportErrors) flags |= ICompilationUnit.FORCE_PROBLEM_DETECTION;
 			if (enableStatementRecovery) flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
 			if (bindingRecovery) flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
-			unit = cu.reconcile(AST.JLS3, flags, null, null);
+			unit = cu.reconcile(JLSLevel, flags, null, null);
 		} else {
 			IBuffer buffer = cu.getBuffer();
 			buffer.setContents(newContents);
 			buffer.save(null, false);
 
-			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			ASTParser parser = ASTParser.newParser(JLSLevel);
 			parser.setSource(cu);
 			parser.setResolveBindings(true);
 			parser.setStatementsRecovery(enableStatementRecovery);

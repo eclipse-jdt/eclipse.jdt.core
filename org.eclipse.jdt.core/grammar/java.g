@@ -673,16 +673,16 @@ CatchFormalParameter ::= Modifiersopt CatchType VariableDeclaratorId
 /:$compliance 1.5:/
 /:$recovery_template Identifier Identifier:/
 
-CatchType ::= DisjonctiveType
+CatchType ::= DisjunctiveType
 /.$putCase consumeCatchType(); $break ./
 /:$readableName CatchType:/
 /:$compliance 1.7:/
 
-DisjonctiveType ::= Type
-/.$putCase consumeDisjonctiveTypeAsClassType(); $break ./
-DisjonctiveType ::= DisjonctiveType '|' Type
-/.$putCase consumeDisjonctiveType(); $break ./
-/:$readableName DisjonctiveType:/
+DisjunctiveType ::= Type
+/.$putCase consumeDisjunctiveTypeAsClassType(); $break ./
+DisjunctiveType ::= DisjunctiveType '|' Type
+/.$putCase consumeDisjunctiveType(); $break ./
+/:$readableName DisjunctiveType:/
 /:$compliance 1.7:/
 
 ClassTypeList -> ClassTypeElt
