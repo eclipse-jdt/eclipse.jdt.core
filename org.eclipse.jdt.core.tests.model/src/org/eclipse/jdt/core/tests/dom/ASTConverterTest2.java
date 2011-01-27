@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,7 +43,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0578"};
-//		TESTS_NUMBERS =  new int[] { 608 };
+		TESTS_NUMBERS =  new int[] { 447 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTest2.class);
@@ -1276,7 +1276,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 3, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 5, unit.getProblems().length); //$NON-NLS-1$<
 	}
 
 	/**

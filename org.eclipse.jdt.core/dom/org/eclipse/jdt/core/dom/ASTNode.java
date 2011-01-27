@@ -1804,6 +1804,19 @@ public abstract class ASTNode {
 	}
 
 	/**
+     * Checks that this AST operation is only used when
+     * building JLS4 level ASTs.
+
+     * @exception UnsupportedOperationException
+	 * @since 3.7
+     */
+	final void supportedOnlyIn4() {
+	  if (this.ast.apiLevel != AST.JLS4) {
+	  	throw new UnsupportedOperationException("Operation only supported in JLS4 AST"); //$NON-NLS-1$
+	  }
+	}
+
+	/**
 	 * Sets or clears this node's parent node and location.
 	 * <p>
 	 * Note that this method is package-private. The pointer from a node

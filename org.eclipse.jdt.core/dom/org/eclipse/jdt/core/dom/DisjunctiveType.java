@@ -91,6 +91,7 @@ public class DisjunctiveType extends Type {
 	 */
 	DisjunctiveType(AST ast) {
 		super(ast);
+		supportedOnlyIn4();
 	}
 
 	/* (omit javadoc for this method)

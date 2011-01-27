@@ -2117,14 +2117,12 @@ protected void consumeCatchFormalParameter() {
 	this.astLengthPtr--;
 	int modifierPositions = this.intStack[this.intPtr--];
 	this.intPtr--;
-	// modifiers (implicitly final)
-	int accessFlags = (this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated) | ClassFileConstants.AccFinal;
 	Argument arg =
 		new Argument(
 			identifierName,
 			namePositions,
 			type,
-			accessFlags);
+			this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated); // modifiers
 	arg.declarationSourceStart = modifierPositions;
 	// consume annotations
 	int length;
@@ -3932,6 +3930,7 @@ protected void consumeGenericTypeWithDiamond() {
 	// GenericType ::= ClassOrInterface '<' '>'
 	// zero type arguments == <>
 	pushOnGenericsLengthStack(-1);
+	concatGenericsLists();
 }
 protected void consumeImportDeclaration() {
 	// SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName ';'
