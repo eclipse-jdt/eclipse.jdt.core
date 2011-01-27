@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1930,10 +1934,11 @@ public void test0044_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    try \n" +
+			"    try\n" +
 			"      {\n" +
 			"      }\n" +
-			"    catch (<CompleteOnException:Y<Z>.>  )       {\n" +
+			"    catch (<CompleteOnException:Y<Z>.>  )\n" +
+			"      {\n" +
 			"      }\n" +
 			"  }\n" +
 			"}\n";
@@ -2008,10 +2013,11 @@ public void test0045_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    try \n" +
+			"    try\n" +
 			"      {\n" +
 			"      }\n" +
-			"    catch (<CompleteOnException:Y<Z>.>  )       {\n" +
+			"    catch (<CompleteOnException:Y<Z>.>  )\n" +
+			"      {\n" +
 			"      }\n" +
 			"  }\n" +
 			"}\n";
@@ -10787,13 +10793,15 @@ public void test0213_Method() {
 			"  public X() {\n" +
 			"  }\n" +
 			"  public boolean foo() {\n" +
-			"    try \n" +
+			"    try\n" +
 			"      {\n" +
 			"        throwing();\n" +
 			"      }\n" +
-			"    catch (IllegalAccessException e)       {\n" +
+			"    catch (IllegalAccessException e)\n" +
+			"      {\n" +
 			"      }\n" +
-			"    catch (<CompleteOnException:Top<Object>.IZZ>  )       {\n" +
+			"    catch (<CompleteOnException:Top<Object>.IZZ>  )\n" +
+			"      {\n" +
 			"      }\n" +
 			"  }\n" +
 			"}\n";
