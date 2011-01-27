@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -6610,10 +6614,11 @@ public void test110() {
 		"        super();\n" +
 		"      }\n" +
 		"      void foo() {\n" +
-		"        try \n" +
+		"        try\n" +
 		"          {\n" +
 		"          }\n" +
-		"        catch (Exception e)           {\n" +
+		"        catch (Exception e)\n" +
+		"          {\n" +
 		"          }\n" +
 		"      }\n" +
 		"    }\n" +
@@ -6724,10 +6729,11 @@ public void test112() {
 		"    super();\n" +
 		"  }\n" +
 		"  public void foo() {\n" +
-		"    try \n" +
+		"    try\n" +
 		"      {\n" +
 		"      }\n" +
-		"    catch (Exception e)       {\n" +
+		"    catch (Exception e)\n" +
+		"      {\n" +
 		"        bar(\"blabla\");\n" +
 		"        throw new Exception(prefix);\n" +
 		"      }\n" +
@@ -7329,11 +7335,12 @@ public void test120() {
 		"    super();\n" +
 		"  }\n" +
 		"  void foo() {\n" +
-		"    try \n" +
+		"    try\n" +
 		"      {\n" +
 		"        System.out.println();\n" +
 		"      }\n" +
-		"    catch (Exception e)       {\n" +
+		"    catch (Exception e)\n" +
+		"      {\n" +
 		"      }\n" +
 		"    class Z {\n" +
 		"      Z() {\n" +
@@ -7394,11 +7401,12 @@ public void test121() {
 		"    super();\n" +
 		"  }\n" +
 		"  void foo() {\n" +
-		"    try \n" +
+		"    try\n" +
 		"      {\n" +
 		"        System.out.println();\n" +
 		"      }\n" +
-		"    catch (Exception e)       {\n" +
+		"    catch (Exception e)\n" +
+		"      {\n" +
 		"        class Z {\n" +
 		"          Z() {\n" +
 		"            super();\n" +
@@ -7466,10 +7474,11 @@ public void test122() {
 		"    super();\n" +
 		"  }\n" +
 		"  public void func1() {\n" +
-		"    try \n" +
+		"    try\n" +
 		"      {\n" +
 		"      }\n" +
-		"    catch (Exception exception)       {\n" +
+		"    catch (Exception exception)\n" +
+		"      {\n" +
 		"        exception.printStackTrace();\n" +
 		"      }\n" +
 		"    class Clazz {\n" +
@@ -7533,12 +7542,13 @@ public void test123() {
 		"  }\n" +
 		"  void aMethod() {\n" +
 		"    int i = 0;\n" +
-		"    try \n" +
+		"    try\n" +
 		"      {\n" +
 		"        switch (i) {\n" +
 		"        }\n" +
 		"      }\n" +
-		"    catch (Exception ex)       {\n" +
+		"    catch (Exception ex)\n" +
+		"      {\n" +
 		"      }\n" +
 		"    class Nested {\n" +
 		"      Nested() {\n" +
