@@ -2117,12 +2117,14 @@ protected void consumeCatchFormalParameter() {
 	this.astLengthPtr--;
 	int modifierPositions = this.intStack[this.intPtr--];
 	this.intPtr--;
+	// modifiers (implicitly final)
+	int accessFlags = (this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated) | ClassFileConstants.AccFinal;
 	Argument arg =
 		new Argument(
 			identifierName,
 			namePositions,
 			type,
-			this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated); // modifiers
+			accessFlags);
 	arg.declarationSourceStart = modifierPositions;
 	// consume annotations
 	int length;
@@ -8896,9 +8898,7 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 			if (currentTypeArgumentsLength > 0) {
 				this.genericsPtr -= currentTypeArgumentsLength;
 				System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeArguments[index - 1] = new TypeReference[currentTypeArgumentsLength], 0, currentTypeArgumentsLength);
-			} else if (currentTypeArgumentsLength == 0) {
-				typeArguments[index - 1] = TypeReference.NO_TYPE_ARGUMENTS;
-			} else {
+			} else if (currentTypeArgumentsLength < 0) {
 				// diamond case for qualified type reference (java.util.ArrayList<>)
 				typeArguments[index - 1] = TypeReference.NO_TYPE_ARGUMENTS;
 				isDiamond = true;

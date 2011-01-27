@@ -1354,6 +1354,12 @@ void setSourceStart(int sourceStart);
 	int JavadocTypeArgumentsForRawGenericConstructor = Javadoc + Internal + 859;
 
 	/**
+	 * Java 7 errors
+	 */
+	/** @since 3.7 */
+	int AssignmentToMultiCatchParameter = Internal + 870;
+
+	/**
 	 * External problems -- These are problems defined by other plugins
 	 */
 

@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class DisjunctiveTypeReference extends TypeReference {
 	public TypeReference[] typeReferences;
@@ -41,11 +42,38 @@ public class DisjunctiveTypeReference extends TypeReference {
 		return null;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
+	 */
+	protected TypeBinding getTypeBinding(Scope scope) {
+		return null; // not supported here - combined with resolveType(...)
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
 	 */
-	protected TypeBinding getTypeBinding(Scope scope) {
-		return null;
+	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
+		// return the lub (least upper bound of all type binding) 
+		int length = this.typeReferences.length;
+		TypeBinding[] allExceptionTypes = new TypeBinding[length];
+		boolean hasError = false;
+		for (int i = 0; i < length; i++) {
+			TypeBinding exceptionType = this.typeReferences[i].resolveType(scope, checkBounds);
+			if (exceptionType == null) {
+				return null;
+			}
+			if (exceptionType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) == null
+					&& exceptionType.isValidBinding()) {
+				scope.problemReporter().cannotThrowType(this.typeReferences[i], exceptionType);
+				hasError = true;
+			}
+			allExceptionTypes[i] = exceptionType;
+		}
+		if (hasError) {
+			return null;
+		}
+		// compute lub
+		return scope.lowerUpperBound(allExceptionTypes);
 	}
 
 	/* (non-Javadoc)

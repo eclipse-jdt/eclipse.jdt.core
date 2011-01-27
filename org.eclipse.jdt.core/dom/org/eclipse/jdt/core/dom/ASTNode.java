@@ -768,7 +768,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>DisjunctiveType</code>.
 	 * @see DisjunctiveType
-	 * @since 3.1
+	 * @since 3.7
 	 */
 	public static final int DISJUNCTIVE_TYPE = 84;
 

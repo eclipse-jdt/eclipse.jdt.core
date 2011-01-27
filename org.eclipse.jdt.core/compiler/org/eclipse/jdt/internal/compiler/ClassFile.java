@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1105,7 +1109,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		ExceptionLabel[] exceptionLabels = this.codeStream.exceptionLabels;
 		int exceptionHandlersCount = 0; // each label holds one handler per range (start/end contiguous)
 		for (int i = 0, length = this.codeStream.exceptionLabelsCounter; i < length; i++) {
-			exceptionHandlersCount += this.codeStream.exceptionLabels[i].count / 2;
+			exceptionHandlersCount += this.codeStream.exceptionLabels[i].getCount() / 2;
 		}
 		int exSize = exceptionHandlersCount * 8 + 2;
 		if (exSize + localContentsOffset >= this.contents.length) {
@@ -1118,7 +1122,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		for (int i = 0, max = this.codeStream.exceptionLabelsCounter; i < max; i++) {
 			ExceptionLabel exceptionLabel = exceptionLabels[i];
 			if (exceptionLabel != null) {
-				int iRange = 0, maxRange = exceptionLabel.count;
+				int iRange = 0, maxRange = exceptionLabel.getCount();
 				if ((maxRange & 1) != 0) {
 					this.codeStream.methodDeclaration.scope.problemReporter().abortDueToInternalError(
 							Messages.bind(Messages.abort_invalidExceptionAttribute, new String(this.codeStream.methodDeclaration.selector)),
@@ -1251,7 +1255,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		ExceptionLabel[] exceptionLabels = this.codeStream.exceptionLabels;
 		int exceptionHandlersCount = 0; // each label holds one handler per range (start/end contiguous)
 		for (int i = 0, length = this.codeStream.exceptionLabelsCounter; i < length; i++) {
-			exceptionHandlersCount += this.codeStream.exceptionLabels[i].count / 2;
+			exceptionHandlersCount += this.codeStream.exceptionLabels[i].getCount() / 2;
 		}
 		int exSize = exceptionHandlersCount * 8 + 2;
 		if (exSize + localContentsOffset >= this.contents.length) {
@@ -1264,7 +1268,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		for (int i = 0, max = this.codeStream.exceptionLabelsCounter; i < max; i++) {
 			ExceptionLabel exceptionLabel = exceptionLabels[i];
 			if (exceptionLabel != null) {
-				int iRange = 0, maxRange = exceptionLabel.count;
+				int iRange = 0, maxRange = exceptionLabel.getCount();
 				if ((maxRange & 1) != 0) {
 					this.codeStream.methodDeclaration.scope.problemReporter().abortDueToInternalError(
 							Messages.bind(Messages.abort_invalidExceptionAttribute, new String(this.codeStream.methodDeclaration.selector)),
@@ -1686,7 +1690,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			ExceptionLabel[] exceptionLabels = this.codeStream.exceptionLabels;
 			int exceptionHandlersCount = 0; // each label holds one handler per range (start/end contiguous)
 			for (int i = 0, length = this.codeStream.exceptionLabelsCounter; i < length; i++) {
-				exceptionHandlersCount += this.codeStream.exceptionLabels[i].count / 2;
+				exceptionHandlersCount += this.codeStream.exceptionLabels[i].getCount() / 2;
 			}
 			int exSize = exceptionHandlersCount * 8 + 2;
 			if (exSize + localContentsOffset >= this.contents.length) {
@@ -1699,7 +1703,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			for (int i = 0, max = this.codeStream.exceptionLabelsCounter; i < max; i++) {
 				ExceptionLabel exceptionLabel = exceptionLabels[i];
 				if (exceptionLabel != null) {
-					int iRange = 0, maxRange = exceptionLabel.count;
+					int iRange = 0, maxRange = exceptionLabel.getCount();
 					if ((maxRange & 1) != 0) {
 						this.referenceBinding.scope.problemReporter().abortDueToInternalError(
 								Messages.bind(Messages.abort_invalidExceptionAttribute, new String(binding.selector),

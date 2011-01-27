@@ -130,7 +130,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for statements
 	public static final int IsReachable = Bit32;
 	public static final int LabelUsed = Bit7;
-	public static final int DocumentedFallthrough = Bit30;
+	public static final int DocumentedFallthrough = Bit30; // switch statement
 
 	// local decls
 	public static final int IsLocalDeclarationReachable = Bit31;
@@ -243,7 +243,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int INVOCATION_ARGUMENT_WILDCARD = 2;
 
 	// for type reference (diamond case) - Java 7
-	public static final int IsDiamond = Bit1;
+	public static final int IsDiamond = Bit29;
+	public static final int IsDisjuntive = Bit30;
 
 	public ASTNode() {
 

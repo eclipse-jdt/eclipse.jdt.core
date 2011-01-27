@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -16,14 +20,16 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class ExceptionLabel extends Label {
 
 	public int ranges[] = {POS_NOT_SET,POS_NOT_SET};
-	public int count = 0; // incremented each time placeStart or placeEnd is called
+	private int count = 0; // incremented each time placeStart or placeEnd is called
 	public TypeBinding exceptionType;
 
 public ExceptionLabel(CodeStream codeStream, TypeBinding exceptionType) {
 	super(codeStream);
 	this.exceptionType = exceptionType;
 }
-
+public int getCount() {
+	return this.count;
+}
 public void place() {
 	// register the handler inside the codeStream then normal place
 	this.codeStream.registerExceptionHandler(this);

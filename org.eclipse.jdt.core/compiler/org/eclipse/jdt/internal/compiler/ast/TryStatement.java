@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 332637 - Dead Code detection removing code that isn't dead
@@ -367,7 +371,15 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (maxCatches > 0) {
 		exceptionLabels = new ExceptionLabel[maxCatches];
 		for (int i = 0; i < maxCatches; i++) {
-			ExceptionLabel exceptionLabel = new ExceptionLabel(codeStream, this.catchArguments[i].binding.type);
+			Argument argument = this.catchArguments[i];
+			ExceptionLabel exceptionLabel = null;
+			if ((argument.binding.tagBits & TagBits.MultiCatchParameter) != 0) {
+				MultiCatchExceptionLabel multiCatchExceptionLabel = new MultiCatchExceptionLabel(codeStream, argument.binding.type);
+				multiCatchExceptionLabel.initialize((DisjunctiveTypeReference) argument.type);
+				exceptionLabel = multiCatchExceptionLabel;
+			} else {
+				exceptionLabel = new ExceptionLabel(codeStream, argument.binding.type);
+			}
 			exceptionLabel.placeStart();
 			exceptionLabels[i] = exceptionLabel;
 		}
@@ -436,7 +448,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				 * we also don't generate the corresponding catch block, otherwise we have some
 				 * unreachable bytecodes
 				 */
-				if (exceptionLabels[i].count == 0) continue;
+				if (exceptionLabels[i].getCount() == 0) continue;
 				enterAnyExceptionHandler(codeStream);
 				// May loose some local variable initializations : affecting the local variable attributes
 				if (this.preTryInitStateIndex != -1) {
@@ -503,7 +515,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		// addition of a special handler so as to ensure that any uncaught exception (or exception thrown
 		// inside catch blocks) will run the finally block
 		int finallySequenceStartPC = codeStream.position;
-		if (this.subRoutineStartLabel != null && this.anyExceptionLabel.count != 0) {
+		if (this.subRoutineStartLabel != null && this.anyExceptionLabel.getCount() != 0) {
 			codeStream.pushExceptionOnStack(this.scope.getJavaLangThrowable());
 			if (this.preTryInitStateIndex != -1) {
 				// reset initialization state, as for a normal catch block
