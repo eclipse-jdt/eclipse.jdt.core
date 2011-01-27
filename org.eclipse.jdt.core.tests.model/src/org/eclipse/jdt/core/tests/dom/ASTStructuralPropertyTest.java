@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2009 IBM Corporation and others.
+ * Copyright (c) 2004, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -308,8 +312,10 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 					ASTNode node = this.ast.createInstance(nodeClass);
 					if (this.ast.apiLevel() == AST.JLS2) {
 						assertTrue((nodeType >= 1) && (nodeType <= 69));
-					} else {
+					} else if (this.ast.apiLevel() == AST.JLS3) {
 						assertTrue((nodeType >= 1) && (nodeType <= 83));
+					} else if (this.ast.apiLevel() == AST.JLS4) {
+						assertTrue((nodeType >= 1) && (nodeType <= 84));
 					}
 					assertTrue(node.getNodeType() == nodeType);
 					//ASTNode node2 = ast.createInstance(nodeType);
@@ -317,8 +323,10 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 				} catch (RuntimeException e) {
 					if (this.ast.apiLevel() == AST.JLS2) {
 						assertTrue((nodeType < 1) || (nodeType > 69));
-					} else {
+					} else if (this.ast.apiLevel() == AST.JLS3) {
 						assertTrue((nodeType < 1) || (nodeType > 83));
+					} else if (this.ast.apiLevel() == AST.JLS4) {
+						assertTrue((nodeType < 1) || (nodeType > 84));
 					}
 				}
 			}
@@ -342,7 +350,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 				// oops - guess that's not valid
 			}
 		}
-		assertTrue(hi == 83); // last known one
-		assertTrue(classes.size() == hi); // all classes are distinct
+		assertEquals("Wrong last known type", 84, hi); // last known one
+		assertEquals("Wrong number of distinct types",  hi, classes.size()); // all classes are distinct
 	}
 }
