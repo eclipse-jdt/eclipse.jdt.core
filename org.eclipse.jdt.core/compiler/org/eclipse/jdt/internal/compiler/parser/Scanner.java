@@ -3510,7 +3510,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 						}
 						throw new InvalidInputException(INVALID_HEXA);
 					}
-					consumeDigits(10, true);
+					consumeDigits(10);
 					if (getNextChar('f', 'F') >= 0) {
 						if (this.sourceLevel < ClassFileConstants.JDK1_5) {
 							throw new InvalidInputException(ILLEGAL_HEXA_LITERAL);
@@ -3573,7 +3573,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 					}
 					throw new InvalidInputException(INVALID_FLOAT);
 				}
-				consumeDigits(10, true);
+				consumeDigits(10);
 				if (getNextChar('f', 'F') >= 0) {
 					if (this.sourceLevel < ClassFileConstants.JDK1_5) {
 						throw new InvalidInputException(ILLEGAL_HEXA_LITERAL);
@@ -3676,7 +3676,7 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 						}
 						throw new InvalidInputException(INVALID_FLOAT);
 					}
-					consumeDigits(10, true);
+					consumeDigits(10);
 				}
 				if (getNextChar('f', 'F') >= 0)
 					return TokenNameFloatingPointLiteral;
@@ -3734,7 +3734,8 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 			}
 			throw new InvalidInputException(INVALID_FLOAT);
 		}
-		consumeDigits(10, true);
+		// current character is a digit so we expect no digit first (the next character could be an underscore)
+		consumeDigits(10);
 	}
 
 	if (getNextChar('d', 'D') >= 0)

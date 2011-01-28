@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@ package org.eclipse.jdt.internal.compiler.parser;
 import java.io.DataInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -51,6 +53,9 @@ public class ScannerHelper {
 	public final static int C_DIGIT = ASTNode.Bit3;
 	public final static int C_SEPARATOR = ASTNode.Bit2;
 	public final static int C_SPACE = ASTNode.Bit1;
+	
+	private static Method CHARACTER_IS_JAVA_IDENTIFIER_START;
+	private static Method CHARACTER_IS_JAVA_IDENTIFIER_PART;
 
 	static {
 		OBVIOUS_IDENT_CHAR_NATURES[0] = C_IDENT_PART;
@@ -126,6 +131,24 @@ public class ScannerHelper {
 		OBVIOUS_IDENT_CHAR_NATURES['~'] = C_SEPARATOR;
 		OBVIOUS_IDENT_CHAR_NATURES['"'] = C_SEPARATOR;
 		OBVIOUS_IDENT_CHAR_NATURES['\''] = C_SEPARATOR;
+		try {
+			CHARACTER_IS_JAVA_IDENTIFIER_PART = Character.class.getDeclaredMethod("isJavaIdentifierPart", new Class[] { Integer.TYPE }); //$NON-NLS-1$
+		} catch (SecurityException e) {
+			// ignore
+		} catch (IllegalArgumentException e) {
+			// ignore
+		} catch (NoSuchMethodException e) {
+			// ignore
+		}
+		try {
+			CHARACTER_IS_JAVA_IDENTIFIER_START = Character.class.getDeclaredMethod("isJavaIdentifierStart", new Class[] { Integer.TYPE }); //$NON-NLS-1$
+		} catch (SecurityException e) {
+			// ignore
+		} catch (IllegalArgumentException e) {
+			// ignore
+		} catch (NoSuchMethodException e) {
+			// ignore
+		}
 	}
 
 static {
@@ -199,6 +222,7 @@ static {
 	}
 }
 
+
 private final static boolean isBitSet(long[] values, int i) {
 	try {
 		return (values[i / 64] & Bits[i % 64]) != 0;
@@ -214,6 +238,15 @@ public static boolean isJavaIdentifierPart(char c) {
 }
 public static boolean isJavaIdentifierPart(char high, char low) {
 	int codePoint = toCodePoint(high, low);
+	try {
+		return ((Boolean) CHARACTER_IS_JAVA_IDENTIFIER_PART.invoke(null, new Integer[] { new Integer(codePoint) })).booleanValue();
+	} catch (IllegalArgumentException e) {
+		// ignore
+	} catch (IllegalAccessException e) {
+		// ignore
+	} catch (InvocationTargetException e) {
+		// ignore
+	}
 	switch((codePoint & 0x1F0000) >> 16) {
 		case 0 :
 			return Character.isJavaIdentifierPart((char) codePoint);
@@ -234,6 +267,15 @@ public static boolean isJavaIdentifierStart(char c) {
 }
 public static boolean isJavaIdentifierStart(char high, char low) {
 	int codePoint = toCodePoint(high, low);
+	try {
+		return ((Boolean) CHARACTER_IS_JAVA_IDENTIFIER_START.invoke(null, new Integer[] { new Integer(codePoint) })).booleanValue();
+	} catch (IllegalArgumentException e) {
+		// ignore
+	} catch (IllegalAccessException e) {
+		// ignore
+	} catch (InvocationTargetException e) {
+		// ignore
+	}
 	switch((codePoint & 0x1F0000) >> 16) {
 		case 0 :
 			return Character.isJavaIdentifierStart((char) codePoint);

@@ -30,74 +30,54 @@ public void computeConstant() {
 	//the overflow (when radix=10) is tested using the fact that
 	//the value should always grow during its computation
 	int length = this.source.length - 1; //minus one because the last char is 'l' or 'L'
-	long computedValue = 0;
+	int radix = 10;
+	int j = 0;
+	boolean isBinary = false;
 	if (this.source[0] == '0') {
 		if (length == 1) {
 			this.constant = LongConstant.fromValue(0L);
 			return;
 		}
-		final int shift,radix;
-		int j ;
-		if ( (this.source[1] == 'x') || (this.source[1] == 'X') ) {
-			shift = 4 ; j = 2; radix = 16;
+		if ((this.source[1] == 'x') || (this.source[1] == 'X')) {
+			j = 2; radix = 16;
+		} else if ((this.source[1] == 'b') || (this.source[1] == 'B')) {
+			j = 2; radix = 2;
+			isBinary = true;
 		} else {
-			shift = 3 ; j = 1; radix = 8;
+			j = 1; radix = 8;
 		}
-		int nbDigit = 0;
-		while (this.source[j]=='0') {
-			j++; //jump over redondant zero
-			if ( j == length) {
-				//watch for 0000000000000L
-				this.constant = LongConstant.fromValue(0L);
-				return;
-			}
+	}
+	while (this.source[j]=='0') {
+		j++; //jump over redundant zero
+		if ( j == length) {
+			//watch for 0000000000000L
+			this.constant = LongConstant.fromValue(0L);
+			return;
 		}
+	}
 
+	long computedValue = 0;
+	int digits = 0;
+	while (j<length) {
 		char currentChar = this.source[j++];
-		if (currentChar != '_') {
-			int digitValue ;
-			if ((digitValue = ScannerHelper.digit(currentChar,radix)) < 0 ) {
-				return; /*constant stays null*/
-			}
-			if (digitValue >= 8)
-				nbDigit = 4;
-			else if (digitValue >= 4)
-				nbDigit = 3;
-			else if (digitValue >= 2)
-				nbDigit = 2;
-			else
-				nbDigit = 1; //digitValue is not 0
-			computedValue = digitValue ;
-			while (j<length) {
-				currentChar = this.source[j++];
-				if (currentChar == '_') continue;
-				if ((digitValue = ScannerHelper.digit(currentChar,radix)) < 0) {
-					return; /*constant stays null*/
-				}
-				if ((nbDigit += shift) > 64)
-					return; /*constant stays null*/
-				computedValue = (computedValue<<shift) | digitValue ;
-			}
+		if (currentChar == '_') continue;
+		int digitValue;
+		if ((digitValue = ScannerHelper.digit(currentChar,radix)) < 0) {
+			return; /*constant stays null*/
 		}
-	} else {
-		//-----------case radix=10-----------------
-		long previous = 0;
-		final long limit = Long.MAX_VALUE / 10; // needed to check prior to the multiplication
-		loop: for (int i = 0 ; i < length; i++) {
-			int digitValue ;
-			char currentChar = this.source[i];
-			if (currentChar == '_') continue loop;
-			if ((digitValue = ScannerHelper.digit(currentChar, 10)) < 0 ) return /*constant stays null*/;
-			previous = computedValue;
-			if (computedValue > limit)
-				return; /*constant stays null*/
-			computedValue *= 10;
-			if ((computedValue + digitValue) > Long.MAX_VALUE)
-				return; /*constant stays null*/
-			computedValue += digitValue;
-			if (previous > computedValue)
-				return; /*constant stays null*/
+		digits++;
+		if (isBinary && digits > 64) {
+			return; /*constant stays null*/
 		}
+		long previous = computedValue;
+		computedValue = computedValue * radix;
+		if (previous != 0 && computedValue == 0) {
+			return; /*constant stays null*/
+		}
+		if ((computedValue + digitValue) < computedValue) {
+			return; /*constant stays null*/
+		}
+		computedValue += digitValue;
 	}
 	this.constant = LongConstant.fromValue(computedValue);
 }
