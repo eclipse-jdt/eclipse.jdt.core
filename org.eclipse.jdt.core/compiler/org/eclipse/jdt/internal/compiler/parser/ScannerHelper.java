@@ -238,14 +238,16 @@ public static boolean isJavaIdentifierPart(char c) {
 }
 public static boolean isJavaIdentifierPart(char high, char low) {
 	int codePoint = toCodePoint(high, low);
-	try {
-		return ((Boolean) CHARACTER_IS_JAVA_IDENTIFIER_PART.invoke(null, new Integer[] { new Integer(codePoint) })).booleanValue();
-	} catch (IllegalArgumentException e) {
-		// ignore
-	} catch (IllegalAccessException e) {
-		// ignore
-	} catch (InvocationTargetException e) {
-		// ignore
+	if (CHARACTER_IS_JAVA_IDENTIFIER_PART != null) {
+		try {
+			return ((Boolean) CHARACTER_IS_JAVA_IDENTIFIER_PART.invoke(null, new Integer[] { new Integer(codePoint) })).booleanValue();
+		} catch (IllegalArgumentException e) {
+			// ignore
+		} catch (IllegalAccessException e) {
+			// ignore
+		} catch (InvocationTargetException e) {
+			// ignore
+		}
 	}
 	switch((codePoint & 0x1F0000) >> 16) {
 		case 0 :
@@ -267,14 +269,16 @@ public static boolean isJavaIdentifierStart(char c) {
 }
 public static boolean isJavaIdentifierStart(char high, char low) {
 	int codePoint = toCodePoint(high, low);
-	try {
-		return ((Boolean) CHARACTER_IS_JAVA_IDENTIFIER_START.invoke(null, new Integer[] { new Integer(codePoint) })).booleanValue();
-	} catch (IllegalArgumentException e) {
-		// ignore
-	} catch (IllegalAccessException e) {
-		// ignore
-	} catch (InvocationTargetException e) {
-		// ignore
+	if (CHARACTER_IS_JAVA_IDENTIFIER_START != null) {
+		try {
+			return ((Boolean) CHARACTER_IS_JAVA_IDENTIFIER_START.invoke(null, new Integer[] { new Integer(codePoint) })).booleanValue();
+		} catch (IllegalArgumentException e) {
+			// ignore
+		} catch (IllegalAccessException e) {
+			// ignore
+		} catch (InvocationTargetException e) {
+			// ignore
+		}
 	}
 	switch((codePoint & 0x1F0000) >> 16) {
 		case 0 :
