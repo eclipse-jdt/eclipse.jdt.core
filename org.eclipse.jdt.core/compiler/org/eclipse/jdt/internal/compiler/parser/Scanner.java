@@ -4,11 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
+ * 
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
@@ -913,7 +909,7 @@ public boolean getNextCharAsJavaIdentifierPartWithBoundCheck() {
 				this.withoutUnicodePtr = temp2;
 				return false;
 			}
-			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(c, low);
+			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.sourceLevel, c, low);
 		}
 		else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
 			this.currentPosition = pos;
@@ -983,7 +979,7 @@ public boolean getNextCharAsJavaIdentifierPart() {
 				this.withoutUnicodePtr = temp2;
 				return false;
 			}
-			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(c, low);
+			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.sourceLevel, c, low);
 		}
 		else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
 			this.currentPosition = pos;
@@ -1110,7 +1106,7 @@ public int scanIdentifier() throws InvalidInputException {
 				// illegal low surrogate
 				throw new InvalidInputException(INVALID_LOW_SURROGATE);
 			}
-			isJavaIdStart = ScannerHelper.isJavaIdentifierStart(c, low);
+			isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c, low);
 		} else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
 			if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 				throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
@@ -1768,7 +1764,7 @@ public int getNextToken() throws InvalidInputException {
 							// illegal low surrogate
 							throw new InvalidInputException(INVALID_LOW_SURROGATE);
 						}
-						isJavaIdStart = ScannerHelper.isJavaIdentifierStart(c, low);
+						isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c, low);
 					}
 					else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
 						if (this.complianceLevel < ClassFileConstants.JDK1_5) {
@@ -2209,7 +2205,7 @@ public final void jumpOverMethodBody() {
 								// illegal low surrogate
 								break NextToken;
 							}
-							isJavaIdStart = ScannerHelper.isJavaIdentifierStart(c, low);
+							isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c, low);
 						} else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
 							break NextToken;
 						} else {
@@ -3810,7 +3806,7 @@ public String toString() {
 		buffer.append(this.source, 0, this.startPosition);
 	} else {
 		buffer.append("<source beginning>\n...\n"); //$NON-NLS-1$
-		int line = Util.getLineNumber(this.startPosition-1000, this.lineEnds, 0, this.lineEnds.length);
+		int line = Util.getLineNumber(this.startPosition-1000, this.lineEnds, 0, this.linePtr);
 		int lineStart = getLineStart(line);
 		buffer.append(this.source, lineStart, this.startPosition-lineStart);
 	}
