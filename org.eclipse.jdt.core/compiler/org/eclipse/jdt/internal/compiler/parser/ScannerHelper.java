@@ -309,11 +309,11 @@ public static boolean isJavaIdentifierPart(long jdkversion, char high, char low)
 			case 0 :
 				return Character.isJavaIdentifierPart((char) codePoint);
 			case 1 :
-				return isBitSet(Tables7[PART_INDEX][1], codePoint & 0xFFFF);
+				return isBitSet(Tables7[PART_INDEX][0], codePoint & 0xFFFF);
 			case 2 :
-				return isBitSet(Tables7[PART_INDEX][2], codePoint & 0xFFFF);
+				return isBitSet(Tables7[PART_INDEX][1], codePoint & 0xFFFF);
 			case 14 :
-				return isBitSet(Tables7[PART_INDEX][3], codePoint & 0xFFFF);
+				return isBitSet(Tables7[PART_INDEX][2], codePoint & 0xFFFF);
 		}
 	}
 	return false;
