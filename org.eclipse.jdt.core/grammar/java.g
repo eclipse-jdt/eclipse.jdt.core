@@ -1127,14 +1127,21 @@ ResourceSpecification ::= '(' Resources ;opt ')'
 /:$compliance 1.7:/
 
 ;opt -> $empty
-;opt -> ;
+;opt ::= ';'
+/.$putCase consumeResourceTrailingSemiColon(); $break ./
 /:$readableName ;:/
+/:$compliance 1.7:/
 
 Resources ::= Resource
 /.$putCase consumeSingleResource(); $break ./
-Resources ::= Resources ';' Resource
+Resources ::= Resources TrailingSemiColon Resource
 /.$putCase consumeMultipleResources(); $break ./
 /:$readableName Resources:/
+/:$compliance 1.7:/
+
+TrailingSemiColon ::= ';'
+/.$putCase consumeResourceTrailingSemiColon(); $break ./
+/:$readableName ;:/
 /:$compliance 1.7:/
 
 Resource ::= Type PushModifiers VariableDeclaratorId EnterVariable '=' ForceNoDiet VariableInitializer RestoreDiet ExitVariableWithInitialization
