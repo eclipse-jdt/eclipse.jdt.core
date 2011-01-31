@@ -942,6 +942,8 @@ public abstract class ASTNode {
 				return ThrowStatement.class;
 			case TRY_STATEMENT :
 				return TryStatement.class;
+			case TRY_STATEMENT_WITH_RESOURCES :
+				return TryStatementWithResources.class;
 			case TYPE_DECLARATION :
 				return TypeDeclaration.class;
 			case TYPE_DECLARATION_STATEMENT :
