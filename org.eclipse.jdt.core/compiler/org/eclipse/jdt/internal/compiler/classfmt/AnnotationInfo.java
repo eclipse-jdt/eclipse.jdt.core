@@ -292,6 +292,12 @@ private int scanAnnotation(int offset, boolean expectRuntimeVisibleAnno, boolean
 					return currentOffset;
 				}
 				break;
+			case 23:
+				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_SAFEVARARGS)) {
+					this.standardAnnotationTagBits |= TagBits.AnnotationSafeVarargs;
+					return currentOffset;
+				}
+				break;
 			case 29:
 				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_TARGET)) {
 					currentOffset += 2;

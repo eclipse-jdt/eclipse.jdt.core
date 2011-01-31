@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -13,6 +17,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
@@ -33,7 +38,7 @@ public class VarargsTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 62 };
+		TESTS_NUMBERS = new int[] { 63, 64 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 	public static Test suite() {
@@ -2195,5 +2200,93 @@ public class VarargsTest extends AbstractComparableTest {
 			"  // Stack: 3, Locals: 5\n" + 
 			"  X$1(X arg0, java.lang.Integer $anonymous0, java.lang.String... $anonymous1, java.lang.Float arg3);\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$1.class", "X$1", expectedOutput);
+	}
+	//safe varargs support
+	public void test063() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+			new String[] {
+				"java/lang/SafeVarargs.java",
+				"package java.lang;\n" +
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
+				"import static java.lang.annotation.ElementType.METHOD;\n" + 
+				"\n" + 
+				"@Retention(value=RUNTIME)\n" + 
+				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
+				"public @interface SafeVarargs {}",
+				"Y.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"public class Y {\r\n" +
+				"	@SafeVarargs\n" +
+				"	public static <T> List<T> asList(T... a) {\n" + 
+				"		return null;\n" + 
+				"	}\n" +
+				"}",
+			},
+			"");
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"public class X {\r\n" +
+				"	public void bar() {\n" +
+				"		List<? extends Class<?>> classes = Y.asList(String.class, Boolean.class);\n" +
+				"	}\n" +
+				"}",
+			},
+			"",
+			null,
+			false,
+			null,
+			options,
+			null);
+	}
+	public void test064() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+			new String[] {
+				"java/lang/SafeVarargs.java",
+				"package java.lang;\n" +
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
+				"import static java.lang.annotation.ElementType.METHOD;\n" + 
+				"\n" + 
+				"@Retention(value=RUNTIME)\n" + 
+				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
+				"public @interface SafeVarargs {}",
+			},
+			"");
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"public class X {\r\n" +
+				"	@SafeVarargs\n" +
+				"	public static <T> List<T> asList(T... a) {\n" + 
+				"		return null;\n" + 
+				"	}\n" +
+				"	public void bar() {\n" +
+				"		List<? extends Class<?>> classes = X.asList(String.class, Boolean.class);\n" +
+				"	}\n" +
+				"}",
+			},
+			"",
+			null,
+			false,
+			null,
+			options,
+			null);
 	}
 }
