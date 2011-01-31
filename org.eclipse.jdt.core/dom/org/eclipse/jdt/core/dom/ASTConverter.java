@@ -2483,6 +2483,9 @@ class ASTConverter {
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.ThrowStatement) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.ThrowStatement) statement);
 		}
+		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.TryStatementWithResources) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.TryStatementWithResources) statement);
+		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.TryStatement) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.TryStatement) statement);
 		}
@@ -2653,6 +2656,44 @@ class ASTConverter {
 			tryStatement.setFinally(convert(statement.finallyBlock));
 		}
 		return tryStatement;
+	}
+
+	public TryStatementWithResources convert(org.eclipse.jdt.internal.compiler.ast.TryStatementWithResources statement) {
+		final TryStatementWithResources tryStatementWithResources = new TryStatementWithResources(this.ast);
+		tryStatementWithResources.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
+		LocalDeclaration[] localDeclarations = statement.resources;
+		if (localDeclarations != null) {
+			int resourcesLength = localDeclarations.length;
+			for (int i = 0; i < resourcesLength; i++) {
+				LocalDeclaration localDeclaration = localDeclarations[i];
+				VariableDeclarationExpression variableDeclarationExpression = convertToVariableDeclarationExpression(localDeclaration);
+				int start = variableDeclarationExpression.getStartPosition();
+				int end = localDeclaration.declarationSourceEnd;
+				variableDeclarationExpression.setSourceRange(start, end - start + 1);
+				tryStatementWithResources.resources().add(variableDeclarationExpression);
+			}
+		}
+
+		tryStatementWithResources.setBody(convert(statement.tryBlock));
+		org.eclipse.jdt.internal.compiler.ast.Argument[] catchArguments = statement.catchArguments;
+		if (catchArguments != null) {
+			int catchArgumentsLength = catchArguments.length;
+			org.eclipse.jdt.internal.compiler.ast.Block[] catchBlocks = statement.catchBlocks;
+			int start = statement.tryBlock.sourceEnd;
+			for (int i = 0; i < catchArgumentsLength; i++) {
+				CatchClause catchClause = new CatchClause(this.ast);
+				int catchClauseSourceStart = retrieveStartingCatchPosition(start, catchArguments[i].sourceStart);
+				catchClause.setSourceRange(catchClauseSourceStart, catchBlocks[i].sourceEnd - catchClauseSourceStart + 1);
+				catchClause.setBody(convert(catchBlocks[i]));
+				catchClause.setException(convert(catchArguments[i]));
+				tryStatementWithResources.catchClauses().add(catchClause);
+				start = catchBlocks[i].sourceEnd;
+			}
+		}
+		if (statement.finallyBlock != null) {
+			tryStatementWithResources.setFinally(convert(statement.finallyBlock));
+		}
+		return tryStatementWithResources;
 	}
 
 	public ASTNode convert(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {

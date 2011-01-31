@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
+import org.eclipse.jdt.core.dom.TryStatementWithResources;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
@@ -49,7 +50,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 1 };
+//		TESTS_NUMBERS = new int[] { 7 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] {"test0001"};
 	}
@@ -192,7 +193,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(this.workingCopy, false);
+		ASTNode node = runConversion(AST.JLS4, this.workingCopy, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -236,5 +237,139 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		Type type = exception.getType();
 		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
 		checkSourceRange(type, "NumberFormatException", contents);
+	}
+	/*
+	 * Check that catch type with disjunctive type as a simple type is converted to a simple type
+	 */
+	public void test0007() throws JavaModelException {
+		String contents =
+			"public class X {\n" +
+			"	public void foo(String s) {\n" +
+			"		try (Reader r = new FileReader(s)) {\n" +
+			"			System.out.println(s);\n" +
+			"			Integer.parseInt(s);\n" +
+			"		} catch(NumberFormatException e) {\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS4, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT_WITH_RESOURCES, node.getNodeType());
+		TryStatementWithResources tryStatementWithResources = (TryStatementWithResources) node;
+		List catchClauses = tryStatementWithResources.catchClauses();
+		CatchClause clause = (CatchClause) catchClauses.get(0);
+		SingleVariableDeclaration exception = clause.getException();
+		Type type = exception.getType();
+		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
+		checkSourceRange(type, "NumberFormatException", contents);
+		List resources = tryStatementWithResources.resources();
+		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s)", contents);
+	}
+	/*
+	 * Check that catch type with disjunctive type as a simple type is converted to a simple type
+	 */
+	public void test0008() throws JavaModelException {
+		String contents =
+			"public class X {\n" +
+			"	public void foo(String s) {\n" +
+			"		try (Reader r = new FileReader(s);) {\n" +
+			"			System.out.println(s);\n" +
+			"			Integer.parseInt(s);\n" +
+			"		} catch(NumberFormatException e) {\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS4, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT_WITH_RESOURCES, node.getNodeType());
+		TryStatementWithResources tryStatementWithResources = (TryStatementWithResources) node;
+		List catchClauses = tryStatementWithResources.catchClauses();
+		CatchClause clause = (CatchClause) catchClauses.get(0);
+		SingleVariableDeclaration exception = clause.getException();
+		Type type = exception.getType();
+		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
+		checkSourceRange(type, "NumberFormatException", contents);
+		List resources = tryStatementWithResources.resources();
+		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s);", contents);
+	}
+	/*
+	 * Check that catch type with disjunctive type as a simple type is converted to a simple type
+	 */
+	public void test0009() throws JavaModelException {
+		String contents =
+			"public class X {\n" +
+			"	public void foo(String s) {\n" +
+			"		try (Reader r = new FileReader(s);Reader r2 = new FileReader(s);) {\n" +
+			"			System.out.println(s);\n" +
+			"			Integer.parseInt(s);\n" +
+			"		} catch(NumberFormatException e) {\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS4, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT_WITH_RESOURCES, node.getNodeType());
+		TryStatementWithResources tryStatementWithResources = (TryStatementWithResources) node;
+		List catchClauses = tryStatementWithResources.catchClauses();
+		CatchClause clause = (CatchClause) catchClauses.get(0);
+		SingleVariableDeclaration exception = clause.getException();
+		Type type = exception.getType();
+		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
+		checkSourceRange(type, "NumberFormatException", contents);
+		List resources = tryStatementWithResources.resources();
+		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s);", contents);
+		checkSourceRange((ASTNode) resources.get(1), "Reader r2 = new FileReader(s);", contents);
+	}
+	/*
+	 * Check that catch type with disjunctive type as a simple type is converted to a simple type
+	 */
+	public void test0010() throws JavaModelException {
+		String contents =
+			"public class X {\n" +
+			"	public void foo(String s) {\n" +
+			"		try (Reader r = new FileReader(s);Reader r2 = new FileReader(s)) {\n" +
+			"			System.out.println(s);\n" +
+			"			Integer.parseInt(s);\n" +
+			"		} catch(NumberFormatException e) {\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS4, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT_WITH_RESOURCES, node.getNodeType());
+		TryStatementWithResources tryStatementWithResources = (TryStatementWithResources) node;
+		List catchClauses = tryStatementWithResources.catchClauses();
+		CatchClause clause = (CatchClause) catchClauses.get(0);
+		SingleVariableDeclaration exception = clause.getException();
+		Type type = exception.getType();
+		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
+		checkSourceRange(type, "NumberFormatException", contents);
+		List resources = tryStatementWithResources.resources();
+		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s);", contents);
+		checkSourceRange((ASTNode) resources.get(1), "Reader r2 = new FileReader(s)", contents);
 	}
 }
