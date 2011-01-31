@@ -4571,22 +4571,27 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		for (int i = 0; i < length; i++) {
 			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
 			TypeReference[] typeArgument = typeArguments[i];
-			if (typeArgument != null && typeArgument.length != 0) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
-				if (this.preferences.insert_space_after_opening_angle_bracket_in_parameterized_type_reference) {
-					this.scribe.space();
-				}
+			if (typeArgument != null) {
 				int typeArgumentLength = typeArgument.length;
-				for (int j = 0; j < typeArgumentLength - 1; j++) {
-					typeArgument[j].traverse(this, scope);
-					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_parameterized_type_reference);
-					if (this.preferences.insert_space_after_comma_in_parameterized_type_reference) {
+				if (typeArgumentLength > 0) {
+					this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
+					if (this.preferences.insert_space_after_opening_angle_bracket_in_parameterized_type_reference) {
 						this.scribe.space();
 					}
-				}
-				typeArgument[typeArgumentLength - 1].traverse(this, scope);
-				if (isClosingGenericToken()) {
-					this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_parameterized_type_reference);
+					for (int j = 0; j < typeArgumentLength - 1; j++) {
+						typeArgument[j].traverse(this, scope);
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_parameterized_type_reference);
+						if (this.preferences.insert_space_after_comma_in_parameterized_type_reference) {
+							this.scribe.space();
+						}
+					}
+					typeArgument[typeArgumentLength - 1].traverse(this, scope);
+					if (isClosingGenericToken()) {
+						this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_parameterized_type_reference);
+					}
+				} else {
+					this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
+					this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS);
 				}
 			}
 			if (i < length - 1) {
@@ -4624,21 +4629,26 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
 			TypeReference[] typeArgument = typeArguments[i];
 			if (typeArgument != null) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
-				if (this.preferences.insert_space_after_opening_angle_bracket_in_parameterized_type_reference) {
-					this.scribe.space();
-				}
 				int typeArgumentLength = typeArgument.length;
-				for (int j = 0; j < typeArgumentLength - 1; j++) {
-					typeArgument[j].traverse(this, scope);
-					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_parameterized_type_reference);
-					if (this.preferences.insert_space_after_comma_in_parameterized_type_reference) {
+				if (typeArgumentLength > 0) {
+					this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
+					if (this.preferences.insert_space_after_opening_angle_bracket_in_parameterized_type_reference) {
 						this.scribe.space();
 					}
-				}
-				typeArgument[typeArgumentLength - 1].traverse(this, scope);
-				if (isClosingGenericToken()) {
-					this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_parameterized_type_reference);
+					for (int j = 0; j < typeArgumentLength - 1; j++) {
+						typeArgument[j].traverse(this, scope);
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_parameterized_type_reference);
+						if (this.preferences.insert_space_after_comma_in_parameterized_type_reference) {
+							this.scribe.space();
+						}
+					}
+					typeArgument[typeArgumentLength - 1].traverse(this, scope);
+					if (isClosingGenericToken()) {
+						this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_parameterized_type_reference);
+					}
+				} else {
+					this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
+					this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS);
 				}
 			}
 			if (i < length - 1) {
@@ -4672,23 +4682,29 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
 
-		this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
-		if (this.preferences.insert_space_after_opening_angle_bracket_in_parameterized_type_reference) {
-			this.scribe.space();
-		}
 		TypeReference[] typeArguments = parameterizedSingleTypeReference.typeArguments;
 		int typeArgumentsLength = typeArguments.length;
-		for (int i = 0; i < typeArgumentsLength - 1; i++) {
-			typeArguments[i].traverse(this, scope);
-			this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_parameterized_type_reference);
-			if (this.preferences.insert_space_after_comma_in_parameterized_type_reference) {
+		if (typeArgumentsLength > 0) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
+			if (this.preferences.insert_space_after_opening_angle_bracket_in_parameterized_type_reference) {
 				this.scribe.space();
 			}
+			for (int i = 0; i < typeArgumentsLength - 1; i++) {
+				typeArguments[i].traverse(this, scope);
+				this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_parameterized_type_reference);
+				if (this.preferences.insert_space_after_comma_in_parameterized_type_reference) {
+					this.scribe.space();
+				}
+			}
+			typeArguments[typeArgumentsLength - 1].traverse(this, scope);
+			if (isClosingGenericToken()) {
+				this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_parameterized_type_reference);
+			}
+		} else {
+			this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
+			this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS);
 		}
-		typeArguments[typeArgumentsLength - 1].traverse(this, scope);
-		if (isClosingGenericToken()) {
-			this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_parameterized_type_reference);
-		}
+
 		int dimensions = getDimensions();
 		if (dimensions != 0 && dimensions <= parameterizedSingleTypeReference.dimensions()) {
 			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
@@ -4716,23 +4732,29 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
 
-		this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
-		if (this.preferences.insert_space_after_opening_angle_bracket_in_parameterized_type_reference) {
-			this.scribe.space();
-		}
 		TypeReference[] typeArguments = parameterizedSingleTypeReference.typeArguments;
 		int typeArgumentsLength = typeArguments.length;
-		for (int i = 0; i < typeArgumentsLength - 1; i++) {
-			typeArguments[i].traverse(this, scope);
-			this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_parameterized_type_reference);
-			if (this.preferences.insert_space_after_comma_in_parameterized_type_reference) {
+		if (typeArgumentsLength > 0) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
+			if (this.preferences.insert_space_after_opening_angle_bracket_in_parameterized_type_reference) {
 				this.scribe.space();
 			}
+			for (int i = 0; i < typeArgumentsLength - 1; i++) {
+				typeArguments[i].traverse(this, scope);
+				this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_parameterized_type_reference);
+				if (this.preferences.insert_space_after_comma_in_parameterized_type_reference) {
+					this.scribe.space();
+				}
+			}
+			typeArguments[typeArgumentsLength - 1].traverse(this, scope);
+			if (isClosingGenericToken()) {
+				this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_parameterized_type_reference);
+			}
+		} else {
+			this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_parameterized_type_reference);
+			this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS);
 		}
-		typeArguments[typeArgumentsLength - 1].traverse(this, scope);
-		if (isClosingGenericToken()) {
-			this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_parameterized_type_reference);
-		}
+
 		int dimensions = getDimensions();
 		if (dimensions != 0 && dimensions <= parameterizedSingleTypeReference.dimensions()) {
 			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {

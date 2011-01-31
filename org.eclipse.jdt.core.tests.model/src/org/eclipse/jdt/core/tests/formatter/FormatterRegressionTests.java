@@ -66,7 +66,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	Map formatterOptions;
 
 	static {
-//		TESTS_NUMBERS = new int[] { 743, 744, 745 };
+		TESTS_NUMBERS = new int[] { 746, 747 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -11355,6 +11355,54 @@ public void test745() {
 		"		} finally {\n" + 
 		"			System.out.println(\"finally block\");\n" + 
 		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//diamond
+public void test746() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	String source =
+		"public class Test {\n" +
+		"	List foo(String s) {\n" +
+		"		List<String> l = new ArrayList<>();\n" +
+		"		l.add(s);\n" +
+		"		return l;\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	List foo(String s) {\n" + 
+		"		List<String> l = new ArrayList<>();\n" + 
+		"		l.add(s);\n" + 
+		"		return l;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//diamond
+public void test747() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	String source =
+		"public class Test {\n" +
+		"	List foo(String s) {\n" +
+		"		List<String> l = new java.util.ArrayList<>();\n" +
+		"		l.add(s);\n" +
+		"		return l;\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	List foo(String s) {\n" + 
+		"		List<String> l = new java.util.ArrayList<>();\n" + 
+		"		l.add(s);\n" + 
+		"		return l;\n" + 
 		"	}\n" + 
 		"}\n"
 	);

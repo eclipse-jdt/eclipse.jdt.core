@@ -243,8 +243,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int INVOCATION_ARGUMENT_WILDCARD = 2;
 
 	// for type reference (diamond case) - Java 7
-	public static final int IsDiamond = Bit29;
 	public static final int IsDisjuntive = Bit30;
+	public static final int IsDiamond = Bit31;
 
 	public ASTNode() {
 
