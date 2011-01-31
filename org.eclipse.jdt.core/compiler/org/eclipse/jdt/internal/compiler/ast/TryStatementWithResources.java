@@ -14,6 +14,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+
 public class TryStatementWithResources extends TryStatement {
 
 	public LocalDeclaration[] resources;
@@ -24,7 +27,8 @@ public class TryStatementWithResources extends TryStatement {
 		for (int i = 0; i < length; i++) {
 			this.resources[i].printAsExpression(0, output);
 			if (i != length - 1) {
-				output.append("; "); //$NON-NLS-1$
+				output.append(";\n"); //$NON-NLS-1$
+				printIndent(indent + 2, output);
 			}
 		}
 		output.append(")\n"); //$NON-NLS-1$
@@ -45,5 +49,23 @@ public class TryStatementWithResources extends TryStatement {
 			this.finallyBlock.printStatement(indent + 1, output);
 		}
 		return output;
+}
+public void traverse(ASTVisitor visitor, BlockScope blockScope) {
+	if (visitor.visit(this, blockScope)) {
+		LocalDeclaration[] localDeclarations = this.resources;
+		for (int i = 0, max = localDeclarations.length; i < max; i++) {
+			localDeclarations[i].traverse(visitor, this.scope);
+		}
+		this.tryBlock.traverse(visitor, this.scope);
+		if (this.catchArguments != null) {
+			for (int i = 0, max = this.catchBlocks.length; i < max; i++) {
+				this.catchArguments[i].traverse(visitor, this.scope);
+				this.catchBlocks[i].traverse(visitor, this.scope);
+			}
+		}
+		if (this.finallyBlock != null)
+			this.finallyBlock.traverse(visitor, this.scope);
+	}
+	visitor.endVisit(this, blockScope);
 }
 }

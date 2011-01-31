@@ -66,7 +66,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	Map formatterOptions;
 
 	static {
-//		TESTS_NUMBERS = new int[] { 583 };
+//		TESTS_NUMBERS = new int[] { 743, 744, 745 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -10824,7 +10824,6 @@ public void test726() {
 		"}\n"
 	);
 }
-
 /**
  * @deprecated Use a deprecated formatter option.
  */
@@ -11101,6 +11100,261 @@ public void test737() {
 		"		int j = 2;// spaces\n" +
 		"		int k = 3;// mixed tabs and spaces\n" +
 		"		System.out.print(i); /* does not affect block comments */\n" +
+		"	}\n" + 
+		"}\n"
+	);
+}
+// binary literals / underscores in literals / multi catch
+public void test738() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	String source =
+		"public class Test {\n" +
+		"	int i = 0b0001;\n" +
+		"	int j = 0b0_0_0_1;\n" +
+		"	void foo(String s) {\n" +
+		"		try {\n" +
+		"			FileReader reader = new FileReader(s);\n" +
+		"		} catch(FileNotFoundException | IOException | Exception e) {\n" +
+		"			e.printStackTrace();\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	int i = 0b0001;\n" + 
+		"	int j = 0b0_0_0_1;\n" + 
+		"\n" + 
+		"	void foo(String s) {\n" + 
+		"		try {\n" + 
+		"			FileReader reader = new FileReader(s);\n" + 
+		"		} catch (FileNotFoundException | IOException | Exception e) {\n" + 
+		"			e.printStackTrace();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//try-with-resources
+public void test739() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	String source =
+		"public class Test {\n" +
+		"	void foo(String s) {\n" +
+		"		try (FileReader reader = new FileReader(s)) {\n" +
+		"			reader.read();\n" +
+		"		} catch(IOException e) {\n" +
+		"			e.printStackTrace();\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	void foo(String s) {\n" + 
+		"		try (FileReader reader = new FileReader(s)) {\n" + 
+		"			reader.read();\n" + 
+		"		} catch (IOException e) {\n" + 
+		"			e.printStackTrace();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//try-with-resources
+public void test740() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	String source =
+		"public class Test {\n" +
+		"	void foo(String s) {\n" +
+		"		try (FileReader reader = new FileReader(s)) {\n" +
+		"			reader.read();\n" +
+		"		} catch(IOException e) {\n" +
+		"			e.printStackTrace();\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	void foo(String s) {\n" + 
+		"		try (FileReader reader = new FileReader(s)) {\n" + 
+		"			reader.read();\n" + 
+		"		} catch (IOException e) {\n" + 
+		"			e.printStackTrace();\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//try-with-resources
+public void test741() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	String source =
+		"public class Test {\n" +
+		"	void foo(String s) {\n" +
+		"		try (FileReader reader = new FileReader(s)) {\n" +
+		"			reader.read();\n" +
+		"		} catch(IOException e) {\n" +
+		"			e.printStackTrace();\n" +
+		"		} finally {\n" +
+		"			System.out.println(\"finally block\");\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	void foo(String s) {\n" + 
+		"		try (FileReader reader = new FileReader(s)) {\n" + 
+		"			reader.read();\n" + 
+		"		} catch (IOException e) {\n" + 
+		"			e.printStackTrace();\n" + 
+		"		} finally {\n" + 
+		"			System.out.println(\"finally block\");\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//try-with-resources
+public void test742() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	String source =
+		"public class Test {\n" +
+		"	void foo(String s) {\n" +
+		"		try (FileReader reader = new FileReader(s)) {\n" +
+		"			reader.read();\n" +
+		"		} catch(FileNotFoundException | IOException | Exception e) {\n" +
+		"			e.printStackTrace();\n" +
+		"		} finally {\n" +
+		"			System.out.println(\"finally block\");\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	void foo(String s) {\n" + 
+		"		try (FileReader reader = new FileReader(s)) {\n" + 
+		"			reader.read();\n" + 
+		"		} catch (FileNotFoundException | IOException | Exception e) {\n" + 
+		"			e.printStackTrace();\n" + 
+		"		} finally {\n" + 
+		"			System.out.println(\"finally block\");\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//try-with-resources
+public void test743() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	String source =
+		"public class Test {\n" +
+		"	void foo(String s) {\n" +
+		"		try (FileReader reader = new FileReader(s);) {\n" +
+		"			reader.read();\n" +
+		"		} catch(FileNotFoundException | IOException | Exception e) {\n" +
+		"			e.printStackTrace();\n" +
+		"		} finally {\n" +
+		"			System.out.println(\"finally block\");\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	void foo(String s) {\n" + 
+		"		try (FileReader reader = new FileReader(s);) {\n" + 
+		"			reader.read();\n" + 
+		"		} catch (FileNotFoundException | IOException | Exception e) {\n" + 
+		"			e.printStackTrace();\n" + 
+		"		} finally {\n" + 
+		"			System.out.println(\"finally block\");\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//try-with-resources
+public void test744() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	String source =
+		"public class Test {\n" +
+		"	void foo(String s) {\n" +
+		"		try (FileReader reader = new FileReader(s);FileReader reader2 = new FileReader(s)) {\n" +
+		"			reader.read();\n" +
+		"			reader2.read();\n" +
+		"		} catch(FileNotFoundException | IOException | Exception e) {\n" +
+		"			e.printStackTrace();\n" +
+		"		} finally {\n" +
+		"			System.out.println(\"finally block\");\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	void foo(String s) {\n" + 
+		"		try (FileReader reader = new FileReader(s);\n" +
+		"				FileReader reader2 = new FileReader(s)) {\n" + 
+		"			reader.read();\n" + 
+		"			reader2.read();\n" + 
+		"		} catch (FileNotFoundException | IOException | Exception e) {\n" + 
+		"			e.printStackTrace();\n" + 
+		"		} finally {\n" + 
+		"			System.out.println(\"finally block\");\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+//try-with-resources
+public void test745() {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	String source =
+		"public class Test {\n" +
+		"	void foo(String s) {\n" +
+		"		try (FileReader reader = new FileReader(s);FileReader reader2 = new FileReader(s);) {\n" +
+		"			reader.read();\n" +
+		"			reader2.read();\n" +
+		"		} catch(FileNotFoundException | IOException | Exception e) {\n" +
+		"			e.printStackTrace();\n" +
+		"		} finally {\n" +
+		"			System.out.println(\"finally block\");\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	void foo(String s) {\n" + 
+		"		try (FileReader reader = new FileReader(s);\n" +
+		"				FileReader reader2 = new FileReader(s);) {\n" + 
+		"			reader.read();\n" + 
+		"			reader2.read();\n" + 
+		"		} catch (FileNotFoundException | IOException | Exception e) {\n" + 
+		"			e.printStackTrace();\n" + 
+		"		} finally {\n" + 
+		"			System.out.println(\"finally block\");\n" + 
+		"		}\n" + 
 		"	}\n" + 
 		"}\n"
 	);

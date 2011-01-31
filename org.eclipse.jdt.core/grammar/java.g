@@ -1121,10 +1121,14 @@ TryStatementWithResources ::= 'try' ResourceSpecification TryBlock Catchesopt Fi
 /:$readableName TryStatementWithResources:/
 /:$compliance 1.7:/
 
-ResourceSpecification ::= '(' Resources ')'
+ResourceSpecification ::= '(' Resources ;opt ')'
 /.$putCase consumeResourceSpecification(); $break ./
 /:$readableName ResourceSpecification:/
 /:$compliance 1.7:/
+
+;opt -> $empty
+;opt -> ;
+/:$readableName ;:/
 
 Resources ::= Resource
 /.$putCase consumeSingleResource(); $break ./

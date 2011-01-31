@@ -1074,5 +1074,186 @@ public void test0010() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+public void test0011() {
 
+	String s =
+		"public class A {\n" +
+		"	public void foo(String fileName) {\n" +
+		"		try (Reader reader = new FileReader(\"fileName\");) {\n" +
+		"			System.out.println(reader.read());\n" +
+		"		} catch(FileNotFoundException e) {\n" +
+		"			e.printStackTrace();\n" +
+		"		}\n" +
+		"	}\n" +
+		"}";
+
+	String expectedDietUnitToString =
+		"public class A {\n" + 
+		"  public A() {\n" + 
+		"  }\n" + 
+		"  public void foo(String fileName) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+
+	String expectedDietPlusBodyUnitToString =
+		"public class A {\n" + 
+		"  public A() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo(String fileName) {\n" + 
+		"    try (Reader reader = new FileReader(\"fileName\"))\n" + 
+		"      {\n" + 
+		"        System.out.println(reader.read());\n" + 
+		"      }\n" + 
+		"    catch (FileNotFoundException e)\n" + 
+		"      {\n" + 
+		"        e.printStackTrace();\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
+		"public class A {\n" + 
+		"  public A() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo(String fileName) {\n" + 
+		"    try (Reader reader = new FileReader(\"fileName\"))\n" + 
+		"      {\n" + 
+		"        System.out.println(reader.read());\n" + 
+		"      }\n" + 
+		"    catch (FileNotFoundException e)\n" + 
+		"      {\n" + 
+		"        e.printStackTrace();\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString =
+		"public class A {\n" + 
+		"  public A() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo(String fileName) {\n" + 
+		"    try (Reader reader = new FileReader(\"fileName\"))\n" + 
+		"      {\n" + 
+		"        System.out.println(reader.read());\n" + 
+		"      }\n" + 
+		"    catch (FileNotFoundException e)\n" + 
+		"      {\n" + 
+		"        e.printStackTrace();\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedFullUnitToString;
+
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
+public void test0012() {
+
+	String s =
+		"public class A {\n" +
+		"	public void foo(String fileName) {\n" +
+		"		try (Reader reader = new FileReader(\"fileName\");\n" +
+		"			Reader reader2 = new FileReader(\"fileName\");) {\n" +
+		"			System.out.println(reader.read());\n" +
+		"		} catch(FileNotFoundException e) {\n" +
+		"			e.printStackTrace();\n" +
+		"		}\n" +
+		"	}\n" +
+		"}";
+
+	String expectedDietUnitToString =
+		"public class A {\n" + 
+		"  public A() {\n" + 
+		"  }\n" + 
+		"  public void foo(String fileName) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietWithStatementRecoveryUnitToString =
+		expectedDietUnitToString;
+
+	String expectedDietPlusBodyUnitToString =
+		"public class A {\n" + 
+		"  public A() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo(String fileName) {\n" + 
+		"    try (Reader reader = new FileReader(\"fileName\");\n" + 
+		"        Reader reader2 = new FileReader(\"fileName\"))\n" + 
+		"      {\n" + 
+		"        System.out.println(reader.read());\n" + 
+		"      }\n" + 
+		"    catch (FileNotFoundException e)\n" + 
+		"      {\n" + 
+		"        e.printStackTrace();\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyWithStatementRecoveryUnitToString =
+		"public class A {\n" + 
+		"  public A() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo(String fileName) {\n" + 
+		"    try (Reader reader = new FileReader(\"fileName\");\n" + 
+		"        Reader reader2 = new FileReader(\"fileName\"))\n" + 
+		"      {\n" + 
+		"        System.out.println(reader.read());\n" + 
+		"      }\n" + 
+		"    catch (FileNotFoundException e)\n" + 
+		"      {\n" + 
+		"        e.printStackTrace();\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString =
+		"public class A {\n" + 
+		"  public A() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo(String fileName) {\n" + 
+		"    try (Reader reader = new FileReader(\"fileName\");\n" + 
+		"        Reader reader2 = new FileReader(\"fileName\"))\n" + 
+		"      {\n" + 
+		"        System.out.println(reader.read());\n" + 
+		"      }\n" + 
+		"    catch (FileNotFoundException e)\n" + 
+		"      {\n" + 
+		"        e.printStackTrace();\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullWithStatementRecoveryUnitToString =
+		expectedFullUnitToString;
+
+	String testName = "<test>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietWithStatementRecoveryUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyWithStatementRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedFullWithStatementRecoveryUnitToString,
+		testName);
+}
 }
