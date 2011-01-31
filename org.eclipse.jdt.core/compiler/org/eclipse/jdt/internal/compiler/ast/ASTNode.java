@@ -288,9 +288,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		if (arguments == null) {
 			if (method.isVarargs()) {
 				TypeBinding parameterType = ((ArrayBinding) params[paramLength-1]).elementsType(); // no element was supplied for vararg parameter
-		    	if (!parameterType.isReifiable()) {
-				    scope.problemReporter().unsafeGenericArrayForVarargs(parameterType, (ASTNode)invocationSite);
-		    	}
+				if (!parameterType.isReifiable() && ((method.tagBits & TagBits.AnnotationSafeVarargs) != 0)) {
+					scope.problemReporter().unsafeGenericArrayForVarargs(parameterType, (ASTNode)invocationSite);
+				}
 			}
 		} else {
 			if (method.isVarargs()) {
@@ -300,18 +300,18 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					TypeBinding originalRawParam = rawOriginalGenericMethod == null ? null : rawOriginalGenericMethod.parameters[i];
 					invocationStatus |= checkInvocationArgument(scope, arguments[i], params[i] , argumentTypes[i], originalRawParam);
 				}
-			   int argLength = arguments.length;
-			   if (lastIndex < argLength) { // vararg argument was provided
-				   	TypeBinding parameterType = params[lastIndex];
+				int argLength = arguments.length;
+				if (lastIndex < argLength) { // vararg argument was provided
+					TypeBinding parameterType = params[lastIndex];
 					TypeBinding originalRawParam = null;
 
-				    if (paramLength != argLength || parameterType.dimensions() != argumentTypes[lastIndex].dimensions()) {
-				    	parameterType = ((ArrayBinding) parameterType).elementsType(); // single element was provided for vararg parameter
-				    	if (!parameterType.isReifiable()) {
-						    scope.problemReporter().unsafeGenericArrayForVarargs(parameterType, (ASTNode)invocationSite);
-				    	}
+					if (paramLength != argLength || parameterType.dimensions() != argumentTypes[lastIndex].dimensions()) {
+						parameterType = ((ArrayBinding) parameterType).elementsType(); // single element was provided for vararg parameter
+						if (!parameterType.isReifiable() && ((method.tagBits & TagBits.AnnotationSafeVarargs) != 0)) {
+							scope.problemReporter().unsafeGenericArrayForVarargs(parameterType, (ASTNode)invocationSite);
+						}
 						originalRawParam = rawOriginalGenericMethod == null ? null : ((ArrayBinding)rawOriginalGenericMethod.parameters[lastIndex]).elementsType();
-				    }
+					}
 					for (int i = lastIndex; i < argLength; i++) {
 						invocationStatus |= checkInvocationArgument(scope, arguments[i], parameterType, argumentTypes[i], originalRawParam);
 					}
@@ -350,7 +350,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			}
 		}
 		if ((invocationStatus & INVOCATION_ARGUMENT_WILDCARD) != 0) {
-		    scope.problemReporter().wildcardInvocation((ASTNode)invocationSite, receiverType, method, argumentTypes);
+			scope.problemReporter().wildcardInvocation((ASTNode)invocationSite, receiverType, method, argumentTypes);
 		} else if (!method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && method.hasSubstitutedParameters()) {
 			if (scope.compilerOptions().reportUnavoidableGenericTypeProblems || receiver == null || !receiver.forcedToBeRaw(scope.referenceContext())) {
 				scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, method);

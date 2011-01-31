@@ -126,7 +126,16 @@ public interface TagBits {
 	long AnnotationInherited = ASTNode.Bit49L;
 	long AnnotationOverride = ASTNode.Bit50L;
 	long AnnotationSuppressWarnings = ASTNode.Bit51L;
-	long AllStandardAnnotationsMask = AnnotationTargetMASK | AnnotationRetentionMASK | AnnotationDeprecated | AnnotationDocumented | AnnotationInherited |  AnnotationOverride | AnnotationSuppressWarnings;
+	/** @since 3.7 - java 7 safe vargs invocation */
+	long AnnotationSafeVarargs = ASTNode.Bit52L;
+	long AllStandardAnnotationsMask = AnnotationTargetMASK
+				| AnnotationRetentionMASK
+				| AnnotationDeprecated
+				| AnnotationDocumented
+				| AnnotationInherited
+				| AnnotationOverride
+				| AnnotationSuppressWarnings
+				| AnnotationSafeVarargs;
 
 	long DefaultValueResolved = ASTNode.Bit52L;
 

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -134,11 +138,12 @@ public interface TypeConstants {
 			"CORBA".toCharArray(), //$NON-NLS-1$
 			"Stub".toCharArray(), //$NON-NLS-1$
 	};
+	char[][] JAVA_LANG_SAFEVARARGS =  {JAVA, LANG, "SafeVarargs".toCharArray()}; //$NON-NLS-1$
 
 	// Constraints for generic type argument inference
-    int CONSTRAINT_EQUAL = 0;		// Actual = Formal
-    int CONSTRAINT_EXTENDS = 1;	// Actual << Formal
-    int CONSTRAINT_SUPER = 2;		// Actual >> Formal
+	int CONSTRAINT_EQUAL = 0;		// Actual = Formal
+	int CONSTRAINT_EXTENDS = 1;	// Actual << Formal
+	int CONSTRAINT_SUPER = 2;		// Actual >> Formal
 
 	// Constants used to perform bound checks
 	int OK = 0;
