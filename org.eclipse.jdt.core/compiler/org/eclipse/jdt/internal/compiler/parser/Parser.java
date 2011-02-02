@@ -7703,14 +7703,14 @@ protected void consumeToken(int type) {
 			//==============================
 		case TokenNameIntegerLiteral :
 			pushOnExpressionStack(
-				new IntLiteral(
+				IntLiteral.buildIntLiteral(
 					this.scanner.getCurrentTokenSource(),
 					this.scanner.startPosition,
 					this.scanner.currentPosition - 1));
 			break;
 		case TokenNameLongLiteral :
 			pushOnExpressionStack(
-				new LongLiteral(
+				LongLiteral.buildLongLiteral(
 					this.scanner.getCurrentTokenSource(),
 					this.scanner.startPosition,
 					this.scanner.currentPosition - 1));
@@ -8128,20 +8128,33 @@ protected void consumeUnaryExpression(int op) {
 
 	Expression r, exp = this.expressionStack[this.expressionPtr];
 	if (op == MINUS) {
-		if ((exp instanceof IntLiteral) && (((IntLiteral) exp).mayRepresentMIN_VALUE())) {
-			r = this.expressionStack[this.expressionPtr] = new IntLiteralMinValue();
-		} else {
-			if ((exp instanceof LongLiteral) && (((LongLiteral) exp).mayRepresentMIN_VALUE())) {
-				r = this.expressionStack[this.expressionPtr] = new LongLiteralMinValue();
+		if (exp instanceof IntLiteral) {
+			IntLiteral intLiteral = (IntLiteral) exp;
+			IntLiteral convertToMinValue = intLiteral.convertToMinValue();
+			if (convertToMinValue ==  intLiteral) {
+				// not a min value literal so we convert it to an unary expression
+				r = new UnaryExpression(exp, op);
 			} else {
-				r = this.expressionStack[this.expressionPtr] = new UnaryExpression(exp, op);
+				r = convertToMinValue;
 			}
+		} else if (exp instanceof LongLiteral) {
+			LongLiteral longLiteral = (LongLiteral) exp;
+			LongLiteral convertToMinValue = longLiteral.convertToMinValue();
+			if (convertToMinValue ==  longLiteral) {
+				// not a min value literal so we convert it to an unary expression
+				r = new UnaryExpression(exp, op);
+			} else {
+				r = convertToMinValue;
+			}
+		} else {
+			r = new UnaryExpression(exp, op);
 		}
 	} else {
-		r = this.expressionStack[this.expressionPtr] = new UnaryExpression(exp, op);
+		r = new UnaryExpression(exp, op);
 	}
 	r.sourceStart = this.intStack[this.intPtr--];
 	r.sourceEnd = exp.sourceEnd;
+	this.expressionStack[this.expressionPtr] = r;
 }
 protected void consumeUnaryExpression(int op, boolean post) {
 	// PreIncrementExpression ::= '++' PushPosition UnaryExpression

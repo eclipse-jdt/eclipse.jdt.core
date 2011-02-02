@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 53 };
+//		TESTS_NUMBERS = new int[] { 9 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 
@@ -191,15 +191,11 @@ public class ScannerTest extends AbstractRegressionTest {
 		char[] source = "0x11aa.aap-3333f".toCharArray(); //$NON-NLS-1$
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
-		int counter = 0;
 		try {
-			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
-				counter++;
-			}
+			scanner.getNextToken();
 		} catch (InvalidInputException e) {
-			assertTrue(false);
+			assertEquals("Wrong message", PublicScanner.ILLEGAL_HEXA_LITERAL, e.getMessage());
 		}
-		assertEquals("Wrong number of tokens", 5, counter);
 	}
 
 	/*
