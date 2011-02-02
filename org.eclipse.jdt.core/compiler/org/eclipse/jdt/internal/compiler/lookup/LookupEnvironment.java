@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -57,6 +61,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private SimpleLookupTable uniqueRawTypeBindings;
 	private SimpleLookupTable uniqueWildcardBindings;
 	private SimpleLookupTable uniqueParameterizedGenericMethodBindings;
+	private SimpleLookupTable uniquePolymorphicMethodBindings;
 	private SimpleLookupTable uniqueGetClassMethodBinding; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
 
 	public CompilationUnitDeclaration unitBeingCompleted = null; // only set while completing units
@@ -92,6 +97,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
+	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
 	this.missingTypes = null;
 	this.accessRestrictions = new HashMap(3);
 	this.classFilePool = ClassFilePool.newInstance();
@@ -815,7 +821,54 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 	cachedInfo[index] = parameterizedGenericMethod;
 	return parameterizedGenericMethod;
 }
-
+public MethodBinding createPolymorphicMethod(MethodBinding originalMethod, TypeBinding[] parameters) {
+	// cached info is array of already created polymorphic methods for this type
+	MethodBinding[] cachedInfo = (MethodBinding[]) this.uniquePolymorphicMethodBindings.get(originalMethod);
+	int parametersLength = parameters == null ? 0: parameters.length;
+	TypeBinding[] parametersTypeBinding = new TypeBinding[parametersLength]; 
+	for (int i = 0; i < parametersLength; i++) {
+		parametersTypeBinding[i] = parameters[i].erasure();
+	}
+	boolean needToGrow = false;
+	int index = 0;
+	if (cachedInfo != null){
+		nextCachedMethod :
+			// iterate existing polymorphic method for reusing one with same type arguments if any
+			for (int max = cachedInfo.length; index < max; index++) {
+				MethodBinding cachedMethod = cachedInfo[index];
+				if (cachedMethod == null) break nextCachedMethod;
+				TypeBinding[] cachedParameters = cachedMethod.parameters;
+				int cachedParametersLength = cachedParameters == null ? 0 : cachedParameters.length;
+				if (parametersLength != cachedParametersLength) continue nextCachedMethod;
+				for (int j = 0; j < cachedParametersLength; j++){
+					if (parametersTypeBinding[j] != cachedParameters[j]) continue nextCachedMethod;
+				}
+				// all arguments match, reuse current
+				return cachedMethod;
+		}
+		needToGrow = true;
+	} else {
+		cachedInfo = new MethodBinding[5];
+		this.uniquePolymorphicMethodBindings.put(originalMethod, cachedInfo);
+	}
+	// grow cache ?
+	int length = cachedInfo.length;
+	if (needToGrow && index == length){
+		System.arraycopy(cachedInfo, 0, cachedInfo = new MethodBinding[length*2], 0, length);
+		this.uniquePolymorphicMethodBindings.put(originalMethod, cachedInfo);
+	}
+	// add new binding
+	MethodBinding polymorphicMethod = new MethodBinding(
+			originalMethod.modifiers,
+			originalMethod.selector,
+			originalMethod.returnType,
+			parametersTypeBinding,
+			originalMethod.thrownExceptions,
+			originalMethod.declaringClass);
+	polymorphicMethod.tagBits = originalMethod.tagBits;
+	cachedInfo[index] = polymorphicMethod;
+	return polymorphicMethod;
+}
 public ParameterizedMethodBinding createGetClassMethod(TypeBinding receiverType, MethodBinding originalMethod, Scope scope) {
 	// see if we have already cached this method for the given receiver type.
 	ParameterizedMethodBinding retVal = null;
@@ -1353,6 +1406,7 @@ public void reset() {
 	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
 	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
+	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
 	this.uniqueGetClassMethodBinding = null;
 	this.missingTypes = null;
 	this.typesBeingConnected = new HashSet();

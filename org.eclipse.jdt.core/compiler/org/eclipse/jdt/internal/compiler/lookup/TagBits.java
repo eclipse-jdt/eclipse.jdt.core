@@ -128,6 +128,9 @@ public interface TagBits {
 	long AnnotationSuppressWarnings = ASTNode.Bit51L;
 	/** @since 3.7 - java 7 safe vargs invocation */
 	long AnnotationSafeVarargs = ASTNode.Bit52L;
+	/** @since 3.7 - java 7 MethodHandle.invokeExact(..)/invokeGeneric(..)*/
+	long AnnotationPolymorphicSignature = ASTNode.Bit53L;
+
 	long AllStandardAnnotationsMask = AnnotationTargetMASK
 				| AnnotationRetentionMASK
 				| AnnotationDeprecated
@@ -135,10 +138,11 @@ public interface TagBits {
 				| AnnotationInherited
 				| AnnotationOverride
 				| AnnotationSuppressWarnings
-				| AnnotationSafeVarargs;
+				| AnnotationSafeVarargs
+				| AnnotationPolymorphicSignature;
 
-	long DefaultValueResolved = ASTNode.Bit52L;
+	long DefaultValueResolved = ASTNode.Bit54L;
 
 	// set when type contains non-private constructor(s)
-	long HasNonPrivateConstructor = ASTNode.Bit53L;
+	long HasNonPrivateConstructor = ASTNode.Bit55L;
 }

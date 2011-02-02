@@ -95,6 +95,8 @@ public interface TypeIds {
 	
 	// java 7
 	final int T_JavaLangSafeVarargs = 60;
+	
+	final int T_JavaDynMethodHandlePolymorphiSignature = 61;
 
 	final int NoId = Integer.MAX_VALUE;
 

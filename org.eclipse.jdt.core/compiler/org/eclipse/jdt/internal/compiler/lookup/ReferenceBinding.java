@@ -575,8 +575,29 @@ public void computeId() {
 		case 4:
 			if (!CharOperation.equals(TypeConstants.JAVA, this.compoundName[0]))
 				return;
-			if (!CharOperation.equals(TypeConstants.LANG, this.compoundName[1]))
+			packageName = this.compoundName[1];
+			if (packageName.length == 0) return; // just to be safe
+			if (!CharOperation.equals(TypeConstants.LANG, packageName)) {
+				switch (packageName[0]) {
+					case 'd' :
+						if (CharOperation.equals(packageName, TypeConstants.DYN)) {
+							typeName = this.compoundName[2];
+							if (typeName.length == 0) return; // just to be safe
+							switch (typeName[0]) {
+								case 'M' :
+									char[] memberTypeName = this.compoundName[3];
+									if (memberTypeName.length == 0) return; // just to be safe
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_DYN_METHODHANDLE_POLIMORPHICSIGNATURE[2])
+											&& CharOperation.equals(memberTypeName, TypeConstants.JAVA_DYN_METHODHANDLE_POLIMORPHICSIGNATURE[3]))
+										this.id = TypeIds.T_JavaDynMethodHandlePolymorphiSignature;
+									return;
+							}
+						}
+						return;
+				}
 				return;
+			}
+
 			packageName = this.compoundName[2];
 			if (packageName.length == 0) return; // just to be safe
 			typeName = this.compoundName[3];

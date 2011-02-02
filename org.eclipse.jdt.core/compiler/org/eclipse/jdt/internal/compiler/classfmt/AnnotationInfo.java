@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 BEA Systems, Inc.
+ * Copyright (c) 2005, 2011 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    tyeung@bea.com - initial API and implementation
@@ -304,12 +308,6 @@ private int scanAnnotation(int offset, boolean expectRuntimeVisibleAnno, boolean
 					return readTargetValue(currentOffset);
 				}
 				break;
-			case 33:
-				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_DOCUMENTED)) {
-					this.standardAnnotationTagBits |= TagBits.AnnotationDocumented;
-					return currentOffset;
-				}
-				break;
 			case 32:
 				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_RETENTION)) {
 					currentOffset += 2;
@@ -317,6 +315,18 @@ private int scanAnnotation(int offset, boolean expectRuntimeVisibleAnno, boolean
 				}
 				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_INHERITED)) {
 					this.standardAnnotationTagBits |= TagBits.AnnotationInherited;
+					return currentOffset;
+				}
+				break;
+			case 33:
+				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_DOCUMENTED)) {
+					this.standardAnnotationTagBits |= TagBits.AnnotationDocumented;
+					return currentOffset;
+				}
+				break;
+			case 44:
+				if (CharOperation.equals(typeName, ConstantPool.JAVA_DYN_METHODHANDLE_POLYMORPHICSIGNATURE)) {
+					this.standardAnnotationTagBits |= TagBits.AnnotationPolymorphicSignature;
 					return currentOffset;
 				}
 				break;

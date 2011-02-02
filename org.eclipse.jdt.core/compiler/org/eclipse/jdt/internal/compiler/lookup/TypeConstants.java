@@ -139,6 +139,13 @@ public interface TypeConstants {
 			"Stub".toCharArray(), //$NON-NLS-1$
 	};
 	char[][] JAVA_LANG_SAFEVARARGS =  {JAVA, LANG, "SafeVarargs".toCharArray()}; //$NON-NLS-1$
+	char[] DYN = "dyn".toCharArray(); //$NON-NLS-1$
+	char[][] JAVA_DYN_METHODHANDLE_POLIMORPHICSIGNATURE = {
+			JAVA,
+			DYN,
+			"MethodHandle".toCharArray(), //$NON-NLS-1$
+			"PolymorphicSignature".toCharArray() //$NON-NLS-1$
+	};
 
 	// Constraints for generic type argument inference
 	int CONSTRAINT_EQUAL = 0;		// Actual = Formal

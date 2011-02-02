@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 335093 - [compiler][null] minimal hook for future null annotation support
@@ -97,11 +101,17 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 		//      foo(1), foo(1, null), foo(1, 2), foo(1, 2, 3, 4) & foo(1, new int[] {1, 2})
 		TypeBinding[] params = binding.parameters;
 		int paramLength = params.length;
+		if ((binding.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
+			// all arguments are generated
+			for (int i = 0; i < paramLength; i++) {
+				arguments[i].generateCode(currentScope, codeStream, true);
+			}
+			return;
+		}
 		int varArgIndex = paramLength - 1;
 		for (int i = 0; i < varArgIndex; i++) {
 			arguments[i].generateCode(currentScope, codeStream, true);
 		}
-
 		ArrayBinding varArgsType = (ArrayBinding) params[varArgIndex]; // parameterType has to be an array type
 		ArrayBinding codeGenVarArgsType = (ArrayBinding) binding.parameters[varArgIndex].erasure();
 		int elementsTypeID = varArgsType.elementsType().id;
