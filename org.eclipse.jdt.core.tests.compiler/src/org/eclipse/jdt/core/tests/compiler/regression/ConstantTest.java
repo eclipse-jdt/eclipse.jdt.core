@@ -1420,15 +1420,25 @@ public void test021() {
 			"	public static void main(String[] args) {\n" +
 			"		System.out.println(0x0L); // OK\n" +
 			"		System.out.println(0x8000000000000000L); // OK\n" +
+			"		System.out.println(0x8000000000000000l); // OK\n" +
 			"		System.out.println(01000000000000000000000L); // OK\n" +
+			"		System.out.println(01000000000000000000000l); // OK\n" +
 			"		System.out.println(-9223372036854775808L); // OK\n" +
+			"		System.out.println(-9223372036854775808l); // OK\n" +
 			"		System.out.println(0x7fffffffffffffffL); // OK\n" +
+			"		System.out.println(0x7fffffffffffffffl); // OK\n" +
 			"		System.out.println(0777777777777777777777L); // OK\n" +
+			"		System.out.println(0777777777777777777777l); // OK\n" +
 			"		System.out.println(9223372036854775807L); // OK\n" +
+			"		System.out.println(9223372036854775807l); // OK\n" +
 			"		System.out.println(0xffffffffffffffffL); // OK\n" +
+			"		System.out.println(0xffffffffffffffffl); // OK\n" +
 			"		System.out.println(01777777777777777777777L); // OK\n" +
+			"		System.out.println(01777777777777777777777l); // OK\n" +
 			"		System.out.println(-0x1L); // OK\n" +
+			"		System.out.println(-0x1l); // OK\n" +
 			"		System.out.println(0677777777777777777777L);\n" +
+			"		System.out.println(0677777777777777777777l);\n" +
 			"	}\n" +
 			"}",
 		},
@@ -1436,12 +1446,22 @@ public void test021() {
 		"-9223372036854775808\n" + 
 		"-9223372036854775808\n" + 
 		"-9223372036854775808\n" + 
+		"-9223372036854775808\n" + 
+		"-9223372036854775808\n" + 
+		"-9223372036854775808\n" + 
+		"9223372036854775807\n" + 
+		"9223372036854775807\n" + 
+		"9223372036854775807\n" + 
 		"9223372036854775807\n" + 
 		"9223372036854775807\n" + 
 		"9223372036854775807\n" + 
 		"-1\n" + 
 		"-1\n" + 
-		"-1\n" +
+		"-1\n" + 
+		"-1\n" + 
+		"-1\n" + 
+		"-1\n" + 
+		"8070450532247928831\n" + 
 		"8070450532247928831");
 }
 //test corner values (max, min, -1) for ints

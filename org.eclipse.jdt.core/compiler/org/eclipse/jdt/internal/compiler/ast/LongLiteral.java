@@ -70,7 +70,7 @@ public LongLiteral convertToMinValue() {
 	switch(token.length) {
 		case 20 :
 			// 9223372036854775808L
-			if (CharOperation.equals(token, DECIMAL_MIN_VALUE)) {
+			if (CharOperation.equals(token, DECIMAL_MIN_VALUE, false)) {
 				return new LongLiteralMinValue(this.source, this.reducedForm, this.sourceStart, this.sourceEnd);
 			}
 			break;
@@ -126,7 +126,7 @@ public void computeConstant() {
 		case 10 :
 			if (tokenLength > DECIMAL_MAX_VALUE.length
 					|| (tokenLength == DECIMAL_MAX_VALUE.length
-							&& CharOperation.compareTo(token, DECIMAL_MAX_VALUE) > 0)) {
+							&& CharOperation.compareTo(token, DECIMAL_MAX_VALUE, 0, length) > 0)) {
 				return; /*constant stays null*/
 			}
 			computeValue(token, length, radix, j);
