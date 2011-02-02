@@ -63,6 +63,9 @@ LongLiteral(char[] token, char[] reducedForm, int start, int end) {
 	this.reducedForm = reducedForm;
 }
 public LongLiteral convertToMinValue() {
+	if (((this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
+		return this;
+	}
 	char[] token = this.reducedForm != null ? this.reducedForm : this.source;
 	switch(token.length) {
 		case 20 :

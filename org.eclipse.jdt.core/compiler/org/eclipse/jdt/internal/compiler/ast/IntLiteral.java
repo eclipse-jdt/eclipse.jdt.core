@@ -155,6 +155,9 @@ private void computeValue(char[] token, int tokenLength, int radix, int j) {
 	this.constant = IntConstant.fromValue(computedValue);
 }
 public IntLiteral convertToMinValue() {
+	if (((this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
+		return this;
+	}
 	char[] token = this.reducedForm != null ? this.reducedForm : this.source;
 	switch(token.length) {
 		case 10 :
