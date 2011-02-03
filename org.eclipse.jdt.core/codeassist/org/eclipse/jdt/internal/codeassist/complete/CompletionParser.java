@@ -876,8 +876,6 @@ private void buildMoreCompletionContext(Expression expression) {
 					this.expressionLengthPtr--;
 				}
 
-				this.lastCheckPoint = this.scanner.currentPosition;
-
 				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_ARRAY_CREATION) {
 					ArrayAllocationExpression allocationExpression = new ArrayAllocationExpression();
 					pushOnGenericsLengthStack(0);
