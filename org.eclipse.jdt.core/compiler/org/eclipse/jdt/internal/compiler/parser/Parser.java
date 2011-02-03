@@ -3751,9 +3751,7 @@ protected void consumeExpressionStatement() {
 	this.expressionLengthPtr--;
 	Expression expression = this.expressionStack[this.expressionPtr--];
 	expression.statementEnd = this.endStatementPosition;
-	if (expression instanceof MessageSend) {
-		expression.bits |= ASTNode.InsideExpressionStatement;
-	}
+	expression.bits |= ASTNode.InsideExpressionStatement;
 	pushOnAstStack(expression);
 }
 protected void consumeFieldAccess(boolean isSuperAccess) {
