@@ -3430,6 +3430,11 @@ public final class CompletionEngine
 			if(binding != null) {
 				if(!(variable.initialization instanceof ArrayInitializer)) {
 					addExpectedType(binding, scope);
+				} else { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=310747
+					// If the variable is of type X[], and we're in the initializer
+					// we should have X as the expected type for the variable initializers.
+					binding = binding.leafComponentType();
+					addExpectedType(binding, scope);
 				}
 			}
 		} else if(parent instanceof Assignment) {

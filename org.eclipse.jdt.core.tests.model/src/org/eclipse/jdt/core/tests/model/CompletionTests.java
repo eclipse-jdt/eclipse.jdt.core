@@ -21303,6 +21303,58 @@ public void testBug267091b() throws JavaModelException {
 			requestor.getResults());
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=310747
+// To verify that we get correctly sorted proposals inside an array initializers
+// and we dont get comment strings as proposals
+public void testBug310747() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/X.java",
+		"package test;" +
+		"class X {\n" +
+		"	public X memberGet() {\n" +
+		"		return new X();\n" +
+		"	}\n" +
+		"	public X memberField;\n" +
+		"	public X[] memberArray = {\n" +
+		"	/**///completion here shouldnt give dubious proposals\n" +
+		"	};\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/**/";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_EXACT_EXPECTED_TYPE;
+	int relevance2 = R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC;
+	int relevance3 = R_RESOLVED + R_CASE + R_NON_STATIC;
+	int start1 = str.lastIndexOf("/**/") + "".length();
+	int end1 = start1 + "/**/".length();
+	assertResults(
+			"expectedTypesSignatures={Ltest.X;}\n" +
+			"expectedTypesKeys={Ltest/X;}",
+			requestor.getContext());
+	assertResults(
+			"X[TYPE_REF]{X, test, Ltest.X;, null, null, null, null, replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance1 + "}\n" +
+			"memberField[FIELD_REF]{memberField, Ltest.X;, Ltest.X;, null, null, memberField, null, replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance1 + "}\n" +
+			"memberGet[METHOD_REF]{memberGet(), Ltest.X;, ()Ltest.X;, null, null, memberGet, null, replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance1 + "}\n" +
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance2 + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance2 + "}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, null, null, getClass, null, replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance2 + "}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, null, null, hashCode, null, replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance2 + "}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance2 + "}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance3 + "}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance3 + "}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance3 + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance3 + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance3 + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, replace[" + end1 + ", " + end1 + "], token[" + end1 + ", " + end1 +"], " + relevance3 + "}",
+			requestor.getReversedResults());
+}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=261534
 // To verify that autocast works correctly even when instanceof expression
 // and completion node are in the same binary expression, related by &&
