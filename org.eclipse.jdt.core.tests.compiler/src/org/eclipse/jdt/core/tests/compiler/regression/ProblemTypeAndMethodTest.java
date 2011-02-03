@@ -30,7 +30,7 @@ public ProblemTypeAndMethodTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test123" };
+//		TESTS_NAMES = new String[] { "testBug335845g" };
 //		TESTS_NUMBERS = new int[] { 113 };
 //		TESTS_RANGE = new int[] { 108, -1 };
 }
@@ -6630,6 +6630,241 @@ public void test123() {
 		"----------\n",
 		null /* no extra class libraries */,
 		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
+// If method allocates an inner non-static type without an enclosing object, method can't be static
+public void testBug335845a() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X {\n" +
+				"	private class Bar {\n" +
+				"		int a = 1;\n" +
+				"	}\n" + 
+				"	private void foo() {\n" + 	// don't warn
+				"		new Bar();\n" +
+				"	}\n" + 
+				"}"
+		},
+		"",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
+// If method allocates an inner non-static type without an enclosing object, method can't be static
+public void testBug335845b() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X {\n" +
+				"	private class Bar {\n" +
+				"		int a = 1;\n" +
+				"	}\n" + 
+				"	private void foo() {\n" + 	// don't warn
+				"		int x = new Bar().a;\n" +
+				"	}\n" + 
+				"}"
+		},
+		"",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
+// If method allocates an inner static type without an enclosing object, method can be static
+public void testBug335845c() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X {\n" +
+				"	private static class Bar {\n" +
+				"		int a = 1;\n" +
+				"	}\n" + 
+				"	private void foo() {\n" + 	// warn since Bar is static
+				"		new Bar();\n" +
+				"		int x = new Bar().a;" +
+				"	}\n" + 
+				"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	private void foo() {\n" + 
+		"	             ^^^^^\n" + 
+		"The method foo() from the type X can be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
+// If method allocates an inner non-static type without an enclosing object, method can't be static
+public void testBug335845d() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X {\n" +
+				"	private class Bar {\n" +
+				"		class Bar2{}\n" +
+				"	}\n" + 
+				"	private void foo() {\n" + 	// don't warn
+				"		new Bar().new Bar2();\n" +
+				"	}\n" + 
+				"}"
+		},
+		"",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
+// If method allocates an inner static type without an enclosing object, method can be static
+public void testBug335845e() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X {\n" +
+				"	private class Bar {\n" +
+				"		int a = 1;\n" +
+				"	}\n" + 
+				"	private void foo() {\n" + 	// warn since Bar is allocated via Test object
+				"		new X().new Bar();\n" +
+				"	}\n" + 
+				"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	private void foo() {\n" + 
+		"	             ^^^^^\n" + 
+		"The method foo() from the type X can be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
+// If method allocates an inner static type without an enclosing object, method can be static
+public void testBug335845f() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X {\n" +
+				"	private class Bar {\n" +
+				"		int a = 1;\n" +
+				"	}\n" + 
+				"	private void foo() {\n" + 	// warn since Bar is allocated via Test object
+				"		X x = new X();" +
+				"		x.new Bar().a = 2;\n" +
+				"	}\n" + 
+				"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	private void foo() {\n" + 
+		"	             ^^^^^\n" + 
+		"The method foo() from the type X can be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
+// If method allocates an inner static type without an enclosing object, method can be static
+public void testBug335845g() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+				"p/X.java", 
+				"package p;\n" +
+				"public class X {\n" +
+				"	class Bar {\n" +
+				"	}\n" +
+				"}"
+		}
+	);
+	this.runNegativeTest(
+		new String[] {
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y extends X {\n" +
+				"	private void foo() {\n" + 	// warn since Bar is allocated via Test object
+				"		new Bar();\n" +
+				"	}\n" + 
+				"}"
+		},
+		"",
+		null /* no extra class libraries */,
+		false /* flush output directory */,
 		compilerOptions /* custom options */
 	);
 }

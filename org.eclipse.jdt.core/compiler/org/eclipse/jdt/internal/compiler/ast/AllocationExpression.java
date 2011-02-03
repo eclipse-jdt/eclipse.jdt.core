@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,6 +59,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this,
 			flowInfo.unconditionalCopy(),
 			currentScope);
+	}
+	if (this.binding.declaringClass.isMemberType() && !this.binding.declaringClass.isStatic()) {
+		// allocating a non-static member type without an enclosing instance of parent type
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
+		currentScope.resetEnclosingMethodStaticFlag();
 	}
 	manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 	manageSyntheticAccessIfNecessary(currentScope, flowInfo);
