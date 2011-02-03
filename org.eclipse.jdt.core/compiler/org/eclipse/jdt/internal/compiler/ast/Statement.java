@@ -101,7 +101,7 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 		//      foo(1), foo(1, null), foo(1, 2), foo(1, 2, 3, 4) & foo(1, new int[] {1, 2})
 		TypeBinding[] params = binding.parameters;
 		int paramLength = params.length;
-		if ((binding.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
+		if (MethodBinding.isPolymorphic(binding)) {
 			// all arguments are generated
 			for (int i = 0; i < paramLength; i++) {
 				arguments[i].generateCode(currentScope, codeStream, true);

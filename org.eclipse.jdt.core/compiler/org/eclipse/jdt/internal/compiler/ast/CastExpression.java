@@ -495,7 +495,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (this.expression instanceof MessageSend) {
 			MessageSend messageSend = (MessageSend) this.expression;
 			MethodBinding methodBinding = messageSend.binding;
-			if (methodBinding != null && (methodBinding.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
+			if (MethodBinding.isPolymorphic(methodBinding)) {
 				methodBinding.returnType = castType;
 				expressionType = castType;
 			}

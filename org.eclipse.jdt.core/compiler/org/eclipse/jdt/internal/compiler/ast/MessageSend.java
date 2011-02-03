@@ -462,7 +462,7 @@ public TypeBinding resolveType(BlockScope scope) {
 						? this.resolvedType
 						: null;
 	}
-	if ((this.binding.tagBits & TagBits.AnnotationPolymorphicSignature) != 0
+	if (MethodBinding.isPolymorphic(this.binding)
 			&& ((this.bits & ASTNode.InsideExpressionStatement) != 0)) {
 		// we only set the return type to be void if this method invocation is used inside an expression statement
 		this.binding.returnType = TypeBinding.VOID;
