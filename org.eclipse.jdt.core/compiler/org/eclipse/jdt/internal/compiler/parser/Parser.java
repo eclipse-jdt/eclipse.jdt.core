@@ -3751,6 +3751,9 @@ protected void consumeExpressionStatement() {
 	this.expressionLengthPtr--;
 	Expression expression = this.expressionStack[this.expressionPtr--];
 	expression.statementEnd = this.endStatementPosition;
+	if (expression instanceof MessageSend) {
+		expression.bits |= ASTNode.InsideExpressionStatement;
+	}
 	pushOnAstStack(expression);
 }
 protected void consumeFieldAccess(boolean isSuperAccess) {
@@ -3763,14 +3766,14 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 			this.identifierPositionStack[this.identifierPtr--]);
 	this.identifierLengthPtr--;
 	if (isSuperAccess) {
-		//considerates the fieldReference beginning at the 'super' ....
+		//considers the fieldReference beginning at the 'super' ....
 		fr.sourceStart = this.intStack[this.intPtr--];
 		fr.receiver = new SuperReference(fr.sourceStart, this.endPosition);
 		pushOnExpressionStack(fr);
 	} else {
 		//optimize push/pop
 		fr.receiver = this.expressionStack[this.expressionPtr];
-		//fieldreference begins at the receiver
+		//field reference begins at the receiver
 		fr.sourceStart = fr.receiver.sourceStart;
 		this.expressionStack[this.expressionPtr] = fr;
 	}

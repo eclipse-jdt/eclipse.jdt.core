@@ -246,6 +246,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsDisjuntive = Bit30;
 	public static final int IsDiamond = Bit31;
 
+	// tagged method invocation as inside an expression statement
+	public static final int InsideExpressionStatement = Bit5;
+
 	public ASTNode() {
 
 		super();

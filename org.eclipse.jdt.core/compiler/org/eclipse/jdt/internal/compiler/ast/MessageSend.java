@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Nick Teryaev - fix for bug (https://bugs.eclipse.org/bugs/show_bug.cgi?id=40752)
@@ -458,7 +462,9 @@ public TypeBinding resolveType(BlockScope scope) {
 						? this.resolvedType
 						: null;
 	}
-	if ((this.binding.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
+	if ((this.binding.tagBits & TagBits.AnnotationPolymorphicSignature) != 0
+			&& ((this.bits & ASTNode.InsideExpressionStatement) != 0)) {
+		// we only set the return type to be void if this method invocation is used inside an expression statement
 		this.binding.returnType = TypeBinding.VOID;
 	}
 	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
