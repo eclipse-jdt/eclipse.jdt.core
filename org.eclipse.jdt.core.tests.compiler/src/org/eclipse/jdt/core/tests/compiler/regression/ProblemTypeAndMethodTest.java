@@ -6868,4 +6868,65 @@ public void testBug335845g() {
 		compilerOptions /* custom options */
 	);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335780
+// For this reference as an argument of a message send, method can't be static
+public void test124a() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X {\n" +
+				"	public void method1() {\n" + 	// don't warn
+				"		Foo.m(this);\n" +
+				"	}\n" +
+				"static class Foo{\n" + 
+				"	static void m(X bug) {\n" + 
+				"		\n" +
+				"	}\n" + 
+				"}\n" +
+				"}"
+		},
+		"",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335780
+// For this reference as an argument of a message send, method can't be static
+public void test124b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X {\n" +
+				"   public static X xField;" +
+				"	public void method1() {\n" + 	// don't warn
+				"		Foo.m(this.xField);\n" +
+				"	}\n" +
+				"static class Foo{\n" + 
+				"	static void m(X bug) {\n" + 
+				"		\n" +
+				"	}\n" + 
+				"}\n" +
+				"}"
+		},
+		"",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
 }
