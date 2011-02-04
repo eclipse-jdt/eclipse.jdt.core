@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -12823,5 +12827,53 @@ public void testBug324189e() throws CoreException {
 	);
 	search("A.run()", METHOD, DECLARATIONS);
 	assertSearchResults("src/b324189/A.java void b324189.A.run() [run] EXACT_MATCH");
+}
+/**
+ * @bug 336322: [1.7][search]CCE while searching for a type reference in multiple catch parameters
+ * @test Search for type references in a multiple catch parameters
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=336322"
+ */
+public void testBug336322a() throws CoreException{
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.7");
+		createFile("/P/Test.java", 
+				"public class Test {\n"+
+				"public void foo(Object o) {\n"+
+				"  try {\n"+
+				"   }\n"+ 
+				" catch(Exception|RuntimeException exc) {\n" +
+				"   }\n"+
+				"}\n"+
+				"}\n");
+		int mask = IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		search("RuntimeException", IJavaSearchConstants.TYPE, IJavaSearchConstants.REFERENCES, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [RuntimeException] EXACT_MATCH", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+// search for type in multiple catch parameters in catch clauses 
+public void testBug336322b() throws CoreException{
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.7");
+		createFile("/P/Test.java", 
+				"public class Test {\n"+
+				"public void foo(Object o) {\n"+
+				"  try {\n"+
+				"   }\n"+ 
+				" catch(Exception|RuntimeException exc) {\n" +
+				"   }\n"+
+				"}\n"+
+				"}\n");
+		int mask = IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		search("RuntimeException", IJavaSearchConstants.TYPE, CATCH_TYPE_REFERENCE, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [RuntimeException] EXACT_MATCH", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
 }
 }
