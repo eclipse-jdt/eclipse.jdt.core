@@ -24,9 +24,9 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class TryStatement extends SubRoutineStatement {
 
-	private final static char[] SECRET_RETURN_ADDRESS_NAME = " returnAddress".toCharArray(); //$NON-NLS-1$
-	private final static char[] SECRET_ANY_HANDLER_NAME = " anyExceptionHandler".toCharArray(); //$NON-NLS-1$
-	private final static char[] SECRET_RETURN_VALUE_NAME = " returnValue".toCharArray(); //$NON-NLS-1$
+	static final char[] SECRET_RETURN_ADDRESS_NAME = " returnAddress".toCharArray(); //$NON-NLS-1$
+	static final char[] SECRET_ANY_HANDLER_NAME = " anyExceptionHandler".toCharArray(); //$NON-NLS-1$
+	static final char[] SECRET_RETURN_VALUE_NAME = " returnValue".toCharArray(); //$NON-NLS-1$
 
 	public Block tryBlock;
 	public Block[] catchBlocks;
@@ -55,10 +55,10 @@ public class TryStatement extends SubRoutineStatement {
 	private int[] reusableJSRStateIndexes;
 	private int reusableJSRTargetsCount = 0;
 
-	private final static int NO_FINALLY = 0;										// no finally block
-	private final static int FINALLY_SUBROUTINE = 1; 					// finally is generated as a subroutine (using jsr/ret bytecodes)
-	private final static int FINALLY_DOES_NOT_COMPLETE = 2;		// non returning finally is optimized with only one instance of finally block
-	private final static int FINALLY_INLINE = 3;								// finally block must be inlined since cannot use jsr/ret bytecodes >1.5
+	private static final int NO_FINALLY = 0;										// no finally block
+	private static final int FINALLY_SUBROUTINE = 1; 					// finally is generated as a subroutine (using jsr/ret bytecodes)
+	private static final int FINALLY_DOES_NOT_COMPLETE = 2;		// non returning finally is optimized with only one instance of finally block
+	private static final int FINALLY_INLINE = 3;								// finally block must be inlined since cannot use jsr/ret bytecodes >1.5
 
 	// for local variables table attributes
 	int mergedInitStateIndex = -1;

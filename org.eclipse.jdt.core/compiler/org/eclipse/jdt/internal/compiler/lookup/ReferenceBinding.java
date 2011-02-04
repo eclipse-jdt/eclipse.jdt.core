@@ -426,8 +426,16 @@ public void computeId() {
 			// remaining types MUST be in java.lang.*
 			switch (typeName[0]) {
 				case 'A' :
-					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ASSERTIONERROR[2]))
-						this.id = TypeIds.T_JavaLangAssertionError;
+					switch(typeName.length) {
+						case 13 :
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_AUTOCLOSEABLE[2]))
+								this.id = TypeIds.T_JavaLangAutoCloseable;
+							return;
+						case 14:
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ASSERTIONERROR[2]))
+								this.id = TypeIds.T_JavaLangAssertionError;
+							return;
+					}
 					return;
 				case 'B' :
 					switch (typeName.length) {

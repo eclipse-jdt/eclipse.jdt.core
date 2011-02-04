@@ -146,6 +146,7 @@ public interface TypeConstants {
 			"MethodHandle".toCharArray(), //$NON-NLS-1$
 			"PolymorphicSignature".toCharArray() //$NON-NLS-1$
 	};
+	char[][] JAVA_LANG_AUTOCLOSEABLE =  {JAVA, LANG, "AutoCloseable".toCharArray()}; //$NON-NLS-1$
 
 	// Constraints for generic type argument inference
 	int CONSTRAINT_EQUAL = 0;		// Actual = Formal

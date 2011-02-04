@@ -1358,6 +1358,8 @@ void setSourceStart(int sourceStart);
 	 */
 	/** @since 3.7 */
 	int AssignmentToMultiCatchParameter = Internal + 870;
+	/** @since 3.7 */
+	int ResourceHasToBeAutoCloseable = TypeRelated + 871;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

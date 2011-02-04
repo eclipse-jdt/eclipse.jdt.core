@@ -6173,6 +6173,14 @@ public void referenceMustBeArrayTypeAt(TypeBinding arrayType, ArrayReference arr
 public void reset() {
 	this.positionScanner = null;
 }
+public void resourceHasToBeAutoCloseable(TypeBinding binding, TypeReference typeReference) {
+	this.handle(
+			IProblem.ResourceHasToBeAutoCloseable,
+			new String[] {new String(binding.readableName())},
+			new String[] {new String(binding.shortReadableName())},
+			typeReference.sourceStart,
+			typeReference.sourceEnd);
+}
 private int retrieveClosingAngleBracketPosition(int start) {
 	if (this.referenceContext == null) return start;
 	CompilationResult compilationResult = this.referenceContext.compilationResult();

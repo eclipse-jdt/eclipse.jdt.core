@@ -98,6 +98,9 @@ public interface TypeIds {
 	
 	final int T_JavaDynMethodHandlePolymorphiSignature = 61;
 
+	// java 7 java.lang.AutoCloseable
+	final int T_JavaLangAutoCloseable = 62;
+
 	final int NoId = Integer.MAX_VALUE;
 
 	public static final int IMPLICIT_CONVERSION_MASK = 0xFF;
