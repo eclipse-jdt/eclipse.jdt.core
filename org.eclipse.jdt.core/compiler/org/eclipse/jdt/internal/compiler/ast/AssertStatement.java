@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,7 +86,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		CompilerOptions compilerOptions = currentScope.compilerOptions();
 		if (!compilerOptions.includeNullInfoFromAsserts) {
 			// keep just the initializations info, don't include assert's null info
-			return flowInfo.mergedWith(assertInfo.nullInfoLessUnconditionalCopy());
+			// merge initialization info's and then add back the null info from flowInfo to
+			// make sure that the empty null info of assertInfo doesnt change flowInfo's null info.
+			return ((flowInfo.nullInfoLessUnconditionalCopy()).mergedWith(assertInfo.nullInfoLessUnconditionalCopy())).addNullInfoFrom(flowInfo);
 		}
 		return flowInfo.mergedWith(assertInfo.nullInfoLessUnconditionalCopy()).
 			addInitializationsFrom(assertWhenTrueInfo.discardInitializationInfo());
