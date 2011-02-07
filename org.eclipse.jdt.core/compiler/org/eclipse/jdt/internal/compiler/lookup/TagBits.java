@@ -61,6 +61,7 @@ public interface TagBits {
 
 	// java 7 - multi catch parameter --- local
 	long MultiCatchParameter = ASTNode.Bit22;
+	long IsResource = ASTNode.Bit23;
 
 	// test bits to see if parts of binary types are faulted
 	long AreFieldsSorted = ASTNode.Bit13;

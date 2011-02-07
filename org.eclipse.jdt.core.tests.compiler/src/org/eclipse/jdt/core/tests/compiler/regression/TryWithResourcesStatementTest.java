@@ -156,6 +156,27 @@ public void test006() {
 		},
 		"");
 }
+//check that resources are implicitly final but they can be explicitly final 
+public void test007() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) throws IOException {\n" + 
+			"		try (final Reader r = new LineNumberReader(new BufferedReader(new FileReader(args[0])))) {\n" + 
+			"			r = new FileReader(args[0]);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	r = new FileReader(args[0]);\n" + 
+		"	^\n" + 
+		"The resource r of a try-with-resources statement cannot be assigned\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }

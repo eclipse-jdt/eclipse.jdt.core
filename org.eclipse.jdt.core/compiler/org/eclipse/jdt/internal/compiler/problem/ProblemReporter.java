@@ -993,7 +993,14 @@ public void cannotAssignToFinalField(FieldBinding field, ASTNode location) {
 		nodeSourceEnd(field, location));
 }
 public void cannotAssignToFinalLocal(LocalVariableBinding local, ASTNode location) {
-	int problemId = (local.tagBits & TagBits.MultiCatchParameter) != 0 ? IProblem.AssignmentToMultiCatchParameter : IProblem.NonBlankFinalLocalAssignment;
+	int problemId = 0;
+	if ((local.tagBits & TagBits.MultiCatchParameter) != 0) {
+		problemId = IProblem.AssignmentToMultiCatchParameter;
+	} else if ((local.tagBits & TagBits.IsResource) != 0) {
+		problemId = IProblem.AssignmentToResource;
+	} else {
+		problemId = IProblem.NonBlankFinalLocalAssignment;
+	}
 	String[] arguments = new String[] { new String(local.readableName())};
 	this.handle(
 		problemId,

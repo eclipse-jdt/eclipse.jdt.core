@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
@@ -72,6 +73,8 @@ public class TryStatementWithResources extends TryStatement {
 			this.resources[i].resolve(localScope);
 			LocalVariableBinding localVariableBinding = this.resources[i].binding;
 			if (localVariableBinding != null && localVariableBinding.isValidBinding()) {
+				localVariableBinding.modifiers |= ClassFileConstants.AccFinal;
+				localVariableBinding.tagBits |= TagBits.IsResource;
 				TypeBinding resourceType = localVariableBinding.type;
 				if (resourceType.isClass() || resourceType.isInterface()) {
 					if (resourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangAutoCloseable, false /*AutoCloseable is not a class*/) == null && resourceType.isValidBinding()) {
