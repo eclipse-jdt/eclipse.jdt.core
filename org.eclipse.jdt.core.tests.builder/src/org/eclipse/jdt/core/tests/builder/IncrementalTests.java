@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
+import java.util.Hashtable;
+
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IFolder;
@@ -18,6 +20,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -981,5 +984,73 @@ public class IncrementalTests extends BuilderTests {
 			);
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334377
+	public void testBug334377() throws JavaModelException {
+		int max = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
+		Hashtable options = null;
+		try {
+			options = JavaCore.getOptions();
+			Hashtable newOptions = JavaCore.getOptions();
+			newOptions.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+			newOptions.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+			JavaCore.setOptions(newOptions);
+
+			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+			env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+			// remove old package fragment root so that names don't collide
+			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+			IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+			env.addClass(root, "", "Upper", 
+				"public abstract class Upper<T>  {\n" +
+				"    public static enum Mode {IN,OUT;}\n" +
+				"}\n");
+			env.addClass(root, "", "Lower", 
+				"public class Lower extends Upper<Lower> {};\n");
+			env.addClass(root, "", "Bug", 
+					"public class Bug {\n" +
+					"    Upper.Mode m1;\n" +
+					"    void usage(){\n" +
+					"        Lower.Mode m3;\n" +
+					"        if (m1 == null){\n" +
+					"            m3 = Lower.Mode.IN;\n" +
+					"        } else {\n" +
+					"            m3 = m1;\n" +
+					"        }\n" +
+					"        Lower.Mode m2 = (m1 == null ?  Lower.Mode.IN : m1);\n" +
+					"        System.out.println(m2);\n" +
+					"        System.out.println(m3);\n" +
+					"    }\n" +
+					"}\n");
+
+			fullBuild(projectPath);
+			expectingNoProblems();
+			env.addClass(root, "", "Bug", 
+					"public class Bug {\n" +
+					"    Upper.Mode m1;\n" +
+					"    void usage(){\n" +
+					"        Lower.Mode m3;\n" +
+					"        if (m1 == null){\n" +
+					"            m3 = Lower.Mode.IN;\n" +
+					"        } else {\n" +
+					"            m3 = m1;\n" +
+					"        }\n" +
+					"        Lower.Mode m2 = (m1 == null ?  Lower.Mode.IN : m1);\n" +
+					"        System.out.println(m2);\n" +
+					"        System.out.println(m3);\n" +
+					"    }\n" +
+					"}\n");
+
+			incrementalBuild(projectPath);
+			expectingNoProblems();
+		} finally {
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
+			JavaCore.setOptions(options);
+		}
 	}
 }
