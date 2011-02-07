@@ -74,7 +74,7 @@ public class TryStatementWithResources extends TryStatement {
 			if (localVariableBinding != null && localVariableBinding.isValidBinding()) {
 				TypeBinding resourceType = localVariableBinding.type;
 				if (resourceType.isClass() || resourceType.isInterface()) {
-					if (resourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangAutoCloseable, resourceType.isClass()) == null && resourceType.isValidBinding()) {
+					if (resourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangAutoCloseable, false /*AutoCloseable is not a class*/) == null && resourceType.isValidBinding()) {
 						upperScope.problemReporter().resourceHasToBeAutoCloseable(resourceType, this.resources[i].type);
 					}
 				} else { 
