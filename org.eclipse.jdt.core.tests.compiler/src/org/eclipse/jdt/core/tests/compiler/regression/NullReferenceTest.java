@@ -13832,4 +13832,49 @@ public void testBug333089() {
 			"}"},
 		"");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=332838
+// Null info of assert statements should not affect flow info
+// when CompilerOptions.OPTION_IncludeNullInfoFromAsserts is disabled.
+public void testBug332838() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"Info.java",
+				"public class Info {\n" +
+				"	public void test(Info[] infos) {\n" +
+				"		for (final Info info : infos) {\n " +
+				"			if (info != null) {\n" +
+				"				assert info.checkSomething();\n" +
+				"		 		info.doSomething();\n" +	// no warning
+				"			}\n" +
+				"		 }\n" +
+				"		for (final Info info : infos) {\n " +
+				"			if (info == null) {\n" +
+				"				assert info.checkSomething();\n" +
+				"		 		info.doSomething();\n" +	// warn NPE, not pot. NPE
+				"			}\n" +
+				"		 }\n" +
+				"	}\n" +
+				"	void doSomething()  {}\n" +
+				"	boolean checkSomething() {return true;}\n" +
+				"}\n"},
+			"----------\n" + 
+			"1. ERROR in Info.java (at line 11)\n" + 
+			"	assert info.checkSomething();\n" + 
+			"	       ^^^^\n" + 
+			"Null pointer access: The variable info can only be null at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in Info.java (at line 12)\n" + 
+			"	info.doSomething();\n" + 
+			"	^^^^\n" + 
+			"Null pointer access: The variable info can only be null at this location\n" + 
+			"----------\n",
+			null,
+			true,
+			compilerOptions);
+	}
+}
 }
