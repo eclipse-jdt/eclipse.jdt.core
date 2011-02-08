@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,6 +46,9 @@ public class JavadocParser extends AbstractCommentParser {
 	public JavadocParser(Parser sourceParser) {
 		super(sourceParser);
 		this.kind = COMPIL_PARSER | TEXT_VERIF;
+		if (sourceParser != null && sourceParser.options != null) {
+			this.setJavadocPositions = sourceParser.options.processAnnotations;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -67,6 +70,12 @@ public class JavadocParser extends AbstractCommentParser {
 		// Init javadoc if necessary
 		if (this.checkDocComment) {
 			this.docComment = new Javadoc(this.javadocStart, this.javadocEnd);
+		} else if (this.setJavadocPositions) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=189459
+			// if annotation processors are there, javadoc object is required but
+			// they need not be resolved
+			this.docComment = new Javadoc(this.javadocStart, this.javadocEnd);
+			this.docComment.bits &= ~ASTNode.ResolveJavadoc;
 		} else {
 			this.docComment = null;
 		}

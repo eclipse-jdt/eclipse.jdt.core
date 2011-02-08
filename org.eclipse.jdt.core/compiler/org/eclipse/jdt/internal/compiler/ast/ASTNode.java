@@ -167,6 +167,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for all method/constructor invocations (msg, alloc, expl. constr call)
 	public static final int Unchecked = Bit17;
 	
+	// for javadoc - used to indicate whether the javadoc has to be resolved
+	public static final int ResolveJavadoc = Bit17;
+	
 	// for empty statement
 	public static final int IsUsefulEmptyStatement = Bit1;
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,7 @@ public class Javadoc extends ASTNode {
 	public Javadoc(int sourceStart, int sourceEnd) {
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
+		this.bits |= ASTNode.ResolveJavadoc;
 	}
 	/**
 	 * Returns whether a type can be seen at a given visibility level or not.
@@ -184,6 +185,9 @@ public class Javadoc extends ASTNode {
 	 * Resolve type javadoc
 	 */
 	public void resolve(ClassScope scope) {
+		if ((this.bits & ASTNode.ResolveJavadoc) == 0) {
+			return;
+		}
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, @inheritDoc tag cannot
 		// be used in the documentation comment for a class or interface.
 		if (this.inheritedPositions != null) {
@@ -244,6 +248,9 @@ public class Javadoc extends ASTNode {
 	 * Resolve compilation unit javadoc
 	 */
 	public void resolve(CompilationUnitScope unitScope) {
+		if ((this.bits & ASTNode.ResolveJavadoc) == 0) {
+			return;
+		}
 		// Do nothing - This is to mimic the SDK's javadoc tool behavior, which neither
 		// sanity checks nor generates documentation using comments at the CU scope 
 		// (unless the unit happens to be package-info.java - in which case we don't come here.) 
@@ -253,7 +260,9 @@ public class Javadoc extends ASTNode {
 	 * Resolve method javadoc
 	 */
 	public void resolve(MethodScope methScope) {
-
+		if ((this.bits & ASTNode.ResolveJavadoc) == 0) {
+			return;
+		}
 		// get method declaration
 		AbstractMethodDeclaration methDecl = methScope.referenceMethod();
 		boolean overriding = methDecl == null /* field declaration */ || methDecl.binding == null /* compiler error */
