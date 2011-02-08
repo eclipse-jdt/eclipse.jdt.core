@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,6 +30,7 @@ public class JavadocBugsTest extends JavadocTest {
 	String reportMissingJavadocCommentsVisibility = null;
 	String reportDeprecation = CompilerOptions.ERROR;
 	String reportJavadocDeprecation = null;
+	String processAnnotations = null;
 
 public JavadocBugsTest(String name) {
 	super(name);
@@ -79,6 +80,9 @@ protected Map getCompilerOptions() {
 	}
 	if (this.reportMissingJavadocDescription != null) {
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagDescription, this.reportMissingJavadocDescription);
+	}
+	if (this.processAnnotations != null) {
+		options.put(CompilerOptions.OPTION_Process_Annotations, this.processAnnotations);
 	}
 	options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
@@ -8631,5 +8635,22 @@ public void testBug292510() {
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=316782
+// Test to verify that turning on process annotations doesn't turn on javadoc check
+public void testBug316782() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+		return;
+	}
+	this.processAnnotations = CompilerOptions.ENABLED;
+	this.docCommentSupport = CompilerOptions.DISABLED;
+	runConformTest(
+		new String[] {
+			"X.java",
+			"/**  @see X.XX.XXX */\n" +
+				"public class X {\n" +
+				"/**  @see X.XX.XXX */\n" +
+				"    public void foo() { }\n" +
+				"}\n"
+		});
+}
 }
