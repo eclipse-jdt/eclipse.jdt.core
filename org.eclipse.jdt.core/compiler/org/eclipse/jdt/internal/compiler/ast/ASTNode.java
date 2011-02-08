@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -162,6 +162,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	// for all method/constructor invocations (msg, alloc, expl. constr call)
 	public static final int Unchecked = Bit17;
+	
+	// for javadoc - used to indicate whether the javadoc has to be resolved
+	public static final int ResolveJavadoc = Bit17;
 	
 	// for empty statement
 	public static final int IsUsefulEmptyStatement = Bit1;
