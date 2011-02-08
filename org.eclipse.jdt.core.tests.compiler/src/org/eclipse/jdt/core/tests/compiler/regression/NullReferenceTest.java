@@ -13877,4 +13877,74 @@ public void testBug332838() {
 			compilerOptions);
 	}
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=336544
+public void testBug336544() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Integer i1 = getInt();\n" + 
+			"		Integer i2 = i1 == null ? null : i1;\n" + 
+			"		if (i2 != null) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"			return;\n" + 
+			"		}\n" + 
+			"		System.out.println(\"FAILURE\");\n" + 
+			"	}\n" +
+			"	private static Integer getInt() {\n" + 
+			"		return new Integer(0);\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"SUCCESS");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=336544
+public void testBug336544_2() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Integer i1 = null;\n" + 
+			"		Integer i2 = (i1 = getInt()) == null ? null : i1;\n" + 
+			"		if (i2 != null) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"			return;\n" + 
+			"		}\n" + 
+			"		System.out.println(\"FAILURE\");\n" + 
+			"	}\n" +
+			"	private static Integer getInt() {\n" + 
+			"		return new Integer(0);\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"SUCCESS");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=336544
+public void testBug336544_3() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Integer i1 = null;\n" + 
+			"		Integer i2;\n" +
+			"		i2 = (i1 = getInt()) == null ? null : i1;\n" + 
+			"		if (i2 != null) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"			return;\n" + 
+			"		}\n" + 
+			"		System.out.println(\"FAILURE\");\n" + 
+			"	}\n" +
+			"	private static Integer getInt() {\n" + 
+			"		return new Integer(0);\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"SUCCESS");
+}
 }
