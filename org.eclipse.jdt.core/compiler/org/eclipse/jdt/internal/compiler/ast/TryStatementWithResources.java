@@ -142,6 +142,7 @@ public class TryStatementWithResources extends TryStatement {
 		if (this.catchBlocks != null) {
 			int length = this.catchArguments.length;
 			TypeBinding[] argumentTypes = new TypeBinding[length];
+			boolean containsDisjunctiveTypes = false;
 			boolean catchHasError = false;
 			for (int i = 0; i < length; i++) {
 				BlockScope catchScope = new BlockScope(this.scope);
@@ -149,7 +150,9 @@ public class TryStatementWithResources extends TryStatement {
 					finallyScope.shiftScopes[i + 1] = catchScope;
 				}
 				// side effect on catchScope in resolveForCatch(..)
-				if ((argumentTypes[i] = this.catchArguments[i].resolveForCatch(catchScope)) == null) {
+				Argument catchArgument = this.catchArguments[i];
+				containsDisjunctiveTypes |= (catchArgument.type.bits & ASTNode.IsDisjuntive) != 0;
+				if ((argumentTypes[i] = catchArgument.resolveForCatch(catchScope)) == null) {
 					catchHasError = true;
 				}
 				this.catchBlocks[i].resolveUsing(catchScope);
@@ -157,18 +160,8 @@ public class TryStatementWithResources extends TryStatement {
 			if (catchHasError) {
 				return;
 			}
-			// Verify that the catch clause are ordered in the right way:
-			// more specialized first.
 			this.caughtExceptionTypes = new ReferenceBinding[length];
-			for (int i = 0; i < length; i++) {
-				this.caughtExceptionTypes[i] = (ReferenceBinding) argumentTypes[i];
-				for (int j = 0; j < i; j++) {
-					if (this.caughtExceptionTypes[i].isCompatibleWith(argumentTypes[j])) {
-						this.scope.problemReporter().wrongSequenceOfExceptionTypesError(this,
-								this.caughtExceptionTypes[i], i, argumentTypes[j]);
-					}
-				}
-			}
+			verifyDuplicationAndOrder(length, argumentTypes, containsDisjunctiveTypes);
 		} else {
 			this.caughtExceptionTypes = new ReferenceBinding[0];
 		}
@@ -180,7 +173,6 @@ public class TryStatementWithResources extends TryStatement {
 			this.scope.addSubscope(finallyScope);
 		}
 	}
-
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 		if (visitor.visit(this, blockScope)) {
 			LocalDeclaration[] localDeclarations = this.resources;

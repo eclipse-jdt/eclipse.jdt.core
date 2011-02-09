@@ -76,7 +76,6 @@ import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
-import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -7619,11 +7618,10 @@ public void wildcardInvocation(ASTNode location, TypeBinding receiverType, Metho
 			location.sourceEnd);
     }
 }
-public void wrongSequenceOfExceptionTypesError(TryStatement statement, TypeBinding exceptionType, int under, TypeBinding hidingExceptionType) {
+public void wrongSequenceOfExceptionTypesError(TypeReference typeRef, TypeBinding exceptionType, TypeBinding hidingExceptionType) {
 	//the two catch block under and upper are in an incorrect order.
 	//under should be define BEFORE upper in the source
 
-	TypeReference typeRef = statement.catchArguments[under].type;
 	this.handle(
 		IProblem.InvalidCatchBlockSequence,
 		new String[] {

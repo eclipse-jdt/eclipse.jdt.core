@@ -78,6 +78,82 @@ public void test002() {
 		"The exception FileNotFoundException is already caught by the exception FileNotFoundException\n" + 
 		"----------\n");
 }
+public void test003() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			System.out.println();\n" + 
+			"			Reader r = new FileReader(args[0]);\n" + 
+			"			r.read();\n" + 
+			"		} catch(FileNotFoundException e) {" +
+			"			e.printStackTrace();\n" + 
+			"		} catch(FileNotFoundException | IOException e) {\n" + 
+			"			e.printStackTrace();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	} catch(FileNotFoundException | IOException e) {\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unreachable catch block for FileNotFoundException. It is already handled by the catch block for FileNotFoundException\n" + 
+		"----------\n");
+}
+public void test004() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			System.out.println();\n" + 
+			"			Reader r = new FileReader(args[0]);\n" + 
+			"			r.read();\n" + 
+			"		} catch(RuntimeException | Exception e) {" +
+			"			e.printStackTrace();\n" + 
+			"		} catch(FileNotFoundException | IOException e) {\n" + 
+			"			e.printStackTrace();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	} catch(FileNotFoundException | IOException e) {\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unreachable catch block for FileNotFoundException. It is already handled by the catch block for Exception\n" + 
+		"----------\n");
+}
+public void test005() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			System.out.println();\n" + 
+			"			Reader r = new FileReader(\"Zork\");\n" + 
+			"			r.read();\n" + 
+			"		} catch(NumberFormatException | RuntimeException e) {\n" + 
+			"			e.printStackTrace();\n" + 
+			"		} catch(FileNotFoundException | IOException e) {\n" + 
+			"			// ignore\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"");
+}
 public static Class testClass() {
 	return TryStatement17Test.class;
 }
