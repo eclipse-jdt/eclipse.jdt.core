@@ -25,7 +25,10 @@ public class DisjunctiveTypeReference extends TypeReference {
 	public TypeReference[] typeReferences;
 
 	public DisjunctiveTypeReference(TypeReference[] typeReferences) {
-		this.typeReferences = typeReferences; 
+		this.typeReferences = typeReferences;
+		this.sourceStart = typeReferences[0].sourceStart;
+		int length = typeReferences.length;
+		this.sourceEnd = typeReferences[length - 1].sourceEnd;
 	}
 
 	/* (non-Javadoc)
@@ -68,6 +71,19 @@ public class DisjunctiveTypeReference extends TypeReference {
 				hasError = true;
 			}
 			allExceptionTypes[i] = exceptionType;
+		}
+		// need to check if exception type was already handled by previous exceptions
+		for (int i = 0; i < length; i++) {
+			for (int j = 0; j < i; j++) {
+				if (allExceptionTypes[i].isCompatibleWith(allExceptionTypes[j])) {
+					scope.problemReporter().wrongSequenceOfExceptionTypes(
+							this,
+							allExceptionTypes[i],
+							i,
+							allExceptionTypes[j]);
+					hasError = true;
+				}
+			}
 		}
 		if (hasError) {
 			return null;

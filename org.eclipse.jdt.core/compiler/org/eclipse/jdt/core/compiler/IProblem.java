@@ -1362,7 +1362,8 @@ void setSourceStart(int sourceStart);
 	int ResourceHasToBeAutoCloseable = TypeRelated + 871;
 	/** @since 3.7 */
 	int AssignmentToResource = Internal + 872;
-
+	/** @since 3.7 */
+	int InvalidDisjunctiveTypeReferenceSequence = Internal + TypeRelated + 873; 
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */

@@ -170,6 +170,7 @@ public static Test suite() {
 		tests_1_7.add(AssignmentTest_1_7.class);
 		tests_1_7.add(BinaryLiteralTest.class);
 		tests_1_7.add(UnderscoresInLiteralsTest.class);
+		tests_1_7.add(TryStatement17Test.class);
 		tests_1_7.add(TryWithResourcesStatementTest.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;

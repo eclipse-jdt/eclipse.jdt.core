@@ -7637,4 +7637,19 @@ public void wrongSequenceOfExceptionTypesError(TryStatement statement, TypeBindi
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
 }
+public void wrongSequenceOfExceptionTypes(TypeReference typeRef, TypeBinding exceptionType, int under, TypeBinding hidingExceptionType) {
+	// the order of type reference inside a disjunctive type is wrong
+	this.handle(
+		IProblem.InvalidDisjunctiveTypeReferenceSequence,
+		new String[] {
+			new String(exceptionType.readableName()),
+			new String(hidingExceptionType.readableName()),
+		 },
+		new String[] {
+			new String(exceptionType.shortReadableName()),
+			new String(hidingExceptionType.shortReadableName()),
+		 },
+		typeRef.sourceStart,
+		typeRef.sourceEnd);
+}
 }
