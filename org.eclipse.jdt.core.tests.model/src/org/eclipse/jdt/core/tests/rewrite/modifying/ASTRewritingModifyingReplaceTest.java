@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -459,6 +459,111 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 		buf.append("package test0013;\n");
 		buf.append("public class X {\n");
 		buf.append("    int list;\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331138
+	// Make sure comments between removed and replaced node are not removed.
+	public void test0014a() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0014a", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0014;\n");
+		buf.append("public class X {\n");
+		buf.append("	public void m() {\n");
+		buf.append("    	String abc;\n");
+		buf.append("\n");
+		buf.append("		// do not delete this\n");
+		buf.append("\n");
+		buf.append("		/* do not delete this\n");
+		buf.append("		 */\n");
+		buf.append("\n");
+		buf.append("     	abc = \"\";\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false);
+
+		astRoot.recordModifications();
+
+		List types = astRoot.types();
+		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
+		MethodDeclaration methodDeclaration = typeDeclaration.getMethods()[0];
+		Block body = methodDeclaration.getBody();
+		List statements = body.statements();
+		VariableDeclarationStatement varDeclaration = (VariableDeclarationStatement) statements.get(0);
+		statements.remove(0);
+		
+		statements.set(0, varDeclaration);
+		String preview = evaluateRewrite(cu, astRoot);
+		
+		buf= new StringBuffer();
+		buf.append("package test0014;\n");
+		buf.append("public class X {\n");
+		buf.append("	public void m() {\n");
+		buf.append("    	\n");
+		buf.append("\n");
+		buf.append("		// do not delete this\n");
+		buf.append("\n");
+		buf.append("		/* do not delete this\n");
+		buf.append("		 */\n");
+		buf.append("\n");
+		buf.append("     	String abc;\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331138
+	// Make sure comments between removed and replaced node are not removed.
+	public void test0014b() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0014b", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test0014;\n");
+		buf.append("public class X {\n");
+		buf.append("	public void m() {\n");
+		buf.append("    	String abc;\n");
+		buf.append("\n");
+		buf.append("		// do not delete this\n");
+		buf.append("\n");
+		buf.append("		/* do not delete this\n");
+		buf.append("		 */\n");
+		buf.append("\n");
+		buf.append("		// do not delete this\n");
+		buf.append("     	abc = \"\";\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createCU(cu, false);
+
+		astRoot.recordModifications();
+
+		List types = astRoot.types();
+		TypeDeclaration typeDeclaration = (TypeDeclaration)types.get(0);
+		MethodDeclaration methodDeclaration = typeDeclaration.getMethods()[0];
+		Block body = methodDeclaration.getBody();
+		List statements = body.statements();
+		VariableDeclarationStatement varDeclaration = (VariableDeclarationStatement) statements.get(0);
+		statements.remove(0);
+		
+		statements.set(0, varDeclaration);
+		String preview = evaluateRewrite(cu, astRoot);
+		
+		buf= new StringBuffer();
+		buf.append("package test0014;\n");
+		buf.append("public class X {\n");
+		buf.append("	public void m() {\n");
+		buf.append("    	\n");
+		buf.append("\n");
+		buf.append("		// do not delete this\n");
+		buf.append("\n");
+		buf.append("		/* do not delete this\n");
+		buf.append("		 */\n");
+		buf.append("\n");
+		buf.append("		String abc;\n");
+		buf.append("	}\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
