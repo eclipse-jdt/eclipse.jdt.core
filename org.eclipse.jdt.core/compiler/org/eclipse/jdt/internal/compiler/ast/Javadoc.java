@@ -399,7 +399,12 @@ public class Javadoc extends ASTNode {
 					if (scope.enclosingSourceType().isCompatibleWith(fieldRef.actualReceiverType)) {
 						fieldRef.bits |= ASTNode.SuperAccess;
 					}
-					fieldRef.methodBinding = scope.findMethod((ReferenceBinding)fieldRef.actualReceiverType, fieldRef.token, new TypeBinding[0], fieldRef);
+					ReferenceBinding resolvedType = (ReferenceBinding) fieldRef.actualReceiverType;
+					if (CharOperation.equals(resolvedType.sourceName(), fieldRef.token)) {
+						fieldRef.methodBinding = scope.getConstructor(resolvedType, Binding.NO_TYPES, fieldRef);
+					} else {
+						fieldRef.methodBinding = scope.findMethod(resolvedType, fieldRef.token, Binding.NO_TYPES, fieldRef);
+					}
 				}
 			}
 
