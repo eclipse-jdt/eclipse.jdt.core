@@ -979,7 +979,7 @@ public void resolve() {
 			// if Object writeReplace() throws java.io.ObjectStreamException is present, then no serialVersionUID is needed
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
 			CompilationUnitScope compilationUnitScope = this.scope.compilationUnitScope();
-			MethodBinding methodBinding = sourceType.getExactMethod(TypeConstants.WRITEREPLACE, new TypeBinding[0], compilationUnitScope);
+			MethodBinding methodBinding = sourceType.getExactMethod(TypeConstants.WRITEREPLACE, Binding.NO_TYPES, compilationUnitScope);
 			ReferenceBinding[] throwsExceptions;
 			needSerialVersion =
 				methodBinding == null
