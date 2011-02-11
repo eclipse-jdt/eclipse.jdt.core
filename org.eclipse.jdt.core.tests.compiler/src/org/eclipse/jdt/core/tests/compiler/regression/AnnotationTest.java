@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,8 +46,8 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test293" };
-//		TESTS_NUMBERS = new int[] { 290, 291 };
-//		TESTS_RANGE = new int[] { 249, -1 };
+//		TESTS_NUMBERS = new int[] { 294 };
+//		TESTS_RANGE = new int[] { 294, -1 };
 	}
 
 	String reportMissingJavadocComments = null;
@@ -9710,5 +9710,83 @@ public void test293() {
 		"	                                  ^^^^^\n" + 
 		"The field X.QUERY is not visible\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179566
+public void test294() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportMissingJavadocComments, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	String testFiles [] = new String[] {
+			"A.java",
+			"/** */\n" +
+			"public class A {\n" +
+			"	@SuppressWarnings(\"javadoc\")\n" +
+			"	public int foo(int i) { return 0; }\n" +
+			"}\n"
+			};
+	runConformTest(
+			testFiles,
+			null,
+			null,
+			true,
+			null,
+			customOptions,
+			null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179566
+public void test295() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportMissingJavadocComments, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	String testFiles [] = new String[] {
+			"A.java",
+			"/** */\n" +
+			"public class A {\n" +
+			"	/**\n" +
+			"	 * @param j the given param/\n" +
+			"	 */\n" +
+			"	@SuppressWarnings(\"javadoc\")\n" +
+			"	public int foo(int i) { return 0; }\n" +
+			"}\n"
+			};
+	runConformTest(
+			testFiles,
+			null,
+			null,
+			true,
+			null,
+			customOptions,
+			null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=179566
+public void test296() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportMissingJavadocComments, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	String testFiles [] = new String[] {
+			"A.java",
+			"/** */\n" +
+			"public class A {\n" +
+			"	/**\n" +
+			"	 * @param i/\n" +
+			"	 */\n" +
+			"	@SuppressWarnings(\"javadoc\")\n" +
+			"	public int foo(int i) { return 0; }\n" +
+			"}\n"
+			};
+	runConformTest(
+			testFiles,
+			null,
+			null,
+			true,
+			null,
+			customOptions,
+			null);
 }
 }
