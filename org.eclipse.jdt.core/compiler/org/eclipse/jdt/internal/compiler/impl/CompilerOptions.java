@@ -777,6 +777,10 @@ public class CompilerOptions {
 			case MethodCanBeStatic :
 			case MethodCanBePotentiallyStatic :
 				return "static-method"; //$NON-NLS-1$
+			case InvalidJavadoc :
+			case MissingJavadocComments :
+			case MissingJavadocTags:
+				return "javadoc"; //$NON-NLS-1$				
 		}
 		return null;
 	}
@@ -816,6 +820,10 @@ public class CompilerOptions {
 			case 'i' :
 				if ("incomplete-switch".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.INCOMPLETE_SWITCH;
+				break;
+			case 'j' :
+				if ("javadoc".equals(warningToken)) //$NON-NLS-1$
+					return IrritantSet.JAVADOC;
 				break;
 			case 'n' :
 				if ("nls".equals(warningToken)) //$NON-NLS-1$
