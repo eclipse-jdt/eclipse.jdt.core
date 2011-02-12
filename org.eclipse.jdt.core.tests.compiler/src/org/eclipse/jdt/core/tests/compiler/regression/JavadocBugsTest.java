@@ -5328,16 +5328,16 @@ public void testBug128954() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	* @see p.A#bar()\n" +
-		"	           ^^^^^\n" +
-		"[@cat:javadoc] Javadoc: The method bar() from the type A is deprecated\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"[@cat:type] Zork cannot be resolved to a type\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	* @see p.A#bar()\n" + 
+		"	           ^^^^^\n" + 
+		"[@cat:javadoc] [@sup:javadoc] Javadoc: The method bar() from the type A is deprecated\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"[@cat:type] Zork cannot be resolved to a type\n" + 
 		"----------\n",
 		null,
 		true,
@@ -5367,16 +5367,16 @@ public void testBug128954a() {
 			"	}\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	* @see p.A#bar()\n" +
-		"	       ^^^\n" +
-		"[@cat:javadoc] Javadoc: p cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	Zork z;\n" +
-		"	^^^^\n" +
-		"[@cat:type] Zork cannot be resolved to a type\n" +
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	* @see p.A#bar()\n" + 
+		"	       ^^^\n" + 
+		"[@cat:javadoc] [@sup:javadoc] Javadoc: p cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"[@cat:type] Zork cannot be resolved to a type\n" + 
 		"----------\n",
 		null,
 		true,
