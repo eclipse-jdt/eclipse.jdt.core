@@ -15,6 +15,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GenericsRegressionTest extends AbstractComparableTest {
@@ -1156,5 +1157,151 @@ public void test322817k() {
 			null,
 			true,
 			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334622 (private access - different packages)
+public void test334622a() {
+	this.runNegativeTest(
+			new String[] {
+					"p/X.java",
+					"package p;\n" +
+					"public class X {\n" +
+					"    private Object foo;\n" +
+					"}\n",
+					"q/Y.java",
+					"package q;\n" +
+					"import p.X;\n" +
+					"public class Y {\n" +
+					"    public <T extends X> void test(T t) {\n" +
+					"        System.out.println(t.foo);\n" +
+					"    }\n" +
+					"    Zork z;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\X.java (at line 3)\n" + 
+			"	private Object foo;\n" + 
+			"	               ^^^\n" + 
+			"The value of the field X.foo is not used\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in q\\Y.java (at line 5)\n" + 
+			"	System.out.println(t.foo);\n" + 
+			"	                     ^^^\n" + 
+			"The field X.foo is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in q\\Y.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334622 (private access - same package)
+public void test334622b() {
+	this.runNegativeTest(
+			new String[] {
+					"p/X.java",
+					"package p;\n" +
+					"public class X {\n" +
+					"    private Object foo;\n" +
+					"}\n",
+					"p/Y.java",
+					"package p;\n" +
+					"public class Y {\n" +
+					"    public <T extends X> void test(T t) {\n" +
+					"        System.out.println(t.foo);\n" +
+					"    }\n" +
+					"    Zork z;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\X.java (at line 3)\n" + 
+			"	private Object foo;\n" + 
+			"	               ^^^\n" + 
+			"The value of the field X.foo is not used\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in p\\Y.java (at line 4)\n" + 
+			"	System.out.println(t.foo);\n" + 
+			"	                     ^^^\n" + 
+			"The field X.foo is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in p\\Y.java (at line 6)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334622 (member of type variable shouldn't contain private members of class constituting intersection type)
+public void test334622c() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    private Object foo;\n" +
+					"    public <T extends X> void test(T t) {\n" +
+					"        System.out.println(t.foo);\n" +
+					"        Zork z;\n" +
+					"    }\n" +
+					"}\n"
+			},
+			this.complianceLevel <= ClassFileConstants.JDK1_6 ?
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" : 
+				
+			// 1.7+ output.	
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	private Object foo;\n" + 
+			"	               ^^^\n" + 
+			"The value of the field X.foo is not used\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	System.out.println(t.foo);\n" + 
+			"	                     ^^^\n" + 
+			"The field X.foo is not visible\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=334622 (member of type variable shouldn't contain private members of class constituting intersection type)
+public void test334622d() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    private Object foo() { return null; }\n" +
+					"    public <T extends X> void test(T t) {\n" +
+					"        t.foo();\n" +
+					"        Zork z;\n" +
+					"    }\n" +
+					"}\n"
+			},
+			this.complianceLevel <= ClassFileConstants.JDK1_6 ?
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" : 
+				
+			// 1.7+ output.	
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	t.foo();\n" + 
+			"	  ^^^\n" + 
+			"The method foo() from the type X is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
 }
 }
