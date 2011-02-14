@@ -62,7 +62,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	Map formatterOptions;
 
 	static {
-//		TESTS_NUMBERS = new int[] { 736 };
+//		TESTS_NUMBERS = new int[] { 738 };
 //		TESTS_RANGE = new int[] { 734, -1 };
 	}
 	public static Test suite() {
@@ -11101,5 +11101,15 @@ public void test737() {
 		"	}\n" + 
 		"}\n"
 	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=332843
+public void test738() {
+	final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+	DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+	IRegion[] regions = new IRegion[] {
+			new Region(705, 0)
+	};
+	runTest(codeFormatter, "test738", "RecipeDocumentProvider.java", CodeFormatter.K_COMPILATION_UNIT, 0, true, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 }
 }
