@@ -11407,4 +11407,14 @@ public void test747() {
 		"}\n"
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335309
+public void test748() {
+	final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+	DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+	IRegion[] regions = new IRegion[] {
+			new Region(705, 0)
+	};
+	runTest(codeFormatter, "test748", "RecipeDocumentProvider.java", CodeFormatter.K_COMPILATION_UNIT, 0, true, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
+}
 }
