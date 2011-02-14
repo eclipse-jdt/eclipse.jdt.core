@@ -361,6 +361,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ArrayReferenceRequired", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("AssignmentHasNoEffect", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("AssignmentToMultiCatchParameter", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("AssignmentToResource", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("BodyForAbstractMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("BodyForNativeMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("BoundCannotBeArray", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -555,6 +556,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InvalidClassInstantiation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidContinue", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidDigit", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("InvalidDisjunctiveTypeReferenceSequence", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidEncoding", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidEscape", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidExplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -770,6 +772,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("RedundantSuperinterface", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("ReferenceToForwardField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ReferenceToForwardTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("ResourceHasToBeAutoCloseable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ReturnTypeAmbiguous", DEPRECATED);
 		expectedProblemAttributes.put("ReturnTypeCannotBeVoidArray", DEPRECATED);
 		expectedProblemAttributes.put("ReturnTypeInheritedNameHidesEnclosingName", DEPRECATED);
@@ -1011,6 +1014,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ArrayReferenceRequired", SKIP);
 		expectedProblemAttributes.put("AssignmentHasNoEffect", new ProblemAttributes(JavaCore.COMPILER_PB_NO_EFFECT_ASSIGNMENT));
 		expectedProblemAttributes.put("AssignmentToMultiCatchParameter", SKIP);
+		expectedProblemAttributes.put("AssignmentToResource", SKIP);
 		expectedProblemAttributes.put("BodyForAbstractMethod", SKIP);
 		expectedProblemAttributes.put("BodyForNativeMethod", SKIP);
 		expectedProblemAttributes.put("BoundCannotBeArray", SKIP);
@@ -1205,6 +1209,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InvalidClassInstantiation", SKIP);
 		expectedProblemAttributes.put("InvalidContinue", SKIP);
 		expectedProblemAttributes.put("InvalidDigit", SKIP);
+		expectedProblemAttributes.put("InvalidDisjunctiveTypeReferenceSequence", SKIP);
 		expectedProblemAttributes.put("InvalidEmptyExoticIdentifier", SKIP);
 		expectedProblemAttributes.put("InvalidEncoding", SKIP);
 		expectedProblemAttributes.put("InvalidEscape", SKIP);
@@ -1421,6 +1426,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("RedundantSuperinterface", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_SUPERINTERFACE));
 		expectedProblemAttributes.put("ReferenceToForwardField", SKIP);
 		expectedProblemAttributes.put("ReferenceToForwardTypeVariable", SKIP);
+		expectedProblemAttributes.put("ResourceHasToBeAutoCloseable", SKIP);
 		expectedProblemAttributes.put("ReturnTypeAmbiguous", SKIP);
 		expectedProblemAttributes.put("ReturnTypeCannotBeVoidArray", SKIP);
 		expectedProblemAttributes.put("ReturnTypeInheritedNameHidesEnclosingName", SKIP);

@@ -371,6 +371,7 @@ public class CompilerOptions {
 		"finally", //$NON-NLS-1$
 		"hiding", //$NON-NLS-1$
 		"incomplete-switch", //$NON-NLS-1$
+		"javadoc", //$NON-NLS-1$
 		"nls", //$NON-NLS-1$
 		"null", //$NON-NLS-1$
 		"restriction", //$NON-NLS-1$
