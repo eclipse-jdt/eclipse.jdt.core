@@ -9016,6 +9016,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"class Y extends Zork {\n" +
 				"}\n"
 			},
+			this.complianceLevel <= ClassFileConstants.JDK1_6 ?
 			"----------\n" +
 			"1. WARNING in X.java (at line 6)\n" +
 			"	public int foo(T t) { return t.i + t.i() + T.M.j; }\n" +
@@ -9029,6 +9030,30 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n"
 			// 5: operator + cannot be applied to int,<any>.j
 			// 5: incompatible type, found : <nulltype>, required: int
+			:
+				
+			// 1.7+ output, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=334622
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	public int foo(T t) { return t.i + t.i() + T.M.j; }\n" + 
+			"	                               ^\n" + 
+			"The field X<T>.i is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	public int foo(T t) { return t.i + t.i() + T.M.j; }\n" + 
+			"	                                     ^\n" + 
+			"The method i() from the type X<T> is not visible\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	public int foo(T t) { return t.i + t.i() + T.M.j; }\n" + 
+			"	                                           ^^^\n" + 
+			"The type T.M is not visible\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	class Y extends Zork {\n" + 
+			"	                ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n"
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72583
@@ -49782,7 +49807,7 @@ public void test1457() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=285002 (visibility error for package private method)
 public void test1458() {
-	this.runConformTest(
+	this.runNegativeTest(
 			new String[] {
 					"CompilerBug.java",
 					"public class CompilerBug {\n" +
@@ -49806,9 +49831,36 @@ public void test1458() {
 					"		      getClass().newInstance().privateInt = 10;\n" +
 					"		      getClass().newInstance().packagePrivateInt = 10;\n" +
 					"		      getClass().newInstance().protectedInt = 10;\n" +
+					"             Zork z;\n" +
 					"		   }\n" +
-					"	}\n"
-			});
+					"	}\n",
+			},
+			this.complianceLevel <= ClassFileConstants.JDK1_6 ?
+			"----------\n" + 
+			"1. ERROR in CompilerBug.java (at line 22)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" :
+				
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=334622
+			"----------\n" + 
+			"1. ERROR in CompilerBug.java (at line 17)\n" + 
+			"	getClass().newInstance().privateMethod();\n" + 
+			"	                         ^^^^^^^^^^^^^\n" + 
+			"The method privateMethod() from the type CompilerBug is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in CompilerBug.java (at line 19)\n" + 
+			"	getClass().newInstance().privateInt = 10;\n" + 
+			"	                         ^^^^^^^^^^\n" + 
+			"The field CompilerBug.privateInt is not visible\n" + 
+			"----------\n" + 
+			"3. ERROR in CompilerBug.java (at line 22)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n"
+			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=295698
 public void test1459() {
