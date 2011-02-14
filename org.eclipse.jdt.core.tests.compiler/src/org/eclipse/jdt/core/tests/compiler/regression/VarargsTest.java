@@ -38,7 +38,7 @@ public class VarargsTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-		TESTS_NUMBERS = new int[] { 63, 64 };
+//		TESTS_NUMBERS = new int[] { 65 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 	public static Test suite() {
@@ -2279,6 +2279,47 @@ public class VarargsTest extends AbstractComparableTest {
 				"	}\n" +
 				"	public void bar() {\n" +
 				"		List<? extends Class<?>> classes = X.asList(String.class, Boolean.class);\n" +
+				"	}\n" +
+				"}",
+			},
+			"",
+			null,
+			false,
+			null,
+			options,
+			null);
+	}
+	public void test065() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+			new String[] {
+				"java/lang/SafeVarargs.java",
+				"package java.lang;\n" +
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
+				"import static java.lang.annotation.ElementType.METHOD;\n" + 
+				"\n" + 
+				"@Retention(value=RUNTIME)\n" + 
+				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
+				"public @interface SafeVarargs {}",
+			},
+			"");
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"public class X {\r\n" +
+				"	@SafeVarargs\n" +
+				"	public static <T> List<T> asList(T... a) {\n" + 
+				"		return null;\n" + 
+				"	}\n" +
+				"	public void bar() {\n" +
+				"		List<List<String>> classes = X.asList(X.asList(\"Hello\", \"World\"));\n" +
 				"	}\n" +
 				"}",
 			},
