@@ -14,11 +14,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Hashtable;
 import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -6860,6 +6862,54 @@ public void testBug229042() throws Exception {
 	} finally {
 		deleteProject("P");
 	}
+}
+/**
+ * @bug 274737: Relative Classpath entries should not be resolved relative to the workspace
+ * 
+ * Test that for an external project, relative paths are resolve relative to the project location.
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=274737"
+ * @throws Exception
+ */
+public void testBug274737() throws Exception {
+	try {
+		createExternalFolder("development/third_party");
+		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject("ExternalProject");
+		URI uri=  URIUtil.toURI(new Path(getExternalResourcePath("development")).append("ExternalProject"));
+		IProjectDescription desc = project.getWorkspace().newProjectDescription(project.getName());
+		desc.setLocationURI(uri);
+		project.create(desc, null);
+		if (!project.isOpen()) {
+			project.open(null);
+		}
+		
+		addJavaNature("ExternalProject");
+		IJavaProject javaProject = JavaCore.create(project);
+		IClasspathEntry[] classpath = new IClasspathEntry[2];
+		Util.createJar(
+				new String[0],
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n" +
+					"Class-Path: \n",
+				},
+				getExternalResourcePath("development/third_party/lib.jar"),
+				JavaCore.VERSION_1_4);
+		createExternalFolder("development/ExternalProject/src");
+		createExternalFolder("development/ExternalProject/bin");
+		classpath[0] = JavaCore.newSourceEntry(new Path("/ExternalProject/src"), null, null);
+		classpath[1] = JavaCore.newLibraryEntry(new Path("../third_party/lib.jar"), null, null);
+		javaProject.setRawClasspath(classpath, new Path("/ExternalProject/bin"), null);
+		
+		refresh(javaProject);
+		waitForAutoBuild();
+		assertMarkers("Unexpected markers", "", javaProject);
+		
+	} finally {
+		deleteProject("ExternalProject");
+		deleteExternalResource("development");
+
+	}	
 }
 
 }

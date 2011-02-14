@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2588,7 +2588,7 @@ public class JavaProject
 			for (int index = 0; index < rawClasspath.length; index++) {
 				IClasspathEntry currentEntry = rawClasspath[index]; 
 				if (currentEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-					rawLibrariesPath.add(ClasspathEntry.resolveDotDot(currentEntry.getPath()));
+					rawLibrariesPath.add(ClasspathEntry.resolveDotDot(getProject().getLocation(), currentEntry.getPath()));
 				}
 			}
 			if (referencedEntries != null) {
@@ -2676,7 +2676,7 @@ public class JavaProject
 						
 						if (cEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 							// resolve ".." in library path
-							cEntry = cEntry.resolvedDotDot();
+							cEntry = cEntry.resolvedDotDot(getProject().getLocation());
 							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=313965
 							// Do not resolve if the system attribute is set to false	
 							if (resolveChainedLibraries
@@ -2697,7 +2697,7 @@ public class JavaProject
 
 				case IClasspathEntry.CPE_LIBRARY:
 					// resolve ".." in library path
-					resolvedEntry = ((ClasspathEntry) rawEntry).resolvedDotDot();
+					resolvedEntry = ((ClasspathEntry) rawEntry).resolvedDotDot(getProject().getLocation());
 					
 					if (resolveChainedLibraries && result.rawReverseMap.get(resolvedEntry.getPath()) == null) {
 						// resolve Class-Path: in manifest

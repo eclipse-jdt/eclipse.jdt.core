@@ -2416,7 +2416,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		IPath resolvedPath = getResolvedVariablePath(entry.getPath(), usePreviousSession);
 		if (resolvedPath == null)
 			return null;
-		resolvedPath = ClasspathEntry.resolveDotDot(resolvedPath);
+		// By passing a null reference path, we keep it relative to workspace root.
+		resolvedPath = ClasspathEntry.resolveDotDot(null, resolvedPath);
 
 		Object target = JavaModel.getTarget(resolvedPath, false);
 		if (target == null)
