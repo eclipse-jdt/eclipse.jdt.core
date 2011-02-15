@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2081,6 +2081,29 @@ public void hierarchyCircularity(SourceTypeBinding sourceType, ReferenceBinding 
 			IProblem.HierarchyCircularity,
 			new String[] {new String(sourceType.readableName()), new String(superType.readableName())},
 			new String[] {new String(sourceType.shortReadableName()), new String(superType.shortReadableName())},
+			start,
+			end);
+}
+
+public void hierarchyCircularity(TypeVariableBinding type, ReferenceBinding superType, TypeReference reference) {
+	int start = 0;
+	int end = 0;
+
+	start = reference.sourceStart;
+	end = reference.sourceEnd;
+
+	if (type == superType)
+		this.handle(
+			IProblem.HierarchyCircularitySelfReference,
+			new String[] {new String(type.readableName()) },
+			new String[] {new String(type.shortReadableName()) },
+			start,
+			end);
+	else
+		this.handle(
+			IProblem.HierarchyCircularity,
+			new String[] {new String(type.readableName()), new String(superType.readableName())},
+			new String[] {new String(type.shortReadableName()), new String(superType.shortReadableName())},
 			start,
 			end);
 }

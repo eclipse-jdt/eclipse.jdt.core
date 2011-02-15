@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1302,6 +1302,52 @@ public void test334622d() {
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335751 ([1.7][compiler] Cycle inheritance in type arguments is not detected)
+public void test335751() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X<A extends B, B extends A> {}\n"
+			},
+			this.complianceLevel <= ClassFileConstants.JDK1_6 ?
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<A extends B, B extends A> {}\n" + 
+			"	               ^\n" + 
+			"Illegal forward reference to type parameter B\n" + 
+			"----------\n" : 
+
+			// 1.7+ output.	
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<A extends B, B extends A> {}\n" + 
+			"	                                      ^\n" + 
+			"Cycle detected: a cycle exists in the type hierarchy between B and A\n" + 
+			"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=334121 ([1.7][compiler] Stackoverflow error if compiled in 1.7 compliance mode)
+public void test334121() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X<A extends A> {}\n"
+			},
+			this.complianceLevel <= ClassFileConstants.JDK1_6 ?
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<A extends A> {}\n" + 
+			"	               ^\n" + 
+			"Illegal forward reference to type parameter A\n" + 
+			"----------\n" : 
+
+			// 1.7+ output.	
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<A extends A> {}\n" + 
+			"	                         ^\n" + 
+			"Cycle detected: the type A cannot extend/implement itself or one of its own member types\n" + 
 			"----------\n");
 }
 }
