@@ -2096,6 +2096,29 @@ public void hierarchyCircularity(SourceTypeBinding sourceType, ReferenceBinding 
 			end);
 }
 
+public void hierarchyCircularity(TypeVariableBinding type, ReferenceBinding superType, TypeReference reference) {
+	int start = 0;
+	int end = 0;
+
+	start = reference.sourceStart;
+	end = reference.sourceEnd;
+
+	if (type == superType)
+		this.handle(
+			IProblem.HierarchyCircularitySelfReference,
+			new String[] {new String(type.readableName()) },
+			new String[] {new String(type.shortReadableName()) },
+			start,
+			end);
+	else
+		this.handle(
+			IProblem.HierarchyCircularity,
+			new String[] {new String(type.readableName()), new String(superType.readableName())},
+			new String[] {new String(type.shortReadableName()), new String(superType.shortReadableName())},
+			start,
+			end);
+}
+
 public void hierarchyHasProblems(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(

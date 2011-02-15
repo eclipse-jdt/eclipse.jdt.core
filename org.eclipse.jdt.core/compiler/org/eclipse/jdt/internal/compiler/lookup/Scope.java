@@ -624,6 +624,24 @@ public abstract class Scope {
 									break firstBound; // do not keep first bound
 								}
 							}
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335751
+							if (compilerOptions().complianceLevel > ClassFileConstants.JDK1_6) {
+								if (typeVariable.rank >= varSuperType.rank && varSuperType.declaringElement == typeVariable.declaringElement) {
+									SimpleSet set = new SimpleSet(typeParameters.length);
+									set.add(typeVariable);
+									ReferenceBinding superBinding = varSuperType;
+									while (superBinding instanceof TypeVariableBinding) {
+										if (set.includes(superBinding)) {
+											problemReporter().hierarchyCircularity(typeVariable, varSuperType, typeRef);
+											typeVariable.tagBits |= TagBits.HierarchyHasProblems;
+											break firstBound; // do not keep first bound
+										} else {
+											set.add(superBinding);
+											superBinding = ((TypeVariableBinding)superBinding).superclass;
+										}
+									}
+								}
+							}
 							break;
 						default :
 							if (((ReferenceBinding) superType).isFinal()) {
