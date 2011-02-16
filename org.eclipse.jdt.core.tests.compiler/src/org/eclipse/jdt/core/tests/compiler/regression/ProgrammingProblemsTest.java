@@ -2280,9 +2280,7 @@ public void test0057() throws Exception {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=336648
-public void _test0058() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5)
-		return;
+public void test0058() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 	this.runNegativeTest(
@@ -2302,12 +2300,7 @@ public void _test0058() {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	final String message= m;\n" + 
-			"	             ^^^^^^^\n" + 
-			"The value of the local variable message is not used\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
 			"	bug(); // undefined method\n" + 
 			"	^^^\n" + 
 			"The method bug() is undefined for the type new Runnable(){}\n" + 
