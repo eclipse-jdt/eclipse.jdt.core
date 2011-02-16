@@ -2330,4 +2330,42 @@ public class VarargsTest extends AbstractComparableTest {
 			options,
 			null);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337093
+	public void test066() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.Collection;\n" +
+					"import java.util.Iterator;\n" +
+					"public class X {\n" +
+					"    public static class IteratorChain<T> implements Iterator<T> {\n" +
+					"       public IteratorChain(Collection<? extends T> a, Collection<? extends T> b, Collection<? extends T> ... collections) {\n" +
+					"        }\n" +
+					"        public boolean hasNext() {\n" +
+					"            return false;\n" +
+					"        }\n" +
+					"        public T next() {\n" +
+					"            return null;\n" +
+					"        }\n" +
+					"        public void remove() {\n" +
+					"            throw new UnsupportedOperationException();\n" +
+					"        }\n" +
+					"    }\n" +
+					"    public static void main(String[] args) {\n" +
+					"        new IteratorChain<Number>(null, null);\n" +
+					"    }\n" +
+					"}\n", // =================
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 18)\n" + 
+				"	new IteratorChain<Number>(null, null);\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety : A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
+				"----------\n",
+				null, 
+				true,
+				options);		
+	}
 }
