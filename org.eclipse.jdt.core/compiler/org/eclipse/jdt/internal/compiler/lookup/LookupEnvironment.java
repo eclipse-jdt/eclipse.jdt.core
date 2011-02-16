@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -125,8 +125,6 @@ public ReferenceBinding askForType(char[][] compoundName) {
 
 ReferenceBinding askForType(PackageBinding packageBinding, char[] name) {
 	if (packageBinding == null) {
-		if (this.defaultPackage == null)
-			return null;
 		packageBinding = this.defaultPackage;
 	}
 	NameEnvironmentAnswer answer = this.nameEnvironment.findType(name, packageBinding.compoundName);
@@ -967,8 +965,6 @@ public AccessRestriction getAccessRestriction(TypeBinding type) {
  */
 public ReferenceBinding getCachedType(char[][] compoundName) {
 	if (compoundName.length == 1) {
-		if (this.defaultPackage == null)
-			return null;
 		return this.defaultPackage.getType0(compoundName[0]);
 	}
 	PackageBinding packageBinding = getPackage0(compoundName[0]);
@@ -1038,9 +1034,6 @@ public ReferenceBinding getType(char[][] compoundName) {
 	ReferenceBinding referenceBinding;
 
 	if (compoundName.length == 1) {
-		if (this.defaultPackage == null)
-			return null;
-
 		if ((referenceBinding = this.defaultPackage.getType0(compoundName[0])) == null) {
 			PackageBinding packageBinding = getPackage0(compoundName[0]);
 			if (packageBinding != null && packageBinding != TheNotFoundPackage)

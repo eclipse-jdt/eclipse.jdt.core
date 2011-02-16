@@ -5277,15 +5277,6 @@ public void mustDefineDimensionsOrInitializer(ArrayAllocationExpression expressi
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void mustSpecifyPackage(CompilationUnitDeclaration compUnitDecl) {
-	String[] arguments = new String[] {new String(compUnitDecl.getFileName())};
-	this.handle(
-		IProblem.MustSpecifyPackage,
-		arguments,
-		arguments,
-		compUnitDecl.sourceStart,
-		compUnitDecl.sourceStart + 1);
-}
 public void mustUseAStaticMethod(MessageSend messageSend, MethodBinding method) {
 	this.handle(
 		IProblem.StaticMethodRequested,
