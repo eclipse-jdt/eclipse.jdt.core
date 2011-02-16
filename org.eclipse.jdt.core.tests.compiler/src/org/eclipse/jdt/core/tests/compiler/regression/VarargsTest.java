@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2195,5 +2195,43 @@ public class VarargsTest extends AbstractComparableTest {
 			"  // Stack: 3, Locals: 5\n" + 
 			"  X$1(X arg0, java.lang.Integer $anonymous0, java.lang.String... $anonymous1, java.lang.Float arg3);\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$1.class", "X$1", expectedOutput);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337093
+	public void test063() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.Collection;\n" +
+					"import java.util.Iterator;\n" +
+					"public class X {\n" +
+					"    public static class IteratorChain<T> implements Iterator<T> {\n" +
+					"       public IteratorChain(Collection<? extends T> a, Collection<? extends T> b, Collection<? extends T> ... collections) {\n" +
+					"        }\n" +
+					"        public boolean hasNext() {\n" +
+					"            return false;\n" +
+					"        }\n" +
+					"        public T next() {\n" +
+					"            return null;\n" +
+					"        }\n" +
+					"        public void remove() {\n" +
+					"            throw new UnsupportedOperationException();\n" +
+					"        }\n" +
+					"    }\n" +
+					"    public static void main(String[] args) {\n" +
+					"        new IteratorChain<Number>(null, null);\n" +
+					"    }\n" +
+					"}\n", // =================
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 18)\n" + 
+				"	new IteratorChain<Number>(null, null);\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety : A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
+				"----------\n",
+				null, 
+				true,
+				options);		
 	}
 }

@@ -296,7 +296,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					invocationStatus |= checkInvocationArgument(scope, arguments[i], params[i] , argumentTypes[i], originalRawParam);
 				}
 			   int argLength = arguments.length;
-			   if (lastIndex < argLength) { // vararg argument was provided
+			   if (lastIndex <= argLength) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=337093
 				   	TypeBinding parameterType = params[lastIndex];
 					TypeBinding originalRawParam = null;
 
