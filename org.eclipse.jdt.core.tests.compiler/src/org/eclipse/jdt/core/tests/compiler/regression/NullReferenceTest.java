@@ -13947,4 +13947,82 @@ public void testBug336544_3() {
 		},
 		"SUCCESS");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=313870
+public void testBug313870() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		String s = \"\";\n" +
+			"		for (int i = 0; i < 2; i++) {\n" +
+            "			if (i != 0) { \n" +
+            "    			s = test();\n" +
+            "			}\n" +
+            "			if (s == null) {\n" +
+            "    			System.out.println(\"null\");\n" +
+            "			}\n" +
+            "		}\n" + 
+			"	}\n" + 
+			"	public static String test() {\n" +
+            "		return null;\n" +
+			"	}\n" + 
+			"}"
+		},
+		"null");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=313870
+public void testBug313870b() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.BufferedReader;\n" +
+			"import java.io.IOException;\n" +
+			"public class X {\n" + 
+			"	public void main(BufferedReader bufReader) throws IOException {\n" +
+			"		String line = \"\";\n" +
+			"		boolean doRead = false;\n" +
+			"		while (true) {\n" +
+            "			if (doRead) { \n" +
+            "    		   line = bufReader.readLine();\n" +
+            "			}\n" +
+            "			if (line == null) {\n" +
+            "    			return;\n" +
+            "			}\n" +
+            "			doRead = true;\n" +
+            "		}\n" +
+			"	}\n" + 
+			"}"
+		},
+		"");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=313870
+public void testBug313870c() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.File;\n" +
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		boolean sometimes = (System.currentTimeMillis() & 1L) != 0L;\n" +
+			"		File file = new File(\"myfile\");\n" +
+			"		for (int i = 0; i < 2; i++) {\n" +
+            "			if (sometimes) { \n" +
+            "    		 	file = getNewFile();\n" +
+            "			}\n" +
+            "			if (file == null) { \n" +
+            "    			System.out.println(\"\");\n" +
+            "			}\n" +
+            "		}\n" +
+			"	}\n" +
+			"	private static File getNewFile() {\n" +
+			"		return null;\n" +
+			"	}\n" + 
+			"}"
+		},
+		"");
+}
 }
