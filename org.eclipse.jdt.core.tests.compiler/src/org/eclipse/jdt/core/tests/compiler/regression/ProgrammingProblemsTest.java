@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001, 2010 IBM Corporation and others.
+ * Copyright (c) 2001, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2278,5 +2278,35 @@ public void test0057() throws Exception {
 		null,
 		customOptions,
 		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=336648
+public void test0058() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    void foo(String m) {\n" +
+				"        final String message= m;\n" +
+				"        new Runnable() {\n" +
+				"            public void run() {\n" +
+				"                if (\"x\".equals(message)) {\n" +
+				"                    bug(); // undefined method\n" +
+				"                }\n" +
+				"            }\n" +
+				"        }.run();\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	bug(); // undefined method\n" + 
+			"	^^^\n" + 
+			"The method bug() is undefined for the type new Runnable(){}\n" + 
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
 }
 }
