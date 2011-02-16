@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test036" };
-//		TESTS_NUMBERS = new int[] { 79 };
+//		TESTS_NUMBERS = new int[] { 80 };
 //		TESTS_RANGE = new int[] { 75, -1 };
 	}
 
@@ -2688,6 +2688,35 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	import B.B.C1;\n" + 
 			"	       ^^^^^^\n" + 
 			"The import B.B.C1 collides with another import statement\n" + 
+			"----------\n"
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=336934
+	public void test080() {
+		this.runNegativeTest(
+			new String[] {
+				"a/B.java",
+				"package a;\n" + 
+				"public class B {}",
+				"external/Lib.java",
+				"package external;\n" + 
+				"public class Lib {\n" + 
+				"	public static void m() {}\n" + 
+				"}",
+				"a/B/C.java",
+				"package a.B;\n" + 
+				"import static external.Lib.m;\n" + 
+				"public class C {\n" + 
+				"	public void main() {\n" + 
+				"		m();\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in a\\B\\C.java (at line 1)\n" + 
+			"	package a.B;\n" + 
+			"	        ^^^\n" + 
+			"The package a.B collides with a type\n" + 
 			"----------\n"
 		);
 	}

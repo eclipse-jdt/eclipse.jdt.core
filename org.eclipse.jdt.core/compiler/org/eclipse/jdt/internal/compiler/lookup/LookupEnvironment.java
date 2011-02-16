@@ -131,8 +131,6 @@ public ReferenceBinding askForType(char[][] compoundName) {
 
 ReferenceBinding askForType(PackageBinding packageBinding, char[] name) {
 	if (packageBinding == null) {
-		if (this.defaultPackage == null)
-			return null;
 		packageBinding = this.defaultPackage;
 	}
 	NameEnvironmentAnswer answer = this.nameEnvironment.findType(name, packageBinding.compoundName);
@@ -1020,8 +1018,6 @@ public AccessRestriction getAccessRestriction(TypeBinding type) {
  */
 public ReferenceBinding getCachedType(char[][] compoundName) {
 	if (compoundName.length == 1) {
-		if (this.defaultPackage == null)
-			return null;
 		return this.defaultPackage.getType0(compoundName[0]);
 	}
 	PackageBinding packageBinding = getPackage0(compoundName[0]);
@@ -1091,9 +1087,6 @@ public ReferenceBinding getType(char[][] compoundName) {
 	ReferenceBinding referenceBinding;
 
 	if (compoundName.length == 1) {
-		if (this.defaultPackage == null)
-			return null;
-
 		if ((referenceBinding = this.defaultPackage.getType0(compoundName[0])) == null) {
 			PackageBinding packageBinding = getPackage0(compoundName[0]);
 			if (packageBinding != null && packageBinding != TheNotFoundPackage)

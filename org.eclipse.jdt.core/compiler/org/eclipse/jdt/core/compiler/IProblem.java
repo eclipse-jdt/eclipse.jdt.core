@@ -644,6 +644,7 @@ void setSourceStart(int sourceStart);
 	int DuplicateTypes = TypeRelated + 323;
 	int IsClassPathCorrect = TypeRelated + 324;
 	int PublicClassMustMatchFileName = TypeRelated + 325;
+	/** @deprecated - problem is no longer generated */
 	int MustSpecifyPackage = Internal + 326;
 	int HierarchyHasProblems = TypeRelated + 327;
 	int PackageIsNotExpectedPackage = Internal + 328;
