@@ -670,13 +670,11 @@ FormalParameter ::= Modifiersopt Type '...' VariableDeclaratorId
 CatchFormalParameter ::= Modifiersopt CatchType VariableDeclaratorId
 /.$putCase consumeCatchFormalParameter(); $break ./
 /:$readableName FormalParameter:/
-/:$compliance 1.5:/
 /:$recovery_template Identifier Identifier:/
 
 CatchType ::= DisjunctiveType
 /.$putCase consumeCatchType(); $break ./
 /:$readableName CatchType:/
-/:$compliance 1.7:/
 
 DisjunctiveType ::= Type
 /.$putCase consumeDisjunctiveTypeAsClassType(); $break ./
