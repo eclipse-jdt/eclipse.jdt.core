@@ -2744,6 +2744,12 @@ public class JavaProject
 		if (resolvedEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && ExternalFoldersManager.isExternalFolderPath(resolvedPath)) {
 			externalFoldersManager.addFolder(resolvedPath, true/*scheduleForCreation*/); // no-op if not an external folder or if already registered
 		}
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=336046
+		// The source attachment path could be external too and in which case, must be added.
+		IPath sourcePath = resolvedEntry.getSourceAttachmentPath();
+		if (sourcePath != null && ExternalFoldersManager.isExternalFolderPath(sourcePath)) {
+			externalFoldersManager.addFolder(sourcePath, true);
+		}
 	}
 
 	private void copyFromOldChainedEntry(ClasspathEntry resolvedEntry, ClasspathEntry chainedEntry) {

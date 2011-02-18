@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,15 +11,22 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Hashtable;
 
 import junit.framework.Test;
 
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -40,6 +47,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.core.ExternalFoldersManager;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -1560,5 +1568,70 @@ public void testConstructorAccess() throws JavaModelException {
 		methods[0].getSource());
 	attachSource(root, null, null); // detach source
 	root.close();
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=336046
+ */
+public void testBug336046() throws Exception {
+	String externalSourceLocation = getExternalFolder() + File.separator + "336046src";
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	Hashtable javaCoreOptions = JavaCore.getOptions();
+	IJavaProject importedProject = null;
+	try {
+		
+		String classpathContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+		"<classpath>\n" +
+		"    <classpathentry kind=\"lib\" path=\"attach.jar\"/>\n" +
+		"    <classpathentry kind=\"lib\" path=\"attach2.jar\"/>\n" +
+		"    <classpathentry kind=\"lib\" path=\"test.jar\"/>\n" + 
+		"    <classpathentry kind=\"lib\" path=\"update.jar\"/>\n" +   
+		"    <classpathentry kind=\"lib\" path=\"full.jar\"/>\n" +
+		"    <classpathentry kind=\"lib\" path=\"test2.jar\"/>\n" +  
+		"    <classpathentry kind=\"lib\" path=\"test4.jar\"/>  \n" +  
+		"    <classpathentry kind=\"lib\" path=\"test5.jar\"/>  \n" +  
+		"    <classpathentry kind=\"lib\" path=\"test6.jar\"/>\n" +
+		"    <classpathentry kind=\"lib\" path=\"test7.jar\"/>\n" +
+		"    <classpathentry kind=\"lib\" path=\"267046.jar\"/>\n" +
+		"    <classpathentry kind=\"lib\" path=\"bug336046.jar\" sourcepath=\"" + externalSourceLocation + "\"/>\n" +
+		"    <classpathentry kind=\"lib\" path=\"lib\"/>\n" +
+		"    <classpathentry kind=\"src\" path=\"src\" output=\"src\"/>\n" +
+		"    <classpathentry kind=\"var\" path=\"JCL_LIB\"/>\n" +
+		"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
+		"</classpath>";
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		
+		IPath sourceLocation = project.getProject().getLocation();
+		IPath destination = new Path(getExternalFolder()).append("ImportedProject");
+		String classpathLocation = destination.append(".classpath").toString();
+		File srcFolder = destination.append("336046src").toFile();
+		copyDirectory(new File(sourceLocation.toString()), new File(destination.toString()));
+		project.getProject().close(null);
+
+		FileOutputStream fos = new FileOutputStream(classpathLocation);
+		fos.write(classpathContent.getBytes());
+		assertTrue(srcFolder.renameTo(new File(getExternalFolder() + File.separator + "336046src")));
+		fos.close();
+
+		IProject newProject = workspace.getRoot().getProject("ImportedProject");
+		URI uri=  URIUtil.toURI(destination);
+		IProjectDescription desc = workspace.newProjectDescription(newProject.getName());
+		desc.setLocationURI(uri);
+		newProject.create(desc, null);
+		if (!newProject.isOpen()) {
+			newProject.open(null);
+		}
+		importedProject = JavaCore.create(newProject);
+		importedProject.setOptions(project.getOptions(false));
+
+		((JavaProject)importedProject).resolveClasspath(importedProject.getRawClasspath());
+		IFolder linkedFolder = ExternalFoldersManager.getExternalFoldersManager().getFolder(new Path(getExternalFolder() + File.separator + "336046src"));
+		assertNotNull(linkedFolder);
+	}
+	finally {
+		if (importedProject != null)
+			importedProject.getProject().delete(true, true, null);
+		project.getProject().open(null);
+		JavaCore.setOptions(javaCoreOptions);
+	}
 }
 }
