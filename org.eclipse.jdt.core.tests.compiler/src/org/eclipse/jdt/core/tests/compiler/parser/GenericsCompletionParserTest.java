@@ -1922,10 +1922,11 @@ public void test0044_Method(){
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnException:Y<Z>.>";
 	String expectedParentNodeToString =
-			"try \n" +
+			"try\n" +
 			"  {\n" +
 			"  }\n" +
-			"catch (<CompleteOnException:Y<Z>.>  )   {\n" +
+			"catch (<CompleteOnException:Y<Z>.>  )\n" +
+			"  {\n" +
 			"  }";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
@@ -2001,10 +2002,11 @@ public void test0045_Method(){
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnException:Y<Z>.>";
 	String expectedParentNodeToString =
-			"try \n" +
+			"try\n" +
 			"  {\n" +
 			"  }\n" +
-			"catch (<CompleteOnException:Y<Z>.>  )   {\n" +
+			"catch (<CompleteOnException:Y<Z>.>  )\n" +
+			"  {\n" +
 			"  }";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
@@ -10778,13 +10780,15 @@ public void test0213_Method() {
 	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnException:Top<Object>.IZZ>";
 	String expectedParentNodeToString =
-			"try \n" +
+			"try\n" +
 			"  {\n" +
 			"    throwing();\n" +
 			"  }\n" +
-			"catch (IllegalAccessException e)   {\n" +
+			"catch (IllegalAccessException e)\n" +
+			"  {\n" +
 			"  }\n" +
-			"catch (<CompleteOnException:Top<Object>.IZZ>  )   {\n" +
+			"catch (<CompleteOnException:Top<Object>.IZZ>  )\n" +
+			"  {\n" +
 			"  }";
 	String completionIdentifier = "IZZ";
 	String expectedReplacedSource = "Top<Object>.IZZ";
