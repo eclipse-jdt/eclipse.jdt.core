@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -382,7 +382,9 @@ public static void createJar(String[] javaPathsAndContents, String[] extraPathsA
 }
 public static void createJar(String[] javaPathsAndContents, String[] extraPathsAndContents, String jarPath, String[] classpath, String compliance, Map options) throws IOException {
 	Map compileOptions = getCompileOptions(compliance);
-	compileOptions.putAll(options);
+	if (options != null) {
+		compileOptions.putAll(options);
+	}
 	createJar(javaPathsAndContents, extraPathsAndContents, compileOptions, classpath, jarPath);
 }
 public static void createSourceZip(String[] pathsAndContents, String zipPath) throws IOException {
