@@ -11072,13 +11072,15 @@ public void test0167_Method() {
 	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
 	String expectedParentNodeToString =
-			"try \n" +
+			"try\n" +
 			"  {\n" +
 			"    throwing();\n" +
 			"  }\n" +
-			"catch (IllegalAccessException e)   {\n" +
+			"catch (IllegalAccessException e)\n" +
+			"  {\n" +
 			"  }\n" +
-			"catch (<CompleteOnException:IZZ>  )   {\n" +
+			"catch (<CompleteOnException:IZZ>  )\n" +
+			"  {\n"+
 			"  }";
 	String completionIdentifier = "IZZ";
 	String expectedReplacedSource = "IZZ";
@@ -11170,13 +11172,15 @@ public void test0168_Method() {
 	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
 	String expectedParentNodeToString =
-			"try \n" +
+			"try\n" +
 			"  {\n" +
 			"    throwing();\n" +
 			"  }\n" +
-			"catch (IllegalAccessException e)   {\n" +
+			"catch (IllegalAccessException e)\n" +
+			"  {\n" +
 			"  }\n" +
-			"catch (<CompleteOnException:IZZ>  )   {\n" +
+			"catch (<CompleteOnException:IZZ>  )\n" +
+			"  {\n"+
 			"  }";
 	String completionIdentifier = "IZZ";
 	String expectedReplacedSource = "IZZ";
@@ -11432,11 +11436,12 @@ public void test0171_Method() {
 	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
 	String expectedParentNodeToString =
-			"try \n" +
+			"try\n" +
 			"  {\n" +
 			"    throwing();\n" +
 			"  }\n" +
-			"catch (<CompleteOnException:IZZ>  )   {\n" +
+			"catch (<CompleteOnException:IZZ>  )\n" +
+			"  {\n"+
 			"  }"
 	;
 	String completionIdentifier = "IZZ";
@@ -11446,11 +11451,12 @@ public void test0171_Method() {
 			"  public X() {\n" +
 			"  }\n" +
 			"  public boolean foo() {\n" +
-			"    try \n" +
+			"    try\n" +
 			"      {\n" +
 			"        throwing();\n" +
 			"      }\n" +
-			"    catch (<CompleteOnException:IZZ>  )       {\n" +
+			"    catch (<CompleteOnException:IZZ>  )\n" +
+			"      {\n"+
 			"      }\n" +
 			"  }\n" +
 			"}\n";
