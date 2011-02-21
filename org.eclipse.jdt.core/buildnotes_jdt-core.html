@@ -49,7 +49,25 @@ Eclipse SDK 3.7M6 - %date% - 3.7.0 M6
 <br>Project org.eclipse.jdt.core v_B38
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B38">cvs</a>).
 <h2>What's new in this drop</h2>
-
+<ul>
+<li>Added a new API to ease the retrieval of method parameter's annotations:
+<pre>
+/**
+ * Returns the parameters of this method.
+ * An empty array is returned, if the method has no parameters.
+ * For binary types, associated source is used to retrieve the name range,
+ * source range and the flags.
+ * These local variables can be used to retrieve the parameter annotations.
+ * 
+ * @return the parameters of this method
+ * @throws JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource.
+ * @since 3.7
+ */
+ILocalVariable[] getParameters() throws JavaModelException;
+</pre>
+</li>
+</ul>
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=334783">334783</a>
 [API] Add new API to ease the retrieval of the parameter annotations for an IMethod
