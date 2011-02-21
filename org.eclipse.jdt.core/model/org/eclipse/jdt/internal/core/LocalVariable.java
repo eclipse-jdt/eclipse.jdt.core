@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,8 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
+	public static final ILocalVariable[] NO_LOCAL_VARIABLES = new ILocalVariable[0];
+	
 	String name;
 	public int declarationSourceStart, declarationSourceEnd;
 	public int nameStart, nameEnd;
@@ -288,10 +290,59 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	 * @since 3.7
 	 */
 	public int getFlags() {
+		if (this.flags == -1) {
+			SourceMapper mapper= getSourceMapper();
+			if (mapper != null) {
+				try {
+					// ensure the class file's buffer is open so that source ranges are computed
+					ClassFile classFile = (ClassFile)getClassFile();
+					if (classFile != null) {
+						classFile.getBuffer();
+						return mapper.getFlags(this);
+					}
+				} catch(JavaModelException e) {
+					// ignore
+				}
+			}
+			return 0;
+		}
 		return this.flags;
 	}
 
+	/**
+	 * @see IMember#getClassFile()
+	 */
+	public IClassFile getClassFile() {
+		IJavaElement element = getParent();
+		while (element instanceof IMember) {
+			element= element.getParent();
+		}
+		if (element instanceof IClassFile) {
+			return (IClassFile) element;
+		}
+		return null;
+	}
+	/**
+	 * {@inheritDoc}
+	 * @since 3.7
+	 */
 	public ISourceRange getNameRange() {
+		if (this.nameEnd == -1) {
+			SourceMapper mapper= getSourceMapper();
+			if (mapper != null) {
+				try {
+					// ensure the class file's buffer is open so that source ranges are computed
+					ClassFile classFile = (ClassFile)getClassFile();
+					if (classFile != null) {
+						classFile.getBuffer();
+						return mapper.getNameRange(this);
+					}
+				} catch(JavaModelException e) {
+					// ignore
+				}
+			}
+			return SourceMapper.UNKNOWN_RANGE;
+		}
 		return new SourceRange(this.nameStart, this.nameEnd-this.nameStart+1);
 	}
 
@@ -326,9 +377,22 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	}
 
 	/**
-	 * @see ISourceReference
+	 * {@inheritDoc}
+	 * @since 3.7
 	 */
-	public ISourceRange getSourceRange() {
+	public ISourceRange getSourceRange() throws JavaModelException {
+		if (this.declarationSourceEnd == -1) {
+			SourceMapper mapper= getSourceMapper();
+			if (mapper != null) {
+				// ensure the class file's buffer is open so that source ranges are computed
+				ClassFile classFile = (ClassFile)getClassFile();
+				if (classFile != null) {
+					classFile.getBuffer();
+					return mapper.getSourceRange(this);
+				}
+			}
+			return SourceMapper.UNKNOWN_RANGE;
+		}
 		return new SourceRange(this.declarationSourceStart, this.declarationSourceEnd-this.declarationSourceStart+1);
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -402,16 +402,28 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		addLibraryEntry(javaProject, new Path(jarPath), true/*exported*/);
 	}
 	protected void addLibrary(String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
-		addLibrary(this.currentProject, jarName, sourceZipName, pathAndContents, null/*no non-Java resources*/, null, null, compliance);
+		addLibrary(this.currentProject, jarName, sourceZipName, pathAndContents, null/*no non-Java resources*/, null, null, compliance, null);
+	}
+	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String compliance, Map options) throws CoreException, IOException {
+		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, null/*no non-Java resources*/, null, null, compliance, options);
 	}
 	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
-		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, null/*no non-Java resources*/, null, null, compliance);
+		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, null/*no non-Java resources*/, null, null, compliance, null);
 	}
 	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String[] nonJavaResources, String compliance) throws CoreException, IOException {
-		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, nonJavaResources, null, null, compliance);
+		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, nonJavaResources, null, null, compliance, null);
 	}
-	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String[] nonJavaResources, String[] librariesInclusionPatterns, String[] librariesExclusionPatterns, String compliance) throws CoreException, IOException {
-		IProject project = createLibrary(javaProject, jarName, sourceZipName, pathAndContents, nonJavaResources, compliance);
+	protected void addLibrary(
+			IJavaProject javaProject,
+			String jarName,
+			String sourceZipName,
+			String[] pathAndContents,
+			String[] nonJavaResources,
+			String[] librariesInclusionPatterns,
+			String[] librariesExclusionPatterns,
+			String compliance,
+			Map options) throws CoreException, IOException {
+		IProject project = createLibrary(javaProject, jarName, sourceZipName, pathAndContents, nonJavaResources, compliance, options);
 		String projectPath = '/' + project.getName() + '/';
 		addLibraryEntry(
 			javaProject,
@@ -423,13 +435,29 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			true
 		);
 	}
+	protected IProject createLibrary(
+			IJavaProject javaProject,
+			String jarName,
+			String sourceZipName,
+			String[] pathAndContents,
+			String[] nonJavaResources,
+			String compliance) throws IOException, CoreException {
+		return createLibrary(javaProject, jarName, sourceZipName, pathAndContents, nonJavaResources, compliance, null);
+	}
 
-	protected IProject createLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String[] nonJavaResources, String compliance) throws IOException, CoreException {
+	protected IProject createLibrary(
+			IJavaProject javaProject,
+			String jarName,
+			String sourceZipName,
+			String[] pathAndContents,
+			String[] nonJavaResources,
+			String compliance,
+			Map options) throws IOException, CoreException {
 		IProject project = javaProject.getProject();
 		String projectLocation = project.getLocation().toOSString();
 		String jarPath = projectLocation + File.separator + jarName;
 		String[] claspath = get15LibraryIfNeeded(compliance);
-		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, nonJavaResources, jarPath, claspath, compliance);
+		org.eclipse.jdt.core.tests.util.Util.createJar(pathAndContents, nonJavaResources, jarPath, claspath, compliance, options);
 		if (pathAndContents != null && pathAndContents.length != 0) {
 			String sourceZipPath = projectLocation + File.separator + sourceZipName;
 			org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathAndContents, sourceZipPath);
@@ -1159,6 +1187,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, null,jarPath, classpath, compliance);
 	}
 
+	protected void createJar(String[] javaPathsAndContents, String jarPath, String[] classpath, String compliance, Map options) throws IOException {
+		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, null, jarPath, classpath, compliance, options);
+	}
+	
 	/*
 	}
 	 * Creates a Java project where prj=src=bin and with JCL_LIB on its classpath.
