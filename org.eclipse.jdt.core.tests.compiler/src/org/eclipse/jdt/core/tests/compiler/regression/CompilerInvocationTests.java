@@ -779,6 +779,8 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ReturnTypeInternalNameProvided", DEPRECATED);
 		expectedProblemAttributes.put("ReturnTypeNotFound", DEPRECATED);
 		expectedProblemAttributes.put("ReturnTypeNotVisible", DEPRECATED);
+		expectedProblemAttributes.put("SafeVarargsOnFixedArityMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("SafeVarargsOnNonFinalInstanceMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ShouldReturnValue", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("StaticInheritedMethodConflicts", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1433,6 +1435,8 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ReturnTypeInternalNameProvided", SKIP);
 		expectedProblemAttributes.put("ReturnTypeNotFound", SKIP);
 		expectedProblemAttributes.put("ReturnTypeNotVisible", SKIP);
+		expectedProblemAttributes.put("SafeVarargsOnFixedArityMethod", SKIP);
+		expectedProblemAttributes.put("SafeVarargsOnNonFinalInstanceMethod", SKIP);
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_HASHCODE_METHOD));
 		expectedProblemAttributes.put("ShouldReturnValue", SKIP);
 		expectedProblemAttributes.put("StaticInheritedMethodConflicts", SKIP);

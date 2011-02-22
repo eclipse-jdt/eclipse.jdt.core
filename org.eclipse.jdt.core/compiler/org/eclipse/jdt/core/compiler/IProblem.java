@@ -1329,6 +1329,10 @@ void setSourceStart(int sourceStart);
 	int ConstructorVarargsArgumentNeedCast = ConstructorRelated + 802;
 	/** @since 3.1 */
 	int VarargsConflict = MethodRelated + 803;
+	/** @since 3.7 */
+	int SafeVarargsOnFixedArityMethod = MethodRelated + 804;
+	/** @since 3.7 */
+	int SafeVarargsOnNonFinalInstanceMethod = MethodRelated + 805;
 
 	/**
 	 * Javadoc Generic

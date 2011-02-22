@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1345,6 +1349,17 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 
 	AbstractMethodDeclaration methodDecl = method.sourceMethod();
 	if (methodDecl == null) return null; // method could not be resolved in previous iteration
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
+	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_7) {
+		if ((method.tagBits & TagBits.AnnotationSafeVarargs) != 0) {
+			if (!method.isVarargs()) {
+				methodDecl.scope.problemReporter().safeVarargsOnFixedArityMethod(method);
+			} else if (!method.isStatic() && !method.isFinal() && !method.isConstructor()) {
+				methodDecl.scope.problemReporter().safeVarargsOnNonFinalInstanceMethod(method);
+			}
+		}
+	}
 
 	TypeParameter[] typeParameters = methodDecl.typeParameters();
 	if (typeParameters != null) {

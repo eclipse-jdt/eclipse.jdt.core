@@ -7538,6 +7538,30 @@ public void varargsConflict(MethodBinding method1, MethodBinding method2, Source
 		method1.declaringClass == type ? method1.sourceStart() : type.sourceStart(),
 		method1.declaringClass == type ? method1.sourceEnd() : type.sourceEnd());
 }
+public void safeVarargsOnFixedArityMethod(MethodBinding method) {
+	this.handle(
+		IProblem.SafeVarargsOnFixedArityMethod,
+		new String[] {
+		        new String(method.readableName()),
+		},
+		new String[] {
+		        new String(method.readableName()),
+		},
+		method.sourceStart(),
+		method.sourceEnd());
+}
+public void safeVarargsOnNonFinalInstanceMethod(MethodBinding method) {
+	this.handle(
+		IProblem.SafeVarargsOnNonFinalInstanceMethod,
+		new String[] {
+		        new String(method.readableName()),
+		},
+		new String[] {
+		        new String(method.readableName()),
+		},
+		method.sourceStart(),
+		method.sourceEnd());
+}
 public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 	String[] arguments = new String[] {new String(varDecl.name)};
 	this.handle(

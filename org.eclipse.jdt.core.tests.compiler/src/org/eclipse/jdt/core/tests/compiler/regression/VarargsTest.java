@@ -2368,4 +2368,119 @@ public class VarargsTest extends AbstractComparableTest {
 				true,
 				options);		
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
+	public void test067() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+			new String[] {
+				"java/lang/SafeVarargs.java",
+				"package java.lang;\n" +
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
+				"import static java.lang.annotation.ElementType.METHOD;\n" + 
+				"\n" + 
+				"@Retention(value=RUNTIME)\n" + 
+				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
+				"public @interface SafeVarargs {}",
+			},
+			"");
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"	@SafeVarargs\n" +
+				"	public static <T> List<T> asList() {  // Error, not varargs\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	@SafeVarargs\n" +
+				"	public <T> List<T> asList2(T ... a) {    // error not static or final\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	@SafeVarargs\n" +
+				"	public static <T> List<T> asList3(T ... a) {  // OK, varargs & static\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	@SafeVarargs\n" +
+				"	public final <T> List<T> asList4(T ... a) {  // OK varargs & final\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	@SafeVarargs\n" +
+				"	public final static <T> List<T> asList5(T ... a) {  // OK, varargs & static & final\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	@SafeVarargs\n" +
+				"	public int b;\n" +
+				"}\n" +
+				"interface I {\n" +
+				"	@SafeVarargs\n" +
+				"	public  <T> List<T> asList(T ... t);\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	public static <T> List<T> asList() {  // Error, not varargs\n" + 
+			"	                          ^^^^^^^^\n" + 
+			"SafeVarargs annotation should not be applied to fixed arity method asList()\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	public <T> List<T> asList2(T ... a) {    // error not static or final\n" + 
+			"	                   ^^^^^^^^^^^^^^^^\n" + 
+			"SafeVarargs annotation should not be applied to non final instance method asList2()\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 23)\n" + 
+			"	@SafeVarargs\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"The annotation @SafeVarargs is disallowed for this location\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 28)\n" + 
+			"	public  <T> List<T> asList(T ... t);\n" + 
+			"	                    ^^^^^^^^^^^^^^^\n" + 
+			"SafeVarargs annotation should not be applied to non final instance method asList()\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
+	public void test067b() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+			new String[] {
+				"java/lang/SafeVarargs.java",
+				"package java.lang;\n" +
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
+				"import static java.lang.annotation.ElementType.METHOD;\n" + 
+				"\n" + 
+				"@Retention(value=RUNTIME)\n" + 
+				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
+				"public @interface SafeVarargs {}",
+			},
+			"");
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"	@SafeVarargs\n" +
+				"	public X() {  // Error, not varargs\n" +
+				"	}\n" +
+				"	@SafeVarargs\n" +
+				"	public <T> X(T ... a) {\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	public X() {  // Error, not varargs\n" + 
+			"	       ^^^\n" + 
+			"SafeVarargs annotation should not be applied to fixed arity method X()\n" + 
+			"----------\n");
+	}
 }
