@@ -1180,12 +1180,12 @@ private void buildMoreGenericsCompletionContext(ASTNode node, boolean consumeTyp
 }
 private void buildMoreTryStatementCompletionContext(TypeReference exceptionRef) {
 	if (this.astLengthPtr > -1 &&
-			this.astPtr > 1 &&
-			this.astStack[this.astPtr] instanceof Block &&
-			this.astStack[this.astPtr - 1] instanceof Argument) {
+			this.astPtr > 2 &&
+			this.astStack[this.astPtr -1] instanceof Block &&
+			this.astStack[this.astPtr - 2] instanceof Argument) {
 		TryStatement tryStatement = new TryStatement();
 
-		int newAstPtr = this.astPtr;
+		int newAstPtr = this.astPtr - 1;
 
 		int length = this.astLengthStack[this.astLengthPtr];
 		Block[] bks = (tryStatement.catchBlocks = new Block[length + 1]);
@@ -1207,11 +1207,11 @@ private void buildMoreTryStatementCompletionContext(TypeReference exceptionRef) 
 
 		this.currentElement.add(tryStatement, 0);
 	} else if (this.astLengthPtr > -1 &&
-			this.astPtr > -1 &&
-			this.astStack[this.astPtr] instanceof Block) {
+			this.astPtr > 0 &&
+			this.astStack[this.astPtr - 1] instanceof Block) {
 		TryStatement tryStatement = new TryStatement();
 
-		int newAstPtr = this.astPtr;
+		int newAstPtr = this.astPtr - 1;
 
 		Block[] bks = (tryStatement.catchBlocks = new Block[1]);
 		Argument[] args = (tryStatement.catchArguments = new Argument[1]);
@@ -1240,23 +1240,6 @@ protected void checkAndSetModifiers(int flag) {
 	if (isInsideMethod()) {
 		this.hasUnusedModifiers = true;
 	}
-}
-/**
- * Checks if the completion is on the exception type of a catch clause.
- * Returns whether we found a completion node.
- */
-private boolean checkCatchClause() {
-	if ((topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CATCH_AND_RIGHT_PAREN) && this.identifierPtr > -1) {
-		// NB: if the cursor is on the variable, then it has been reduced (so identifierPtr is -1),
-		//     thus this can only be a completion on the type of the catch clause
-		pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
-		this.assistNode = getTypeReference(0);
-		popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
-		this.lastCheckPoint = this.assistNode.sourceEnd + 1;
-		this.isOrphanCompletionNode = true;
-		return true;
-	}
-	return false;
 }
 /**
  * Checks if the completion is on the type following a 'new'.
@@ -1996,7 +1979,6 @@ public void completionIdentifierCheck(){
 	if (this.indexOfAssistIdentifier() < 0) return;
 
 	if (checkClassInstanceCreation()) return;
-	if (checkCatchClause()) return;
 	if (checkMemberAccess()) return;
 	if (checkClassLiteralAccess()) return;
 	if (checkInstanceofKeyword()) return;
@@ -2339,6 +2321,11 @@ protected void consumeDefaultLabel() {
 protected void consumeDimWithOrWithOutExpr() {
 	// DimWithOrWithOutExpr ::= '[' ']'
 	pushOnExpressionStack(null);
+}
+protected void consumeDisjunctiveTypeAsClassType() {
+	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
+	super.consumeDisjunctiveTypeAsClassType();
+	popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
 }
 protected void consumeEnhancedForStatement() {
 	super.consumeEnhancedForStatement();
@@ -4062,6 +4049,8 @@ public NameReference createQualifiedAssistNameReference(char[][] previousIdentif
 public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions){
 	switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
 		case K_NEXT_TYPEREF_IS_EXCEPTION :
+			if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_BETWEEN_CATCH_AND_RIGHT_PAREN)
+				this.isOrphanCompletionNode = true;
 			return new CompletionOnQualifiedTypeReference(
 					previousIdentifiers,
 					assistName,
@@ -4098,6 +4087,8 @@ public TypeReference createParameterizedQualifiedAssistTypeReference(char[][] pr
 	} else {
 		switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
 			case K_NEXT_TYPEREF_IS_EXCEPTION :
+				if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_BETWEEN_CATCH_AND_RIGHT_PAREN)
+					this.isOrphanCompletionNode = true;
 				return new CompletionOnParameterizedQualifiedTypeReference(
 					previousIdentifiers,
 					typeArguments,
@@ -4244,6 +4235,8 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 public TypeReference createSingleAssistTypeReference(char[] assistName, long position) {
 	switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
 		case K_NEXT_TYPEREF_IS_EXCEPTION :
+			if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER, 1) == K_BETWEEN_CATCH_AND_RIGHT_PAREN)
+				this.isOrphanCompletionNode = true;
 			return new CompletionOnSingleTypeReference(assistName, position, CompletionOnSingleTypeReference.K_EXCEPTION) ;
 		case K_NEXT_TYPEREF_IS_CLASS :
 			return new CompletionOnSingleTypeReference(assistName, position, CompletionOnSingleTypeReference.K_CLASS);
