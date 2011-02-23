@@ -2358,8 +2358,20 @@ public class VarargsTest extends AbstractComparableTest {
 					"    }\n" +
 					"}\n", // =================
 				},
+				this.complianceLevel < ClassFileConstants.JDK1_7 ?
 				"----------\n" + 
 				"1. WARNING in X.java (at line 18)\n" + 
+				"	new IteratorChain<Number>(null, null);\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type safety : A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
+				"----------\n":
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	public IteratorChain(Collection<? extends T> a, Collection<? extends T> b, Collection<? extends T> ... collections) {\n" + 
+				"	                                                                                                       ^^^^^^^^^^^\n" + 
+				"Type safety : Potential heap pollution via varargs parameter collections\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 18)\n" + 
 				"	new IteratorChain<Number>(null, null);\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Type safety : A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
@@ -2425,12 +2437,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	public static <T> List<T> asList() {  // Error, not varargs\n" + 
 			"	                          ^^^^^^^^\n" + 
-			"SafeVarargs annotation should not be applied to fixed arity method asList()\n" + 
+			"SafeVarargs annotation should not be applied to fixed arity method asList\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	public <T> List<T> asList2(T ... a) {    // error not static or final\n" + 
 			"	                   ^^^^^^^^^^^^^^^^\n" + 
-			"SafeVarargs annotation should not be applied to non final instance method asList2()\n" + 
+			"SafeVarargs annotation should not be applied to non final instance method asList2\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 23)\n" + 
 			"	@SafeVarargs\n" + 
@@ -2440,7 +2452,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"4. ERROR in X.java (at line 28)\n" + 
 			"	public  <T> List<T> asList(T ... t);\n" + 
 			"	                    ^^^^^^^^^^^^^^^\n" + 
-			"SafeVarargs annotation should not be applied to non final instance method asList()\n" + 
+			"SafeVarargs annotation should not be applied to non final instance method asList\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
@@ -2480,7 +2492,261 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	public X() {  // Error, not varargs\n" + 
 			"	       ^^^\n" + 
-			"SafeVarargs annotation should not be applied to fixed arity method X()\n" + 
+			"SafeVarargs annotation should not be applied to fixed arity method X\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (make sure there is no warning if vararg parameter is reifiable)
+	public void test068() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+			new String[] {
+				"java/lang/SafeVarargs.java",
+				"package java.lang;\n" +
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
+				"import static java.lang.annotation.ElementType.METHOD;\n" + 
+				"\n" + 
+				"@Retention(value=RUNTIME)\n" + 
+				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
+				"public @interface SafeVarargs {}",
+			},
+			"");
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"	public <T> X(String ... a) {\n" +
+				"	}\n" +
+				"	public <T> X(int i, String ... a) {\n" +
+				"	}\n" +
+				"   public <T> List<T> asList(String ... a) {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"   public <T> List<T> asList(Zork t, String ... a) {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	public <T> List<T> asList(Zork t, String ... a) {\n" + 
+			"	                          ^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (make sure there is a warning if vararg parameter is not reifiable)
+	public void test068b() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+			new String[] {
+				"java/lang/SafeVarargs.java",
+				"package java.lang;\n" +
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
+				"import static java.lang.annotation.ElementType.METHOD;\n" + 
+				"\n" + 
+				"@Retention(value=RUNTIME)\n" + 
+				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
+				"public @interface SafeVarargs {}",
+			},
+			"");
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"	public <T> X(T ... a) {\n" +
+				"	}\n" +
+				"	public <T> X(int i, T ... a) {\n" +
+				"	}\n" +
+				"   public <T> List<T> asList(T ... a) {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"   public <T> List<T> asList(T t, T ... a) {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	public <T> X(T ... a) {\n" + 
+			"	                   ^\n" + 
+			"Type safety : Potential heap pollution via varargs parameter a\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	public <T> X(int i, T ... a) {\n" + 
+			"	                          ^\n" + 
+			"Type safety : Potential heap pollution via varargs parameter a\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 7)\n" + 
+			"	public <T> List<T> asList(T ... a) {\n" + 
+			"	                                ^\n" + 
+			"Type safety : Potential heap pollution via varargs parameter a\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 10)\n" + 
+			"	public <T> List<T> asList(T t, T ... a) {\n" + 
+			"	                                     ^\n" + 
+			"Type safety : Potential heap pollution via varargs parameter a\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
+	public void test068c() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+			new String[] {
+				"java/lang/SafeVarargs.java",
+				"package java.lang;\n" +
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
+				"import static java.lang.annotation.ElementType.METHOD;\n" + 
+				"\n" + 
+				"@Retention(value=RUNTIME)\n" + 
+				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
+				"public @interface SafeVarargs {}",
+			},
+			"");
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"   @SafeVarargs\n" +
+				"	public <T> X(T ... a) {\n" +
+				"	}\n" +
+				"   @SafeVarargs\n" +
+				"	public <T> X(int i, T ... a) {\n" +
+				"	}\n" +
+				"   @SafeVarargs\n" +
+				"   public <T> List<T> asList(T ... a) {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"   @SafeVarargs\n" +
+				"   public <T> List<T> asList(T t, T ... a) {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	public <T> List<T> asList(T ... a) {\n" + 
+			"	                   ^^^^^^^^^^^^^^^\n" + 
+			"SafeVarargs annotation should not be applied to non final instance method asList\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	public <T> List<T> asList(T t, T ... a) {\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"SafeVarargs annotation should not be applied to non final instance method asList\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
+	public void test068d() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+			new String[] {
+				"java/lang/SafeVarargs.java",
+				"package java.lang;\n" +
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
+				"import static java.lang.annotation.ElementType.METHOD;\n" + 
+				"\n" + 
+				"@Retention(value=RUNTIME)\n" + 
+				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
+				"public @interface SafeVarargs {}",
+			},
+			"");
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"   @SafeVarargs\n" +
+				"   public static <T> List<T> asList(T ... a) {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"   public static <T> List<T> asList2(T ... a) {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"	List<? extends Class<?>> classes; \n" +
+				"   {\n" +
+				"     classes = X.asList(String.class, Boolean.class);\n" +
+				"	  classes = X.asList2(String.class, Boolean.class);\n" +
+				"   }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	public static <T> List<T> asList2(T ... a) {\n" + 
+			"	                                        ^\n" + 
+			"Type safety : Potential heap pollution via varargs parameter a\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 13)\n" + 
+			"	classes = X.asList2(String.class, Boolean.class);\n" + 
+			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (test effect of SuppressWarnings (should suppress at declaration site, but not at call site)
+	public void test068e() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+			new String[] {
+				"java/lang/SafeVarargs.java",
+				"package java.lang;\n" +
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
+				"import static java.lang.annotation.ElementType.METHOD;\n" + 
+				"\n" + 
+				"@Retention(value=RUNTIME)\n" + 
+				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
+				"public @interface SafeVarargs {}",
+			},
+			"");
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"   @SafeVarargs\n" +
+				"   public static <T> List<T> asList(T ... a) {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"   @SuppressWarnings(\"unchecked\")\n" +
+				"   public static <T> List<T> asList2(T ... a) {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"	List<? extends Class<?>> classes; \n" +
+				"   {\n" +
+				"     classes = X.asList(String.class, Boolean.class);\n" +
+				"	  classes = X.asList2(String.class, Boolean.class);\n" +
+				"   }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 14)\n" + 
+			"	classes = X.asList2(String.class, Boolean.class);\n" + 
+			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
 			"----------\n");
 	}
 }

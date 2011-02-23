@@ -252,6 +252,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.UnsafeRawGenericMethodInvocation:
 		case IProblem.UnsafeRawGenericConstructorInvocation:
 		case IProblem.UnsafeGenericArrayForVarargs:
+		case IProblem.PotentialHeapPollutionFromVararg:
 			return CompilerOptions.UncheckedTypeOperation;
 
 		case IProblem.RawTypeReference:
@@ -7539,28 +7540,31 @@ public void varargsConflict(MethodBinding method1, MethodBinding method2, Source
 		method1.declaringClass == type ? method1.sourceEnd() : type.sourceEnd());
 }
 public void safeVarargsOnFixedArityMethod(MethodBinding method) {
+	String [] arguments = new String[] { new String(method.isConstructor() ? method.declaringClass.shortReadableName() : method.selector)}; 
 	this.handle(
 		IProblem.SafeVarargsOnFixedArityMethod,
-		new String[] {
-		        new String(method.readableName()),
-		},
-		new String[] {
-		        new String(method.readableName()),
-		},
+		arguments,
+		arguments,
 		method.sourceStart(),
 		method.sourceEnd());
 }
 public void safeVarargsOnNonFinalInstanceMethod(MethodBinding method) {
+	String [] arguments = new String[] { new String(method.isConstructor() ? method.declaringClass.shortReadableName() : method.selector)}; 
 	this.handle(
 		IProblem.SafeVarargsOnNonFinalInstanceMethod,
-		new String[] {
-		        new String(method.readableName()),
-		},
-		new String[] {
-		        new String(method.readableName()),
-		},
+		arguments,
+		arguments,
 		method.sourceStart(),
 		method.sourceEnd());
+}
+public void possibleHeapPollutionFromVararg(AbstractVariableDeclaration vararg) {
+	String[] arguments = new String[] {new String(vararg.name)};
+	this.handle(
+		IProblem.PotentialHeapPollutionFromVararg,
+		arguments,
+		arguments,
+		vararg.sourceStart,
+		vararg.sourceEnd);
 }
 public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 	String[] arguments = new String[] {new String(varDecl.name)};

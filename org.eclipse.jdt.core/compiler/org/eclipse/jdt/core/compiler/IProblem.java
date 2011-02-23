@@ -1333,7 +1333,8 @@ void setSourceStart(int sourceStart);
 	int SafeVarargsOnFixedArityMethod = MethodRelated + 804;
 	/** @since 3.7 */
 	int SafeVarargsOnNonFinalInstanceMethod = MethodRelated + 805;
-
+	/** @since 3.7 */
+	int PotentialHeapPollutionFromVararg = MethodRelated + 806;
 	/**
 	 * Javadoc Generic
 	 */
