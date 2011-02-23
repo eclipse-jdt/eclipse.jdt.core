@@ -1432,6 +1432,7 @@ public void test021() {
 			"		System.out.println(9223372036854775807L); // OK\n" +
 			"		System.out.println(9223372036854775807l); // OK\n" +
 			"		System.out.println(0xffffffffffffffffL); // OK\n" +
+			"		System.out.println(0x0000000000000ffffffffffffffffL); // OK\n" +
 			"		System.out.println(0xffffffffffffffffl); // OK\n" +
 			"		System.out.println(01777777777777777777777L); // OK\n" +
 			"		System.out.println(01777777777777777777777l); // OK\n" +
@@ -1439,6 +1440,8 @@ public void test021() {
 			"		System.out.println(-0x1l); // OK\n" +
 			"		System.out.println(0677777777777777777777L);\n" +
 			"		System.out.println(0677777777777777777777l);\n" +
+			"		System.out.println(0x0000000000000L); // OK\n" +
+			"		System.out.println(0L); // OK\n" +
 			"	}\n" +
 			"}",
 		},
@@ -1461,8 +1464,11 @@ public void test021() {
 		"-1\n" + 
 		"-1\n" + 
 		"-1\n" + 
+		"-1\n" + 
 		"8070450532247928831\n" + 
-		"8070450532247928831");
+		"8070450532247928831\n" +
+		"0\n" +
+		"0");
 }
 //test corner values (max, min, -1) for ints
 public void test022() {
@@ -1479,9 +1485,11 @@ public void test022() {
 			"		System.out.println(017777777777); // OK\n" +
 			"		System.out.println(2147483647); // OK\n" +
 			"		System.out.println(0xffffffff); // OK\n" +
+			"		System.out.println(0x0000000000000ffffffff); // OK\n" +
 			"		System.out.println(037777777777); // OK\n" +
 			"		System.out.println(-0x1); // OK\n" +
 			"		System.out.println(0xDADACAFE);\n" + 
+			"		System.out.println(0x0000000000000); // OK\n" +
 			"	}\n" +
 			"}",
 		},
@@ -1494,8 +1502,10 @@ public void test022() {
 		"2147483647\n" + 
 		"-1\n" + 
 		"-1\n" + 
+		"-1\n" + 
 		"-1\n" +
-		"-623195394");
+		"-623195394\n" +
+		"0");
 }
 public static Class testClass() {
 	return ConstantTest.class;

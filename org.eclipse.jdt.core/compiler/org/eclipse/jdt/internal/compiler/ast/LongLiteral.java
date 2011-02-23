@@ -34,28 +34,23 @@ public class LongLiteral extends NumberLiteral {
 	private char[] reducedForm; // no underscores
 
 	public static LongLiteral buildLongLiteral(char[] token, int s, int e) {
-		// remove '_' first
-		char[] longReducedToken = token;
-		boolean containsUnderscores = CharOperation.indexOf('_', token) > 0;
-		if (containsUnderscores) {
-			// remove all underscores from source
-			longReducedToken = CharOperation.remove(token, '_');
-		}
+		// remove '_' and prefix '0' first
+		char[] longReducedToken = removePrefixZerosAndUnderscores(token, true);
 		switch(longReducedToken.length) {
 			case 19 :
 				// 0x8000000000000000L
 				if (CharOperation.equals(longReducedToken, HEXA_MIN_VALUE)) {
-					return new LongLiteralMinValue(token, containsUnderscores ? longReducedToken : null, s, e);
+					return new LongLiteralMinValue(token, longReducedToken != token ? longReducedToken : null, s, e);
 				}
 				break;
 			case 24 :
 				// 01000000000000000000000L
 				if (CharOperation.equals(longReducedToken, OCTAL_MIN_VALUE)) {
-					return new LongLiteralMinValue(token, containsUnderscores ? longReducedToken : null, s, e);
+					return new LongLiteralMinValue(token, longReducedToken != token ? longReducedToken : null, s, e);
 				}
 				break;
 		}
-		return new LongLiteral(token, containsUnderscores ? longReducedToken : null, s, e);
+		return new LongLiteral(token, longReducedToken != token ? longReducedToken : null, s, e);
 	}
 
 LongLiteral(char[] token, char[] reducedForm, int start, int end) {
@@ -97,14 +92,6 @@ public void computeConstant() {
 		} else {
 			radix = 8;
 			j = 1;
-		}
-		while (token[j]=='0') {
-			j++; //jump over redundant zero
-			if ( j == length) {
-				//watch for 0000000000000L
-				this.constant = LongConstant.fromValue(0L);
-				return;
-			}
 		}
 	}
 	switch(radix) {

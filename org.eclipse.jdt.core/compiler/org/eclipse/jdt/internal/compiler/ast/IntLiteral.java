@@ -39,30 +39,24 @@ public class IntLiteral extends NumberLiteral {
 	public static final IntLiteral One = new IntLiteral(new char[]{'1'}, null, 0, 0, 1, IntConstant.fromValue(1));
 
 	public static IntLiteral buildIntLiteral(char[] token, int s, int e) {
-		// remove '_' first
-		char[] intReducedToken = token;
-		boolean containsUnderscores = CharOperation.indexOf('_', token) > 0;
-		if (containsUnderscores) {
-			// remove all underscores from source
-			intReducedToken = CharOperation.remove(token, '_');
-		}
+		// remove '_' and prefix '0' first
+		char[] intReducedToken = removePrefixZerosAndUnderscores(token, false);
 		switch(intReducedToken.length) {
 			case 10 :
 				// 0x80000000
 				if (CharOperation.equals(intReducedToken, HEXA_MIN_VALUE)) {
-					return new IntLiteralMinValue(token, containsUnderscores ? intReducedToken : null, s, e);
+					return new IntLiteralMinValue(token, intReducedToken != token ? intReducedToken : null, s, e);
 				}
 				break;
 			case 12 :
 				// 020000000000
 				if (CharOperation.equals(intReducedToken, OCTAL_MIN_VALUE)) {
-					return new IntLiteralMinValue(token, containsUnderscores ? intReducedToken : null, s, e);
+					return new IntLiteralMinValue(token, intReducedToken != token ? intReducedToken : null, s, e);
 				}
 				break;
 		}
-		return new IntLiteral(token, containsUnderscores ? intReducedToken : null, s, e);
+		return new IntLiteral(token, intReducedToken != token ? intReducedToken : null, s, e);
 	}
-
 IntLiteral(char[] token, char[] reducedForm, int start, int end) {
 	super(token, start, end);
 	this.reducedForm = reducedForm;
@@ -92,14 +86,6 @@ public void computeConstant() {
 		} else {
 			radix = 8;
 			j = 1;
-		}
-		while (token[j]=='0') {
-			j++; //jump over redundant zero
-			if ( j == tokenLength) {
-				//watch for 0000000000000L
-				this.constant = IntConstant.fromValue(0);
-				return;
-			}
 		}
 	}
 	switch(radix) {
