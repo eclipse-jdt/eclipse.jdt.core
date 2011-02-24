@@ -1523,11 +1523,8 @@ class DefaultBindingResolver extends BindingResolver {
 						return null;
 					}
 					ArrayType arrayType = (ArrayType) type;
-					if (typeBinding.isArrayType()) {
-						ArrayBinding arrayBinding = (ArrayBinding) typeBinding;
-						return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, arrayType.getDimensions()));
-					}
-					return getTypeBinding(this.scope.createArrayType(binding, arrayType.getDimensions()));
+					ArrayBinding arrayBinding = (ArrayBinding) typeBinding;
+					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, arrayType.getDimensions()));
 				}
 				if (typeBinding.isArrayType()) {
 					typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
@@ -1567,11 +1564,8 @@ class DefaultBindingResolver extends BindingResolver {
 					if (this.scope == null) {
 						return null;
 					}
-					if (binding.isArrayType()) {
-						ArrayBinding arrayBinding = (ArrayBinding) binding;
-						return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, arrayType.getDimensions()));
-					}
-					return getTypeBinding(this.scope.createArrayType(binding, arrayType.getDimensions()));
+					ArrayBinding arrayBinding = (ArrayBinding) binding;
+					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, arrayType.getDimensions()));
 				} else if (binding.isArrayType()) {
 					ArrayBinding arrayBinding = (ArrayBinding) binding;
 					return getTypeBinding(arrayBinding.leafComponentType);
