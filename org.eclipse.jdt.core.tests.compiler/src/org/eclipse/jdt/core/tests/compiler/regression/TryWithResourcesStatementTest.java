@@ -181,6 +181,201 @@ public void test007() {
 		"The resource r of a try-with-resources statement cannot be assigned\n" + 
 		"----------\n");
 }
+public void test008() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void method1(){\n" +
+			"		try (Y [] i = null) {\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"    public void close () {}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (Y [] i = null) {\n" + 
+		"	     ^^^^\n" + 
+		"The resource type Y[] has to be a subclass of java.lang.AutoCloseable \n" + 
+		"----------\n");
+}
+public void test009() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void method1(){\n" +
+			"		try (Y i [] = null) {\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"    public void close () {}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (Y i [] = null) {\n" + 
+		"	     ^\n" + 
+		"The resource type Y[] has to be a subclass of java.lang.AutoCloseable \n" + 
+		"----------\n");
+}
+public void test010() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void method1(int p){\n" +
+			"       int k;\n" +
+			"		try (Y i = new Y(); Y i = new Y(); Y p = new Y(); Y k = new Y();) {\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"    public void close () {}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	try (Y i = new Y(); Y i = new Y(); Y p = new Y(); Y k = new Y();) {\n" + 
+		"	                      ^^^^^^^^^^^^\n" + 
+		"Duplicate local variable i\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	try (Y i = new Y(); Y i = new Y(); Y p = new Y(); Y k = new Y();) {\n" + 
+		"	                                     ^^^^^^^^^^^^\n" + 
+		"Duplicate local variable p\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	try (Y i = new Y(); Y i = new Y(); Y p = new Y(); Y k = new Y();) {\n" + 
+		"	                                                    ^^^^^^^^^^^^\n" + 
+		"Duplicate local variable k\n" + 
+		"----------\n");
+}
+public void test011() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void method1(){\n" +
+			"		try (Y i = new Y(); Y p = new Y(); Y k = new Y();) {\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
+			"       catch (Exception e) {\n" +
+			"           System.out.println(i);\n" +
+			"       }\n" +
+			"       finally {\n" +
+			"           System.out.println(p);\n" +
+			"       }\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"    public void close () {}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	System.out.println(i);\n" + 
+		"	                   ^\n" + 
+		"i cannot be resolved to a variable\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	System.out.println(p);\n" + 
+		"	                   ^\n" + 
+		"p cannot be resolved to a variable\n" + 
+		"----------\n");
+}
+public void test012() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void method1(){\n" +
+			"		try (Y i = new Y(); Y p = new Y(); Y k = new Y();) {\n" +
+			"           try {\n" +
+			"			    System.out.println();\n" +
+			"           } catch (Exception i) {\n" +
+			"           }\n" +
+			"		}\n" +
+			"       catch (Exception e) {\n" +
+			"           System.out.println(i);\n" +
+			"       }\n" +
+			"       finally {\n" +
+			"           System.out.println(p);\n" +
+			"       }\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"    public void close () {}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	} catch (Exception i) {\n" + 
+		"	                   ^\n" + 
+		"Duplicate parameter i\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	System.out.println(i);\n" + 
+		"	                   ^\n" + 
+		"i cannot be resolved to a variable\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
+		"	System.out.println(p);\n" + 
+		"	                   ^\n" + 
+		"p cannot be resolved to a variable\n" + 
+		"----------\n");
+}
+public void test013() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String [] args) {\n" +
+			"	try (Y y = new Y(); Y p = new Y()) {\n" +
+			"	    X x = new X() {\n" +
+			"		      public void foo(int p) {\n" +
+			"                         try {\n" +
+			"		             System.out.println();\n" +
+			"		          } catch (Exception y) {\n" +
+			"		          }\n" +
+			"		       }\n" +
+			"	           };\n" +
+			"	} finally {\n" +
+			"            System.out.println(y);\n" +
+			"	}\n" +
+			"   }\n" +
+			"}\n" +
+			"\n" +
+			"class Y implements AutoCloseable {\n" +
+			"	public void close() {\n" +
+			"		    System.out.println();\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	public void foo(int p) {\n" + 
+		"	                    ^\n" + 
+		"The parameter p is hiding another local variable defined in an enclosing type scope\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	} catch (Exception y) {\n" + 
+		"	                   ^\n" + 
+		"The parameter y is hiding another local variable defined in an enclosing type scope\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
+		"	System.out.println(y);\n" + 
+		"	                   ^\n" + 
+		"y cannot be resolved to a variable\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }
