@@ -110,7 +110,7 @@ public class JavaProject
 	/**
 	 * Name of file containing project classpath
 	 */
-	public static final String CLASSPATH_FILENAME = ".classpath";  //$NON-NLS-1$
+	public static final String CLASSPATH_FILENAME = IJavaProject.CLASSPATH_FILE_NAME;
 
 	/**
 	 * Value of the project's raw classpath if the .classpath file contains invalid entries.
