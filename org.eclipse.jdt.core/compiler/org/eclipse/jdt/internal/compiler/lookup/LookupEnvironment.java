@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - contribution for bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -24,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -136,7 +138,13 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name) {
 		this.typeRequestor.accept(answer.getBinaryType(), packageBinding, answer.getAccessRestriction());
 	} else if (answer.isCompilationUnit()) {
 		// the type was found as a .java file, try to build it then search the cache
-		this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
+		try {
+			this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
+		} catch (AbortCompilation abort) {
+			if (CharOperation.equals(name, TypeConstants.PACKAGE_INFO_NAME))
+				return null; // silently, requestor may not be able to handle compilation units (HierarchyResolver)
+			throw abort;
+		}
 	} else if (answer.isSourceType()) {
 		// the type was found as a source model
 		this.typeRequestor.accept(answer.getSourceTypes(), packageBinding, answer.getAccessRestriction());

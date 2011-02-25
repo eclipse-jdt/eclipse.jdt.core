@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - contribution for bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -2517,5 +2518,41 @@ finally{
 	deleteProject("P1");
 	deleteProject("P2");
 }
+}
+// Bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
+// Ensure that package-info doesn't cause AbortCompilation from the HierarchyResolver.
+public void testPackageInfo01() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB"}, new String[0], "bin");
+
+		createFolder("/P/src/p");
+		createFile(
+				"/P/src/p/package-info.java",
+				"/** Doc comment*/ package p;\n"
+			);
+		createFile(
+				"/P/src/p/A.java",
+				"package p;\n" +
+				"public class A {\n" +
+				"}\n"
+			);
+		createFile(
+				"/P/src/p/C.java",
+				"package p;\n" +
+				"public class C extends A {\n" +
+				"    void foo() {\n" +
+				"        class Bar extends C {}\n" +
+				"    }\n" +
+				"}\n"
+			);
+		ICompilationUnit cu = getCompilationUnit("/P/src/p/C.java");
+		IType type = cu.getType("C");
+		IMethod method = type.getMethod("foo", new String[0]);
+		IType local = method.getType("Bar", 1);
+		ITypeHierarchy cHierarchy = type.newTypeHierarchy(null);
+		assertTrue("Local type should be in the hierarchy", cHierarchy.contains(local));
+	} finally {
+		deleteProject("P");
+	}	
 }
 }
