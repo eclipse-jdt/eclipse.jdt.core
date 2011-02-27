@@ -486,40 +486,98 @@ public void testDeprecatedFlag09() throws JavaModelException {
  * Ensure that package level annotation is evaluated during AST creation.
  */
 public void testDeprecatedFlag10() throws CoreException {
-	createFolder("/P/src/p2");
-
-	createFile(
-			"/P/src/p2/package-info.java",
-			"@java.lang.Deprecated package p2;\n"
-		);
+	try {
+		createFolder("/P/src/p2");
 	
-	// workaround for missing type in jclMin:
-	createFolder("/P/src/java/lang");
-	createFile(
-			"/P/src/java/lang/Deprecated.java",
-			"package java.lang;\n" +
-			"@Retention(RetentionPolicy.RUNTIME)\n" + 
-			"public @interface Deprecated {\n" + 
-			"}\n"
-		);
-
-	createFile("/P/src/p2/C.java", 
-			"package p2;\n" +
-			"public class C {}\n");
-
-	createFile("/P/src/p/D.java", 
-			"package p;\n" +
-			"public class D extends p2.C {}\n");
-	ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
+		createFile(
+				"/P/src/p2/package-info.java",
+				"@java.lang.Deprecated package p2;\n"
+			);
+		
+		// workaround for missing type in jclMin:
+		createFolder("/P/src/java/lang");
+		createFile(
+				"/P/src/java/lang/Deprecated.java",
+				"package java.lang;\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"public @interface Deprecated {\n" + 
+				"}\n"
+			);
 	
-	ASTParser parser = ASTParser.newParser(AST.JLS3);
-	parser.setProject(this.testProject);
-	parser.setSource(cuD);
-	parser.setResolveBindings(true);
-	org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
-	IProblem[] problems = cuAST.getProblems();
-	assertEquals("Should have 1 problem", 1, problems.length);
-	assertEquals("Should have a deprecation warning", "The type C is deprecated", problems[0].getMessage());
+		createFile("/P/src/p2/C.java", 
+				"package p2;\n" +
+				"public class C {}\n");
+	
+		createFile("/P/src/p/D.java", 
+				"package p;\n" +
+				"public class D extends p2.C {}\n");
+		ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
+		
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setProject(this.testProject);
+		parser.setSource(cuD);
+		parser.setResolveBindings(true);
+		org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+		IProblem[] problems = cuAST.getProblems();
+		assertEquals("Should have 1 problem", 1, problems.length);
+		assertEquals("Should have a deprecation warning", "The type C is deprecated", problems[0].getMessage());
+	} finally {
+		deleteFile("/P/src/p/D.java");
+		deleteFolder("/P/src/p2");
+		deleteFolder("/P/src/java/lang");
+	}
+}
+
+/*
+ * Bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment 
+ * Ensure that package level annotation is evaluated during AST creation. 
+ * a working copy for package-info exists and must be used.
+ */
+public void testDeprecatedFlag11() throws CoreException {
+	try {
+		createFolder("/P/src/p2");
+
+		createFile(
+				"/P/src/p2/package-info.java",
+				"@java.lang.Deprecated package p2;\n"
+			);
+		WorkingCopyOwner myWCOwner = newWorkingCopyOwner(null);
+		getCompilationUnit("/P/src/p2/package-info.java").getWorkingCopy(myWCOwner, null);
+
+
+		// workaround for missing type in jclMin:
+		createFolder("/P/src/java/lang");
+		createFile(
+				"/P/src/java/lang/Deprecated.java",
+				"package java.lang;\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"public @interface Deprecated {\n" +
+				"}\n"
+			);
+	
+		createFile("/P/src/p2/C.java",
+				"package p2;\n" +
+				"public class C {}\n");
+	
+		createFile("/P/src/p/D.java",
+				"package p;\n" +
+				"public class D extends p2.C {}\n");
+		ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
+
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setWorkingCopyOwner(myWCOwner);
+		parser.setProject(this.testProject);
+		parser.setSource(cuD);
+		parser.setResolveBindings(true);
+		org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+		IProblem[] problems = cuAST.getProblems();
+		assertEquals("Should have 1 problem", 1, problems.length);
+		assertEquals("Should have a deprecation warning", "The type C is deprecated", problems[0].getMessage());
+	} finally {
+		deleteFile("/P/src/p/D.java");
+		deleteFolder("/P/src/p2");
+		deleteFolder("/P/src/java/lang");
+	}
 }
 /*
  * Ensures that the primary type of a cu can be found.
