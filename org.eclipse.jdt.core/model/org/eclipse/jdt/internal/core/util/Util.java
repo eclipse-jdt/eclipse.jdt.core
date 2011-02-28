@@ -3612,4 +3612,42 @@ public class Util {
 			}
 		}
 	}
+	/**
+	 * Finds the IMethod element corresponding to the given selector, 
+	 * without creating a new dummy instance of a binary method. 
+	 * @param type the type in which the method is declared
+	 * @param selector the method name
+	 * @param paramTypeSignatures the type signatures of the method arguments
+	 * @param isConstructor whether we're looking for a constructor
+	 * @return an IMethod if found, otherwise null
+	 * @throws JavaModelException
+	 */
+	public static IMethod findMethod(IType type, char[] selector, String[] paramTypeSignatures, boolean isConstructor) throws JavaModelException {
+		IMethod method = null;
+		int startingIndex = 0;
+		String[] args;
+		IType enclosingType = type.getDeclaringType();
+		// If the method is a constructor of a non-static inner type, add the enclosing type as an 
+		// additional parameter to the constructor
+		if (enclosingType != null
+				&& isConstructor
+				&& !Flags.isStatic(type.getFlags())) {
+			args = new String[paramTypeSignatures.length+1];
+			startingIndex = 1;
+			args[0] = Signature.createTypeSignature(enclosingType.getFullyQualifiedName(), true);
+		} else {
+			args = new String[paramTypeSignatures.length];
+		}
+		int length = args.length;
+		for(int i = startingIndex;	i< length ; i++){
+			args[i] = new String(paramTypeSignatures[i-startingIndex]);
+		}
+		method = type.getMethod(new String(selector), args);
+		
+		IMethod[] methods = type.findMethods(method);
+		if (methods != null && methods.length > 0) {
+			method = methods[0];
+		}
+		return method;
+	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1308,6 +1308,232 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[0] = selectMethod(this.workingCopies[0], "foo", 3);
 		assertElementsEqual("Invalid selection(s)",
 			"foo(int) [in X [in [Working copy] X.java [in b191322 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171019
+	// To verify that inheritDoc tag is recognized as a valid selection and
+	// pressing F3 on it navigates to the overriden method with the javadoc according to spec
+	// as documented in org.eclipse.jdt.internal.codeassist.SelectionEngine.InheritDocVisitor
+	public void testBug171019() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Tests/b171019/X.java",
+			"package b171019;\n" +
+			"interface X {\n" +
+			"   /**\n" +
+			"	 * Main desc of foo..\n" +
+			"	 */\n" +
+			"	void foo(int x);\n" +
+			"}\n" +
+			"interface Y extends X {\n" +
+			"   /**\n" +
+			"	 * {@inheritDoc}\n" +	// should navigate to X.foo(int)
+			"	 */\n" +
+			"	void foo(int x);\n\n" +
+			"   /**\n" +
+			"	 * {@inheritDoc}\n" +	// should navigate to Y.foo(String)
+			"	 */\n" +
+			"	void foo(String s);\n" +
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[2];
+		elements[0] = selectMethod(this.workingCopies[0], "@inheritDoc", 1);
+		elements[1] = selectMethod(this.workingCopies[0], "@inheritDoc", 2);
+		assertElementsEqual("Invalid selection(s)",
+			"foo(int) [in X [in [Working copy] X.java [in b171019 [in <project root> [in Tests]]]]]\n" + 
+			"foo(String) [in Y [in [Working copy] X.java [in b171019 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171019
+	// To verify that inheritDoc tag is recognized as a valid selection and
+	// pressing F3 on it navigates to the overriden method with the javadoc according to spec
+	// as documented in org.eclipse.jdt.internal.codeassist.SelectionEngine.InheritDocVisitor
+	public void testBug171019b() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Tests/b171019/X.java",
+			"package b171019;\n" +
+			"interface X {\n" +
+			"   /**\n" +
+			"	 * Main desc of foo..\n" +
+			"	 */\n" +
+			"	void foo(int x);\n" +
+			"}\n" +
+			"class X1 implements X{\n" +
+			"	void foo(int x){}\n" +
+			"}\n" +
+			"class Y extends X1 {\n" +
+			"   /**\n" +
+			"	 * {@inheritDoc}\n" +	// should navigate to X.foo(int)
+			"	 */\n" +
+			"	void foo(int x);\n\n" +
+			"   /**\n" +
+			"	 * {@inheritDoc}\n" +	// should navigate to Y.foo(String)
+			"	 */\n" +
+			"	void foo(String s);\n" +
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[2];
+		elements[0] = selectMethod(this.workingCopies[0], "@inheritDoc", 1);
+		elements[1] = selectMethod(this.workingCopies[0], "@inheritDoc", 2);
+		assertElementsEqual("Invalid selection(s)",
+			"foo(int) [in X [in [Working copy] X.java [in b171019 [in <project root> [in Tests]]]]]\n" + 
+			"foo(String) [in Y [in [Working copy] X.java [in b171019 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171019
+	// To verify that inheritDoc tag is recognized as a valid selection and
+	// pressing F3 on it navigates to the overriden method with the javadoc according to spec
+	// as documented in org.eclipse.jdt.internal.codeassist.SelectionEngine.InheritDocVisitor
+	public void testBug171019c() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Tests/b171019/X.java",
+			"package b171019;\n" +
+			"interface X1 {\n" +
+			"   /**\n" +
+			"	 * Main desc of foo in X1..\n" +
+			"	 */\n" +
+			"	void foo(int x);\n" +
+			"}\n" +
+			"interface X2 {\n" +
+			"   /**\n" +
+			"	 * Main desc of foo in X2..\n" +
+			"	 */\n" +
+			"	void foo(int x);\n" +
+			"}\n" +
+			"class X implements X1 {\n" +
+			"   /**\n" +
+			"	 * X desc of foo..\n" +
+			"	 */\n" +
+			"	void foo(int x){}\n" +
+			"}\n" +
+			"class Y extends X implements X2 {\n" +
+			"   /**\n" +
+			"	 * {@inheritDoc}\n" +	// should navigate to X2.foo(int)
+			"	 */\n" +
+			"	void foo(int x);\n\n" +
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "@inheritDoc", 1);
+		assertElementsEqual("Invalid selection(s)",
+			"foo(int) [in X2 [in [Working copy] X.java [in b171019 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171019
+	// To verify that inheritDoc tag is recognized as a valid selection and
+	// pressing F3 on it navigates to the overriden method with the javadoc according to spec
+	// as documented in org.eclipse.jdt.internal.codeassist.SelectionEngine.InheritDocVisitor
+	public void testBug171019d() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Tests/b171019/X.java",
+			"package b171019;\n" +
+			"interface X1 {\n" +
+			"   /**\n" +
+			"	 * Main desc of foo in X1..\n" +
+			"	 */\n" +
+			"	void foo(int x);\n" +
+			"}\n" +
+			"interface X2 {\n" +
+			"	void foo(int x);\n" +
+			"}\n" +
+			"class X implements X1 {\n" +
+			"   /**\n" +
+			"	 * X desc of foo..\n" +
+			"	 */\n" +
+			"	void foo(int x){}\n" +
+			"}\n" +
+			"class Y extends X implements X2 {\n" +
+			"   /**\n" +
+			"	 * {@inheritDoc}\n" +	// should navigate to X.foo(int)
+			"	 */\n" +
+			"	void foo(int x);\n\n" +
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "@inheritDoc", 1);
+		assertElementsEqual("Invalid selection(s)",
+			"foo(int) [in X [in [Working copy] X.java [in b171019 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171019
+	// To verify that inheritDoc tag is recognized as a valid selection and
+	// pressing F3 on it navigates to the overriden method with the javadoc according to spec
+	// as documented in org.eclipse.jdt.internal.codeassist.SelectionEngine.InheritDocVisitor
+	public void testBug171019e() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Tests/b171019/X.java",
+			"package b171019;\n" +
+			"interface X {\n" +
+			"   /**\n" +
+			"	 * Main desc of foo..\n" +
+			"	 */\n" +
+			"	void foo(int x);\n" +
+			"}\n" +
+			"interface Y {\n" +
+			"	void foo(String str);\n" +
+			"}\n" +
+			"abstract class Z implements X, Y {\n" +
+			"	/**\n" +
+			"	 * {@inheritDoc}\n" +	// navigates to X.foo(int)
+			"	 */\n" +
+			"	void foo(int x) {\n" +
+			"	}\n" +
+			"}"
+		);
+		IJavaElement[] elements = new IJavaElement[1];
+		elements[0] = selectMethod(this.workingCopies[0], "@inheritDoc", 1);
+		assertElementsEqual("Invalid selection(s)",
+			"foo(int) [in X [in [Working copy] X.java [in b171019 [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171019
+	// To verify that inheritDoc tag is recognized as a valid selection and
+	// pressing F3 on it navigates to the overriden method with the javadoc according to spec
+	// as documented in org.eclipse.jdt.internal.codeassist.SelectionEngine.InheritDocVisitor
+	// Here the inheritDoc should work when it occurs inside another valid block tag viz.
+	// @param, @throws, @exception, @return
+	public void testBug171019f() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Tests/b171019/X.java",
+			"package b171019;\n" +
+			"interface X {\n" +
+			"   /**\n" +
+			"	 * Main desc of foo..\n" +
+			"	 */\n" +
+			"	void foo(int x);\n" +
+			"}\n" +
+			"interface Y extends X {\n" +
+			"   /**\n" +
+			"	 * {@inheritDoc}\n" +	// should navigate to X.foo(int)
+			"	 * @param {@inheritDoc}\n" +	// should navigate to X.foo(int)
+			"	 * @return {@inheritDoc}\n" +	// should navigate to X.foo(int)
+			"	 * @throws {@inheritDoc}\n" +	// should navigate to X.foo(int)
+			"	 * @exception {@inheritDoc}\n" +	// should navigate to X.foo(int)
+			"	 */\n" +
+			"	void foo(int x);\n\n" +
+			"}\n"
+		);
+		IJavaElement[] elements = new IJavaElement[4];
+		elements[0] = selectMethod(this.workingCopies[0], "@inheritDoc", 1);
+		elements[1] = selectMethod(this.workingCopies[0], "@inheritDoc", 2);
+		elements[2] = selectMethod(this.workingCopies[0], "@inheritDoc", 3);
+		elements[3] = selectMethod(this.workingCopies[0], "@inheritDoc", 4);
+		assertElementsEqual("Invalid selection(s)",
+			"foo(int) [in X [in [Working copy] X.java [in b171019 [in <project root> [in Tests]]]]]\n" + 
+			"foo(int) [in X [in [Working copy] X.java [in b171019 [in <project root> [in Tests]]]]]\n" + 
+			"foo(int) [in X [in [Working copy] X.java [in b171019 [in <project root> [in Tests]]]]]\n" + 
+			"foo(int) [in X [in [Working copy] X.java [in b171019 [in <project root> [in Tests]]]]]",
 			elements
 		);
 	}
