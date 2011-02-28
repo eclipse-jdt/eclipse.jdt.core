@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -276,10 +276,10 @@ public class JavadocTestForConstructor extends JavadocTest {
 					+ "	 *\n"
 					+ "	 * @see Visibility Valid ref: local class \n"
 					+ "	 * @see Visibility.VcPublic Valid ref: visible inner class of local class \n"
-					+ "	 * @see Visibility.AvcPublic Valid ref: visible inherited inner class of local class \n"
+					+ "	 * @see AbstractVisibility.AvcPublic Valid ref: visible inner class of local class \n"
 					+ "	 * @see test.Visibility Valid ref: local class \n"
 					+ "	 * @see test.Visibility.VcPublic Valid ref: visible inner class of local class \n"
-					+ "	 * @see test.Visibility.AvcPublic Valid ref: visible inherited inner class of local class \n"
+					+ "	 * @see test.AbstractVisibility.AvcPublic Valid ref: visible inner class of local class \n"
 					+ "	 */\n"
 					+ "	public X() {\n"
 					+ "	}\n"
@@ -485,7 +485,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 				"	 * Valid other package visible class fields references\n" +
 				"	 *\n" +
 				"	 * @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n" +
-				"	 * @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n" +
+				"	 * @see test.copy.VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n" +
 				"	 */\n" +
 				"	public X() {\n" +
 				"	}\n" +
@@ -507,7 +507,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 					+ "	 * @see VisibilityPackage#unknown Invalid ref to non existent field of other package non visible class\n"
 					+ "	 * @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n"
 					+ "	 * @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"
+					+ "	 * @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"	
 					+ "	 * @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n"
 					+ "	 * @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n"
 					+ "	 */\n"
@@ -926,7 +926,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 				"	 * Valid other package visible class methods references \n" +
 				"	 * \n" +
 				"	 * @see VisibilityPublic#vm_public() Valid ref to not visible method of other package class\n" +
-				"	 * @see VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n" +
+				"	 * @see test.copy.VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n" +
 				"	 */\n" +
 				"	public X() {\n" +
 				"	}\n" +

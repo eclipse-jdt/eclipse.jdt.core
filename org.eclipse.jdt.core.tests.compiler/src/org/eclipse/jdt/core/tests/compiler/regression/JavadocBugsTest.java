@@ -8653,4 +8653,168 @@ public void testBug316782() {
 				"}\n"
 		});
 }
+/**
+ * @bug 222188: [javadoc] Incorrect usage of inner type not reported
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222188"
+ */
+public void testBug222188a() {
+	// case 1: partially qualified reference in another package
+	String[] units = new String[] {
+		"pack/Test.java",
+		"package pack;\n" +
+		"public class Test {\n" +
+		"        public interface Inner { }\n" +
+		"}\n"
+		,
+		"pack2/X.java",
+		"package pack2;\n" +
+		"import pack.Test;\n" +
+		"public class X {\n" +
+		"/**\n" +
+		" * See also {@link Test.Inner} -- error/warning \n" +
+		" */\n" +
+		"     public void m() { }\n" +
+		"}\n"
+	};
+	runNegativeTest(units,
+		// warning - Tag @link: reference not found: Test.Inner
+		"----------\n" + 
+		"1. ERROR in pack2\\X.java (at line 5)\n" + 
+		"	* See also {@link Test.Inner} -- error/warning \n" + 
+		"	                  ^^^^^^^^^^\n" + 
+		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
 }
+public void testBug222188b() {
+	// case 2: fully but invalid qualified reference in another package
+	String[] units = new String[] {
+		"pack/Test.java",
+		"package pack;\n" +
+		"public class Test {\n" +
+		"        public interface Inner { }\n" +
+		"}\n"
+		,
+		"pack2/X.java",
+		"package pack2;\n" +
+		"public class X {\n" +
+		"/**\n" +
+		" * See also {@link pack.Test.Inners} -- error/warning \n" +
+		" */\n" +
+		"     public void m() { }\n" +
+		"}\n"
+	};
+	runNegativeTest(units,
+		// warning - Tag @link: reference not found: Test.Inner
+		"----------\n" + 
+		"1. ERROR in pack2\\X.java (at line 4)\n" + 
+		"	* See also {@link pack.Test.Inners} -- error/warning \n" + 
+		"	                  ^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: pack.Test.Inners cannot be resolved to a type\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
+
+/**
+ * @bug 221539: [javadoc] doesn't detect non visible inner class
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=221539"
+ */
+public void testBug221539a() {
+	// partially qualified reference in the same package
+	String[] units = new String[] {
+		"p/Test.java",
+		"package p;\n" +
+		"/**\n" + 
+		" * {@link Test.Inner} not ok for Javadoc\n" + 
+		" * {@link Foo.Inner} ok for Javadoc\n" + 
+		" */\n" +
+		"public class Test extends Foo {\n" +
+		"}\n"
+		,
+		"p/Foo.java",
+		"package p;\n" +
+		"public class Foo {\n" +
+		"	static class Inner {}\n" +
+		"}\n"
+	};
+	runNegativeTest(units,
+		// warning - Tag @link: reference not found: Test.Inner
+		"----------\n" + 
+		"1. ERROR in p\\Test.java (at line 3)\n" + 
+		"	* {@link Test.Inner} not ok for Javadoc\n" + 
+		"	         ^^^^^^^^^^\n" + 
+		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
+public void testBug221539b() {
+	// partially qualified reference in different package
+	String[] units = new String[] {
+		"p1/Test.java",
+		"package p1;\n" +
+		"import p2.Foo;\n" + 
+		"/**\n" + 
+		" * {@link Test.Inner} not ok for Javadoc\n" + 
+		" * {@link Foo.Inner} not ok Javadoc\n" + 
+		" * {@link p2.Foo.Inner} ok for Javadoc as fully qualified\n" + 
+		" */\n" +
+		"public class Test extends Foo {\n" +
+		"}\n"
+		,
+		"p2/Foo.java",
+		"package p2;\n" +
+		"public class Foo {\n" +
+		"	public static class Inner {}\n" +
+		"}\n"
+	};
+	runNegativeTest(units,
+		// warning - Tag @link: reference not found: Test.Inner
+		// warning - Tag @link: reference not found: Foo.Inner
+		"----------\n" + 
+		"1. ERROR in p1\\Test.java (at line 4)\n" + 
+		"	* {@link Test.Inner} not ok for Javadoc\n" + 
+		"	         ^^^^^^^^^^\n" + 
+		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\Test.java (at line 5)\n" + 
+		"	* {@link Foo.Inner} not ok Javadoc\n" + 
+		"	         ^^^^^^^^^\n" + 
+		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
+	);
+}
+
+public void testBug221539c() {
+	// case 3: partially qualified references are valid within the same CU
+	this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
+	runConformTest(
+		new String[] {
+			"pack/Test.java",
+			"package pack;\n" +
+			"/**\n" + 
+			" * @see Inner.Level2.Level3\n" + 
+			" * @see Test.Inner.Level2.Level3\n" + 
+			" */\n" + 
+			"public class Test {\n" + 
+			"	public class Inner {\n" + 
+			"		/**\n" + 
+			"		 * @see Level3\n" + 
+			"		 * @see Level2.Level3\n" + 
+			"		 * @see Inner.Level2.Level3\n" + 
+			"		 * @see Test.Inner.Level2.Level3\n" + 
+			"		 */\n" + 
+			"		public class Level2 {\n" + 
+			"			class Level3 {\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		}
+	);
+}
+}
+
