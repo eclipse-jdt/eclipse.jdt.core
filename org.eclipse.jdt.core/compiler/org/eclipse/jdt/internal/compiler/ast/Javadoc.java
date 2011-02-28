@@ -835,6 +835,35 @@ public class Javadoc extends ASTNode {
 						}
 					}
 				}
+				if (typeReference instanceof JavadocQualifiedTypeReference && !scope.isDefinedInSameUnit(resolvedType)) {
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=222188
+					// partially qualified references from a different CU should be warned
+					char[][] typeRefName = ((JavadocQualifiedTypeReference) typeReference).getTypeName();
+					int skipLength = 0;
+					if (topLevelScope.getCurrentPackage() == resolvedType.getPackage()
+							&& typeRefName.length < computedCompoundName.length) {
+						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=221539: references can be partially qualified
+						// in same package and hence if the package name is not given, ignore package name check
+						skipLength = resolvedType.fPackage.compoundName.length;
+					}
+					boolean valid = true;
+					if (typeRefName.length == computedCompoundName.length - skipLength) {
+						checkQualification: for (int i = 0; i < typeRefName.length; i++) {
+							if (!CharOperation.equals(typeRefName[i], computedCompoundName[i + skipLength])) {
+								valid = false;
+								break checkQualification;
+							}
+						}
+					} else {
+						valid = false;
+					}
+					// report invalid reference
+					if (!valid) {
+						if (scopeModifiers == -1) scopeModifiers = scope.getDeclarationModifiers();
+						scope.problemReporter().javadocInvalidMemberTypeQualification(typeReference.sourceStart, typeReference.sourceEnd, scopeModifiers);
+						return;
+					}
+				}
 			}
 			/*
 			 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=286918

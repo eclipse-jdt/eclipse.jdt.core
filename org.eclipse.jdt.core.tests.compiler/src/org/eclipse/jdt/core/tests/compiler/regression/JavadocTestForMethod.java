@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2006,10 +2006,10 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	 *\n"
 					+ "	 * @see Visibility Valid ref: local class \n"
 					+ "	 * @see Visibility.VcPublic Valid ref: visible inner class of local class \n"
-					+ "	 * @see Visibility.AvcPublic Valid ref: visible inherited inner class of local class \n"
+					+ "	 * @see AbstractVisibility.AvcPublic Valid ref: visible inner class of local class \n"
 					+ "	 * @see test.Visibility Valid ref: local class \n"
 					+ "	 * @see test.Visibility.VcPublic Valid ref: visible inner class of local class \n"
-					+ "	 * @see test.Visibility.AvcPublic Valid ref: visible inherited inner class of local class \n"
+					+ "	 * @see test.AbstractVisibility.AvcPublic Valid ref: visible inner class of local class \n"
 					+ "	 */\n"
 					+ "	public void s_foo() {\n"
 					+ "	}\n"
@@ -2073,7 +2073,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				"	 * Valid external classes references \n" +
 				"	 *\n" +
 				"	 * @see VisibilityPublic Valid ref: visible class through import => no warning on import\n" +
-				"	 * @see VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
+				"	 * @see test.copy.VisibilityPublic.VpPublic Valid ref: visible inner class in visible class \n" +
 				"	 */\n" +
 				"	public void s_foo() {\n" +
 				"	}\n" +
@@ -2270,7 +2270,7 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	 * Valid super class field references in the same package\n"
 					+ "	 *\n"
 					+ "	 * @see Visibility#avf_public Valid ref: visible inherited field\n"
-					+ "	 * @see Visibility.AvcPublic#avf_public Valid ref: visible field of inherited visible inner class\n"
+					+ "	 * @see AbstractVisibility.AvcPublic#avf_public Valid ref: visible field of visible inner class\n"
 					+ "	 */\n"
 					+ "	public void s_foo() {\n"
 					+ "	}\n"
@@ -2538,8 +2538,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				"	/**\n" +
 				"	 * Invalid other package non visible class fields references\n" +
 				"	 *\n" +
-				"	 * @see VisibilityPublic#vf_public Valid ref to not visible field of other package class\n" +
-				"	 * @see VisibilityPublic.VpPublic#vf_public Valid ref to not visible field of other package public inner class\n" +
+				"	 * @see VisibilityPublic#vf_public Valid ref to visible field of other package class\n" +
+				"	 * @see test.copy.VisibilityPublic.VpPublic#vf_public Fully Qualified valid ref to visible field of other package public inner class\n" +
 				"	 */\n" +
 				"	public void s_foo() {\n" +
 				"	}\n" +
@@ -4024,9 +4024,9 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	 * Valid package super class methods references\n"
 					+ "	 * \n"
 					+ "	 * @see Visibility#avm_public() Valid ref: visible inherited method\n"
-					+ "	 * @see Visibility.AvcPublic#avm_public() Valid ref: visible inherited method in visible inner class\n"
+					+ "	 * @see AbstractVisibility.AvcPublic#avm_public() Valid ref: visible method in visible inner class\n"
 					+ "	 * @see test.Visibility#avm_public() Valid ref: visible inherited method\n"
-					+ "	 * @see test.Visibility.AvcPublic#avm_public() Valid ref: visible inherited method in visible inner class\n"
+					+ "	 * @see test.AbstractVisibility.AvcPublic#avm_public() Valid ref: visible method in visible inner class\n"
 					+ "	 */  \n"
 					+ "	public void s_foo() {\n"
 					+ "	}\n"
@@ -4518,7 +4518,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				"	 * Valid other package visible class methods references \n" +
 				"	 * \n" +
 				"	 * @see VisibilityPublic#vm_public() Valid ref to not visible method of other package class\n" +
-				"	 * @see VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n" +
+				"	 * @see test.copy.VisibilityPublic.VpPublic#vm_public() Valid ref to visible method of other package public inner class\n" +
 				"	 */\n" +
 				"	public void s_foo() {\n" +
 				"	}\n" +

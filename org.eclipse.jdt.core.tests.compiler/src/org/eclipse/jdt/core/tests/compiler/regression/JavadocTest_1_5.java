@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2014,6 +2014,12 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* See also {@link Inner}\n" +
 			"	                  ^^^^^\n" +
 			"Javadoc: Invalid member type qualification\n" +
+			"----------\n" + 
+			"----------\n" +
+			"1. ERROR in comment6a\\test\\Invalid2.java (at line 4)\n" + 
+			"	* @see Test.Inner\n" + 
+			"	       ^^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
@@ -2322,6 +2328,12 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* See also {@link Inner}\n" +
 			"	                  ^^^^^\n" +
 			"Javadoc: Invalid member type qualification\n" +
+			"----------\n" + 
+			"----------\n" +
+			"1. ERROR in comment6a\\test\\Invalid2.java (at line 4)\n" + 
+			"	* @see Test.Inner\n" + 
+			"	       ^^^^^^^^^^\n" + 
+			"Javadoc: Invalid member type qualification\n" + 
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
@@ -3399,7 +3411,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"					/**\n" +
 									// qualified single type reference
 				"			 		 * @see A3.A4#foo(V)\n" +
-				"			 		 * @see A3.A4#foo(Object)\n" +
+				"			 		 * @see p1.A.A1.A2.A3.A4#foo(Object)\n" +
 				"					 */\n" +
 				"					public void foo(V v) {}\n" +
 				"				}\n" +
@@ -3445,8 +3457,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"				public class X4<V> extends A4<V> {\n" +
 				"					/**\n" +
 									// fully qualified type reference
-				"			 		 * @see A.A1.A2.A3.A4#foo(V)\n" +
-				"			 		 * @see A.A1.A2.A3.A4#foo(Object)\n" +
+				"			 		 * @see p1.A.A1.A2.A3.A4#foo(V)\n" +
+				"			 		 * @see p1.A.A1.A2.A3.A4#foo(Object)\n" +
 				"					 */\n" +
 				"					public void foo(V v) {}\n" +
 				"				}\n" +
@@ -3457,8 +3469,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			},
 			"----------\n" +
 			"1. ERROR in p2\\X.java (at line 9)\n" +
-			"	* @see A.A1.A2.A3.A4#foo(V)\n" +
-			"	                     ^^^\n" +
+			"	* @see p1.A.A1.A2.A3.A4#foo(V)\n" +
+			"	                        ^^^\n" +
 			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (V)\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
@@ -3754,9 +3766,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"				public class X4 extends A4 {\n" +
 				"					/**\n" +
 									// qualified single type reference
-				"			 		 * @see A3.A4#foo(Object)\n" +
-				"			 		 * @see A2.A3.A4#foo(Object)\n" +
-				"			 		 * @see A1.A2.A3.A4#foo(Object)\n" +
+				"			 		 * @see p1.A.A1.A2.A3.A4#foo(Object)\n" +
 				"					 */\n" +
 				"					public void foo(S s) {}\n" +
 				"				}\n" +
@@ -3803,8 +3813,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"						public class X6 extends A6 {\n" +
 				"							/**\n" +
 											// qualified single type reference
-				"			 				 * @see A5.A6#foo(Object)\n" +
-				"			 				 * @see A4.A5.A6#foo(Object)\n" +
+				"			 				 * @see p1.A.A1.A2.A3.A4.A5.A6#foo(Object)\n" +
 				"							 */\n" +
 				"							public void foo(S s) {}\n" +
 				"						}\n" +
@@ -3846,8 +3855,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"				public class X4 extends A4 {\n" +
 				"					/**\n" +
 									// fully qualified type reference
-				"			 		 * @see A.A1.A2.A3.A4#foo(Object)\n" +
-				"			 		 * @see A.A1.A2.A3.A4#foo(R)\n" +
+				"			 		 * @see p1.A.A1.A2.A3.A4#foo(Object)\n" +
+				"			 		 * @see p1.A.A1.A2.A3.A4#foo(R)\n" +
 				"					 */\n" +
 				"					public void foo(R r) {}\n" +
 				"				}\n" +
@@ -3858,8 +3867,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			},
 			"----------\n" +
 			"1. ERROR in p2\\X.java (at line 10)\r\n" +
-			"	* @see A.A1.A2.A3.A4#foo(R)\r\n" +
-			"	                     ^^^\n" +
+			"	* @see p1.A.A1.A2.A3.A4#foo(R)\r\n" +
+			"	                        ^^^\n" +
 			"Javadoc: The method foo(Object) in the type A.A1.A2.A3.A4 is not applicable for the arguments (R)\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
