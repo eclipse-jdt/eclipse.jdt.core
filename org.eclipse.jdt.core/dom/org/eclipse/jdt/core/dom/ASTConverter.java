@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1196,13 +1196,9 @@ class ASTConverter {
 	public CastExpression convert(org.eclipse.jdt.internal.compiler.ast.CastExpression expression) {
 		CastExpression castExpression = new CastExpression(this.ast);
 		castExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
-		org.eclipse.jdt.internal.compiler.ast.Expression type = expression.type;
+		TypeReference type = expression.type;
 		trimWhiteSpacesAndComments(type);
-		if (type instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference ) {
-			castExpression.setType(convertType((org.eclipse.jdt.internal.compiler.ast.TypeReference)type));
-		} else if (type instanceof org.eclipse.jdt.internal.compiler.ast.NameReference) {
-			castExpression.setType(convertToType((org.eclipse.jdt.internal.compiler.ast.NameReference)type));
-		}
+		castExpression.setType(convertType(type));
 		castExpression.setExpression(convert(expression.expression));
 		if (this.resolveBindings) {
 			recordNodes(castExpression, expression);
@@ -2963,17 +2959,6 @@ class ASTConverter {
 		expression.bits |= (numberOfParenthesis - 1) << org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedSHIFT;
 		parenthesizedExpression.setExpression(convert(expression));
 		return parenthesizedExpression;
-	}
-
-	public Type convertToType(org.eclipse.jdt.internal.compiler.ast.NameReference reference) {
-		Name name = convert(reference);
-		final SimpleType type = new SimpleType(this.ast);
-		type.setName(name);
-		type.setSourceRange(name.getStartPosition(), name.getLength());
-		if (this.resolveBindings) {
-			this.recordNodes(type, reference);
-		}
-		return type;
 	}
 
 	protected VariableDeclarationExpression convertToVariableDeclarationExpression(org.eclipse.jdt.internal.compiler.ast.LocalDeclaration localDeclaration) {

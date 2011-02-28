@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,11 +37,11 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 public class CastExpression extends Expression {
 
 	public Expression expression;
-	public Expression type;
+	public TypeReference type;
 	public TypeBinding expectedType; // when assignment conversion to a given expected type: String s = (String) t;
 
 //expression.implicitConversion holds the cast for baseType casting
-public CastExpression(Expression expression, Expression type) {
+public CastExpression(Expression expression, TypeReference type) {
 	this.expression = expression;
 	this.type = type;
 	type.bits |= ASTNode.IgnoreRawTypeCheck; // no need to worry about raw type usage
@@ -476,55 +476,46 @@ public TypeBinding resolveType(BlockScope scope) {
 	this.constant = Constant.NotAConstant;
 	this.implicitConversion = TypeIds.T_undefined;
 
-	if ((this.type instanceof TypeReference) || (this.type instanceof NameReference)
-			&& ((this.type.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) { // no extra parenthesis around type: ((A))exp
+	boolean exprContainCast = false;
 
-		boolean exprContainCast = false;
-
-		TypeBinding castType = this.resolvedType = this.type.resolveType(scope);
-		//expression.setExpectedType(this.resolvedType); // needed in case of generic method invocation
-		if (this.expression instanceof CastExpression) {
-			this.expression.bits |= ASTNode.DisableUnnecessaryCastCheck;
-			exprContainCast = true;
-		}
-		TypeBinding expressionType = this.expression.resolveType(scope);
-		if (castType != null) {
-			if (expressionType != null) {
-				boolean isLegal = checkCastTypesCompatibility(scope, castType, expressionType, this.expression);
-				if (isLegal) {
-					this.expression.computeConversion(scope, castType, expressionType);
-					if ((this.bits & ASTNode.UnsafeCast) != 0) { // unsafe cast
-						if (scope.compilerOptions().reportUnavoidableGenericTypeProblems || !this.expression.forcedToBeRaw(scope.referenceContext())) {
-							scope.problemReporter().unsafeCast(this, scope);
-						}
-					} else {
-						if (castType.isRawType() && scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore){
-							scope.problemReporter().rawTypeReference(this.type, castType);
-						}
-						if ((this.bits & (ASTNode.UnnecessaryCast|ASTNode.DisableUnnecessaryCastCheck)) == ASTNode.UnnecessaryCast) { // unnecessary cast
-							if (!isIndirectlyUsed()) // used for generic type inference or boxing ?
-								scope.problemReporter().unnecessaryCast(this);
-						}
-					}
-				} else { // illegal cast
-					if ((castType.tagBits & TagBits.HasMissingType) == 0) { // no complaint if secondary error
-						scope.problemReporter().typeCastError(this, castType, expressionType);
-					}
-					this.bits |= ASTNode.DisableUnnecessaryCastCheck; // disable further secondary diagnosis
-				}
-			}
-			this.resolvedType = castType.capture(scope, this.sourceEnd);
-			if (exprContainCast) {
-				checkNeedForCastCast(scope, this);
-			}
-		}
-		return this.resolvedType;
-	} else { // expression as a cast
-		TypeBinding expressionType = this.expression.resolveType(scope);
-		if (expressionType == null) return null;
-		scope.problemReporter().invalidTypeReference(this.type);
-		return null;
+	TypeBinding castType = this.resolvedType = this.type.resolveType(scope);
+	//expression.setExpectedType(this.resolvedType); // needed in case of generic method invocation
+	if (this.expression instanceof CastExpression) {
+		this.expression.bits |= ASTNode.DisableUnnecessaryCastCheck;
+		exprContainCast = true;
 	}
+	TypeBinding expressionType = this.expression.resolveType(scope);
+	if (castType != null) {
+		if (expressionType != null) {
+			boolean isLegal = checkCastTypesCompatibility(scope, castType, expressionType, this.expression);
+			if (isLegal) {
+				this.expression.computeConversion(scope, castType, expressionType);
+				if ((this.bits & ASTNode.UnsafeCast) != 0) { // unsafe cast
+					if (scope.compilerOptions().reportUnavoidableGenericTypeProblems || !this.expression.forcedToBeRaw(scope.referenceContext())) {
+						scope.problemReporter().unsafeCast(this, scope);
+					}
+				} else {
+					if (castType.isRawType() && scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore){
+						scope.problemReporter().rawTypeReference(this.type, castType);
+					}
+					if ((this.bits & (ASTNode.UnnecessaryCast|ASTNode.DisableUnnecessaryCastCheck)) == ASTNode.UnnecessaryCast) { // unnecessary cast
+						if (!isIndirectlyUsed()) // used for generic type inference or boxing ?
+							scope.problemReporter().unnecessaryCast(this);
+					}
+				}
+			} else { // illegal cast
+				if ((castType.tagBits & TagBits.HasMissingType) == 0) { // no complaint if secondary error
+					scope.problemReporter().typeCastError(this, castType, expressionType);
+				}
+				this.bits |= ASTNode.DisableUnnecessaryCastCheck; // disable further secondary diagnosis
+			}
+		}
+		this.resolvedType = castType.capture(scope, this.sourceEnd);
+		if (exprContainCast) {
+			checkNeedForCastCast(scope, this);
+		}
+	}
+	return this.resolvedType;
 }
 
 /**

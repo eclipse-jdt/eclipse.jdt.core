@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -799,7 +799,7 @@ private void buildMoreCompletionContext(Expression expression) {
 				Expression castType;
 				if(this.expressionPtr > 0
 					&& ((castType = this.expressionStack[this.expressionPtr-1]) instanceof TypeReference)) {
-					CastExpression cast = new CastExpression(expression, castType);
+					CastExpression cast = new CastExpression(expression, (TypeReference) castType);
 					cast.sourceStart = castType.sourceStart;
 					cast.sourceEnd= expression.sourceEnd;
 					this.assistNodeParent = cast;
@@ -2056,20 +2056,24 @@ protected void consumeCaseLabel() {
 protected void consumeCastExpressionWithPrimitiveType() {
 	popElement(K_CAST_STATEMENT);
 
-	Expression exp, cast, castType;
+	Expression exp;
+	Expression cast;
+	TypeReference castType;
 	this.expressionPtr--;
 	this.expressionLengthPtr--;
-	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr+1], castType = this.expressionStack[this.expressionPtr]);
+	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr+1], castType = (TypeReference) this.expressionStack[this.expressionPtr]);
 	cast.sourceStart = castType.sourceStart - 1;
 	cast.sourceEnd = exp.sourceEnd;
 }
 protected void consumeCastExpressionWithGenericsArray() {
 	popElement(K_CAST_STATEMENT);
 
-	Expression exp, cast, castType;
+	Expression exp;
+	Expression cast;
+	TypeReference castType;
 	this.expressionPtr--;
 	this.expressionLengthPtr--;
-	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr + 1], castType = this.expressionStack[this.expressionPtr]);
+	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr + 1], castType = (TypeReference) this.expressionStack[this.expressionPtr]);
 	cast.sourceStart = castType.sourceStart - 1;
 	cast.sourceEnd = exp.sourceEnd;
 }
@@ -2077,10 +2081,12 @@ protected void consumeCastExpressionWithGenericsArray() {
 protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	popElement(K_CAST_STATEMENT);
 
-	Expression exp, cast, castType;
+	Expression exp;
+	Expression cast;
+	TypeReference castType;
 	this.expressionPtr--;
 	this.expressionLengthPtr--;
-	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr + 1], castType = this.expressionStack[this.expressionPtr]);
+	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr + 1], castType = (TypeReference) this.expressionStack[this.expressionPtr]);
 	cast.sourceStart = castType.sourceStart - 1;
 	cast.sourceEnd = exp.sourceEnd;
 }
@@ -2088,11 +2094,12 @@ protected void consumeCastExpressionWithNameArray() {
 	// CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 	popElement(K_CAST_STATEMENT);
 
-	Expression exp, cast, castType;
-
+	Expression exp;
+	Expression cast;
+	TypeReference castType;
 	this.expressionPtr--;
 	this.expressionLengthPtr--;
-	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr+1], castType = this.expressionStack[this.expressionPtr]);
+	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr+1], castType = (TypeReference) this.expressionStack[this.expressionPtr]);
 	cast.sourceStart = castType.sourceStart - 1;
 	cast.sourceEnd = exp.sourceEnd;
 }

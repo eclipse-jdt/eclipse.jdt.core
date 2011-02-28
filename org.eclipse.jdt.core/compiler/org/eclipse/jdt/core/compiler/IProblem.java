@@ -526,6 +526,7 @@ void setSourceStart(int sourceStart);
 	int ThisInStaticContext = Internal + 200;
 	int StaticMethodRequested = Internal + MethodRelated + 201;
 	int IllegalDimension = Internal + 202;
+	/** @deprecated - problem is no longer generated */
 	int InvalidTypeExpression = Internal + 203;
 	int ParsingError = Syntax + Internal + 204;
 	int ParsingErrorNoSuggestion = Syntax + Internal + 205;

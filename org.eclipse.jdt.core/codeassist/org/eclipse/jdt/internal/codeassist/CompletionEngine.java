@@ -3451,7 +3451,7 @@ public final class CompletionEngine
 				}
 			}
 		} else if(parent instanceof CastExpression) {
-			Expression e = ((CastExpression)parent).type;
+			TypeReference e = ((CastExpression)parent).type;
 			TypeBinding binding = e.resolvedType;
 			if(binding != null){
 				addExpectedType(binding, scope);

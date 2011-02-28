@@ -3809,14 +3809,6 @@ public void invalidTypeForCollectionTarget14(Expression expression) {
 			expression.sourceStart,
 			expression.sourceEnd);
 }
-public void invalidTypeReference(Expression expression) {
-	this.handle(
-		IProblem.InvalidTypeExpression,
-		NoArgument,
-		NoArgument,
-		expression.sourceStart,
-		expression.sourceEnd);
-}
 public void invalidTypeToSynchronize(Expression expression, TypeBinding type) {
 	this.handle(
 		IProblem.InvalidTypeToSynchronized,
