@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
- *     			bugs 325755, 133125, 292478, 319201, 320170 and 332637
+ *     			bugs 325755, 133125, 292478, 319201, 320170, 332637 and 338303
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -14022,6 +14022,35 @@ public void testBug313870c() {
 			"		return null;\n" +
 			"	}\n" + 
 			"}"
+		},
+		"");
+}
+// https://bugs.eclipse.org/338303 - Warning about Redundant assignment conflicts with definite assignment
+public void testBug338303() {
+	this.runConformTest(
+		new String[] {
+			"Bug338303.java",
+			"import java.io.File;\n" + 
+			"import java.io.IOException;\n" + 
+			"\n" + 
+			"public class Bug338303 {\n" + 
+			"   Object test(Object in, final File f) {\n" + 
+			"        Object local;\n" + 
+			"        try {\n" + 
+			"            local = in;\n" + 
+			"            if (local == null)\n" + 
+			"                local = loadEntry(f, false);\n" + 
+			"        } catch (final IOException e) {\n" + 
+			"            e.printStackTrace();\n" + 
+		//	"            local = null;\n" + 
+			"        }\n" + 
+			"        return local;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private Object loadEntry(File f, boolean b)  throws IOException {\n" + 
+			"        throw new IOException();\n" + 
+			"    }\n" + 
+			"}\n"
 		},
 		"");
 }
