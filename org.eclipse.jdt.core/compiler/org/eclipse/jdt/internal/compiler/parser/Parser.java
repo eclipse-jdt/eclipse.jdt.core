@@ -2030,12 +2030,13 @@ protected void consumeCastExpressionLL1() {
 
 	//optimize push/pop
 
-	Expression cast,exp;
+	Expression cast;
+	Expression exp;
 	this.expressionPtr--;
 	this.expressionStack[this.expressionPtr] =
 		cast = new CastExpression(
 			exp=this.expressionStack[this.expressionPtr+1] ,
-			this.expressionStack[this.expressionPtr]);
+			(TypeReference) this.expressionStack[this.expressionPtr]);
 	this.expressionLengthPtr -- ;
 	updateSourcePosition(cast);
 	cast.sourceEnd=exp.sourceEnd;
@@ -2043,7 +2044,9 @@ protected void consumeCastExpressionLL1() {
 protected void consumeCastExpressionWithGenericsArray() {
 	// CastExpression ::= PushLPAREN Name TypeArguments Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 
-	Expression exp, cast, castType;
+	Expression exp;
+	Expression cast;
+	TypeReference castType;
 	int end = this.intStack[this.intPtr--];
 
 	int dim = this.intStack[this.intPtr--];
@@ -2058,7 +2061,9 @@ protected void consumeCastExpressionWithGenericsArray() {
 protected void consumeCastExpressionWithNameArray() {
 	// CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 
-	Expression exp, cast, castType;
+	Expression exp;
+	Expression cast;
+	TypeReference castType;
 	int end = this.intStack[this.intPtr--];
 
 	// handle type arguments
@@ -2077,7 +2082,9 @@ protected void consumeCastExpressionWithPrimitiveType() {
 
 	//optimize the push/pop
 
-	Expression exp, cast, castType;
+	Expression exp;
+	Expression cast;
+	TypeReference castType;
 	int end = this.intStack[this.intPtr--];
 	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr], castType = getTypeReference(this.intStack[this.intPtr--]));
 	castType.sourceEnd = end - 1;
@@ -2086,7 +2093,9 @@ protected void consumeCastExpressionWithPrimitiveType() {
 }
 protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	// CastExpression ::= PushLPAREN Name OnlyTypeArguments '.' ClassOrInterfaceType Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
-	Expression exp, cast, castType;
+	Expression exp;
+	Expression cast;
+	TypeReference castType;
 	int end = this.intStack[this.intPtr--];
 
 	int dim = this.intStack[this.intPtr--];
