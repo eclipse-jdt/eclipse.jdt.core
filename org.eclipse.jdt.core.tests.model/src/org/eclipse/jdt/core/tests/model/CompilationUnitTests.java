@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - contribution for bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -23,6 +24,9 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.internal.core.Buffer;
 import org.eclipse.jdt.internal.core.CompilationUnit;
@@ -477,6 +481,104 @@ public void testDeprecatedFlag09() throws JavaModelException {
 	assertTrue("Method fred2 should be deprecated", Flags.isDeprecated(method.getFlags()));
 }
 
+/*
+ * Bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment 
+ * Ensure that package level annotation is evaluated during AST creation.
+ */
+public void testDeprecatedFlag10() throws CoreException {
+	try {
+		createFolder("/P/src/p2");
+	
+		createFile(
+				"/P/src/p2/package-info.java",
+				"@java.lang.Deprecated package p2;\n"
+			);
+		
+		// workaround for missing type in jclMin:
+		createFolder("/P/src/java/lang");
+		createFile(
+				"/P/src/java/lang/Deprecated.java",
+				"package java.lang;\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"public @interface Deprecated {\n" + 
+				"}\n"
+			);
+	
+		createFile("/P/src/p2/C.java", 
+				"package p2;\n" +
+				"public class C {}\n");
+	
+		createFile("/P/src/p/D.java", 
+				"package p;\n" +
+				"public class D extends p2.C {}\n");
+		ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
+		
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setProject(this.testProject);
+		parser.setSource(cuD);
+		parser.setResolveBindings(true);
+		org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+		IProblem[] problems = cuAST.getProblems();
+		assertEquals("Should have 1 problem", 1, problems.length);
+		assertEquals("Should have a deprecation warning", "The type C is deprecated", problems[0].getMessage());
+	} finally {
+		deleteFile("/P/src/p/D.java");
+		deleteFolder("/P/src/p2");
+		deleteFolder("/P/src/java/lang");
+	}
+}
+
+/*
+ * Bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment 
+ * Ensure that package level annotation is evaluated during AST creation. 
+ * a working copy for package-info exists and must be used.
+ */
+public void testDeprecatedFlag11() throws CoreException {
+	try {
+		createFolder("/P/src/p2");
+
+		createFile(
+				"/P/src/p2/package-info.java",
+				"@java.lang.Deprecated package p2;\n"
+			);
+		WorkingCopyOwner myWCOwner = newWorkingCopyOwner(null);
+		getCompilationUnit("/P/src/p2/package-info.java").getWorkingCopy(myWCOwner, null);
+
+
+		// workaround for missing type in jclMin:
+		createFolder("/P/src/java/lang");
+		createFile(
+				"/P/src/java/lang/Deprecated.java",
+				"package java.lang;\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"public @interface Deprecated {\n" +
+				"}\n"
+			);
+	
+		createFile("/P/src/p2/C.java",
+				"package p2;\n" +
+				"public class C {}\n");
+	
+		createFile("/P/src/p/D.java",
+				"package p;\n" +
+				"public class D extends p2.C {}\n");
+		ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
+
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setWorkingCopyOwner(myWCOwner);
+		parser.setProject(this.testProject);
+		parser.setSource(cuD);
+		parser.setResolveBindings(true);
+		org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+		IProblem[] problems = cuAST.getProblems();
+		assertEquals("Should have 1 problem", 1, problems.length);
+		assertEquals("Should have a deprecation warning", "The type C is deprecated", problems[0].getMessage());
+	} finally {
+		deleteFile("/P/src/p/D.java");
+		deleteFolder("/P/src/p2");
+		deleteFolder("/P/src/java/lang");
+	}
+}
 /*
  * Ensures that the primary type of a cu can be found.
  */
