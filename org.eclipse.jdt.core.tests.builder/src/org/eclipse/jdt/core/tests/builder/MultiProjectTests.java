@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.builder;
 import java.util.Hashtable;
 
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IPath;
@@ -31,7 +32,32 @@ public class MultiProjectTests extends BuilderTests {
 	}
 
 	public static Test suite() {
-		return buildTestSuite(MultiProjectTests.class);
+		TestSuite suite = new TestSuite(MultiProjectTests.class.getName());
+		suite.addTest(new MultiProjectTests("testCompileOnlyDependent"));
+		suite.addTest(new MultiProjectTests("testCompileOnlyStructuralDependent"));
+		suite.addTest(new MultiProjectTests("testRemoveField"));
+		suite.addTest(new MultiProjectTests("testCompileOrder"));
+		suite.addTest(new MultiProjectTests("testCycle1"));
+		suite.addTest(new MultiProjectTests("testCycle2"));
+		suite.addTest(new MultiProjectTests("testCycle3"));
+		suite.addTest(new MultiProjectTests("testCycle4"));
+		suite.addTest(new MultiProjectTests("testCycle5"));
+		suite.addTest(new MultiProjectTests("testCycle6"));
+		suite.addTest(new MultiProjectTests("testCycle7"));
+		suite.addTest(new MultiProjectTests("testExcludePartOfAnotherProject1"));
+		suite.addTest(new MultiProjectTests("testExcludePartOfAnotherProject2"));
+		suite.addTest(new MultiProjectTests("testExcludePartOfAnotherProject3"));
+		suite.addTest(new MultiProjectTests("testIncludePartOfAnotherProject1"));
+		suite.addTest(new MultiProjectTests("testIncludePartOfAnotherProject2"));
+		suite.addTest(new MultiProjectTests("testIncludePartOfAnotherProject3"));
+		suite.addTest(new MultiProjectTests("testIgnoreIfBetterNonAccessibleRule1"));
+		suite.addTest(new MultiProjectTests("testIgnoreIfBetterNonAccessibleRule2"));
+		suite.addTest(new MultiProjectTests("testMissingRequiredBinaries"));
+		suite.addTest(new MultiProjectTests("test100_class_folder_exported"));
+		suite.addTest(new MultiProjectTests("test101_class_folder_non_exported"));
+		suite.addTest(new MultiProjectTests("test102_missing_required_binaries"));
+		suite.addTest(new MultiProjectTests("test103_missing_required_binaries"));
+		return suite;
 	}
 
 	public void testCompileOnlyDependent() throws JavaModelException {
