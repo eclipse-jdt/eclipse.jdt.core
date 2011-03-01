@@ -1371,6 +1371,8 @@ void setSourceStart(int sourceStart);
 	int AssignmentToResource = Internal + 872;
 	/** @since 3.7 */
 	int InvalidDisjunctiveTypeReferenceSequence = Internal + TypeRelated + 873; 
+	/** @since 3.7 */
+	int AutoManagedResourceNotBelow17 = Syntax + Internal + 874;
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */

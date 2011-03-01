@@ -7688,4 +7688,13 @@ public void wrongSequenceOfExceptionTypes(TypeReference typeRef, TypeBinding exc
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
 }
+
+public void autoManagedResourcesNotBelow17(LocalDeclaration[] resources) {
+	this.handle(
+			IProblem.AutoManagedResourceNotBelow17,
+			NoArgument,
+			NoArgument,
+			resources[0].declarationSourceStart,
+			resources[resources.length - 1].declarationSourceEnd);
+}
 }

@@ -2460,4 +2460,42 @@ public void test0053() {
 		expected15ProblemLog
 	);
 }
+public void test0054() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		try (int i = 0) {};\n" +
+		"	}\n" +
+		"}\n"
+	};
+
+	String expected13ProblemLog =
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (int i = 0) {};\n" + 
+		"	     ^^^^^^^^^\n" + 
+		"Resource specification not allowed here for source level below 1.7\n" + 
+		"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+
+	String expected15ProblemLog =
+		expected14ProblemLog;
+
+	String expected17ProblemLog = 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (int i = 0) {};\n" + 
+		"	     ^^^\n" + 
+		"The resource type int has to be a subclass of java.lang.AutoCloseable \n" + 
+		"----------\n";
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog,
+		expected17ProblemLog
+	);
+}
 }

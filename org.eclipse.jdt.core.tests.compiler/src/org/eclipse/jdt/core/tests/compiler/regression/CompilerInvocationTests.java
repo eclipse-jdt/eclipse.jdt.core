@@ -362,6 +362,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("AssignmentHasNoEffect", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("AssignmentToMultiCatchParameter", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("AssignmentToResource", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("AutoManagedResourceNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("BodyForAbstractMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("BodyForNativeMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("BoundCannotBeArray", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1018,6 +1019,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("AssignmentHasNoEffect", new ProblemAttributes(JavaCore.COMPILER_PB_NO_EFFECT_ASSIGNMENT));
 		expectedProblemAttributes.put("AssignmentToMultiCatchParameter", SKIP);
 		expectedProblemAttributes.put("AssignmentToResource", SKIP);
+		expectedProblemAttributes.put("AutoManagedResourceNotBelow17", SKIP);
 		expectedProblemAttributes.put("BodyForAbstractMethod", SKIP);
 		expectedProblemAttributes.put("BodyForNativeMethod", SKIP);
 		expectedProblemAttributes.put("BoundCannotBeArray", SKIP);

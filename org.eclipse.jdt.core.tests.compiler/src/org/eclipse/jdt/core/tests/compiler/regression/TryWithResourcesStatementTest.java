@@ -376,6 +376,48 @@ public void test013() {
 		"y cannot be resolved to a variable\n" + 
 		"----------\n");
 }
+public void _test014() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {    \n" +
+			"		try (Y y = new Y();) {\n" +
+			"		    System.out.println(\"Try block\");\n" +
+			"		} finally {\n" +
+			"		    System.out.println(\"Finally block\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"} \n" +
+			"\n" +
+			"class Y implements AutoCloseable {\n" +
+			"	public Y() throws WeirdException {\n" +
+			"		throw new WeirdException();\n" +
+			"	}\n" +
+			"	public void close() {\n" +
+			"		    System.out.println(\"Closing resource\");\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class WeirdException extends Throwable {}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	public void foo(int p) {\n" + 
+		"	                    ^\n" + 
+		"The parameter p is hiding another local variable defined in an enclosing type scope\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	} catch (Exception y) {\n" + 
+		"	                   ^\n" + 
+		"The parameter y is hiding another local variable defined in an enclosing type scope\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
+		"	System.out.println(y);\n" + 
+		"	                   ^\n" + 
+		"y cannot be resolved to a variable\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }

@@ -29,7 +29,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class TryStatementWithResources extends TryStatement {
 
-	public LocalDeclaration[] resources;
+	private static LocalDeclaration [] NO_RESOURCES = new LocalDeclaration[0];
+	public LocalDeclaration[] resources = NO_RESOURCES;
 
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 		printIndent(indent, output).append("try ("); //$NON-NLS-1$
@@ -132,7 +133,13 @@ public class TryStatementWithResources extends TryStatement {
 				int shiftScopesLength = this.catchArguments == null ? 1 : this.catchArguments.length + 1;
 				shiftScopesLength += this.resources.length;
 				finallyScope.shiftScopes = new BlockScope[shiftScopesLength];
-				finallyScope.shiftScopes[0] = tryScope;
+				for (int i = 0, max = this.resources.length; i < max; i++) {
+					LocalVariableBinding localVariableBinding = this.resources[i].binding;
+					if (localVariableBinding != null && localVariableBinding.isValidBinding()) {
+						finallyScope.shiftScopes[i] = localVariableBinding.declaringScope;
+					}
+				}
+				finallyScope.shiftScopes[this.resources.length] = tryScope;
 			}
 		}
 

@@ -7453,7 +7453,11 @@ protected void consumeStatementTryWithResources(boolean withFinally) {
 			resources,
 			0,
 			length);
-	tryStmt.resources = resources;
+	if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
+		problemReporter().autoManagedResourcesNotBelow17(resources);
+	} else {
+		tryStmt.resources = resources;
+	}
 	//positions
 	tryStmt.sourceEnd = this.endStatementPosition;
 	tryStmt.sourceStart = this.intStack[this.intPtr--];
