@@ -7420,7 +7420,7 @@ protected void consumeStatementTryWithResources(boolean withFinally) {
 	// TryStatementWithResources ::= 'try' ResourceSpecification TryBlock Catchesopt
 	// TryStatementWithResources ::= 'try' ResourceSpecification TryBlock Catchesopt Finally
 	int length;
-	TryStatementWithResources tryStmt = new TryStatementWithResources();
+	TryStatement tryStmt = new TryStatement();
 	//finally
 	if (withFinally) {
 		this.astLengthPtr--;

@@ -66,7 +66,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	Map formatterOptions;
 
 	static {
-		TESTS_NUMBERS = new int[] { 746, 747 };
+//		TESTS_NUMBERS = new int[] { 746, 747 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);

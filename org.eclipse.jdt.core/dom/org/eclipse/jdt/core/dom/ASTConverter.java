@@ -2479,11 +2479,13 @@ class ASTConverter {
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.ThrowStatement) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.ThrowStatement) statement);
 		}
-		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.TryStatementWithResources) {
-			return convert((org.eclipse.jdt.internal.compiler.ast.TryStatementWithResources) statement);
-		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.TryStatement) {
-			return convert((org.eclipse.jdt.internal.compiler.ast.TryStatement) statement);
+			org.eclipse.jdt.internal.compiler.ast.TryStatement stmt = (org.eclipse.jdt.internal.compiler.ast.TryStatement) statement;
+			if (stmt.resources.length > 0) {
+				return convert(stmt, true);
+			} else {
+				return convert(stmt);
+			}
 		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 			ASTNode result = convert((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) statement);
@@ -2654,7 +2656,7 @@ class ASTConverter {
 		return tryStatement;
 	}
 
-	public TryStatementWithResources convert(org.eclipse.jdt.internal.compiler.ast.TryStatementWithResources statement) {
+	public TryStatementWithResources convert(org.eclipse.jdt.internal.compiler.ast.TryStatement statement, boolean hasResources /* unused */) {
 		final TryStatementWithResources tryStatementWithResources = new TryStatementWithResources(this.ast);
 		tryStatementWithResources.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		LocalDeclaration[] localDeclarations = statement.resources;

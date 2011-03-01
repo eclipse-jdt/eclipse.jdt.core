@@ -437,9 +437,6 @@ public abstract class ASTVisitor {
 	public void endVisit(TryStatement tryStatement, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(TryStatementWithResources tryStatementWithResources, BlockScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(
 		TypeDeclaration localTypeDeclaration,
 		BlockScope scope) {
@@ -883,9 +880,6 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(TryStatement tryStatement, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(TryStatementWithResources tryStatementWithResources, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(

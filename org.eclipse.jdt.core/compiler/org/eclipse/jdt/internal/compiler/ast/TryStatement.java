@@ -28,6 +28,9 @@ public class TryStatement extends SubRoutineStatement {
 	static final char[] SECRET_ANY_HANDLER_NAME = " anyExceptionHandler".toCharArray(); //$NON-NLS-1$
 	static final char[] SECRET_RETURN_VALUE_NAME = " returnValue".toCharArray(); //$NON-NLS-1$
 
+	private static LocalDeclaration [] NO_RESOURCES = new LocalDeclaration[0];
+	public LocalDeclaration[] resources = NO_RESOURCES;
+
 	public Block tryBlock;
 	public Block[] catchBlocks;
 
@@ -100,6 +103,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// only try blocks initialize that member - may consider creating a
 		// separate class if needed
 
+		for (int i = 0, max = this.resources.length; i < max; i++) {
+			flowInfo = this.resources[i].analyseCode(currentScope, handlingContext, flowInfo.copy());
+		}
 		FlowInfo tryInfo;
 		if (this.tryBlock.isEmptyBlock()) {
 			tryInfo = flowInfo;
@@ -209,6 +215,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// only try blocks initialize that member - may consider creating a
 		// separate class if needed
 
+		for (int i = 0, max = this.resources.length; i < max; i++) {
+			flowInfo = this.resources[i].analyseCode(currentScope, handlingContext, flowInfo.copy());
+		}
 		FlowInfo tryInfo;
 		if (this.tryBlock.isEmptyBlock()) {
 			tryInfo = flowInfo;
@@ -738,7 +747,18 @@ public boolean isSubRoutineEscaping() {
 }
 
 public StringBuffer printStatement(int indent, StringBuffer output) {
-	printIndent(indent, output).append("try\n"); //$NON-NLS-1$
+	int length = this.resources.length;
+	printIndent(indent, output).append("try" + (length == 0 ? "\n" : " (")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	for (int i = 0; i < length; i++) {
+		this.resources[i].printAsExpression(0, output);
+		if (i != length - 1) {
+			output.append(";\n"); //$NON-NLS-1$
+			printIndent(indent + 2, output);
+		}
+	}
+	if (length > 0) {
+		output.append(")\n"); //$NON-NLS-1$
+	}
 	this.tryBlock.printStatement(indent + 1, output);
 
 	//catches
@@ -762,8 +782,28 @@ public void resolve(BlockScope upperScope) {
 	// special scope for secret locals optimization.
 	this.scope = new BlockScope(upperScope);
 
-	BlockScope tryScope = new BlockScope(this.scope);
 	BlockScope finallyScope = null;
+
+	// resolve all resources and inject them into separate scopes
+	BlockScope localScope = new BlockScope(this.scope);
+	for (int i = 0, max = this.resources.length; i < max; i++) {
+		this.resources[i].resolve(localScope);
+		LocalVariableBinding localVariableBinding = this.resources[i].binding;
+		if (localVariableBinding != null && localVariableBinding.isValidBinding()) {
+			localVariableBinding.modifiers |= ClassFileConstants.AccFinal;
+			localVariableBinding.tagBits |= TagBits.IsResource;
+			TypeBinding resourceType = localVariableBinding.type;
+			if (resourceType.isClass() || resourceType.isInterface()) {
+				if (resourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangAutoCloseable, false /*AutoCloseable is not a class*/) == null && resourceType.isValidBinding()) {
+					upperScope.problemReporter().resourceHasToBeAutoCloseable(resourceType, this.resources[i].type);
+				}
+			} else { 
+				upperScope.problemReporter().resourceHasToBeAutoCloseable(resourceType, this.resources[i].type);
+			}
+		}
+		localScope = new BlockScope(localScope, 1);
+	}
+	BlockScope tryScope = localScope;
 
 	if (this.finallyBlock != null) {
 		if (this.finallyBlock.isEmptyBlock()) {
@@ -809,8 +849,16 @@ public void resolve(BlockScope upperScope) {
 			}
 			this.finallyBlock.resolveUsing(finallyScope);
 			// force the finally scope to have variable positions shifted after its try scope and catch ones
-			finallyScope.shiftScopes = new BlockScope[this.catchArguments == null ? 1 : this.catchArguments.length+1];
-			finallyScope.shiftScopes[0] = tryScope;
+			int shiftScopesLength = this.catchArguments == null ? 1 : this.catchArguments.length + 1;
+			shiftScopesLength += this.resources.length;
+			finallyScope.shiftScopes = new BlockScope[shiftScopesLength];
+			for (int i = 0, max = this.resources.length; i < max; i++) {
+				LocalVariableBinding localVariableBinding = this.resources[i].binding;
+				if (localVariableBinding != null && localVariableBinding.isValidBinding()) {
+					finallyScope.shiftScopes[i] = localVariableBinding.declaringScope;
+				}
+			}
+			finallyScope.shiftScopes[this.resources.length] = tryScope;
 		}
 	}
 	this.tryBlock.resolveUsing(tryScope);
@@ -854,6 +902,10 @@ public void resolve(BlockScope upperScope) {
 }
 public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
+		LocalDeclaration[] localDeclarations = this.resources;
+		for (int i = 0, max = localDeclarations.length; i < max; i++) {
+			localDeclarations[i].traverse(visitor, this.scope);
+		}
 		this.tryBlock.traverse(visitor, this.scope);
 		if (this.catchArguments != null) {
 			for (int i = 0, max = this.catchBlocks.length; i < max; i++) {

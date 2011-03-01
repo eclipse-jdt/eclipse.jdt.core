@@ -105,7 +105,6 @@ import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.ThrowStatement;
 import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
-import org.eclipse.jdt.internal.compiler.ast.TryStatementWithResources;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -5424,6 +5423,29 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	public boolean visit(TryStatement tryStatement, BlockScope scope) {
 
 		this.scribe.printNextToken(TerminalTokens.TokenNametry);
+		LocalDeclaration[] resources = tryStatement.resources;
+		int length = resources.length;
+		if (length > 0) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, true);
+		}
+		for (int i = 0; i < length; i++) {
+			if (i != 0) {
+				this.scribe.printNewLine();
+				this.scribe.indent();
+				this.scribe.indent();
+			}
+			formatLocalDeclaration(resources[i], scope, false, false);
+			if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON);
+			}
+		}
+		if (length >= 2) {
+			this.scribe.unIndent();
+			this.scribe.unIndent();
+		}
+		if (length > 0) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN);
+		}
 		tryStatement.tryBlock.traverse(this, scope);
 		if (tryStatement.catchArguments != null) {
 			for (int i = 0, max = tryStatement.catchBlocks.length; i < max; i++) {
@@ -5452,63 +5474,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 			this.scribe.printNextToken(TerminalTokens.TokenNamefinally, this.preferences.insert_space_after_closing_brace_in_block);
 			tryStatement.finallyBlock.traverse(this, scope);
-		}
-		return false;
-	}
-
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.TryStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
-	public boolean visit(TryStatementWithResources tryStatementWithResources, BlockScope scope) {
-
-		this.scribe.printNextToken(TerminalTokens.TokenNametry);
-		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, true);
-		LocalDeclaration[] resources = tryStatementWithResources.resources;
-		int length = resources.length;
-		for (int i = 0; i < length; i++) {
-			if (i != 0) {
-				this.scribe.printNewLine();
-				this.scribe.indent();
-				this.scribe.indent();
-			}
-			formatLocalDeclaration(resources[i], scope, false, false);
-			if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON);
-			}
-		}
-		if (length >= 2) {
-			this.scribe.unIndent();
-			this.scribe.unIndent();
-		}
-		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN);
-		tryStatementWithResources.tryBlock.traverse(this, scope);
-		if (tryStatementWithResources.catchArguments != null) {
-			for (int i = 0, max = tryStatementWithResources.catchBlocks.length; i < max; i++) {
-				if (this.preferences.insert_new_line_before_catch_in_try_statement) {
-					this.scribe.printNewLine();
-				}
-				this.scribe.printNextToken(TerminalTokens.TokenNamecatch, this.preferences.insert_space_after_closing_brace_in_block);
-				final int line = this.scribe.line;
-				this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_catch);
-
-				if (this.preferences.insert_space_after_opening_paren_in_catch) {
-					this.scribe.space();
-				}
-
-				tryStatementWithResources.catchArguments[i].traverse(this, scope);
-
-				this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_catch);
-
-				formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
-				tryStatementWithResources.catchBlocks[i].traverse(this, scope);
-			}
-		}
-		if (tryStatementWithResources.finallyBlock != null) {
-			if (this.preferences.insert_new_line_before_finally_in_try_statement) {
-				this.scribe.printNewLine();
-			}
-			this.scribe.printNextToken(TerminalTokens.TokenNamefinally, this.preferences.insert_space_after_closing_brace_in_block);
-			tryStatementWithResources.finallyBlock.traverse(this, scope);
 		}
 		return false;
 	}

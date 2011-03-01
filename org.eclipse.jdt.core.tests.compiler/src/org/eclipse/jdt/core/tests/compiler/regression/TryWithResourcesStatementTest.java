@@ -376,13 +376,15 @@ public void test013() {
 		"y cannot be resolved to a variable\n" + 
 		"----------\n");
 }
-public void _test014() {
+public void test014() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String [] args) {    \n" +
 			"		try (Y y = new Y();) {\n" +
+			"           if (y == null) {}\n" +
+			"           Y why = new Y();\n" +
 			"		    System.out.println(\"Try block\");\n" +
 			"		} finally {\n" +
 			"		    System.out.println(\"Finally block\");\n" +
@@ -402,18 +404,175 @@ public void _test014() {
 			"class WeirdException extends Throwable {}\n",
 		},
 		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (Y y = new Y();) {\n" + 
+		"	           ^^^^^^^\n" + 
+		"Unhandled exception type WeirdException\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (y == null) {}\n" + 
+		"	               ^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Y why = new Y();\n" + 
+		"	        ^^^^^^^\n" + 
+		"Unhandled exception type WeirdException\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 22)\n" + 
+		"	class WeirdException extends Throwable {}\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"The serializable class WeirdException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+public void test015() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {    \n" +
+			"		try (Y y = new Y();) {\n" +
+			"           if (y == null)\n {}\n" +
+			"		}\n" +
+			"	}\n" +
+			"} \n" +
+			"\n" +
+			"class Y implements AutoCloseable {\n" +
+			"	public void close() {\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
 		"1. WARNING in X.java (at line 5)\n" + 
-		"	public void foo(int p) {\n" + 
-		"	                    ^\n" + 
-		"The parameter p is hiding another local variable defined in an enclosing type scope\n" + 
+		"	{}\n" + 
+		"	^^\n" + 
+		"Dead code\n" + 
+		"----------\n");
+}
+public void test016() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {    \n" +
+			"		try (Y y = new Y();) {\n" +
+			"           if (y == null) {}\n" +
+			"           Y why = new Y();\n" +
+			"		    System.out.println(\"Try block\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"} \n" +
+			"\n" +
+			"class Y implements AutoCloseable {\n" +
+			"	public Y() throws WeirdException {\n" +
+			"		throw new WeirdException();\n" +
+			"	}\n" +
+			"	public void close() {\n" +
+			"		    System.out.println(\"Closing resource\");\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class WeirdException extends Throwable {}\n",
+		},
 		"----------\n" + 
-		"2. WARNING in X.java (at line 8)\n" + 
-		"	} catch (Exception y) {\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (Y y = new Y();) {\n" + 
+		"	           ^^^^^^^\n" + 
+		"Unhandled exception type WeirdException\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (y == null) {}\n" + 
+		"	               ^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Y why = new Y();\n" + 
+		"	        ^^^^^^^\n" + 
+		"Unhandled exception type WeirdException\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 20)\n" + 
+		"	class WeirdException extends Throwable {}\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"The serializable class WeirdException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+public void test017() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {    \n" +
+			"		try (Y y = new Y();) {\n" +
+			"           if (y == null)\n {}\n" +
+			"		} finally {\n" +
+			"       }\n" +
+			"	}\n" +
+			"} \n" +
+			"\n" +
+			"class Y implements AutoCloseable {\n" +
+			"	public void close() {\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	{}\n" + 
+		"	^^\n" + 
+		"Dead code\n" + 
+		"----------\n");
+}
+public void test018() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {    \n" +
+			"		try () {\n" +
+			"		} finally {\n" +
+			"       }\n" +
+			"	}\n" +
+			"} \n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try () {\n" + 
+		"	    ^\n" + 
+		"Syntax error on token \"(\", Resources expected after this token\n" + 
+		"----------\n");
+}
+public void test019() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"	    try (Y y = null) {\n" +
+			"	    } catch (Exception e) {\n" +
+			"		System.out.println(y); \n" +
+			"	    } finally {\n" +
+			"		System.out.println(y); \n" +
+			"	    }\n" +
+			"	    System.out.println(y); \n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"	public void close() {\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	System.out.println(y); \n" + 
 		"	                   ^\n" + 
-		"The parameter y is hiding another local variable defined in an enclosing type scope\n" + 
+		"y cannot be resolved to a variable\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 13)\n" + 
-		"	System.out.println(y);\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	System.out.println(y); \n" + 
+		"	                   ^\n" + 
+		"y cannot be resolved to a variable\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	System.out.println(y); \n" + 
 		"	                   ^\n" + 
 		"y cannot be resolved to a variable\n" + 
 		"----------\n");
