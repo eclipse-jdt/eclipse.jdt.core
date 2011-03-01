@@ -14042,7 +14042,7 @@ public void testBug338303() {
 			"                local = loadEntry(f, false);\n" + 
 			"        } catch (final IOException e) {\n" + 
 			"            e.printStackTrace();\n" + 
-		//	"            local = null;\n" + 
+			"            local = null;\n" + 
 			"        }\n" + 
 			"        return local;\n" + 
 			"    }\n" + 
