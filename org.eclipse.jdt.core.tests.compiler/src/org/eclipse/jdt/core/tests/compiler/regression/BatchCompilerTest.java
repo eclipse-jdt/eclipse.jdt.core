@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1687,7 +1687,6 @@ public void test012b(){
         "                           maskedCatchBlock\n" + 
         "      includeAssertNull    raise null warnings for variables\n" + 
         "                           that got tainted in an assert expression\n" + 
-        "      incomplete-switch    same as enumSwitch\n" + 
         "      indirectStatic       indirect reference to static member\n" + 
         "      intfAnnotation     + annotation type used as super interface\n" + 
         "      intfNonInherited   + interface non-inherited method compatibility\n" + 
@@ -1717,6 +1716,8 @@ public void test012b(){
         "      syntheticAccess      synthetic access for innerclass\n" + 
         "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" + 
         "      typeHiding         + type parameter hiding another type\n" + 
+        "      unavoidableGenericProblems + ignore unavoidable type safety problems\n" +
+        "                                   due to raw APIs\n" + 
         "      unchecked          + unchecked type operation\n" + 
         "      unnecessaryElse      unnecessary else clause\n" + 
         "      unqualifiedField     unqualified reference to field\n" + 
