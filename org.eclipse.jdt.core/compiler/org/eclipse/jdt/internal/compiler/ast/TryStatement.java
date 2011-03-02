@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -105,6 +106,17 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		for (int i = 0, max = this.resources.length; i < max; i++) {
 			flowInfo = this.resources[i].analyseCode(currentScope, handlingContext, flowInfo.copy());
+			TypeBinding type = this.resources[i].binding.type;
+			if (type != null && type.isValidBinding()) {
+				ReferenceBinding binding = (ReferenceBinding) type;
+				MethodBinding closeMethod = binding.getExactMethod(ConstantPool.Close, new TypeBinding [0], this.scope.compilationUnitScope()); // scope needs to be tighter
+				if (closeMethod != null && closeMethod.returnType.id == TypeIds.T_void) {
+					ReferenceBinding[] thrownExceptions = closeMethod.thrownExceptions;
+					for (int j = 0, length = thrownExceptions.length; j < length; j++) {
+						handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[i], flowInfo, currentScope);
+					}
+				}
+			}
 		}
 		FlowInfo tryInfo;
 		if (this.tryBlock.isEmptyBlock()) {
@@ -217,6 +229,17 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		for (int i = 0, max = this.resources.length; i < max; i++) {
 			flowInfo = this.resources[i].analyseCode(currentScope, handlingContext, flowInfo.copy());
+			TypeBinding type = this.resources[i].binding.type;
+			if (type != null && type.isValidBinding()) {
+				ReferenceBinding binding = (ReferenceBinding) type;
+				MethodBinding closeMethod = binding.getExactMethod(ConstantPool.Close, new TypeBinding [0], this.scope.compilationUnitScope()); // scope needs to be tighter
+				if (closeMethod != null && closeMethod.returnType.id == TypeIds.T_void) {
+					ReferenceBinding[] thrownExceptions = closeMethod.thrownExceptions;
+					for (int j = 0, length = thrownExceptions.length; j < length; j++) {
+						handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[j], flowInfo, currentScope);
+					}
+				}
+			}
 		}
 		FlowInfo tryInfo;
 		if (this.tryBlock.isEmptyBlock()) {
@@ -796,9 +819,11 @@ public void resolve(BlockScope upperScope) {
 			if (resourceType.isClass() || resourceType.isInterface()) {
 				if (resourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangAutoCloseable, false /*AutoCloseable is not a class*/) == null && resourceType.isValidBinding()) {
 					upperScope.problemReporter().resourceHasToBeAutoCloseable(resourceType, this.resources[i].type);
+					localVariableBinding.type = new ProblemReferenceBinding(CharOperation.splitOn('.', resourceType.shortReadableName()), null, ProblemReasons.InvalidTypeForAutoManagedResource);
 				}
 			} else { 
 				upperScope.problemReporter().resourceHasToBeAutoCloseable(resourceType, this.resources[i].type);
+				localVariableBinding.type = new ProblemReferenceBinding(CharOperation.splitOn('.', resourceType.shortReadableName()), null, ProblemReasons.InvalidTypeForAutoManagedResource);
 			}
 		}
 		localScope = new BlockScope(localScope, 1);

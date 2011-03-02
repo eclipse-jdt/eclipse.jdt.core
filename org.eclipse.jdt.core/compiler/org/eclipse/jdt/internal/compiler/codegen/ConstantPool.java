@@ -75,6 +75,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] Clinit = "<clinit>".toCharArray(); //$NON-NLS-1$
 	public static final char[] DefaultConstructorSignature = "()V".toCharArray(); //$NON-NLS-1$
 	public static final char[] ClinitSignature = DefaultConstructorSignature;
+	public static final char[] Close = "close".toCharArray(); //$NON-NLS-1$
 	public static final char[] DesiredAssertionStatus = "desiredAssertionStatus".toCharArray(); //$NON-NLS-1$
 	public static final char[] DesiredAssertionStatusSignature = "()Z".toCharArray(); //$NON-NLS-1$
 	public static final char[] DoubleConstrSignature = "(D)V".toCharArray(); //$NON-NLS-1$

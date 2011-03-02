@@ -540,41 +540,430 @@ public void test018() {
 		"Syntax error on token \"(\", Resources expected after this token\n" + 
 		"----------\n");
 }
-public void test019() {
+public void test020() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X implements AutoCloseable {\n" +
+			"	public static void main(String [] args) {\n" +
+			"            try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" +
+			"            throw new XXException();\n" +
+			"            } catch (XException x) {\n" +
+			"	 		 } catch (YException y) {\n" +
+			"            } catch (ZException z) {\n" +
+			"	    	 } finally {\n" +
+			"            }\n" +
+			"	}\n" +
+			"	public X() throws XException {\n" +
+			"		throw new XException();\n" +
+			"	}\n" +
+			"	public void close() throws XXException {\n" +
+			"		throw new XXException();\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"	public Y() throws YException {\n" +
+			"		throw new YException();\n" +
+			"	}\n" +
+			"	public void close() throws YYException {\n" +
+			"		throw new YYException();\n" +
+			"	}\n" +
+			"}\n" +
+			"class Z implements AutoCloseable {\n" +
+			"	public Z() throws ZException {\n" +
+			"		throw new ZException();\n" +
+			"	}\n" +
+			"	public void close() throws ZZException {\n" +
+			"		throw new ZZException();\n" +
+			"	}\n" +
+			"}\n" +
+			"class XException extends Exception {}\n" +
+			"class XXException extends Exception {}\n" +
+			"class YException extends Exception {}\n" +
+			"class YYException extends Exception {}\n" +
+			"class ZException extends Exception {}\n" +
+			"class ZZException extends Exception {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
+		"	       ^^^^^^^^^^^^\n" + 
+		"Unhandled exception type XXException\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
+		"	                      ^^^^^^^^^^^^\n" + 
+		"Unhandled exception type YYException\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
+		"	                                     ^\n" + 
+		"Unhandled exception type ZZException\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	throw new XXException();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unhandled exception type XXException\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 34)\n" + 
+		"	class XException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class XException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 35)\n" + 
+		"	class XXException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class XXException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 36)\n" + 
+		"	class YException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class YException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 37)\n" + 
+		"	class YYException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class YYException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"9. WARNING in X.java (at line 38)\n" + 
+		"	class ZException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class ZException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"10. WARNING in X.java (at line 39)\n" + 
+		"	class ZZException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class ZZException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+public void test021() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
-			"	public static void main(String [] args) {\n" +
-			"	    try (Y y = null) {\n" +
-			"	    } catch (Exception e) {\n" +
-			"		System.out.println(y); \n" +
-			"	    } finally {\n" +
-			"		System.out.println(y); \n" +
-			"	    }\n" +
-			"	    System.out.println(y); \n" +
+			"	public void method1(){\n" +
+			"		try (Y i = null) {\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y {\n" +
+			"    public void close () {}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (Y i = null) {\n" + 
+		"	     ^\n" + 
+		"The resource type Y has to be a subclass of java.lang.AutoCloseable \n" + 
+		"----------\n");
+}
+public void test022() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void method1(){\n" +
+			"		try (Y i = null) {\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
 			"	}\n" +
 			"}\n" +
 			"class Y implements AutoCloseable {\n" +
-			"	public void close() {\n" +
-			"	}\n" +
-			"}\n"
+			"    public int close () { return 0; }\n" +
+			"}",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	System.out.println(y); \n" + 
-		"	                   ^\n" + 
-		"y cannot be resolved to a variable\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	public int close () { return 0; }\n" + 
+		"	       ^^^\n" + 
+		"The return type is incompatible with AutoCloseable.close()\n" + 
+		"----------\n");
+}
+public void test023() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void method1(){\n" +
+			"		try (Y i = null) {\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"    public void close () throws Blah {}\n" +
+			"}\n" +
+			"class Blah extends Throwable {}\n",
+		},
 		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	System.out.println(y); \n" + 
-		"	                   ^\n" + 
-		"y cannot be resolved to a variable\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (Y i = null) {\n" + 
+		"	       ^\n" + 
+		"Unhandled exception type Blah\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
-		"	System.out.println(y); \n" + 
-		"	                   ^\n" + 
-		"y cannot be resolved to a variable\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	public void close () throws Blah {}\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Exception Blah is not compatible with throws clause in AutoCloseable.close()\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 11)\n" + 
+		"	class Blah extends Throwable {}\n" + 
+		"	      ^^^^\n" + 
+		"The serializable class Blah does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+public void test024() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X implements AutoCloseable {\n" +
+			"	public static void main(String [] args) {\n" +
+			"            try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" +
+			"            throw new XXException();\n" +
+			"            } catch (XException x) {\n" +
+			"	 		 } catch (YException y) {\n" +
+			"            } catch (ZException z) {\n" +
+			"            } catch (XXException x) {\n" +
+			"	 		 } catch (YYException y) {\n" +
+			"            } catch (ZZException z) {\n" +
+			"	    	 } finally {\n" +
+			"            }\n" +
+			"	}\n" +
+			"	public X() throws XException {\n" +
+			"		throw new XException();\n" +
+			"	}\n" +
+			"	public void close() throws XXException {\n" +
+			"		throw new XXException();\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"	public Y() throws YException {\n" +
+			"		throw new YException();\n" +
+			"	}\n" +
+			"	public void close() throws YYException {\n" +
+			"		throw new YYException();\n" +
+			"	}\n" +
+			"}\n" +
+			"class Z implements AutoCloseable {\n" +
+			"	public Z() throws ZException {\n" +
+			"		throw new ZException();\n" +
+			"	}\n" +
+			"	public void close() throws ZZException {\n" +
+			"		throw new ZZException();\n" +
+			"	}\n" +
+			"}\n" +
+			"class XException extends Exception {}\n" +
+			"class XXException extends Exception {}\n" +
+			"class YException extends Exception {}\n" +
+			"class YYException extends Exception {}\n" +
+			"class ZException extends Exception {}\n" +
+			"class ZZException extends Exception {}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 37)\n" + 
+		"	class XException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class XException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 38)\n" + 
+		"	class XXException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class XXException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 39)\n" + 
+		"	class YException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class YException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 40)\n" + 
+		"	class YYException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class YYException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 41)\n" + 
+		"	class ZException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class ZException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 42)\n" + 
+		"	class ZZException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class ZZException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+public void test025() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X implements AutoCloseable {\n" +
+			"	public static void main(String [] args) {\n" +
+			"            try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" +
+			"            throw new XXException();\n" +
+			"            } catch (XException x) {\n" +
+			"	 		 } catch (YException y) {\n" +
+			"            } catch (ZException z) {\n" +
+			"            \n" +
+			"            }\n" +
+			"	}\n" +
+			"	public X() throws XException {\n" +
+			"		throw new XException();\n" +
+			"	}\n" +
+			"	public void close() throws XXException {\n" +
+			"		throw new XXException();\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"	public Y() throws YException {\n" +
+			"		throw new YException();\n" +
+			"	}\n" +
+			"	public void close() throws YYException {\n" +
+			"		throw new YYException();\n" +
+			"	}\n" +
+			"}\n" +
+			"class Z implements AutoCloseable {\n" +
+			"	public Z() throws ZException {\n" +
+			"		throw new ZException();\n" +
+			"	}\n" +
+			"	public void close() throws ZZException {\n" +
+			"		throw new ZZException();\n" +
+			"	}\n" +
+			"}\n" +
+			"class XException extends Exception {}\n" +
+			"class XXException extends Exception {}\n" +
+			"class YException extends Exception {}\n" +
+			"class YYException extends Exception {}\n" +
+			"class ZException extends Exception {}\n" +
+			"class ZZException extends Exception {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
+		"	       ^^^^^^^^^^^^\n" + 
+		"Unhandled exception type XXException\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
+		"	                      ^^^^^^^^^^^^\n" + 
+		"Unhandled exception type YYException\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
+		"	                                     ^\n" + 
+		"Unhandled exception type ZZException\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	throw new XXException();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unhandled exception type XXException\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 34)\n" + 
+		"	class XException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class XException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 35)\n" + 
+		"	class XXException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class XXException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 36)\n" + 
+		"	class YException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class YException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 37)\n" + 
+		"	class YYException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class YYException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"9. WARNING in X.java (at line 38)\n" + 
+		"	class ZException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class ZException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"10. WARNING in X.java (at line 39)\n" + 
+		"	class ZZException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class ZZException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+public void test026() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X implements AutoCloseable {\n" +
+			"	public static void main(String [] args) {\n" +
+			"            try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" +
+			"            throw new XXException();\n" +
+			"            } catch (XException x) {\n" +
+			"	 		 } catch (YException y) {\n" +
+			"            } catch (ZException z) {\n" +
+			"            } catch (XXException x) {\n" +
+			"	 		 } catch (YYException y) {\n" +
+			"            } catch (ZZException z) {\n\n" +
+			"            }\n" +
+			"	}\n" +
+			"	public X() throws XException {\n" +
+			"		throw new XException();\n" +
+			"	}\n" +
+			"	public void close() throws XXException {\n" +
+			"		throw new XXException();\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"	public Y() throws YException {\n" +
+			"		throw new YException();\n" +
+			"	}\n" +
+			"	public void close() throws YYException {\n" +
+			"		throw new YYException();\n" +
+			"	}\n" +
+			"}\n" +
+			"class Z implements AutoCloseable {\n" +
+			"	public Z() throws ZException {\n" +
+			"		throw new ZException();\n" +
+			"	}\n" +
+			"	public void close() throws ZZException {\n" +
+			"		throw new ZZException();\n" +
+			"	}\n" +
+			"}\n" +
+			"class XException extends Exception {}\n" +
+			"class XXException extends Exception {}\n" +
+			"class YException extends Exception {}\n" +
+			"class YYException extends Exception {}\n" +
+			"class ZException extends Exception {}\n" +
+			"class ZZException extends Exception {}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 37)\n" + 
+		"	class XException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class XException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 38)\n" + 
+		"	class XXException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class XXException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 39)\n" + 
+		"	class YException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class YException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 40)\n" + 
+		"	class YYException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class YYException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 41)\n" + 
+		"	class ZException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class ZException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 42)\n" + 
+		"	class ZZException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class ZZException does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
 public static Class testClass() {
