@@ -273,7 +273,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return INVOCATION_ARGUMENT_OK;
 	}
 	public static boolean checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
-		if (MethodBinding.isPolymorphic(method)) {
+		boolean is1_7 = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_7;
+		if (is1_7 && MethodBinding.isPolymorphic(method)) {
 			return false;
 		}
 		TypeBinding[] params = method.parameters;
@@ -297,7 +298,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		if (arguments == null) {
 			if (method.isVarargs()) {
 				TypeBinding parameterType = ((ArrayBinding) params[paramLength-1]).elementsType(); // no element was supplied for vararg parameter
-				if (!parameterType.isReifiable() && ((method.tagBits & TagBits.AnnotationSafeVarargs) == 0)) {
+				if (!parameterType.isReifiable()
+						&& (!is1_7 || ((method.tagBits & TagBits.AnnotationSafeVarargs) == 0))) {
 					scope.problemReporter().unsafeGenericArrayForVarargs(parameterType, (ASTNode)invocationSite);
 				}
 			}
@@ -316,7 +318,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 					if (paramLength != argLength || parameterType.dimensions() != argumentTypes[lastIndex].dimensions()) {
 						parameterType = ((ArrayBinding) parameterType).elementsType(); // single element was provided for vararg parameter
-						if (!parameterType.isReifiable() && ((method.tagBits & TagBits.AnnotationSafeVarargs) == 0)) {
+						if (!parameterType.isReifiable()
+								&& (!is1_7 || ((method.tagBits & TagBits.AnnotationSafeVarargs) == 0))) {
 							scope.problemReporter().unsafeGenericArrayForVarargs(parameterType, (ASTNode)invocationSite);
 						}
 						originalRawParam = rawOriginalGenericMethod == null ? null : ((ArrayBinding)rawOriginalGenericMethod.parameters[lastIndex]).elementsType();

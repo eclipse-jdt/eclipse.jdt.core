@@ -15,6 +15,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -31,7 +32,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test1203c", "test1203d" };
-//		TESTS_NUMBERS = new int[] { 1465 };
+//		TESTS_NUMBERS = new int[] { 593, 701, 746, 848, 953, 985, 1029, 1136, 1227, 1295, 1341 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -18557,6 +18558,8 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 			"");
 	}
 	public void test0593() {
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18567,21 +18570,14 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 				"}\n",
             },
     		"----------\n" +
-    		"1. WARNING in X.java (at line 3)\n" +
-    		"	List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" +
-    		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-    		"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" +
-    		"----------\n" +
-    		"2. ERROR in X.java (at line 3)\n" +
+    		"1. ERROR in X.java (at line 3)\n" +
     		"	List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" +
     		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
     		"Type mismatch: cannot convert from List<Class<? extends Object&Serializable&Comparable<?>>> to List<Class<?>>\n" +
-    		"----------\n" +
-    		"3. WARNING in X.java (at line 4)\n" +
-    		"	List<? extends Class<?>> classes2 = Arrays.asList(String.class, Boolean.class);\n" +
-    		"	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-    		"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" +
-    		"----------\n");
+    		"----------\n",
+    		null,
+    		true,
+    		options);
 	}
 	public void test0594() {
 	    this.runNegativeTest(
@@ -22272,6 +22268,8 @@ public void test0700() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303
 public void test0701() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22294,26 +22292,14 @@ public void test0701() {
 			"class Song {}\n",
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 10)\n" +
-		"	List<Counter<?>> list1 = Arrays.asList(songCounter, genreCounter);\n" +
-		"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 11)\n" +
-		"	List<Counter<? extends Object>> list2 = Arrays.asList(songCounter, genreCounter);\n" +
-		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 14)\n" +
-		"	List<Counter<? extends String>> list5 = Arrays.asList(songCounter, genreCounter);\n" +
-		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 14)\n" +
+		"1. ERROR in X.java (at line 14)\n" +
 		"	List<Counter<? extends String>> list5 = Arrays.asList(songCounter, genreCounter);\n" +
 		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from List<Deejay.Counter<? extends Object>> to List<Deejay.Counter<? extends String>>\n" +
-		"----------\n");
+		"----------\n",
+		null,
+		true,
+		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303 - variation
 public void test0702() {
@@ -23755,6 +23741,8 @@ public void test0745() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99922 - variation
 public void test0746() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23765,16 +23753,14 @@ public void test0746() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	String s = java.util.Arrays.asList(3, 3.1);\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
+		"1. ERROR in X.java (at line 3)\n" +
 		"	String s = java.util.Arrays.asList(3, 3.1);\n" +
 		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from List<Number&Comparable<?>> to String\n" +
-		"----------\n");
+		"----------\n",
+		null,
+		true,
+		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99983
 public void test0747() {
@@ -27234,29 +27220,25 @@ public void test0848() throws Exception {
 				"import java.util.*;\n" + 
 				"\n" + 
 				"public class X<E> {\n" + 
-				"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" + 
+				"	public static <T> List<T> asList(T a) { return null; }\n" +
+				"	Collection<? extends Number> asList= asList(1);\n" + 
 				"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
 				"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" + 
 				"	Zork z;\n" + 
 				"}\n", // =================
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" + 
-			"	                                     ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 5)\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
 			"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked cast from Collection<capture#1-of ? extends Number> to List<Number>\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 6)\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
 			"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked cast from Collection<capture#2-of ? extends Number> to LinkedList<Number>\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 7)\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -31142,6 +31124,7 @@ public void test0952() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106325
 public void test0953() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) return; 
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -32279,6 +32262,8 @@ public void test0984() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141330
 public void test0985() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 			new String[] {
 					"X.java", // =================
@@ -32290,16 +32275,14 @@ public void test0985() {
 					"}\n", // =================
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	List<Class<Object>>  lco = Arrays.asList(String.class, Integer.class, Long.class);\n" +
-			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
+			"1. ERROR in X.java (at line 4)\n" +
 			"	List<Class<Object>>  lco = Arrays.asList(String.class, Integer.class, Long.class);\n" +
 			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from List<Class<? extends Object&Serializable&Comparable<?>>> to List<Class<Object>>\n" +
-			"----------\n");
+			"----------\n",
+			null,
+			true,
+			options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=91709
 public void test0986() {
@@ -34029,6 +34012,8 @@ public void test1028() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156016
 public void test1029() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -34046,16 +34031,14 @@ public void test1029() {
 			"}", // =================
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 6)\n" +
-		"	return Arrays.asList(a, b);\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of T is created for a varargs parameter\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
+		"1. ERROR in X.java (at line 10)\n" +
 		"	List<Number> name = makeNumberList(5, 5D);\n" +
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from List<Number&Comparable<?>> to List<Number>\n" +
-		"----------\n");
+		"----------\n",
+		null,
+		true,
+		options);
 }
 public void test1030() {
 	this.runConformTest(
@@ -38845,6 +38828,8 @@ public void test1135() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=154029
 public void test1136() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -38864,26 +38849,19 @@ public void test1136() {
 			"class C<T> extends A<T> implements I {}\n", // =================
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	List<Object>  l1 = Arrays.asList(1, \"X\");\n" +
-		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Object&Comparable<?>&Serializable is created for a varargs parameter\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
+		"1. ERROR in X.java (at line 4)\n" +
 		"	List<Object>  l1 = Arrays.asList(1, \"X\");\n" +
 		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from List<Object&Comparable<?>&Serializable> to List<Object>\n" +
 		"----------\n" +
-		"3. WARNING in X.java (at line 8)\n" +
-		"	List<Object>  l2 = Arrays.asList(b, c);\n" +
-		"	                   ^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of A<String>&I is created for a varargs parameter\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 8)\n" +
+		"2. ERROR in X.java (at line 8)\n" +
 		"	List<Object>  l2 = Arrays.asList(b, c);\n" +
 		"	                   ^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from List<A<String>&I> to List<Object>\n" +
-		"----------\n");
+		"----------\n",
+		null,
+		true,
+		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=154267
 public void test1137() {
@@ -42207,6 +42185,7 @@ public void test1226() {
 		"----------\n");
 }
 public void test1227() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -44354,6 +44333,8 @@ public void test1294() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303 - variation
 public void test1295() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -44373,26 +44354,14 @@ public void test1295() {
 					"class Song {}\n", // =================
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 7)\n" +
-			"	java.util.List<Counter<?>> list1 = java.util.Arrays.asList(songCounter, genreCounter);\n" +
-			"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 8)\n" +
-			"	java.util.List<Counter<? extends Object>> list2 = java.util.Arrays.asList(songCounter, genreCounter);\n" +
-			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 11)\n" +
-			"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\n" +
-			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 11)\n" +
+			"1. ERROR in X.java (at line 11)\n" +
 			"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\n" +
 			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from List<Deejay.Counter<? extends Object>> to List<Deejay.Counter<? extends String>>\n" +
-			"----------\n");
+			"----------\n",
+			null,
+			true,
+			options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111 - variation
 public void test1296() {
@@ -45952,6 +45921,8 @@ public void test1340() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=235837
 public void test1341() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
@@ -45970,12 +45941,10 @@ public void test1341() {
 			"	foo((Collection<Number>) Arrays.asList(i, d));\n" +
 			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Cannot cast from List<Number&Comparable<?>> to Collection<Number>\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 6)\n" +
-			"	foo((Collection<Number>) Arrays.asList(i, d));\n" +
-			"	                         ^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" +
-			"----------\n");
+			"----------\n",
+			null,
+			true,
+			options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=235921 - variation
 public void test1342() throws Exception {

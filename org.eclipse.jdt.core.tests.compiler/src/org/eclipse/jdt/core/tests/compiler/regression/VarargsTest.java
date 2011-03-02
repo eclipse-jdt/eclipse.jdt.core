@@ -38,7 +38,7 @@ public class VarargsTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 65 };
+//		TESTS_NUMBERS = new int[] { 61 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 	public static Test suite() {
@@ -2149,6 +2149,27 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223427
 	public void test061() {
+		String expectedOutput = 
+				"----------\n" +
+				"1. WARNING in X.java (at line 5)\n" +
+				"	Collections.addAll(constantClassSet, String.class, Object.class);\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Type safety : A generic array of Class<? extends Object> is created for a varargs parameter\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
+				"----------\n";
+		if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+			expectedOutput = 
+					"----------\n" +
+					"1. ERROR in X.java (at line 6)\n" +
+					"	Zork z;\n" +
+					"	^^^^\n" +
+					"Zork cannot be resolved to a type\n" +
+					"----------\n";
+		}
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -2161,17 +2182,7 @@ public class VarargsTest extends AbstractComparableTest {
 					"	}\n" +
 					"}\n", // =================
 				},
-				"----------\n" +
-				"1. WARNING in X.java (at line 5)\n" +
-				"	Collections.addAll(constantClassSet, String.class, Object.class);\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Type safety : A generic array of Class<? extends Object> is created for a varargs parameter\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	Zork z;\n" +
-				"	^^^^\n" +
-				"Zork cannot be resolved to a type\n" +
-				"----------\n");
+				expectedOutput);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=328247
 	public void test062() throws Exception {
