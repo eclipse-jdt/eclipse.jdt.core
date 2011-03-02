@@ -3287,7 +3287,7 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			break;
 		case 'e' :
 			if (token.equals("enumSwitch") //$NON-NLS-1$
-					|| token.equals("incomplete-switch")) { //$NON-NLS-1$
+					|| token.equals("incomplete-switch") /*backward compatible*/) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, severity, isEnabling);
 				return;
 			} else if (token.equals("emptyBlock")) {//$NON-NLS-1$
