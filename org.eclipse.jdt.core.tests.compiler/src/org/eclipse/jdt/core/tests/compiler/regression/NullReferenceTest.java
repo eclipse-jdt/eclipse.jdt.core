@@ -15,6 +15,7 @@
  *     						bug 320170 - [compiler] [null] Whitebox issues in null analysis
  *     						bug 332637 - Dead Code detection removing code that isn't dead
  *     						bug 338303 - Warning about Redundant assignment conflicts with definite assignment
+ *     						bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -42,7 +43,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug325229" };
+//		TESTS_NAMES = new String[] { "testBug336428e" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -13837,6 +13838,149 @@ public void testBug333089() {
 			"	}\n" + 
 			"}"},
 		"");
+}
+
+// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+// original issue
+public void testBug336428() {
+	this.runConformTest(
+		new String[] {
+	"DoWhileBug.java",
+			"public class DoWhileBug {\n" + 
+			"	void test(boolean b1, Object o1) {\n" + 
+			"		Object o2 = new Object();\n" + 
+			"		do {\n" +
+			"           if (b1)\n" + 
+			"				o1 = null;\n" + 
+			"		} while ((o2 = o1) != null);\n" + 
+			"	}\n" + 
+			"}"	
+		},
+		"");
+}
+// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+// hitting the same implementation branch from within the loop
+// information from unknown o1 is not propagated into the loop, analysis currently believes o2 is def null.
+public void _testBug336428a() {
+	this.runConformTest(
+		new String[] {
+	"DoWhileBug.java",
+			"public class DoWhileBug {\n" + 
+			"	void test(boolean b1, Object o1) {\n" + 
+			"		Object o2 = null;\n" + 
+			"		do {\n" +
+			"           if (b1)\n" + 
+			"				o1 = null;\n" +
+			"           if ((o2 = o1) != null)\n" +
+			"               break;\n" +
+			"		} while (true);\n" + 
+			"	}\n" + 
+			"}"	
+		},
+		"");
+}
+
+// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+// in this variant the analysis believes o2 is def unknown and doesn't even consider raising a warning.
+public void _testBug336428b() {
+	this.runNegativeTest(
+		new String[] {
+	"DoWhileBug.java",
+			"public class DoWhileBug {\n" + 
+			"	void test(boolean b1) {\n" + 
+			"		Object o1 = null;\n" + 
+			"		Object o2 = null;\n" + 
+			"		do {\n" +
+			"           if ((o2 = o1) == null) break;\n" +
+			"		} while (true);\n" + 
+			"	}\n" + 
+			"}"	
+		},
+		"----------\n" + 
+		"1. ERROR in DoWhileBug.java (at line 6)\n" + 
+		"	if ((o2 = o1) == null) break;\n" + 
+		"	    ^^^^^^^^^\n" + 
+		"Redundant null check: The variable o2 can only be null at this location\n" + 
+		"----------\n");
+}
+
+// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+// in this case considering o1 as unknown is correct
+public void testBug336428c() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runConformTest(
+			new String[] {
+		"DoWhileBug.java",
+				"public class DoWhileBug {\n" + 
+				"	void test(boolean b1, Object o1) {\n" + 
+				"		Object o2 = null;\n" + 
+				"		do {\n" +
+				"           if ((o2 = o1) == null) break;\n" +
+				"		} while (true);\n" + 
+				"	}\n" + 
+				"}"	
+			},
+			"");
+	}
+}
+
+// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+// one more if-statement triggers the expected warnings
+public void testBug336428d() {
+	this.runNegativeTest(
+		new String[] {
+	"DoWhileBug.java",
+			"public class DoWhileBug {\n" + 
+			"	void test(boolean b1) {\n" + 
+			"		Object o1 = null;\n" + 
+			"		Object o2 = null;\n" + 
+			"		do {\n" +
+			"           if (b1)\n" + 
+			"				o1 = null;\n" +
+			"           if ((o2 = o1) == null) break;\n" +
+			"		} while (true);\n" + 
+			"	}\n" + 
+			"}"	
+		},
+		"----------\n" + 
+		"1. ERROR in DoWhileBug.java (at line 7)\n" + 
+		"	o1 = null;\n" + 
+		"	^^\n" + 
+		"Redundant assignment: The variable o1 can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in DoWhileBug.java (at line 8)\n" + 
+		"	if ((o2 = o1) == null) break;\n" + 
+		"	    ^^^^^^^^^\n" + 
+		"Redundant null check: The variable o2 can only be null at this location\n" + 
+		"----------\n");
+}
+
+// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+// same analysis, but assert instead of if suppresses the warning
+public void testBug336428e() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+		"DoWhileBug.java",
+				"public class DoWhileBug {\n" + 
+				"	void test(boolean b1) {\n" + 
+				"		Object o1 = null;\n" + 
+				"		Object o2 = null;\n" + 
+				"		do {\n" +
+				"           if (b1)\n" + 
+				"				o1 = null;\n" +
+				"           assert (o2 = o1) == null : \"bug\";\n" +
+				"		} while (true);\n" + 
+				"	}\n" + 
+				"}"	
+			},
+			"----------\n" + 
+			"1. ERROR in DoWhileBug.java (at line 7)\n" + 
+			"	o1 = null;\n" + 
+			"	^^\n" + 
+			"Redundant assignment: The variable o1 can only be null at this location\n" + 
+			"----------\n");
+	}
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=332838

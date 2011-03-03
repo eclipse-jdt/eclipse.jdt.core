@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - contribution for Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -525,11 +526,18 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 				if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
 					recordNullReference(local, reference, checkType);
 				}
-			} else if (! flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
-				if (flowInfo.isPotentiallyNonNull(local)) {
-					recordNullReference(local, reference, CAN_ONLY_NON_NULL | checkType & CONTEXT_MASK);
-				} else {
-					if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
+			} else if (flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
+				return; // no reason to complain, since there is definitely some uncertainty making the comparison relevant.
+			} else {
+				if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
+					// note: pot non-null & pot null is already captured by cannotBeDefinitelyNullOrNonNull()
+					if (flowInfo.isPotentiallyNonNull(local)) {
+						// knowing 'local' can be non-null, we're only interested in seeing whether it can *only* be non-null 
+						recordNullReference(local, reference, CAN_ONLY_NON_NULL | checkType & CONTEXT_MASK);
+					} else if (flowInfo.isPotentiallyNull(local)) {
+						// knowing 'local' can be null, we're only interested in seeing whether it can *only* be null
+						recordNullReference(local, reference, CAN_ONLY_NULL | checkType & CONTEXT_MASK);
+					} else {
 						recordNullReference(local, reference, checkType);
 					}
 				}
