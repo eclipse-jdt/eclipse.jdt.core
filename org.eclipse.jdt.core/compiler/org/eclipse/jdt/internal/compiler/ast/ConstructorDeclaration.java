@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -255,21 +255,25 @@ public void generateSyntheticFieldInitializationsIfNecessary(MethodScope methodS
 	NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
 
 	SyntheticArgumentBinding[] syntheticArgs = nestedType.syntheticEnclosingInstances();
-	for (int i = 0, max = syntheticArgs == null ? 0 : syntheticArgs.length; i < max; i++) {
-		SyntheticArgumentBinding syntheticArg;
-		if ((syntheticArg = syntheticArgs[i]).matchingField != null) {
-			codeStream.aload_0();
-			codeStream.load(syntheticArg);
-			codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
+	if (syntheticArgs != null) {
+		for (int i = 0, max = syntheticArgs.length; i < max; i++) {
+			SyntheticArgumentBinding syntheticArg;
+			if ((syntheticArg = syntheticArgs[i]).matchingField != null) {
+				codeStream.aload_0();
+				codeStream.load(syntheticArg);
+				codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
+			}
 		}
 	}
 	syntheticArgs = nestedType.syntheticOuterLocalVariables();
-	for (int i = 0, max = syntheticArgs == null ? 0 : syntheticArgs.length; i < max; i++) {
-		SyntheticArgumentBinding syntheticArg;
-		if ((syntheticArg = syntheticArgs[i]).matchingField != null) {
-			codeStream.aload_0();
-			codeStream.load(syntheticArg);
-			codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
+	if (syntheticArgs != null) {
+		for (int i = 0, max = syntheticArgs.length; i < max; i++) {
+			SyntheticArgumentBinding syntheticArg;
+			if ((syntheticArg = syntheticArgs[i]).matchingField != null) {
+				codeStream.aload_0();
+				codeStream.load(syntheticArg);
+				codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
+			}
 		}
 	}
 }

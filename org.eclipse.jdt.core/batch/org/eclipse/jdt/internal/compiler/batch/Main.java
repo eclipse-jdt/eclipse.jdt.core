@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -274,10 +274,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 				}
 			}
-			int length = unitSource == null ? 0 : unitSource.length;
+			int length;
 			if ((startPosition > endPosition)
 				|| ((startPosition < 0) && (endPosition < 0))
-				|| length == 0)
+				|| (unitSource == null)
+				|| (length = unitSource.length) == 0)
 				return Messages.problem_noSourceInformation;
 
 			StringBuffer errorBuffer = new StringBuffer();
@@ -337,10 +338,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 				}
 			}
-			int length = unitSource== null ? 0 : unitSource.length;
+			int length;
 			if ((startPosition > endPosition)
 					|| ((startPosition < 0) && (endPosition < 0))
-					|| (length <= 0)
+					|| (unitSource == null)
+					|| ((length = unitSource.length) <= 0)
 					|| (endPosition > length)) {
 				this.parameters.put(Logger.VALUE, Messages.problem_noSourceInformation);
 				this.parameters.put(Logger.SOURCE_START, "-1"); //$NON-NLS-1$
@@ -2947,8 +2949,10 @@ public IProblemFactory getProblemFactory() {
  * External API
  */
 protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customEncoding) {
- 	final int bootclasspathsSize = bootclasspaths == null ? 0 : bootclasspaths.size();
-	if (bootclasspathsSize != 0) {
+ 	final int bootclasspathsSize;
+	if ((bootclasspaths != null)
+		&& ((bootclasspathsSize = bootclasspaths.size()) != 0))
+	{
 		String[] paths = new String[bootclasspathsSize];
 		bootclasspaths.toArray(paths);
 		bootclasspaths.clear();
@@ -2973,8 +2977,10 @@ protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customE
  * External API
  */
 protected ArrayList handleClasspath(ArrayList classpaths, String customEncoding) {
-	final int classpathsSize = classpaths == null ? 0 : classpaths.size();
-	if (classpathsSize != 0) {
+	final int classpathsSize;
+	if ((classpaths != null)
+		&& ((classpathsSize = classpaths.size()) != 0))
+	{
 		String[] paths = new String[classpathsSize];
 		classpaths.toArray(paths);
 		classpaths.clear();
