@@ -15,42 +15,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
-import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
-import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
-import org.eclipse.jdt.apt.core.internal.util.FactoryPath.Attributes;
-import org.eclipse.jdt.apt.core.util.AptConfig;
-import org.eclipse.jdt.apt.core.util.IFactoryPath;
-import org.eclipse.jdt.apt.ui.internal.util.ExceptionHandler;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.preferences.IScopeContext;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
-
-import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.layout.PixelConverter;
-import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.window.Window;
-
-import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
-
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPath.Attributes;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
+import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.core.util.IFactoryPath;
+import org.eclipse.jdt.apt.ui.internal.util.ExceptionHandler;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-
-import org.eclipse.jdt.ui.wizards.BuildPathDialogAccess;
-
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.CheckedListDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
@@ -58,6 +39,17 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IListAdapter;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.ListDialogField;
+import org.eclipse.jdt.ui.wizards.BuildPathDialogAccess;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.layout.PixelConverter;
+import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 
 /**
@@ -98,12 +90,12 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	/**
 	 * Event handler for factory path list control
 	 */
-	private class FactoryPathAdapter implements IListAdapter, IDialogFieldListener {
-        public void customButtonPressed(ListDialogField field, int index) {
+	private class FactoryPathAdapter implements IListAdapter<FactoryPathEntry>, IDialogFieldListener {
+        public void customButtonPressed(ListDialogField<FactoryPathEntry> field, int index) {
         	FactoryPathConfigurationBlock.this.customButtonPressed(index);
         }
 
-        public void selectionChanged(ListDialogField field) {
+        public void selectionChanged(ListDialogField<FactoryPathEntry> field) {
         	boolean enableRemove = canRemove();
         	field.enableButton(IDX_REMOVE, enableRemove);
         	boolean enableEdit = canEdit();
@@ -126,11 +118,12 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			}
         }
 
-		public void doubleClicked(ListDialogField field) {
+		public void doubleClicked(ListDialogField<FactoryPathEntry> field) {
         	if (canEdit()) {
         		editSelectedItem();
         	}
         }
+
 	}
 	
 	private class FactoryPathLabelProvider extends LabelProvider implements ITableLabelProvider {
@@ -214,7 +207,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * The GUI control representing the factory path.  Its data items
 	 * are of type FactoryPathEntry.
 	 */
-	private CheckedListDialogField fFactoryPathList;
+	private CheckedListDialogField<FactoryPathEntry> fFactoryPathList;
 	
 	/**
 	 * True while inside setListContents().  Used in order to efficiently
@@ -232,7 +225,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		FactoryPathAdapter adapter= new FactoryPathAdapter();
 		FactoryPathLabelProvider labelProvider = new FactoryPathLabelProvider();
 		
-		fFactoryPathList= new CheckedListDialogField(adapter, buttonLabels, labelProvider);
+		fFactoryPathList= new CheckedListDialogField<FactoryPathEntry>(adapter, buttonLabels, labelProvider);
 		fFactoryPathList.setDialogFieldListener(adapter);
 		fFactoryPathList.setLabelText(Messages.FactoryPathConfigurationBlock_pluginsAndJars);
 		fFactoryPathList.setUpButtonIndex(IDX_UP);
@@ -420,7 +413,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	/*
 	 * Helper method to get rid of unchecked conversion warning
 	 */
-	@SuppressWarnings("unchecked")
 	private List<FactoryPathEntry> getListContents() {
 		List<FactoryPathEntry> contents= fFactoryPathList.getElements();
 		return contents;
@@ -429,7 +421,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	/*
 	 * Helper method to get rid of unchecked conversion warning
 	 */
-	@SuppressWarnings("unchecked")
 	private List<FactoryPathEntry> getSelectedListContents() {
 		List<FactoryPathEntry> contents= fFactoryPathList.getSelectedElements();
 		return contents;

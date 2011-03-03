@@ -93,7 +93,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private SelectionButtonDialogField fAptEnabledField;
 	private SelectionButtonDialogField fReconcileEnabledField;
 	private StringDialogField fGenSrcDirField;
-	private ListDialogField fProcessorOptionsField;
+	private ListDialogField<ProcessorOption> fProcessorOptionsField;
 	
 	private PixelConverter fPixelConverter;
 	private Composite fBlockControl;
@@ -109,9 +109,9 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	/**
 	 * Event handler for Processor Options list control.
 	 */
-	private class ProcessorOptionsAdapter implements IListAdapter, IDialogFieldListener {
+	private class ProcessorOptionsAdapter implements IListAdapter<ProcessorOption>, IDialogFieldListener {
 		
-		public void customButtonPressed(ListDialogField field, int index) {
+		public void customButtonPressed(ListDialogField<ProcessorOption> field, int index) {
 			switch (index) {
 			case IDX_ADD:
 				editOrAddProcessorOption(null);
@@ -122,13 +122,12 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			}
 		}
 
-		@SuppressWarnings("rawtypes")
-		public void selectionChanged(ListDialogField field) {
-			List selectedElements= field.getSelectedElements();
+		public void selectionChanged(ListDialogField<ProcessorOption> field) {
+			List<ProcessorOption> selectedElements= field.getSelectedElements();
 			field.enableButton(IDX_EDIT, canEdit(field, selectedElements));
 		}
 			
-		public void doubleClicked(ListDialogField field) {
+		public void doubleClicked(ListDialogField<ProcessorOption> field) {
 			tryToEdit(field);
 		}
 
@@ -136,14 +135,13 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			updateModel(field);
 		}
 
-		@SuppressWarnings("rawtypes")
-		private boolean canEdit(DialogField field, List selectedElements) {
+		private boolean canEdit(DialogField field, List<ProcessorOption> selectedElements) {
 			if (!field.isEnabled())
 				return false;
 			return selectedElements.size() == 1;
 		}
 		
-		private void tryToEdit(ListDialogField field) {
+		private void tryToEdit(ListDialogField<ProcessorOption> field) {
 			List<ProcessorOption> selection= getListSelection();
 			if (canEdit(field, selection)) {
 				editOrAddProcessorOption(selection.get(0));
@@ -228,7 +226,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			Messages.AptConfigurationBlock_remove
 		};
 		ProcessorOptionsAdapter optionsAdapter = new ProcessorOptionsAdapter();
-		fProcessorOptionsField = new ListDialogField(optionsAdapter, buttons, new ProcessorOptionsLabelProvider());
+		fProcessorOptionsField = new ListDialogField<ProcessorOption>(optionsAdapter, buttons, new ProcessorOptionsLabelProvider());
 		fProcessorOptionsField.setDialogFieldListener(optionsAdapter);
 		fProcessorOptionsField.setRemoveButtonIndex(IDX_REMOVE);
 		String[] columnHeaders= new String[] {
@@ -270,7 +268,6 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	/*
 	 * Helper to eliminate unchecked-conversion warning
 	 */
-	@SuppressWarnings("unchecked")
 	private List<ProcessorOption> getListElements() {
 		return fProcessorOptionsField.getElements();
 	}
@@ -278,7 +275,6 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	/*
 	 * Helper to eliminate unchecked-conversion warning
 	 */
-	@SuppressWarnings("unchecked")
 	private List<ProcessorOption> getListSelection() {
 		return fProcessorOptionsField.getSelectedElements();
 	}
