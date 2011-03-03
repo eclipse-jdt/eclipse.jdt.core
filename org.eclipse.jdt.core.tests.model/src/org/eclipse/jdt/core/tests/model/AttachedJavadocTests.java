@@ -17,6 +17,7 @@ import java.net.URL;
 import java.util.Map;
 
 import junit.framework.Test;
+import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -49,7 +50,42 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(AttachedJavadocTests.class);
+		// hack to guarantee the test order
+		TestSuite suite = new Suite(AttachedJavadocTests.class.getName());
+		suite.addTest(new AttachedJavadocTests("test001"));
+		suite.addTest(new AttachedJavadocTests("test002"));
+		suite.addTest(new AttachedJavadocTests("test003"));
+		suite.addTest(new AttachedJavadocTests("test004"));
+		suite.addTest(new AttachedJavadocTests("test005"));
+		suite.addTest(new AttachedJavadocTests("test006"));
+		suite.addTest(new AttachedJavadocTests("test007"));
+		suite.addTest(new AttachedJavadocTests("test008"));
+		suite.addTest(new AttachedJavadocTests("test009"));
+		suite.addTest(new AttachedJavadocTests("test010"));
+		suite.addTest(new AttachedJavadocTests("test011"));
+		suite.addTest(new AttachedJavadocTests("test012"));
+		suite.addTest(new AttachedJavadocTests("test013"));
+		suite.addTest(new AttachedJavadocTests("test014"));
+		suite.addTest(new AttachedJavadocTests("test015"));
+		suite.addTest(new AttachedJavadocTests("test016"));
+		suite.addTest(new AttachedJavadocTests("test017"));
+		suite.addTest(new AttachedJavadocTests("test018"));
+		suite.addTest(new AttachedJavadocTests("test019"));
+		suite.addTest(new AttachedJavadocTests("test020"));
+		suite.addTest(new AttachedJavadocTests("test021"));
+		suite.addTest(new AttachedJavadocTests("test022"));
+		suite.addTest(new AttachedJavadocTests("test023"));
+		suite.addTest(new AttachedJavadocTests("test024"));
+		suite.addTest(new AttachedJavadocTests("test025"));
+		suite.addTest(new AttachedJavadocTests("testBug304394"));
+		suite.addTest(new AttachedJavadocTests("testBug304394a"));
+		suite.addTest(new AttachedJavadocTests("testBug320167"));
+		suite.addTest(new AttachedJavadocTests("testBug329671"));
+		suite.addTest(new AttachedJavadocTests("testBug334652"));
+		suite.addTest(new AttachedJavadocTests("testBug334652_2"));
+		suite.addTest(new AttachedJavadocTests("testBug334652_3"));
+		suite.addTest(new AttachedJavadocTests("testBug334652_4"));
+		return suite;
 	}
 
 	private IJavaProject project;

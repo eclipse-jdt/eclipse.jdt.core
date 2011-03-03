@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,13 +12,26 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.jdt.core.IAnnotatable;
+import org.eclipse.jdt.core.IAnnotation;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeParameter;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.tests.util.Util;
-
-import junit.framework.*;
 
 public class ResolveTests_1_5 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
@@ -32,7 +45,133 @@ static {
 	//TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
-	return buildModelTestSuite(ResolveTests_1_5.class);
+	// hack to guarantee the test order
+	TestSuite suite = new Suite(ResolveTests_1_5.class.getName());
+	suite.addTest(new ResolveTests_1_5("test0001"));
+	suite.addTest(new ResolveTests_1_5("test0002"));
+	suite.addTest(new ResolveTests_1_5("test0003"));
+	suite.addTest(new ResolveTests_1_5("test0004"));
+	suite.addTest(new ResolveTests_1_5("test0005"));
+	suite.addTest(new ResolveTests_1_5("test0006"));
+	suite.addTest(new ResolveTests_1_5("test0007"));
+	suite.addTest(new ResolveTests_1_5("test0008"));
+	suite.addTest(new ResolveTests_1_5("test0009"));
+	suite.addTest(new ResolveTests_1_5("test0010"));
+	suite.addTest(new ResolveTests_1_5("test0011"));
+	suite.addTest(new ResolveTests_1_5("test0012"));
+	suite.addTest(new ResolveTests_1_5("test0013"));
+	suite.addTest(new ResolveTests_1_5("test0014"));
+	suite.addTest(new ResolveTests_1_5("test0015"));
+	suite.addTest(new ResolveTests_1_5("test0016"));
+	suite.addTest(new ResolveTests_1_5("test0017"));
+	suite.addTest(new ResolveTests_1_5("test0018"));
+	suite.addTest(new ResolveTests_1_5("test0019"));
+	suite.addTest(new ResolveTests_1_5("test0020"));
+	suite.addTest(new ResolveTests_1_5("test0021"));
+	suite.addTest(new ResolveTests_1_5("test0022"));
+	suite.addTest(new ResolveTests_1_5("test0023"));
+	suite.addTest(new ResolveTests_1_5("test0024"));
+	suite.addTest(new ResolveTests_1_5("test0025"));
+	suite.addTest(new ResolveTests_1_5("test0026"));
+	suite.addTest(new ResolveTests_1_5("test0027"));
+	suite.addTest(new ResolveTests_1_5("test0028"));
+	suite.addTest(new ResolveTests_1_5("test0029"));
+	suite.addTest(new ResolveTests_1_5("test0030"));
+	suite.addTest(new ResolveTests_1_5("test0031"));
+	suite.addTest(new ResolveTests_1_5("test0032"));
+	suite.addTest(new ResolveTests_1_5("test0033"));
+	suite.addTest(new ResolveTests_1_5("test0034"));
+	suite.addTest(new ResolveTests_1_5("test0035"));
+	suite.addTest(new ResolveTests_1_5("test0036"));
+	suite.addTest(new ResolveTests_1_5("test0037"));
+	suite.addTest(new ResolveTests_1_5("test0038"));
+	suite.addTest(new ResolveTests_1_5("test0039"));
+	suite.addTest(new ResolveTests_1_5("test0040"));
+	suite.addTest(new ResolveTests_1_5("test0041"));
+	suite.addTest(new ResolveTests_1_5("test0042"));
+	suite.addTest(new ResolveTests_1_5("test0043"));
+	suite.addTest(new ResolveTests_1_5("test0044"));
+	suite.addTest(new ResolveTests_1_5("test0045"));
+	suite.addTest(new ResolveTests_1_5("test0046"));
+	suite.addTest(new ResolveTests_1_5("test0047"));
+	suite.addTest(new ResolveTests_1_5("test0048"));
+	suite.addTest(new ResolveTests_1_5("test0049"));
+	suite.addTest(new ResolveTests_1_5("test0050"));
+	suite.addTest(new ResolveTests_1_5("test0051"));
+	suite.addTest(new ResolveTests_1_5("test0052"));
+	suite.addTest(new ResolveTests_1_5("test0053"));
+	suite.addTest(new ResolveTests_1_5("test0054"));
+	suite.addTest(new ResolveTests_1_5("test0055"));
+	suite.addTest(new ResolveTests_1_5("test0056"));
+	suite.addTest(new ResolveTests_1_5("test0057"));
+	suite.addTest(new ResolveTests_1_5("test0058"));
+	suite.addTest(new ResolveTests_1_5("test0059"));
+	suite.addTest(new ResolveTests_1_5("test0060"));
+	suite.addTest(new ResolveTests_1_5("test0061"));
+	suite.addTest(new ResolveTests_1_5("test0062"));
+	suite.addTest(new ResolveTests_1_5("test0063"));
+	suite.addTest(new ResolveTests_1_5("test0064"));
+	suite.addTest(new ResolveTests_1_5("test0065"));
+	suite.addTest(new ResolveTests_1_5("test0066"));
+	suite.addTest(new ResolveTests_1_5("test0067"));
+	suite.addTest(new ResolveTests_1_5("test0068"));
+	suite.addTest(new ResolveTests_1_5("test0069"));
+	suite.addTest(new ResolveTests_1_5("test0070"));
+	suite.addTest(new ResolveTests_1_5("test0071"));
+	suite.addTest(new ResolveTests_1_5("test0072"));
+	suite.addTest(new ResolveTests_1_5("test0073"));
+	suite.addTest(new ResolveTests_1_5("test0074"));
+	suite.addTest(new ResolveTests_1_5("test0075"));
+	suite.addTest(new ResolveTests_1_5("test0076"));
+	suite.addTest(new ResolveTests_1_5("test0077"));
+	suite.addTest(new ResolveTests_1_5("test0078"));
+	suite.addTest(new ResolveTests_1_5("test0079"));
+	suite.addTest(new ResolveTests_1_5("test0080"));
+	suite.addTest(new ResolveTests_1_5("test0081"));
+	suite.addTest(new ResolveTests_1_5("test0082"));
+	suite.addTest(new ResolveTests_1_5("test0083"));
+	suite.addTest(new ResolveTests_1_5("test0084"));
+	suite.addTest(new ResolveTests_1_5("test0085"));
+	suite.addTest(new ResolveTests_1_5("test0086"));
+	suite.addTest(new ResolveTests_1_5("test0087"));
+	suite.addTest(new ResolveTests_1_5("test0088"));
+	suite.addTest(new ResolveTests_1_5("test0089"));
+	suite.addTest(new ResolveTests_1_5("test0090"));
+	suite.addTest(new ResolveTests_1_5("test0091"));
+	suite.addTest(new ResolveTests_1_5("test0092"));
+	suite.addTest(new ResolveTests_1_5("test0093"));
+	suite.addTest(new ResolveTests_1_5("test0094"));
+	suite.addTest(new ResolveTests_1_5("test0095"));
+	suite.addTest(new ResolveTests_1_5("test0096"));
+	suite.addTest(new ResolveTests_1_5("test0097"));
+	suite.addTest(new ResolveTests_1_5("test0098"));
+	suite.addTest(new ResolveTests_1_5("test0099"));
+	suite.addTest(new ResolveTests_1_5("test0100"));
+	suite.addTest(new ResolveTests_1_5("test0101"));
+	suite.addTest(new ResolveTests_1_5("test0102"));
+	suite.addTest(new ResolveTests_1_5("test0103"));
+	suite.addTest(new ResolveTests_1_5("test0104"));
+	suite.addTest(new ResolveTests_1_5("test0105"));
+	suite.addTest(new ResolveTests_1_5("test0106"));
+	suite.addTest(new ResolveTests_1_5("test0107"));
+	suite.addTest(new ResolveTests_1_5("test0108"));
+	suite.addTest(new ResolveTests_1_5("test0109"));
+	suite.addTest(new ResolveTests_1_5("test0110"));
+	suite.addTest(new ResolveTests_1_5("test0111"));
+	suite.addTest(new ResolveTests_1_5("test0112"));
+	suite.addTest(new ResolveTests_1_5("test0113"));
+	suite.addTest(new ResolveTests_1_5("test0114"));
+	suite.addTest(new ResolveTests_1_5("test0115"));
+	suite.addTest(new ResolveTests_1_5("test0116"));
+	suite.addTest(new ResolveTests_1_5("test0117"));
+	suite.addTest(new ResolveTests_1_5("test0118"));
+	suite.addTest(new ResolveTests_1_5("test0119"));
+	suite.addTest(new ResolveTests_1_5("test0120"));
+	suite.addTest(new ResolveTests_1_5("test0121"));
+	suite.addTest(new ResolveTests_1_5("test0122"));
+	suite.addTest(new ResolveTests_1_5("test0123"));
+	suite.addTest(new ResolveTests_1_5("test0124"));
+	return suite;
 }
 public ResolveTests_1_5(String name) {
 	super(name);
