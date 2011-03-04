@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc.
+ * Copyright (c) 2007, 2011 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,16 +7,17 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
+ *    philippe.marschall@netcetera.ch - Regression test for 338370
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests.processors.filer;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Set;
 
-import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -28,11 +29,12 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
-import javax.tools.Diagnostic.Kind;
 
 import org.eclipse.jdt.compiler.apt.tests.annotations.GenResource;
+import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
  * A processor that reads the GenResource annotation and produces the specified Java type
@@ -40,7 +42,7 @@ import org.eclipse.jdt.compiler.apt.tests.annotations.GenResource;
 @SupportedAnnotationTypes({ "org.eclipse.jdt.compiler.apt.tests.annotations.GenResource" })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedOptions({})
-public class FilerProc extends AbstractProcessor {
+public class FilerProc extends BaseProcessor {
 	
 	private ProcessingEnvironment _processingEnv;
 	private Messager _messager;
@@ -66,6 +68,9 @@ public class FilerProc extends AbstractProcessor {
 	{
 		if (!annotations.isEmpty()) {
 			round(annotations, roundEnv);
+		}
+		if (roundEnv.processingOver()) {
+			this.triggerException();
 		}
 		return true;
 	}
@@ -157,7 +162,19 @@ public class FilerProc extends AbstractProcessor {
 				}
 			}
 		}
-		
-		
+	}
+
+	private void triggerException() {
+		Messager messenger = this.processingEnv.getMessager();
+		try {
+			_filer.getResource(StandardLocation.SOURCE_OUTPUT, "", "not-existing.txt");
+			reportError("failed");
+		} catch (FileNotFoundException e) {
+			reportSuccess();
+			messenger.printMessage(Diagnostic.Kind.NOTE, "FileNotFoundException");
+		} catch (IOException e) {
+			reportSuccess();
+			messenger.printMessage(Diagnostic.Kind.NOTE, e.getClass().getName());
+		}
 	}
 }

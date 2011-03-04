@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2011 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *    philippe.marschall@netcetera.ch - Regression test for 338370
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests;
@@ -28,6 +28,7 @@ import junit.framework.TestCase;
  * @since 3.4
  */
 public class FilerTests extends TestCase {
+	private static final String TYPEUTILSPROC = "org.eclipse.jdt.compiler.apt.tests.processors.filer.FilerProc";
 
 	/**
 	 * Validate the testElement test against the javac compiler.
@@ -35,7 +36,7 @@ public class FilerTests extends TestCase {
 	 */
 	public void testElementWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestCreateResource(compiler);
+		internalTestCreateResource(compiler, true);
 	}
 
 	/**
@@ -44,7 +45,7 @@ public class FilerTests extends TestCase {
 	 */
 	public void testElementWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestCreateResource(compiler);
+		internalTestCreateResource(compiler, false);
 	}
 
 	/**
@@ -52,7 +53,7 @@ public class FilerTests extends TestCase {
 	 * and verifying the existence and content of the resulting files.
 	 * @throws IOException
 	 */
-	private void internalTestCreateResource(JavaCompiler compiler) throws IOException {
+	private void internalTestCreateResource(JavaCompiler compiler, boolean isSystemCommpiler) throws IOException {
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "filer");
 		File inputFile = BatchTestUtils.copyResource("targets/filer/FilerTarget1.java", targetFolder);
 		assertNotNull("No input file", inputFile);
@@ -73,6 +74,10 @@ public class FilerTests extends TestCase {
  		// See corresponding test data in FilerTarget1.java
  		assertTrue(BatchTestUtils.fileContentsEqualText(genTextFile, "A generated string"));
  		assertTrue(BatchTestUtils.fileContentsEqualText(genBinaryFile, new String(new byte[] {102, 110, 111, 114, 100})));
+ 		
+ 		if (!isSystemCommpiler) {
+ 			assertEquals("succeeded", System.getProperty(TYPEUTILSPROC));
+ 		}
 	}
 
 	/* (non-Javadoc)
