@@ -22,7 +22,7 @@ import junit.framework.Test;
 
 public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 	static {
-//		TESTS_NUMBERS = new int[] { 21 };
+//		TESTS_NUMBERS = new int[] { 24 };
 	}
 	public UnderscoresInLiteralsTest(String name) {
 		super(name);
@@ -418,14 +418,26 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 	}
 	public void test023() {
 		this.runConformTest(
-				new String[] {
-					"X.java",
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		System.out.println(0x1234____5678____90L);\n" +
-					"	}\n" +
-					"}"
-				},
-				"78187493520");
-		}
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(0x1234____5678____90L);\n" +
+				"	}\n" +
+				"}"
+			},
+			"78187493520");
+	}
+	public void test024() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(90_00__00_0);\n" +
+				"	}\n" +
+				"}"
+			},
+			"9000000");
+	}
 }
