@@ -7150,4 +7150,44 @@ public void testBug274737() throws Exception {
 	}	
 }
 
+/**
+ * @bug 338006: IJavaProject#getPackageFragmentRoots() should return roots in order
+ * 
+ * Test whether the {@link IJavaProject#getPackageFragmentRoots()} returns the package fragment
+ * roots in the same order as defined by the .classpath even when the elements are added in a 
+ * different order.
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=338006"
+ */
+public void testBug338006() throws Exception {
+	try {
+		IJavaProject p = this.createJavaProject("P", new String[] {}, "bin");
+
+		String content = new String(
+				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+				+ "<classpath>\n"
+				+ "<classpathentry kind=\"src\" path=\"src a\"/>\n"
+				+ "<classpathentry kind=\"src\" path=\"src x\"/>\n"
+				+ "<classpathentry kind=\"lib\" path=\""
+				+ getExternalJCLPath()
+				+ "\"/>\n"
+				+ "<classpathentry kind=\"output\" path=\"bin\"/>\n"
+				+ "</classpath>\n");
+
+		editFile("/P/.classpath", content);
+		p.open(null);
+		createFolder("/P/src x");
+		createFolder("/P/src a");
+
+		IPackageFragmentRoot[] roots = p.getPackageFragmentRoots();
+		assertPackageFragmentRootsEqual(roots, 
+				"src a (not open) [in P]\n" + 
+				"src x (not open) [in P]\n" + 
+				""+ getExternalJCLPathString() + " (not open)");
+
+	} finally {
+		deleteProject("P");
+	}
+}
+
 }

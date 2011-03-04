@@ -955,6 +955,25 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		assertEquals(expected, actual);
 	}
+	protected void assertPackageFragmentRootsEqual(IPackageFragmentRoot[] roots, String expected) {
+		String actual;
+		if (roots == null) {
+			actual = "<null>";
+		} else {
+			StringBuffer buffer = new StringBuffer();
+			int length = roots.length;
+			for (int i=0; i<length; i++) {
+				buffer.append(roots[i]);
+				if (i < length-1)
+					buffer.append('\n');
+			}
+			actual = buffer.toString();
+		}
+		if (!actual.equals(expected)) {
+		 	System.out.print(displayString(actual, 2));
+		}
+		assertEquals(expected, actual);		
+	}
 	/**
 	 * Ensures the element is present after creation.
 	 */

@@ -282,11 +282,70 @@ public class DeltaProcessor {
 		if (parent != null && parent.isOpen()) {
 			try {
 				OpenableElementInfo info = (OpenableElementInfo) parent.getElementInfo();
-				info.addChild(child);
-			} catch (JavaModelException e) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338006
+				// Insert the package fragment roots in the same order as the classpath order.
+				if (child instanceof IPackageFragmentRoot)
+					addPackageFragmentRoot(info, (IPackageFragmentRoot) child);
+				else
+					info.addChild(child);
+ 			} catch (JavaModelException e) {
 				// do nothing - we already checked if open
 			}
 		}
+	}
+	
+	private void addPackageFragmentRoot(OpenableElementInfo parent, IPackageFragmentRoot child)
+			throws JavaModelException {
+
+		IJavaElement[] roots = parent.getChildren();
+		if (roots.length > 0) {
+			IClasspathEntry[] resolvedClasspath = ((JavaProject) child.getJavaProject()).getResolvedClasspath();
+			IPath currentEntryPath = child.getResolvedClasspathEntry().getPath();
+			int indexToInsert = -1;
+			int lastComparedIndex = -1;
+			int i = 0, j = 0;
+			for (; i < roots.length && j < resolvedClasspath.length;) {
+
+				IClasspathEntry classpathEntry = resolvedClasspath[j];
+				if (lastComparedIndex != j && currentEntryPath.equals(classpathEntry.getPath())) {
+					indexToInsert = i;
+					break;
+				}
+				lastComparedIndex = j;
+
+				IClasspathEntry rootEntry = ((IPackageFragmentRoot) roots[i]).getResolvedClasspathEntry();
+				if (rootEntry.getPath().equals(classpathEntry.getPath()))
+					i++;
+				else
+					j++;
+			}
+
+			for (; i < roots.length; i++) {
+				// If the new root is already among the children, no need to proceed further. Just return.
+				if (roots[i].equals(child)) {
+					return;
+				}
+				// If we start seeing root's classpath entry different from the child's entry, then the child can't
+				// be present further down the roots array.
+				if (!((IPackageFragmentRoot) roots[i]).getResolvedClasspathEntry().getPath()
+						.equals(currentEntryPath))
+					break;
+			}
+
+			if (indexToInsert >= 0) {
+				int newSize = roots.length + 1;
+				IPackageFragmentRoot[] newChildren = new IPackageFragmentRoot[newSize];
+
+				if (indexToInsert > 0)
+					System.arraycopy(roots, 0, newChildren, 0, indexToInsert);
+
+				newChildren[indexToInsert] = child;
+				System.arraycopy(roots, indexToInsert, newChildren, indexToInsert + 1, (newSize - indexToInsert - 1));
+				parent.setChildren(newChildren);
+				return;
+			}
+		}
+		parent.addChild(child);
 	}
 	/*
 	 * Process the given delta and look for projects being added, opened, closed or
