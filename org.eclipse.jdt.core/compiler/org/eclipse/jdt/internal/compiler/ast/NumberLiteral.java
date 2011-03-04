@@ -53,10 +53,10 @@ public abstract class NumberLiteral extends Literal {
 			switch(currentChar) {
 				case '0' :
 					// this is a prefix '0'
-					if (ignore && (i < end)) {
+					if (ignore && !modified && (i < end)) {
 						modified = true;
 					}
-					break loop;
+					break;
 				case '_' :
 					modified = true;
 					break loop;
