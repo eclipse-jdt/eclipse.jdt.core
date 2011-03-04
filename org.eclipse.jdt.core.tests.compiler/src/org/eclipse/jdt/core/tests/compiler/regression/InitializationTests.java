@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation and others.
+ * Copyright (c) 2010, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - contribution for bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class InitializationTests extends AbstractRegressionTest {
@@ -392,6 +394,75 @@ public void test325567() {
 			"The local variable before may not have been initialized\n" + 
 			"----------\n",
 			null, false, options);
+}
+
+// Bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
+// definite assignment along all true-yielding paths is sufficient
+public void testBug324178b() {
+	this.runConformTest(
+		new String[] {
+			"Bug324178.java",
+			"public class Bug324178 {\n" +
+			"	 boolean foo(boolean b) {\n" +
+			"        boolean v;\n" +
+			"        if (b ? false : (true && (v = true)))\n" +
+			"            return v;\n" + // OK to read v!
+			"        return false;\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.print(new Bug324178().foo(false));\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"true");
+}
+
+// Bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
+// definite assignment along all true-yielding paths is sufficient
+public void testBug324178c() {
+	this.runConformTest(
+		new String[] {
+			"Bug324178.java",
+			"public class Bug324178 {\n" +
+			"	 boolean foo() {\n" +
+			"        boolean r=false;" +
+			"        boolean v;\n" +
+			"        if ((true && (v = true)) ? true : true && (v = false)) r = v;\n" +
+			"        return r;\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.print(new Bug324178().foo());\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"true");
+}
+// Bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
+// must detect that b2 may be uninitialized, no special semantics for Boolean
+public void testBug324178d() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"Bug324178.java",
+			"public class Bug324178 {\n" +
+			"	 boolean foo(boolean b1) {\n" +
+			"  		 Boolean b2;\n" + 
+			"        if (b1 ? (b2 = Boolean.TRUE) : null)\n" + 
+			"          return b2;\n" +
+			"        return false;\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.print(new Bug324178().foo(true));\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Bug324178.java (at line 5)\n" + 
+		"	return b2;\n" + 
+		"	       ^^\n" + 
+		"The local variable b2 may not have been initialized\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return InitializationTests.class;

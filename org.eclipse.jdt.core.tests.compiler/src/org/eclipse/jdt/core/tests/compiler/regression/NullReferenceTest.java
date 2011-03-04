@@ -16,6 +16,7 @@
  *     						bug 332637 - Dead Code detection removing code that isn't dead
  *     						bug 338303 - Warning about Redundant assignment conflicts with definite assignment
  *     						bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+ * 							bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -14238,4 +14239,39 @@ public void testBug338234() {
 		"Dead code\n" + 
 		"----------\n");
 }
+// Bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
+public void testBug324178() {
+	this.runConformTest(
+		new String[] {
+			"Bug324178.java",
+			"public class Bug324178 {\n" +
+			"    boolean b;\n" +
+			"    void foo(Object u) {\n" +
+			"    if (u == null) {}\n" +
+			"        Object o = (u == null) ? new Object() : u;\n" +
+			"        o.toString();   // Incorrect potential NPE\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"");
+}
+
+// Bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
+public void testBug324178a() {
+	this.runConformTest(
+		new String[] {
+			"Bug324178.java",
+			"public class Bug324178 {\n" +
+			"    boolean b;\n" +
+			"    void foo(Boolean u) {\n" +
+			"    if (u == null) {}\n" +
+			"        Boolean o;\n" +
+			"        o = (u == null) ? Boolean.TRUE : u;\n" +
+			"        o.toString();   // Incorrect potential NPE\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"");
+}
+
 }
