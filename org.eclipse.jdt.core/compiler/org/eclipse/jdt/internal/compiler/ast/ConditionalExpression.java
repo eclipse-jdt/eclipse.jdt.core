@@ -55,7 +55,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		FlowInfo trueFlowInfo = flowInfo.initsWhenTrue().copy();
 		if (isConditionOptimizedFalse) {
 			if ((mode & FlowInfo.UNREACHABLE) == 0) {
-				trueFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
+				trueFlowInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 			}
 			if (!isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement) {
 				this.valueIfTrue.complainIfUnreachable(trueFlowInfo, currentScope, initialComplaintLevel);
@@ -68,7 +68,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		FlowInfo falseFlowInfo = flowInfo.initsWhenFalse().copy();
 		if (isConditionOptimizedTrue) {
 			if ((mode & FlowInfo.UNREACHABLE) == 0) {
-				falseFlowInfo.setReachMode(FlowInfo.UNREACHABLE);
+				falseFlowInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 			}
 			if (!isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement) {
 				this.valueIfFalse.complainIfUnreachable(falseFlowInfo, currentScope, initialComplaintLevel);
@@ -98,16 +98,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			UnconditionalFlowInfo trueInfoWhenFalse = trueFlowInfo.initsWhenFalse().unconditionalInits();
 			UnconditionalFlowInfo falseInfoWhenFalse = falseFlowInfo.initsWhenFalse().unconditionalInits();
 			if (isValueIfTrueOptimizedFalse) {
-				trueInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE);				
+				trueInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);				
 			}
 			if (isValueIfFalseOptimizedFalse) {
-				falseInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE);	
+				falseInfoWhenTrue.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);	
 			}
 			if (isValueIfTrueOptimizedTrue) {
-				trueInfoWhenFalse.setReachMode(FlowInfo.UNREACHABLE);	
+				trueInfoWhenFalse.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);	
 			}
 			if (isValueIfFalseOptimizedTrue) {
-				falseInfoWhenFalse.setReachMode(FlowInfo.UNREACHABLE);	
+				falseInfoWhenFalse.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);	
 			}
 			mergedInfo =
 				FlowInfo.conditional(

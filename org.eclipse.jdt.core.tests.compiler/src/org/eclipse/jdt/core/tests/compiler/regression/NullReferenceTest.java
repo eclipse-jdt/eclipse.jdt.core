@@ -14204,4 +14204,38 @@ public void testBug338303() {
 		},
 		"");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
+public void testBug338234() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"   static int foo() {\n" + 
+			"        Object o = null;\n" +
+			"		 int i = 0;\n" + 
+			"        label: {\n" + 
+			"            if (o == null)\n" + 
+			"                break label;\n" +
+			"			 i++;" + 
+			"        }\n" + 
+			"         if (i != 0) {\n" + 
+			"            System.out.println(i);\n" + 
+			"        }\n" + 
+			"        return 0;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	if (o == null)\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable o can only be null at this location\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	i++;        }\n" + 
+		"	^^^\n" + 
+		"Dead code\n" + 
+		"----------\n");
+}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2244,6 +2244,120 @@ public void test071() {
 		"	throw new IOException();\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Dead code\n" + 
+		"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
+// Warn uninitialized variable in deadcode if deadcode has been inferred
+// by null analysis
+public void testBug338234a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" + 
+			"        int i;\n" + 
+			"        String str = null;\n" + 
+			"        if (str != null)\n" + 
+			"            i++;    \n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	i++;    \n" + 
+		"	^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	i++;    \n" + 
+		"	^\n" + 
+		"The local variable i may not have been initialized\n" + 
+		"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
+// Don't warn uninitialized variable in deadcode if deadcode has not been inferred
+// by null analysis
+public void testBug338234b() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" + 
+			"        int i;\n" + 
+			"        l: {\n" +
+			"			if(false)\n" +
+			"				break l;\n" + 
+			"        	return;\n" +
+			"		 }\n" + 
+			"        i++;    \n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
+// Warn uninitialized field in deadcode if deadcode has been inferred
+// by null analysis
+public void testBug338234c() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public final int field1;\n" +
+			"    {\n" + 
+			"        int i;\n" + 
+			"        String str = null;\n" +
+			"		 if(str != null)\n" +
+			"			i = field1;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X {\n" + 
+		"	             ^\n" + 
+		"The blank final field field1 may not have been initialized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	i = field1;\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	i = field1;\n" + 
+		"	    ^^^^^^\n" + 
+		"The blank final field field1 may not have been initialized\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338234
+// Warn uninitialized field in deadcode if deadcode has been inferred
+// by null analysis
+public void testBug338234d() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo(boolean b) {\n" +
+			"        int i;\n" +
+			"		 String str = null;\n" + 
+			"        if(b){\n" +
+			"		 	if(str == null)\n" +
+			"				return;\n" +
+			"		 } else {\n" +
+			"			i = 2;\n" +
+			"		 }\n" +
+			"		 i++;\n" + 
+			"    }\n" + 
+			"}\n"
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	i++;\n" + 
+		"	^\n" + 
+		"The local variable i may not have been initialized\n" + 
 		"----------\n");
 }
 public static Class testClass() {

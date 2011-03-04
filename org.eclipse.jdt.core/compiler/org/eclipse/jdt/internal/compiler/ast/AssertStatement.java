@@ -56,7 +56,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	UnconditionalFlowInfo assertWhenTrueInfo = conditionFlowInfo.initsWhenTrue().unconditionalInits();
 	FlowInfo assertInfo = conditionFlowInfo.initsWhenFalse();
 	if (isOptimizedTrueAssertion) {
-		assertInfo.setReachMode(FlowInfo.UNREACHABLE);
+		assertInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 	}
 
 	if (this.exceptionArgument != null) {

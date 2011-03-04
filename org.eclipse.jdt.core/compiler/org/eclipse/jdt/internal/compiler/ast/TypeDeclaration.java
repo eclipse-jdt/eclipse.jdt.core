@@ -646,7 +646,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				// branch, since the previous initializer already got the blame.
 				if (staticFieldInfo == FlowInfo.DEAD_END) {
 					this.staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
-					staticFieldInfo = FlowInfo.initial(this.maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
+					staticFieldInfo = FlowInfo.initial(this.maxFieldCount).setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 				}
 			} else {
 				if ((nonStaticFieldInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
@@ -662,7 +662,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				// branch, since the previous initializer already got the blame.
 				if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
 					this.initializerScope.problemReporter().initializerMustCompleteNormally(field);
-					nonStaticFieldInfo = FlowInfo.initial(this.maxFieldCount).setReachMode(FlowInfo.UNREACHABLE);
+					nonStaticFieldInfo = FlowInfo.initial(this.maxFieldCount).setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 				}
 			}
 		}

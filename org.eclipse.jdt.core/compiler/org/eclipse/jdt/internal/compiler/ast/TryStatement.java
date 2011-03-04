@@ -172,7 +172,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				ifTrue: [catchInits addPotentialInitializationsFrom: tryInits]."
 				*/
 				if (this.tryBlock.statements == null) {
-					catchInfo.setReachMode(FlowInfo.UNREACHABLE);
+					catchInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 				}
 				catchInfo =
 					this.catchBlocks[i].analyseCode(
