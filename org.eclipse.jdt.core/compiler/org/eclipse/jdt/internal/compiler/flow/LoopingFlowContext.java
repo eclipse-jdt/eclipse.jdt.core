@@ -494,14 +494,14 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 						scope.problemReporter().localVariableRedundantCheckOnNonNull(local, reference);
 					}
 					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
-						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 					}
 				} else {
 					if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
 						scope.problemReporter().localVariableNonNullComparedToNull(local, reference);
 					}
 					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
-						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 					}
 				}
 			} else if (flowInfo.isDefinitelyNull(local)) {
@@ -510,14 +510,14 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 						scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 					}
 					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
-						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 					}
 				} else {
 					if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
 						scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
 					}
 					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
-						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 					}
 				}
 			} else if (this.upstreamNullFlowInfo.isDefinitelyNonNull(local) && !flowInfo.isPotentiallyNull(local) && !flowInfo.isPotentiallyUnknown(local)) {    
@@ -562,7 +562,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 							scope.problemReporter().localVariableRedundantCheckOnNull(local, reference);
 						}
 						if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
-							flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE);
+							flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 						}
 						return;
 					case FlowContext.IN_COMPARISON_NON_NULL:
@@ -574,7 +574,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 							scope.problemReporter().localVariableNullComparedToNonNull(local, reference);
 						}
 						if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
-							flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE);
+							flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 						}
 						return;
 					case FlowContext.IN_ASSIGNMENT:
