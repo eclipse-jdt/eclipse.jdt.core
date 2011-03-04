@@ -49,7 +49,9 @@ import org.eclipse.jdt.core.eval.IEvaluationContext;
  * Java project elements need to be opened before they can be navigated or manipulated.
  * The children of a Java project are the package fragment roots that are
  * defined by the classpath and contained in this project (in other words, it
- * does not include package fragment roots for other projects).
+ * does not include package fragment roots for other projects). The children
+ * (i.e. the package fragment roots) appear in the order they are defined by 
+ * the classpath.
  * </p>
  * <p>
  * An instance of one of these handles can be created via
@@ -518,7 +520,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * Returns all of the  package fragment roots contained in this
 	 * project, identified on this project's resolved classpath. The result
 	 * does not include package fragment roots in other projects referenced
-	 * on this project's classpath.
+	 * on this project's classpath. The package fragment roots appear in the 
+	 * order they are defined by the classpath.
 	 *
 	 * <p>NOTE: This is equivalent to <code>getChildren()</code>.
 	 *
