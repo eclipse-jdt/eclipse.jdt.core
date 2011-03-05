@@ -11782,10 +11782,16 @@ public void testBug304416() throws Exception {
 		"     2  aconst_null\n" + 
 		"     3  astore_2 [s2]\n" + 
 		"     4  aload_1 [s]\n" + 
-		"     5  ifnull 12\n" + 
+		"     5  ifnull 26\n" + 
 		"     8  aload_2 [s2]\n" + 
-		"     9  ifnull 12\n" + 
-		"    12  return\n";
+		"     9  ifnull 26\n" + 
+		"    12  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    15  aload_1 [s]\n" + 
+		"    16  invokevirtual java.io.PrintStream.println(java.lang.String) : void [22]\n" + 
+		"    19  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    22  aload_2 [s2]\n" + 
+		"    23  invokevirtual java.io.PrintStream.println(java.lang.String) : void [22]\n" + 
+		"    26  return\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 
@@ -14273,5 +14279,166 @@ public void testBug324178a() {
 		},
 		"");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
+public void testBug326950a() throws Exception {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String s = null;\n" +
+			"		if (s == null) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"		} else {\n" +
+			"			System.out.println(\"Dead code, but don't optimize me out\");\n" +
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"SUCCESS",
+		null,
+		true,
+		null,
+		options,
+		null);
+	String expectedOutput =
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  aconst_null\n" + 
+		"     1  astore_1 [s]\n" + 
+		"     2  aload_1 [s]\n" + 
+		"     3  ifnonnull 17\n" + 
+		"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"     9  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    11  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+		"    14  goto 25\n" + 
+		"    17  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    20  ldc <String \"Dead code, but don\'t optimize me out\"> [30]\n" + 
+		"    22  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" + 
+		"    25  return\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
+// Code marked dead due to if(false), etc. can be optimized out
+public void testBug326950b() throws Exception {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		int i = 0;\n" + 
+			"		if (false) {\n" + 
+			"			System.out.println(\"Deadcode and you can optimize me out\");\n" + 
+			"		}\n" +
+			"		if (true) {\n" +
+			"			i++;\n" +
+			"		} else {\n" +
+			"			System.out.println(\"Deadcode and you can optimize me out\");\n" +
+			"		}\n" +
+			"	}\n" + 
+			"}",
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);
+	String expectedOutput =
+		"  public static void main(java.lang.String[] args);\n" + 
+		"    0  iconst_0\n" + 
+		"    1  istore_1 [i]\n" + 
+		"    2  iinc 1 1 [i]\n" + 
+		"    5  return\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
+// Free return should be generated for a method even if it ends with dead code
+public void testBug326950c() throws Exception {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public void foo(String[] args) {\n" + 
+			"		String s = \"\";\n" +
+			"		int i = 0;\n" +
+			"		if (s != null) {\n" + 
+			"			return;\n" + 
+			"		}\n" +
+			"		i++;\n" +
+			"	}\n" + 
+			"}",
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);
+	String expectedOutput =
+		"  public void foo(java.lang.String[] args);\n" + 
+		"     0  ldc <String \"\"> [16]\n" + 
+		"     2  astore_2 [s]\n" + 
+		"     3  iconst_0\n" + 
+		"     4  istore_3 [i]\n" + 
+		"     5  aload_2 [s]\n" + 
+		"     6  ifnull 10\n" + 
+		"     9  return\n" + 
+		"    10  iinc 3 1 [i]\n" + 
+		"    13  return\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
+// Free return should be generated for a constructor even if it ends with dead code
+public void testBug326950d() throws Exception {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	X() {\n" + 
+			"		String s = \"\";\n" +
+			"		int i = 0;\n" +
+			"		if (s != null) {\n" + 
+			"			return;\n" + 
+			"		}\n" +
+			"		i++;\n" +
+			"	}\n" + 
+			"}",
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);
+	String expectedOutput =
+		"  X();\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [8]\n" + 
+		"     4  ldc <String \"\"> [10]\n" + 
+		"     6  astore_1 [s]\n" + 
+		"     7  iconst_0\n" + 
+		"     8  istore_2 [i]\n" + 
+		"     9  aload_1 [s]\n" + 
+		"    10  ifnull 14\n" + 
+		"    13  return\n" + 
+		"    14  iinc 2 1 [i]\n" + 
+		"    17  return\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
 }

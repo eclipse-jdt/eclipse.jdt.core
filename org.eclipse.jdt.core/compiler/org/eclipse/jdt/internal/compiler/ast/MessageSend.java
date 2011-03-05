@@ -218,7 +218,7 @@ public boolean isTypeAccess() {
 }
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo){
 
-	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0)	return;
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)	return;
 
 	// if method from parameterized type got found, use the original method at codegen time
 	MethodBinding codegenBinding = this.binding.original();

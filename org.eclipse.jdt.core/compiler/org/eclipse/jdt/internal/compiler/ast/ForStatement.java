@@ -145,7 +145,7 @@ public class ForStatement extends Statement {
 			// code generation can be optimized when no need to continue in the loop
 			if ((actionInfo.tagBits &
 					loopingContext.initsOnContinue.tagBits &
-					FlowInfo.UNREACHABLE) != 0) {
+					FlowInfo.UNREACHABLE_OR_DEAD) != 0) {
 				this.continueLabel = null;
 			}
 			else {
