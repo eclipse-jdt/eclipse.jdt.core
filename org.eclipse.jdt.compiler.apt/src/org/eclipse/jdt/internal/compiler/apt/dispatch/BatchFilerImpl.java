@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2011 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,11 +7,12 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *    philippe.marschall@netcetera.ch - Fix for 338370
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
@@ -122,6 +123,9 @@ public class BatchFilerImpl implements Filer {
 		//TODO: do we need to check validity of 'name', or can we trust the filemanager to handle that?
 		FileObject fo = _fileManager.getFileForInput(
 				location, pkg.toString(), relativeName.toString());
+		if (fo == null) {
+			throw new FileNotFoundException("Resource does not exist : " + location + '/' + pkg + '/' + relativeName); //$NON-NLS-1$
+		}
 		URI uri = fo.toUri();
 		if (_createdFiles.contains(uri)) {
 			throw new FilerException("Resource already created : " + location + '/' + pkg + '/' + relativeName); //$NON-NLS-1$
