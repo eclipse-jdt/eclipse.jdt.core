@@ -101,7 +101,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			tryInfo = flowInfo;
 		} else {
 			tryInfo = this.tryBlock.analyseCode(currentScope, handlingContext, flowInfo.copy());
-			if ((tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
+			if ((tryInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 				this.bits |= ASTNode.IsTryBlockExiting;
 		}
 
@@ -210,7 +210,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			tryInfo = flowInfo;
 		} else {
 			tryInfo = this.tryBlock.analyseCode(currentScope, handlingContext, flowInfo.copy());
-			if ((tryInfo.tagBits & FlowInfo.UNREACHABLE) != 0)
+			if ((tryInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 				this.bits |= ASTNode.IsTryBlockExiting;
 		}
 

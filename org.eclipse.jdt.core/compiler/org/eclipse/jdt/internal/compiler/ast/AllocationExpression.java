@@ -184,7 +184,7 @@ public boolean isTypeAccess() {
  * exact need.
  */
 public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
-	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0) return;
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0) return;
 	ReferenceBinding allocatedTypeErasure = (ReferenceBinding) this.binding.declaringClass.erasure();
 
 	// perform some emulation work in case there is some and we are inside a local type only
@@ -203,7 +203,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 }
 
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
-	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0) return;
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0) return;
 	// if constructor from parameterized type got found, use the original constructor at codegen time
 	MethodBinding codegenBinding = this.binding.original();
 

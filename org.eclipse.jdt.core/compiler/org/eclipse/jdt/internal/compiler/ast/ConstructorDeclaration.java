@@ -156,7 +156,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			}
 		}
 		// check for missing returning path
-		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0) {
 			this.bits |= ASTNode.NeedFreeReturn;
 		}
 

@@ -120,11 +120,10 @@ public class WhileStatement extends Statement {
 			// code generation can be optimized when no need to continue in the loop
 			exitBranch = flowInfo.copy();
 			// need to start over from flowInfo so as to get null inits
-
-			if ((actionInfo.tagBits &
-					loopingContext.initsOnContinue.tagBits &
-					FlowInfo.UNREACHABLE) != 0) {
-				this.continueLabel = null;
+            int combinedTagBits = actionInfo.tagBits & loopingContext.initsOnContinue.tagBits;
+			if ((combinedTagBits & FlowInfo.UNREACHABLE) != 0) {
+				if ((combinedTagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
+					this.continueLabel = null;
 				exitBranch.addInitializationsFrom(condInfo.initsWhenFalse());
 			} else {
 				condLoopContext.complainOnDeferredFinalChecks(currentScope,

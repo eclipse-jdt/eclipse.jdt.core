@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2010 IBM Corporation and others.
+ * Copyright (c) 2003, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -360,129 +360,133 @@ public void test009() throws Exception {
 
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-		"  // Stack: 3, Locals: 4\n" +
-		"  public static void main(java.lang.String[] args);\n" +
-		"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"     3  ldc <String \"1\"> [22]\n" +
-		"     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
-		"     8  aconst_null\n" +
-		"     9  goto 13\n" +
-		"    12  aconst_null\n" +
-		"    13  aconst_null\n" +
-		"    14  goto 18\n" +
-		"    17  aconst_null\n" +
-		"    18  if_acmpne 29\n" +
-		"    21  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    24  ldc <String \"2\"> [30]\n" +
-		"    26  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
-		"    29  new java.lang.StringBuffer [32]\n" +
-		"    32  dup\n" +
-		"    33  ldc <String \"[\"> [34]\n" +
-		"    35  invokespecial java.lang.StringBuffer(java.lang.String) [36]\n" +
-		"    38  aconst_null\n" +
-		"    39  invokevirtual java.lang.StringBuffer.append(java.lang.Object) : java.lang.StringBuffer [38]\n" +
-		"    42  ldc <String \"]\"> [42]\n" +
-		"    44  invokevirtual java.lang.StringBuffer.append(java.lang.String) : java.lang.StringBuffer [44]\n" +
-		"    47  invokevirtual java.lang.StringBuffer.toString() : java.lang.String [47]\n" +
-		"    50  ldc <String \"[null]\"> [51]\n" +
-		"    52  if_acmpne 59\n" +
-		"    55  iconst_1\n" +
-		"    56  goto 60\n" +
-		"    59  iconst_0\n" +
-		"    60  istore_1 [b]\n" +
-		"    61  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    64  ldc <String \"3\"> [53]\n" +
-		"    66  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
-		"    69  aconst_null\n" +
-		"    70  astore_2 [s]\n" +
-		"    71  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    74  ldc <String \"4\"> [55]\n" +
-		"    76  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
-		"    79  ldc <String \"aaa\"> [57]\n" +
-		"    81  astore_3 [s2]\n" +
-		"    82  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    85  ldc <String \"5\"> [59]\n" +
-		"    87  invokevirtual java.io.PrintStream.println(java.lang.String) : void [61]\n" +
-		"    90  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 3]\n" +
-		"        [pc: 8, line: 4]\n" +
-		"        [pc: 21, line: 5]\n" +
-		"        [pc: 29, line: 6]\n" +
-		"        [pc: 61, line: 7]\n" +
-		"        [pc: 69, line: 8]\n" +
-		"        [pc: 71, line: 9]\n" +
-		"        [pc: 79, line: 10]\n" +
-		"        [pc: 82, line: 11]\n" +
-		"        [pc: 90, line: 12]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 91] local: args index: 0 type: java.lang.String[]\n" +
-		"        [pc: 61, pc: 91] local: b index: 1 type: boolean\n" +
-		"        [pc: 71, pc: 91] local: s index: 2 type: java.lang.String\n" +
-		"        [pc: 82, pc: 91] local: s2 index: 3 type: java.lang.String\n";
+		"  // Stack: 3, Locals: 4\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"     3  ldc <String \"1\"> [22]\n" + 
+		"     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+		"     8  aconst_null\n" + 
+		"     9  goto 13\n" + 
+		"    12  aconst_null\n" + 
+		"    13  aconst_null\n" + 
+		"    14  goto 18\n" + 
+		"    17  aconst_null\n" + 
+		"    18  if_acmpne 29\n" + 
+		"    21  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    24  ldc <String \"2\"> [30]\n" + 
+		"    26  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+		"    29  new java.lang.StringBuffer [32]\n" + 
+		"    32  dup\n" + 
+		"    33  ldc <String \"[\"> [34]\n" + 
+		"    35  invokespecial java.lang.StringBuffer(java.lang.String) [36]\n" + 
+		"    38  aconst_null\n" + 
+		"    39  invokevirtual java.lang.StringBuffer.append(java.lang.Object) : java.lang.StringBuffer [38]\n" + 
+		"    42  ldc <String \"]\"> [42]\n" + 
+		"    44  invokevirtual java.lang.StringBuffer.append(java.lang.String) : java.lang.StringBuffer [44]\n" + 
+		"    47  invokevirtual java.lang.StringBuffer.toString() : java.lang.String [47]\n" + 
+		"    50  ldc <String \"[null]\"> [51]\n" + 
+		"    52  if_acmpne 59\n" + 
+		"    55  iconst_1\n" + 
+		"    56  goto 60\n" + 
+		"    59  iconst_0\n" + 
+		"    60  istore_1 [b]\n" + 
+		"    61  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    64  ldc <String \"3\"> [53]\n" + 
+		"    66  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+		"    69  aconst_null\n" + 
+		"    70  astore_2 [s]\n" + 
+		"    71  aload_2 [s]\n" + 
+		"    72  ifnonnull 83\n" + 
+		"    75  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    78  ldc <String \"4\"> [55]\n" + 
+		"    80  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+		"    83  ldc <String \"aaa\"> [57]\n" + 
+		"    85  astore_3 [s2]\n" + 
+		"    86  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    89  ldc <String \"5\"> [59]\n" + 
+		"    91  invokevirtual java.io.PrintStream.println(java.lang.String) : void [61]\n" + 
+		"    94  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 8, line: 4]\n" + 
+		"        [pc: 21, line: 5]\n" + 
+		"        [pc: 29, line: 6]\n" + 
+		"        [pc: 61, line: 7]\n" + 
+		"        [pc: 69, line: 8]\n" + 
+		"        [pc: 71, line: 9]\n" + 
+		"        [pc: 83, line: 10]\n" + 
+		"        [pc: 86, line: 11]\n" + 
+		"        [pc: 94, line: 12]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 95] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 61, pc: 95] local: b index: 1 type: boolean\n" + 
+		"        [pc: 71, pc: 95] local: s index: 2 type: java.lang.String\n" + 
+		"        [pc: 86, pc: 95] local: s2 index: 3 type: java.lang.String\n";
 
 	String expectedOutput15 =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-		"  // Stack: 3, Locals: 4\n" +
-		"  public static void main(java.lang.String[] args);\n" +
-		"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"     3  ldc <String \"1\"> [22]\n" +
-		"     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
-		"     8  aconst_null\n" +
-		"     9  goto 13\n" +
-		"    12  aconst_null\n" +
-		"    13  aconst_null\n" +
-		"    14  goto 18\n" +
-		"    17  aconst_null\n" +
-		"    18  if_acmpne 29\n" +
-		"    21  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    24  ldc <String \"2\"> [30]\n" +
-		"    26  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
-		"    29  new java.lang.StringBuilder [32]\n" +
-		"    32  dup\n" +
-		"    33  ldc <String \"[\"> [34]\n" +
-		"    35  invokespecial java.lang.StringBuilder(java.lang.String) [36]\n" +
-		"    38  aconst_null\n" +
-		"    39  invokevirtual java.lang.StringBuilder.append(java.lang.Object) : java.lang.StringBuilder [38]\n" +
-		"    42  ldc <String \"]\"> [42]\n" +
-		"    44  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [44]\n" +
-		"    47  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [47]\n" +
-		"    50  ldc <String \"[null]\"> [51]\n" +
-		"    52  if_acmpne 59\n" +
-		"    55  iconst_1\n" +
-		"    56  goto 60\n" +
-		"    59  iconst_0\n" +
-		"    60  istore_1 [b]\n" +
-		"    61  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    64  ldc <String \"3\"> [53]\n" +
-		"    66  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
-		"    69  aconst_null\n" +
-		"    70  astore_2 [s]\n" +
-		"    71  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    74  ldc <String \"4\"> [55]\n" +
-		"    76  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" +
-		"    79  ldc <String \"aaa\"> [57]\n" +
-		"    81  astore_3 [s2]\n" +
-		"    82  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
-		"    85  ldc <String \"5\"> [59]\n" +
-		"    87  invokevirtual java.io.PrintStream.println(java.lang.String) : void [61]\n" +
-		"    90  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 3]\n" +
-		"        [pc: 8, line: 4]\n" +
-		"        [pc: 21, line: 5]\n" +
-		"        [pc: 29, line: 6]\n" +
-		"        [pc: 61, line: 7]\n" +
-		"        [pc: 69, line: 8]\n" +
-		"        [pc: 71, line: 9]\n" +
-		"        [pc: 79, line: 10]\n" +
-		"        [pc: 82, line: 11]\n" +
-		"        [pc: 90, line: 12]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 91] local: args index: 0 type: java.lang.String[]\n" +
-		"        [pc: 61, pc: 91] local: b index: 1 type: boolean\n" +
-		"        [pc: 71, pc: 91] local: s index: 2 type: java.lang.String\n" +
-		"        [pc: 82, pc: 91] local: s2 index: 3 type: java.lang.String\n";
+		"  // Stack: 3, Locals: 4\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"     3  ldc <String \"1\"> [22]\n" + 
+		"     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+		"     8  aconst_null\n" + 
+		"     9  goto 13\n" + 
+		"    12  aconst_null\n" + 
+		"    13  aconst_null\n" + 
+		"    14  goto 18\n" + 
+		"    17  aconst_null\n" + 
+		"    18  if_acmpne 29\n" + 
+		"    21  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    24  ldc <String \"2\"> [30]\n" + 
+		"    26  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+		"    29  new java.lang.StringBuilder [32]\n" + 
+		"    32  dup\n" + 
+		"    33  ldc <String \"[\"> [34]\n" + 
+		"    35  invokespecial java.lang.StringBuilder(java.lang.String) [36]\n" + 
+		"    38  aconst_null\n" + 
+		"    39  invokevirtual java.lang.StringBuilder.append(java.lang.Object) : java.lang.StringBuilder [38]\n" + 
+		"    42  ldc <String \"]\"> [42]\n" + 
+		"    44  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [44]\n" + 
+		"    47  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [47]\n" + 
+		"    50  ldc <String \"[null]\"> [51]\n" + 
+		"    52  if_acmpne 59\n" + 
+		"    55  iconst_1\n" + 
+		"    56  goto 60\n" + 
+		"    59  iconst_0\n" + 
+		"    60  istore_1 [b]\n" + 
+		"    61  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    64  ldc <String \"3\"> [53]\n" + 
+		"    66  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+		"    69  aconst_null\n" + 
+		"    70  astore_2 [s]\n" + 
+		"    71  aload_2 [s]\n" + 
+		"    72  ifnonnull 83\n" + 
+		"    75  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    78  ldc <String \"4\"> [55]\n" + 
+		"    80  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
+		"    83  ldc <String \"aaa\"> [57]\n" + 
+		"    85  astore_3 [s2]\n" + 
+		"    86  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"    89  ldc <String \"5\"> [59]\n" + 
+		"    91  invokevirtual java.io.PrintStream.println(java.lang.String) : void [61]\n" + 
+		"    94  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 8, line: 4]\n" + 
+		"        [pc: 21, line: 5]\n" + 
+		"        [pc: 29, line: 6]\n" + 
+		"        [pc: 61, line: 7]\n" + 
+		"        [pc: 69, line: 8]\n" + 
+		"        [pc: 71, line: 9]\n" + 
+		"        [pc: 83, line: 10]\n" + 
+		"        [pc: 86, line: 11]\n" + 
+		"        [pc: 94, line: 12]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 95] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 61, pc: 95] local: b index: 1 type: boolean\n" + 
+		"        [pc: 71, pc: 95] local: s index: 2 type: java.lang.String\n" + 
+		"        [pc: 86, pc: 95] local: s2 index: 3 type: java.lang.String\n";
 
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		int index = actualOutput.indexOf(expectedOutput15);

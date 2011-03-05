@@ -174,7 +174,7 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 }
 
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
-	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0) {
 		// need assertion flag: $assertionsDisabled on outer most source clas
 		// (in case of static member of interface, will use the outermost static member - bug 22334)
 		SourceTypeBinding outerMostClass = currentScope.enclosingSourceType();
