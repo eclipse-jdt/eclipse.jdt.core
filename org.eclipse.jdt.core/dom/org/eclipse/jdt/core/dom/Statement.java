@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,51 +23,53 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * For JLS2:
  * <pre>
  * Statement:
- *    Block
- *    IfStatement
- *    ForStatement
- *    WhileStatement
- *    DoStatement
- *    TryStatement
- *    SwitchStatement
- *    SynchronizedStatement
- *    ReturnStatement
- *    ThrowStatement
- *    BreakStatement
- *    ContinueStatement
- *    EmptyStatement
- *    ExpressionStatement
- *    LabeledStatement
- *    AssertStatement
- *    VariableDeclarationStatement
- *    TypeDeclarationStatement
- *    ConstructorInvocation
- *    SuperConstructorInvocation
+ *    AssertStatement,
+ *    Block,
+ *    BreakStatement,
+ *    ConstructorInvocation,
+ *    ContinueStatement,
+ *    DoStatement,
+ *    EmptyStatement,
+ *    ExpressionStatement,
+ *    ForStatement,
+ *    IfStatement,
+ *    LabeledStatement,
+ *    ReturnStatement,
+ *    SuperConstructorInvocation,
+ *    SwitchCase,
+ *    SwitchStatement,
+ *    SynchronizedStatement,
+ *    ThrowStatement,
+ *    TryStatement,
+ *    TypeDeclarationStatement,
+ *    VariableDeclarationStatement,
+ *    WhileStatement 
  * </pre>
  * For JLS3, an enhanced for node type was added:
  * <pre>
  * Statement:
- *    Block
- *    IfStatement
- *    ForStatement
- *    EnhancedForStatement
+ *    AssertStatement,
+ *    Block,
+ *    BreakStatement,
+ *    ConstructorInvocation,
+ *    ContinueStatement,
+ *    DoStatement,
+ *    EmptyStatement,
+ *    EnhancedForStatement,
+ *    ExpressionStatement,
+ *    ForStatement,
+ *    IfStatement,
+ *    LabeledStatement,
+ *    ReturnStatement,
+ *    SuperConstructorInvocation,
+ *    SwitchCase,
+ *    SwitchStatement,
+ *    SynchronizedStatement,
+ *    ThrowStatement,
+ *    TryStatement,
+ *    TypeDeclarationStatement,
+ *    VariableDeclarationStatement,
  *    WhileStatement
- *    DoStatement
- *    TryStatement
- *    SwitchStatement
- *    SynchronizedStatement
- *    ReturnStatement
- *    ThrowStatement
- *    BreakStatement
- *    ContinueStatement
- *    EmptyStatement
- *    ExpressionStatement
- *    LabeledStatement
- *    AssertStatement
- *    VariableDeclarationStatement
- *    TypeDeclarationStatement
- *    ConstructorInvocation
- *    SuperConstructorInvocation
  * </pre>
  * </p>
  *

@@ -17,30 +17,31 @@ package org.eclipse.jdt.core.dom;
  * <p>
  * <pre>
  * Expression:
- *    Name
- *    NumberLiteral
- *    CharacterLiteral
- *    NullLiteral
- *    BooleanLiteral
- *    StringLiteral
- *    TypeLiteral
- *    ThisExpression
- *    SuperFieldAccess
- *    FieldAccess
- *    Assignment
- *    ParenthesizedExpression
- *    ClassInstanceCreation
- *    ArrayCreation
- *    ArrayInitializer
- *    MethodInvocation
- *    SuperMethodInvocation
- *    ArrayAccess
- *    InfixExpression
- *    InstanceofExpression
- *    ConditionalExpression
- *    PostfixExpression
- *    PrefixExpression
- *    CastExpression
+ *    Annotation,
+ *    ArrayAccess,
+ *    ArrayCreation,
+ *    ArrayInitializer,
+ *    Assignment,
+ *    BooleanLiteral,
+ *    CastExpression,
+ *    CharacterLiteral,
+ *    ClassInstanceCreation,
+ *    ConditionalExpression,
+ *    FieldAccess,
+ *    InfixExpression,
+ *    InstanceofExpression,
+ *    MethodInvocation,
+ *    Name,
+ *    NullLiteral,
+ *    NumberLiteral,
+ *    ParenthesizedExpression,
+ *    PostfixExpression,
+ *    PrefixExpression,
+ *    StringLiteral,
+ *    SuperFieldAccess,
+ *    SuperMethodInvocation,
+ *    ThisExpression,
+ *    TypeLiteral,
  *    VariableDeclarationExpression
  * </pre>
  * </p>
