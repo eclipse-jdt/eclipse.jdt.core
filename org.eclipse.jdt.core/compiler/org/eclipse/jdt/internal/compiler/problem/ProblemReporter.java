@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5194,15 +5194,6 @@ public void mustDefineDimensionsOrInitializer(ArrayAllocationExpression expressi
 		NoArgument,
 		expression.sourceStart,
 		expression.sourceEnd);
-}
-public void mustSpecifyPackage(CompilationUnitDeclaration compUnitDecl) {
-	String[] arguments = new String[] {new String(compUnitDecl.getFileName())};
-	this.handle(
-		IProblem.MustSpecifyPackage,
-		arguments,
-		arguments,
-		compUnitDecl.sourceStart,
-		compUnitDecl.sourceStart + 1);
 }
 public void mustUseAStaticMethod(MessageSend messageSend, MethodBinding method) {
 	this.handle(
