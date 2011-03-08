@@ -2579,6 +2579,7 @@ public class JavaProject
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
 		ResolvedClasspath result = new ResolvedClasspath();
+		Map knownDrives = new HashMap();
 
 		Map referencedEntriesMap = new HashMap();
 		List rawLibrariesPath = new ArrayList();
@@ -2639,11 +2640,11 @@ public class JavaProject
 								if (!rawLibrariesPath.contains(extraEntries[j].getPath())) {
 									// https://bugs.eclipse.org/bugs/show_bug.cgi?id=305037
 									// referenced entries for variable entries could also be persisted with extra attributes, so addAsChainedEntry = true
-									addToResult(rawEntry, extraEntries[j], result, resolvedEntries, externalFoldersManager, referencedEntriesMap, true);
+									addToResult(rawEntry, extraEntries[j], result, resolvedEntries, externalFoldersManager, referencedEntriesMap, true, knownDrives);
 								}
 							}
 						}
-						addToResult(rawEntry, resolvedEntry, result, resolvedEntries, externalFoldersManager, referencedEntriesMap, false);
+						addToResult(rawEntry, resolvedEntry, result, resolvedEntries, externalFoldersManager, referencedEntriesMap, false, knownDrives);
 					}
 					break;
 
@@ -2686,12 +2687,12 @@ public class JavaProject
 								ClasspathEntry[] extraEntries = cEntry.resolvedChainedLibraries();
 								for (int k = 0, length2 = extraEntries.length; k < length2; k++) {
 									if (!rawLibrariesPath.contains(extraEntries[k].getPath())) {
-										addToResult(rawEntry, extraEntries[k], result, resolvedEntries, externalFoldersManager, referencedEntriesMap, false);
+										addToResult(rawEntry, extraEntries[k], result, resolvedEntries, externalFoldersManager, referencedEntriesMap, false, knownDrives);
 									}
 								}
 							}
 						}
-						addToResult(rawEntry, cEntry, result, resolvedEntries, externalFoldersManager, referencedEntriesMap, false);
+						addToResult(rawEntry, cEntry, result, resolvedEntries, externalFoldersManager, referencedEntriesMap, false, knownDrives);
 					}
 					break;
 
@@ -2704,15 +2705,15 @@ public class JavaProject
 						ClasspathEntry[] extraEntries = ((ClasspathEntry) resolvedEntry).resolvedChainedLibraries();
 						for (int k = 0, length2 = extraEntries.length; k < length2; k++) {
 							if (!rawLibrariesPath.contains(extraEntries[k].getPath())) {
-								addToResult(rawEntry, extraEntries[k], result, resolvedEntries, externalFoldersManager, referencedEntriesMap, true);
+								addToResult(rawEntry, extraEntries[k], result, resolvedEntries, externalFoldersManager, referencedEntriesMap, true, knownDrives);
 							}
 						}
 					}
 
-					addToResult(rawEntry, resolvedEntry, result, resolvedEntries, externalFoldersManager, referencedEntriesMap, false);
+					addToResult(rawEntry, resolvedEntry, result, resolvedEntries, externalFoldersManager, referencedEntriesMap, false, knownDrives);
 					break;
 				default :
-					addToResult(rawEntry, resolvedEntry, result, resolvedEntries, externalFoldersManager, referencedEntriesMap, false);
+					addToResult(rawEntry, resolvedEntry, result, resolvedEntries, externalFoldersManager, referencedEntriesMap, false, knownDrives);
 					break;
 			}
 		}
@@ -2723,7 +2724,7 @@ public class JavaProject
 
 	private void addToResult(IClasspathEntry rawEntry, IClasspathEntry resolvedEntry, ResolvedClasspath result,
 			LinkedHashSet resolvedEntries, ExternalFoldersManager externalFoldersManager,
-			Map oldChainedEntriesMap, boolean addAsChainedEntry) {
+			Map oldChainedEntriesMap, boolean addAsChainedEntry, Map knownDrives) {
 
 		IPath resolvedPath;
 		// If it's already been resolved, do not add to resolvedEntries
@@ -2747,7 +2748,7 @@ public class JavaProject
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=336046
 		// The source attachment path could be external too and in which case, must be added.
 		IPath sourcePath = resolvedEntry.getSourceAttachmentPath();
-		if (sourcePath != null && ExternalFoldersManager.isExternalFolderPath(sourcePath)) {
+		if (sourcePath != null && driveExists(sourcePath, knownDrives) && ExternalFoldersManager.isExternalFolderPath(sourcePath)) {
 			externalFoldersManager.addFolder(sourcePath, true);
 		}
 	}
@@ -2765,6 +2766,26 @@ public class JavaProject
 		if (attributes != null) {
 			resolvedEntry.extraAttributes = attributes;
 		}
+	}
+	
+	/*
+	 * File#exists() takes lot of time for an unmapped drive. Hence, cache the info.
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=338649
+	 */
+	private boolean driveExists(IPath sourcePath, Map knownDrives) {	
+		String drive = sourcePath.getDevice();
+		if (drive == null) return true;
+		Boolean good = (Boolean)knownDrives.get(drive);
+		if (good == null) {
+			if (new File(drive).exists()) {
+				knownDrives.put(drive, Boolean.TRUE);
+				return true;
+			} else {
+				knownDrives.put(drive, Boolean.FALSE);
+				return false;
+			}
+		}
+		return good.booleanValue();
 	}
 	
 	/*
