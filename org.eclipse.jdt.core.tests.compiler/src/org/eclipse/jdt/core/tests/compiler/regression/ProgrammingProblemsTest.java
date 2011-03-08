@@ -2309,4 +2309,42 @@ public void test0058() {
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=339139
+// Issue local variable not used warning inside deadcode
+public void test0059() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.WARNING);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"    	Object a = null;\n" + 
+			"    	if (a != null){\n" + 
+			"        	int j = 3;\n" + 
+			"        	j++;\n" + 	// value is not used
+			"    	}\n" +
+			"    	System.out.println(\"OK\");\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	if (a != null){\n" + 
+		"        	int j = 3;\n" + 
+		"        	j++;\n" + 
+		"    	}\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	int j = 3;\n" + 
+		"	    ^\n" + 
+		"The value of the local variable j is not used\n" + 
+		"----------\n",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		customOptions);
+}
 }

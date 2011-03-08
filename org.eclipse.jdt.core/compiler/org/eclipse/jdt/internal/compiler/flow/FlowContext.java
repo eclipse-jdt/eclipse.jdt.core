@@ -530,7 +530,7 @@ public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
 }
 
 public void recordSettingFinal(VariableBinding variable, Reference finalReference, FlowInfo flowInfo) {
-	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0)	{
 	// for initialization inside looping statement that effectively loops
 	FlowContext context = this;
 	while (context != null) {
