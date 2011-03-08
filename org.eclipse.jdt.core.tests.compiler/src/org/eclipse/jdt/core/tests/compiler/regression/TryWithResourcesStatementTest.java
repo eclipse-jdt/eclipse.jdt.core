@@ -147,18 +147,24 @@ public void test005() {
 }
 //check that try statement can be empty
 public void test006() {
-	this.runConformTest(
+	this.runNegativeTest( // cannot be a conform test as this triggers an AIOOB.
 		new String[] {
 			"X.java",
 			"import java.io.*;\n" + 
 			"public class X {\n" + 
 			"	public static void main(String[] args) throws IOException {\n" + 
 			"		try (Reader r = new LineNumberReader(new BufferedReader(new FileReader(args[0])))) {\n" + 
-			"		}\n" + 
+			"		} catch(Zork z) {" +
+			"       }\n" + 
 			"	}\n" + 
 			"}",
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	} catch(Zork z) {       }\n" + 
+		"	        ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
 }
 //check that resources are implicitly final but they can be explicitly final 
 public void test007() {
@@ -933,6 +939,78 @@ public void test026() {
 			"class YYException extends Exception {}\n" +
 			"class ZException extends Exception {}\n" +
 			"class ZZException extends Exception {}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 37)\n" + 
+		"	class XException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class XException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 38)\n" + 
+		"	class XXException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class XXException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 39)\n" + 
+		"	class YException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class YException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 40)\n" + 
+		"	class YYException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class YYException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 41)\n" + 
+		"	class ZException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^\n" + 
+		"The serializable class ZException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 42)\n" + 
+		"	class ZZException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class ZZException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+public void _test027() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X implements AutoCloseable {\n" +
+			"	public static void main(String [] args) throws Exception {\n" +
+			"		try (X x = new X(); Y y = new Y()) {\n" +
+			"			System.out.println(\"Body\");\n" +
+			"			throw new Exception(\"Body\");\n" +
+			"		} catch (Exception e) {\n" +
+			"			e.printStackTrace(System.out);\n" +
+			"			Throwable [] suppressed = e.getSuppressed();\n" +
+			"           if (suppressed.length == 0) System.out.println(\"Nothing suppressed\");\n" +
+			"			for (int i = 0; i < suppressed.length; i++) {\n" +
+			"				System.out.println(\"Suppressed:\" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			int finallyVar = 10;\n" +
+			"			System.out.println(finallyVar);\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public X() {\n" +
+			"	    System.out.println(\"X CTOR\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"	    System.out.println(\"X Close\");\n" +
+			"	    throw new Exception(\"X Close\");\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class Y implements AutoCloseable {\n" +
+			"	public Y() {\n" +
+			"	    System.out.println(\"Y CTOR\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"	    System.out.println(\"Y Close\");\n" +
+			"	    throw new Exception(\"Y Close\");\n" +
+			"	}\n" +
+			"}\n"
 		},
 		"----------\n" + 
 		"1. WARNING in X.java (at line 37)\n" + 

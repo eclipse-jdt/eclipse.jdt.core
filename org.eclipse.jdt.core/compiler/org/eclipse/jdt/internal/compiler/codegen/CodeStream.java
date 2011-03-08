@@ -4030,6 +4030,26 @@ public void invokeIterableIterator(TypeBinding iterableReceiverType) {
 			ConstantPool.ITERATOR_SIGNATURE);
 }
 
+public void invokeAutoCloseableClose(TypeBinding resourceType) {
+	// invokevirtual/interface: <resourceType>.close()
+	invoke(
+			resourceType.isInterface() ? Opcodes.OPC_invokeinterface : Opcodes.OPC_invokevirtual,
+			1, // receiverAndArgsSize
+			0, // returnTypeSize
+			resourceType.constantPoolName(), 
+			ConstantPool.Close, 
+			ConstantPool.CloseSignature);
+}
+
+public void invokeThrowableAddSuppressed() {
+	invoke(Opcodes.OPC_invokevirtual,
+			2, // receiverAndArgsSize
+			0, // returnTypeSize
+			ConstantPool.JavaLangThrowableConstantPoolName,
+			ConstantPool.AddSuppressed, 
+			ConstantPool.AddSuppressedSignature);
+}
+
 public void invokeJavaLangAssertionErrorConstructor(int typeBindingID) {
 	// invokespecial: java.lang.AssertionError.<init>(typeBindingID)V
 	int receiverAndArgsSize;

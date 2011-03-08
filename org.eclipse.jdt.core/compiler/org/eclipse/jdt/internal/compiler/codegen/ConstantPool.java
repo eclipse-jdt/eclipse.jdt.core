@@ -76,6 +76,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] DefaultConstructorSignature = "()V".toCharArray(); //$NON-NLS-1$
 	public static final char[] ClinitSignature = DefaultConstructorSignature;
 	public static final char[] Close = "close".toCharArray(); //$NON-NLS-1$
+	public static final char[] CloseSignature = "()V".toCharArray(); //$NON-NLS-1$
 	public static final char[] DesiredAssertionStatus = "desiredAssertionStatus".toCharArray(); //$NON-NLS-1$
 	public static final char[] DesiredAssertionStatusSignature = "()Z".toCharArray(); //$NON-NLS-1$
 	public static final char[] DoubleConstrSignature = "(D)V".toCharArray(); //$NON-NLS-1$
@@ -256,6 +257,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] HashCodeSignature = "()I".toCharArray(); //$NON-NLS-1$; 
 	public static final char[] Equals = "equals".toCharArray(); //$NON-NLS-1$
 	public static final char[] EqualsSignature = "(Ljava/lang/Object;)Z".toCharArray(); //$NON-NLS-1$; 
+	public static final char[] AddSuppressed = "addSuppressed".toCharArray(); //$NON-NLS-1$;
+	public static final char[] AddSuppressedSignature = "(Ljava/lang/Throwable;)V".toCharArray(); //$NON-NLS-1$
 	/**
 	 * ConstantPool constructor comment.
 	 */
