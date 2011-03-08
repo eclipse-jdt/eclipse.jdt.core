@@ -181,7 +181,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 						catchInfo);
 				this.catchExitInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(catchInfo);
 				this.catchExits[i] =
-					(catchInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
+					(catchInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0;
 				tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());
 			}
 		}
@@ -304,7 +304,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 						catchInfo);
 				this.catchExitInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(catchInfo);
 				this.catchExits[i] =
-					(catchInfo.tagBits & FlowInfo.UNREACHABLE) != 0;
+					(catchInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0;
 				tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());
 			}
 		}

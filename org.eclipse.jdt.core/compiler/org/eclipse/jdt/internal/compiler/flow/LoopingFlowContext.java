@@ -385,8 +385,8 @@ public void recordBreakTo(FlowContext targetContext) {
 }
 
 public void recordContinueFrom(FlowContext innerFlowContext, FlowInfo flowInfo) {
-	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
-		if ((this.initsOnContinue.tagBits & FlowInfo.UNREACHABLE) == 0) {
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0)	{
+		if ((this.initsOnContinue.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0) {
 			this.initsOnContinue = this.initsOnContinue.
 					mergedWith(flowInfo.unconditionalInitsWithoutSideEffect());
 		}
