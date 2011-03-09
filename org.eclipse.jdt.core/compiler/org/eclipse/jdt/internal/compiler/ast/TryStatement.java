@@ -28,7 +28,7 @@ public class TryStatement extends SubRoutineStatement {
 	static final char[] SECRET_RETURN_ADDRESS_NAME = " returnAddress".toCharArray(); //$NON-NLS-1$
 	static final char[] SECRET_ANY_HANDLER_NAME = " anyExceptionHandler".toCharArray(); //$NON-NLS-1$
 	static final char[] SECRET_PRIMARY_EXCEPTION_VARIABLE_NAME = " primaryException".toCharArray(); //$NON-NLS-1$
-	static final char[] SECRET_TEMPORARY_THROWABLE_VARIABLE_NAME = " temporaryThrowable".toCharArray(); //$NON-NLS-1$;
+	static final char[] SECRET_CAUGHT_THROWABLE_VARIABLE_NAME = " caughtThrowable".toCharArray(); //$NON-NLS-1$;
 	static final char[] SECRET_RETURN_VALUE_NAME = " returnValue".toCharArray(); //$NON-NLS-1$
 
 	private static LocalDeclaration [] NO_RESOURCES = new LocalDeclaration[0];
@@ -72,8 +72,8 @@ public class TryStatement extends SubRoutineStatement {
 	int naturalExitMergeInitStateIndex = -1;
 	int[] catchExitInitStateIndexes;
 	private LocalVariableBinding primaryExceptionVariable;
-	private LocalVariableBinding temporaryThrowableVariable;
-	private ExceptionLabel[] resourceBlockLabels;
+	private LocalVariableBinding caughtThrowableVariable;
+	private ExceptionLabel[] resourceExceptionLabels;
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
@@ -93,8 +93,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (this.primaryExceptionVariable != null) {
 		this.primaryExceptionVariable.useFlag = LocalVariableBinding.USED;
 	}
-	if (this.temporaryThrowableVariable != null) {
-		this.temporaryThrowableVariable.useFlag = LocalVariableBinding.USED;
+	if (this.caughtThrowableVariable != null) {
+		this.caughtThrowableVariable.useFlag = LocalVariableBinding.USED;
 	}
 	if (this.returnAddressVariable != null) { // TODO (philippe) if subroutine is escaping, unused
 		this.returnAddressVariable.useFlag = LocalVariableBinding.USED;
@@ -440,16 +440,16 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		this.declaredExceptionLabels = exceptionLabels;
 		int resourceCount = this.resources.length;
 		if (resourceCount > 0) {
-			this.resourceBlockLabels = new ExceptionLabel[resourceCount + 1];
+			this.resourceExceptionLabels = new ExceptionLabel[resourceCount + 1];
 			codeStream.aconst_null();
 			codeStream.store(this.primaryExceptionVariable, false /* value not required */);
 			codeStream.addVariable(this.primaryExceptionVariable);
 			codeStream.aconst_null();
-			codeStream.store(this.temporaryThrowableVariable, false /* value not required */);
-			codeStream.addVariable(this.temporaryThrowableVariable);
+			codeStream.store(this.caughtThrowableVariable, false /* value not required */);
+			codeStream.addVariable(this.caughtThrowableVariable);
 			for (int i = 0; i <= resourceCount; i++) {
-				this.resourceBlockLabels[i] = new ExceptionLabel(codeStream, this.scope.getJavaLangThrowable());
-				this.resourceBlockLabels[i].placeStart();
+				this.resourceExceptionLabels[i] = new ExceptionLabel(codeStream, this.scope.getJavaLangThrowable());
+				this.resourceExceptionLabels[i].placeStart();
 				if (i < resourceCount) {
 					this.resources[i].generateCode(this.scope, codeStream);
 				}
@@ -459,7 +459,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		if (resourceCount > 0) {
 			for (int i = resourceCount; i >= 0; i--) {
 				BranchLabel exitLabel = new BranchLabel(codeStream);
-				this.resourceBlockLabels[i].placeEnd();
+				this.resourceExceptionLabels[i].placeEnd();
 				
 				LocalVariableBinding localVariable = i > 0 ? this.resources[i-1].binding : null;
 				if ((this.bits & ASTNode.IsTryBlockExiting) == 0) {
@@ -472,22 +472,28 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 					codeStream.goto_(exitLabel);
 				}
 				codeStream.pushExceptionOnStack(this.scope.getJavaLangThrowable());
-				this.resourceBlockLabels[i].place();
-				BranchLabel elseLabel = new BranchLabel(codeStream), postElseLabel = new BranchLabel(codeStream);
-				codeStream.store(this.temporaryThrowableVariable, false);
-				codeStream.load(this.primaryExceptionVariable);
-				codeStream.ifnonnull(elseLabel);
-				codeStream.load(this.temporaryThrowableVariable);
-				codeStream.store(this.primaryExceptionVariable, false);
-				codeStream.goto_(postElseLabel);
-				elseLabel.place();
-				codeStream.load(this.primaryExceptionVariable);
-				codeStream.load(this.temporaryThrowableVariable);
-				codeStream.if_acmpeq(postElseLabel);
-				codeStream.load(this.primaryExceptionVariable);
-				codeStream.load(this.temporaryThrowableVariable);
-				codeStream.invokeThrowableAddSuppressed();
-				postElseLabel.place();
+				this.resourceExceptionLabels[i].place();
+				if (i == resourceCount) { 
+					// inner most try's catch/finally can be a lot simpler. 
+					codeStream.store(this.primaryExceptionVariable, false);
+					// fall through, invoke close() and re-throw.
+				} else {
+					BranchLabel elseLabel = new BranchLabel(codeStream), postElseLabel = new BranchLabel(codeStream);
+					codeStream.store(this.caughtThrowableVariable, false);
+					codeStream.load(this.primaryExceptionVariable);
+					codeStream.ifnonnull(elseLabel);
+					codeStream.load(this.caughtThrowableVariable);
+					codeStream.store(this.primaryExceptionVariable, false);
+					codeStream.goto_(postElseLabel);
+					elseLabel.place();
+					codeStream.load(this.primaryExceptionVariable);
+					codeStream.load(this.caughtThrowableVariable);
+					codeStream.if_acmpeq(postElseLabel);
+					codeStream.load(this.primaryExceptionVariable);
+					codeStream.load(this.caughtThrowableVariable);
+					codeStream.invokeThrowableAddSuppressed();
+					postElseLabel.place();
+				}
 				if (i > 0) {
 					// inline resource close here rather than bracketing the current catch block with a try region.
 					BranchLabel postCloseLabel = new BranchLabel(codeStream);
@@ -503,7 +509,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				exitLabel.place();
 			}
 			codeStream.removeVariable(this.primaryExceptionVariable);
-			codeStream.removeVariable(this.temporaryThrowableVariable);
+			codeStream.removeVariable(this.caughtThrowableVariable);
 		}
 	} finally {
 		this.declaredExceptionLabels = null;
@@ -755,6 +761,25 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
  */
 public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream codeStream, Object targetLocation, int stateIndex, LocalVariableBinding secretLocal) {
 
+	int resourceCount = this.resources.length;
+	if (resourceCount > 0) {
+		for (int i = resourceCount; i > 0; --i) {
+			// disarm the handlers and take care of resource closure.
+			this.resourceExceptionLabels[i].placeEnd();
+			LocalVariableBinding localVariable = this.resources[i-1].binding;
+			BranchLabel exitLabel = new BranchLabel(codeStream);
+			codeStream.load(localVariable);
+			codeStream.ifnull(exitLabel);
+			codeStream.load(localVariable);
+			codeStream.invokeAutoCloseableClose(localVariable.type);
+			exitLabel.place();
+		}
+		// restore handlers
+		for (int i = resourceCount; i > 0; --i) {
+			this.resourceExceptionLabels[i].placeStart();
+		}
+	}
+
 	boolean isStackMapFrameCodeStream = codeStream instanceof StackMapFrameCodeStream;
 	int finallyMode = finallyMode();
 	switch(finallyMode) {
@@ -893,10 +918,10 @@ public void resolve(BlockScope upperScope) {
 			new LocalVariableBinding(TryStatement.SECRET_PRIMARY_EXCEPTION_VARIABLE_NAME, this.scope.getJavaLangThrowable(), ClassFileConstants.AccDefault, false);
 		resourceManagementScope.addLocalVariable(this.primaryExceptionVariable);
 		this.primaryExceptionVariable.setConstant(Constant.NotAConstant); // not inlinable
-		this.temporaryThrowableVariable =
-			new LocalVariableBinding(TryStatement.SECRET_TEMPORARY_THROWABLE_VARIABLE_NAME, this.scope.getJavaLangThrowable(), ClassFileConstants.AccDefault, false);
-		resourceManagementScope.addLocalVariable(this.temporaryThrowableVariable);
-		this.temporaryThrowableVariable.setConstant(Constant.NotAConstant); // not inlinable
+		this.caughtThrowableVariable =
+			new LocalVariableBinding(TryStatement.SECRET_CAUGHT_THROWABLE_VARIABLE_NAME, this.scope.getJavaLangThrowable(), ClassFileConstants.AccDefault, false);
+		resourceManagementScope.addLocalVariable(this.caughtThrowableVariable);
+		this.caughtThrowableVariable.setConstant(Constant.NotAConstant); // not inlinable
 	}
 	for (int i = 0; i < resourceCount; i++) {
 		this.resources[i].resolve(resourceManagementScope);
