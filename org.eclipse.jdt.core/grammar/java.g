@@ -1107,15 +1107,15 @@ OnlySynchronized ::= 'synchronized'
 /:$readableName OnlySynchronized:/
 
 TryStatement ::= 'try' TryBlock Catches
-/.$putCase consumeStatementTry(false); $break ./
+/.$putCase consumeStatementTry(false, false); $break ./
 TryStatement ::= 'try' TryBlock Catchesopt Finally
-/.$putCase consumeStatementTry(true); $break ./
+/.$putCase consumeStatementTry(true, false); $break ./
 /:$readableName TryStatement:/
 
 TryStatementWithResources ::= 'try' ResourceSpecification TryBlock Catchesopt
-/.$putCase consumeStatementTryWithResources(false); $break ./
+/.$putCase consumeStatementTry(false, true); $break ./
 TryStatementWithResources ::= 'try' ResourceSpecification TryBlock Catchesopt Finally
-/.$putCase consumeStatementTryWithResources(true); $break ./
+/.$putCase consumeStatementTry(true, true); $break ./
 /:$readableName TryStatementWithResources:/
 /:$compliance 1.7:/
 

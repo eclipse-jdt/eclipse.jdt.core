@@ -5891,19 +5891,19 @@ protected void consumeRule(int act) {
 			break;
  
     case 327 : if (DEBUG) { System.out.println("TryStatement ::= try TryBlock Catches"); }  //$NON-NLS-1$
-		    consumeStatementTry(false);  
+		    consumeStatementTry(false, false);  
 			break;
  
     case 328 : if (DEBUG) { System.out.println("TryStatement ::= try TryBlock Catchesopt Finally"); }  //$NON-NLS-1$
-		    consumeStatementTry(true);  
+		    consumeStatementTry(true, false);  
 			break;
  
     case 329 : if (DEBUG) { System.out.println("TryStatementWithResources ::= try ResourceSpecification"); }  //$NON-NLS-1$
-		    consumeStatementTryWithResources(false);  
+		    consumeStatementTry(false, true);  
 			break;
  
     case 330 : if (DEBUG) { System.out.println("TryStatementWithResources ::= try ResourceSpecification"); }  //$NON-NLS-1$
-		    consumeStatementTryWithResources(true);  
+		    consumeStatementTry(true, true);  
 			break;
  
     case 331 : if (DEBUG) { System.out.println("ResourceSpecification ::= LPAREN Resources ;opt RPAREN"); }  //$NON-NLS-1$
@@ -7382,43 +7382,12 @@ protected void consumeStatementThrow() {
 	this.expressionLengthPtr--;
 	pushOnAstStack(new ThrowStatement(this.expressionStack[this.expressionPtr--], this.intStack[this.intPtr--], this.endStatementPosition));
 }
-protected void consumeStatementTry(boolean withFinally) {
-	//TryStatement ::= 'try'  Block Catches
-	//TryStatement ::= 'try'  Block Catchesopt Finally
-
-	int length;
-	TryStatement tryStmt = new TryStatement();
-	//finally
-	if (withFinally) {
-		this.astLengthPtr--;
-		tryStmt.finallyBlock = (Block) this.astStack[this.astPtr--];
-	}
-	//catches are handle by two <argument-block> [see statementCatch]
-	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		if (length == 1) {
-			tryStmt.catchBlocks = new Block[] {(Block) this.astStack[this.astPtr--]};
-			tryStmt.catchArguments = new Argument[] {(Argument) this.astStack[this.astPtr--]};
-		} else {
-			Block[] bks = (tryStmt.catchBlocks = new Block[length]);
-			Argument[] args = (tryStmt.catchArguments = new Argument[length]);
-			while (length-- > 0) {
-				bks[length] = (Block) this.astStack[this.astPtr--];
-				args[length] = (Argument) this.astStack[this.astPtr--];
-			}
-		}
-	}
-	//try
-	this.astLengthPtr--;
-	tryStmt.tryBlock = (Block) this.astStack[this.astPtr--];
-
-	//positions
-	tryStmt.sourceEnd = this.endStatementPosition;
-	tryStmt.sourceStart = this.intStack[this.intPtr--];
-	pushOnAstStack(tryStmt);
-}
-protected void consumeStatementTryWithResources(boolean withFinally) {
+protected void consumeStatementTry(boolean withFinally, boolean hasResources) {
+	// TryStatement ::= 'try'  Block Catches
+	// TryStatement ::= 'try'  Block Catchesopt Finally
 	// TryStatementWithResources ::= 'try' ResourceSpecification TryBlock Catchesopt
 	// TryStatementWithResources ::= 'try' ResourceSpecification TryBlock Catchesopt Finally
+	
 	int length;
 	TryStatement tryStmt = new TryStatement();
 	//finally
@@ -7444,19 +7413,21 @@ protected void consumeStatementTryWithResources(boolean withFinally) {
 	this.astLengthPtr--;
 	tryStmt.tryBlock = (Block) this.astStack[this.astPtr--];
 
-	// get the resources
-	length = this.astLengthStack[this.astLengthPtr--];
-	LocalDeclaration[] resources = new LocalDeclaration[length];
-	System.arraycopy(
-			this.astStack,
-			(this.astPtr -= length) + 1,
-			resources,
-			0,
-			length);
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
-		problemReporter().autoManagedResourcesNotBelow17(resources);
-	} else {
-		tryStmt.resources = resources;
+	if (hasResources) {
+		// get the resources
+		length = this.astLengthStack[this.astLengthPtr--];
+		LocalDeclaration[] resources = new LocalDeclaration[length];
+		System.arraycopy(
+				this.astStack,
+				(this.astPtr -= length) + 1,
+				resources,
+				0,
+				length);
+		if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
+			problemReporter().autoManagedResourcesNotBelow17(resources);
+		} else {
+			tryStmt.resources = resources;
+		}
 	}
 	//positions
 	tryStmt.sourceEnd = this.endStatementPosition;
