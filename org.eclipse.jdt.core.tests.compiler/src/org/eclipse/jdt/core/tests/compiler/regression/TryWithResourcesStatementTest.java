@@ -972,77 +972,112 @@ public void test026() {
 		"The serializable class ZZException does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
-public void _test027() {
+public void test027() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X implements AutoCloseable {\n" +
-			"	public static void main(String [] args) throws Exception {\n" +
-			"		try (X x = new X(); Y y = new Y()) {\n" +
-			"			System.out.println(\"Body\");\n" +
-			"			throw new Exception(\"Body\");\n" +
-			"		} catch (Exception e) {\n" +
-			"			e.printStackTrace(System.out);\n" +
-			"			Throwable [] suppressed = e.getSuppressed();\n" +
-			"           if (suppressed.length == 0) System.out.println(\"Nothing suppressed\");\n" +
-			"			for (int i = 0; i < suppressed.length; i++) {\n" +
-			"				System.out.println(\"Suppressed:\" + suppressed[i]);\n" +
-			"			}\n" +
-			"		} finally {\n" +
-			"			int finallyVar = 10;\n" +
-			"			System.out.println(finallyVar);\n" +
-			"		}\n" +
-			"	}\n" +
-			"	public X() {\n" +
-			"	    System.out.println(\"X CTOR\");\n" +
-			"	}\n" +
-			"	public void close() throws Exception {\n" +
-			"	    System.out.println(\"X Close\");\n" +
-			"	    throw new Exception(\"X Close\");\n" +
-			"	}\n" +
+			"    public static void main(String [] args) throws Exception {\n" +
+			"        try (X x = new X(); Y y = new Y()) {\n" +
+			"            System.out.println(\"Body\");\n" +
+			"            throw new Exception(\"Body\");\n" +
+			"        } catch (Exception e) {\n" +
+			"            System.out.println(e);\n" +
+			"            Throwable [] suppressed = e.getSuppressed();\n" +
+			"            for (int i = 0; i < suppressed.length; i++) {\n" +
+			"                System.out.println(\"Suppressed:\" + suppressed[i]);\n" +
+			"            }\n" +
+			"        } finally {\n" +
+			"            int finallyVar = 10;\n" +
+			"            System.out.println(finallyVar);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public X() {\n" +
+			"        System.out.println(\"X CTOR\");\n" +
+			"    }\n" +
+			"    public void close() throws Exception {\n" +
+			"        System.out.println(\"X Close\");\n" +
+			"        throw new Exception(\"X Close\");\n" +
+			"    }\n" +
 			"}\n" +
-			"\n" +
 			"class Y implements AutoCloseable {\n" +
-			"	public Y() {\n" +
-			"	    System.out.println(\"Y CTOR\");\n" +
-			"	}\n" +
-			"	public void close() throws Exception {\n" +
-			"	    System.out.println(\"Y Close\");\n" +
-			"	    throw new Exception(\"Y Close\");\n" +
-			"	}\n" +
+			"    public Y() {\n" +
+			"        System.out.println(\"Y CTOR\");\n" +
+			"    }\n" +
+			"    public void close() throws Exception {\n" +
+			"        System.out.println(\"Y Close\");\n" +
+			"        throw new Exception(\"Y Close\");\n" +
+			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 37)\n" + 
-		"	class XException extends Exception {}\n" + 
-		"	      ^^^^^^^^^^\n" + 
-		"The serializable class XException does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 38)\n" + 
-		"	class XXException extends Exception {}\n" + 
-		"	      ^^^^^^^^^^^\n" + 
-		"The serializable class XXException does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 39)\n" + 
-		"	class YException extends Exception {}\n" + 
-		"	      ^^^^^^^^^^\n" + 
-		"The serializable class YException does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 40)\n" + 
-		"	class YYException extends Exception {}\n" + 
-		"	      ^^^^^^^^^^^\n" + 
-		"The serializable class YYException does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 41)\n" + 
-		"	class ZException extends Exception {}\n" + 
-		"	      ^^^^^^^^^^\n" + 
-		"The serializable class ZException does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 42)\n" + 
-		"	class ZZException extends Exception {}\n" + 
-		"	      ^^^^^^^^^^^\n" + 
-		"The serializable class ZZException does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n");
+		"X CTOR\n" + 
+		"Y CTOR\n" + 
+		"Body\n" + 
+		"Y Close\n" + 
+		"X Close\n" + 
+		"java.lang.Exception: Body\n" + 
+		"Suppressed:java.lang.Exception: Y Close\n" + 
+		"Suppressed:java.lang.Exception: X Close\n" + 
+		"10");
+}
+public void test028() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X implements AutoCloseable {\n" +
+			"    public static void main(String [] args) throws Exception {\n" +
+			"        try (X x = new X(); Y y = new Y()) {\n" +
+			"            System.out.println(\"Body\");\n" +
+			"        } catch (Exception e) {\n" +
+			"            e.printStackTrace();\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public X() {\n" +
+			"        System.out.println(\"X CTOR\");\n" +
+			"    }\n" +
+			"    public void close() {\n" +
+			"        System.out.println(\"X DTOR\");\n" +
+			"    }\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"    public Y() {\n" +
+			"        System.out.println(\"Y CTOR\");\n" +
+			"    }\n" +
+			"    public void close() {\n" +
+			"        System.out.println(\"Y DTOR\");\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"X CTOR\n" + 
+		"Y CTOR\n" + 
+		"Body\n" + 
+		"Y DTOR\n" + 
+		"X DTOR");
+}
+public void test029() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.File;\n" +
+			"import java.io.FileReader;\n" +
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"    void foo() {\n" +
+			"        File file = new File(\"somefile\");\n" +
+			"        try(FileReader fileReader = new FileReader(file);) {\n" +
+			"            char[] in = new char[50];\n" +
+			"            fileReader.read(in);\n" +
+			"        } catch (IOException e) {\n" +
+			"            System.out.println(\"Got IO exception\");\n" +
+			"        } finally{\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        new X().foo();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"Got IO exception");
 }
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
