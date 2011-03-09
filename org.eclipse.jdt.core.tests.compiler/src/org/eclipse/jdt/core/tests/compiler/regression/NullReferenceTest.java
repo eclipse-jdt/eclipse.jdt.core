@@ -44,7 +44,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug336428e" };
+//		TESTS_NAMES = new String[] { "testBug339250" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -14440,5 +14440,94 @@ public void testBug326950d() throws Exception {
 		"    14  iinc 2 1 [i]\n" + 
 		"    17  return\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=339250
+// Check code gen
+public void testBug339250() throws Exception {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String s = null;\n" +
+			"		s += \"correctly\";\n" +
+			"		if (s != null) {\n" + 	// s cannot be null
+			"			System.out.println(\"It works \" + s);\n" + 
+			"		}\n" +
+			"	}\n" + 
+			"}",
+		},
+		"It works nullcorrectly",
+		null,
+		true,
+		null,
+		options,
+		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=339250
+// Check that the redundant null check warning is correctly produced
+public void testBug339250a() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String s = null;\n" +
+			"		s += \"correctly\";\n" +
+			"		if (s != null) {\n" + 	// s cannot be null
+			"			System.out.println(\"It works \" + s);\n" + 
+			"		}\n" +
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (s != null) {\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable s cannot be null at this location\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=339250
+// Check that the redundant null check warning is correctly produced
+public void testBug339250b() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		String s = null;\n" +
+			"		s += null;\n" +
+			"		if (s != null) {\n" + 	// s is definitely not null
+			"			System.out.println(\"It works \" + s);\n" + 
+			"	    }\n" + 
+			"		s = null;\n" +
+			"		if (s != null) {\n" + 	// s is definitely null
+			"			System.out.println(\"Fails \" + s);\n" + 
+			"	    } else {\n" + 
+			"			System.out.println(\"Works second time too \" + s);\n" +
+			"       }\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (s != null) {\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable s cannot be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	if (s != null) {\n" + 
+		"	    ^\n" + 
+		"Null comparison always yields false: The variable s can only be null at this location\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 9)\n" + 
+		"	if (s != null) {\n" + 
+		"			System.out.println(\"Fails \" + s);\n" + 
+		"	    } else {\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n");
 }
 }
