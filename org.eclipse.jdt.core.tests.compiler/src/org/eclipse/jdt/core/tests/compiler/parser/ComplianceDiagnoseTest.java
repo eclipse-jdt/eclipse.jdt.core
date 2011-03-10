@@ -2488,7 +2488,7 @@ public void test0054() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (int i = 0) {};\n" + 
 		"	     ^^^\n" + 
-		"The resource type int has to be a subclass of java.lang.AutoCloseable \n" + 
+		"The resource type int has to be a subclass of java.lang.AutoCloseable\n" + 
 		"----------\n";
 	runComplianceParserTest(
 		testFiles,
