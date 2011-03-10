@@ -154,6 +154,28 @@ public void test005() {
 		},
 		"");
 }
+public void test006() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"		} catch(IOException | RuntimeException e) {\n" + 
+			"			e = new IOException();\n" +
+			"		}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	e = new IOException();\n" + 
+		"	^\n" + 
+		"The parameter e of a multi-catch block cannot be assigned\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return TryStatement17Test.class;
 }
