@@ -5248,10 +5248,14 @@ protected void consumeResourceAsLocalVariableDeclaration() {
 protected void consumeResourceSpecification() {
 	// ResourceSpecification ::= '(' Resources ')'
 }
-protected void consumeResourceTrailingSemiColon() {
+protected void consumeResourceOptionalTrailingSemiColon(boolean punctuated) {
 	// TrailingSemiColon ::= ';'
 	LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr];
-	localDeclaration.sourceEnd = localDeclaration.declarationEnd = localDeclaration.declarationSourceEnd = this.endStatementPosition;
+	if (punctuated) {
+		localDeclaration.sourceEnd = localDeclaration.declarationEnd = localDeclaration.declarationSourceEnd = this.endStatementPosition;
+	} else {
+		localDeclaration.sourceEnd = localDeclaration.declarationEnd;  // RHS updated already in consumeExitVariableWithInitialization
+	}
 }
 protected void consumeRestoreDiet() {
 	// RestoreDiet ::= $empty
@@ -5910,8 +5914,12 @@ protected void consumeRule(int act) {
 		    consumeResourceSpecification();  
 			break;
  
+    case 332 : if (DEBUG) { System.out.println(";opt ::="); }  //$NON-NLS-1$
+		    consumeResourceOptionalTrailingSemiColon(false);  
+			break;
+ 
     case 333 : if (DEBUG) { System.out.println(";opt ::= SEMICOLON"); }  //$NON-NLS-1$
-		    consumeResourceTrailingSemiColon();  
+		    consumeResourceOptionalTrailingSemiColon(true);  
 			break;
  
     case 334 : if (DEBUG) { System.out.println("Resources ::= Resource"); }  //$NON-NLS-1$
@@ -5923,7 +5931,7 @@ protected void consumeRule(int act) {
 			break;
  
     case 336 : if (DEBUG) { System.out.println("TrailingSemiColon ::= SEMICOLON"); }  //$NON-NLS-1$
-		    consumeResourceTrailingSemiColon();  
+		    consumeResourceOptionalTrailingSemiColon(true);  
 			break;
  
     case 337 : if (DEBUG) { System.out.println("Resource ::= Type PushModifiers VariableDeclaratorId..."); }  //$NON-NLS-1$

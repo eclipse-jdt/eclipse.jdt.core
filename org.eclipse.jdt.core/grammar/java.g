@@ -1124,9 +1124,10 @@ ResourceSpecification ::= '(' Resources ;opt ')'
 /:$readableName ResourceSpecification:/
 /:$compliance 1.7:/
 
-;opt -> $empty
+;opt ::= $empty
+/.$putCase consumeResourceOptionalTrailingSemiColon(false); $break ./
 ;opt ::= ';'
-/.$putCase consumeResourceTrailingSemiColon(); $break ./
+/.$putCase consumeResourceOptionalTrailingSemiColon(true); $break ./
 /:$readableName ;:/
 /:$compliance 1.7:/
 
@@ -1138,7 +1139,7 @@ Resources ::= Resources TrailingSemiColon Resource
 /:$compliance 1.7:/
 
 TrailingSemiColon ::= ';'
-/.$putCase consumeResourceTrailingSemiColon(); $break ./
+/.$putCase consumeResourceOptionalTrailingSemiColon(true); $break ./
 /:$readableName ;:/
 /:$compliance 1.7:/
 

@@ -603,7 +603,7 @@ public void test020() {
 		"----------\n" + 
 		"3. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
-		"	                                     ^\n" + 
+		"	                                     ^^^^^^^^^^^\n" + 
 		"Unhandled exception type ZZException\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 4)\n" + 
@@ -705,7 +705,7 @@ public void test023() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (Y i = null) {\n" + 
-		"	       ^\n" + 
+		"	       ^^^^^^^^\n" + 
 		"Unhandled exception type Blah\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 9)\n" + 
@@ -855,7 +855,7 @@ public void test025() {
 		"----------\n" + 
 		"3. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
-		"	                                     ^\n" + 
+		"	                                     ^^^^^^^^^^^\n" + 
 		"Unhandled exception type ZZException\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 4)\n" + 
