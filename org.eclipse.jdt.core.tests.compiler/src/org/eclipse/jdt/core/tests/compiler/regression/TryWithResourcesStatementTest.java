@@ -1221,6 +1221,87 @@ public void test030() {  // test return + resources
 		"X::~X\n" + 
 		"X::~X");
 }
+public void test030a() {  // test return + resources + with exceptions being thrown by close()
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X implements AutoCloseable {\n" +
+			"    public static void main(String [] args) throws Exception { \n" +
+			"    	final boolean getOut = true;\n" +
+			"    	System.out.println(\"Main\");\n" +
+			"    	try (X x1 = new X(); X x2 = new X()) {\n" +
+			"            System.out.println(\"Outer Try\");\n" +
+			"            while (true) {\n" +
+			"            	try (Y y1 = new Y(); Y y2 = new Y()) {\n" +
+			"            		System.out.println(\"Middle Try\");\n" +
+			"            		try (Z z1 = new Z(); Z z2 = new Z()) {\n" +
+			"            			System.out.println(\"Inner Try\");\n" +
+			"            			if (getOut) \n" +
+			"            				return;\n" +
+			"            			else\n" +
+			"            				break;\n" +
+			"            		}\n" +
+			"            	}\n" +
+			"            }\n" +
+			"            System.out.println(\"Out of while\");\n" +
+			"        } catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public X() {\n" +
+			"        System.out.println(\"X::X\");\n" +
+			"    }\n" +
+			"    public void close() throws Exception {\n" +
+			"        System.out.println(\"X::~X\");\n" +
+			"        throw new Exception(\"X::~X\");\n" +
+			"    }\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"    public Y() {\n" +
+			"        System.out.println(\"Y::Y\");\n" +
+			"    }\n" +
+			"    public void close() throws Exception {\n" +
+			"        System.out.println(\"Y::~Y\");\n" +
+			"        throw new Exception(\"Y::~Y\");\n" +
+			"    }\n" +
+			"}\n" +
+			"class Z implements AutoCloseable {\n" +
+			"    public Z() {\n" +
+			"        System.out.println(\"Z::Z\");\n" +
+			"    }\n" +
+			"    public void close() throws Exception {\n" +
+			"        System.out.println(\"Z::~Z\");\n" +
+			"        throw new Exception(\"Z::~Z\");\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"X::X\n" + 
+		"X::X\n" + 
+		"Outer Try\n" + 
+		"Y::Y\n" + 
+		"Y::Y\n" + 
+		"Middle Try\n" + 
+		"Z::Z\n" + 
+		"Z::Z\n" + 
+		"Inner Try\n" + 
+		"Z::~Z\n" + 
+		"Z::~Z\n" + 
+		"Y::~Y\n" + 
+		"Y::~Y\n" + 
+		"X::~X\n" + 
+		"X::~X\n" + 
+		"java.lang.Exception: Z::~Z\n" + 
+		"Suppressed: java.lang.Exception: Z::~Z\n" + 
+		"Suppressed: java.lang.Exception: Y::~Y\n" + 
+		"Suppressed: java.lang.Exception: Y::~Y\n" + 
+		"Suppressed: java.lang.Exception: X::~X\n" + 
+		"Suppressed: java.lang.Exception: X::~X");
+}
 public void test031() { // test break + resources
 	this.runConformTest(
 		new String[] {

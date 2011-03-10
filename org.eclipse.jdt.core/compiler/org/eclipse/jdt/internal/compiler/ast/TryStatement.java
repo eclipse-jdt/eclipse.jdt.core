@@ -440,6 +440,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		this.declaredExceptionLabels = exceptionLabels;
 		int resourceCount = this.resources.length;
 		if (resourceCount > 0) {
+			// Please see https://bugs.eclipse.org/bugs/show_bug.cgi?id=338402#c16
 			this.resourceExceptionLabels = new ExceptionLabel[resourceCount + 1];
 			codeStream.aconst_null();
 			codeStream.store(this.primaryExceptionVariable, false /* value not required */);
@@ -451,7 +452,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				this.resourceExceptionLabels[i] = new ExceptionLabel(codeStream, this.scope.getJavaLangThrowable());
 				this.resourceExceptionLabels[i].placeStart();
 				if (i < resourceCount) {
-					this.resources[i].generateCode(this.scope, codeStream);
+					this.resources[i].generateCode(this.scope, codeStream); // Initialize resources ...
 				}
 			}
 		}
@@ -459,17 +460,18 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		if (resourceCount > 0) {
 			for (int i = resourceCount; i >= 0; i--) {
 				BranchLabel exitLabel = new BranchLabel(codeStream);
-				this.resourceExceptionLabels[i].placeEnd();
+				this.resourceExceptionLabels[i].placeEnd(); // outer handler if any is the one that should catch exceptions out of close()
 				
 				LocalVariableBinding localVariable = i > 0 ? this.resources[i-1].binding : null;
 				if ((this.bits & ASTNode.IsTryBlockExiting) == 0) {
+					// inline resource closure
 					if (i > 0) {
 						codeStream.load(localVariable);
 				    	codeStream.ifnull(exitLabel);
 				    	codeStream.load(localVariable);
 				    	codeStream.invokeAutoCloseableClose(localVariable.type);
 				    }
-					codeStream.goto_(exitLabel);
+					codeStream.goto_(exitLabel); // skip over the catch block.
 				}
 				codeStream.pushExceptionOnStack(this.scope.getJavaLangThrowable());
 				this.resourceExceptionLabels[i].place();
@@ -764,7 +766,7 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 	int resourceCount = this.resources.length;
 	if (resourceCount > 0) {
 		for (int i = resourceCount; i > 0; --i) {
-			// disarm the handlers and take care of resource closure.
+			// Disarm the handlers and take care of resource closure.
 			this.resourceExceptionLabels[i].placeEnd();
 			LocalVariableBinding localVariable = this.resources[i-1].binding;
 			BranchLabel exitLabel = new BranchLabel(codeStream);
@@ -774,7 +776,7 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 			codeStream.invokeAutoCloseableClose(localVariable.type);
 			exitLabel.place();
 		}
-		// restore handlers
+		// Reinstall handlers
 		for (int i = resourceCount; i > 0; --i) {
 			this.resourceExceptionLabels[i].placeStart();
 		}
@@ -910,7 +912,7 @@ public void resolve(BlockScope upperScope) {
 	this.scope = new BlockScope(upperScope);
 
 	BlockScope finallyScope = null;
-    BlockScope resourceManagementScope = null;
+    BlockScope resourceManagementScope = null; // Single scope to hold all resources and additional secret variables.
 	int resourceCount = this.resources.length;
 	if (resourceCount > 0) {
 		resourceManagementScope = new BlockScope(this.scope);
@@ -1050,8 +1052,6 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	visitor.endVisit(this, blockScope);
 }
 protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes, boolean containsDisjunctiveTypes) {
-	// Verify that the catch clause are ordered in the right way:
-	// more specialized first.
 	// Verify that the catch clause are ordered in the right way:
 	// more specialized first.
 	if (containsDisjunctiveTypes) {
