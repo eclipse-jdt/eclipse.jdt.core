@@ -28,6 +28,7 @@ public TryWithResourcesStatementTest(String name) {
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_7);
 }
+// Test resource type related errors 
 public void test001() {
 	this.runNegativeTest(
 		new String[] {
@@ -47,6 +48,7 @@ public void test001() {
 		"The resource type int has to be a subclass of java.lang.AutoCloseable \n" + 
 		"----------\n");
 }
+// Test resource type related errors 
 public void test002() {
 	this.runNegativeTest(
 		new String[] {
@@ -66,7 +68,61 @@ public void test002() {
 		"The resource type int[] has to be a subclass of java.lang.AutoCloseable \n" + 
 		"----------\n");
 }
+// Test that resource type could be interface type. 
 public void test003() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X implements AutoCloseable{\n" +
+			"	public void method1(){\n" +
+			"		try (AutoCloseable a = new X()) {\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X implements AutoCloseable{\n" + 
+		"	             ^\n" + 
+		"The type X must implement the inherited abstract method AutoCloseable.close()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	try (AutoCloseable a = new X()) {\n" + 
+		"	                   ^^^^^^^^^^^\n" + 
+		"Unhandled exception type Exception\n" + 
+		"----------\n");
+}
+// Type resource type related errors 
+public void test003a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void method1(){\n" +
+			"		try (Y y = new Y()) { \n" +
+			"			System.out.println();\n" +
+			"		} catch (Exception e) {\n" +
+			"		} finally {\n" +
+			"           Zork z;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements Managed {\n" +
+			"    public void close () throws Exception {\n" +
+			"    }\n" +
+			"}\n" +
+			"interface Managed extends AutoCloseable {}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+// Scope, visibility related tests.
+public void test004() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -93,7 +149,8 @@ public void test003() {
 		"Duplicate local variable i\n" + 
 		"----------\n");
 }
-public void test004() {
+//Scope, visibility related tests.
+public void test004a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -187,6 +244,7 @@ public void test007() {
 		"The resource r of a try-with-resources statement cannot be assigned\n" + 
 		"----------\n");
 }
+// resource type tests
 public void test008() {
 	this.runNegativeTest(
 		new String[] {
@@ -209,6 +267,7 @@ public void test008() {
 		"The resource type Y[] has to be a subclass of java.lang.AutoCloseable \n" + 
 		"----------\n");
 }
+// Resource Type tests
 public void test009() {
 	this.runNegativeTest(
 		new String[] {
@@ -231,6 +290,7 @@ public void test009() {
 		"The resource type Y[] has to be a subclass of java.lang.AutoCloseable \n" + 
 		"----------\n");
 }
+// Scope, visibility tests
 public void test010() {
 	this.runNegativeTest(
 		new String[] {
@@ -264,6 +324,7 @@ public void test010() {
 		"Duplicate local variable k\n" + 
 		"----------\n");
 }
+// Scope, visibility tests
 public void test011() {
 	this.runNegativeTest(
 		new String[] {
@@ -295,8 +356,10 @@ public void test011() {
 		"	System.out.println(p);\n" + 
 		"	                   ^\n" + 
 		"p cannot be resolved to a variable\n" + 
-		"----------\n");
+		"---" +
+		"-------\n");
 }
+// Scope, visibility related tests.
 public void test012() {
 	this.runNegativeTest(
 		new String[] {
@@ -338,6 +401,7 @@ public void test012() {
 		"p cannot be resolved to a variable\n" + 
 		"----------\n");
 }
+// Shadowing behavior tests
 public void test013() {
 	this.runNegativeTest(
 		new String[] {
@@ -382,6 +446,7 @@ public void test013() {
 		"y cannot be resolved to a variable\n" + 
 		"----------\n");
 }
+// Test for unhandled exceptions
 public void test014() {
 	this.runNegativeTest(
 		new String[] {
@@ -431,6 +496,7 @@ public void test014() {
 		"The serializable class WeirdException does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
+// Resource nullness tests
 public void test015() {
 	this.runNegativeTest(
 		new String[] {
@@ -455,6 +521,7 @@ public void test015() {
 		"Dead code\n" + 
 		"----------\n");
 }
+// Dead code tests, resource nullness, unhandled exception tests
 public void test016() {
 	this.runNegativeTest(
 		new String[] {
@@ -502,6 +569,7 @@ public void test016() {
 		"The serializable class WeirdException does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
+// Dead code tests
 public void test017() {
 	this.runNegativeTest(
 		new String[] {
@@ -527,6 +595,7 @@ public void test017() {
 		"Dead code\n" + 
 		"----------\n");
 }
+// Syntax error tests
 public void test018() {
 	this.runNegativeTest(
 		new String[] {
@@ -546,6 +615,7 @@ public void test018() {
 		"Syntax error on token \"(\", Resources expected after this token\n" + 
 		"----------\n");
 }
+// Unhandled exception tests
 public void test020() {
 	this.runNegativeTest(
 		new String[] {
@@ -642,6 +712,7 @@ public void test020() {
 		"The serializable class ZZException does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
+// Resource type test
 public void test021() {
 	this.runNegativeTest(
 		new String[] {
@@ -664,6 +735,7 @@ public void test021() {
 		"The resource type Y has to be a subclass of java.lang.AutoCloseable \n" + 
 		"----------\n");
 }
+// Interface method return type compatibility test
 public void test022() {
 	this.runNegativeTest(
 		new String[] {
@@ -686,6 +758,7 @@ public void test022() {
 		"The return type is incompatible with AutoCloseable.close()\n" + 
 		"----------\n");
 }
+// Exception handling, compatibility tests
 public void test023() {
 	this.runNegativeTest(
 		new String[] {
@@ -719,6 +792,7 @@ public void test023() {
 		"The serializable class Blah does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
+// Exception handling tests
 public void test024() {
 	this.runNegativeTest(
 		new String[] {
@@ -798,6 +872,7 @@ public void test024() {
 		"The serializable class ZZException does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
+// Unhandled exception tests
 public void test025() {
 	this.runNegativeTest(
 		new String[] {
@@ -1054,6 +1129,7 @@ public void test028() {
 		"Y DTOR\n" + 
 		"X DTOR");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338881
 public void test029() {
 	this.runConformTest(
 		new String[] {
@@ -1285,6 +1361,50 @@ public void test032() { // test continue + resources
 		"Out of while\n" + 
 		"X::~X\n" + 
 		"X::~X\n" + 
+		"Outer Finally");
+}
+public void test033() { // test null resources
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X implements AutoCloseable {\n" +
+			"    public static void main(String [] args) throws Exception { \n" +
+			"    	final boolean getOut = false;\n" +
+			"    	System.out.println(\"Main\");\n" +
+			"    	try (X x1 = null; Y y = new Y(); Z z = null) {\n" +
+			"            System.out.println(\"Body\");\n" +
+			"        } finally {\n" +
+			"            System.out.println(\"Outer Finally\");\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public X() {\n" +
+			"        System.out.println(\"X::X\");\n" +
+			"    }\n" +
+			"    public void close() throws Exception {\n" +
+			"        System.out.println(\"X::~X\");\n" +
+			"    }\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"    public Y() {\n" +
+			"        System.out.println(\"Y::Y\");\n" +
+			"    }\n" +
+			"    public void close() throws Exception {\n" +
+			"        System.out.println(\"Y::~Y\");\n" +
+			"    }\n" +
+			"}\n" +
+			"class Z implements AutoCloseable {\n" +
+			"    public Z() {\n" +
+			"        System.out.println(\"Z::Z\");\n" +
+			"    }\n" +
+			"    public void close() throws Exception {\n" +
+			"        System.out.println(\"Z::~Z\");\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"Y::Y\n" + 
+		"Body\n" + 
+		"Y::~Y\n" + 
 		"Outer Finally");
 }
 public static Class testClass() {
