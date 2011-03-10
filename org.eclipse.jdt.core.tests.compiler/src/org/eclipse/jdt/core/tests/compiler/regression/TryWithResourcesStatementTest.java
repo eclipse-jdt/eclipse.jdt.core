@@ -1407,6 +1407,1629 @@ public void test033() { // test null resources
 		"Y::~Y\n" + 
 		"Outer Finally");
 }
+public void test034() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"					throw new Exception(\"Body\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"		throw new Exception (\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"		throw new Exception (\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		throw new Exception (\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"		throw new Exception (\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"		throw new Exception (\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"		throw new Exception (\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"		throw new Exception (\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"		throw new Exception (\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"		throw new Exception (\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"		throw new Exception (\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"		throw new Exception (\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"java.lang.Exception: A::A\n" + 
+		"All done");
+}
+public void test035() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"					throw new Exception(\"Body\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"		throw new Exception (\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		throw new Exception (\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"		throw new Exception (\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"		throw new Exception (\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"		throw new Exception (\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"		throw new Exception (\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"		throw new Exception (\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"		throw new Exception (\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"		throw new Exception (\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"		throw new Exception (\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"A::~A\n" + 
+		"java.lang.Exception: B::B\n" + 
+		"Suppressed: java.lang.Exception: A::~A\n" + 
+		"All done");
+}
+public void test036() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"					throw new Exception(\"Body\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		throw new Exception (\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"		throw new Exception (\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"		throw new Exception (\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"		throw new Exception (\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"		throw new Exception (\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"		throw new Exception (\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"		throw new Exception (\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"		throw new Exception (\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"		throw new Exception (\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"Outer try\n" + 
+		"C::C\n" + 
+		"B::~B\n" + 
+		"A::~A\n" + 
+		"java.lang.Exception: C::C\n" + 
+		"Suppressed: java.lang.Exception: B::~B\n" + 
+		"Suppressed: java.lang.Exception: A::~A\n" + 
+		"All done");
+}
+public void test037() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"					throw new Exception(\"Body\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		throw new Exception (\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"		throw new Exception (\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"		throw new Exception (\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"		throw new Exception (\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"		throw new Exception (\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"		throw new Exception (\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"		throw new Exception (\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"		throw new Exception (\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"Outer try\n" + 
+		"C::C\n" + 
+		"D::D\n" + 
+		"C::~C\n" + 
+		"B::~B\n" + 
+		"A::~A\n" + 
+		"java.lang.Exception: D::D\n" + 
+		"Suppressed: java.lang.Exception: C::~C\n" + 
+		"Suppressed: java.lang.Exception: B::~B\n" + 
+		"Suppressed: java.lang.Exception: A::~A\n" + 
+		"All done");
+}
+public void test038() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"					throw new Exception(\"Body\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		throw new Exception (\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"		throw new Exception (\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"		throw new Exception (\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"		throw new Exception (\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"		throw new Exception (\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"		throw new Exception (\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"		throw new Exception (\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"Outer try\n" + 
+		"C::C\n" + 
+		"D::D\n" + 
+		"Middle try\n" + 
+		"E::E\n" + 
+		"D::~D\n" + 
+		"C::~C\n" + 
+		"B::~B\n" + 
+		"A::~A\n" + 
+		"java.lang.Exception: E::E\n" + 
+		"Suppressed: java.lang.Exception: D::~D\n" + 
+		"Suppressed: java.lang.Exception: C::~C\n" + 
+		"Suppressed: java.lang.Exception: B::~B\n" + 
+		"Suppressed: java.lang.Exception: A::~A\n" + 
+		"All done");
+}
+public void test039() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"					throw new Exception(\"Body\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		throw new Exception (\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"		throw new Exception (\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"		throw new Exception (\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"		throw new Exception (\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"		throw new Exception (\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"		throw new Exception (\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"Outer try\n" + 
+		"C::C\n" + 
+		"D::D\n" + 
+		"Middle try\n" + 
+		"E::E\n" + 
+		"F::F\n" + 
+		"E::~E\n" + 
+		"D::~D\n" + 
+		"C::~C\n" + 
+		"B::~B\n" + 
+		"A::~A\n" + 
+		"java.lang.Exception: F::F\n" + 
+		"Suppressed: java.lang.Exception: E::~E\n" + 
+		"Suppressed: java.lang.Exception: D::~D\n" + 
+		"Suppressed: java.lang.Exception: C::~C\n" + 
+		"Suppressed: java.lang.Exception: B::~B\n" + 
+		"Suppressed: java.lang.Exception: A::~A\n" + 
+		"All done");
+}
+public void test040() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"					throw new Exception(\"Body\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		throw new Exception (\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"		throw new Exception (\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"		throw new Exception (\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"		throw new Exception (\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"		throw new Exception (\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"Outer try\n" + 
+		"C::C\n" + 
+		"D::D\n" + 
+		"Middle try\n" + 
+		"E::E\n" + 
+		"F::F\n" + 
+		"Inner try\n" + 
+		"F::~F\n" + 
+		"E::~E\n" + 
+		"D::~D\n" + 
+		"C::~C\n" + 
+		"B::~B\n" + 
+		"A::~A\n" + 
+		"java.lang.Exception: Body\n" + 
+		"Suppressed: java.lang.Exception: F::~F\n" + 
+		"Suppressed: java.lang.Exception: E::~E\n" + 
+		"Suppressed: java.lang.Exception: D::~D\n" + 
+		"Suppressed: java.lang.Exception: C::~C\n" + 
+		"Suppressed: java.lang.Exception: B::~B\n" + 
+		"Suppressed: java.lang.Exception: A::~A\n" + 
+		"All done");
+}
+public void test041() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		throw new Exception (\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"		throw new Exception (\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"		throw new Exception (\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"		throw new Exception (\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"		throw new Exception (\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"Outer try\n" + 
+		"C::C\n" + 
+		"D::D\n" + 
+		"Middle try\n" + 
+		"E::E\n" + 
+		"F::F\n" + 
+		"Inner try\n" + 
+		"F::~F\n" + 
+		"E::~E\n" + 
+		"D::~D\n" + 
+		"C::~C\n" + 
+		"B::~B\n" + 
+		"A::~A\n" + 
+		"java.lang.Exception: F::~F\n" + 
+		"Suppressed: java.lang.Exception: E::~E\n" + 
+		"Suppressed: java.lang.Exception: D::~D\n" + 
+		"Suppressed: java.lang.Exception: C::~C\n" + 
+		"Suppressed: java.lang.Exception: B::~B\n" + 
+		"Suppressed: java.lang.Exception: A::~A\n" + 
+		"All done");
+}
+public void test042() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		throw new Exception (\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"		throw new Exception (\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"		throw new Exception (\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"		throw new Exception (\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"Outer try\n" + 
+		"C::C\n" + 
+		"D::D\n" + 
+		"Middle try\n" + 
+		"E::E\n" + 
+		"F::F\n" + 
+		"Inner try\n" + 
+		"F::~F\n" + 
+		"E::~E\n" + 
+		"D::~D\n" + 
+		"C::~C\n" + 
+		"B::~B\n" + 
+		"A::~A\n" + 
+		"java.lang.Exception: E::~E\n" + 
+		"Suppressed: java.lang.Exception: D::~D\n" + 
+		"Suppressed: java.lang.Exception: C::~C\n" + 
+		"Suppressed: java.lang.Exception: B::~B\n" + 
+		"Suppressed: java.lang.Exception: A::~A\n" + 
+		"All done");
+}
+public void test043() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		throw new Exception (\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"		throw new Exception (\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"		throw new Exception (\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"Outer try\n" + 
+		"C::C\n" + 
+		"D::D\n" + 
+		"Middle try\n" + 
+		"E::E\n" + 
+		"F::F\n" + 
+		"Inner try\n" + 
+		"F::~F\n" + 
+		"E::~E\n" + 
+		"D::~D\n" + 
+		"C::~C\n" + 
+		"B::~B\n" + 
+		"A::~A\n" + 
+		"java.lang.Exception: D::~D\n" + 
+		"Suppressed: java.lang.Exception: C::~C\n" + 
+		"Suppressed: java.lang.Exception: B::~B\n" + 
+		"Suppressed: java.lang.Exception: A::~A\n" + 
+		"All done");
+}
+public void test044() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		throw new Exception (\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"		throw new Exception (\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"Outer try\n" + 
+		"C::C\n" + 
+		"D::D\n" + 
+		"Middle try\n" + 
+		"E::E\n" + 
+		"F::F\n" + 
+		"Inner try\n" + 
+		"F::~F\n" + 
+		"E::~E\n" + 
+		"D::~D\n" + 
+		"C::~C\n" + 
+		"B::~B\n" + 
+		"A::~A\n" + 
+		"java.lang.Exception: C::~C\n" + 
+		"Suppressed: java.lang.Exception: B::~B\n" + 
+		"Suppressed: java.lang.Exception: A::~A\n" + 
+		"All done");
+}
+public void test045() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		throw new Exception (\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"Outer try\n" + 
+		"C::C\n" + 
+		"D::D\n" + 
+		"Middle try\n" + 
+		"E::E\n" + 
+		"F::F\n" + 
+		"Inner try\n" + 
+		"F::~F\n" + 
+		"E::~E\n" + 
+		"D::~D\n" + 
+		"C::~C\n" + 
+		"B::~B\n" + 
+		"A::~A\n" + 
+		"java.lang.Exception: B::~B\n" + 
+		"Suppressed: java.lang.Exception: A::~A\n" + 
+		"All done");
+}
+public void test046() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		throw new Exception (\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"Outer try\n" + 
+		"C::C\n" + 
+		"D::D\n" + 
+		"Middle try\n" + 
+		"E::E\n" + 
+		"F::F\n" + 
+		"Inner try\n" + 
+		"F::~F\n" + 
+		"E::~E\n" + 
+		"D::~D\n" + 
+		"C::~C\n" + 
+		"B::~B\n" + 
+		"A::~A\n" + 
+		"java.lang.Exception: A::~A\n" + 
+		"All done");
+}
+public void test047() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A(); B b = new B()) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"			try (C c = new C(); D d = new D();) {\n" +
+			"				System.out.println(\"Middle try\");\n" +
+			"				try (E e = new E(); F f = new F()) {\n" +
+			"					System.out.println(\"Inner try\");\n" +
+			"				} \n" +
+			"			}\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class D implements AutoCloseable {\n" +
+			"	public D () throws Exception {\n" +
+			"		System.out.println(\"D::D\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"D::~D\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class E implements AutoCloseable {\n" +
+			"	public E () throws Exception {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class F implements AutoCloseable {\n" +
+			"	public F () throws Exception {\n" +
+			"		System.out.println(\"F::F\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"F::~F\");\n" +
+			"	}\n" +
+			"}\n" +
+			"class G implements AutoCloseable {\n" +
+			"	public G () throws Exception {\n" +
+			"		System.out.println(\"G::G\");\n" +
+			"		throw new Exception (\"G::G\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"G::~G\");\n" +
+			"		throw new Exception (\"G::~G\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"B::B\n" + 
+		"Outer try\n" + 
+		"C::C\n" + 
+		"D::D\n" + 
+		"Middle try\n" + 
+		"E::E\n" + 
+		"F::F\n" + 
+		"Inner try\n" + 
+		"F::~F\n" + 
+		"E::~E\n" + 
+		"D::~D\n" + 
+		"C::~C\n" + 
+		"B::~B\n" + 
+		"A::~A\n" + 
+		"All done");
+}
+public void test048() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (A a = new A()) {\n" +
+			"			System.out.println(\"X::Try\");\n" +
+			"			throw new Exception(\"X::Main\");\n" +
+			"		} catch (Exception e) {\n" +
+			"				System.out.println(e);\n" +
+			"				Throwable suppressed [] = e.getSuppressed();\n" +
+			"				for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"					System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"				}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class A implements AutoCloseable {\n" +
+			"	public A () throws Exception {\n" +
+			"		System.out.println(\"A::A\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"A::~A\");\n" +
+			"		try (B b = new B()) {\n" +
+			"			System.out.println(\"A::~A::Try\");\n" +
+			"			throw new Exception(\"A::~A\");\n" +
+			"		} catch (Exception e) {\n" +
+			"				System.out.println(e);\n" +
+			"				Throwable suppressed [] = e.getSuppressed();\n" +
+			"				for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"					System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"				}\n" +
+			"				throw e;\n" +
+			"		} 	\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class B implements AutoCloseable {\n" +
+			"	public B () throws Exception {\n" +
+			"		System.out.println(\"B::B\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"B::~B\");\n" +
+			"		try (C c = new C()) {\n" +
+			"			System.out.println(\"B::~B::Try\");\n" +
+			"			throw new Exception (\"B::~B\");\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"			throw e;\n" +
+			"	} 	\n" +
+			"	}\n" +
+			"}\n" +
+			"class C implements AutoCloseable {\n" +
+			"	public C () throws Exception {\n" +
+			"		System.out.println(\"C::C\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"C::~C\");\n" +
+			"		throw new Exception (\"C::~C\");\n" +
+			"	} \n" +
+			"}\n"
+		},
+		"Main\n" + 
+		"A::A\n" + 
+		"X::Try\n" + 
+		"A::~A\n" + 
+		"B::B\n" + 
+		"A::~A::Try\n" + 
+		"B::~B\n" + 
+		"C::C\n" + 
+		"B::~B::Try\n" + 
+		"C::~C\n" + 
+		"java.lang.Exception: B::~B\n" + 
+		"Suppressed: java.lang.Exception: C::~C\n" + 
+		"java.lang.Exception: A::~A\n" + 
+		"Suppressed: java.lang.Exception: B::~B\n" + 
+		"java.lang.Exception: X::Main\n" + 
+		"Suppressed: java.lang.Exception: A::~A\n" + 
+		"All done");
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }
