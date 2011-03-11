@@ -46,7 +46,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	if (this.resolvedType.id == T_JavaLangString) {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=339250
 		LocalVariableBinding local = this.lhs.localVariableBinding();
-		if (local != null && this.resolvedType.id == T_JavaLangString) {
+		if (local != null) {
 			// compound assignment results in a definitely non null value for String
 			flowInfo.markAsDefinitelyNonNull(local);
 			if (flowContext.initsOnFinally != null)
