@@ -38,7 +38,8 @@ public static Class[] getAllTestClasses() {
 		ASTConverterRecoveryTest.class,
 		ASTConverterAST4Test.class,
 		ASTConverterTestAST4_2.class,
-		ASTConverterBugsTestJLS4.class
+		ASTConverterBugsTestJLS4.class,
+		ASTConverter15JLS4Test.class,
 	};
 }
 public static Test suite() {
