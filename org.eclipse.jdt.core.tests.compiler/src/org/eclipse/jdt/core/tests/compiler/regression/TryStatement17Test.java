@@ -18,7 +18,7 @@ import junit.framework.Test;
 public class TryStatement17Test extends AbstractRegressionTest {
 
 static {
-	TESTS_NAMES = new String[] { "test012" };
+//	TESTS_NAMES = new String[] { "test012" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
