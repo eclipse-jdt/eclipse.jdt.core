@@ -14,12 +14,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.Test;
 public class TryWithResourcesStatementTest extends AbstractRegressionTest {
 
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
+	TESTS_NUMBERS = new int[] { 49 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public TryWithResourcesStatementTest(String name) {
@@ -3110,6 +3114,44 @@ public void test048() {
 		"java.lang.Exception: X::Main\n" + 
 		"Suppressed: java.lang.Exception: A::~A\n" + 
 		"All done");
+}
+//ensure that it doesn't completely fail when using TWR and 1.5 mode
+public void test049() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.File;\n" +
+			"import java.io.FileReader;\n" +
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"    void foo() {\n" +
+			"        File file = new File(\"somefile\");\n" +
+			"        try(FileReader fileReader = new FileReader(file);) {\n" +
+			"            char[] in = new char[50];\n" +
+			"            fileReader.read(in);\n" +
+			"        } catch (IOException e) {\n" +
+			"            System.out.println(\"Got IO exception\");\n" +
+			"        } finally{\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        new X().foo();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	try(FileReader fileReader = new FileReader(file);) {\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource specification not allowed here for source level below 1.7\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
 }
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;

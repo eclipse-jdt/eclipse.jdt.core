@@ -342,6 +342,11 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		return buildAST(newContents, cu, reportErrors, false/*no statement recovery*/, false);
 	}
 
+	protected ASTNode buildAST(int JLSLevel, String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
+		ASTNode[] nodes = buildASTs(JLSLevel, newContents, cu, reportErrors, enableStatementRecovery, bindingRecovery);
+		if (nodes.length == 0) return null;
+		return nodes[0];
+	}
 	protected ASTNode buildAST(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
 		ASTNode[] nodes = buildASTs(newContents, cu, reportErrors, enableStatementRecovery, bindingRecovery);
 		if (nodes.length == 0) return null;
@@ -413,8 +418,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
 		return buildASTs(newContents, cu, reportErrors, false, false);
 	}
-
-	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
+	protected ASTNode[] buildASTs(int JLSLevel, String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
 		MarkerInfo markerInfo;
 		if (newContents == null) {
 			markerInfo = new MarkerInfo(cu.getSource());
@@ -424,12 +428,6 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		newContents = markerInfo.source;
 
 		CompilationUnit unit;
-		String option = cu.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
-		long jdkLevel = CompilerOptions.versionToJdkLevel(option);
-		int JLSLevel = AST.JLS3;
-		if (jdkLevel >= ClassFileConstants.JDK1_7) {
-			JLSLevel = AST.JLS4;
-		}
 		if (cu.isWorkingCopy()) {
 			cu.getBuffer().setContents(newContents);
 			int flags = 0;
@@ -463,6 +461,21 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		if (nodes.length == 0)
 			return new ASTNode[] {unit};
 		return nodes;
+	}
+	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
+		String option = cu.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
+		long jdkLevel = CompilerOptions.versionToJdkLevel(option);
+		int JLSLevel = AST.JLS3;
+		if (jdkLevel >= ClassFileConstants.JDK1_7) {
+			JLSLevel = AST.JLS4;
+		}
+		return buildASTs(
+				JLSLevel,
+				newContents,
+				cu,
+				reportErrors,
+				enableStatementRecovery,
+				bindingRecovery);
 	}
 
 	protected ASTResult buildMarkedAST(

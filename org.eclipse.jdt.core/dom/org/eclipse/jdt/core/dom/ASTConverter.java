@@ -2445,7 +2445,10 @@ class ASTConverter {
 				switch(this.ast.apiLevel) {
 					case AST.JLS2_INTERNAL :
 					case AST.JLS3 :
-						return createFakeEmptyStatement(statement);
+						// convert it to a simple try statement tagged as MALFORMED
+						Statement statement2 = convert(stmt);
+						statement2.setFlags(statement2.getFlags() | ASTNode.MALFORMED);
+						return statement2;
 				}
 				return convert(stmt, true);
 			} else {
@@ -3345,29 +3348,33 @@ class ASTConverter {
 				type = simpleType;
 				type.setSourceRange(sourceStart, length);
 			} else {
-				// recovery
-				// FIXME
-/*				switch(this.ast.apiLevel) {
-					case AST.JLS2_INTERNAL :
-						break;
-					case AST.JLS3 :
-						// FIXME
-						break;
-				}*/
-				// disjunctive type reference
 				TypeReference[] typeReferences = ((org.eclipse.jdt.internal.compiler.ast.DisjunctiveTypeReference) typeReference).typeReferences;
-				final DisjunctiveType disjunctiveType = new DisjunctiveType(this.ast);
-				for (int i = 0, max = typeReferences.length; i < max; i++) {
-					disjunctiveType.types().add(this.convertType(typeReferences[i]));
+				switch(this.ast.apiLevel) {
+					case AST.JLS2_INTERNAL :
+					case AST.JLS3 :
+						// recovery
+						type = this.convertType(typeReferences[0]);
+						int start = typeReference.sourceStart;
+						int endPosition = typeReference.sourceEnd;
+						length = endPosition - start + 1;
+						type.setSourceRange(start, length);
+						type.setFlags(type.getFlags() | ASTNode.MALFORMED);
+						break;
+					default:
+						// disjunctive type reference
+						final DisjunctiveType disjunctiveType = new DisjunctiveType(this.ast);
+						for (int i = 0, max = typeReferences.length; i < max; i++) {
+							disjunctiveType.types().add(this.convertType(typeReferences[i]));
+						}
+						type = disjunctiveType;
+						List types = disjunctiveType.types();
+						int size = types.size();
+						start = ((Type) types.get(0)).getStartPosition();
+						Type lastType = (Type) types.get(size - 1);
+						endPosition = lastType.getStartPosition() + lastType.getLength();
+						length = endPosition - start; /* + 1 - 1 == 0 */
+						type.setSourceRange(start, length);
 				}
-				type = disjunctiveType;
-				List types = disjunctiveType.types();
-				int size = types.size();
-				int start = ((Type) types.get(0)).getStartPosition();
-				Type lastType = (Type) types.get(size - 1);
-				int endPosition = lastType.getStartPosition() + lastType.getLength();
-				length = endPosition - start; /* + 1 - 1 == 0 */
-				type.setSourceRange(start, length);
 			}
 
 			length = typeReference.sourceEnd - sourceStart + 1;
@@ -3394,6 +3401,13 @@ class ASTConverter {
 		}
 		if (this.resolveBindings) {
 			this.recordNodes(type, typeReference);
+		}
+		if ((typeReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsDiamond) != 0) {
+			switch(this.ast.apiLevel) {
+				case AST.JLS2_INTERNAL :
+				case AST.JLS3 :
+					type.setFlags(type.getFlags() | ASTNode.MALFORMED);
+			}
 		}
 		return type;
 	}
@@ -3796,7 +3810,6 @@ class ASTConverter {
 						if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
 							typeRef = (org.eclipse.jdt.internal.compiler.ast.TypeReference) expression;
 						}
-						// TODO (frederic) remove following line to fix bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=62650
 						recordNodes(name, compilerNode);
 					}
 					// record name and qualifier

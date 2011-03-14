@@ -7431,10 +7431,9 @@ protected void consumeStatementTry(boolean withFinally, boolean hasResources) {
 				resources,
 				0,
 				length);
+		tryStmt.resources = resources;
 		if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
 			problemReporter().autoManagedResourcesNotBelow17(resources);
-		} else {
-			tryStmt.resources = resources;
 		}
 	}
 	//positions

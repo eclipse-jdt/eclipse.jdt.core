@@ -125,8 +125,8 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_RANGE = new int[] { 713, -1 };
-//		TESTS_NUMBERS =  new int[] { 504, 505, 512, 720 };
+//		TESTS_RANGE = new int[] { 721, -1 };
+//		TESTS_NUMBERS =  new int[] { 721, 722, 723, 724, 725 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST4_2.class);
@@ -10578,5 +10578,71 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 		MethodDeclaration declaration = (MethodDeclaration) node;
 		assertTrue("A constructor", !declaration.isConstructor());
 		checkSourceRange(declaration, "public void method(final int parameter) {     }", source, true/*expectMalformed*/);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=339864
+	 */
+	public void test0721() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		File file = new File(args[0]);\n" + 
+				"		/*start*/try {\n" + 
+				"			FileInputStream fis = new FileInputStream(file);\n" + 
+				"			fis.read();\n" + 
+				"		} catch (FileNotFoundException | IOException e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}/*end*/\n" + 
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			TryStatement statement = (TryStatement) buildAST(
+				AST.JLS3,
+				contents,
+				workingCopy,
+				false,
+				true,
+				true);
+			CatchClause catchClause = (CatchClause) statement.catchClauses().get(0);
+			assertTrue("Should be malformed", isMalformed(catchClause.getException().getType()));
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=339864
+	 */
+	public void test0722() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		File file = new File(args[0]);\n" + 
+				"		/*start*/try (FileInputStream fis = new FileInputStream(file);) {\n" + 
+				"			fis.read();\n" + 
+				"		} catch (IOException e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}/*end*/\n" + 
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			TryStatement statement = (TryStatement) buildAST(
+				AST.JLS3,
+				contents,
+				workingCopy,
+				false,
+				true,
+				true);
+			assertTrue("Should be malformed", isMalformed(statement));
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
 	}
 }

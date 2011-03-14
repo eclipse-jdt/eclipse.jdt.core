@@ -47,7 +47,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 348 };
+//		TESTS_NUMBERS = new int[] { 349 };
 //		TESTS_RANGE = new int[] { 325, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -11261,5 +11261,29 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		assertBindingKeyEquals(
 				"Lp/X$;",	// should not be Lp/X$~X$;
 			binding.getKey());
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=339864
+	 */
+	public void test0349() throws JavaModelException {
+		String contents =
+			"import java.util.*;\n" +
+			"public class X {\n" + 
+			"	public static Object foo() {\n" + 
+			"		List<String> l = new ArrayList<>();\n" +
+			"		return l;\n" +
+			"	}\n" + 
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		CompilationUnit unit = (CompilationUnit) buildAST(
+			AST.JLS3,
+			contents,
+			this.workingCopy,
+			false,
+			true,
+			true);
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) getASTNode(unit, 0, 0, 0);
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) ((VariableDeclarationFragment) statement.fragments().get(0)).getInitializer();
+		assertTrue("Should be malformed", isMalformed(classInstanceCreation.getType()));
 	}
 }
