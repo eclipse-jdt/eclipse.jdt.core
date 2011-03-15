@@ -751,11 +751,14 @@ public interface ITypeBinding extends IBinding {
 	 * <p>
 	 * A local class is any nested class or enum type not declared as a member
 	 * of another class or interface. A local class is a subspecies of nested
-	 * type, and mutually exclusive with member types. Note that anonymous
-	 * classes are a subspecies of local classes.
+	 * type, and mutually exclusive with member types. For anonymous
+	 * classes, which are considered a subspecies of local classes, this method
+	 * returns true. 
 	 * </p>
 	 * <p>
-	 * Also note that interfaces and annotation types cannot be local.
+	 * Note: This deviates from JLS3 14.3, which states that anonymous types are 
+	 * not local types since they do not have a name. Also note that interfaces 
+	 * and annotation types cannot be local.
 	 * </p>
 	 *
 	 * @return <code>true</code> if this type binding is for a local class or
