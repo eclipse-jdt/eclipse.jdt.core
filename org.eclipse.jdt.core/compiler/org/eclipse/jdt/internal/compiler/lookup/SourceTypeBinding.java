@@ -1395,7 +1395,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				method.tagBits |= TagBits.HasParameterAnnotations;
 			}
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817
-			boolean deferRawTypeCheck = !reportUnavoidableGenericTypeProblems && (arg.type.bits & ASTNode.IgnoreRawTypeCheck) == 0;
+			boolean deferRawTypeCheck = !reportUnavoidableGenericTypeProblems && !method.isConstructor() && (arg.type.bits & ASTNode.IgnoreRawTypeCheck) == 0;
 			TypeBinding parameterType;
 			if (deferRawTypeCheck) {
 				arg.type.bits |= ASTNode.IgnoreRawTypeCheck;

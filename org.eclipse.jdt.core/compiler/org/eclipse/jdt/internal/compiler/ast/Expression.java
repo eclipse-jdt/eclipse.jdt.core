@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -968,13 +969,28 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTy
 /**
  * Returns true if the receiver is forced to be of raw type either to satisfy the contract imposed
  * by a super type or because it *is* raw and the current type has no control over it (i.e the rawness
- * originates from some other file.
+ * originates from some other file.)
  */
 public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 	if (this instanceof NameReference) {
 		final Binding receiverBinding = ((NameReference) this).binding;
 		if (receiverBinding.isParameter() && (((LocalVariableBinding) receiverBinding).tagBits & TagBits.ForcedToBeRawType) != 0) {
 			return true;  // parameter is forced to be raw since super method uses raw types.
+		} else if (receiverBinding instanceof FieldBinding) {
+			FieldBinding field = (FieldBinding) receiverBinding;
+			if (field.type.isRawType()) {
+				if (referenceContext instanceof AbstractMethodDeclaration) {
+					AbstractMethodDeclaration methodDecl = (AbstractMethodDeclaration) referenceContext;
+					if (field.declaringClass != methodDecl.binding.declaringClass) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
+						return true;
+					}
+				} else if (referenceContext instanceof TypeDeclaration) {
+					TypeDeclaration type = (TypeDeclaration) referenceContext;
+					if (field.declaringClass != type.binding) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
+						return true;
+					}
+				}
+			}
 		}
 	} else if (this instanceof MessageSend) {
 		if (!CharOperation.equals(((MessageSend) this).binding.declaringClass.getFileName(),
@@ -982,9 +998,23 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 			return true;
 		}
 	} else if (this instanceof FieldReference) {
-		if (!CharOperation.equals(((FieldReference) this).binding.declaringClass.getFileName(),
+		FieldBinding field = ((FieldReference) this).binding;
+		if (!CharOperation.equals(field.declaringClass.getFileName(),
 				referenceContext.compilationResult().getFileName())) { // problem is rooted elsewhere
 			return true;
+		}
+		if (field.type.isRawType()) {
+			if (referenceContext instanceof AbstractMethodDeclaration) {
+				AbstractMethodDeclaration methodDecl = (AbstractMethodDeclaration) referenceContext;
+				if (field.declaringClass != methodDecl.binding.declaringClass) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
+					return true;
+				}
+			} else if (referenceContext instanceof TypeDeclaration) {
+				TypeDeclaration type = (TypeDeclaration) referenceContext;
+				if (field.declaringClass != type.binding) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
+					return true;
+				}
+			}
 		}
 	} else if (this instanceof ConditionalExpression) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=337751
 		ConditionalExpression ternary = (ConditionalExpression) this;
