@@ -15,6 +15,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -1349,5 +1350,114 @@ public void test334121() {
 			"	                         ^\n" + 
 			"Cycle detected: the type A cannot extend/implement itself or one of its own member types\n" + 
 			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337751 
+public void test337751() {
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	this.runConformTest(
+		new String[] {
+			"Project.java",
+			"import java.util.Map;\n" +
+			"public class Project {\n" +
+			"    public Map getOptions(boolean b) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions14,
+		null);
+	
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"import java.util.Map;\n" +
+			"public class Y {\n" +
+			"    void foo(Project project) {\n" +
+			"        Map<String, String> options=\n" +
+			"                        project != null ? project.getOptions(true) : null;\n" +
+			"        options = project.getOptions(true);\n" +
+			"        options = project == null ? null : project.getOptions(true);\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in Y.java (at line 5)\n" + 
+		"	project != null ? project.getOptions(true) : null;\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Map needs unchecked conversion to conform to Map<String,String>\n" + 
+		"----------\n" + 
+		"2. WARNING in Y.java (at line 6)\n" + 
+		"	options = project.getOptions(true);\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Map needs unchecked conversion to conform to Map<String,String>\n" + 
+		"----------\n" + 
+		"3. WARNING in Y.java (at line 7)\n" + 
+		"	options = project == null ? null : project.getOptions(true);\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Map needs unchecked conversion to conform to Map<String,String>\n" + 
+		"----------\n",
+		null,
+		false,
+		compilerOptions15,
+		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=337751 
+public void test337751a() {
+	Map compilerOptions14 = getCompilerOptions();
+	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+	this.runConformTest(
+		new String[] {
+			"Project.java",
+			"import java.util.Map;\n" +
+			"public class Project {\n" +
+			"    public Map getOptions(boolean b) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"",
+		null,
+		true,
+		null,
+		compilerOptions14,
+		null);
+	
+	Map compilerOptions15 = getCompilerOptions();
+	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+	compilerOptions15.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"import java.util.Map;\n" +
+			"public class Y {\n" +
+			"    void foo(Project project) {\n" +
+			"        Map<String, String> options=\n" +
+			"                        project != null ? project.getOptions(true) : null;\n" +
+			"        options = project.getOptions(true);\n" +
+			"        options = project == null ? null : project.getOptions(true);\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"",
+		null,
+		false,
+		compilerOptions15,
+		null);
 }
 }
