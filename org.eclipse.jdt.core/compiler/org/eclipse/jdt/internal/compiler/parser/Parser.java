@@ -2190,6 +2190,9 @@ protected void consumeCatchType() {
 				length);
 		DisjunctiveTypeReference typeReference = new DisjunctiveTypeReference(typeReferences);
 		pushOnAstStack(typeReference);
+		if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
+			problemReporter().multiCatchNotBelow17(typeReference);
+		}
 	} else {
 		// push back the type reference
 		pushOnAstLengthStack(1);

@@ -1446,6 +1446,14 @@ public void disallowedTargetForAnnotation(Annotation annotation) {
 		annotation.sourceStart,
 		annotation.sourceEnd);
 }
+public void multiCatchNotBelow17(ASTNode node) {
+	this.handle(
+			IProblem.MultiCatchNotBelow17,
+			NoArgument,
+			NoArgument,
+			node.sourceStart,
+			node.sourceEnd);
+}
 public void duplicateAnnotation(Annotation annotation) {
 	this.handle(
 		IProblem.DuplicateAnnotation,

@@ -1373,6 +1373,9 @@ void setSourceStart(int sourceStart);
 	int InvalidDisjunctiveTypeReferenceSequence = Internal + TypeRelated + 873; 
 	/** @since 3.7 */
 	int AutoManagedResourceNotBelow17 = Syntax + Internal + 874;
+	/** @since 3.7 */
+	int MultiCatchNotBelow17 =  Syntax + Internal + 875;
+
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */
