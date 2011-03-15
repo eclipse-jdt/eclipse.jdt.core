@@ -932,7 +932,7 @@ public void resolve(BlockScope upperScope) {
 			localVariableBinding.modifiers |= ClassFileConstants.AccFinal;
 			localVariableBinding.tagBits |= TagBits.IsResource;
 			TypeBinding resourceType = localVariableBinding.type;
-			if (resourceType.isClass() || resourceType.isInterface()) {
+			if (resourceType instanceof ReferenceBinding) {
 				if (resourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangAutoCloseable, false /*AutoCloseable is not a class*/) == null && resourceType.isValidBinding()) {
 					upperScope.problemReporter().resourceHasToBeAutoCloseable(resourceType, this.resources[i].type);
 					localVariableBinding.type = new ProblemReferenceBinding(CharOperation.splitOn('.', resourceType.shortReadableName()), null, ProblemReasons.InvalidTypeForAutoManagedResource);

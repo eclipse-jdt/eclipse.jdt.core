@@ -23,7 +23,7 @@ public class TryWithResourcesStatementTest extends AbstractRegressionTest {
 
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-	TESTS_NUMBERS = new int[] { 49 };
+//	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public TryWithResourcesStatementTest(String name) {
@@ -3152,6 +3152,45 @@ public void test049() {
 		null,
 		true,
 		options);
+}
+public void test050() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		System.out.println(\"Main\");\n" +
+			"		try (E e = E.CONST) {\n" +
+			"			System.out.println(\"Outer try\");\n" +
+			"		} catch (Exception e) {\n" +
+			"			System.out.println(e);\n" +
+			"			Throwable suppressed [] = e.getSuppressed();\n" +
+			"			for (int i = 0; i < suppressed.length; ++i) {\n" +
+			"				System.out.println(\"Suppressed: \" + suppressed[i]);\n" +
+			"			}\n" +
+			"		} finally {\n" +
+			"			System.out.println(\"All done\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}",
+			"E.java",
+			"public enum E implements AutoCloseable {\n" +
+			"	CONST;\n" +
+			"	private E () {\n" +
+			"		System.out.println(\"E::E\");\n" +
+			"	}\n" +
+			"	public void close() throws Exception {\n" +
+			"		System.out.println(\"E::~E\");\n" +
+			"		throw new Exception (\"E::~E\");\n" +
+			"	}\n" +
+			"}"
+		},
+		"Main\n" + 
+		"E::E\n" + 
+		"Outer try\n" + 
+		"E::~E\n" + 
+		"java.lang.Exception: E::~E\n" + 
+		"All done");
 }
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
