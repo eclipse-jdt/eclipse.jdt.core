@@ -3243,6 +3243,8 @@ protected void consumeEnumConstantHeader() {
       }
       enumConstant.initialization = allocationExpression;
    }
+   // initialize the starting position of the allocation expression
+   enumConstant.initialization.sourceStart = enumConstant.declarationSourceStart;
 
    // recovery
    if (this.currentElement != null) {
@@ -3310,22 +3312,32 @@ protected void consumeEnumConstantNoClassBody() {
 	final FieldDeclaration fieldDeclaration = (FieldDeclaration) this.astStack[this.astPtr];
 	fieldDeclaration.declarationEnd = endOfEnumConstant;
 	fieldDeclaration.declarationSourceEnd = endOfEnumConstant;
+	// initialize the starting position of the allocation expression
+	ASTNode initialization = fieldDeclaration.initialization;
+	if (initialization != null) {
+		initialization.sourceEnd = endOfEnumConstant;
+	}
 }
 protected void consumeEnumConstants() {
 	concatNodeLists();
 }
 protected void consumeEnumConstantWithClassBody() {
-   dispatchDeclarationInto(this.astLengthStack[this.astLengthPtr--]);
-   TypeDeclaration anonymousType = (TypeDeclaration) this.astStack[this.astPtr--]; // pop type
-   this.astLengthPtr--;
-   anonymousType.bodyEnd = this.endPosition;
-   anonymousType.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
-   final FieldDeclaration fieldDeclaration = ((FieldDeclaration) this.astStack[this.astPtr]);
-   fieldDeclaration.declarationEnd = this.endStatementPosition;
-   fieldDeclaration.declarationSourceEnd = anonymousType.declarationSourceEnd;
-   this.intPtr --; // remove end position of the arguments
-   this.variablesCounter[this.nestedType] = 0;
-   this.nestedType--;
+	dispatchDeclarationInto(this.astLengthStack[this.astLengthPtr--]);
+	TypeDeclaration anonymousType = (TypeDeclaration) this.astStack[this.astPtr--]; // pop type
+	this.astLengthPtr--;
+	anonymousType.bodyEnd = this.endPosition;
+	anonymousType.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
+	final FieldDeclaration fieldDeclaration = ((FieldDeclaration) this.astStack[this.astPtr]);
+	fieldDeclaration.declarationEnd = this.endStatementPosition;
+	int declarationSourceEnd = anonymousType.declarationSourceEnd;
+	fieldDeclaration.declarationSourceEnd = declarationSourceEnd;
+	this.intPtr --; // remove end position of the arguments
+	this.variablesCounter[this.nestedType] = 0;
+	this.nestedType--;
+	ASTNode initialization = fieldDeclaration.initialization;
+	if (initialization != null) {
+		initialization.sourceEnd = declarationSourceEnd;
+	}
 }
 protected void consumeEnumDeclaration() {
 	// EnumDeclaration ::= EnumHeader ClassHeaderImplementsopt EnumBody
