@@ -48,29 +48,14 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * For JLS3, an enhanced for node type was added:
  * <pre>
  * Statement:
- *    {@link AssertStatement},
- *    {@link Block},
- *    {@link BreakStatement},
- *    {@link ConstructorInvocation},
- *    {@link ContinueStatement},
- *    {@link DoStatement},
- *    {@link EmptyStatement},
- *    {@link EnhancedForStatement},
- *    {@link ExpressionStatement},
- *    {@link ForStatement},
- *    {@link IfStatement},
- *    {@link LabeledStatement},
- *    {@link ReturnStatement},
- *    {@link SuperConstructorInvocation},
- *    {@link SwitchCase},
- *    {@link SwitchStatement},
- *    {@link SynchronizedStatement},
- *    {@link ThrowStatement},
- *    {@link TryStatement},
- *    {@link TryStatementWithResources},
- *    {@link TypeDeclarationStatement},
- *    {@link VariableDeclarationStatement},
- *    {@link WhileStatement}
+ *    <i>&lt;JLS2 statements&gt;...</i>,
+ *    {@link EnhancedForStatement}
+ * </pre>
+ * For JLS4:
+ * <pre>
+ * Statement:
+ *    <i>&lt;JLS3 statements...&gt;</i>,
+ *    {@link TryStatementWithResources}
  * </pre>
  * </p>
  *
