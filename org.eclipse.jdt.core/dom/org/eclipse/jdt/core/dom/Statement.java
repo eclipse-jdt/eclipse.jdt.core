@@ -23,53 +23,33 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * For JLS2:
  * <pre>
  * Statement:
- *    AssertStatement,
- *    Block,
- *    BreakStatement,
- *    ConstructorInvocation,
- *    ContinueStatement,
- *    DoStatement,
- *    EmptyStatement,
- *    ExpressionStatement,
- *    ForStatement,
- *    IfStatement,
- *    LabeledStatement,
- *    ReturnStatement,
- *    SuperConstructorInvocation,
- *    SwitchCase,
- *    SwitchStatement,
- *    SynchronizedStatement,
- *    ThrowStatement,
- *    TryStatement,
- *    TypeDeclarationStatement,
- *    VariableDeclarationStatement,
- *    WhileStatement 
+ *    {@link AssertStatement},
+ *    {@link Block},
+ *    {@link BreakStatement},
+ *    {@link ConstructorInvocation},
+ *    {@link ContinueStatement},
+ *    {@link DoStatement},
+ *    {@link EmptyStatement},
+ *    {@link ExpressionStatement},
+ *    {@link ForStatement},
+ *    {@link IfStatement},
+ *    {@link LabeledStatement},
+ *    {@link ReturnStatement},
+ *    {@link SuperConstructorInvocation},
+ *    {@link SwitchCase},
+ *    {@link SwitchStatement},
+ *    {@link SynchronizedStatement},
+ *    {@link ThrowStatement},
+ *    {@link TryStatement},
+ *    {@link TypeDeclarationStatement},
+ *    {@link VariableDeclarationStatement},
+ *    {@link WhileStatement}
  * </pre>
  * For JLS3, an enhanced for node type was added:
  * <pre>
  * Statement:
- *    AssertStatement,
- *    Block,
- *    BreakStatement,
- *    ConstructorInvocation,
- *    ContinueStatement,
- *    DoStatement,
- *    EmptyStatement,
- *    EnhancedForStatement,
- *    ExpressionStatement,
- *    ForStatement,
- *    IfStatement,
- *    LabeledStatement,
- *    ReturnStatement,
- *    SuperConstructorInvocation,
- *    SwitchCase,
- *    SwitchStatement,
- *    SynchronizedStatement,
- *    ThrowStatement,
- *    TryStatement,
- *    TypeDeclarationStatement,
- *    VariableDeclarationStatement,
- *    WhileStatement
+ *    <i>&lt;JLS2 statements&gt;...</i>,
+ *    {@link EnhancedForStatement}
  * </pre>
  * </p>
  *
