@@ -693,6 +693,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MissingTypeInConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MissingTypeInMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MissingValueForAnnotationMember", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("MultiCatchNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("MustDefineEitherDimensionExpressionsOrInitializer", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("MustSpecifyPackage", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("NativeMethodsCannotBeStrictfp", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1351,6 +1352,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MissingTypeInConstructor", SKIP);
 		expectedProblemAttributes.put("MissingTypeInMethod", SKIP);
 		expectedProblemAttributes.put("MissingValueForAnnotationMember", SKIP);
+		expectedProblemAttributes.put("MultiCatchNotBelow17", SKIP);
 		expectedProblemAttributes.put("MustDefineEitherDimensionExpressionsOrInitializer", SKIP);
 		expectedProblemAttributes.put("MustSpecifyPackage", SKIP);
 		expectedProblemAttributes.put("NativeMethodsCannotBeStrictfp", SKIP);
