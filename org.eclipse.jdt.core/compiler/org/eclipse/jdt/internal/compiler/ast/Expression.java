@@ -986,6 +986,11 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 				referenceContext.compilationResult().getFileName())) { // problem is rooted elsewhere
 			return true;
 		}
+	} else if (this instanceof ConditionalExpression) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=337751
+		ConditionalExpression ternary = (ConditionalExpression) this;
+		if (ternary.valueIfTrue.forcedToBeRaw(referenceContext) || ternary.valueIfFalse.forcedToBeRaw(referenceContext)) {
+			return true;
+		}
 	}
 	return false;
 }
