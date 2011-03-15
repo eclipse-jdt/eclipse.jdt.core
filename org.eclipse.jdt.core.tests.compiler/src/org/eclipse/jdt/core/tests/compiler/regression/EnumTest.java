@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 182 };
+//		TESTS_NUMBERS = new int[] { 185 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -6663,5 +6663,28 @@ public void test184() throws Exception {
 		null,
 		customOptions,
 		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=
+public void test185() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public enum X {\n" + 
+			"  A, B;\n" + 
+			"  private X() throws Exception {\n" + 
+			"  }\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	A, B;\n" + 
+		"	^\n" + 
+		"Unhandled exception type Exception\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	A, B;\n" + 
+		"	   ^\n" + 
+		"Unhandled exception type Exception\n" + 
+		"----------\n");
 }
 }
