@@ -462,6 +462,12 @@ public TypeBinding resolveType(BlockScope scope) {
 						? this.resolvedType
 						: null;
 	}
+	final CompilerOptions compilerOptions = scope.compilerOptions();
+	if (compilerOptions.complianceLevel <= ClassFileConstants.JDK1_6 && MethodBinding.isPolymorphic(this.binding)) {
+		scope.problemReporter().polymorphicMethodNotBelow17(this);
+		return null;
+	}
+
 	if (MethodBinding.isPolymorphic(this.binding)
 			&& ((this.bits & ASTNode.InsideExpressionStatement) != 0)) {
 		// we only set the return type to be void if this method invocation is used inside an expression statement
@@ -470,7 +476,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 		scope.problemReporter().missingTypeInMethod(this, this.binding);
 	}
-	final CompilerOptions compilerOptions = scope.compilerOptions();
 	if (!this.binding.isStatic()) {
 		// the "receiver" must not be a type
 		if (receiverIsType) {

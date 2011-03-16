@@ -1375,6 +1375,8 @@ void setSourceStart(int sourceStart);
 	int AutoManagedResourceNotBelow17 = Syntax + Internal + 874;
 	/** @since 3.7 */
 	int MultiCatchNotBelow17 =  Syntax + Internal + 875;
+	/** @since 3.7 */
+	int PolymorphicMethodNotBelow17 = MethodRelated + 876;
 
 	/**
 	 * External problems -- These are problems defined by other plugins
