@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
@@ -41,6 +45,7 @@ public class LocalVariableBinding extends VariableBinding {
 	public LocalVariableBinding(char[] name, TypeBinding type, int modifiers, boolean isArgument) {
 		super(name, type, modifiers, isArgument ? Constant.NotAConstant : null);
 		if (isArgument) this.tagBits |= TagBits.IsArgument;
+		this.tagBits |= TagBits.IsEffectivelyFinal;
 	}
 
 	// regular local variable or argument
@@ -48,6 +53,7 @@ public class LocalVariableBinding extends VariableBinding {
 
 		this(declaration.name, type, modifiers, isArgument);
 		this.declaration = declaration;
+		this.tagBits |= TagBits.IsEffectivelyFinal;
 	}
 
 	/* API

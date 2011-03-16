@@ -2503,4 +2503,120 @@ public void test0054() {
 		expected17ProblemLog
 	);
 }
+// test that use of multi-catch is flagged accordingly
+public void test0055() {
+	if(this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		return;
+	}
+	String[] testFiles = new String[] {
+		"X.java",
+		"import java.io.*;\n" +
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		try {\n" + 
+		"			System.out.println();\n" + 
+		"			Reader r = new FileReader(args[0]);\n" + 
+		"			r.read();\n" + 
+		"		} catch(IOException | RuntimeException e) {\n" + 
+		"			e.printStackTrace();\n" + 
+		"		}\n" + 
+		"	}\n" +
+		"}\n"
+	};
+
+	String expected13ProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	} catch(IOException | RuntimeException e) {\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Multi-catch parameters are not allowed for source level below 1.7\n" + 
+			"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+
+	String expected15ProblemLog =
+		expected14ProblemLog;
+
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
+	);
+}
+// rethrow should not be precisely computed in 1.6- 
+public void test0056() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" + 
+		"		try {\n" + 
+		"			throw new DaughterOfFoo();\n"+
+		"		} catch(Foo e) {\n" + 
+		"			try {\n" +
+		"				throw e;\n" +
+		"			} catch (SonOfFoo e1) {\n" +
+		"			 	e1.printStackTrace();\n" +
+		"			} catch (Foo e1) {}\n" +
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"+
+		"class Foo extends Exception {}\n"+
+		"class SonOfFoo extends Foo {}\n"+
+		"class DaughterOfFoo extends Foo {}\n"
+	};
+
+	String expected13ProblemLog =
+			"----------\n" + 
+			"1. WARNING in X.java (at line 14)\n" + 
+			"	class Foo extends Exception {}\n" + 
+			"	      ^^^\n" + 
+			"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 15)\n" + 
+			"	class SonOfFoo extends Foo {}\n" + 
+			"	      ^^^^^^^^\n" + 
+			"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 16)\n" + 
+			"	class DaughterOfFoo extends Foo {}\n" + 
+			"	      ^^^^^^^^^^^^^\n" + 
+			"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+
+	String expected15ProblemLog =
+		expected14ProblemLog;
+
+	String expected17ProblemLog = 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	} catch (SonOfFoo e1) {\n" + 
+			"	         ^^^^^^^^\n" + 
+			"Unreachable catch block for SonOfFoo. This exception is never thrown from the try statement body\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	class Foo extends Exception {}\n" + 
+			"	      ^^^\n" + 
+			"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 15)\n" + 
+			"	class SonOfFoo extends Foo {}\n" + 
+			"	      ^^^^^^^^\n" + 
+			"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 16)\n" + 
+			"	class DaughterOfFoo extends Foo {}\n" + 
+			"	      ^^^^^^^^^^^^^\n" + 
+			"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n";
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog,
+		expected17ProblemLog
+	);
+}
 }

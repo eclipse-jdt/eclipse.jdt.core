@@ -18,7 +18,7 @@ import junit.framework.Test;
 public class TryStatement17Test extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test012" };
+//	TESTS_NAMES = new String[] { "test061" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -154,7 +154,108 @@ public void test005() {
 		},
 		"");
 }
+//Test that lub is not used for checking for checking the exceptions
 public void test006() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			throw new Foo();\n"+
+			"		} catch(SonOfFoo | DaughterOfFoo e) {\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" + 
+			"	}\n" + 
+			"}\n" +
+			"class Foo extends Exception {}\n"+
+			"class SonOfFoo extends Foo {}\n"+
+			"class DaughterOfFoo extends Foo {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	throw new Foo();\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"Unhandled exception type Foo\n" + 
+		"----------\n" +  
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	class Foo extends Exception {}\n" + 
+		"	      ^^^\n" + 
+		"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 11)\n" + 
+		"	class SonOfFoo extends Foo {}\n" + 
+		"	      ^^^^^^^^\n" + 
+		"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 12)\n" + 
+		"	class DaughterOfFoo extends Foo {}\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+public void test007() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			throw new Foo();\n"+
+			"		} catch(SonOfFoo | DaughterOfFoo e) {\n" +
+			"			System.out.println(\"Caught lub\");\n" +
+			"		} catch(Foo e) {\n" +
+			"           System.out.println(\"Caught Foo\");\n" + 
+			"        }\n" +
+			"	}\n" + 
+			"}\n" +
+			"class Foo extends Exception {}\n"+
+			"class SonOfFoo extends Foo {}\n"+
+			"class DaughterOfFoo extends Foo {}\n"
+		}, 
+		"Caught Foo");
+}
+// test that lub is not used for precise rethrow
+public void test008() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			if (args.length == 0) throw new SonOfFoo();\n"+
+			"			throw new DaughterOfFoo();\n" +
+			"		} catch(SonOfFoo | DaughterOfFoo e) {\n" +
+			"			try {\n" +
+			"				throw e;\n" +
+			"			} catch(SonOfFoo | DaughterOfFoo e1) {}\n"+
+			"		}\n" + 
+			"	}\n" + 
+			"}\n" +
+			"class Foo extends Exception {}\n"+
+			"class SonOfFoo extends Foo {}\n"+
+			"class DaughterOfFoo extends Foo {}\n"
+		},
+		"----------\n" +  
+		"1. WARNING in X.java (at line 13)\n" + 
+		"	class Foo extends Exception {}\n" + 
+		"	      ^^^\n" + 
+		"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 14)\n" + 
+		"	class SonOfFoo extends Foo {}\n" + 
+		"	      ^^^^^^^^\n" + 
+		"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 15)\n" + 
+		"	class DaughterOfFoo extends Foo {}\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+public void test009() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -162,7 +263,8 @@ public void test006() {
 			"\n" + 
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
-			"		try {\n" + 
+			"		try {\n" +
+			"			throw new IOException();\n" +
 			"		} catch(IOException | RuntimeException e) {\n" + 
 			"			e = new IOException();\n" +
 			"		}\n" + 
@@ -170,14 +272,14 @@ public void test006() {
 			"}",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
 		"	e = new IOException();\n" + 
 		"	^\n" + 
 		"The parameter e of a multi-catch block cannot be assigned\n" + 
 		"----------\n");
 }
 //Test that disjunctive type checks are done for a precise throw too
-public void _test007() {
+public void test010() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -199,7 +301,7 @@ public void _test007() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	} catch(SonOfFoo | DaughterOfFoo e) {\n" + 
 		"	        ^^^^^^^^\n" + 
-		"Unreachable catch block for Foo. This exception is never thrown from the try statement body\n" + 
+		"Unreachable catch block for SonOfFoo. This exception is never thrown from the try statement body\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 10)\n" + 
 		"	class Foo extends Exception {}\n" + 
@@ -218,7 +320,7 @@ public void _test007() {
 		"----------\n");
 }
 // Test that a rethrow is precisely computed
-public void _test008() {
+public void test011() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -261,9 +363,55 @@ public void _test008() {
 		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
+//Test that a rethrow is precisely computed
+public void test012() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			throw new DaughterOfFoo();\n"+
+			"		} catch(Foo e) {\n" + 
+			"			try {\n" +
+			"				throw e;\n" +
+			"			} catch (SonOfFoo e1) {\n" +
+			"			 	e1.printStackTrace();\n" +
+			"			} catch (Foo e1) {}\n" +
+			"			finally {" +
+			"				System.out.println(\"\");}\n" +
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"+
+			"class Foo extends Exception {}\n"+
+			"class SonOfFoo extends Foo {}\n"+
+			"class DaughterOfFoo extends Foo {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	} catch (SonOfFoo e1) {\n" + 
+		"	         ^^^^^^^^\n" + 
+		"Unreachable catch block for SonOfFoo. This exception is never thrown from the try statement body\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 15)\n" + 
+		"	class Foo extends Exception {}\n" + 
+		"	      ^^^\n" + 
+		"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 16)\n" + 
+		"	class SonOfFoo extends Foo {}\n" + 
+		"	      ^^^^^^^^\n" + 
+		"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 17)\n" + 
+		"	class DaughterOfFoo extends Foo {}\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
 // Test that if the rethrow argument is modified (not effectively final), then it is not precisely 
 // computed
-public void _test009() {
+public void test013() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -305,7 +453,7 @@ public void _test009() {
 
 // Test that if the rethrow argument is modified in a different flow (not effectively final), then also precise throw
 // should not be computed
-public void _test010() {
+public void test014() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -349,7 +497,7 @@ public void _test010() {
 		"----------\n");
 }
 // precise throw computation should also take care of throws clause
-public void _test011() {
+public void test015() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -374,8 +522,7 @@ public void _test011() {
 }
 
 // Test precise rethrow works good even in nested try catch block
-// TODO Fix the error messages expected
-public void _test012() {
+public void test016() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -401,22 +548,22 @@ public void _test012() {
 			"class DaughterOfFoo extends Foo {}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
-		"	} catch (SonOfFoo e1) {\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	} catch (SonOfFoo e2) {\n" + 
 		"	         ^^^^^^^^\n" + 
 		"Unreachable catch block for SonOfFoo. This exception is never thrown from the try statement body\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 14)\n" + 
+		"2. WARNING in X.java (at line 18)\n" + 
 		"	class Foo extends Exception {}\n" + 
 		"	      ^^^\n" + 
 		"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 15)\n" + 
+		"3. WARNING in X.java (at line 19)\n" + 
 		"	class SonOfFoo extends Foo {}\n" + 
 		"	      ^^^^^^^^\n" + 
 		"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 16)\n" + 
+		"4. WARNING in X.java (at line 20)\n" + 
 		"	class DaughterOfFoo extends Foo {}\n" + 
 		"	      ^^^^^^^^^^^^^\n" + 
 		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
