@@ -106,6 +106,9 @@ public JavaSearchBugsTests(String name) {
 	this.endChar = "";
 }
 public static Test suite() {
+	if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS!=null || TESTS_RANGE !=null) {
+		return buildModelTestSuite(JavaSearchBugsTests.class);
+	}
 	// hack to guarantee the test order
 	TestSuite suite = new Suite(JavaSearchBugsTests.class.getName());
 	suite.addTest(new JavaSearchBugsTests("testBug41018"));
