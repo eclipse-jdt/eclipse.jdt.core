@@ -705,6 +705,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugsTests("testBug324189e"));
 	suite.addTest(new JavaSearchBugsTests("testBug336322a"));
 	suite.addTest(new JavaSearchBugsTests("testBug336322b"));
+	suite.addTest(new JavaSearchBugsTests("testBug339891"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -13502,6 +13503,33 @@ public void testBug336322b() throws CoreException{
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
 		search("RuntimeException", IJavaSearchConstants.TYPE, CATCH_TYPE_REFERENCE, scope, this.resultCollector);
 		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [RuntimeException] EXACT_MATCH", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+/**
+ * @bug 339891: NPE when searching for method (with '*' wildcard character)
+ * @test Search for Worker.run() should not return results like TestWorker
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=339891"
+ */
+public void testBug339891() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		createFile("/P/Ref.java",
+			"public class Ref{\n"+
+			" public void foo() {}\n"+
+			"}\n"+
+			"}\n");
+		createFile("/P/Test.java",
+			"public class Test{\n"+
+				" public void foo(Ref ref) {" +
+				"   ref.foo();\n"+
+				"}\n" +
+				"}\n");
+		waitUntilIndexesReady();
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{project}, IJavaSearchScope.SOURCES);
+		search("Ref.*", METHOD, REFERENCES, EXACT_RULE, scope, this.resultCollector);
+		assertSearchResults("Test.java void Test.foo(Ref) [foo()] EXACT_MATCH");
 	} finally {
 		deleteProject("P");
 	}
