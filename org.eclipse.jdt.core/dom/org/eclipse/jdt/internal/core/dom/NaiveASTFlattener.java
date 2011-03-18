@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1527,6 +1527,18 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(TryStatement node) {
 		printIndent();
 		this.buffer.append("try ");//$NON-NLS-1$
+		List resources = node.resources();
+		if (resources != null) {
+			this.buffer.append('(');
+			for (Iterator it = resources.iterator(); it.hasNext(); ) {
+				VariableDeclarationExpression variable = (VariableDeclarationExpression) it.next();
+				variable.accept(this);
+				if (it.hasNext()) {
+					this.buffer.append(';');
+				}
+			}
+			this.buffer.append(')');
+		}
 		node.getBody().accept(this);
 		this.buffer.append(" ");//$NON-NLS-1$
 		for (Iterator it = node.catchClauses().iterator(); it.hasNext(); ) {
