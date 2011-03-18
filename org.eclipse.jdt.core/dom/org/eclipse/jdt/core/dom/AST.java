@@ -115,7 +115,7 @@ public final class AST {
      * up to and including J2SE 1.4.
      *
 	 * @since 3.0
-	 * @deprecated Clients should use the {@link #JLS3} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS4} AST API instead.
 	 */
 	public static final int JLS2 = 2;
 
@@ -245,7 +245,7 @@ public final class AST {
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules.
      * <p>
-     * Clients should use this method specifying {@link #JLS3} as the
+     * Clients should use this method specifying {@link #JLS4} as the
      * AST level in all cases, even when dealing with JDK 1.3 or 1.4..
      * </p>
      *

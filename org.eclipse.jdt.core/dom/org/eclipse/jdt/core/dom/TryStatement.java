@@ -117,10 +117,11 @@ public class TryStatement extends Statement {
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		switch (apiLevel) {
-			case AST.JLS4:
-				return PROPERTY_DESCRIPTORS_4_0;
-			default:
+			case AST.JLS2_INTERNAL :
+			case AST.JLS3 :
 				return PROPERTY_DESCRIPTORS;
+			default :
+				return PROPERTY_DESCRIPTORS_4_0;
 		}
 	}
 
@@ -130,7 +131,7 @@ public class TryStatement extends Statement {
 	 * (see constructor).
 	 * @since 3.7
 	 */
-	private ASTNode.NodeList resources = new ASTNode.NodeList(RESOURCES_PROPERTY);
+	private ASTNode.NodeList resources = null;
 
 	/**
 	 * The body; lazily initialized; defaults to an empty block.
