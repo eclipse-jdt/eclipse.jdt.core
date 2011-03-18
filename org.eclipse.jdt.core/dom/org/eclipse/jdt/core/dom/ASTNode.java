@@ -773,14 +773,6 @@ public abstract class ASTNode {
 	public static final int DISJUNCTIVE_TYPE = 84;
 
 	/**
-	 * Node type constant indicating a node of type
-	 * <code>TryStatementWithResource</code>.
-	 * @see TryStatementWithResources
-	 * @since 3.7
-	 */
-	public static final int TRY_STATEMENT_WITH_RESOURCES = 85;
-
-	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -942,8 +934,6 @@ public abstract class ASTNode {
 				return ThrowStatement.class;
 			case TRY_STATEMENT :
 				return TryStatement.class;
-			case TRY_STATEMENT_WITH_RESOURCES :
-				return TryStatementWithResources.class;
 			case TYPE_DECLARATION :
 				return TypeDeclaration.class;
 			case TYPE_DECLARATION_STATEMENT :

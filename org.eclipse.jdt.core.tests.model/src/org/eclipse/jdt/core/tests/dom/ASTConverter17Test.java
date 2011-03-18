@@ -32,7 +32,6 @@ import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
-import org.eclipse.jdt.core.dom.TryStatementWithResources;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
@@ -260,15 +259,15 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
 		node = getASTNode(unit, 0, 0, 0);
-		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT_WITH_RESOURCES, node.getNodeType());
-		TryStatementWithResources tryStatementWithResources = (TryStatementWithResources) node;
-		List catchClauses = tryStatementWithResources.catchClauses();
+		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT, node.getNodeType());
+		TryStatement tryStatement = (TryStatement) node;
+		List catchClauses = tryStatement.catchClauses();
 		CatchClause clause = (CatchClause) catchClauses.get(0);
 		SingleVariableDeclaration exception = clause.getException();
 		Type type = exception.getType();
 		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
 		checkSourceRange(type, "NumberFormatException", contents);
-		List resources = tryStatementWithResources.resources();
+		List resources = tryStatement.resources();
 		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s)", contents);
 	}
 	/*
@@ -293,15 +292,15 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
 		node = getASTNode(unit, 0, 0, 0);
-		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT_WITH_RESOURCES, node.getNodeType());
-		TryStatementWithResources tryStatementWithResources = (TryStatementWithResources) node;
-		List catchClauses = tryStatementWithResources.catchClauses();
+		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT, node.getNodeType());
+		TryStatement tryStatement = (TryStatement) node;
+		List catchClauses = tryStatement.catchClauses();
 		CatchClause clause = (CatchClause) catchClauses.get(0);
 		SingleVariableDeclaration exception = clause.getException();
 		Type type = exception.getType();
 		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
 		checkSourceRange(type, "NumberFormatException", contents);
-		List resources = tryStatementWithResources.resources();
+		List resources = tryStatement.resources();
 		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s);", contents);
 	}
 	/*
@@ -326,15 +325,15 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
 		node = getASTNode(unit, 0, 0, 0);
-		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT_WITH_RESOURCES, node.getNodeType());
-		TryStatementWithResources tryStatementWithResources = (TryStatementWithResources) node;
-		List catchClauses = tryStatementWithResources.catchClauses();
+		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT, node.getNodeType());
+		TryStatement TryStatement = (TryStatement) node;
+		List catchClauses = TryStatement.catchClauses();
 		CatchClause clause = (CatchClause) catchClauses.get(0);
 		SingleVariableDeclaration exception = clause.getException();
 		Type type = exception.getType();
 		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
 		checkSourceRange(type, "NumberFormatException", contents);
-		List resources = tryStatementWithResources.resources();
+		List resources = TryStatement.resources();
 		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s);", contents);
 		checkSourceRange((ASTNode) resources.get(1), "Reader r2 = new FileReader(s);", contents);
 	}
@@ -360,15 +359,15 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
 		node = getASTNode(unit, 0, 0, 0);
-		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT_WITH_RESOURCES, node.getNodeType());
-		TryStatementWithResources tryStatementWithResources = (TryStatementWithResources) node;
-		List catchClauses = tryStatementWithResources.catchClauses();
+		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT, node.getNodeType());
+		TryStatement tryStatement = (TryStatement) node;
+		List catchClauses = tryStatement.catchClauses();
 		CatchClause clause = (CatchClause) catchClauses.get(0);
 		SingleVariableDeclaration exception = clause.getException();
 		Type type = exception.getType();
 		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
 		checkSourceRange(type, "NumberFormatException", contents);
-		List resources = tryStatementWithResources.resources();
+		List resources = tryStatement.resources();
 		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s);", contents);
 		checkSourceRange((ASTNode) resources.get(1), "Reader r2 = new FileReader(s)", contents);
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,11 +16,19 @@ import java.util.List;
 
 /**
  * Try statement AST node type.
- *
+ * For JLS2 and JLS3,
  * <pre>
  * TryStatement:
  *     <b>try</b> Block
- *         { CatchClause }
+ *         [{ CatchClause }]
+ *         [ <b>finally</b> Block ]
+ * </pre>
+ * For JLS4, resources were added and catchClauses can be optional.
+ * <pre>
+ * TryStatement:
+ *     <b>try</b> <b>(</b> Resources <b>)</b>
+ *         Block
+ *         [{ CatchClause }]
  *         [ <b>finally</b> Block ]
  * </pre>
  *
@@ -28,6 +36,13 @@ import java.util.List;
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 public class TryStatement extends Statement {
+
+	/**
+	 * The "resources" structural property of this node type (element type: {@link VariableDeclarationExpression}).
+	 * @since 3.7
+	 */
+	public static final ChildListPropertyDescriptor RESOURCES_PROPERTY =
+		new ChildListPropertyDescriptor(TryStatement.class, "resources", VariableDeclarationExpression.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "body" structural property of this node type (child type: {@link Block}).
@@ -56,6 +71,14 @@ public class TryStatement extends Statement {
 	 * or null if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
+	
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.7
+	 */
+	private static final List PROPERTY_DESCRIPTORS_4_0;
 
 	static {
 		List propertyList = new ArrayList(4);
@@ -64,6 +87,14 @@ public class TryStatement extends Statement {
 		addProperty(CATCH_CLAUSES_PROPERTY, propertyList);
 		addProperty(FINALLY_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+
+		propertyList = new ArrayList(4);
+		createPropertyList(TryStatement.class, propertyList);
+		addProperty(RESOURCES_PROPERTY, propertyList);
+		addProperty(BODY_PROPERTY, propertyList);
+		addProperty(CATCH_CLAUSES_PROPERTY, propertyList);
+		addProperty(FINALLY_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_4_0 = reapPropertyList(propertyList);
 	}
 
 	/**
@@ -77,8 +108,21 @@ public class TryStatement extends Statement {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		return PROPERTY_DESCRIPTORS;
+		switch(apiLevel) {
+			case AST.JLS4 :
+				return PROPERTY_DESCRIPTORS_4_0;
+			default:
+				return PROPERTY_DESCRIPTORS;
+		}
 	}
+
+	/**
+	 * The resource expressions (element type: {@link VariableDeclarationExpression}).
+	 * Null in JLS2 and JLS3. Added in JLS4; defaults to an empty list
+	 * (see constructor).
+	 * @since 3.7
+	 */
+	private ASTNode.NodeList resources = new ASTNode.NodeList(RESOURCES_PROPERTY);
 
 	/**
 	 * The body; lazily initialized; defaults to an empty block.
@@ -100,8 +144,8 @@ public class TryStatement extends Statement {
 
 
 	/**
-	 * Creates a new AST node for a try statement owned by the given
-	 * AST. By default, the try statement has an empty block, no catch
+	 * Creates a new AST node for a try with resources statement owned by the given
+	 * AST. By default, the try statement has no resources, an empty block, no catch
 	 * clauses, and no finally block.
 	 * <p>
 	 * N.B. This constructor is package-private.
@@ -111,6 +155,9 @@ public class TryStatement extends Statement {
 	 */
 	TryStatement(AST ast) {
 		super(ast);
+		if (ast.apiLevel >= AST.JLS4) {
+			this.resources = new ASTNode.NodeList(RESOURCES_PROPERTY);
+		}
 	}
 
 	/* (omit javadoc for this method)
@@ -148,6 +195,9 @@ public class TryStatement extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == RESOURCES_PROPERTY) {
+			return resources();
+		}
 		if (property == CATCH_CLAUSES_PROPERTY) {
 			return catchClauses();
 		}
@@ -169,6 +219,10 @@ public class TryStatement extends Statement {
 		TryStatement result = new TryStatement(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
+		if (this.ast.apiLevel >= AST.JLS3) {
+			result.resources().addAll(
+					ASTNode.copySubtrees(target, resources()));
+		}
 		result.setBody((Block) getBody().clone(target));
 		result.catchClauses().addAll(
 			ASTNode.copySubtrees(target, catchClauses()));
@@ -192,6 +246,9 @@ public class TryStatement extends Statement {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
+			if (this.ast.apiLevel >= AST.JLS4) {
+				acceptChildren(visitor, this.resources);
+			}
 			acceptChild(visitor, getBody());
 			acceptChildren(visitor, this.catchClauses);
 			acceptChild(visitor, getFinally());
@@ -279,11 +336,22 @@ public class TryStatement extends Statement {
 		postReplaceChild(oldChild, block, FINALLY_PROPERTY);
 	}
 
+	/**
+	 * Returns the live ordered list of resources for this try statement.
+	 *
+	 * @return the live list of resources
+	 *    (element type: {@link VariableDeclarationExpression})
+	 * @since 3.7
+	 */
+	public List resources() {
+		return this.resources;
+	}
+
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 3 * 4;
+		return super.memSize() + 4 * 4;
 	}
 
 	/* (omit javadoc for this method)
@@ -292,6 +360,7 @@ public class TryStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
+			+ (this.resources == null ? 0 : this.resources.listSize())
 			+ (this.body == null ? 0 : getBody().treeSize())
 			+ this.catchClauses.listSize()
 			+ (this.optionalFinallyBody == null ? 0 : getFinally().treeSize());

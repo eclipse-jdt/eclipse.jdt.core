@@ -500,9 +500,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(TryStatement node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
-		public boolean match(TryStatementWithResources node, Object other) {
-			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
-		}
 		public boolean match(TypeDeclaration node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
@@ -1165,7 +1162,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		if (this.ast.apiLevel() < AST.JLS4) {
 			return;
 		}
-		TryStatementWithResources x1 = this.ast.newTryStatementWithResources();
+		TryStatement x1 = this.ast.newTryStatement();
 		VariableDeclarationExpression var = this.ast.newVariableDeclarationExpression(this.W1);
 		var.setType(this.T1);
 		var.fragments().add(this.W2);

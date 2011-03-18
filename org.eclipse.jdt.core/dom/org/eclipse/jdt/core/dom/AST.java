@@ -2231,18 +2231,6 @@ public final class AST {
 	}
 
 	/**
-	 * Creates a new unparented try with resources statement node owned by this AST.
-	 * By default, the try statement has an empty block, no resources, no catch
-	 * clauses, and no finally block.
-	 *
-	 * @return a new unparented try statement node
-	 * @since 3.7
-	 */
-	public TryStatementWithResources newTryStatementWithResources() {
-		return new TryStatementWithResources(this);
-	}
-
-	/**
 	 * Creates an unparented class declaration node owned by this AST.
 	 * The name of the class is an unspecified, but legal, name;
 	 * no modifiers; no doc comment; no superclass or superinterfaces;

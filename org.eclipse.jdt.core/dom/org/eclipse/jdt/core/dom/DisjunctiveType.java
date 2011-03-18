@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,12 @@ import java.util.List;
 
 /**
  * Type node for a disjunctive type.
+ * <pre>
+ * DisjunctiveType:
+ *    Type <b>|</b> Type { <b>|</b> Type }
+ * </pre>
  * <p>
- * This kind of node is used inside as catch formal parameter type.
+ * This kind of node is used inside a catch formal parameter type.
  * </p>
  *
  * @since 3.7
@@ -30,36 +34,23 @@ import java.util.List;
 public class DisjunctiveType extends Type {
 
 	/**
-	 * The "types" structural property of this node type (element type: {@link DisjunctiveType}).
-	 * @since 3.0
+	 * The "types" structural property of this node type (element type: {@link Type}).
 	 */
 	public static final ChildListPropertyDescriptor TYPES_PROPERTY =
 		new ChildListPropertyDescriptor(DisjunctiveType.class, "types", Type.class, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
 		List propertyList = new ArrayList(4);
 		createPropertyList(DisjunctiveType.class, propertyList);
 		addProperty(TYPES_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
-	}
-
-	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
-	 * @since 3.1
-	 */
-	private static final List PROPERTY_DESCRIPTORS;
-
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
-	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
-		if (property == TYPES_PROPERTY) {
-			return types();
-		}
-		// allow default implementation to flag the error
-		return super.internalGetChildListProperty(property);
 	}
 
 	/**
@@ -70,7 +61,6 @@ public class DisjunctiveType extends Type {
 	 * <code>AST.JLS*</code> constants
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
@@ -83,7 +73,8 @@ public class DisjunctiveType extends Type {
 
 	/**
 	 * Creates a new unparented node for a disjunctive type owned by the given AST.
-	 * <p>
+	 * By default, it has no types.<p>
+	 * 
 	 * N.B. This constructor is package-private.
 	 * </p>
 	 *
@@ -99,6 +90,17 @@ public class DisjunctiveType extends Type {
 	 */
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == TYPES_PROPERTY) {
+			return types();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
 	}
 
 	/* (omit javadoc for this method)
@@ -127,6 +129,9 @@ public class DisjunctiveType extends Type {
 		return matcher.match(this, other);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
