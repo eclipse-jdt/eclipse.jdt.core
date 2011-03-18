@@ -1548,16 +1548,18 @@ public class NaiveASTFlattener extends ASTVisitor {
 		printIndent();
 		this.buffer.append("try ");//$NON-NLS-1$
 		List resources = node.resources();
-		if (resources != null) {
-			this.buffer.append('(');
-			for (Iterator it = resources.iterator(); it.hasNext(); ) {
-				VariableDeclarationExpression variable = (VariableDeclarationExpression) it.next();
-				variable.accept(this);
-				if (it.hasNext()) {
-					this.buffer.append(';');
+		if (node.getAST().apiLevel() >= AST.JLS4) {
+			if (!node.resources().isEmpty()) {
+				this.buffer.append('(');
+				for (Iterator it = resources.iterator(); it.hasNext(); ) {
+					VariableDeclarationExpression variable = (VariableDeclarationExpression) it.next();
+					variable.accept(this);
+					if (it.hasNext()) {
+						this.buffer.append(';');
+					}
 				}
+				this.buffer.append(')');
 			}
-			this.buffer.append(')');
 		}
 		node.getBody().accept(this);
 		this.buffer.append(" ");//$NON-NLS-1$
