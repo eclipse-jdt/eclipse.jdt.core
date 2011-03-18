@@ -349,6 +349,8 @@ public class TryStatement extends Statement {
 	 *
 	 * @return the live list of resources
 	 *    (element type: {@link VariableDeclarationExpression})
+	 * @exception UnsupportedOperationException if this operation is used
+	 *            in a JLS2 or JLS3 AST
 	 * @since 3.7
 	 */
 	public List resources() {
