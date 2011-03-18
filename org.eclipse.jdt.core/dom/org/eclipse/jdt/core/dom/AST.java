@@ -2221,7 +2221,7 @@ public final class AST {
 
 	/**
 	 * Creates a new unparented try statement node owned by this AST.
-	 * By default, the try statement has an empty block, no catch
+	 * By default, the try statement has no resources, an empty block, no catch
 	 * clauses, and no finally block.
 	 *
 	 * @return a new unparented try statement node

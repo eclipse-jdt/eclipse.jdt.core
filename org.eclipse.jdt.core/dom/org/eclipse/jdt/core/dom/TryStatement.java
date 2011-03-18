@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -16,22 +20,26 @@ import java.util.List;
 
 /**
  * Try statement AST node type.
- * For JLS2 and JLS3,
+ * For JLS2 and JLS3:
  * <pre>
  * TryStatement:
  *     <b>try</b> Block
- *         [{ CatchClause }]
+ *         [ { CatchClause } ]
  *         [ <b>finally</b> Block ]
  * </pre>
- * For JLS4, resources were added and catchClauses can be optional.
+ * For JLS4, resources were added:
  * <pre>
  * TryStatement:
- *     <b>try</b> <b>(</b> Resources <b>)</b>
+ *     <b>try</b> [ <b>(</b> Resources <b>)</b> ]
  *         Block
- *         [{ CatchClause }]
+ *         [ { CatchClause } ]
  *         [ <b>finally</b> Block ]
  * </pre>
  *
+ * <p>
+ * Not all node arrangements will represent legal Java constructs. In particular,
+ * at least one resource, catch clause, or finally block must be present.</p>
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -88,7 +96,7 @@ public class TryStatement extends Statement {
 		addProperty(FINALLY_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 
-		propertyList = new ArrayList(4);
+		propertyList = new ArrayList(5);
 		createPropertyList(TryStatement.class, propertyList);
 		addProperty(RESOURCES_PROPERTY, propertyList);
 		addProperty(BODY_PROPERTY, propertyList);
@@ -108,8 +116,8 @@ public class TryStatement extends Statement {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		switch(apiLevel) {
-			case AST.JLS4 :
+		switch (apiLevel) {
+			case AST.JLS4:
 				return PROPERTY_DESCRIPTORS_4_0;
 			default:
 				return PROPERTY_DESCRIPTORS;
@@ -144,7 +152,7 @@ public class TryStatement extends Statement {
 
 
 	/**
-	 * Creates a new AST node for a try with resources statement owned by the given
+	 * Creates a new AST node for a try statement owned by the given
 	 * AST. By default, the try statement has no resources, an empty block, no catch
 	 * clauses, and no finally block.
 	 * <p>
@@ -219,7 +227,7 @@ public class TryStatement extends Statement {
 		TryStatement result = new TryStatement(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
-		if (this.ast.apiLevel >= AST.JLS3) {
+		if (this.ast.apiLevel >= AST.JLS4) {
 			result.resources().addAll(
 					ASTNode.copySubtrees(target, resources()));
 		}
@@ -344,6 +352,10 @@ public class TryStatement extends Statement {
 	 * @since 3.7
 	 */
 	public List resources() {
+		// more efficient than just calling unsupportedIn2_3() to check
+		if (this.resources == null) {
+			unsupportedIn2_3();
+		}
 		return this.resources;
 	}
 

@@ -19,13 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Type node for a disjunctive type.
+ * Type node for a disjunctive type (added in JLS4 API).
  * <pre>
  * DisjunctiveType:
  *    Type <b>|</b> Type { <b>|</b> Type }
  * </pre>
  * <p>
- * This kind of node is used inside a catch formal parameter type.
+ * This kind of node is used inside a catch clause's formal parameter type.
  * </p>
  *
  * @since 3.7
@@ -47,7 +47,7 @@ public class DisjunctiveType extends Type {
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(4);
+		List propertyList = new ArrayList(2);
 		createPropertyList(DisjunctiveType.class, propertyList);
 		addProperty(TYPES_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
@@ -82,7 +82,7 @@ public class DisjunctiveType extends Type {
 	 */
 	DisjunctiveType(AST ast) {
 		super(ast);
-		supportedOnlyIn4();
+		unsupportedIn2_3();
 	}
 
 	/* (omit javadoc for this method)
@@ -135,13 +135,14 @@ public class DisjunctiveType extends Type {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
+			// visit children in normal left to right reading order
 			acceptChildren(visitor, this.types);
 		}
 		visitor.endVisit(this);
 	}
 
 	/**
-	 * Returns the live list of types in this disjunctive type.
+	 * Returns the live ordered list of types in this disjunctive type.
 	 * Adding and removing nodes from this list affects this node
 	 * dynamically. All nodes in this list must be
 	 * <code>Type</code>s; attempts to add any other
@@ -157,7 +158,6 @@ public class DisjunctiveType extends Type {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		// treat Code as free
 		return BASE_NODE_SIZE + 1 * 4;
 	}
 

@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -92,6 +96,9 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(ContinueStatement node) {
 		endVisitNode(node);
 	}
+	public void endVisit(DisjunctiveType node) {
+		endVisitNode(node);
+	}
 	public void endVisit(DoStatement node) {
 		endVisitNode(node);
 	}
@@ -162,6 +169,9 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	public void endVisit(MethodRefParameter node) {
+		endVisitNode(node);
+	}
+	public void endVisit(Modifier node) {
 		endVisitNode(node);
 	}
 	public void endVisit(NormalAnnotation node) {
@@ -345,6 +355,9 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(ContinueStatement node) {
 		return visitNode(node);
 	}
+	public boolean visit(DisjunctiveType node) {
+		return visitNode(node);
+	}
 	public boolean visit(DoStatement node) {
 		return visitNode(node);
 	}
@@ -416,6 +429,9 @@ class DefaultASTVisitor extends ASTVisitor {
 		return visitNode(node);
 	}
 	public boolean visit(MethodRef node) {
+		return visitNode(node);
+	}
+	public boolean visit(Modifier node) {
 		return visitNode(node);
 	}
 	public boolean visit(MethodRefParameter node) {
