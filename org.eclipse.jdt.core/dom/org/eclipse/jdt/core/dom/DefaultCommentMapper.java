@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2009 IBM Corporation and others.
+ * Copyright (c) 2004, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -636,6 +636,10 @@ class DefaultCommentMapper {
 			}
 		}
 
+		public boolean visit (Modifier modifier) {
+			// we don't want to map comment to the modifier
+			return false;
+		}
 		public boolean visit ( CompilationUnit node) {
 			// do nothing special, just go down in sub-levels
 			return true;
