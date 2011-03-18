@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MethodVerifyTest extends AbstractComparableTest {
 	static {
-//		TESTS_NAMES = new String[] { "test331446" };
+//		TESTS_NAMES = new String[] { "test339447" };
 //		TESTS_NUMBERS = new int[] { 213 };
 //		TESTS_RANGE = new int[] { 190, -1};
 	}
@@ -11967,5 +11967,33 @@ public void test332744b() {
 		null,
 		compilerOptions14,
 		null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=339447
+public void test339447() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X implements Cloneable {\n" + 
+			"	public synchronized X clone() {\n" + 
+			"		return this;\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"");
+	// 	ensure bridge methods have target method modifiers, and inherited thrown exceptions
+	String expectedOutput =
+			"  public bridge synthetic java.lang.Object clone() throws java.lang.CloneNotSupportedException;";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
 }
 }
