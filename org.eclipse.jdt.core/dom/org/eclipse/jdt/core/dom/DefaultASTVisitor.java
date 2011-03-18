@@ -164,6 +164,9 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(MethodRefParameter node) {
 		endVisitNode(node);
 	}
+	public void endVisit(Modifier node) {
+		endVisitNode(node);
+	}
 	public void endVisit(NormalAnnotation node) {
 		endVisitNode(node);
 	}
@@ -416,6 +419,9 @@ class DefaultASTVisitor extends ASTVisitor {
 		return visitNode(node);
 	}
 	public boolean visit(MethodRef node) {
+		return visitNode(node);
+	}
+	public boolean visit(Modifier node) {
 		return visitNode(node);
 	}
 	public boolean visit(MethodRefParameter node) {
