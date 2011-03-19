@@ -314,17 +314,17 @@ public void test010() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	try (Y i = new Y(); Y i = new Y(); Y p = new Y(); Y k = new Y();) {\n" + 
-		"	                      ^^^^^^^^^^^^\n" + 
+		"	                      ^\n" + 
 		"Duplicate local variable i\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	try (Y i = new Y(); Y i = new Y(); Y p = new Y(); Y k = new Y();) {\n" + 
-		"	                                     ^^^^^^^^^^^^\n" + 
+		"	                                     ^\n" + 
 		"Duplicate local variable p\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 4)\n" + 
 		"	try (Y i = new Y(); Y i = new Y(); Y p = new Y(); Y k = new Y();) {\n" + 
-		"	                                                    ^^^^^^^^^^^^\n" + 
+		"	                                                    ^\n" + 
 		"Duplicate local variable k\n" + 
 		"----------\n");
 }

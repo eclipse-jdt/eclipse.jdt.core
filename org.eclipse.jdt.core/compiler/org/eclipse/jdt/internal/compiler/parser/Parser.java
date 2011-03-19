@@ -5267,9 +5267,7 @@ protected void consumeResourceOptionalTrailingSemiColon(boolean punctuated) {
 	// TrailingSemiColon ::= ';'
 	LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr];
 	if (punctuated) {
-		localDeclaration.sourceEnd = localDeclaration.declarationEnd = localDeclaration.declarationSourceEnd = this.endStatementPosition;
-	} else {
-		localDeclaration.sourceEnd = localDeclaration.declarationEnd;  // RHS updated already in consumeExitVariableWithInitialization
+		localDeclaration.declarationEnd = localDeclaration.declarationSourceEnd = this.endStatementPosition;
 	}
 }
 protected void consumeRestoreDiet() {

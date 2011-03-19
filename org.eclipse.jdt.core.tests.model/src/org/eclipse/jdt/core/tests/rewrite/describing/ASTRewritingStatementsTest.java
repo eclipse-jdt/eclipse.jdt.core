@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -16,6 +20,8 @@ import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
@@ -4640,7 +4646,160 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
+	}
 
+	public void testTryStatementWithResources() throws Exception {
+		createProject("P_17", JavaCore.VERSION_1_7);
+		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
+
+		try {
+			IPackageFragment pack1= currentSourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        try (Reader reader = null) {\n");
+			buf.append("        } finally {\n");
+			buf.append("        }\n");
+			buf.append("        try (Reader reader = null) {\n");
+			buf.append("        } catch (IOException e) {\n");
+			buf.append("        } finally {\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+			CompilationUnit astRoot= createAST(AST.JLS4, cu, false);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+			AST ast= astRoot.getAST();
+	
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 2", blockStatements.size() == 2);
+			{ // add catch, replace finally
+				TryStatement tryStatement= (TryStatement) blockStatements.get(0);
+	
+				CatchClause catchClause= ast.newCatchClause();
+				SingleVariableDeclaration decl= ast.newSingleVariableDeclaration();
+				decl.setType(ast.newSimpleType(ast.newSimpleName("IOException")));
+				decl.setName(ast.newSimpleName("e"));
+				catchClause.setException(decl);
+	
+				rewrite.getListRewrite(tryStatement, TryStatement.CATCH_CLAUSES_PROPERTY).insertLast(catchClause, null);
+	
+				Block body= ast.newBlock();
+				body.statements().add(ast.newReturnStatement());
+	
+				rewrite.replace(tryStatement.getFinally(), body, null);
+			}
+			{ // add resource
+				TryStatement tryStatement= (TryStatement) blockStatements.get(0);
+				VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+				fragment.setName(ast.newSimpleName("reader2"));
+				fragment.setInitializer(ast.newNullLiteral());
+				VariableDeclarationExpression resource = ast.newVariableDeclarationExpression(fragment);
+				resource.setType(ast.newSimpleType(ast.newSimpleName("Reader")));
+
+				rewrite.getListRewrite(tryStatement, TryStatement.RESOURCES_PROPERTY).insertLast(resource, null);
+			}
+			{ // replace catch, remove finally
+				TryStatement tryStatement= (TryStatement) blockStatements.get(1);
+	
+				List catchClauses= tryStatement.catchClauses();
+	
+				CatchClause catchClause= ast.newCatchClause();
+				SingleVariableDeclaration decl= ast.newSingleVariableDeclaration();
+				decl.setType(ast.newSimpleType(ast.newSimpleName("Exception")));
+				decl.setName(ast.newSimpleName("x"));
+				catchClause.setException(decl);
+	
+				rewrite.replace((ASTNode) catchClauses.get(0), catchClause, null);
+	
+				rewrite.remove(tryStatement.getFinally(), null);
+			}
+	
+	
+			String preview= evaluateRewrite(cu, rewrite);
+	
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        try (Reader reader = null; Reader reader2 = null) {\n");
+			buf.append("        } catch (IOException e) {\n");
+			buf.append("        } finally {\n");
+			buf.append("            return;\n");
+			buf.append("        }\n");
+			buf.append("        try (Reader reader = null) {\n");
+			buf.append("        } catch (Exception x) {\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			deleteProject("P_17");
+		}
+	}
+
+	public void testTryStatementWithResources2() throws Exception {
+		createProject("P_17", JavaCore.VERSION_1_7);
+		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
+
+		try {
+			IPackageFragment pack1= currentSourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        try (Reader reader = null) {\n");
+			buf.append("        } catch (IOException e) {\n");
+			buf.append("        } finally {\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+	
+			CompilationUnit astRoot= createAST(AST.JLS4, cu, false);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+			AST ast= astRoot.getAST();
+	
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 1", blockStatements.size() == 1);
+			{ // rename resource
+				TryStatement tryStatement= (TryStatement) blockStatements.get(0);
+	
+				VariableDeclarationExpression resource = (VariableDeclarationExpression) tryStatement.resources().get(0);
+				VariableDeclarationFragment fragment = (VariableDeclarationFragment) resource.fragments().get(0);
+				
+				rewrite.set(fragment, VariableDeclarationFragment.NAME_PROPERTY, ast.newSimpleName("r1"), null);
+			}
+	
+	
+			String preview= evaluateRewrite(cu, rewrite);
+	
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        try (Reader r1 = null) {\n");
+			buf.append("        } catch (IOException e) {\n");
+			buf.append("        } finally {\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			deleteProject("P_17");
+		}
 	}
 
 	/** @deprecated using deprecated code */

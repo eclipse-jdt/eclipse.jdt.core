@@ -6850,6 +6850,10 @@ public void unhandledException(TypeBinding exceptionType, ASTNode location) {
 		(location instanceof ExplicitConstructorCall)
 			&& (((ExplicitConstructorCall) location).accessMode == ExplicitConstructorCall.ImplicitSuper);
 
+	int sourceEnd = location.sourceEnd;
+	if (location instanceof LocalDeclaration) {
+		sourceEnd = ((LocalDeclaration) location).declarationEnd;
+	}
 	this.handle(
 		insideDefaultConstructor
 			? IProblem.UnhandledExceptionInDefaultConstructor
@@ -6859,7 +6863,7 @@ public void unhandledException(TypeBinding exceptionType, ASTNode location) {
 		new String[] {new String(exceptionType.readableName())},
 		new String[] {new String(exceptionType.shortReadableName())},
 		location.sourceStart,
-		location.sourceEnd);
+		sourceEnd);
 }
 public void unhandledWarningToken(Expression token) {
 	String[] arguments = new String[] { token.constant.stringValue() };
