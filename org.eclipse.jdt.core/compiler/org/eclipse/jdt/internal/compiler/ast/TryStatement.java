@@ -153,7 +153,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
 				FlowInfo catchInfo;
-				if (isUncheckedCatchBlock(i, true)) {
+				if (isUncheckedCatchBlock(i)) {
 					catchInfo =
 						handlingContext.initsOnFinally.mitigateNullInfoOf(
 							flowInfo.unconditionalCopy().
@@ -278,7 +278,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
 				FlowInfo catchInfo;
-				if (isUncheckedCatchBlock(i, true)) {
+				if (isUncheckedCatchBlock(i)) {
 					catchInfo =
 						handlingContext.initsOnFinally.mitigateNullInfoOf(
 							flowInfo.unconditionalCopy().
@@ -357,13 +357,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 }
 // Return true if the catch block corresponds to an unchecked exception making allowance for multi-catch blocks.
-private boolean isUncheckedCatchBlock(int catchBlock, boolean includeSuperTypes) {
+private boolean isUncheckedCatchBlock(int catchBlock) {
 	if (this.caughtExceptionsCatchBlocks == null) {
-		return this.caughtExceptionTypes[catchBlock].isUncheckedException(includeSuperTypes);
+		return this.caughtExceptionTypes[catchBlock].isUncheckedException(true);
 	}
 	for (int i = 0, length = this.caughtExceptionsCatchBlocks.length; i < length; i++) {
 		if (this.caughtExceptionsCatchBlocks[i] == catchBlock) {
-			if (this.caughtExceptionTypes[i].isUncheckedException(includeSuperTypes)) {
+			if (this.caughtExceptionTypes[i].isUncheckedException(true)) {
 				return true;
 			}
 		}
