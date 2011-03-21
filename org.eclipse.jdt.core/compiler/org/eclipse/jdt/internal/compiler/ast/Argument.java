@@ -153,10 +153,10 @@ public class Argument extends LocalDeclaration {
 		}
 		
 		if ((this.type.bits & ASTNode.IsDisjuntive) != 0) {
-			this.binding = new LocalVariableBinding(this, exceptionType, this.modifiers | ClassFileConstants.AccFinal, false); // argument decl, but local var  (where isArgument = false)
+			this.binding = new CatchParameterBinding(this, exceptionType, this.modifiers | ClassFileConstants.AccFinal, false); // argument decl, but local var  (where isArgument = false)
 			this.binding.tagBits |= TagBits.MultiCatchParameter;
 		} else {
-			this.binding = new LocalVariableBinding(this, exceptionType, this.modifiers, false); // argument decl, but local var  (where isArgument = false)
+			this.binding = new CatchParameterBinding(this, exceptionType, this.modifiers, false); // argument decl, but local var  (where isArgument = false)
 		}
 		resolveAnnotations(scope, this.annotations, this.binding);
 

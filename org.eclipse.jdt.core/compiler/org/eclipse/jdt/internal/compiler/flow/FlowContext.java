@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.CatchParameterBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -99,43 +100,17 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 	// all related catch blocks are marked as reachable... instead of those only
 	// until the point where it is safely handled (Smarter - see comment at the end)
 	FlowContext traversedContext = this;
-	boolean argumentEffectivelyFinal = false;
-	LocalVariableBinding throwArgBinding = null;
 	ArrayList abruptlyExitedLoops = null;
-	if (scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_7 && location instanceof ThrowStatement) {
-		Expression expr = ((ThrowStatement)location).exception;
-		throwArgBinding = expr.localVariableBinding();
-		if (throwArgBinding != null && throwArgBinding.isEffectivelyFinal()) {
-			argumentEffectivelyFinal = true;
+	if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_7 && location instanceof ThrowStatement) {
+		LocalVariableBinding throwArgBinding = ((ThrowStatement)location).exception.localVariableBinding();
+		if (throwArgBinding instanceof CatchParameterBinding && throwArgBinding.isEffectivelyFinal()) {
+			CatchParameterBinding parameter = (CatchParameterBinding) throwArgBinding;
+			TypeBinding [] preciseRethrowableExceptions = parameter.getPreciseTypes();
+			if (preciseRethrowableExceptions.length > 0) {
+				checkExceptionHandlers(preciseRethrowableExceptions, location, flowInfo, scope);
+				return;
+			} // else fall through and consider the throw as a 1.6 throw and operate in light version.
 		}
-	}
-	ReferenceBinding[] caughtExceptions;
-	TypeBinding[] raisedExceptions = null;
-	int raisedCount = 0;
-	if (argumentEffectivelyFinal == true && traversedContext instanceof ExceptionHandlingFlowContext) {
-		ExceptionHandlingFlowContext exceptionContext = (ExceptionHandlingFlowContext) traversedContext;
-		if (exceptionContext.catchBlockExceptionsStack != null) {
-			for (int i = exceptionContext.catchBlockExceptionsStack.length - 1; i >= 0; i--) { // check from inner block
-				if (throwArgBinding == exceptionContext.catchBlockArgumentStack[i]) { // same as the particular catch argument
-					int possibleRaisedCount = exceptionContext.catchBlockExceptionsStack[i].length;
-					raisedExceptions = new TypeBinding[possibleRaisedCount];
-					for (int j = 0; j < possibleRaisedCount; j++) {
-						TypeBinding typeBinding = exceptionContext.catchBlockExceptionsStack[i][j];
-						if (typeBinding != null
-								&& (typeBinding == raisedException || typeBinding.isCompatibleWith(raisedException))) {
-							raisedExceptions[j] = typeBinding;
-							raisedCount++;
-						}
-					}
-					break;
-				}
-			}
-		}
-	}
-	//TODO: Should we prune the array of raisedExceptions
-	if (raisedExceptions == null || raisedCount == 0) {
-		raisedExceptions = new TypeBinding[]{raisedException};
-		raisedCount = 1;
 	}
 	while (traversedContext != null) {
 		SubRoutineStatement sub;
@@ -150,49 +125,45 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 		if (traversedContext instanceof ExceptionHandlingFlowContext) {
 			ExceptionHandlingFlowContext exceptionContext =
 				(ExceptionHandlingFlowContext) traversedContext;
-			for (int k = 0; k < raisedExceptions.length; k++) {
-				if (raisedExceptions[k] == null) continue;
+			ReferenceBinding[] caughtExceptions;
+			if ((caughtExceptions = exceptionContext.handledExceptions) != Binding.NO_EXCEPTIONS) {
 				boolean definitelyCaught = false;
-				if ((caughtExceptions = exceptionContext.handledExceptions) != Binding.NO_EXCEPTIONS) {
-					for (int caughtIndex = 0, caughtCount = caughtExceptions.length;
-						caughtIndex < caughtCount;
-						caughtIndex++) {
-						ReferenceBinding caughtException = caughtExceptions[caughtIndex];
-					    int state = caughtException == null
-					    	? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
-					        : Scope.compareTypes(raisedExceptions[k], caughtException);
-					    if (abruptlyExitedLoops != null && caughtException != null && state != Scope.NOT_RELATED) {
-					    	for (int i = 0, abruptlyExitedLoopsCount = abruptlyExitedLoops.size(); i < abruptlyExitedLoopsCount; i++) {
-								LoopingFlowContext loop = (LoopingFlowContext) abruptlyExitedLoops.get(i);
-								loop.recordCatchContextOfEscapingException(exceptionContext, caughtException);
-							}
-						}
-						switch (state) {
-							case Scope.EQUAL_OR_MORE_SPECIFIC :
-								exceptionContext.recordHandlingException(
-									caughtException,
-									flowInfo.unconditionalInits(),
-									raisedExceptions[k],
-									location,
-									definitelyCaught);
-								// was it already definitely caught ?
-								definitelyCaught = true;
-								break;
-							case Scope.MORE_GENERIC :
-								exceptionContext.recordHandlingException(
-									caughtException,
-									flowInfo.unconditionalInits(),
-									raisedExceptions[k],
-									location,
-									false);
-								// was not caught already per construction
+				for (int caughtIndex = 0, caughtCount = caughtExceptions.length;
+					caughtIndex < caughtCount;
+					caughtIndex++) {
+					ReferenceBinding caughtException = caughtExceptions[caughtIndex];
+				    int state = caughtException == null
+				    	? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
+				        : Scope.compareTypes(raisedException, caughtException);
+				    if (abruptlyExitedLoops != null && caughtException != null && state != Scope.NOT_RELATED) {
+				    	for (int i = 0, abruptlyExitedLoopsCount = abruptlyExitedLoops.size(); i < abruptlyExitedLoopsCount; i++) {
+							LoopingFlowContext loop = (LoopingFlowContext) abruptlyExitedLoops.get(i);
+							loop.recordCatchContextOfEscapingException(exceptionContext, caughtException);
 						}
 					}
+					switch (state) {
+						case Scope.EQUAL_OR_MORE_SPECIFIC :
+							exceptionContext.recordHandlingException(
+								caughtException,
+								flowInfo.unconditionalInits(),
+								raisedException,
+								location,
+								definitelyCaught);
+							// was it already definitely caught ?
+							definitelyCaught = true;
+							break;
+						case Scope.MORE_GENERIC :
+							exceptionContext.recordHandlingException(
+								caughtException,
+								flowInfo.unconditionalInits(),
+								raisedException,
+								location,
+								false);
+							// was not caught already per construction
+					}
 				}
-				if (definitelyCaught) {
-					raisedExceptions[k] = null;
-					if (--raisedCount == 0) return;
-				}
+				if (definitelyCaught)
+					return;
 			}
 			// method treatment for unchecked exceptions
 			if (exceptionContext.isMethodContext) {

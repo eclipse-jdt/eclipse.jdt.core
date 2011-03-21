@@ -4,11 +4,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -18,14 +18,15 @@ import java.util.ArrayList;
 
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.DisjunctiveTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.codegen.ObjectCache;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.CatchParameterBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -43,7 +44,8 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	public ReferenceBinding[] handledExceptions;
 	int[] isReached;
 	int[] isNeeded;
-	UnconditionalFlowInfo[] initsOnExceptions;
+	// WARNING: This is an array that maps to catch blocks, not caught exceptions (which could be more than catch blocks in a multi-catch block)
+	UnconditionalFlowInfo[] initsOnExceptions; 
 	ObjectCache indexes = new ObjectCache();
 	boolean isMethodContext;
 
@@ -53,34 +55,44 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	// for dealing with anonymous constructor thrown exceptions
 	public ArrayList extendedExceptions;
 
-	public TypeBinding[] preciseExceptions;
-	public TypeBinding[][] catchBlockExceptionsStack;
-	public LocalVariableBinding[] catchBlockArgumentStack;
-	int [] exceptionToCatchBlockMap;
+	private static final Argument[] NO_ARGUMENTS = new Argument[0];
+	public  Argument [] catchArguments;
 
+	private int[] exceptionToCatchBlockMap;
+
+public ExceptionHandlingFlowContext(
+			FlowContext parent,
+			ASTNode associatedNode,
+			ReferenceBinding[] handledExceptions,
+			FlowContext initializationParent,
+			BlockScope scope,
+			UnconditionalFlowInfo flowInfo) {
+	this(parent, associatedNode, handledExceptions, null, NO_ARGUMENTS, initializationParent, scope, flowInfo);
+}
 public ExceptionHandlingFlowContext(
 		FlowContext parent,
 		ASTNode associatedNode,
 		ReferenceBinding[] handledExceptions,
 		int [] exceptionToCatchBlockMap,
+		Argument [] catchArguments,
 		FlowContext initializationParent,
 		BlockScope scope,
-		UnconditionalFlowInfo flowInfo,
-		TypeBinding[][] exceptionArgument,
-		LocalVariableBinding[] catchArg) {
+		UnconditionalFlowInfo flowInfo) {
 
 	super(parent, associatedNode);
 	this.isMethodContext = scope == scope.methodScope();
 	this.handledExceptions = handledExceptions;
+	this.catchArguments = catchArguments;
+	this.exceptionToCatchBlockMap = exceptionToCatchBlockMap;
 	int count = handledExceptions.length, cacheSize = (count / ExceptionHandlingFlowContext.BitCacheSize) + 1;
 	this.isReached = new int[cacheSize]; // none is reached by default
 	this.isNeeded = new int[cacheSize]; // none is needed by default
-	this.preciseExceptions = new TypeBinding[count];
 	this.initsOnExceptions = new UnconditionalFlowInfo[count];
 	boolean markExceptionsAndThrowableAsReached =
 		!this.isMethodContext || scope.compilerOptions().reportUnusedDeclaredThrownExceptionExemptExceptionAndThrowable;
 	for (int i = 0; i < count; i++) {
 		ReferenceBinding handledException = handledExceptions[i];
+		int catchBlock = this.exceptionToCatchBlockMap != null? this.exceptionToCatchBlockMap[i] : i;
 		this.indexes.put(handledException, i); // key type  -> value index
 		if (handledException.isUncheckedException(true)) {
 			if (markExceptionsAndThrowableAsReached ||
@@ -88,9 +100,9 @@ public ExceptionHandlingFlowContext(
 					handledException.id != TypeIds.T_JavaLangException) {
 				this.isReached[i / ExceptionHandlingFlowContext.BitCacheSize] |= 1 << (i % ExceptionHandlingFlowContext.BitCacheSize);
 			}
-			this.initsOnExceptions[i] = flowInfo.unconditionalCopy();
+			this.initsOnExceptions[catchBlock] = flowInfo.unconditionalCopy();
 		} else {
-			this.initsOnExceptions[i] = FlowInfo.DEAD_END;
+			this.initsOnExceptions[catchBlock] = FlowInfo.DEAD_END;
 		}
 	}
 	if (!this.isMethodContext) {
@@ -98,19 +110,6 @@ public ExceptionHandlingFlowContext(
 	}
 	this.initsOnReturn = FlowInfo.DEAD_END;
 	this.initializationParent = initializationParent;
-	this.catchBlockExceptionsStack = exceptionArgument;
-	this.catchBlockArgumentStack = catchArg;
-	this.exceptionToCatchBlockMap = exceptionToCatchBlockMap;	
-}
-
-public ExceptionHandlingFlowContext(
-		FlowContext parent,
-		ASTNode associatedNode,
-		ReferenceBinding[] handledExceptions,
-		FlowContext initializationParent,
-		BlockScope scope,
-		UnconditionalFlowInfo flowInfo) {
-	this(parent, associatedNode, handledExceptions, null, initializationParent, scope, flowInfo, null, null);	
 }
 
 public void complainIfUnusedExceptionHandlers(AbstractMethodDeclaration method) {
@@ -150,33 +149,31 @@ public void complainIfUnusedExceptionHandlers(AbstractMethodDeclaration method) 
 	}
 }
 
-public void complainIfUnusedExceptionHandlers(BlockScope scope,TryStatement tryStatement, ExceptionHandlingFlowContext handlingContext) {
+public void complainIfUnusedExceptionHandlers(BlockScope scope,TryStatement tryStatement) {
 	// report errors for unreachable exception handlers
-	for (int i = 0, count = this.handledExceptions.length; i < count; i++) {
-		int cacheIndex = i / ExceptionHandlingFlowContext.BitCacheSize;
-		int bitMask = 1 << (i % ExceptionHandlingFlowContext.BitCacheSize);		
+	for (int index = 0, count = this.handledExceptions.length; index < count; index++) {
+		int cacheIndex = index / ExceptionHandlingFlowContext.BitCacheSize;
+		int bitMask = 1 << (index % ExceptionHandlingFlowContext.BitCacheSize);
 		if ((this.isReached[cacheIndex] & bitMask) == 0) {
-			ASTNode location = getExceptionHandlerLocation(i, tryStatement);
 			scope.problemReporter().unreachableCatchBlock(
-				this.handledExceptions[i],
-				location);
+				this.handledExceptions[index],
+				getExceptionType(index));
 		} else {
 			if ((this.isNeeded[cacheIndex] & bitMask) == 0) {
-				ASTNode location = getExceptionHandlerLocation(i, tryStatement);
 				scope.problemReporter().hiddenCatchBlock(
-					this.handledExceptions[i],
-					location);
+					this.handledExceptions[index],
+					getExceptionType(index));
 			}
 		}
 	}
 }
 
-private ASTNode getExceptionHandlerLocation(int index, TryStatement tryStatement) {	
+private ASTNode getExceptionType(int index) {	
 	if (this.exceptionToCatchBlockMap == null) {
-		return tryStatement.catchArguments[index].type;
+		return this.catchArguments[index].type;
 	}
 	int catchBlock = this.exceptionToCatchBlockMap[index];
-	ASTNode node = tryStatement.catchArguments[catchBlock].type;
+	ASTNode node = this.catchArguments[catchBlock].type;
 	if (node instanceof DisjunctiveTypeReference) {
 		TypeReference[] typeRefs = ((DisjunctiveTypeReference)node).typeReferences;
 		for (int i = 0, len = typeRefs.length; i < len; i++) {
@@ -186,6 +183,8 @@ private ASTNode getExceptionHandlerLocation(int index, TryStatement tryStatement
 	} 
 	return node;
 }
+
+
 
 public String individualToString() {
 	StringBuffer buffer = new StringBuffer("Exception flow context"); //$NON-NLS-1$
@@ -210,6 +209,8 @@ public String individualToString() {
 	return buffer.toString();
 }
 
+// WARNING: index is the catch block index as in the program order, before any normalization is
+// applied for multi catch
 public UnconditionalFlowInfo initsOnException(int index) {
 	return this.initsOnExceptions[index];
 }
@@ -263,13 +264,9 @@ public void recordHandlingException(
 	}
 	this.isReached[cacheIndex] |= bitMask;
 	int catchBlock = this.exceptionToCatchBlockMap != null? this.exceptionToCatchBlockMap[index] : index;
-	TypeBinding preciseException;
-	if ((preciseException = this.preciseExceptions[index]) == null) {
-		this.preciseExceptions[index] = raisedException;
-	} else if (preciseException != raisedException && raisedException !=null) {
-		if (preciseException.isCompatibleWith(raisedException)) {
-			this.preciseExceptions[index] = raisedException;
-		}
+	if (this.catchArguments != null && this.catchArguments.length > 0) {
+		CatchParameterBinding catchParameter = (CatchParameterBinding) this.catchArguments[catchBlock].binding;
+		catchParameter.setPreciseType(raisedException);
 	}
 	this.initsOnExceptions[catchBlock] =
 		(this.initsOnExceptions[catchBlock].tagBits & FlowInfo.UNREACHABLE) == 0 ?

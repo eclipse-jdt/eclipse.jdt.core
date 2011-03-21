@@ -46,7 +46,6 @@ public class TryStatement extends SubRoutineStatement {
 
 	public UnconditionalFlowInfo subRoutineInits;
 	ReferenceBinding[] caughtExceptionTypes;
-	int[] caughtExceptionsCatchBlocks; // catch block index for the corresponding exception
 	boolean[] catchExits;
 
 	BranchLabel subRoutineStartLabel;
@@ -75,43 +74,7 @@ public class TryStatement extends SubRoutineStatement {
 	private LocalVariableBinding primaryExceptionVariable;
 	private LocalVariableBinding caughtThrowableVariable;
 	private ExceptionLabel[] resourceExceptionLabels;
-
-// Add the precise exception thrown that is caught by the catch block
-// to already existing catch blocks stacks (nested catch blocks)
-private int addPreciseCaughtExceptions(ExceptionHandlingFlowContext handlingContext,
-		LocalVariableBinding catchArg, ExceptionHandlingFlowContext flowContext, int catchBlock,
-		int startExceptionIndex) {
-	TypeBinding[][] catchBlockExceptionsStack = flowContext.catchBlockExceptionsStack;
-	LocalVariableBinding[] catchBlockArgumentStack = flowContext.catchBlockArgumentStack;
-	int length = 0;
-	if (catchBlockExceptionsStack != null) {
-		length = catchBlockExceptionsStack.length;
-		System.arraycopy(catchBlockExceptionsStack, 0, catchBlockExceptionsStack = new TypeBinding[length + 1][],
-				0, length);
-		System.arraycopy(catchBlockArgumentStack, 0,
-				catchBlockArgumentStack = new LocalVariableBinding[length + 1], 0, length);
-	} else {
-		catchBlockExceptionsStack = new TypeBinding[1][];
-		catchBlockArgumentStack = new LocalVariableBinding[1];
-	}
-	int count = 0;
-	if (this.caughtExceptionsCatchBlocks != null) {
-		for (int i = startExceptionIndex, len = this.caughtExceptionsCatchBlocks.length; 
-				i < len && this.caughtExceptionsCatchBlocks[i] == catchBlock; i++) {
-			count++;
-		}
-	} else {
-		count = 1;
-	}
-	catchBlockExceptionsStack[length] = new TypeBinding[count];
-	for (int i = startExceptionIndex, j = 0; j < count; i++, j++) {
-		catchBlockExceptionsStack[length][j] = handlingContext.preciseExceptions[i];
-	}
-	catchBlockArgumentStack[length] = catchArg;
-	flowContext.catchBlockExceptionsStack = catchBlockExceptionsStack;
-	flowContext.catchBlockArgumentStack = catchBlockArgumentStack;
-	return count;
-}
+	private int[] caughtExceptionsCatchBlocks;
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
@@ -140,27 +103,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (this.subRoutineStartLabel == null) {
 		// no finally block -- this is a simplified copy of the else part
 		// process the try block in a context handling the local exceptions.
-		ExceptionHandlingFlowContext exceptionFlowContext = null;
-		TypeBinding[][] catchBlockExceptionsStack = null;
-		LocalVariableBinding[] catchBlockArgumentStack = null;
-		if (flowContext instanceof ExceptionHandlingFlowContext && 
-				currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_7) { 
-			// analysis not needed otherwise.
-			exceptionFlowContext = (ExceptionHandlingFlowContext)flowContext;
-			catchBlockExceptionsStack = exceptionFlowContext.catchBlockExceptionsStack;
-			catchBlockArgumentStack = exceptionFlowContext.catchBlockArgumentStack;
-		}
 		ExceptionHandlingFlowContext handlingContext =
 			new ExceptionHandlingFlowContext(
 				flowContext,
 				this,
 				this.caughtExceptionTypes,
 				this.caughtExceptionsCatchBlocks,
+				this.catchArguments,
 				null,
 				this.scope,
-				flowInfo.unconditionalInits(),
-				catchBlockExceptionsStack,
-				catchBlockArgumentStack);
+				flowInfo.unconditionalInits());
 		handlingContext.initsOnFinally =
 			new NullInfoRegistry(flowInfo.unconditionalInits());
 		// only try blocks initialize that member - may consider creating a
@@ -191,23 +143,17 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 
 		// check unreachable catch blocks
-		handlingContext.complainIfUnusedExceptionHandlers(this.scope, this, handlingContext);
+		handlingContext.complainIfUnusedExceptionHandlers(this.scope, this);
 
 		// process the catch blocks - computing the minimal exit depth amongst try/catch
 		if (this.catchArguments != null) {
 			int catchCount;
 			this.catchExits = new boolean[catchCount = this.catchBlocks.length];
 			this.catchExitInitStateIndexes = new int[catchCount];
-			TypeBinding[][] origCatchBlockExceptionStack = null;
-			LocalVariableBinding[] origCatchBlockArgumentStack = null;
-			if (exceptionFlowContext != null) { // back up of the
-				origCatchBlockExceptionStack = exceptionFlowContext.catchBlockExceptionsStack;
-				origCatchBlockArgumentStack = exceptionFlowContext.catchBlockArgumentStack;
-			}
-			for (int i = 0, j = 0; i < catchCount; i++) {
+			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
 				FlowInfo catchInfo;
-				if (isUncheckedCatchBlock(i, j, true)) {
+				if (isUncheckedCatchBlock(i, true)) {
 					catchInfo =
 						handlingContext.initsOnFinally.mitigateNullInfoOf(
 							flowInfo.unconditionalCopy().
@@ -242,11 +188,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				if (this.tryBlock.statements == null) {
 					catchInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 				}
-				if (exceptionFlowContext != null) {
-					j += addPreciseCaughtExceptions(handlingContext, catchArg, exceptionFlowContext, i, j);
-				} else {
-					j++; //TODO: Is this required?
-				}
 				catchInfo =
 					this.catchBlocks[i].analyseCode(
 						currentScope,
@@ -256,10 +197,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.catchExits[i] =
 					(catchInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0;
 				tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());
-			}
-			if (exceptionFlowContext != null) {
-				exceptionFlowContext.catchBlockExceptionsStack = origCatchBlockExceptionStack;
-				exceptionFlowContext.catchBlockArgumentStack = origCatchBlockArgumentStack;
 			}
 		}
 		this.mergedInitStateIndex =
@@ -291,27 +228,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		this.subRoutineInits = subInfo;
 		// process the try block in a context handling the local exceptions.
-		ExceptionHandlingFlowContext exceptionFlowContext = null;
-		TypeBinding[][] catchBlockExceptionsStack = null;
-		LocalVariableBinding[] catchBlockArgumentStack = null;
-		if (flowContext instanceof ExceptionHandlingFlowContext && 
-				currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_7) { 
-			// analysis not needed otherwise.
-			exceptionFlowContext = (ExceptionHandlingFlowContext)flowContext;
-			catchBlockExceptionsStack = exceptionFlowContext.catchBlockExceptionsStack;
-			catchBlockArgumentStack = exceptionFlowContext.catchBlockArgumentStack;
-		}
 		ExceptionHandlingFlowContext handlingContext =
 			new ExceptionHandlingFlowContext(
 				insideSubContext,
 				this,
 				this.caughtExceptionTypes,
 				this.caughtExceptionsCatchBlocks,
+				this.catchArguments,
 				null,
 				this.scope,
-				flowInfo.unconditionalInits(),
-				catchBlockExceptionsStack,
-				catchBlockArgumentStack);
+				flowInfo.unconditionalInits());
 		handlingContext.initsOnFinally =
 			new NullInfoRegistry(flowInfo.unconditionalInits());
 		// only try blocks initialize that member - may consider creating a
@@ -342,23 +268,17 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 
 		// check unreachable catch blocks
-		handlingContext.complainIfUnusedExceptionHandlers(this.scope, this, handlingContext);
+		handlingContext.complainIfUnusedExceptionHandlers(this.scope, this);
 
 		// process the catch blocks - computing the minimal exit depth amongst try/catch
 		if (this.catchArguments != null) {
 			int catchCount;
 			this.catchExits = new boolean[catchCount = this.catchBlocks.length];
 			this.catchExitInitStateIndexes = new int[catchCount];
-			TypeBinding[][] originalExcArg = null;
-			LocalVariableBinding[] originalCatchArg = null;
-			if (exceptionFlowContext != null) {
-				originalExcArg = exceptionFlowContext.catchBlockExceptionsStack;
-				originalCatchArg = exceptionFlowContext.catchBlockArgumentStack;
-			}
-			for (int i = 0, j = 0; i < catchCount; i++) {
+			for (int i = 0; i < catchCount; i++) {
 				// keep track of the inits that could potentially have led to this exception handler (for final assignments diagnosis)
 				FlowInfo catchInfo;
-				if (isUncheckedCatchBlock(i, j, true)) {
+				if (isUncheckedCatchBlock(i, true)) {
 					catchInfo =
 						handlingContext.initsOnFinally.mitigateNullInfoOf(
 							flowInfo.unconditionalCopy().
@@ -393,11 +313,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				if (this.tryBlock.statements == null) {
 					catchInfo.setReachMode(FlowInfo.UNREACHABLE);
 				}
-				if (exceptionFlowContext != null) {
-					j += addPreciseCaughtExceptions(handlingContext, catchArg, exceptionFlowContext, i, j);
-				} else {
-					j++; //TODO: Is this required?
-				}
 				catchInfo =
 					this.catchBlocks[i].analyseCode(
 						currentScope,
@@ -407,10 +322,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.catchExits[i] =
 					(catchInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0;
 				tryInfo = tryInfo.mergedWith(catchInfo.unconditionalInits());
-			}
-			if (originalExcArg != null) {
-				exceptionFlowContext.catchBlockExceptionsStack = originalExcArg;
-				exceptionFlowContext.catchBlockArgumentStack = originalCatchArg;
 			}
 		}
 		// we also need to check potential multiple assignments of final variables inside the finally block
@@ -444,6 +355,20 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			return mergedInfo;
 		}
 	}
+}
+// Return true if the catch block corresponds to an unchecked exception making allowance for multi-catch blocks.
+private boolean isUncheckedCatchBlock(int catchBlock, boolean includeSuperTypes) {
+	if (this.caughtExceptionsCatchBlocks == null) {
+		return this.caughtExceptionTypes[catchBlock].isUncheckedException(includeSuperTypes);
+	}
+	for (int i = 0, length = this.caughtExceptionsCatchBlocks.length; i < length; i++) {
+		if (this.caughtExceptionsCatchBlocks[i] == catchBlock) {
+			if (this.caughtExceptionTypes[i].isUncheckedException(includeSuperTypes)) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 public ExceptionLabel enterAnyExceptionHandler(CodeStream codeStream) {
@@ -850,18 +775,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 
-private boolean isUncheckedCatchBlock(int index, int startExceptionNumber, boolean includeSuperTypes) {
-	if (this.caughtExceptionsCatchBlocks == null) {
-		return this.caughtExceptionTypes[index].isUncheckedException(includeSuperTypes);
-	}
-	for (int j = startExceptionNumber, len = this.caughtExceptionsCatchBlocks.length; j < len && this.caughtExceptionsCatchBlocks[j] != index; j++) {
-		if (this.caughtExceptionTypes[j].isUncheckedException(includeSuperTypes)) {
-			return true;
-		}
-	}
-	return false;
-}
-
 /**
  * @see SubRoutineStatement#generateSubRoutineInvocation(BlockScope, CodeStream, Object, int, LocalVariableBinding)
  */
@@ -1016,7 +929,7 @@ public void resolve(BlockScope upperScope) {
 	this.scope = new BlockScope(upperScope);
 
 	BlockScope finallyScope = null;
-	BlockScope resourceManagementScope = null; // Single scope to hold all resources and additional secret variables.
+    BlockScope resourceManagementScope = null; // Single scope to hold all resources and additional secret variables.
 	int resourceCount = this.resources.length;
 	if (resourceCount > 0) {
 		resourceManagementScope = new BlockScope(this.scope);
@@ -1169,8 +1082,8 @@ protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes
 				ReferenceBinding[] disjunctiveExceptionTypes = new ReferenceBinding[typeReferencesLength];
 				for (int j = 0; j < typeReferencesLength; j++) {
 					disjunctiveExceptionTypes[j] = (ReferenceBinding) typeReferences[j].resolvedType;
-					totalCount++;
 				}
+				totalCount += typeReferencesLength;
 				allExceptionTypes[i] = disjunctiveExceptionTypes;
 			} else {
 				allExceptionTypes[i] = new ReferenceBinding[] { currentExceptionType };
@@ -1178,7 +1091,7 @@ protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes
 			}
 		}
 		this.caughtExceptionTypes = new ReferenceBinding[totalCount];
-		this.caughtExceptionsCatchBlocks = new int[totalCount];
+		this.caughtExceptionsCatchBlocks  = new int[totalCount];
 		for (int i = 0, l = 0; i < length; i++) {
 			ReferenceBinding[] currentExceptions = allExceptionTypes[i];
 			loop: for (int j = 0, max = currentExceptions.length; j < max; j++) {
