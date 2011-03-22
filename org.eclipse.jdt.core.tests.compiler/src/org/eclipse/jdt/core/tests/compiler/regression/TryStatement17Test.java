@@ -723,6 +723,61 @@ public void test019() {
 		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
+// Test that for unchecked exceptions, we don't do any precise analysis.
+public void test020() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+					"	public static void main(String [] args)  {\n" +
+					"		try {\n" +
+					"		} catch (NullPointerException s) {\n" +
+					"			try {\n" +
+					"				throw s;\n" +
+					"			} catch (ArithmeticException e) {\n" +
+					"			}\n" +
+					"		} finally {\n" +
+					"			System.out.println(\"All done\");\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n"
+		},
+		"All done");
+}
+// Test multicatch behavior.
+public void test021() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String[] exceptions = { \"NullPointerException\", \"ArithmeticException\",\n" +
+			"				\"ArrayStoreException\", \"ArrayIndexOutOfBoundsException\" };\n" +
+			"\n" +
+			"		for (String exception : exceptions) {\n" +
+			"			try {\n" +
+			"				switch (exception) {\n" +
+			"				case \"NullPointerException\":\n" +
+			"					throw new NullPointerException();\n" +
+			"				case \"ArithmeticException\":\n" +
+			"					throw new ArithmeticException();\n" +
+			"				case \"ArrayStoreException\":\n" +
+			"					throw new ArrayStoreException();\n" +
+			"				case \"ArrayIndexOutOfBoundsException\":\n" +
+			"					throw new ArrayIndexOutOfBoundsException();\n" +
+			"				}\n" +
+			"			} catch (NullPointerException | ArithmeticException | ArrayStoreException | ArrayIndexOutOfBoundsException e) {\n" +
+			"				System.out.println(e);\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"java.lang.NullPointerException\n" + 
+		"java.lang.ArithmeticException\n" + 
+		"java.lang.ArrayStoreException\n" + 
+		"java.lang.ArrayIndexOutOfBoundsException");
+}
 public static Class testClass() {
 	return TryStatement17Test.class;
 }
