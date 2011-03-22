@@ -627,7 +627,102 @@ public void test017() {
 		"The serializable class GrandDaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
-
+// Test explicit final modifiers
+public void test018() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void foo(boolean bool) throws Foo {\n" +
+			"		try {\n" +
+			"			if (bool) \n" +
+			"			    throw new DaughterOfFoo();\n" +
+			"			else\n" +
+			"			    throw new SonOfFoo();\n" +
+			"		} catch (final SonOfFoo | DaughterOfFoo e){\n" +
+			"			throw e;\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			foo(true);\n" +
+			"		} catch(Foo e) {} \n" +
+			"	}\n" +
+			"}\n" +
+			"class Foo extends Exception {}\n" +
+			"class SonOfFoo extends Foo {}\n" +
+			"class DaughterOfFoo extends Foo {}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	throw new SonOfFoo();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 18)\n" + 
+		"	class Foo extends Exception {}\n" + 
+		"	      ^^^\n" + 
+		"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 19)\n" + 
+		"	class SonOfFoo extends Foo {}\n" + 
+		"	      ^^^^^^^^\n" + 
+		"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 20)\n" + 
+		"	class DaughterOfFoo extends Foo {}\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+// Test explicit final modifiers
+public void test019() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void foo(boolean bool) throws Foo {\n" +
+			"		try {\n" +
+			"			if (bool) \n" +
+			"			    throw new DaughterOfFoo();\n" +
+			"			else\n" +
+			"			    throw new SonOfFoo();\n" +
+			"		} catch (final SonOfFoo | final DaughterOfFoo e){\n" +
+			"			throw e;\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			foo(true);\n" +
+			"		} catch(Foo e) {} \n" +
+			"	}\n" +
+			"}\n" +
+			"class Foo extends Exception {}\n" +
+			"class SonOfFoo extends Foo {}\n" +
+			"class DaughterOfFoo extends Foo {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	} catch (final SonOfFoo | final DaughterOfFoo e){\n" + 
+		"	                          ^^^^^\n" + 
+		"Syntax error on token \"final\", delete this token\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 18)\n" + 
+		"	class Foo extends Exception {}\n" + 
+		"	      ^^^\n" + 
+		"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 19)\n" + 
+		"	class SonOfFoo extends Foo {}\n" + 
+		"	      ^^^^^^^^\n" + 
+		"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 20)\n" + 
+		"	class DaughterOfFoo extends Foo {}\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return TryStatement17Test.class;
 }
