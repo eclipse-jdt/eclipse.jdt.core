@@ -496,30 +496,8 @@ public void test014() {
 		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
-// precise throw computation should also take care of throws clause
-public void test015() {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"	public static void foo() throws DaughterOfFoo {\n" +
-			"		try {\n" +
-			"			throw new DaughterOfFoo();\n" +
-			"		} catch (Foo e){\n" + 
-			"			throw e;\n" +
-			"		}\n"+
-			"	}\n"+
-			"	public static void main(String[] args) {\n" + 
-			"		try {\n" + 
-			"			foo();\n"+
-			"		} catch(Foo e) {}\n" + 
-			"	}\n" + 
-			"}\n"+
-			"class Foo extends Exception {}\n"+
-			"class SonOfFoo extends Foo {}\n"+
-			"class DaughterOfFoo extends Foo {}\n"
-		},"");
-}
+
+// test015 moved into org.eclipse.jdt.core.tests.compiler.regression.TryStatementTest.test070()
 
 // Test precise rethrow works good even in nested try catch block
 public void test016() {
@@ -567,6 +545,86 @@ public void test016() {
 		"	class DaughterOfFoo extends Foo {}\n" + 
 		"	      ^^^^^^^^^^^^^\n" + 
 		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+// Test lub computation.
+public void test017() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        doSomething(false);\n" +
+			"    }\n" +
+			"    public static void doSomething (boolean bool) {\n" +
+			"        try {\n" +
+			"            if (bool)\n" +
+			"                throw new GrandSonOfFoo();\n" +
+			"            else \n" +
+			"                throw new GrandDaughterOfFoo();\n" +
+			"        } catch(SonOfFoo | DaughterOfFoo e) {\n" +
+			"        	SonOfFoo s = e;\n" +
+			"        	e.callableOnBothGenders();\n" +
+			"        	e.callableOnlyOnMales();\n" +
+			"        	e.callableOnlyOnFemales();\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"class Foo extends Exception {\n" +
+			"	void callableOnBothGenders () {\n" +
+			"	}\n" +
+			"}\n" +
+			"class SonOfFoo extends Foo {\n" +
+			"	void callableOnlyOnMales() {\n" +
+			"	}\n" +
+			"}\n" +
+			"class GrandSonOfFoo extends SonOfFoo {}\n" +
+			"class DaughterOfFoo extends Foo {\n" +
+			"	void callableOnlyOnFemales() {\n" +
+			"	}\n" +
+			"}\n" +
+			"class GrandDaughterOfFoo extends DaughterOfFoo {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	SonOfFoo s = e;\n" + 
+		"	             ^\n" + 
+		"Type mismatch: cannot convert from Foo to SonOfFoo\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	e.callableOnlyOnMales();\n" + 
+		"	  ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method callableOnlyOnMales() is undefined for the type Foo\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 15)\n" + 
+		"	e.callableOnlyOnFemales();\n" + 
+		"	  ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method callableOnlyOnFemales() is undefined for the type Foo\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 19)\n" + 
+		"	class Foo extends Exception {\n" + 
+		"	      ^^^\n" + 
+		"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 23)\n" + 
+		"	class SonOfFoo extends Foo {\n" + 
+		"	      ^^^^^^^^\n" + 
+		"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 27)\n" + 
+		"	class GrandSonOfFoo extends SonOfFoo {}\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"The serializable class GrandSonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 28)\n" + 
+		"	class DaughterOfFoo extends Foo {\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 32)\n" + 
+		"	class GrandDaughterOfFoo extends DaughterOfFoo {}\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^\n" + 
+		"The serializable class GrandDaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }
 

@@ -5834,6 +5834,80 @@ public void test069() {
 				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
 				"----------\n");
 }
+// precise throw computation should also take care of throws clause in 1.7. 1.6- should continue to behave as it always has.
+public void test070() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void foo() throws DaughterOfFoo {\n" +
+			"		try {\n" +
+			"			throw new DaughterOfFoo();\n" +
+			"		} catch (Foo e){\n" + 
+			"			throw e;\n" +
+			"           foo();\n" +
+			"		}\n"+
+			"	}\n"+
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			foo();\n"+
+			"		} catch(Foo e) {}\n" + 
+			"	}\n" + 
+			"}\n"+
+			"class Foo extends Exception {}\n"+
+			"class SonOfFoo extends Foo {}\n"+
+			"class DaughterOfFoo extends Foo {}\n"
+		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ? 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	throw e;\n" + 
+				"	^^^^^^^^\n" + 
+				"Unhandled exception type Foo\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	foo();\n" + 
+				"	^^^^^^\n" + 
+				"Unreachable code\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 16)\n" + 
+				"	class Foo extends Exception {}\n" + 
+				"	      ^^^\n" + 
+				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 17)\n" + 
+				"	class SonOfFoo extends Foo {}\n" + 
+				"	      ^^^^^^^^\n" + 
+				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"5. WARNING in X.java (at line 18)\n" + 
+				"	class DaughterOfFoo extends Foo {}\n" + 
+				"	      ^^^^^^^^^^^^^\n" + 
+				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n":
+					
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	foo();\n" + 
+				"	^^^^^^\n" + 
+				"Unreachable code\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 16)\n" + 
+				"	class Foo extends Exception {}\n" + 
+				"	      ^^^\n" + 
+				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 17)\n" + 
+				"	class SonOfFoo extends Foo {}\n" + 
+				"	      ^^^^^^^^\n" + 
+				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 18)\n" + 
+				"	class DaughterOfFoo extends Foo {}\n" + 
+				"	      ^^^^^^^^^^^^^\n" + 
+				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n");
+}
 public static Class testClass() {
 	return TryStatementTest.class;
 }
