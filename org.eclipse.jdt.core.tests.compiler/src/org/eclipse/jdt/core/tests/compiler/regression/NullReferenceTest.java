@@ -6357,6 +6357,103 @@ public void test0572_if_statement() {
 		"The local variable i may not have been initialized\n" + 
 		"----------\n");
 }
+
+// take care for Java7 changes
+public void test0573_try_catch_unchecked_and_checked_exception() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    Object o = null;\n" +
+			"    try {\n" +
+			"		bar();\n" +
+			"		o = new Object();\n" +
+			"    } catch (IOException e) {\n" +
+			"		o.toString();\n" +
+			"    } catch(RuntimeException e) {\n" +
+			"       o.toString();\n" + // may be null
+			"    }\n" +
+			"  }\n" +
+			"  private Object bar() throws IOException{\n" +
+			"    return new Object();\n" +
+			"  }\n" +
+			"}\n"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	o.toString();\n" + 
+			"	^\n" + 
+			"Null pointer access: The variable o can only be null at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	o.toString();\n" + 
+			"	^\n" + 
+			"Potential null pointer access: The variable o may be null at this location\n" + 
+			"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
+// similar to test0573 using multi catch parameters
+public void test0574_try_multi_catch_unchecked_and_checked_exception() {
+	if (this.complianceLevel >=  ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.IOException;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    Object o = null;\n" +
+				"    try {\n" +
+				"		bar();\n" +
+				"		o = new Object();\n" +
+				"    } catch (IOException | RuntimeException e) {\n" +
+				"		o.toString();\n" +
+				"    }\n" +
+				"  }\n" +
+				"  private Object bar() throws IOException{\n" +
+				"    return new Object();\n" +
+				"  }\n" +
+				"}\n"},
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	o.toString();\n" +
+			"	^\n" +
+			"Potential null pointer access: The variable o may be null at this location\n" +
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+}
+//multi catch variant of test0561_try_catch_unchecked_exception
+public void test0575_try_multi_catch_finally_unchecked_and_checked_exception() {
+	if (this.complianceLevel >=  ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.IOException;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    Object o = null;\n" +
+				"    try {\n" +
+				"      o = bar();\n" +
+				"    } catch (IOException | RuntimeException e) {\n" +
+				"      o.toString();\n" + // may be null
+				"    } finally {}\n" +
+				"  }\n" +
+				"  private Object bar() throws IOException{\n" +
+				"    return new Object();\n" +
+				"  }\n" +
+				"}\n"},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	o.toString();\n" +
+			"	^\n" +
+			"Potential null pointer access: The variable o may be null at this location\n" +
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+}
+
 // null analysis - throw
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
 public void test0595_throw() {
