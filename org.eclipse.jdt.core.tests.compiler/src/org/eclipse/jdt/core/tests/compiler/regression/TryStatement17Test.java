@@ -49,7 +49,7 @@ public void test001() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	} catch(IOException | FileNotFoundException e) {\n" + 
-		"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The exception FileNotFoundException is already caught by the exception IOException\n" + 
 		"----------\n");
 }
@@ -74,7 +74,7 @@ public void test002() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	} catch(FileNotFoundException | FileNotFoundException | IOException e) {\n" + 
-		"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	                                ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The exception FileNotFoundException is already caught by the exception FileNotFoundException\n" + 
 		"----------\n");
 }
@@ -101,7 +101,7 @@ public void test003() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	} catch(FileNotFoundException | IOException e) {\n" + 
-		"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unreachable catch block for FileNotFoundException. It is already handled by the catch block for FileNotFoundException\n" + 
 		"----------\n");
 }
@@ -128,7 +128,7 @@ public void test004() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	} catch(FileNotFoundException | IOException e) {\n" + 
-		"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	                                ^^^^^^^^^^^\n" + 
 		"Unreachable catch block for FileNotFoundException. It is already handled by the catch block for Exception\n" + 
 		"----------\n");
 }

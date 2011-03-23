@@ -78,7 +78,7 @@ public class DisjunctiveTypeReference extends TypeReference {
 			for (int j = 0; j < i; j++) {
 				if (allExceptionTypes[i].isCompatibleWith(allExceptionTypes[j])) {
 					scope.problemReporter().wrongSequenceOfExceptionTypes(
-							this,
+							this.typeReferences[i],
 							allExceptionTypes[i],
 							i,
 							allExceptionTypes[j]);
