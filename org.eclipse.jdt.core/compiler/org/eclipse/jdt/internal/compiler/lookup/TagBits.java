@@ -58,11 +58,11 @@ public interface TagBits {
 
 	long IsArgument = ASTNode.Bit11; // local
 	long ClearPrivateModifier = ASTNode.Bit10; // constructor binding
-	long IsEffectivelyFinal = ASTNode.Bit21; // local
 	
-	// java 7 - multi catch parameter --- local
-	long MultiCatchParameter = ASTNode.Bit22;
-	long IsResource = ASTNode.Bit23;
+	// for java 7
+	long IsEffectivelyFinal = ASTNode.Bit12; // local
+	long MultiCatchParameter = ASTNode.Bit13; // local
+	long IsResource = ASTNode.Bit14; // local
 
 	// test bits to see if parts of binary types are faulted
 	long AreFieldsSorted = ASTNode.Bit13;
