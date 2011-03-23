@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -31,8 +35,8 @@ public class ScannerTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 9 };
-//		TESTS_RANGE = new int[] { 11, -1 };
+//		TESTS_NUMBERS = new int[] { 54, 55 };
+//		TESTS_RANGE = new int[] { 54, -1 };
 	}
 
 	public static Test suite() {
@@ -1134,6 +1138,102 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertEquals("Wrong token", ITerminalSymbols.TokenNameIdentifier, scanner.getNextToken());
 		} catch (InvalidInputException e) {
 			assertTrue("Should not fail with InvalidInputException", false);
+		}
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=340513
+	 */
+	public void test054() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_6, JavaCore.VERSION_1_6);
+		char[] source =
+				("class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String \ud804\udc09 = \"Brahmi\";\n" + 
+				"		System.out.println(\ud804\udc09);\n" + 
+				"	}\n" + 
+				"}").toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			int token;
+			boolean foundError = false;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				foundError |= token == ITerminalSymbols.TokenNameERROR;
+			}
+			assertTrue("Did not find error token", foundError);
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=340513
+	 */
+	public void test055() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7);
+		char[] source =
+				("class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String \ud804\udc09 = \"Brahmi\";\n" + 
+				"		System.out.println(\ud804\udc09);\n" + 
+				"	}\n" + 
+				"}").toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				assertFalse("found error token", token == ITerminalSymbols.TokenNameERROR);
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=340513
+	 */
+	public void test056() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_6, JavaCore.VERSION_1_6);
+		char[] source =
+				("class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String \u20B9 = \"Rupee symbol\";\n" + 
+				"		System.out.println(\u20B9);\n" + 
+				"	}\n" + 
+				"}").toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			int token;
+			boolean foundError = false;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				foundError |= token == ITerminalSymbols.TokenNameERROR;
+			}
+			assertTrue("Did not find error token", foundError);
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=340513
+	 */
+	public void test057() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7);
+		char[] source =
+				("class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String \u20B9 = \"Rupee symbol\";\n" + 
+				"		System.out.println(\u20B9);\n" + 
+				"	}\n" + 
+				"}").toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				assertFalse("found error token", token == ITerminalSymbols.TokenNameERROR);
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
 		}
 	}
 }

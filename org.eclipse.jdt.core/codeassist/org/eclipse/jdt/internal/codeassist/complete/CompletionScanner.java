@@ -167,7 +167,7 @@ public int getNextToken() throws InvalidInputException {
 					&& (this.completionIdentifier == null)
 					&& (whiteStart <= this.cursorLocation+1)
 					&& (this.cursorLocation < this.startPosition)
-					&& !ScannerHelper.isJavaIdentifierStart(this.currentCharacter)){
+					&& !ScannerHelper.isJavaIdentifierStart(this.complianceLevel, this.currentCharacter)){
 					this.currentPosition = this.startPosition; // for next token read
 					return TokenNameIdentifier;
 				}

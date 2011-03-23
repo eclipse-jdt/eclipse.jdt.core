@@ -133,10 +133,10 @@ public class ScannerHelper {
 
 static void initializeTable() {
 	Tables = new long[2][][];
-	Tables[START_INDEX] = new long[2][];
-	Tables[PART_INDEX] = new long[3][];
+	Tables[START_INDEX] = new long[3][];
+	Tables[PART_INDEX] = new long[4][];
 	try {
-		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode/start1.rsc"))); //$NON-NLS-1$
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode/start0.rsc"))); //$NON-NLS-1$
 		long[] readValues = new long[1024];
 		for (int i = 0; i < 1024; i++) {
 			readValues[i] = inputStream.readLong();
@@ -149,7 +149,7 @@ static void initializeTable() {
 		e.printStackTrace();
 	}
 	try {
-		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode/start2.rsc"))); //$NON-NLS-1$
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode/start1.rsc"))); //$NON-NLS-1$
 		long[] readValues = new long[1024];
 		for (int i = 0; i < 1024; i++) {
 			readValues[i] = inputStream.readLong();
@@ -162,7 +162,20 @@ static void initializeTable() {
 		e.printStackTrace();
 	}
 	try {
-		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode/part1.rsc"))); //$NON-NLS-1$
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode/start2.rsc"))); //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		inputStream.close();
+		Tables[START_INDEX][2] = readValues;
+	} catch (FileNotFoundException e) {
+		e.printStackTrace();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	try {
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode/part0.rsc"))); //$NON-NLS-1$
 		long[] readValues = new long[1024];
 		for (int i = 0; i < 1024; i++) {
 			readValues[i] = inputStream.readLong();
@@ -175,7 +188,7 @@ static void initializeTable() {
 		e.printStackTrace();
 	}
 	try {
-		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode/part2.rsc"))); //$NON-NLS-1$
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode/part1.rsc"))); //$NON-NLS-1$
 		long[] readValues = new long[1024];
 		for (int i = 0; i < 1024; i++) {
 			readValues[i] = inputStream.readLong();
@@ -188,7 +201,7 @@ static void initializeTable() {
 		e.printStackTrace();
 	}
 	try {
-		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode/part14.rsc"))); //$NON-NLS-1$
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode/part2.rsc"))); //$NON-NLS-1$
 		long[] readValues = new long[1024];
 		for (int i = 0; i < 1024; i++) {
 			readValues[i] = inputStream.readLong();
@@ -200,13 +213,26 @@ static void initializeTable() {
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
+	try {
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode/part14.rsc"))); //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		inputStream.close();
+		Tables[PART_INDEX][3] = readValues;
+	} catch (FileNotFoundException e) {
+		e.printStackTrace();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
 }
 static void initializeTable17() {
 	Tables7 = new long[2][][];
-	Tables7[START_INDEX] = new long[2][];
-	Tables7[PART_INDEX] = new long[3][];
+	Tables7[START_INDEX] = new long[3][];
+	Tables7[PART_INDEX] = new long[4][];
 	try {
-		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode6/start1.rsc"))); //$NON-NLS-1$
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode6/start0.rsc"))); //$NON-NLS-1$
 		long[] readValues = new long[1024];
 		for (int i = 0; i < 1024; i++) {
 			readValues[i] = inputStream.readLong();
@@ -219,7 +245,7 @@ static void initializeTable17() {
 		e.printStackTrace();
 	}
 	try {
-		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode6/start2.rsc"))); //$NON-NLS-1$
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode6/start1.rsc"))); //$NON-NLS-1$
 		long[] readValues = new long[1024];
 		for (int i = 0; i < 1024; i++) {
 			readValues[i] = inputStream.readLong();
@@ -232,7 +258,20 @@ static void initializeTable17() {
 		e.printStackTrace();
 	}
 	try {
-		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode6/part1.rsc"))); //$NON-NLS-1$
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode6/start2.rsc"))); //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		inputStream.close();
+		Tables7[START_INDEX][2] = readValues;
+	} catch (FileNotFoundException e) {
+		e.printStackTrace();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	try {
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode6/part0.rsc"))); //$NON-NLS-1$
 		long[] readValues = new long[1024];
 		for (int i = 0; i < 1024; i++) {
 			readValues[i] = inputStream.readLong();
@@ -245,7 +284,7 @@ static void initializeTable17() {
 		e.printStackTrace();
 	}
 	try {
-		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode6/part2.rsc"))); //$NON-NLS-1$
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode6/part1.rsc"))); //$NON-NLS-1$
 		long[] readValues = new long[1024];
 		for (int i = 0; i < 1024; i++) {
 			readValues[i] = inputStream.readLong();
@@ -258,13 +297,26 @@ static void initializeTable17() {
 		e.printStackTrace();
 	}
 	try {
-		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode6/part14.rsc"))); //$NON-NLS-1$
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode6/part2.rsc"))); //$NON-NLS-1$
 		long[] readValues = new long[1024];
 		for (int i = 0; i < 1024; i++) {
 			readValues[i] = inputStream.readLong();
 		}
 		inputStream.close();
 		Tables7[PART_INDEX][2] = readValues;
+	} catch (FileNotFoundException e) {
+		e.printStackTrace();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	try {
+		DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream("unicode6/part14.rsc"))); //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		inputStream.close();
+		Tables7[PART_INDEX][3] = readValues;
 	} catch (FileNotFoundException e) {
 		e.printStackTrace();
 	} catch (IOException e) {
@@ -284,21 +336,26 @@ public static boolean isJavaIdentifierPart(char c) {
 	}
 	return Character.isJavaIdentifierPart(c);
 }
-public static boolean isJavaIdentifierPart(long jdkversion, char high, char low) {
-	int codePoint = toCodePoint(high, low);
-	if (jdkversion <= ClassFileConstants.JDK1_6) {
+public static boolean isJavaIdentifierPart(long complianceLevel, char c) {
+	if (c < MAX_OBVIOUS) {
+		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_IDENT_PART) != 0;
+	}
+	return isJavaIdentifierPart(complianceLevel, (int) c);
+}
+public static boolean isJavaIdentifierPart(long complianceLevel, int codePoint) {
+	if (complianceLevel <= ClassFileConstants.JDK1_6) {
 		if (Tables == null) {
 			initializeTable();
 		}
 		switch((codePoint & 0x1F0000) >> 16) {
 			case 0 :
-				return Character.isJavaIdentifierPart((char) codePoint);
-			case 1 :
 				return isBitSet(Tables[PART_INDEX][0], codePoint & 0xFFFF);
-			case 2 :
+			case 1 :
 				return isBitSet(Tables[PART_INDEX][1], codePoint & 0xFFFF);
-			case 14 :
+			case 2 :
 				return isBitSet(Tables[PART_INDEX][2], codePoint & 0xFFFF);
+			case 14 :
+				return isBitSet(Tables[PART_INDEX][3], codePoint & 0xFFFF);
 		}
 	} else {
 		// java 7 supports Unicode 6
@@ -307,16 +364,19 @@ public static boolean isJavaIdentifierPart(long jdkversion, char high, char low)
 		}
 		switch((codePoint & 0x1F0000) >> 16) {
 			case 0 :
-				return Character.isJavaIdentifierPart((char) codePoint);
-			case 1 :
 				return isBitSet(Tables7[PART_INDEX][0], codePoint & 0xFFFF);
-			case 2 :
+			case 1 :
 				return isBitSet(Tables7[PART_INDEX][1], codePoint & 0xFFFF);
-			case 14 :
+			case 2 :
 				return isBitSet(Tables7[PART_INDEX][2], codePoint & 0xFFFF);
+			case 14 :
+				return isBitSet(Tables7[PART_INDEX][3], codePoint & 0xFFFF);
 		}
 	}
 	return false;
+}
+public static boolean isJavaIdentifierPart(long complianceLevel, char high, char low) {
+	return isJavaIdentifierPart(complianceLevel, toCodePoint(high, low));
 }
 public static boolean isJavaIdentifierStart(char c) {
 	if (c < MAX_OBVIOUS) {
@@ -324,19 +384,27 @@ public static boolean isJavaIdentifierStart(char c) {
 	}
 	return Character.isJavaIdentifierStart(c);
 }
-public static boolean isJavaIdentifierStart(long jdkversion, char high, char low) {
-	int codePoint = toCodePoint(high, low);
-	if (jdkversion <= ClassFileConstants.JDK1_6) {
+public static boolean isJavaIdentifierStart(long complianceLevel, char c) {
+	if (c < MAX_OBVIOUS) {
+		return (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c] & ScannerHelper.C_IDENT_START) != 0;
+	}
+	return ScannerHelper.isJavaIdentifierStart(complianceLevel, (int) c);
+}
+public static boolean isJavaIdentifierStart(long complianceLevel, char high, char low) {
+	return isJavaIdentifierStart(complianceLevel, toCodePoint(high, low));
+}
+public static boolean isJavaIdentifierStart(long complianceLevel, int codePoint) {
+	if (complianceLevel <= ClassFileConstants.JDK1_6) {
 		if (Tables == null) {
 			initializeTable();
 		}
 		switch((codePoint & 0x1F0000) >> 16) {
 			case 0 :
-				return Character.isJavaIdentifierStart((char) codePoint);
-			case 1 :
 				return isBitSet(Tables[START_INDEX][0], codePoint & 0xFFFF);
-			case 2 :
+			case 1 :
 				return isBitSet(Tables[START_INDEX][1], codePoint & 0xFFFF);
+			case 2 :
+				return isBitSet(Tables[START_INDEX][2], codePoint & 0xFFFF);
 		}
 	} else {
 		// java 7 supports Unicode 6
@@ -345,16 +413,15 @@ public static boolean isJavaIdentifierStart(long jdkversion, char high, char low
 		}
 		switch((codePoint & 0x1F0000) >> 16) {
 			case 0 :
-				return Character.isJavaIdentifierStart((char) codePoint);
-			case 1 :
 				return isBitSet(Tables7[START_INDEX][0], codePoint & 0xFFFF);
-			case 2 :
+			case 1 :
 				return isBitSet(Tables7[START_INDEX][1], codePoint & 0xFFFF);
+			case 2 :
+				return isBitSet(Tables7[START_INDEX][2], codePoint & 0xFFFF);
 		}
 	}
 	return false;
 }
-
 private static int toCodePoint(char high, char low) {
 	return (high - Scanner.HIGH_SURROGATE_MIN_VALUE) * 0x400 + (low - Scanner.LOW_SURROGATE_MIN_VALUE) + 0x10000;
 }

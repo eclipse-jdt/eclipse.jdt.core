@@ -302,8 +302,8 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 				if (tagLength == 0) continue nextTag;
 
 				// ensure tag is not leaded with letter if tag starts with a letter
-				if (ScannerHelper.isJavaIdentifierStart(tag[0])) {
-					if (ScannerHelper.isJavaIdentifierPart(previous)) {
+				if (ScannerHelper.isJavaIdentifierStart(this.complianceLevel, tag[0])) {
+					if (ScannerHelper.isJavaIdentifierPart(this.complianceLevel, previous)) {
 						continue nextTag;
 					}
 				}
@@ -321,8 +321,8 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 					}
 				}
 				// ensure tag is not followed with letter if tag finishes with a letter
-				if (i+tagLength < commentEnd && ScannerHelper.isJavaIdentifierPart(src[i+tagLength-1])) {
-					if (ScannerHelper.isJavaIdentifierPart(src[i + tagLength]))
+				if (i+tagLength < commentEnd && ScannerHelper.isJavaIdentifierPart(this.complianceLevel, src[i+tagLength-1])) {
+					if (ScannerHelper.isJavaIdentifierPart(this.complianceLevel, src[i + tagLength]))
 						continue nextTag;
 				}
 				if (this.foundTaskTags == null) {
@@ -909,14 +909,14 @@ public boolean getNextCharAsJavaIdentifierPartWithBoundCheck() {
 				this.withoutUnicodePtr = temp2;
 				return false;
 			}
-			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.sourceLevel, c, low);
+			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.complianceLevel, c, low);
 		}
 		else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
 			this.currentPosition = pos;
 			this.withoutUnicodePtr = temp2;
 			return false;
 		} else {
-			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(c);
+			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.complianceLevel, c);
 		}
 		if (unicode) {
 			if (!isJavaIdentifierPart) {
@@ -979,14 +979,14 @@ public boolean getNextCharAsJavaIdentifierPart() {
 				this.withoutUnicodePtr = temp2;
 				return false;
 			}
-			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.sourceLevel, c, low);
+			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.complianceLevel, c, low);
 		}
 		else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
 			this.currentPosition = pos;
 			this.withoutUnicodePtr = temp2;
 			return false;
 		} else {
-			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(c);
+			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.complianceLevel, c);
 		}
 		if (unicode) {
 			if (!isJavaIdentifierPart) {
@@ -1114,7 +1114,7 @@ public int scanIdentifier() throws InvalidInputException {
 			throw new InvalidInputException(INVALID_HIGH_SURROGATE);
 		} else {
 			// optimized case already checked
-			isJavaIdStart = Character.isJavaIdentifierStart(c);
+			isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c);
 		}
 		if (isJavaIdStart)
 			return scanIdentifierOrKeywordWithBoundCheck();
@@ -1773,7 +1773,7 @@ public int getNextToken() throws InvalidInputException {
 						throw new InvalidInputException(INVALID_HIGH_SURROGATE);
 					} else {
 						// optimized case already checked
-						isJavaIdStart = Character.isJavaIdentifierStart(c);
+						isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c);
 					}
 					if (isJavaIdStart)
 						return scanIdentifierOrKeyword();
@@ -2210,7 +2210,7 @@ public final void jumpOverMethodBody() {
 							break NextToken;
 						} else {
 							// optimized case already checked
-							isJavaIdStart = Character.isJavaIdentifierStart(c);
+							isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c);
 						}
 						if (isJavaIdStart) {
 							scanIdentifierOrKeyword();
