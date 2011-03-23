@@ -100,6 +100,8 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
  * of the notification.
  * </p>
  *
+ * @see IElementChangedListener
+ * @see ElementChangedEvent
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IJavaElementDelta {
