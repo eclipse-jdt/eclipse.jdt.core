@@ -1931,4 +1931,135 @@ public void test339478i() {
 		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
 		"----------\n");
 }
+public void test339478j() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		X<>[] x1 = null;\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<>[] x1 = null;\n" + 
+		"	^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478k() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	X<>[] x1 = null;\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	X<>[] x1 = null;\n" + 
+		"	^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478l() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		X<> x1 = null;\n" + 
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<> x1 = null;\n" + 
+		"	^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478m() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	X<> f1 = null;\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	X<> f1 = null;\n" + 
+		"	^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478n() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	public void foo(X<> args) {\n" + 
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public void foo(X<> args) {\n" + 
+		"	                ^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478o() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X<>(){\n" +
+			"			void newMethod(){\n" +
+			"			}\n" +
+			"		}.testFunction(\"SUCCESS\");\n" + 
+			"	}\n" +
+			"	public void testFunction(T param){\n" +
+			"		System.out.println(param);\n" +
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	new X<>(){\n" + 
+		"	    ^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478p() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X Test = new X<>(){\n" +
+			"			void newMethod(){\n" +
+			"			}\n" +
+			"		}.testFunction(\"SUCCESS\");\n" + 
+			"	}\n" +
+			"	public void testFunction(T param){\n" +
+			"		System.out.println(param);\n" +
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	X Test = new X<>(){\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	X Test = new X<>(){\n" + 
+		"	             ^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
 }
