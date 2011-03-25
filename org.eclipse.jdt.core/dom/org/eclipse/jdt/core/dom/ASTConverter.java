@@ -3349,7 +3349,22 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			this.recordNodes(type, typeReference);
 		}
-		if ((typeReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsDiamond) != 0) {
+		boolean sawDiamond = false;
+		if (typeReference instanceof ParameterizedSingleTypeReference) {
+			ParameterizedSingleTypeReference pstr = (ParameterizedSingleTypeReference) typeReference;
+			if (pstr.typeArguments == TypeReference.NO_TYPE_ARGUMENTS) {
+				sawDiamond = true;
+			}
+		} else if (typeReference instanceof ParameterizedQualifiedTypeReference) {
+			ParameterizedQualifiedTypeReference pqtr = (ParameterizedQualifiedTypeReference) typeReference;
+			for (int i = 0, len = pqtr.typeArguments.length; i < len; i++) {
+				if (pqtr.typeArguments[i] == TypeReference.NO_TYPE_ARGUMENTS) {
+					sawDiamond = true;
+					break;
+				}
+			}
+		} 
+		if (sawDiamond) {
 			switch(this.ast.apiLevel) {
 				case AST.JLS2_INTERNAL :
 				case AST.JLS3 :

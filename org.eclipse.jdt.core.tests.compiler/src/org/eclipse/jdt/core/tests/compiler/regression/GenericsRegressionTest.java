@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 282152 - [1.5][compiler] Generics code rejected by Eclipse but accepted by javac
@@ -1739,5 +1743,192 @@ public void test338011b() {
 		false,
 		compilerOptions15,
 		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=339478
+// To verify that diamond construct is not allowed in source level 1.6 or below
+public void test339478a() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X<String> x = new X<>();\n" + 
+			"		x.testFunction(\"SUCCESS\");\n" + 
+			"	}\n" +
+			"	public void testFunction(T param){\n" +
+			"		System.out.println(param);\n" +
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<String> x = new X<>();\n" + 
+		"	                  ^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=339478
+// To verify that diamond construct is not allowed in source level 1.6 or below
+public void test339478b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		X<> x1 = null;\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<> x1 = null;\n" + 
+		"	^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478c() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" +
+			"public class X implements Map<> {\n" +
+			"    static Map<> foo (Map<> x) { \n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public class X implements Map<> {\n" + 
+		"	                          ^^^\n" + 
+		"Incorrect number of arguments for type Map<K,V>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	static Map<> foo (Map<> x) { \n" + 
+		"	       ^^^\n" + 
+		"Incorrect number of arguments for type Map<K,V>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	static Map<> foo (Map<> x) { \n" + 
+		"	                  ^^^\n" + 
+		"Incorrect number of arguments for type Map<K,V>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478d() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" +
+			"public class X  {\n" +
+			"    static Map<> foo () { \n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	static Map<> foo () { \n" + 
+		"	       ^^^\n" + 
+		"Incorrect number of arguments for type Map<K,V>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478e() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    class Y<K> {\n" +
+			"    }\n" +
+			"    public static void main(String [] args) {\n" +
+			"        X<String>.Y<> [] y = null; \n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	X<String>.Y<> [] y = null; \n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Incorrect number of arguments for type X<String>.Y; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478f() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    class Y<K> {\n" +
+			"    }\n" +
+			"    public static void main(String [] args) {\n" +
+			"        X<String>.Y<>  y = null; \n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	X<String>.Y<>  y = null; \n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Incorrect number of arguments for type X<String>.Y; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478g() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    public void foo(Object x) {\n" +
+			"        if (x instanceof X<>) {    \n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	if (x instanceof X<>) {    \n" + 
+		"	                 ^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478h() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    public void foo(Object x) throws X.Y<>.LException {\n" +
+			"    }\n" +
+			"    static class Y<T> {\n" +
+			"    static class LException extends Throwable {}\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public void foo(Object x) throws X.Y<>.LException {\n" + 
+		"	                                 ^^^\n" + 
+		"Incorrect number of arguments for type X.Y; it cannot be parameterized with arguments <>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	static class LException extends Throwable {}\n" + 
+		"	             ^^^^^^^^^^\n" + 
+		"The serializable class LException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+public void test339478i() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    public void foo () {\n" +
+			"        Object o = new X<> [10];\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Object o = new X<> [10];\n" + 
+		"	               ^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
 }
 }

@@ -1177,6 +1177,9 @@ protected void classInstanceCreation(boolean isQualified) {
 				length);
 		}
 		alloc.type = getTypeReference(0);
+		if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
+			checkForDiamond(alloc.type);
+		}
 
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
@@ -1195,6 +1198,20 @@ protected void classInstanceCreation(boolean isQualified) {
 		}
 		this.astPtr--;
 		this.astLengthPtr--;
+	}
+}
+private void checkForDiamond(TypeReference allocType) {
+	if (allocType instanceof ParameterizedSingleTypeReference) {
+		ParameterizedSingleTypeReference type = (ParameterizedSingleTypeReference) allocType;
+		if (type.typeArguments == TypeReference.NO_TYPE_ARGUMENTS) {
+			type.bits |= ASTNode.IsDiamond;
+		}
+	} 
+	else if (allocType instanceof ParameterizedQualifiedTypeReference) {
+		ParameterizedQualifiedTypeReference type = (ParameterizedQualifiedTypeReference) allocType;
+		if (type.typeArguments[type.typeArguments.length - 1] == TypeReference.NO_TYPE_ARGUMENTS) { // Don't care for X<>.Y<> and X<>.Y<String>
+			type.bits |= ASTNode.IsDiamond;
+		}
 	}
 }
 protected ParameterizedQualifiedTypeReference computeQualifiedGenericsFromRightSide(TypeReference rightSide, int dim) {
@@ -2440,7 +2457,9 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 				length);
 		}
 		alloc.type = getTypeReference(0);
-
+		if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
+			checkForDiamond(alloc.type);
+		}
 		length = this.genericsLengthStack[this.genericsLengthPtr--];
 		this.genericsPtr -= length;
 		System.arraycopy(this.genericsStack, this.genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
@@ -2504,6 +2523,9 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 				length);
 		}
 		alloc.type = getTypeReference(0);
+		if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
+			checkForDiamond(alloc.type);
+		}		
 
 		length = this.genericsLengthStack[this.genericsLengthPtr--];
 		this.genericsPtr -= length;
@@ -3956,6 +3978,7 @@ protected void consumeGenericTypeWithDiamond() {
 	// zero type arguments == <>
 	pushOnGenericsLengthStack(-1);
 	concatGenericsLists();
+	this.intPtr--;	// pop the null dimension pushed in by consumeReferenceType, as we have no type between <>, getTypeReference won't kick in 
 }
 protected void consumeImportDeclaration() {
 	// SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName ';'
@@ -8900,8 +8923,7 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 	if (identifierLength == 1 && numberOfIdentifiers == 1) {
 		int currentTypeArgumentsLength = this.genericsLengthStack[this.genericsLengthPtr--];
 		TypeReference[] typeArguments = null;
-		boolean isDiamond = currentTypeArgumentsLength < 0;
-		if (isDiamond) {
+		if (currentTypeArgumentsLength < 0) {
 			typeArguments = TypeReference.NO_TYPE_ARGUMENTS;
 		} else {
 			typeArguments = new TypeReference[currentTypeArgumentsLength];
@@ -8912,9 +8934,11 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 		if (dim != 0) {
 			parameterizedSingleTypeReference.sourceEnd = this.endStatementPosition;
 		}
-		if (isDiamond) {
-			parameterizedSingleTypeReference.bits |= ASTNode.IsDiamond;
-		}
+		/* We used to eagerly mark the PSTR as constituting diamond usage if we encountered <>, but that is too eager and
+		   complicates error handling by making it hard to distinguish legitimate use cases from ill formed ones. We are
+		   more discriminating now and tag a type as being diamond only where <> can legally occur. 
+		   See https://bugs.eclipse.org/bugs/show_bug.cgi?id=339478#c11
+		*/
 		return parameterizedSingleTypeReference;
 	} else {
 		TypeReference[][] typeArguments = new TypeReference[numberOfIdentifiers][];
@@ -8922,7 +8946,6 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 		long[] positions = new long[numberOfIdentifiers];
 		int index = numberOfIdentifiers;
 		int currentIdentifiersLength = identifierLength;
-		boolean isDiamond = false;
 		while (index > 0) {
 			int currentTypeArgumentsLength = this.genericsLengthStack[this.genericsLengthPtr--];
 			if (currentTypeArgumentsLength > 0) {
@@ -8931,7 +8954,6 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 			} else if (currentTypeArgumentsLength < 0) {
 				// diamond case for qualified type reference (java.util.ArrayList<>)
 				typeArguments[index - 1] = TypeReference.NO_TYPE_ARGUMENTS;
-				isDiamond = true;
 			}
 			switch(currentIdentifiersLength) {
 				case 1 :
@@ -8954,9 +8976,11 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 		if (dim != 0) {
 			parameterizedQualifiedTypeReference.sourceEnd = this.endStatementPosition;
 		}
-		if (isDiamond) {
-			parameterizedQualifiedTypeReference.bits |= ASTNode.IsDiamond;
-		}
+		/* We used to eagerly mark the PQTR as constituting diamond usage if we encountered <>, but that is too eager and
+		   complicates error handling by making it hard to distinguish legitimate use cases from ill formed ones. We are
+		   more discriminating now and tag a type as being diamond only where <> can legally occur. 
+		   See https://bugs.eclipse.org/bugs/show_bug.cgi?id=339478#c11
+		*/
 		return parameterizedQualifiedTypeReference;
 	}
 }

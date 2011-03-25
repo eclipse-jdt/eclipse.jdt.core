@@ -221,7 +221,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				return this.resolvedType = type;
 			}
 			// if missing generic type, and compliance >= 1.5, then will rebuild a parameterized binding
-		} else if (argLength != typeVariables.length) { // check arity
+		} else if (argLength != typeVariables.length && (this.bits & ASTNode.IsDiamond) == 0) { // check arity, IsDiamond never set for 1.6-
 			scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
 			return null;
 		} else if (!currentType.isStatic()) {

@@ -208,6 +208,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			    	((ClassScope) scope).superTypeReference = null;
 			    }
 				int argLength = args.length;
+				boolean isDiamond = argLength == 0 && (i == (max -1)) && ((this.bits & ASTNode.IsDiamond) != 0);
 				TypeBinding[] argTypes = new TypeBinding[argLength];
 				boolean argHasError = false;
 				ReferenceBinding currentOriginal = (ReferenceBinding)currentType.original();
@@ -246,7 +247,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						this.resolvedType = scope.createArrayType(this.resolvedType, this.dimensions);
 					}
 					return this.resolvedType;
-				} else if (argLength != typeVariables.length) { // check arity
+				} else if (argLength != typeVariables.length && !isDiamond) { // check arity
 					scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes, i);
 					return null;
 				}
