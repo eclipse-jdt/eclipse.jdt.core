@@ -2062,4 +2062,21 @@ public void test339478p() {
 		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
 		"----------\n");
 }
+public void test339478q() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X Test = new X<>();\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X Test = new X<>();\n" + 
+		"	             ^\n" + 
+		"The type X is not generic; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
 }
