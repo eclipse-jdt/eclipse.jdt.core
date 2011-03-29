@@ -460,7 +460,7 @@ public void test006() {
 		"SUCCESS");
 }
 // shows the difference between using <> and the raw type - different semantics
-public void _test007() {
+public void test007() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -484,7 +484,7 @@ public void _test007() {
 			"	}\n" + 
 			"}",
 		},
-		"1\n" + 
+		"2\n" + 
 		"2");
 }
 public void test007a() {
@@ -529,7 +529,7 @@ public void test007a() {
 		"----------\n");
 }
 //shows the difference between using <> and the raw type - different semantics
-public void _test008() {
+public void test008() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -547,8 +547,7 @@ public void _test008() {
 			"	}\n" + 
 			"}",
 		},
-		"1\n" + 
-		"2");
+		"");
 }
 
 public void test0014() {
