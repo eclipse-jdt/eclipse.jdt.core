@@ -133,8 +133,8 @@ public void test001c_1() {
 		"The method add(int, String) in the type ArrayList<String> is not applicable for the arguments (int)\n" + 
 		"----------\n");
 }
-public void _test001d() {
-	this.runConformTest(
+public void test001d() {
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"import java.util.ArrayList;\n" +
@@ -148,9 +148,14 @@ public void _test001d() {
 			"	}\n" +
 			"}",
 		},
-		"SUCCESS");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	x.ab(new ArrayList<>());\n" + 
+		"	  ^^\n" + 
+		"The method ab(ArrayList<String>) in the type X<String> is not applicable for the arguments (ArrayList<Object>)\n" + 
+		"----------\n");
 }
-public void _test001e() {
+public void test001e() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -167,9 +172,9 @@ public void _test001e() {
 		},
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
-		"	x.ab(new ArrayList<Integer>());\n" + 
+		"	x.ab(new ArrayList<>());\n" + 
 		"	  ^^\n" + 
-		"The method ab(ArrayList<String>) in the type X<String> is not applicable for the arguments (ArrayList<Integer>)\n" + 
+		"The method ab(ArrayList<String>) in the type X<String> is not applicable for the arguments (ArrayList<Object>)\n" + 
 		"----------\n");
 }
 public void test001f() {
@@ -316,7 +321,7 @@ public void test001h_1() {
 		"4. WARNING in X.java (at line 10)\n" + 
 		"	test.x = new X<>().new X2<>();\n" + 
 		"	     ^\n" + 
-		"Type safety: The field x from the raw type X is assigned a value of type X<>.X2. References to generic type X<T> should be parameterized\n" + 
+		"Type safety: The field x from the raw type X is assigned a value of type X<Object>.X2<Object>. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
 		"5. WARNING in X.java (at line 11)\n" + 
 		"	test.x.methodx(1);\n" + 
@@ -371,8 +376,8 @@ public void test002() {
 		"Type safety: The method testFunction(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
 		"----------\n");
 }
-public void _test003() {
-	this.runNegativeTest(
+public void test003() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" + 
@@ -406,7 +411,7 @@ public void test004b() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	new X<>().new X2<>(){\n" + 
 		"	              ^^\n" + 
-		"Incorrect number of arguments for type X<>.X2; it cannot be parameterized with arguments <>\n" + 
+		"Incorrect number of arguments for type X<Object>.X2; it cannot be parameterized with arguments <>\n" + 
 		"----------\n");
 }
 public void test004c() {
@@ -482,9 +487,8 @@ public void _test007() {
 		"1\n" + 
 		"2");
 }
-// to verify if diamond works inside an allocation expression in a method invocation
-public void _test007a() {
-	this.runConformTest(
+public void test007a() {
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
@@ -502,8 +506,27 @@ public void _test007a() {
 			"	}\n" +
 			"}",
 		},
-		"1\n" + 
-		"2");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	X.testFunction(new X<>());\n" + 
+		"	  ^^^^^^^^^^^^\n" + 
+		"The method testFunction(X<String>) in the type X is not applicable for the arguments (X<Object>)\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	X.testFunction(new X(\"hello\"));\n" + 
+		"	               ^^^^^^^^^^^^^^\n" + 
+		"Type safety: The constructor X(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 12)\n" + 
+		"	X.testFunction(new X(\"hello\"));\n" + 
+		"	               ^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X needs unchecked conversion to conform to X<String>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 12)\n" + 
+		"	X.testFunction(new X(\"hello\"));\n" + 
+		"	                   ^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n");
 }
 //shows the difference between using <> and the raw type - different semantics
 public void _test008() {
@@ -657,7 +680,7 @@ public void test0017() {
 		"const.1\nconst.1\nconst.2");
 }
 // To verify that the correct constructor is found by parameter substitution in the diamond case
-public void _test0018() {
+public void test0018() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -678,7 +701,7 @@ public void _test0018() {
 }
 // To verify that the correct constructor is found by parameter substitution 
 // in the diamond case -- fields
-public void _test0018b() {
+public void test0018b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",

@@ -224,8 +224,14 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					}
 				}
 				if ((this.bits & ASTNode.IsDiamond) != 0) {
-					if (expectedType != null && expectedType.isParameterizedTypeWithActualArguments())
+					if (expectedType != null && expectedType.isParameterizedTypeWithActualArguments()) {
 						argTypes = ((ParameterizedTypeBinding) expectedType).arguments;
+					} else {
+						argTypes = new TypeBinding[argLength = this.resolvedType.typeVariables().length];
+						for (int k = 0; k < argLength; k++) {
+							argTypes[k] = scope.getJavaLangObject();
+						}
+					}
 				}
 				if (argHasError) {
 					return null;

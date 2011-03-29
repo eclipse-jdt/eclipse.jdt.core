@@ -189,8 +189,14 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		     }
 		}
 		if ((this.bits & ASTNode.IsDiamond) != 0) {
-			if (expectedType != null && expectedType.isParameterizedTypeWithActualArguments())
+			if (expectedType != null && expectedType.isParameterizedTypeWithActualArguments()) {
 				argTypes = ((ParameterizedTypeBinding) expectedType).arguments;
+			} else {
+				argTypes = new TypeBinding[argLength = this.resolvedType.typeVariables().length];
+				for (int i = 0; i < argLength; i++) {
+					argTypes[i] = scope.getJavaLangObject();
+				}
+			}
 		}
 		if (argHasError) {
 			return null;
