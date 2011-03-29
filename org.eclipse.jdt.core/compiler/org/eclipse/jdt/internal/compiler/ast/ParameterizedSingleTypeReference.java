@@ -89,7 +89,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
     /*
      * No need to check for reference to raw type per construction
      */
-	private TypeBinding internalResolveType(Scope scope, ReferenceBinding enclosingType, boolean checkBounds) {
+	private TypeBinding internalResolveType(Scope scope, ReferenceBinding enclosingType, boolean checkBounds, TypeBinding expectedType) {
 		// handle the error here
 		this.constant = Constant.NotAConstant;
 		if ((this.bits & ASTNode.DidResolve) != 0) { // is a shared type reference which was already resolved
@@ -188,6 +188,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			    argTypes[i] = argType;
 		     }
 		}
+		if ((this.bits & ASTNode.IsDiamond) != 0) {
+			if (expectedType != null && expectedType.isParameterizedTypeWithActualArguments())
+				argTypes = ((ParameterizedTypeBinding) expectedType).arguments;
+		}
 		if (argHasError) {
 			return null;
 		}
@@ -221,9 +225,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				return this.resolvedType = type;
 			}
 			// if missing generic type, and compliance >= 1.5, then will rebuild a parameterized binding
-		} else if (argLength != typeVariables.length && (this.bits & ASTNode.IsDiamond) == 0) { // check arity, IsDiamond never set for 1.6-
-			scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
-			return null;
+		} else if (argLength != typeVariables.length) {
+			if ((this.bits & ASTNode.IsDiamond) == 0) { // check arity, IsDiamond never set for 1.6-
+				scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
+				return null;
+			} 
+			checkBounds = false; // successful <> inference needs no bounds check, we will scream foul if needed during inference.
 		} else if (!currentType.isStatic()) {
 			ReferenceBinding actualEnclosing = currentType.enclosingType();
 			if (actualEnclosing != null && actualEnclosing.isRawType()){
@@ -281,16 +288,24 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		return output;
 	}
 
+	public TypeBinding resolveType(BlockScope scope, boolean checkBounds, TypeBinding expectedType) {
+	    return internalResolveType(scope, null, checkBounds, expectedType);
+	}
+	
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
-	    return internalResolveType(scope, null, checkBounds);
+	    return internalResolveType(scope, null, checkBounds, null);
 	}
 
 	public TypeBinding resolveType(ClassScope scope) {
-	    return internalResolveType(scope, null, false /*no bounds check in classScope*/);
+	    return internalResolveType(scope, null, false /*no bounds check in classScope*/, null);
 	}
 
 	public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
-	    return internalResolveType(scope, enclosingType, true/*check bounds*/);
+	    return internalResolveType(scope, enclosingType, true/*check bounds*/, null);
+	}
+	
+	public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType, TypeBinding expectedType) {
+	    return internalResolveType(scope, enclosingType, true/*check bounds*/, expectedType);
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

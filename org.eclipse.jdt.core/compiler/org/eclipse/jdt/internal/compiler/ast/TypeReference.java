@@ -208,6 +208,10 @@ public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 	return internalResolveType(scope);
 }
 
+public TypeBinding resolveType(BlockScope scope, boolean checkBounds, TypeBinding expectedType) {
+	return internalResolveType(scope);
+}
+
 public TypeBinding resolveType(ClassScope scope) {
 	return internalResolveType(scope);
 }

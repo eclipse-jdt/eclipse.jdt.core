@@ -14,8 +14,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.util.Map;
-
 import junit.framework.Test;
 public class GenericsRegressionTest_1_7 extends AbstractRegressionTest {
 
@@ -30,7 +28,7 @@ public GenericsRegressionTest_1_7(String name) {
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_7);
 }
-public void _test001() {
+public void test001() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -46,7 +44,7 @@ public void _test001() {
 		},
 		"SUCCESS");
 }
-public void _test001a() {
+public void test001a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -67,7 +65,7 @@ public void _test001a() {
 		"The method testFunction(String) in the type X<String> is not applicable for the arguments (int)\n" + 
 		"----------\n");
 }
-public void _test001b() {
+public void test001b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -82,7 +80,7 @@ public void _test001b() {
 		"SUCCESS");
 }
 // fields
-public void _test001b_1() {
+public void test001b_1() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -96,7 +94,7 @@ public void _test001b_1() {
 		},
 		"SUCCESS");
 }
-public void _test001c() {
+public void test001c() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -116,7 +114,7 @@ public void _test001c() {
 		"----------\n");
 }
 // fields
-public void _test001c_1() {
+public void test001c_1() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -174,7 +172,7 @@ public void _test001e() {
 		"The method ab(ArrayList<String>) in the type X<String> is not applicable for the arguments (ArrayList<Integer>)\n" + 
 		"----------\n");
 }
-public void _test001f() {
+public void test001f() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -193,7 +191,7 @@ public void _test001f() {
 		"SUCCESS");
 }
 // fields
-public void _test001f_1() {
+public void test001f_1() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -213,7 +211,7 @@ public void _test001f_1() {
 		},
 		"SUCCESS");
 }
-public void _test001g() {
+public void test001g() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -232,7 +230,7 @@ public void _test001g() {
 		},
 		"SUCCESS\n1");
 }
-public void _test001g_1() {
+public void test001g_1() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -253,7 +251,7 @@ public void _test001g_1() {
 		},
 		"SUCCESS\n1");
 }
-public void _test001h() {
+public void test001h() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -281,7 +279,7 @@ public void _test001h() {
 		"The method methodx(String) in the type X<String>.X2<String> is not applicable for the arguments (int)\n" + 
 		"----------\n");
 }
-public void _test001h_1() {
+public void test001h_1() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -326,7 +324,7 @@ public void _test001h_1() {
 		"Type safety: The method methodx(Object) belongs to the raw type X.X2. References to generic type X<T>.X2<T> should be parameterized\n" + 
 		"----------\n");
 }
-public void _test001i() {
+public void test001i() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -347,7 +345,7 @@ public void _test001i() {
 		},
 		"SUCCESS");
 }
-public void _test002() {
+public void test002() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -389,7 +387,7 @@ public void _test003() {
 		"SUCCESS");
 }
 
-public void _test004b() {
+public void test004b() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -408,10 +406,10 @@ public void _test004b() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	new X<>().new X2<>(){\n" + 
 		"	              ^^\n" + 
-		"Empty type argument list cannot be used in anonymous class declaration\n" + 
+		"Incorrect number of arguments for type X<>.X2; it cannot be parameterized with arguments <>\n" + 
 		"----------\n");
 }
-public void _test004c() {
+public void test004c() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -434,7 +432,7 @@ public void _test004c() {
 		"1");
 }
 
-public void _test006() {
+public void test006() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -530,59 +528,7 @@ public void _test008() {
 		"2");
 }
 
-// To be activated if we introduce a warning to be raised when <> can be used but is not used.
-public void _test012() {
-	Map options = getCompilerOptions();
-	//options.put(CompilerOptions.OPTION_ReportRedundantDeclarationOfTypeArguments, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X<T> {\n" +
-			"	X<String> f1 = new X<String>();\n" +
-			"	public void foo() {\n" +
-			"		X<Integer> i1 = new X<Integer>();\n" +
-			"	}\n" +
-			"}",
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	X<String> f1 = new X<String>();\n" + 
-		"	               ^^^^^^^^^^^^^^^\n" + 
-		"Redundant declaration of type arguments <String>\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	X<Integer> i1 = new X<Integer>();\n" + 
-		"	                ^^^^^^^^^^^^^^^^\n" + 
-		"Redundant declaration of type arguments <Integer>\n" + 
-		"----------\n",
-		null,
-		true,
-		options);
-}
-// To be activated if we introduce a warning to be raised when <> can be used but is not used.
-public void _test013a() {
-	Map options = getCompilerOptions();
-	//options.put(CompilerOptions.OPTION_ReportRedundantDeclarationOfTypeArguments, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"public class X<T> {\n" +
-			"	class Y<U>{}\n" +
-			"	Y<String> f1 = new Y();\n" +
-			"	public static void main(String[] args) {\n" +
-			"		X<Integer> i1 = new X<>();\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"}",
-		},
-		"SUCCESS",
-		null,
-		true,
-		null,
-		options,
-		null);
-}
-public void _test0014() {
+public void test0014() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -600,7 +546,7 @@ public void _test0014() {
 		"SUCCESS\n" +
 		"123");
 }
-public void _test0014a() {
+public void test0014a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -622,7 +568,7 @@ public void _test0014a() {
 		"The method testFunction(String, Integer) in the type X<String,Integer> is not applicable for the arguments (int, String)\n" + 
 		"----------\n");
 }
-public void _test0015() {
+public void test0015() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -643,7 +589,7 @@ public void _test0015() {
 }
 // To verify that a parameterized invocation of a generic constructor works even if <> is used
 // to elide class type parameters.
-public void _test0016() {
+public void test0016() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -664,7 +610,7 @@ public void _test0016() {
 }
 // To verify that a parameterized invocation of a generic constructor works even if <> is used
 // to elide class type parameters. This test handles fields
-public void _test0016b() {
+public void test0016b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -689,7 +635,7 @@ public void _test0016b() {
 // To verify that a parameterized invocation of a non-generic constructor works even if <> is used
 // to elide class type parameters.
 // This was not allowed in java 1.6 and 1.5 (https://bugs.eclipse.org/bugs/show_bug.cgi?id=168230)
-public void _test0017() {
+public void test0017() {
 	this.runConformTest(
 		new String[] {
 			"X.java",

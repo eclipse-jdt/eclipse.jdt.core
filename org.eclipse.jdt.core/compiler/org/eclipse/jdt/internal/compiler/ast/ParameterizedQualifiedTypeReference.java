@@ -111,7 +111,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
     /*
      * No need to check for reference to raw type per construction
      */
-	private TypeBinding internalResolveType(Scope scope, boolean checkBounds) {
+	private TypeBinding internalResolveType(Scope scope, boolean checkBounds, TypeBinding expectedType) {
 		// handle the error here
 		this.constant = Constant.NotAConstant;
 		if ((this.bits & ASTNode.DidResolve) != 0) { // is a shared type reference which was already resolved
@@ -223,6 +223,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						argTypes[j] = argType;
 					}
 				}
+				if ((this.bits & ASTNode.IsDiamond) != 0) {
+					if (expectedType != null && expectedType.isParameterizedTypeWithActualArguments())
+						argTypes = ((ParameterizedTypeBinding) expectedType).arguments;
+				}
 				if (argHasError) {
 					return null;
 				}
@@ -247,9 +251,12 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						this.resolvedType = scope.createArrayType(this.resolvedType, this.dimensions);
 					}
 					return this.resolvedType;
-				} else if (argLength != typeVariables.length && !isDiamond) { // check arity
-					scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes, i);
-					return null;
+				} else if (argLength != typeVariables.length) {
+					if (!isDiamond) { // check arity
+						scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes, i);
+						return null;
+					}
+					checkBounds = false; // successful <> inference needs no bounds check, we will scream foul if needed during inference.
 				}
 				// check parameterizing non-static member type of raw type
 				if (typeIsConsistent && !currentType.isStatic()) {
@@ -344,12 +351,15 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		}
 		return output;
 	}
-
+	
+	public TypeBinding resolveType(BlockScope scope, boolean checkBounds, TypeBinding expectedType) {
+	    return internalResolveType(scope, checkBounds, expectedType);
+	}
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
-	    return internalResolveType(scope, checkBounds);
+	    return internalResolveType(scope, checkBounds, null);
 	}
 	public TypeBinding resolveType(ClassScope scope) {
-	    return internalResolveType(scope, false);
+	    return internalResolveType(scope, false, null);
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
