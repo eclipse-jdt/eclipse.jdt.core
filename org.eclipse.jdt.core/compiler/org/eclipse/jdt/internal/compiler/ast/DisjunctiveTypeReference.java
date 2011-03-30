@@ -105,7 +105,7 @@ public class DisjunctiveTypeReference extends TypeReference {
 			return null;
 		}
 		// compute lub
-		return scope.lowerUpperBound(allExceptionTypes);
+		return (this.resolvedType = scope.lowerUpperBound(allExceptionTypes));
 	}
 
 	/* (non-Javadoc)
