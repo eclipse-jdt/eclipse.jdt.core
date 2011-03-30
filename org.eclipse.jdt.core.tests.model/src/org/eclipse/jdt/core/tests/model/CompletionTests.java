@@ -4,7 +4,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -984,6 +988,11 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("test325481b"));
 	suite.addTest(new CompletionTests("testBug332268a"));
 	suite.addTest(new CompletionTests("testBug332268b"));
+	suite.addTest(new CompletionTests("testBug338789"));
+	suite.addTest(new CompletionTests("testBug338789b"));
+	suite.addTest(new CompletionTests("testBug338789c"));
+	suite.addTest(new CompletionTests("testBug338789d"));
+	suite.addTest(new CompletionTests("testBug338789e"));
 	return suite;
 }
 public CompletionTests(String name) {
@@ -22946,5 +22955,312 @@ public void testBug332268b() throws JavaModelException {
 	assertResults(
 			"myVar1[FIELD_REF]{myVar1, Ltest.Test;, I, myVar1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
 			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338789
+// To verify that we get proposals for exceptions inside a multi-catch
+// Also verify that actually thrown exceptions get higher priority
+public void testBug338789() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[4];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"	public void throwing() throws IZZBException, IZZException {}\n" +
+			"	public void foo() {\n" +
+			"      try {\n" +
+			"         throwing();\n" +
+			"      }\n" +
+			"      catch (IZZException | IZZ) {\n" +
+			"         bar();\n" +
+			"      }\n" +
+			"   }" +
+			"}\n");
+
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/test/IZZAException.java",
+				"package test;"+
+				"public class IZZAException extends Exception {\n" +
+				"}\n");
+
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/test/IZZBException.java",
+				"package test;"+
+				"public class IZZBException extends Exception {\n" +
+				"}\n");
+
+		this.workingCopies[3] = getWorkingCopy(
+				"/Completion/src/test/IZZException.java",
+				"package test;"+
+				"public class IZZException extends Exception {\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "IZZException | IZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+		assertResults(
+			"IZZAException[TYPE_REF]{IZZAException, test, Ltest.IZZAException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}\n" +
+			"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338789
+// To verify that we get proposals for exceptions inside a multi-catch
+// Also verify that actually thrown exceptions get higher priority
+public void testBug338789b() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[4];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"	public void throwing() throws IZZBException, IZZException, IllegalArgumentException {}\n" +
+			"	public void foo() {\n" +
+			"      try {\n" +
+			"         throwing();\n" +
+			"      }\n" +
+			"      catch (IllegalArgumentException | IZZException | IZZ) {\n" +
+			"         bar();\n" +
+			"      }\n" +
+			"   }" +
+			"}\n");
+
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/test/IZZAException.java",
+				"package test;"+
+				"public class IZZAException extends Exception {\n" +
+				"}\n");
+
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/test/IZZBException.java",
+				"package test;"+
+				"public class IZZBException extends Exception {\n" +
+				"}\n");
+
+		this.workingCopies[3] = getWorkingCopy(
+				"/Completion/src/test/IZZException.java",
+				"package test;"+
+				"public class IZZException extends Exception {\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "IllegalArgumentException | IZZException | IZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+		assertResults(
+			"IZZAException[TYPE_REF]{IZZAException, test, Ltest.IZZAException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}\n" +
+			"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338789
+// To verify that we get proposals for the parameter of a multi-catch clause
+// with its type as the LUB of all the types caught.
+public void testBug338789c() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[5];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"	public void throwing() throws IZZBException, IZZException {}\n" +
+			"	public void foo() {\n" +
+			"      try {\n" +
+			"         throwing();\n" +
+			"      }\n" +
+			"      catch (IZZException | IZZBException e) {\n" +
+			"         e.myM;\n" +
+			"      }\n" +
+			"   }" +
+			"}\n");
+
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/test/IZZAException.java",
+				"package test;"+
+				"public class IZZAException extends Exception {\n" +
+				"}\n");
+
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/test/IZZBException.java",
+				"package test;"+
+				"public class IZZBException extends Exception implements CommonInt{\n" +
+				"	public void myMethod(){}\n" +
+				"}\n");
+
+		this.workingCopies[3] = getWorkingCopy(
+				"/Completion/src/test/IZZException.java",
+				"package test;"+
+				"public class IZZException extends Exception implements CommonInt {\n" +
+				"	public void myMethod(){}\n" +
+				"}\n");
+		
+		this.workingCopies[4] = getWorkingCopy(
+				"/Completion/src/test/CommonInt.java",
+				"package test;"+
+				"public interface CommonInt {\n" +
+				"	public void myMethod();\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "e.myM";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+		assertResults(
+			"myMethod[METHOD_REF]{myMethod(), Ltest.CommonInt;, ()V, myMethod, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338789
+// To verify that we get proposals for exceptions inside a multi-catch (qualified ref)
+// Also verify that actually thrown exceptions get higher priority
+public void testBug338789d() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[4];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"	public void throwing() throws q.IZZBException, q.IZZException, IllegalArgumentException {}\n" +
+			"	public void foo() {\n" +
+			"      try {\n" +
+			"         throwing();\n" +
+			"      }\n" +
+			"      catch (IllegalArgumentException | q.IZZException | q.IZZ) {\n" +
+			"         bar();\n" +
+			"      }\n" +
+			"   }" +
+			"}\n");
+
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/q/IZZAException.java",
+				"package q;"+
+				"public class IZZAException extends Exception {\n" +
+				"}\n");
+
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/q/IZZBException.java",
+				"package q;"+
+				"public class IZZBException extends Exception {\n" +
+				"}\n");
+
+		this.workingCopies[3] = getWorkingCopy(
+				"/Completion/src/q/IZZException.java",
+				"package q;"+
+				"public class IZZException extends Exception {\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "IllegalArgumentException | q.IZZException | q.IZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+		assertResults(
+			"IZZAException[TYPE_REF]{q.IZZAException, q, Lq.IZZAException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}\n" +
+			"IZZBException[TYPE_REF]{q.IZZBException, q, Lq.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+			"IZZException[TYPE_REF]{q.IZZException, q, Lq.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338789
+// To verify that we get proposals for exceptions inside a multi-catch
+// Also verify that actually thrown exceptions get higher priority
+public void testBug338789e() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[4];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"	public void throwing() throws IZZBException, IZZException {}\n" +
+			"	public void foo() {\n" +
+			"      try {\n" +
+			"         throwing();\n" +
+			"      }\n" +
+			"      catch (IZZException | IZZBException ) {\n" +
+			"         bar();\n" +
+			"      }\n" +
+			"   }" +
+			"}\n");
+
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/test/IZZAException.java",
+				"package test;"+
+				"public class IZZAException extends Exception {\n" +
+				"}\n");
+
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/test/IZZBException.java",
+				"package test;"+
+				"public class IZZBException extends Exception {\n" +
+				"}\n");
+
+		this.workingCopies[3] = getWorkingCopy(
+				"/Completion/src/test/IZZException.java",
+				"package test;"+
+				"public class IZZException extends Exception {\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "IZZException | IZZBException ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+		assertResults(
+			"exception[VARIABLE_DECLARATION]{exception, null, Ljava.lang.Exception;, exception, null, " + (R_DEFAULT + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
 }
 }

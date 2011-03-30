@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import junit.framework.Test;
 
 import org.eclipse.jdt.internal.codeassist.complete.InvalidCursorLocation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class CompletionParserTest extends AbstractCompletionTest {
 public CompletionParserTest(String testName) {
@@ -8688,6 +8689,125 @@ public void testBug310423(){
 		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338789
+public void testBug338789(){
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test {\n" +
+		"	public void throwing() throws IZZBException, IZZException {}\n" +
+		"	public void foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IZZException | IZZ) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"   }" +
+		"}\n" +
+		"class IZZAException extends Exception {\n" +
+		"}\n" +
+		"class IZZBException extends Exception {\n" +
+		"}\n" +
+		"class IZZException extends Exception {\n" +
+		"}\n";
+
+	String testName = "<complete on multi-catch block exception type declaration>";
+	String completeBehind = "IZZException | IZZ";
+	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
+	String completionIdentifier = "IZZ";
+	String expectedReplacedSource = "IZZ";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void throwing() throws IZZBException, IZZException {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    try\n" + 
+		"      {\n" + 
+		"        throwing();\n" + 
+		"      }\n" + 
+		"    catch (<CompleteOnException:IZZ>  )\n" + 
+		"      {\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"class IZZAException extends Exception {\n" + 
+		"  IZZAException() {\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"class IZZBException extends Exception {\n" + 
+		"  IZZBException() {\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"class IZZException extends Exception {\n" + 
+		"  IZZException() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	int cursorLocation = str.indexOf("IZZException | IZZ") + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338789
+// Qualified assist type reference
+public void testBug338789b(){
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test {\n" +
+		"	public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException {}\n" +
+		"	public void foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (java.lang.IllegalArgumentException | java.lang.I) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"   }" +
+		"}\n";
+
+	String testName = "<complete on multi-catch block exception type declaration qualified>";
+	String completeBehind = "java.lang.IllegalArgumentException | java.lang.I";
+	String expectedCompletionNodeToString = "<CompleteOnException:java.lang.I>";
+	String completionIdentifier = "I";
+	String expectedReplacedSource = "java.lang.I";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    try\n" + 
+		"      {\n" + 
+		"        throwing();\n" + 
+		"      }\n" + 
+		"    catch (<CompleteOnException:java.lang.I>  )\n" + 
+		"      {\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	int cursorLocation = str.indexOf("java.lang.IllegalArgumentException | java.lang.I") + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,

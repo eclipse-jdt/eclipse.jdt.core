@@ -2329,6 +2329,11 @@ protected void consumeDimWithOrWithOutExpr() {
 	// DimWithOrWithOutExpr ::= '[' ']'
 	pushOnExpressionStack(null);
 }
+protected void consumeDisjunctiveType() {
+	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
+	super.consumeDisjunctiveType();
+	popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
+}
 protected void consumeDisjunctiveTypeAsClassType() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
 	super.consumeDisjunctiveTypeAsClassType();
@@ -3676,7 +3681,9 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_BINARY_OPERATOR, XOR);
 				break;
 			case TokenNameOR:
-				pushOnElementStack(K_BINARY_OPERATOR, OR);
+				// Don't push the OR operator used for Disjunctive Types in a catch declaration
+				if (topKnownElementKind(COMPLETION_PARSER) != K_BETWEEN_CATCH_AND_RIGHT_PAREN)
+					pushOnElementStack(K_BINARY_OPERATOR, OR);
 				break;
 			case TokenNameAND_AND:
 				pushOnElementStack(K_BINARY_OPERATOR, AND_AND);
