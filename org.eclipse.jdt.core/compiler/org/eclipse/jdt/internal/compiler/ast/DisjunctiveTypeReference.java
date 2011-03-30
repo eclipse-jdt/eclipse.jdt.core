@@ -15,6 +15,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -65,6 +66,20 @@ public class DisjunctiveTypeReference extends TypeReference {
 			TypeBinding exceptionType = this.typeReferences[i].resolveType(scope, checkBounds);
 			if (exceptionType == null) {
 				return null;
+			}
+			switch(exceptionType.kind()) {
+				case Binding.PARAMETERIZED_TYPE :
+					if (exceptionType.isBoundParameterizedType()) {
+						hasError = true;
+						scope.problemReporter().invalidParameterizedExceptionType(exceptionType, this.typeReferences[i]);
+						// fall thru to create the variable - avoids additional errors because the variable is missing
+					}
+					break;
+				case Binding.TYPE_PARAMETER :
+					scope.problemReporter().invalidTypeVariableAsException(exceptionType, this.typeReferences[i]);
+					hasError = true;
+					// fall thru to create the variable - avoids additional errors because the variable is missing
+					break;
 			}
 			if (exceptionType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) == null
 					&& exceptionType.isValidBinding()) {

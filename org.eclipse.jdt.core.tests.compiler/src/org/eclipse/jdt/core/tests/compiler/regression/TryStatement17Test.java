@@ -778,6 +778,60 @@ public void test021() {
 		"java.lang.ArrayStoreException\n" + 
 		"java.lang.ArrayIndexOutOfBoundsException");
 }
+public void test022() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends Exception> {\n" +
+				"public void foo(boolean bool) throws Exception {\n" +
+				"	try {\n" +
+	            "	if (bool)\n" + 
+	            "		throw new Exception();\n" +
+	            "	else\n" +
+	            "		throw new NullPointerException();\n" +
+	        	"	} catch (T | NullPointerException e) {}\n" +
+	        	"}\n" +
+	        	"}\n"}, 
+	        	"----------\n" +
+    			"1. ERROR in X.java (at line 8)\n" + 
+    			"	} catch (T | NullPointerException e) {}\n" + 
+    			"	         ^\n" + 
+    			"Cannot use the type parameter T in a catch block\n" + 
+    			"----------\n"
+			);
+}
+public void test023() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> extends Exception {\n" +
+				"public void foo(boolean bool) throws Exception {\n" +
+				"	try {\n" +
+	            "	if (bool)\n" + 
+	            "		throw new Exception();\n" +
+	            "	else\n" +
+	            "		throw new NullPointerException();\n" +
+	        	"	} catch (X<String> | NullPointerException e) {}\n" +
+	        	"}\n" +
+	        	"}\n"}, 
+	        	"----------\n" + 
+    			"1. WARNING in X.java (at line 1)\n" + 
+    			"	public class X<T> extends Exception {\n" + 
+    			"	             ^\n" + 
+    			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
+    			"----------\n" + 
+    			"2. ERROR in X.java (at line 1)\n" + 
+    			"	public class X<T> extends Exception {\n" + 
+    			"	                          ^^^^^^^^^\n" + 
+    			"The generic class X<T> may not subclass java.lang.Throwable\n" + 
+    			"----------\n" + 
+    			"3. ERROR in X.java (at line 8)\n" + 
+    			"	} catch (X<String> | NullPointerException e) {}\n" + 
+    			"	         ^\n" + 
+    			"Cannot use the parameterized type X<String> either in catch block or throws clause\n" + 
+    			"----------\n"
+			);
+}
 public static Class testClass() {
 	return TryStatement17Test.class;
 }

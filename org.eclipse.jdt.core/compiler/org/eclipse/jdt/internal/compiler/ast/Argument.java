@@ -129,13 +129,6 @@ public class Argument extends LocalDeclaration {
 					hasError = true;
 					// fall thru to create the variable - avoids additional errors because the variable is missing
 					break;
-				case Binding.ARRAY_TYPE :
-					if (((ArrayBinding) exceptionType).leafComponentType == TypeBinding.VOID) {
-						scope.problemReporter().variableTypeCannotBeVoidArray(this);
-						hasError = true;
-						// fall thru to create the variable - avoids additional errors because the variable is missing
-					}
-					break;
 			}
 			if (exceptionType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) == null && exceptionType.isValidBinding()) {
 				scope.problemReporter().cannotThrowType(this.type, exceptionType);
