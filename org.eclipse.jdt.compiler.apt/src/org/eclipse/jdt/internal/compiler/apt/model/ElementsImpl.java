@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 BEA Systems, Inc.
+ * Copyright (c) 2006, 2011 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *
+ *    IBM Corporation - Fix for bug 341494
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
@@ -274,6 +274,14 @@ public class ElementsImpl implements Elements {
 			StringBuilder builder = new StringBuilder();
 			builder.append('\'').append(value).append('\'');
 			return String.valueOf(builder);
+		} else if (value instanceof String) {
+			StringBuilder builder = new StringBuilder();
+			builder.append('\"').append(value).append('\"');
+			return String.valueOf(builder);
+		} else if (value instanceof Float) {
+			return String.valueOf(value)+'f';
+		} else if (value instanceof Long) {
+			return String.valueOf(value)+'L';
 		}
 		return String.valueOf(value);
 	}
