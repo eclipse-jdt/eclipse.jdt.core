@@ -1830,7 +1830,12 @@ public void fieldHiding(FieldDeclaration fieldDecl, Binding hiddenVariable) {
 			&& field.isStatic()
 			&& field.isFinal()
 			&& TypeBinding.LONG == field.type) {
-				return; // do not report unused serialVersionUID field
+		ReferenceBinding referenceBinding = field.declaringClass;
+		if (referenceBinding != null) {
+			if (referenceBinding.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
+				return; // do not report unused serialVersionUID field for class that implements Serializable
+			}
+		}
 	}
 	if (CharOperation.equals(TypeConstants.SERIALPERSISTENTFIELDS, field.name)
 			&& field.isStatic()
