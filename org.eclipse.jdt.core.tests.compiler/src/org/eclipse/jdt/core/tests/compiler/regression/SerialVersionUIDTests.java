@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2009 IBM Corporation and others.
+ * Copyright (c) 2006, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,8 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -206,5 +208,50 @@ public void test010() {
 			},
 			""
 		);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=341475
+public void test011() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	private static final long serialVersionUID = 1L;\n" + 
+		"	                          ^^^^^^^^^^^^^^^^\n" + 
+		"The value of the field X.serialVersionUID is not used\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=341475
+public void test012() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	private static final long serialVersionUID = 1L;\n" + 
+		"	                          ^^^^^^^^^^^^^^^^\n" + 
+		"The value of the field X<T>.serialVersionUID is not used\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+	);
 }
 }
