@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 BEA Systems, Inc.
+ * Copyright (c) 2007, 2011 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
+ *    IBM Corporation - Fix for bug 341494
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests.processors.elementutils;
@@ -28,6 +29,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.Elements;
 
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
@@ -42,6 +44,7 @@ public class ElementUtilsProc extends BaseProcessor
 {
 	// Initialized in collectElements()
 	private TypeElement _elementF;
+	private TypeElement _elementConstants;
 	private TypeElement _elementFChild;
 	private TypeElement _elementFEnum;
 	private TypeElement _elementG;
@@ -106,7 +109,9 @@ public class ElementUtilsProc extends BaseProcessor
 		if (!examineOverrides()) {
 			return false;
 		}
-		
+		if (!examineGetConstantExpression()) {
+			return false;
+		}
 		reportSuccess();
 		return false;
 	}
@@ -177,7 +182,11 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("Could not find value() method in annotation type AnnoY");
 			return false;
 		}
-		
+		_elementConstants = _elementUtils.getTypeElement("targets.model.pc.Constants");
+		if (_elementConstants == null || _elementConstants.getKind() != ElementKind.CLASS) {
+			reportError("_elementConstants was not found or was not a class");
+			return false;
+		}
 		return true;
 	}
 	
@@ -590,6 +599,37 @@ public class ElementUtilsProc extends BaseProcessor
 		return true;
 	}
 	
+	/**
+	 * Test the {@link Elements#getConstantExpression(Object)} method for fields
+	 * @return true if all tests passed
+	 */
+	private boolean examineGetConstantExpression() {
+		for (VariableElement field : ElementFilter.fieldsIn(_elementConstants.getEnclosedElements())) {
+			Object constantValue = field.getConstantValue();
+			if (constantValue instanceof String) {
+				String constantExpression = _elementUtils.getConstantExpression(constantValue);
+				if (constantExpression == null
+						|| constantExpression.charAt(0) != '\"'
+						|| constantExpression.charAt(constantExpression.length() - 1) != '\"') {
+					return false;
+				}
+			} else if (constantValue instanceof Character) {
+				String constantExpression = _elementUtils.getConstantExpression(constantValue);
+				if (constantExpression == null
+						|| constantExpression.charAt(0) != '\''
+						|| constantExpression.charAt(constantExpression.length() - 1) != '\'') {
+					return false;
+				}
+			} else {
+				String constantExpression = _elementUtils.getConstantExpression(constantValue);
+				if (constantExpression == null) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	/**
 	 * Test the {@link Elements#hides(Element, Element)} method for nested classes
 	 * @return true if all tests passed
