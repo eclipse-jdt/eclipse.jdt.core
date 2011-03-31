@@ -387,8 +387,13 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							if (use15specifics) {
 								checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
 								// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
-								if (interfaceType.hasIncompatibleSuperType((ReferenceBinding)castType))
+								if (scope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
+									if (interfaceType.hasIncompatibleSuperType((ReferenceBinding) castType)) {
+										return false;
+									}
+								} else if (!castType.isRawType() && interfaceType.hasIncompatibleSuperType((ReferenceBinding) castType)) {
 									return false;
+								}
 							} else {
 								// pre1.5 semantics - no covariance allowed (even if 1.5 compliant, but 1.4 source)
 								// look at original methods rather than the parameterized variants at 1.4 to detect
@@ -428,7 +433,11 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							if (use15specifics) {
 								checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
 								// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
-								if (((ReferenceBinding)castType).hasIncompatibleSuperType((ReferenceBinding) expressionType)) {
+								if (scope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
+									if (((ReferenceBinding)castType).hasIncompatibleSuperType((ReferenceBinding) expressionType)) {
+										return false;
+									}
+								} else if (!castType.isRawType() && ((ReferenceBinding)castType).hasIncompatibleSuperType((ReferenceBinding) expressionType)) {
 									return false;
 								}
 							}
@@ -475,8 +484,13 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							if (use15specifics) {
 								checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
 								// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
-								if (refExprType.hasIncompatibleSuperType((ReferenceBinding) castType))
+								if (scope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
+									if (refExprType.hasIncompatibleSuperType((ReferenceBinding) castType)) {
+										return false;
+									}
+								} else if (!castType.isRawType() && refExprType.hasIncompatibleSuperType((ReferenceBinding) castType)) {
 									return false;
+								}
 							}
 							return true;
 						} else {

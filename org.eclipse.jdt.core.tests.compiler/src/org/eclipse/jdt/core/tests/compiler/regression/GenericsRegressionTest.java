@@ -1740,4 +1740,47 @@ public void test338011b() {
 		compilerOptions15,
 		null);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=334493 
+public void test334493() {
+ this.runNegativeTest(
+     new String[] {
+         "X.java",
+         "interface Super<P> {}\n" +
+         "class Y<C> implements Super<Integer>{}\n" +
+         "interface II extends Super<Double>{}\n" +
+         "class S<A> extends Y<Byte> {}\n" +
+         "interface T<B> extends II{}\n" +
+         "public class X {\n" +
+         "    public static void main(String argv[]) {\n" +
+         "        S<Integer> s = null;\n" +
+         "        T<Integer> t = null;\n" +
+         "        t = (T) s;          //casting to raw type, no error\n" +
+         "        System.out.println(t);\n" +
+         "    }\n" +
+         "}\n"
+     },
+     this.complianceLevel < ClassFileConstants.JDK1_7 ?
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	t = (T) s;          //casting to raw type, no error\n" + 
+		"	    ^^^^^\n" + 
+		"Cannot cast from S<Integer> to T\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	t = (T) s;          //casting to raw type, no error\n" + 
+		"	    ^^^^^\n" + 
+		"Type safety: The expression of type T needs unchecked conversion to conform to T<Integer>\n" + 
+		"----------\n" : 
+				"----------\n" + 
+				"1. WARNING in X.java (at line 10)\n" + 
+				"	t = (T) s;          //casting to raw type, no error\n" + 
+				"	    ^^^^^\n" + 
+				"Type safety: The expression of type T needs unchecked conversion to conform to T<Integer>\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 10)\n" + 
+				"	t = (T) s;          //casting to raw type, no error\n" + 
+				"	     ^\n" + 
+				"T is a raw type. References to generic type T<B> should be parameterized\n" + 
+				"----------\n");
+}
 }
