@@ -1802,14 +1802,24 @@ public void fieldHiding(FieldDeclaration fieldDecl, Binding hiddenVariable) {
 			&& field.isStatic()
 			&& field.isFinal()
 			&& TypeBinding.LONG == field.type) {
-				return; // do not report unused serialVersionUID field
+		ReferenceBinding referenceBinding = field.declaringClass;
+		if (referenceBinding != null) {
+			if (referenceBinding.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
+				return; // do not report unused serialVersionUID field for class that implements Serializable
+			}
+		}
 	}
 	if (CharOperation.equals(TypeConstants.SERIALPERSISTENTFIELDS, field.name)
 			&& field.isStatic()
 			&& field.isFinal()
 			&& field.type.dimensions() == 1
 			&& CharOperation.equals(TypeConstants.CharArray_JAVA_IO_OBJECTSTREAMFIELD, field.type.leafComponentType().readableName())) {
-				return; // do not report unused serialPersistentFields field
+		ReferenceBinding referenceBinding = field.declaringClass;
+		if (referenceBinding != null) {
+			if (referenceBinding.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
+				return; // do not report unused serialVersionUID field for class that implements Serializable
+			}
+		}
 	}
 	boolean isLocal = hiddenVariable instanceof LocalVariableBinding;
 	int severity = computeSeverity(isLocal ? IProblem.FieldHidingLocalVariable : IProblem.FieldHidingField);
@@ -7340,7 +7350,12 @@ public void unusedPrivateField(FieldDeclaration fieldDecl) {
 			&& field.isFinal()
 			&& field.type.dimensions() == 1
 			&& CharOperation.equals(TypeConstants.CharArray_JAVA_IO_OBJECTSTREAMFIELD, field.type.leafComponentType().readableName())) {
+		ReferenceBinding referenceBinding = field.declaringClass;
+		if (referenceBinding != null) {
+			if (referenceBinding.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
 				return; // do not report unused serialPersistentFields field
+			}
+		}
 	}
 	this.handle(
 			IProblem.UnusedPrivateField,
