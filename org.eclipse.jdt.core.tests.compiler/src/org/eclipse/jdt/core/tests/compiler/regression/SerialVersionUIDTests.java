@@ -254,4 +254,49 @@ public void test012() {
 		options
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=341475
+public void test013() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	private static final long serialPersistentFields = 1L;\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	private static final long serialPersistentFields = 1L;\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The value of the field X<T>.serialPersistentFields is not used\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=341475
+public void test014() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	private static final long serialPersistentFields = 1L;\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	private static final long serialPersistentFields = 1L;\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The value of the field X.serialPersistentFields is not used\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
 }
