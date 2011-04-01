@@ -708,6 +708,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugsTests("testBug324189e"));
 	suite.addTest(new JavaSearchBugsTests("testBug336322a"));
 	suite.addTest(new JavaSearchBugsTests("testBug336322b"));
+	suite.addTest(new JavaSearchBugsTests("testBug336322c"));
 	suite.addTest(new JavaSearchBugsTests("testBug339891"));
 	return suite;
 }
@@ -13506,6 +13507,31 @@ public void testBug336322b() throws CoreException{
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
 		search("RuntimeException", IJavaSearchConstants.TYPE, CATCH_TYPE_REFERENCE, scope, this.resultCollector);
 		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [RuntimeException] EXACT_MATCH", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+// search for the multi-catch variable should return the variable 
+public void testBug336322c() throws CoreException{
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.7");
+		createFile("/P/Test.java", 
+				"public class Test {\n"+
+				"public void foo(Object o) {\n"+
+				"  try {\n"+
+				"   }\n"+ 
+				" catch(Exception|RuntimeException exc) {\n" +
+				"       exc.printStackTrace();\n"+
+				"   }\n"+
+				"}\n"+
+				"}\n");
+		int mask = IJavaSearchScope.SOURCES ;
+		IType type = project.findType("Test");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		ILocalVariable variable = selectLocalVariable(type.getCompilationUnit(), "exc");
+		search(variable, READ_ACCESSES, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [exc] EXACT_MATCH", this.resultCollector);		
 	} finally {
 		deleteProject("P");
 	}
