@@ -176,7 +176,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		assertEquals("Wrong type", "java.lang.String", typeBinding.getQualifiedName());
 	}
 	/*
-	 * Disjunctive types
+	 * Disjunctive types (update for bug 340608)
 	 */
 	public void test0005() throws JavaModelException {
 		String contents =
@@ -190,9 +190,9 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"		}\n" +
 			"	}\n" +
 			"}";
-		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", false/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(AST.JLS4, this.workingCopy, false);
+		ASTNode node = runConversion(AST.JLS4, this.workingCopy, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -205,6 +205,8 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		Type type = exception.getType();
 		assertEquals("Not a disjunctive type", ASTNode.DISJUNCTIVE_TYPE, type.getNodeType());
 		checkSourceRange(type, "NumberFormatException | Exception", contents);
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No binding", typeBinding);
 	}
 	/*
 	 * Check that catch type with disjunctive type as a simple type is converted to a simple type
@@ -370,5 +372,60 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		List resources = tryStatement.resources();
 		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s);", contents);
 		checkSourceRange((ASTNode) resources.get(1), "Reader r2 = new FileReader(s)", contents);
+	}
+	/*
+	 * Disjunctive types (update for bug 340608)
+	 */
+	public void test0011() throws JavaModelException {
+		String contents =
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        try {\n" + 
+			"            int option= 1;\n" + 
+			"            throw option == 1 ? new ExceptionA() : new ExceptionB();\n" + 
+			"        } catch (/*final*/ ExceptionA | ExceptionB ex) {\n" + 
+			"            System.out.println(\"type of ex: \" + ex.getClass());\n" + 
+			"            // next 2 methods on 'ex' use different parts of lub:\n" + 
+			"            ex.myMethod();\n" + 
+			"            throw ex;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"interface Mix {\n" + 
+			"    public void myMethod();\n" + 
+			"}\n" + 
+			"class ExceptionA extends RuntimeException implements Mix {\n" + 
+			"    public void myMethod() {\n" + 
+			"        System.out.println(\"ExceptionA.myMethod()\");\n" + 
+			"    }\n" + 
+			"    public void onlyA() {\n" + 
+			"        System.out.println(\"ExceptionA.onlyA()\");\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class ExceptionB extends RuntimeException implements Mix {\n" + 
+			"    public void myMethod() {\n" + 
+			"        System.out.println(\"ExceptionB.myMethod()\");\n" + 
+			"    }\n" + 
+			"    public void onlyB() {\n" + 
+			"        System.out.println(\"ExceptionA.onlyB()\");\n" + 
+			"    }\n" + 
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS4, this.workingCopy, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a try statement", ASTNode.TRY_STATEMENT, node.getNodeType());
+		TryStatement tryStatement = (TryStatement) node;
+		List catchClauses = tryStatement.catchClauses();
+		CatchClause clause = (CatchClause) catchClauses.get(0);
+		SingleVariableDeclaration exception = clause.getException();
+		Type type = exception.getType();
+		assertEquals("Not a disjunctive type", ASTNode.DISJUNCTIVE_TYPE, type.getNodeType());
+		checkSourceRange(type, "ExceptionA | ExceptionB", contents);
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No binding", typeBinding);
 	}
 }
