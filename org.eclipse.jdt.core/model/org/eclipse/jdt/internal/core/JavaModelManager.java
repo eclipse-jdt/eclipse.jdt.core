@@ -2070,10 +2070,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		// return cached options if already computed
 		Hashtable cachedOptions; // use a local variable to avoid race condition (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=256329 )
-		if ((cachedOptions = this.optionsCache) != null) return new Hashtable(cachedOptions);
-
+		if ((cachedOptions = this.optionsCache) != null) {
+			if (DEBUG_302850) checkTaskTags("Retrieving options from optionsCache", this.optionsCache); //$NON-NLS-1$
+			return new Hashtable(cachedOptions);
+		}
+		if (DEBUG_302850) System.out.println("optionsCache was null"); //$NON-NLS-1$
 		if (!Platform.isRunning()) {
 			this.optionsCache = getDefaultOptionsNoInitialization();
+			if (DEBUG_302850) checkTaskTags("Platform is not running", this.optionsCache); //$NON-NLS-1$
 			return new Hashtable(this.optionsCache);
 		}
 		// init
@@ -2089,6 +2093,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				options.put(propertyName, propertyValue);
 			}
 		}
+		if (DEBUG_302850) checkTaskTags("Options initialized from preferences", options); //$NON-NLS-1$
 
 		// get encoding through resource plugin
 		options.put(JavaCore.CORE_ENCODING, JavaCore.getEncoding());
@@ -2107,11 +2112,28 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		Util.fixTaskTags(options);
+		if (DEBUG_302850) checkTaskTags("Retrieved options from preferences", options); //$NON-NLS-1$
 		// store built map in cache
 		this.optionsCache = new Hashtable(options);
+		if (DEBUG_302850) checkTaskTags("Stored optionsCache", this.optionsCache); //$NON-NLS-1$
 
 		// return built map
 		return options;
+	}
+
+	// debugging bug 302850:
+	private void checkTaskTags(String msg, Hashtable someOptions) {
+		System.out.println(msg);
+		Object taskTags = someOptions.get(JavaCore.COMPILER_TASK_TAGS);
+		System.out.println("	+ Task tags:           " + taskTags); //$NON-NLS-1$
+		if (taskTags == null || "".equals(taskTags)) { //$NON-NLS-1$
+			System.out.println("	- option names: "+this.optionNames); //$NON-NLS-1$
+			System.out.println("	- Call stack:"); //$NON-NLS-1$
+			StackTraceElement[] elements = new Exception().getStackTrace();
+			for (int i=0,n=elements.length; i<n; i++) {
+				System.out.println("		+ "+elements[i]); //$NON-NLS-1$
+			}
+		}
 	}
 
 	/**

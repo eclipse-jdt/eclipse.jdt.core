@@ -11727,6 +11727,7 @@ public void testBug286379c() throws CoreException {
 		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
 		System.out.println("	- Default Options at test end:");
 		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getDefaultOptions()).toString(), 2));
+		JavaModelManager.DEBUG_302850 = false;
 	}
 }
 
