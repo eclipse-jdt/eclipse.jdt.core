@@ -320,6 +320,11 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
 }
 
+protected void consumeCatchFormalParameter(boolean isVarArgs) {
+	super.consumeCatchFormalParameter(isVarArgs);
+	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
+}
+
 protected void consumeInstanceOfExpression() {
 	super.consumeInstanceOfExpression();
 	if ((this.patternFineGrain & IJavaSearchConstants.INSTANCEOF_TYPE_REFERENCE) != 0) {

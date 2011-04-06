@@ -2574,6 +2574,64 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		this.listLength++;
 	}
 }
+protected void consumeCatchFormalParameter(boolean isVarArgs) {
+	if (this.indexOfAssistIdentifier() < 0) {
+		super.consumeCatchFormalParameter(isVarArgs);
+		if (this.pendingAnnotation != null) {
+			this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
+			this.pendingAnnotation = null;
+		}
+	} else {
+
+		this.identifierLengthPtr--;
+		char[] identifierName = this.identifierStack[this.identifierPtr];
+		long namePositions = this.identifierPositionStack[this.identifierPtr--];
+		int extendedDimensions = this.intStack[this.intPtr--];
+		int endOfEllipsis = 0;
+		if (isVarArgs) {
+			endOfEllipsis = this.intStack[this.intPtr--];
+		}
+		int firstDimensions = this.intStack[this.intPtr--];
+		final int typeDimensions = firstDimensions + extendedDimensions;
+		TypeReference type = getTypeReference(typeDimensions);
+		if (isVarArgs) {
+			type = copyDims(type, typeDimensions + 1);
+			if (extendedDimensions == 0) {
+				type.sourceEnd = endOfEllipsis;
+			}
+			type.bits |= ASTNode.IsVarArgs; // set isVarArgs
+		}
+		this.intPtr -= 2;
+		CompletionOnArgumentName arg =
+			new CompletionOnArgumentName(
+				identifierName,
+				namePositions,
+				type,
+				this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated); // modifiers
+		arg.bits &= ~ASTNode.IsArgument;
+		// consume annotations
+		int length;
+		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+			System.arraycopy(
+				this.expressionStack,
+				(this.expressionPtr -= length) + 1,
+				arg.annotations = new Annotation[length],
+				0,
+				length);
+		}
+
+		arg.isCatchArgument = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CATCH_AND_RIGHT_PAREN;
+		pushOnAstStack(arg);
+
+		this.assistNode = arg;
+		this.lastCheckPoint = (int) namePositions;
+		this.isOrphanCompletionNode = true;
+
+		/* if incomplete method header, listLength counter will not have been reset,
+			indicating that some arguments are available on the stack */
+		this.listLength++;
+	}
+}
 protected void consumeStatementFor() {
 	super.consumeStatementFor();
 

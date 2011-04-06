@@ -26,7 +26,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// storage for internal flags (32 bits)				BIT USAGE
 	public final static int Bit1 = 0x1;					// return type (operator) | name reference kind (name ref) | add assertion (type decl) | useful empty statement (empty statement)
 	public final static int Bit2 = 0x2;					// return type (operator) | name reference kind (name ref) | has local type (type, method, field decl)
-	public final static int Bit3 = 0x4;					// return type (operator) | name reference kind (name ref) | implicit this (this ref)
+	public final static int Bit3 = 0x4;					// return type (operator) | name reference kind (name ref) | implicit this (this ref) | locals (isArgument)
 	public final static int Bit4 = 0x8;					// return type (operator) | first assignment to local (name ref,local decl) | undocumented empty block (block, type and method decl)
 	public final static int Bit5 = 0x10;					// value for return (expression) | has all method bodies (unit) | supertype ref (type ref) | resolved (field decl)
 	public final static int Bit6 = 0x20;					// depth (name ref, msg) | ignore need cast check (cast expression) | error in signature (method declaration/ initializer) | is recovered (annotation reference)
@@ -112,6 +112,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	// for name refs or local decls
 	public static final int FirstAssignmentToLocal = Bit4;
+
+	// for local decls
+	public static final int IsArgument = Bit3;
 
 	// for msg or field references
 	public static final int NeedReceiverGenericCast = Bit19;
