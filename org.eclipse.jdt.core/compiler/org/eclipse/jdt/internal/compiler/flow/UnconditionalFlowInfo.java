@@ -7,8 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for 
- *     						bugs 325755, 320170, 292478 and 332637   
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *     						bug 325755 - [compiler] wrong initialization state after conditional expression
+ *     						bug 320170 - [compiler] [null] Whitebox issues in null analysis
+ *     						bug 292478 - Report potentially null across variable assignment
+ *     						bug 332637 - Dead Code detection removing code that isn't dead
+ *     						bug 341499 - [compiler][null] allocate extra bits in all methods of UnconditionalFlowInfo
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -1258,8 +1262,25 @@ public void markAsDefinitelyNonNull(LocalVariableBinding local) {
     	}
     	else {
     		// use extra vector
-    		int vectorIndex ;
-    		this.extra[2][vectorIndex = (position / BitCacheSize) - 1]
+    		int vectorIndex = (position / BitCacheSize) - 1;
+    		if (this.extra == null) {
+    			int length = vectorIndex + 1;
+    			this.extra = new long[extraLength][];
+    			for (int j = 0; j < extraLength; j++) {
+    				this.extra[j] = new long[length];
+    			}
+    		}
+    		else {
+    			int oldLength; // might need to grow the arrays
+    			if (vectorIndex >= (oldLength = this.extra[0].length)) {
+    				for (int j = 0; j < extraLength; j++) {
+    					System.arraycopy(this.extra[j], 0,
+    						(this.extra[j] = new long[vectorIndex + 1]), 0,
+    						oldLength);
+    				}
+    			}
+    		}
+    		this.extra[2][vectorIndex]
     		    |= (mask = 1L << (position % BitCacheSize));
     		this.extra[4][vectorIndex] |= mask;
     		this.extra[3][vectorIndex] &= (mask = ~mask);
@@ -1295,8 +1316,25 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
     	}
     	else {
     		// use extra vector
-    		int vectorIndex ;
-    		this.extra[2][vectorIndex = (position / BitCacheSize) - 1]
+    		int vectorIndex = (position / BitCacheSize) - 1;
+    		if (this.extra == null) {
+    			int length = vectorIndex + 1;
+    			this.extra = new long[extraLength][];
+    			for (int j = 0; j < extraLength; j++) {
+    				this.extra[j] = new long[length];
+    			}
+    		}
+    		else {
+    			int oldLength; // might need to grow the arrays
+    			if (vectorIndex >= (oldLength = this.extra[0].length)) {
+    				for (int j = 0; j < extraLength; j++) {
+    					System.arraycopy(this.extra[j], 0,
+    						(this.extra[j] = new long[vectorIndex + 1]), 0,
+    						oldLength);
+    				}
+    			}
+    		}
+    		this.extra[2][vectorIndex]
     		    |= (mask = 1L << (position % BitCacheSize));
     		this.extra[3][vectorIndex] |= mask;
     		this.extra[4][vectorIndex] &= (mask = ~mask);
@@ -1339,8 +1377,25 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 		}
 		else {
 			// use extra vector
-			int vectorIndex ;
-			this.extra[2][vectorIndex = (position / BitCacheSize) - 1]
+			int vectorIndex = (position / BitCacheSize) - 1;
+			if (this.extra == null) {
+				int length = vectorIndex + 1;
+				this.extra = new long[extraLength][];
+				for (int j = 0; j < extraLength; j++) {
+					this.extra[j] = new long[length];
+				}
+			}
+			else {
+				int oldLength; // might need to grow the arrays
+				if (vectorIndex >= (oldLength = this.extra[0].length)) {
+					for (int j = 0; j < extraLength; j++) {
+						System.arraycopy(this.extra[j], 0,
+							(this.extra[j] = new long[vectorIndex + 1]), 0,
+							oldLength);
+					}
+				}
+			}
+			this.extra[2][vectorIndex]
 			    |= (mask = 1L << (position % BitCacheSize));
 			this.extra[5][vectorIndex] |= mask;
 			this.extra[3][vectorIndex] &= (mask = ~mask);
