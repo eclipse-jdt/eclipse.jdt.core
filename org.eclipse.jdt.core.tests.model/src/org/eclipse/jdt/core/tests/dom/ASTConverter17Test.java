@@ -427,5 +427,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		checkSourceRange(type, "ExceptionA | ExceptionB", contents);
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertNotNull("No binding", typeBinding);
+		typeBinding = typeBinding.getGenericTypeOfWildcardType();
+		assertNull("This should be null for intersection type", typeBinding);
 	}
 }

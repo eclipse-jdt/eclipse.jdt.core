@@ -11262,4 +11262,26 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"Lp/X$;",	// should not be Lp/X$~X$;
 			binding.getKey());
 	}
+
+	public void test0350() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		CompilationUnit unit = (CompilationUnit) buildAST(
+			"public class X {\n" + 
+			"	<T> T combine(T t1, T t2) {\n" + 
+			"		boolean b = true;\n" + 
+			"		return b ? t1 : t2; \n" + 
+			"	}\n" + 
+			"	void test(String s, Integer i) { \n" + 
+			"		combine(s, i); \n" + 
+			"	}\n" + 
+			"}",
+			this.workingCopy,
+			true,
+			true,
+			true);
+		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 1, 0);
+		ITypeBinding binding = ((MethodInvocation) statement.getExpression()).resolveTypeBinding();
+		assertTrue("Should be seen as a wildcard (really an intersection type)", binding.isWildcardType());
+		assertNull("should be null", binding.getGenericTypeOfWildcardType());
+	}
 }
