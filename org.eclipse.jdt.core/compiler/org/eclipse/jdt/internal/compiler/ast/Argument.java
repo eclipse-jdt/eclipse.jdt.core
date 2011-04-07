@@ -31,7 +31,7 @@ public class Argument extends LocalDeclaration {
 		this.declarationSourceEnd = (int) posNom;
 		this.modifiers = modifiers;
 		this.type = tr;
-		this.bits |= IsLocalDeclarationReachable;
+		this.bits |= (IsLocalDeclarationReachable | IsArgument);
 	}
 
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
@@ -79,7 +79,7 @@ public class Argument extends LocalDeclaration {
 	 * @see org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration#getKind()
 	 */
 	public int getKind() {
-		return PARAMETER;
+		return (this.bits & ASTNode.IsArgument) != 0 ? PARAMETER : LOCAL_VARIABLE;
 	}
 
 	public boolean isVarArgs() {

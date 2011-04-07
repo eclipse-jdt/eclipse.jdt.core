@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -306,7 +307,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 			}
 			return 0;
 		}
-		return this.flags;
+		return this.flags & ExtraCompilerModifiers.AccJustFlag;
 	}
 
 	/**

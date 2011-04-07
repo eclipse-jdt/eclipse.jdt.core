@@ -114,6 +114,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for name references
 	public static final int RestrictiveFlagMASK = Bit1|Bit2|Bit3;
 
+	// for local decls
+	public static final int IsArgument = Bit3;
+
 	// for name refs or local decls
 	public static final int FirstAssignmentToLocal = Bit4;
 

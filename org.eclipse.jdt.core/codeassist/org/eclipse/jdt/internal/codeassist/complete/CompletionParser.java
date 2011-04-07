@@ -2113,6 +2113,7 @@ protected void consumeCatchFormalParameter() {
 				namePositions,
 				type,
 				this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated); // modifiers
+		arg.bits &= ~ASTNode.IsArgument;
 		// consume annotations
 		int length;
 		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
