@@ -26,7 +26,9 @@ public class Argument extends LocalDeclaration {
 		this.declarationSourceEnd = (int) posNom;
 		this.modifiers = modifiers;
 		this.type = tr;
-		this.bits |= IsLocalDeclarationReachable;
+		// always an argument by default. The bit IsArgument will be clear when this is used as
+		// catch formal parameter
+		this.bits |= (IsLocalDeclarationReachable | IsArgument);
 	}
 
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
