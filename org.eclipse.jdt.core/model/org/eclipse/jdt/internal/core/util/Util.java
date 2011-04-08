@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.DisjunctiveTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -2654,9 +2655,23 @@ public class Util {
 	 * e.g. "QString;", "[int", "[[Qjava.util.Vector;"
 	 */
 	public static String typeSignature(TypeReference type) {
-		char[][] compoundName = type.getParameterizedTypeName();
-		char[] typeName =CharOperation.concatWith(compoundName, '.');
-		String signature = Signature.createTypeSignature(typeName, false/*don't resolve*/);
+		String signature = null;
+		if ((type.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsDisjuntive) != 0) {
+			// special treatment for disjunctive type reference
+			DisjunctiveTypeReference disjunctiveTypeReference = (DisjunctiveTypeReference) type;
+			TypeReference[] typeReferences = disjunctiveTypeReference.typeReferences;
+			int length = typeReferences.length;
+			char[][] typeNames = new char[length][];
+			for(int i = 0; i < length; i++) {
+				char[][] compoundName = typeReferences[i].getParameterizedTypeName();
+				typeNames[i] = CharOperation.concatWith(compoundName, '.');
+			}
+			signature = Signature.createIntersectionTypeSignature(typeNames, false/*don't resolve*/);
+		} else {
+			char[][] compoundName = type.getParameterizedTypeName();
+			char[] typeName =CharOperation.concatWith(compoundName, '.');
+			signature = Signature.createTypeSignature(typeName, false/*don't resolve*/);
+		}
 		return signature;
 	}
 

@@ -112,8 +112,7 @@ public class DisjunctiveTypeReference extends TypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeName()
 	 */
 	public char[][] getTypeName() {
-		// HACK for now
-		// FIXME This needs to be fixed. Temporary patch to prevent failures on hover for multicatch variable
+		// we need to keep a return value that is a char[][]
 		return this.typeReferences[0].getTypeName();
 	}
 
