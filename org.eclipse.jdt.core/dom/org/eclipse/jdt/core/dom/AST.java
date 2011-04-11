@@ -150,6 +150,11 @@ public final class AST {
      * Java language, and the JLS4 API can be used to manipulate
      * programs written in all versions of the Java language
      * up to and including J2SE 7 (aka JDK 1.7).
+     * <p>
+	 * This is an implementation of an early-draft specification developed under the Java
+	 * Community Process (JCP) and is made available for testing and evaluation purposes
+	 * only. The code is not compatible with any specification of the JCP.
+     * </p>
      *
 	 * @since 3.7
 	 */
@@ -246,7 +251,7 @@ public final class AST {
      * (AST) following the specified set of API rules.
      * <p>
      * Clients should use this method specifying {@link #JLS4} as the
-     * AST level in all cases, even when dealing with JDK 1.3 or 1.4..
+     * AST level in all cases, even when dealing with source of earlier JDK versions like 1.3 or 1.4.
      * </p>
      *
  	 * @param level the API level; one of the LEVEL constants
@@ -636,7 +641,7 @@ public final class AST {
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules.
      *
- 	 * @param level the API level; one of the LEVEL constants
+ 	 * @param level the API level; one of the JLS* level constants
      * @since 3.0
 	 */
 	private AST(int level) {
