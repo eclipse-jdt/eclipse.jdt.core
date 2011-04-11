@@ -2661,12 +2661,13 @@ public class Util {
 			DisjunctiveTypeReference disjunctiveTypeReference = (DisjunctiveTypeReference) type;
 			TypeReference[] typeReferences = disjunctiveTypeReference.typeReferences;
 			int length = typeReferences.length;
-			char[][] typeNames = new char[length][];
+			String[] typeSignatures = new String[length];
 			for(int i = 0; i < length; i++) {
 				char[][] compoundName = typeReferences[i].getParameterizedTypeName();
-				typeNames[i] = CharOperation.concatWith(compoundName, '.');
+				char[] typeName = CharOperation.concatWith(compoundName, '.');
+				typeSignatures[i] = Signature.createTypeSignature(typeName, false/*don't resolve*/);
 			}
-			signature = Signature.createIntersectionTypeSignature(typeNames, false/*don't resolve*/);
+			signature = Signature.createIntersectionTypeSignature(typeSignatures);
 		} else {
 			char[][] compoundName = type.getParameterizedTypeName();
 			char[] typeName =CharOperation.concatWith(compoundName, '.');

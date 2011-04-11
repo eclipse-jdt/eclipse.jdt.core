@@ -1085,55 +1085,42 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
 }
 
 /**
- * Creates a new intersection type signature from the given type names.
- * The type names represent the type bounds of a disjunctive type reference.
+ * Creates a new intersection type signature from the given type signatures.
  * 
- * <p>The encoded method signature is dot-based.</p>
+ * <p>The encoded type signature is dot-based.</p>
  *
- * @param typeNames the given type names
- * @param isResolved <code>true</code> if the type reference is to be considered
- *   resolved (for example, a type name from a binary class file), and
- *   <code>false</code> if the type name is to be considered unresolved
- *   (for example, a type name found in source code)
+ * @param typeSignatures the given type signatures
  * @return the encoded type signature
  * @since 3.7
  */
-public static String createIntersectionTypeSignature(char[][] typeNames, boolean isResolved) {
+public static String createIntersectionTypeSignature(char[][] typeSignatures) {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append(Signature.C_INTERSECTION);
-	for (int i = 0, max = typeNames.length; i < max; i++) {
+	for (int i = 0, max = typeSignatures.length; i < max; i++) {
 		if (i > 0) {
 			buffer.append(Signature.C_COLON);
 		}
-		buffer.append(Signature.createTypeSignature(typeNames[i], isResolved));
+		buffer.append(typeSignatures[i]);
 	}
 	return String.valueOf(buffer);
 }
 
 /**
- * Creates a new intersection type signature from the given type names.
- * The type names represent the type bounds of a disjunctive type reference.
+ * Creates a new intersection type signature from the given type signatures.
  * 
- * <p>The encoded method signature is dot-based.</p>
+ * <p>The encoded type signature is dot-based.</p>
  *
- * @param typeNames the given type names
- * @param isResolved <code>true</code> if the type reference is to be considered
- *   resolved (for example, a type name from a binary class file), and
- *   <code>false</code> if the type name is to be considered unresolved
- *   (for example, a type name found in source code)
+ * @param typeSignatures the given type signatures
  * @return the encoded type signature
  * @since 3.7
  */
-public static String createIntersectionTypeSignature(String[] typeNames, boolean isResolved) {
-	StringBuffer buffer = new StringBuffer();
-	buffer.append(Signature.C_INTERSECTION);
-	for (int i = 0, max = typeNames.length; i < max; i++) {
-		if (i > 0) {
-			buffer.append(Signature.C_COLON);
-		}
-		buffer.append(Signature.createTypeSignature(typeNames[i], isResolved));
+public static String createIntersectionTypeSignature(String[] typeSignatures) {
+	int typeSignaturesLenth = typeSignatures.length;
+	char[][] signatures = new char[typeSignaturesLenth][];
+	for (int i = 0; i < typeSignaturesLenth; i++) {
+		signatures[i] = typeSignatures[i].toCharArray();
 	}
-	return String.valueOf(buffer);
+	return createIntersectionTypeSignature(signatures);
 }
 /**
  * Creates a method signature from the given parameter and return type

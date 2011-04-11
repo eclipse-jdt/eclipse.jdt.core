@@ -1531,4 +1531,28 @@ public void testGetIntersectionTypeBounds2() {
 			Signature.getIntersectionTypeBounds("|QClass;:QSerializable;")
 		);
 }
+public void testCreateIntersectionTypeSignature() {
+	String signature = Signature.createIntersectionTypeSignature(new String[] {
+		"Ljava.lang.Class;",
+		"Ljava.io.Serializable;"
+	});
+	assertStringsEqual(
+			"Unexpected intersection type bounds",
+			"Ljava.lang.Class;\n" +
+			"Ljava.io.Serializable;\n",
+			Signature.getIntersectionTypeBounds(signature)
+		);
+}
+public void testCreateIntersectionTypeSignature2() {
+	String signature = Signature.createIntersectionTypeSignature(new String[] {
+		"QClass;",
+		"QSerializable;"
+	});
+	assertStringsEqual(
+			"Unexpected intersection type bounds",
+			"QClass;\n" +
+			"QSerializable;\n",
+			Signature.getIntersectionTypeBounds(signature)
+		);
+}
 }
