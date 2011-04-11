@@ -1564,7 +1564,7 @@ public static String getElementType(String typeSignature) throws IllegalArgument
 }
 /**
  * Extracts the type bounds' signatures from the given intersection type signature.
- * Returns an empty array if the type signature is not a intersection type signature.
+ * Returns an empty array if the type signature is not an intersection type signature.
  *
  * @param intersectionTypeSignature the intersection type signature
  * @return the signatures of the type bounds
@@ -1598,7 +1598,7 @@ public static char[][] getIntersectionTypeBounds(char[] intersectionTypeSignatur
 }
 /**
  * Extracts the type bounds' signatures from the given intersection type signature.
- * Returns an empty array if the type signature is not a intersection type signature.
+ * Returns an empty array if the type signature is not an intersection type signature.
  *
  * @param intersectionTypeSignature the intersection type signature
  * @return the signatures of the type bounds
