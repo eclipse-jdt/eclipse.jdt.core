@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc.
+ * Copyright (c) 2007, 2011 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
+ *    IBM Corporation - fix for 342470
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests.processors.generics;
@@ -21,6 +22,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
@@ -219,6 +221,15 @@ public class GenericsProc extends BaseProcessor
 			return false;
 		}
 		TypeParameterElement param = params.iterator().next();
+		Element enclosingElement = param.getEnclosingElement();
+		if (enclosingElement == null) {
+			reportError("examineFTypeParams: F's type parameter has no enclosing element");
+			return false;
+		}
+		if (!enclosingElement.equals(param.getGenericElement())) {
+			reportError("examineFTypeParams: F's type parameter's enclosing element is not equals to its generic element");
+			return false;
+		}
 		List<? extends TypeMirror> bounds = param.getBounds();
 		if (null == bounds || bounds.size() != 1) {
 			reportError("examineFTypeParams: F's type parameter has an unexpected number of bounds: " + bounds);
