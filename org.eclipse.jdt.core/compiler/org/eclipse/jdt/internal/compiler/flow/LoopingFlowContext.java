@@ -548,7 +548,10 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 		case CAN_ONLY_NULL | IN_ASSIGNMENT:
 		case CAN_ONLY_NULL | IN_INSTANCEOF:
 			if (flowInfo.isPotentiallyNonNull(local)
-					|| flowInfo.isPotentiallyUnknown(local)) {
+					|| flowInfo.isPotentiallyUnknown(local)
+					|| flowInfo.isProtectedNonNull(local)) {
+				// if variable is not null, we are not interested in recording null reference for deferred checks.
+				// This is because CAN_ONLY_NULL means we're only interested in cases when variable can be null.
 				return;
 			}
 			if (flowInfo.isDefinitelyNull(local)) {

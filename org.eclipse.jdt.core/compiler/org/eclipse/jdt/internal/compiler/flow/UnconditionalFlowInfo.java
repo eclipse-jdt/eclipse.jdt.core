@@ -864,6 +864,7 @@ final public boolean isPotentiallyAssigned(LocalVariableBinding local) {
 	return isPotentiallyAssigned(local.id + this.maxFieldCount);
 }
 
+// TODO (Ayush) Check why this method does not return true for protected non null (1111)
 final public boolean isPotentiallyNonNull(LocalVariableBinding local) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
@@ -889,6 +890,7 @@ final public boolean isPotentiallyNonNull(LocalVariableBinding local) {
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
+// TODO (Ayush) Check why this method does not return true for protected null
 final public boolean isPotentiallyNull(LocalVariableBinding local) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
