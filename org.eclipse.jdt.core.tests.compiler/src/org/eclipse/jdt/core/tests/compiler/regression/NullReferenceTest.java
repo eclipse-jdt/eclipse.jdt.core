@@ -14530,4 +14530,52 @@ public void testBug339250b() throws Exception {
 		"Dead code\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=342300
+public void testBug342300() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void initPattern(String p, Character escapeChar) {\n" + 
+				"		int len = p.length();\n" +
+				"		for (int i = 0; i < len; i++) {\n" +
+				"			char c = p.charAt(i);\n" +
+				"			if (escapeChar != null && escapeChar == c) {\n" +	// quiet
+				"				c = p.charAt(++i);\n" +
+				"			}\n" + 
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=342300
+// To make sure only the redundant null check is given and not a potential NPE
+public void testBug342300b() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void initPattern(String p, Character escapeChar) {\n" + 
+				"		int len = p.length();\n" +
+				"		for (int i = 0; i < len; i++) {\n" +
+				"			char c = p.charAt(i);\n" +
+				"			if (escapeChar != null && escapeChar != null) {\n" +	// look here
+				"				c = p.charAt(++i);\n" +
+				"			}\n" + 
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	if (escapeChar != null && escapeChar != null) {\n" + 
+			"	                          ^^^^^^^^^^\n" + 
+			"Redundant null check: The variable escapeChar cannot be null at this location\n" + 
+			"----------\n");
+	}
+}
 }
