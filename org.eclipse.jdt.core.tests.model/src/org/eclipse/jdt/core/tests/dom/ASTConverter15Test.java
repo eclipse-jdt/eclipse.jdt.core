@@ -47,7 +47,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 350 };
+//		TESTS_NUMBERS = new int[] { 351, 352 };
 //		TESTS_RANGE = new int[] { 325, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -11283,5 +11283,25 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding binding = ((MethodInvocation) statement.getExpression()).resolveTypeBinding();
 		assertTrue("Should be seen as a wildcard (really an intersection type)", binding.isWildcardType());
 		assertNull("should be null", binding.getGenericTypeOfWildcardType());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=342671
+	public void test0351() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0351", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit unit = (CompilationUnit) result;
+		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+		ITypeBinding typeBinding = methodDeclaration.getReturnType2().resolveBinding();
+		assertEquals("Wrong fully qualified name", "test0351.I1[]", typeBinding.getQualifiedName());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=342671
+	public void test0352() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0352", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit unit = (CompilationUnit) result;
+		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+		ITypeBinding typeBinding = methodDeclaration.getReturnType2().resolveBinding();
+		assertEquals("Wrong fully qualified name", "test0352.I1[]", typeBinding.getQualifiedName());
 	}
 }
