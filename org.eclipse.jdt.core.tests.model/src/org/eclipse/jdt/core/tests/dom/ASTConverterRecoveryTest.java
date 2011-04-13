@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2010 IBM Corporation and others.
+ * Copyright (c) 2006, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1077,4 +1077,34 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		checkSourceRange(anonymousClassDeclaration, "new Object() {hash}", source); //$NON-NLS-1$
 		checkSourceRange(assignment, "field= new Object() {hash}", source); //$NON-NLS-1$
 	}
+	
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340691
+		public void test0021() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+				"/Converter/src/test/X.java",
+				"package test;\n"+
+				"public class X {\n"+
+				"	void foo() {\n" + 
+				"		synchronized new Object();\n" + 
+				"	}\n" + 
+				"}\n");
+			ASTNode result = runConversion(AST.JLS3, this.workingCopies[0], true, true);
+
+			assertASTNodeEquals(
+				"package test;\n" + 
+				"public class X {\n" + 
+				"  void foo(){\n" + 
+				"  }\n" + 
+				"}\n",
+				result);
+
+			ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+			assertNotNull(node);
+			assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			Block block = methodDeclaration.getBody();
+			List statements = block.statements();
+			assertEquals("wrong size", 0, statements.size()); //$NON-NLS-1$
+		}
 }

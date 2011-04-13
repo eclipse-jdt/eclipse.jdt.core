@@ -1016,6 +1016,11 @@ public RecoveredElement buildInitialRecoveryState(){
 		}
 		if (node instanceof TypeDeclaration){
 			TypeDeclaration type = (TypeDeclaration) node;
+			if ((type.modifiers & ClassFileConstants.AccEnum) != 0) {
+				// do not allow enums to be build as recovery types
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340691
+				continue;
+			}
 			if (type.declarationSourceEnd == 0){
 				element = element.add(type, 0);
 				this.lastCheckPoint = type.bodyStart;
