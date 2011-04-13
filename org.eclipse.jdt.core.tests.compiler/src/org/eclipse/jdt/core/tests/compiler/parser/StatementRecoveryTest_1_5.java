@@ -732,4 +732,65 @@ public void test0007() {
 		expectedFullWithStatementRecoveryUnitToString,
 		testName);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340691
+// Verify that we don't get a recovered enum declaration when the error token is after an
+// incorrectly used modifier
+public void test0008() {
+	String s =
+		"public class Try {\n" + 
+		"\n" + 
+		"    void m() {\n" + 
+		"\n" + 
+		"        synchronized new Object();\n" + 
+		"\n" + 
+		"    }\n" +
+		"}\n" + 
+		"\n";
+
+	String expectedDietUnitToString =
+			"public class Try {\n" + 
+			"  public Try() {\n" + 
+			"  }\n" + 
+			"  void m() {\n" + 
+			"  }\n" + 
+			"}\n";
+
+		String expectedDietWithStatementRecoveryUnitToString =
+			expectedDietUnitToString;
+
+		String expectedDietPlusBodyUnitToString =
+				"public class Try {\n" + 
+				"  public Try() {\n" + 
+				"    super();\n" + 
+				"  }\n" + 
+				"  void m() {\n" + 
+				"  }\n" + 
+				"}\n";
+
+		String expectedDietPlusBodyWithStatementRecoveryUnitToString =
+				"public class Try {\n" + 
+				"  public Try() {\n" + 
+				"    super();\n" + 
+				"  }\n" + 
+				"  void m() {\n" + 
+				"  }\n" + 
+				"}\n";
+
+		String expectedFullUnitToString =
+			expectedDietUnitToString;
+
+		String expectedFullWithStatementRecoveryUnitToString =
+			expectedFullUnitToString;
+
+	String testName = "test";
+	checkParse(
+			s.toCharArray(),
+			expectedDietUnitToString,
+			expectedDietWithStatementRecoveryUnitToString,
+			expectedDietPlusBodyUnitToString,
+			expectedDietPlusBodyWithStatementRecoveryUnitToString,
+			expectedFullUnitToString,
+			expectedFullWithStatementRecoveryUnitToString,
+			testName);
+}
 }
