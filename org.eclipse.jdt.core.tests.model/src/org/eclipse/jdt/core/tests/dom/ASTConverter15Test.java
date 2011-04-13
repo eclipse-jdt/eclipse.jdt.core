@@ -11284,4 +11284,24 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Should be seen as a wildcard (really an intersection type)", binding.isWildcardType());
 		assertNull("should be null", binding.getGenericTypeOfWildcardType());
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=342671
+	public void test0351() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0351", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit unit = (CompilationUnit) result;
+		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+		ITypeBinding typeBinding = methodDeclaration.getReturnType2().resolveBinding();
+		assertEquals("Wrong fully qualified name", "test0351.I1[]", typeBinding.getQualifiedName());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=342671
+	public void test0352() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0352", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit unit = (CompilationUnit) result;
+		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+		ITypeBinding typeBinding = methodDeclaration.getReturnType2().resolveBinding();
+		assertEquals("Wrong fully qualified name", "test0352.I1[]", typeBinding.getQualifiedName());
+	}
 }
