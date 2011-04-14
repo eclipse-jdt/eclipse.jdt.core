@@ -1,23 +1,36 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2011 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    tyeung@bea.com - initial API and implementation
+ *    tyeung@bea.com  - initial API and implementation
+ *    IBM Corporation - fix for bug 342757
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 class MethodInfoWithParameterAnnotations extends MethodInfoWithAnnotations {
 	private AnnotationInfo[][] parameterAnnotations;
 
 MethodInfoWithParameterAnnotations(MethodInfo methodInfo, AnnotationInfo[] annotations, AnnotationInfo[][] parameterAnnotations) {
 	super(methodInfo, annotations);
-	this.parameterAnnotations = parameterAnnotations;
+	if (methodInfo.isConstructor()) {
+		int parametersCount = Util.getParameterCount(methodInfo.getMethodDescriptor());
+		if (parameterAnnotations.length < parametersCount) {
+			AnnotationInfo[][] temp = new AnnotationInfo[parametersCount][];
+			System.arraycopy(parameterAnnotations, 0, temp, 1, parameterAnnotations.length);
+			this.parameterAnnotations = temp;
+		} else {
+			this.parameterAnnotations = parameterAnnotations;
+		}
+	} else {
+		this.parameterAnnotations = parameterAnnotations;
+	}
 }
 
 public IBinaryAnnotation[] getParameterAnnotations(int index) {

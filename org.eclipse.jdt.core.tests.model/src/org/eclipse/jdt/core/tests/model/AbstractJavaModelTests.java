@@ -789,7 +789,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertEquals("Unexpected annotations", expected, actual);
 	}
 
-	private void appendAnnotation(StringBuffer buffer, IAnnotation annotation) throws JavaModelException {
+	protected void appendAnnotation(StringBuffer buffer, IAnnotation annotation) throws JavaModelException {
 		buffer.append('@');
 		buffer.append(annotation.getElementName());
 		IMemberValuePair[] members = annotation.getMemberValuePairs();
