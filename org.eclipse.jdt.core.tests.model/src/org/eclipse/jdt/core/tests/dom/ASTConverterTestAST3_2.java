@@ -75,6 +75,7 @@ import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -95,6 +96,8 @@ import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.TagElement;
+import org.eclipse.jdt.core.dom.TextElement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -122,7 +125,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 713, -1 };
-//		TESTS_NUMBERS =  new int[] { 504, 505, 512, 720 };
+//		TESTS_NUMBERS =  new int[] { 721 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST3_2.class);
@@ -10574,5 +10577,40 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		MethodDeclaration declaration = (MethodDeclaration) node;
 		assertTrue("A constructor", !declaration.isConstructor());
 		checkSourceRange(declaration, "public void method(final int parameter) {     }", source, true/*expectMalformed*/);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=342455
+	 */
+	public void test0721() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0721", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		ASTNode node = getASTNode(unit, 0);
+		TypeDeclaration declaration = (TypeDeclaration) node;
+		Javadoc javadoc = declaration.getJavadoc();
+		List tags = javadoc.tags();
+		TagElement element = (TagElement) tags.get(0);
+		List fragments = element.fragments();
+		element = (TagElement) fragments.get(0);
+		assertEquals("wrong tag name", "@code", element.getTagName());
+		checkSourceRange((TextElement) element.fragments().get(0), " stars*", source);
+		
+		element = (TagElement) fragments.get(2);
+		assertEquals("wrong tag name", "@literal", element.getTagName());
+		checkSourceRange((TextElement) element.fragments().get(0), " stars****", source);
+
+		element = (TagElement) fragments.get(4);
+		assertEquals("wrong tag name", "@code", element.getTagName());
+		checkSourceRange((TextElement) element.fragments().get(0), " space* ", source);
+
+		element = (TagElement) fragments.get(5);
+		assertEquals("wrong tag name", "@code", element.getTagName());
+		checkSourceRange((TextElement) element.fragments().get(0), " stars* ", source);
+		
+		element = (TagElement) fragments.get(7);
+		assertEquals("wrong tag name", "@literal", element.getTagName());
+		checkSourceRange((TextElement) element.fragments().get(0), " stars**** ", source);
 	}
 }
