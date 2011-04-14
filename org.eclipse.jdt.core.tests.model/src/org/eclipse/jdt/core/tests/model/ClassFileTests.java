@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -207,7 +207,21 @@ public void setUpSuite() throws Exception {
 		"import java.lang.annotation.Retention;\n" +
 		"import java.lang.annotation.RetentionPolicy;\n" + 
 		"@Retention(value = RetentionPolicy.CLASS)\n" + 
-		"public @interface MyAnnotation3 {}"
+		"public @interface MyAnnotation3 {}",
+		"test342757/X.java",
+		"package test342757;\n" +
+		"public class X {\n" + 
+		"	class B {\n" + 
+		"		public B(@Deprecated @Annot String s) {}\n" + 
+		"		public void foo(@Deprecated @Annot int j) {}\n" + 
+		"	}\n" + 
+		"}",
+		"test342757/Annot.java",
+		"package test342757;\n" +
+		"import java.lang.annotation.Retention;\n" + 
+		"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+		"@Retention(CLASS)\n" + 
+		"@interface Annot {}",
 	};
 	addLibrary(javaProject, "lib.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
 	this.jarRoot = javaProject.getPackageFragmentRoot(getFile("/P/lib.jar"));
@@ -513,6 +527,36 @@ public void testAnnotations25() throws JavaModelException {
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_neg_long=-2L)\n",
 		method.getAnnotations());
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=342757
+ */
+public void testAnnotations26() throws JavaModelException {
+	IType type = this.jarRoot.getPackageFragment("test342757").getClassFile("X$B.class").getType();
+	IMethod[] methods = type.getMethods();
+	String expected =
+			"@test342757.Annot\n" + 
+			"@java.lang.Deprecated\n" + 
+			"@test342757.Annot\n" + 
+			"@java.lang.Deprecated\n";
+	StringBuffer buffer = new StringBuffer();
+	for (int i = 0, max = methods.length; i < max; i++) {
+		ILocalVariable[] parameters = methods[i].getParameters();
+		for (int j = 0, max2 = parameters.length; j < max2; j++) {
+			IAnnotation[] annotations = parameters[j].getAnnotations();
+			for (int n = 0; n < annotations.length; n++) {
+				IAnnotation annotation = annotations[n];
+				appendAnnotation(buffer, annotation);
+				buffer.append("\n");
+			}
+		}
+	}
+	String actual = buffer.toString();
+	if (!expected.equals(actual)) {
+		System.out.println(displayString(actual, 2) + this.endChar);
+	}
+	assertEquals("Unexpected annotations", expected, actual);
 }
 
 /*
