@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 BEA Systems, Inc.
+ * Copyright (c) 2007, 2011 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,8 +7,8 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *
- *******************************************************************************/
+ *    IBM Corporation - fix for 342936
+*******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests;
 
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ServiceLoader;
 
+import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
@@ -131,14 +132,17 @@ public class BatchTestUtils {
 	 * @param errors a StringWriter into which compiler output will be written
 	 * @return true if the compilation was successful
 	 */
-	public static boolean compileTreeWithErrors(JavaCompiler compiler, List<String> options, File targetFolder, StringWriter errors) {
+	public static boolean compileTreeWithErrors(
+			JavaCompiler compiler,
+			List<String> options,
+			File targetFolder,
+			DiagnosticListener<? super JavaFileObject> diagnosticListener) {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		// create new list containing inputfile
 		List<File> files = new ArrayList<File>();
 		findFilesUnder(targetFolder, files);
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
-		PrintWriter printWriter = new PrintWriter(errors);
 
 		options.add("-d");
 		options.add(_tmpBinFolderName);
@@ -148,7 +152,9 @@ public class BatchTestUtils {
 		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + _processorJarPath);
 		options.add("-processorpath");
 		options.add(_processorJarPath);
-		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
+		// use writer to prevent System.out/err to be polluted with problems
+		StringWriter writer = new StringWriter();
+		CompilationTask task = compiler.getTask(writer, manager, diagnosticListener, options, null, units);
 		Boolean result = task.call();
 
 		return result.booleanValue();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 BEA Systems, Inc.
+ * Copyright (c) 2006, 2011 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *
+ *    IBM Corporation - fix for 342936
  *******************************************************************************/
 package org.eclipse.jdt.compiler.apt.tests;
 
@@ -83,6 +83,10 @@ public class BatchDispatchTests extends TestCase {
 	public void testProcessorArgumentsWithSystemCompiler() throws IOException {
 		// System compiler
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
 		internalTestProcessorArguments(compiler);
 	}
 
@@ -105,6 +109,10 @@ public class BatchDispatchTests extends TestCase {
 	public void testCompilerOneClassWithSystemCompiler() throws IOException {
 		// System compiler
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
 		internalTestGenerateClass(compiler);
 	}
 
@@ -124,6 +132,10 @@ public class BatchDispatchTests extends TestCase {
 	 */
 	public void testInheritedAnnosWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
 		internalTestInheritance(compiler, INHERITEDANNOPROC);
 	}
 

@@ -1,12 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *    IBM Corporation - initial API and implementation
+ *    IBM Corporation - fix for 342936
  *******************************************************************************/
 package org.eclipse.jdt.compiler.tool.tests;
 
@@ -95,7 +96,7 @@ public class AbstractCompilerToolTest extends BatchCompilerTest {
 		CompilerInvocationTestsArguments arguments = (CompilerInvocationTestsArguments) extraArguments;
 		StandardJavaFileManager manager = arguments.standardJavaFileManager;
 		if (manager == null) {
-			manager = JAVAC_COMPILER.getStandardFileManager(null, null, null); // will pick defaults up
+			manager = COMPILER.getStandardFileManager(null, null, null); // will pick defaults up
 		}
 		List<File> files = new ArrayList<File>();
 		String[] fileNames = arguments.fileNames;

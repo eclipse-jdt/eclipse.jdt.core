@@ -1,12 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *    IBM Corporation - initial API and implementation
+ *    IBM Corporation - fix for 342936
  *******************************************************************************/
 package org.eclipse.jdt.compiler.tool.tests;
 
@@ -45,7 +46,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 
 public class CompilerInvocationTests extends AbstractCompilerToolTest {
 	static {
-//		TESTS_NAMES = new String[] { "test000" };
+//		TESTS_NAMES = new String[] { "test019_sourcepath_without_destination" };
 //		TESTS_NUMBERS = new int[] { 5 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 	}
@@ -325,6 +326,10 @@ public void test001_basic() {
 // exploring -d / FileManager interaction
 // -d changes CLASS_OUTPUT location
 public void test002_dash_d_option() {
+	if (JAVAC_COMPILER == null) {
+		System.out.println("No system java compiler available");
+		return;
+	}
 	StandardJavaFileManager javacStandardJavaFileManager =  JAVAC_COMPILER.getStandardFileManager(null, null, null); // will pick defaults up
 	runTest(
 		true /* shouldCompileOK */,
@@ -348,6 +353,10 @@ public void test002_dash_d_option() {
 // exploring -d / FileManager interaction
 // -d changes CLASS_OUTPUT location (OUTPUT_DIR subdirectory)
 public void test003_dash_d_option() {
+	if (JAVAC_COMPILER == null) {
+		System.out.println("No system java compiler available");
+		return;
+	}
 	StandardJavaFileManager javacStandardJavaFileManager =  JAVAC_COMPILER.getStandardFileManager(null, null, null); // will pick defaults up
 	String outputDir = OUTPUT_DIR + File.separator + "bin";
 	runTest(
@@ -373,6 +382,10 @@ public void test003_dash_d_option() {
 // ecj uses the output location from the javac standard Java file manager if it
 // is set
 public void test004_no_dash_d_option() throws IOException {
+	if (JAVAC_COMPILER == null) {
+		System.out.println("No system java compiler available");
+		return;
+	}
 	File binDirectory = new File(OUTPUT_DIR + File.separator + "bin");
 	binDirectory.mkdir();
 	StandardJavaFileManager javacStandardJavaFileManager =  JAVAC_COMPILER.getStandardFileManager(null, null, null); // will pick defaults up
@@ -401,6 +414,10 @@ public void test004_no_dash_d_option() throws IOException {
 // ecj does not call setLocation on standard Java file managers; it uses 
 // handleOption instead; javac does the same
 public void test005_dash_d_option_custom_file_manager() {
+	if (JAVAC_COMPILER == null) {
+		System.out.println("No system java compiler available");
+		return;
+	}
 	StandardJavaFileManager javacJavaFileManager = JAVAC_COMPILER.getStandardFileManager(null, null, null);
 	SetLocationDetector customJavaFileManager =
 		new SetLocationDetector(
@@ -425,7 +442,7 @@ public void test005_dash_d_option_custom_file_manager() {
 		});
 	assertEquals(OUTPUT_DIR, customJavaFileManager.getLocation(StandardLocation.CLASS_OUTPUT).toString());
 	assertFalse(customJavaFileManager.matchFound());
-	if (RUN_JAVAC) {
+	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		customJavaFileManager =	new SetLocationDetector(javacJavaFileManager, 
 					StandardLocation.CLASS_OUTPUT);
 		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null, 
@@ -438,6 +455,10 @@ public void test005_dash_d_option_custom_file_manager() {
 // exploring -d / FileManager interaction
 // ecj calls getLocation on a non-javac standard Java file manager
 public void test006_no_dash_d_option_custom_file_manager() throws IOException {
+	if (JAVAC_COMPILER == null) {
+		System.out.println("No system java compiler available");
+		return;
+	}
 	File binDirectory = new File(OUTPUT_DIR + File.separator + "bin");
 	binDirectory.mkdirs();
 	GetLocationDetector customJavaFileManager =
@@ -476,7 +497,7 @@ public void test007_options_consumption() throws IOException {
 	Iterator<String> remaining = remainingAsList.iterator();
 	assertTrue("does not support -d option", ecjStandardJavaFileManager.handleOption("-d", remaining));
 	assertEquals("unexpected consumption rate", "remainder", remaining.next());
-	if (RUN_JAVAC) {
+	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		StandardJavaFileManager javacStandardJavaFileManager =  
 			ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, null, null); // will pick defaults up
 		remaining = remainingAsList.iterator();
@@ -536,7 +557,7 @@ public void test010_inappropriate_encoding_diagnosis() throws IOException {
 		passed = false;
 	}
 	assertFalse("does not catch inappropriate -encoding option", passed);
-	if (RUN_JAVAC) {
+	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		// this fails, which may be deemed appropriate or not; but at least
 		// test #11 shows that the behavior that can be observed from the 
 		// outside is inappropriate
@@ -573,7 +594,7 @@ public void test011_inappropriate_encoding_diagnosis() {
 		passed = false;
 	}
 	assertFalse("does not catch inappropriate -encoding option", passed);
-	if (RUN_JAVAC) {
+	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		// compared to what the command-line javac does, this is due to be a
 		// bug
 		passed = true;
@@ -584,13 +605,17 @@ public void test011_inappropriate_encoding_diagnosis() {
 		} catch (Throwable t) {
 			passed = false;
 		}
-		assertFalse("does not catch inappropriate -encoding option", passed);		
+		assertFalse("does not catch inappropriate -encoding option", passed);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=188796
 // files access must happen through the user-specified file manager
 // simplest source read case
 public void test012_files_access_read() throws IOException {
+	if (JAVAC_COMPILER == null) {
+		System.out.println("No system java compiler available");
+		return;
+	}
 	GetJavaFileForInputDetector customJavaFileManager =
 		new GetJavaFileForInputDetector(
 				JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */));
@@ -612,7 +637,7 @@ public void test012_files_access_read() throws IOException {
 			"X.class"
 		});
 	assertTrue(customJavaFileManager.matchFound);
-	if (RUN_JAVAC) {
+	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		customJavaFileManager.matchFound = false;
 		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null, 
 				Arrays.asList("-d", OUTPUT_DIR), null, 
@@ -625,9 +650,13 @@ public void test012_files_access_read() throws IOException {
 // files access must happen through the user-specified file manager
 // source file accessed through the sourcepath
 public void _test013_files_access_read() throws IOException {
+	if (JAVAC_COMPILER == null) {
+		System.out.println("No system java compiler available");
+		return;
+	}
 	GetJavaFileForInputDetector customJavaFileManager =
 		new GetJavaFileForInputDetector(
-				JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */),
+				COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */),
 				"Y.java", Kind.SOURCE);
 	List<String> options = Arrays.asList(
 			"-d", OUTPUT_DIR, 
@@ -654,7 +683,7 @@ public void _test013_files_access_read() throws IOException {
 			"X.class"
 		});
 	assertTrue(customJavaFileManager.matchFound);
-	if (RUN_JAVAC) {
+	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		customJavaFileManager.matchFound = false;
 		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null, 
 				options, null, 
@@ -669,7 +698,7 @@ public void _test013_files_access_read() throws IOException {
 public void _test014_files_access_read() throws IOException {
 	GetJavaFileForInputDetector customJavaFileManager =
 		new GetJavaFileForInputDetector(
-				JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */),
+				COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */),
 				"Y.class", Kind.CLASS);
 	List<String> options = Arrays.asList(
 			"-d", OUTPUT_DIR,
@@ -711,7 +740,7 @@ public void _test014_files_access_read() throws IOException {
 			"X.class"
 		});
 	assertTrue(customJavaFileManager.matchFound);
-	if (RUN_JAVAC) {
+	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		// javac merely throws an exception, which is due to be a bug on their
 		// side
 		customJavaFileManager.matchFound = false;
@@ -728,7 +757,7 @@ public void _test014_files_access_read() throws IOException {
 public void test015_files_access_write() throws IOException {
 	GetJavaFileForOutputDetector customJavaFileManager =
 		new GetJavaFileForOutputDetector(
-				JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */),
+				COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */),
 				"X.class");
 	List<String> options = Arrays.asList("-d", OUTPUT_DIR);
 	runTest(
@@ -750,7 +779,7 @@ public void test015_files_access_write() throws IOException {
 			"X.class"
 		});
 	assertTrue(customJavaFileManager.matchFound);
-	if (RUN_JAVAC) {
+	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		customJavaFileManager.matchFound = false;
 		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null, 
 				options, null, 
@@ -765,7 +794,7 @@ public void test015_files_access_write() throws IOException {
 public void test016_files_access_write() throws IOException {
 	GetJavaFileForOutputDetector customJavaFileManager =
 		new GetJavaFileForOutputDetector(
-				JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */),
+				COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */),
 				"Y.class");
 	List<String> options = Arrays.asList(
 			"-sourcepath", OUTPUT_DIR + File.separator + "src2");
@@ -792,7 +821,7 @@ public void test016_files_access_write() throws IOException {
 			"src/X.class"
 		});
 	assertTrue(customJavaFileManager.matchFound);
-	if (RUN_JAVAC) {
+	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		customJavaFileManager.matchFound = false;
 		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null, 
 				options, null, 
@@ -859,8 +888,16 @@ public void _test018_sourcepath_with_destination() throws IOException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=227583
 public void test019_sourcepath_without_destination() throws IOException {
+	String sourceDirectoryName = OUTPUT_DIR + "/src2";
+	File sourceFolder = new File(sourceDirectoryName);
+	if (!sourceFolder.exists()) {
+		if (!sourceFolder.mkdirs()) {
+			// source folder could not be built
+			return;
+		}
+	}
 	StandardJavaFileManager ecjStandardJavaFileManager =
-		JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
+		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
 	assertTrue(ecjStandardJavaFileManager.handleOption(
 			"-sourcepath", 
 			Arrays.asList(OUTPUT_DIR + "/src2").iterator()));
@@ -890,7 +927,7 @@ public void test019_sourcepath_without_destination() throws IOException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=227583
 public void _test020_sourcepath_with_destination() throws IOException {
 	StandardJavaFileManager ecjStandardJavaFileManager =
-		JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
+		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
 	assertTrue(ecjStandardJavaFileManager.handleOption(
 			"-sourcepath", 
 			Arrays.asList("\"" + OUTPUT_DIR + "/src2\"[-d \"" + OUTPUT_DIR + "/bin2\"]").iterator()));
@@ -924,7 +961,7 @@ public void test021_output_streams() throws IOException {
 			errBuffer = new ByteArrayOutputStream();
 	CompilationTask task = COMPILER.getTask(
 		new PrintWriter(outBuffer), 
-		JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */), 
+		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */), 
 		new CompilerInvocationDiagnosticListener(new PrintWriter(errBuffer)), 
 		Arrays.asList("-v"), null, null);
 	assertTrue(task.call());
@@ -953,7 +990,7 @@ public void test022_output_streams() throws IOException {
 	System.setErr(new PrintStream(errBuffer));
 	CompilationTask task = COMPILER.getTask(
 			null, 
-			JAVAC_COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */), 
+			COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */), 
 			new CompilerInvocationDiagnosticListener(new PrintWriter(errBuffer)), 
 			Arrays.asList("-v"), null, null);
 	try {
