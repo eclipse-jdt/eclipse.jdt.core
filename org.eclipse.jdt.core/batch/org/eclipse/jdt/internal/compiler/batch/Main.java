@@ -1328,7 +1328,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	private PrintWriter err;
 
-	ArrayList extraProblems;
+	protected ArrayList extraProblems;
 	public final static String bundleName = "org.eclipse.jdt.internal.compiler.batch.messages"; //$NON-NLS-1$
 	// two uses: recognize 'none' in options; code the singleton none
 	// for the '-d none' option (wherever it may be found)
@@ -3740,7 +3740,7 @@ public void performCompilation() {
 	}
 
 	if (this.extraProblems != null) {
-		this.logger.loggingExtraProblems(this);
+		loggingExtraProblems();
 		this.extraProblems = null;
 	}
 	if (this.compilerStats != null) {
@@ -3750,6 +3750,9 @@ public void performCompilation() {
 
 	// cleanup
 	environment.cleanup();
+}
+protected void loggingExtraProblems() {
+	this.logger.loggingExtraProblems(this);
 }
 public void printUsage() {
 	printUsage("misc.usage"); //$NON-NLS-1$

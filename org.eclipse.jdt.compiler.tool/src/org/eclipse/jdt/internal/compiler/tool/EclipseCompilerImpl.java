@@ -1,12 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2010 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *    IBM Corporation - initial API and implementation
+ *    IBM Corporation - fix for 342936
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.tool;
 
@@ -17,6 +18,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -40,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Messages;
@@ -478,6 +481,79 @@ public class EclipseCompilerImpl extends Main {
 			int i = 0;
 			for (FileSystem.Classpath classpath : fileSystemClasspaths) {
 				this.checkedClasspaths[i++] = classpath;
+			}
+		}
+	}
+	@Override
+	protected void loggingExtraProblems() {
+		super.loggingExtraProblems();
+		for (@SuppressWarnings("rawtypes")
+			Iterator iterator = this.extraProblems.iterator(); iterator.hasNext(); ) {
+			final CategorizedProblem problem = (CategorizedProblem) iterator.next();
+			if (this.diagnosticListener != null) {
+				this.diagnosticListener.report(new Diagnostic<JavaFileObject>() {
+					@Override
+					public String getCode() {
+						return null;
+					}
+					@Override
+					public long getColumnNumber() {
+						if (problem instanceof DefaultProblem) {
+							return ((DefaultProblem) problem).column;
+						}
+						return Diagnostic.NOPOS;
+					}
+					@Override
+					public long getEndPosition() {
+						if (problem instanceof DefaultProblem) {
+							return ((DefaultProblem) problem).getSourceEnd();
+						}
+						return Diagnostic.NOPOS;
+					}
+					@Override
+					public Kind getKind() {
+						if (problem.isError()) {
+							return Diagnostic.Kind.ERROR;
+						}
+						if (problem.isWarning()) {
+							return Diagnostic.Kind.WARNING;
+						}
+						return Diagnostic.Kind.OTHER;
+					}
+					@Override
+					public long getLineNumber() {
+						if (problem instanceof DefaultProblem) {
+							return ((DefaultProblem) problem).getSourceLineNumber();
+						}
+						return Diagnostic.NOPOS;
+					}
+					@Override
+					public String getMessage(Locale locale) {
+						return problem.getMessage();
+					}
+					@Override
+					public long getPosition() {
+						if (problem instanceof DefaultProblem) {
+							return ((DefaultProblem) problem).getSourceStart();
+						}
+						return Diagnostic.NOPOS;
+					}
+					@Override
+					public JavaFileObject getSource() {
+						if (problem instanceof DefaultProblem) {
+							File f = new File(new String(((DefaultProblem) problem).getOriginatingFileName()));
+							if (f.exists()) {
+								return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, null);
+							}
+							return null;
+						}
+						return null;
+					}
+					@Override
+					public long getStartPosition() {
+						return getPosition();
+					}
+				});
 			}
 		}
 	}

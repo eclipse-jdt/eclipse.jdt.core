@@ -8,6 +8,7 @@
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    philippe.marschall@netcetera.ch - Regression test for 338370
+ *    IBM Corporation - fix for 342936
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests;
@@ -36,6 +37,10 @@ public class FilerTests extends TestCase {
 	 */
 	public void testElementWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
 		internalTestCreateResource(compiler, true);
 	}
 
