@@ -722,6 +722,21 @@ public void test0018b() {
 		},
 		"const.1\nconst.1\nconst.2");
 }
+public void test0019() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"   String s = new String<>(\"junk\");\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	String s = new String<>(\"junk\");\n" + 
+		"	               ^^^^^^\n" + 
+		"The type String is not generic; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
 }
