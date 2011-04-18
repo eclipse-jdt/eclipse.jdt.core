@@ -3530,6 +3530,8 @@ public final class JavaCore extends Plugin {
 
 			// initialize all containers and variables
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
+			externalFoldersManager.createExternalFoldersProject(monitor);
 			SubProgressMonitor subMonitor = null;
 			try {
 				if (monitor != null) {
@@ -3565,7 +3567,6 @@ public final class JavaCore extends Plugin {
 			// and recreate links for external folders if needed
 			if (monitor != null)
 				monitor.subTask(Messages.javamodel_resetting_source_attachment_properties);
-			ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
 			final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
 			HashSet visitedPaths = new HashSet();
 			for (int i = 0, length = projects.length; i < length; i++) {
@@ -3578,7 +3579,6 @@ public final class JavaCore extends Plugin {
 					continue;
 				}
 				if (classpath != null) {
-					boolean needExternalFolderCreation = false;
 					for (int j = 0, length2 = classpath.length; j < length2; j++) {
 						IClasspathEntry entry = classpath[j];
 						if (entry.getSourceAttachmentPath() != null) {
@@ -3588,18 +3588,16 @@ public final class JavaCore extends Plugin {
 							}
 						}
 						// else source might have been attached by IPackageFragmentRoot#attachSource(...), we keep it
-						if (!needExternalFolderCreation && entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+						if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 							IPath entryPath = entry.getPath();
 							if (ExternalFoldersManager.isExternalFolderPath(entryPath) && externalFoldersManager.getFolder(entryPath) == null) {
-								needExternalFolderCreation = true;
+								externalFoldersManager.addFolder(entryPath, true);
 							}
 						}
 					}
-					if (needExternalFolderCreation)
-						manager.deltaState.addExternalFolderChange(javaProject, null/*act as if all external folders were new*/);
 				}
 			}
-
+			externalFoldersManager.createPendingFolders(monitor);
 			// initialize delta state
 			if (monitor != null)
 				monitor.subTask(Messages.javamodel_initializing_delta_state);

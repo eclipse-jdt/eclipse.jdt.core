@@ -38,6 +38,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -148,6 +149,20 @@ public class ExternalFoldersManager {
 		return result;
 	}
 
+	public void createPendingFolders(IProgressMonitor monitor) throws JavaModelException{
+		if (this.pendingFolders == null) return;
+		Iterator iterator = this.pendingFolders.iterator();
+		while (iterator.hasNext()) {
+			Object folderPath = iterator.next();
+			try {
+				createLinkFolder((IPath) folderPath, false, monitor);
+			} catch (CoreException e) {
+				throw new JavaModelException(e);
+			}
+		}
+		this.pendingFolders.clear();
+	}
+	
 	public void cleanUp(IProgressMonitor monitor) throws CoreException {
 		ArrayList toDelete = getFoldersToCleanUp(monitor);
 		if (toDelete == null)
@@ -193,7 +208,7 @@ public class ExternalFoldersManager {
 	public IProject getExternalFoldersProject() {
 		return ResourcesPlugin.getWorkspace().getRoot().getProject(EXTERNAL_PROJECT_NAME);
 	}
-	private IProject createExternalFoldersProject(IProgressMonitor monitor) throws CoreException {
+	public IProject createExternalFoldersProject(IProgressMonitor monitor) throws CoreException {
 		IProject project = getExternalFoldersProject();
 		if (!project.isAccessible()) {
 			if (!project.exists()) {
