@@ -11,6 +11,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for Bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -132,6 +133,11 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			}
 		}
 		this.bits |= ASTNode.DidResolve;
+		TypeBinding type = internalResolveLeafType(scope, checkBounds);
+		createArrayType(scope);
+		return type == null ? type : this.resolvedType;
+	}
+	private TypeBinding internalResolveLeafType(Scope scope, boolean checkBounds) {
 		boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 		Binding binding = scope.getPackage(this.tokens);
 		if (binding != null && !binding.isValidBinding()) {
@@ -241,11 +247,6 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					this.resolvedType =  (qualifyingType != null && qualifyingType.isParameterizedType())
 						? scope.environment().createParameterizedType(currentOriginal, null, qualifyingType)
 						: currentType;
-					if (this.dimensions > 0) {
-						if (this.dimensions > 255)
-							scope.problemReporter().tooManyDimensions(this);
-						this.resolvedType = scope.createArrayType(this.resolvedType, this.dimensions);
-					}
 					return this.resolvedType;
 				} else if (argLength != typeVariables.length) {
 					if (!isDiamond) { // check arity
@@ -291,13 +292,14 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				reportDeprecatedType(qualifyingType, scope, i);
 			this.resolvedType = qualifyingType;
 		}
-		// array type ?
+		return this.resolvedType;
+	}
+	private void createArrayType(Scope scope) {
 		if (this.dimensions > 0) {
 			if (this.dimensions > 255)
 				scope.problemReporter().tooManyDimensions(this);
 			this.resolvedType = scope.createArrayType(this.resolvedType, this.dimensions);
 		}
-		return this.resolvedType;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {

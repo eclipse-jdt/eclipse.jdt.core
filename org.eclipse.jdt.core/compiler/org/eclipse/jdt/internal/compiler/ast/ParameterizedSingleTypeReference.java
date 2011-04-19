@@ -11,6 +11,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for Bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -109,15 +110,27 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				}
 			}
 		}
-		boolean hasGenericError = false;
-		ReferenceBinding currentType;
 		this.bits |= ASTNode.DidResolve;
+		TypeBinding type = internalResolveLeafType(scope, enclosingType, checkBounds);
+		// handle three different outcomes:
+		if (type == null) {
+			this.resolvedType = createArrayType(scope, this.resolvedType);
+			return null;							// no useful type, but still captured dimensions into this.resolvedType
+		} else {
+			type = createArrayType(scope, type);
+			if (!this.resolvedType.isValidBinding())
+				return type;						// found some error, but could recover useful type (like closestMatch)
+			else 
+				return this.resolvedType = type; 	// no complaint, keep fully resolved type (incl. dimensions)
+		}
+	}
+	private TypeBinding internalResolveLeafType(Scope scope, ReferenceBinding enclosingType, boolean checkBounds) {
+		ReferenceBinding currentType;
 		if (enclosingType == null) {
 			this.resolvedType = scope.getType(this.token);
 			if (this.resolvedType.isValidBinding()) {
 				currentType = (ReferenceBinding) this.resolvedType;
 			} else {
-				hasGenericError = true;
 				reportInvalidType(scope);
 				switch (this.resolvedType.problemId()) {
 					case ProblemReasons.NotFound :
@@ -154,7 +167,6 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		} else { // resolving member type (relatively to enclosingType)
 			this.resolvedType = currentType = scope.getMemberType(this.token, enclosingType);
 			if (!this.resolvedType.isValidBinding()) {
-				hasGenericError = true;
 				scope.problemReporter().invalidEnclosingType(this, currentType, enclosingType);
 				return null;
 			}
@@ -209,16 +221,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 			// resilience do not rebuild a parameterized type unless compliance is allowing it
 			if (!isCompliant15) {
-				// array type ?
-				TypeBinding type = currentType;
-				if (this.dimensions > 0) {
-					if (this.dimensions > 255)
-						scope.problemReporter().tooManyDimensions(this);
-					type = scope.createArrayType(type, this.dimensions);
-				}
-				if (hasGenericError)
-					return type;
-				return this.resolvedType = type;
+				if (!this.resolvedType.isValidBinding())
+					return currentType;
+				return this.resolvedType = currentType;
 			}
 			// if missing generic type, and compliance >= 1.5, then will rebuild a parameterized binding
 		} else if (argLength != typeVariables.length) {
@@ -245,17 +250,18 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		if (isTypeUseDeprecated(parameterizedType, scope))
 			reportDeprecatedType(parameterizedType, scope);
 
-		TypeBinding type = parameterizedType;
-		// array type ?
+		if (!this.resolvedType.isValidBinding()) {
+			return parameterizedType;
+		}
+		return this.resolvedType = parameterizedType;
+	}
+	private TypeBinding createArrayType(Scope scope, TypeBinding type) {
 		if (this.dimensions > 0) {
 			if (this.dimensions > 255)
 				scope.problemReporter().tooManyDimensions(this);
-			type = scope.createArrayType(type, this.dimensions);
+			return scope.createArrayType(type, this.dimensions);
 		}
-		if (hasGenericError) {
-			return type;
-		}
-		return this.resolvedType = type;
+		return type;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output){

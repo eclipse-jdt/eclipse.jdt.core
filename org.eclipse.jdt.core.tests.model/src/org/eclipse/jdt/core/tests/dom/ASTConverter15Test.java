@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for Bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
@@ -11293,6 +11294,18 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
 		ITypeBinding typeBinding = methodDeclaration.getReturnType2().resolveBinding();
 		assertEquals("Wrong fully qualified name", "test0351.I1[]", typeBinding.getQualifiedName());
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=342671
+	// witness situation mentioned in comment 18 of said bug.
+	public void test0351a() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0351", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit unit = (CompilationUnit) result;
+		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(unit, 0, 0);
+		Type componentType = ((ArrayType)methodDeclaration.getReturnType2()).getComponentType();
+		ITypeBinding typeBinding = componentType.resolveBinding();
+		assertEquals("Wrong fully qualified name", "test0351.I1", typeBinding.getQualifiedName());
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=342671
 	public void test0352() throws JavaModelException {
