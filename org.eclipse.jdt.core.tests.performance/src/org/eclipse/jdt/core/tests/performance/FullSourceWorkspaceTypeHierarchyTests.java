@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import junit.framework.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.test.performance.Performance;
 
 /**
  */
@@ -155,7 +156,8 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	// Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=301438
 	public void testPerSuperTypes() throws CoreException {
 		assertNotNull("Parser not found!", PARSER_WORKING_COPY);
-
+		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, 
+				"Extra handling of type parameters even in case of 1.4 projects");
 		// Warm up
 		for (int i=0; i<10*WARMUP_COUNT; i++) { // More Warm up is required.
 			IType[] types = PARSER_WORKING_COPY.getType("Parser").newSupertypeHierarchy(null).getAllClasses();
