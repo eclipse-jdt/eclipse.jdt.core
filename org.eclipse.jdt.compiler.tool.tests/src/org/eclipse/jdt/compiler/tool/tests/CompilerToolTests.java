@@ -183,6 +183,11 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 	}
 
 	public void testCompilerOneClassWithSystemCompiler() {
+		JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
+		if (systemCompiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
 		BufferedWriter writer = null;
@@ -205,7 +210,6 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 			}
 		}
 		// System compiler
-		JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
 		StandardJavaFileManager manager = systemCompiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
@@ -268,6 +272,12 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 	 * TODO need to investigate why rt.jar gets removed from the PLATFORM_CLASSPATH location
 	 */
 	public void _testCompilerOneClassWithSystemCompiler2() {
+		// System compiler
+		JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
+		if (systemCompiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
 		BufferedWriter writer = null;
@@ -289,8 +299,6 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				}
 			}
 		}
-		// System compiler
-		JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
 		StandardJavaFileManager manager = Compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
@@ -597,6 +605,11 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 	}
 
 	public void testCompilerOneClassWithEclipseCompiler4() {
+		JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
+		if (systemCompiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
 		String tmpFolder = System.getProperty("java.io.tmpdir");
 		File inputFile = new File(tmpFolder, "X.java");
 		BufferedWriter writer = null;
@@ -621,7 +634,6 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		// create new list containing inputfile
 		List<File> files = new ArrayList<File>();
 		files.add(inputFile);
-		JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
 		StandardJavaFileManager manager = systemCompiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 		StringWriter stringWriter = new StringWriter();

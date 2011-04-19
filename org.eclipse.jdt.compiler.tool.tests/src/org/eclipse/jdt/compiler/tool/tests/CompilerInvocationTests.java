@@ -33,7 +33,6 @@ import javax.tools.ForwardingJavaFileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject.Kind;
 
@@ -499,7 +498,7 @@ public void test007_options_consumption() throws IOException {
 	assertEquals("unexpected consumption rate", "remainder", remaining.next());
 	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		StandardJavaFileManager javacStandardJavaFileManager =  
-			ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, null, null); // will pick defaults up
+			JAVAC_COMPILER.getStandardFileManager(null, null, null); // will pick defaults up
 		remaining = remainingAsList.iterator();
 		assertTrue("does not support -d option", javacStandardJavaFileManager.handleOption("-d", remaining));
 		assertEquals("unexpected consumption rate", "remainder", remaining.next());
