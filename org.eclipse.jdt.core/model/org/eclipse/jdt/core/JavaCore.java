@@ -3530,8 +3530,6 @@ public final class JavaCore extends Plugin {
 
 			// initialize all containers and variables
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
-			externalFoldersManager.createExternalFoldersProject(monitor);
 			SubProgressMonitor subMonitor = null;
 			try {
 				if (monitor != null) {
@@ -3569,6 +3567,7 @@ public final class JavaCore extends Plugin {
 				monitor.subTask(Messages.javamodel_resetting_source_attachment_properties);
 			final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
 			HashSet visitedPaths = new HashSet();
+			ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
 			for (int i = 0, length = projects.length; i < length; i++) {
 				JavaProject javaProject = (JavaProject) projects[i];
 				IClasspathEntry[] classpath;
@@ -3597,7 +3596,13 @@ public final class JavaCore extends Plugin {
 					}
 				}
 			}
-			externalFoldersManager.createPendingFolders(monitor);
+			try {
+				externalFoldersManager.createPendingFolders(monitor);
+			}
+			catch(JavaModelException jme) {
+				// Creation of external folder project failed. Log it and continue;
+				Util.log(jme, "Error while processing external folders"); //$NON-NLS-1$
+			}
 			// initialize delta state
 			if (monitor != null)
 				monitor.subTask(Messages.javamodel_initializing_delta_state);
