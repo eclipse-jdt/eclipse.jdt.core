@@ -87,10 +87,6 @@ public class SingleTypeReference extends TypeReference {
 		}
 		return this.resolvedType = memberType;
 	}
-	
-	public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingInstanceType, TypeBinding expectedType) {
-		return this.resolveTypeEnclosing(scope, enclosingInstanceType);
-	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		visitor.visit(this, scope);

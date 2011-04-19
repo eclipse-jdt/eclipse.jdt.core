@@ -89,7 +89,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
     /*
      * No need to check for reference to raw type per construction
      */
-	private TypeBinding internalResolveType(Scope scope, ReferenceBinding enclosingType, boolean checkBounds, TypeBinding expectedType) {
+	private TypeBinding internalResolveType(Scope scope, ReferenceBinding enclosingType, boolean checkBounds) {
 		// handle the error here
 		this.constant = Constant.NotAConstant;
 		if ((this.bits & ASTNode.DidResolve) != 0) { // is a shared type reference which was already resolved
@@ -188,16 +188,6 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			    argTypes[i] = argType;
 		     }
 		}
-		if ((this.bits & ASTNode.IsDiamond) != 0) {
-			if (expectedType != null && expectedType.isParameterizedTypeWithActualArguments()) {
-				argTypes = ((ParameterizedTypeBinding) expectedType).arguments;
-			} else {
-				argTypes = new TypeBinding[argLength = this.resolvedType.typeVariables().length];
-				for (int i = 0; i < argLength; i++) {
-					argTypes[i] = scope.getJavaLangObject();
-				}
-			}
-		}
 		if (argHasError) {
 			return null;
 		}
@@ -294,24 +284,16 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		return output;
 	}
 
-	public TypeBinding resolveType(BlockScope scope, boolean checkBounds, TypeBinding expectedType) {
-	    return internalResolveType(scope, null, checkBounds, expectedType);
-	}
-	
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
-	    return internalResolveType(scope, null, checkBounds, null);
+	    return internalResolveType(scope, null, checkBounds);
 	}
 
 	public TypeBinding resolveType(ClassScope scope) {
-	    return internalResolveType(scope, null, false /*no bounds check in classScope*/, null);
+	    return internalResolveType(scope, null, false /*no bounds check in classScope*/);
 	}
 
 	public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
-	    return internalResolveType(scope, enclosingType, true/*check bounds*/, null);
-	}
-	
-	public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType, TypeBinding expectedType) {
-	    return internalResolveType(scope, enclosingType, true/*check bounds*/, expectedType);
+	    return internalResolveType(scope, enclosingType, true/*check bounds*/);
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

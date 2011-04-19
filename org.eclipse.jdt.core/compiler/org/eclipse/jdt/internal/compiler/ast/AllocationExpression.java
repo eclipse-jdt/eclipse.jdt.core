@@ -33,7 +33,6 @@ public class AllocationExpression extends Expression implements InvocationSite {
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
 	public FieldDeclaration enumConstant; // for enum constant initializations
-	protected TypeBinding expectedType; // for <> inference
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	// check captured variables are initialized in current context (26134)
@@ -260,12 +259,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		// initialization of an enum constant
 		this.resolvedType = scope.enclosingReceiverType();
 	} else {
-		TypeBinding lhsType = null;
-		if ((this.type.bits & ASTNode.IsDiamond) != 0) {
-			if (this.expectedType != null && this.expectedType.isParameterizedTypeWithActualArguments())
-				lhsType = this.expectedType;
-		}
-		this.resolvedType = this.type.resolveType(scope, true /* check bounds*/, lhsType);
+		this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
 		checkParameterizedAllocation: {
 			if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()
 				ReferenceBinding currentType = (ReferenceBinding)this.resolvedType;
@@ -419,11 +413,4 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 	}
 	visitor.endVisit(this, scope);
 }
-/**
- * @see org.eclipse.jdt.internal.compiler.ast.Expression#setExpectedType(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
- */
-public void setExpectedType(TypeBinding expectedType) {
-	this.expectedType = expectedType;
-}
-
 }

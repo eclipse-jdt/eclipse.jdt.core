@@ -265,12 +265,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				scope.problemReporter().invalidType(this.enclosingInstance, enclosingInstanceType);
 				hasError = true;
 			} else {
-				TypeBinding lhsType = null;
-				if ((this.type.bits & ASTNode.IsDiamond) != 0) {
-					if (this.expectedType != null && this.expectedType.isParameterizedTypeWithActualArguments())
-						lhsType = this.expectedType;
-				}
-				receiverType = ((SingleTypeReference) this.type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingInstanceType, lhsType);
+				receiverType = ((SingleTypeReference) this.type).resolveTypeEnclosing(scope, (ReferenceBinding) enclosingInstanceType);
 				if (receiverType != null && enclosingInstanceContainsCast) {
 					CastExpression.checkNeedForEnclosingInstanceCast(scope, this.enclosingInstance, enclosingInstanceType, receiverType);
 				}
@@ -416,14 +411,14 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				scope.problemReporter().missingTypeInConstructor(this, this.binding);
 			}
 			// The enclosing instance must be compatible with the innermost enclosing type
-			ReferenceBinding typeExpected = this.binding.declaringClass.enclosingType();
-			if (typeExpected != enclosingInstanceType) // must call before computeConversion() and typeMismatchError()
-				scope.compilationUnitScope().recordTypeConversion(typeExpected, enclosingInstanceType);
-			if (enclosingInstanceType.isCompatibleWith(typeExpected) || scope.isBoxingCompatibleWith(enclosingInstanceType, typeExpected)) {
-				this.enclosingInstance.computeConversion(scope, typeExpected, enclosingInstanceType);
+			ReferenceBinding expectedType = this.binding.declaringClass.enclosingType();
+			if (expectedType != enclosingInstanceType) // must call before computeConversion() and typeMismatchError()
+				scope.compilationUnitScope().recordTypeConversion(expectedType, enclosingInstanceType);
+			if (enclosingInstanceType.isCompatibleWith(expectedType) || scope.isBoxingCompatibleWith(enclosingInstanceType, expectedType)) {
+				this.enclosingInstance.computeConversion(scope, expectedType, enclosingInstanceType);
 				return this.resolvedType = receiverType;
 			}
-			scope.problemReporter().typeMismatchError(enclosingInstanceType, typeExpected, this.enclosingInstance, null);
+			scope.problemReporter().typeMismatchError(enclosingInstanceType, expectedType, this.enclosingInstance, null);
 			return this.resolvedType = receiverType;
 		}
 		ReferenceBinding superType = (ReferenceBinding) receiverType;
@@ -506,14 +501,5 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				this.anonymousType.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
-	}
-	
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#setExpectedType(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
-	 */
-	public void setExpectedType(TypeBinding expectedType) {
-		this.expectedType = expectedType;
-		if (this.expectedType != null && this.enclosingInstance != null)
-			this.enclosingInstance.setExpectedType(this.expectedType.enclosingType());
 	}
 }

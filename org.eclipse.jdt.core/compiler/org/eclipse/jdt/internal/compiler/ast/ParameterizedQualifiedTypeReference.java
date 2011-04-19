@@ -111,7 +111,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
     /*
      * No need to check for reference to raw type per construction
      */
-	private TypeBinding internalResolveType(Scope scope, boolean checkBounds, TypeBinding expectedType) {
+	private TypeBinding internalResolveType(Scope scope, boolean checkBounds) {
 		// handle the error here
 		this.constant = Constant.NotAConstant;
 		if ((this.bits & ASTNode.DidResolve) != 0) { // is a shared type reference which was already resolved
@@ -221,16 +221,6 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						argHasError = true;
 					} else {
 						argTypes[j] = argType;
-					}
-				}
-				if ((this.bits & ASTNode.IsDiamond) != 0) {
-					if (expectedType != null && expectedType.isParameterizedTypeWithActualArguments()) {
-						argTypes = ((ParameterizedTypeBinding) expectedType).arguments;
-					} else {
-						argTypes = new TypeBinding[argLength = this.resolvedType.typeVariables().length];
-						for (int k = 0; k < argLength; k++) {
-							argTypes[k] = scope.getJavaLangObject();
-						}
 					}
 				}
 				if (argHasError) {
@@ -357,15 +347,12 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		}
 		return output;
 	}
-	
-	public TypeBinding resolveType(BlockScope scope, boolean checkBounds, TypeBinding expectedType) {
-	    return internalResolveType(scope, checkBounds, expectedType);
-	}
+
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
-	    return internalResolveType(scope, checkBounds, null);
+	    return internalResolveType(scope, checkBounds);
 	}
 	public TypeBinding resolveType(ClassScope scope) {
-	    return internalResolveType(scope, false, null);
+	    return internalResolveType(scope, false);
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
