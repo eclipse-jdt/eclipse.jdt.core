@@ -585,26 +585,6 @@ public void computeId() {
 				return;
 			packageName = this.compoundName[1];
 			if (packageName.length == 0) return; // just to be safe
-			if (!CharOperation.equals(TypeConstants.LANG, packageName)) {
-				switch (packageName[0]) {
-					case 'd' :
-						if (CharOperation.equals(packageName, TypeConstants.DYN)) {
-							typeName = this.compoundName[2];
-							if (typeName.length == 0) return; // just to be safe
-							switch (typeName[0]) {
-								case 'M' :
-									char[] memberTypeName = this.compoundName[3];
-									if (memberTypeName.length == 0) return; // just to be safe
-									if (CharOperation.equals(typeName, TypeConstants.JAVA_DYN_METHODHANDLE_POLIMORPHICSIGNATURE[2])
-											&& CharOperation.equals(memberTypeName, TypeConstants.JAVA_DYN_METHODHANDLE_POLIMORPHICSIGNATURE[3]))
-										this.id = TypeIds.T_JavaDynMethodHandlePolymorphiSignature;
-									return;
-							}
-						}
-						return;
-				}
-				return;
-			}
 
 			packageName = this.compoundName[2];
 			if (packageName.length == 0) return; // just to be safe
@@ -669,6 +649,34 @@ public void computeId() {
 					return;
 			}
 			break;
+		case 5 :
+			if (!CharOperation.equals(TypeConstants.JAVA, this.compoundName[0]))
+				return;
+			packageName = this.compoundName[1];
+			if (packageName.length == 0) return; // just to be safe
+
+			if (CharOperation.equals(TypeConstants.LANG, packageName)) {
+				packageName = this.compoundName[2];
+				if (packageName.length == 0) return; // just to be safe
+				switch (packageName[0]) {
+					case 'i' :
+						if (CharOperation.equals(packageName, TypeConstants.INVOKE)) {
+							typeName = this.compoundName[3];
+							if (typeName.length == 0) return; // just to be safe
+							switch (typeName[0]) {
+								case 'M' :
+									char[] memberTypeName = this.compoundName[4];
+									if (memberTypeName.length == 0) return; // just to be safe
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_POLIMORPHICSIGNATURE[3])
+											&& CharOperation.equals(memberTypeName, TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_POLIMORPHICSIGNATURE[4]))
+										this.id = TypeIds.T_JavaLangInvokeMethodHandlePolymorphiSignature;
+									return;
+							}
+						}
+						return;
+				}
+				return;
+			}
 	}
 }
 

@@ -35,9 +35,9 @@ public class MethodHandleTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.dyn.MethodHandle;\n" + 
-				"import java.dyn.MethodHandles;\n" + 
-				"import java.dyn.MethodType;\n" + 
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.invoke.MethodType;\n" + 
 				"\n" + 
 				"public class X {\n" + 
 				"	public static void main(String[] args) throws Throwable {\n" + 

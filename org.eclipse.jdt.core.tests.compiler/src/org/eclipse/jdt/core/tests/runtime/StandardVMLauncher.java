@@ -111,7 +111,6 @@ public String[] getCommandLine() {
 		}
 		if (vmVersion >= ClassFileConstants.JDK1_7) {
 			commandLine.addElement("-XX:+UnlockExperimentalVMOptions");
-			commandLine.addElement("-XX:+EnableInvokeDynamic");
 		}
 	}
 

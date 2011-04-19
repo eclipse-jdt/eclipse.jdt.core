@@ -250,8 +250,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] JAVA_LANG_ANNOTATION_INHERITED = "Ljava/lang/annotation/Inherited;".toCharArray(); //$NON-NLS-1$
 	// java 7  java.lang.SafeVarargs
 	public static final char[] JAVA_LANG_SAFEVARARGS = "Ljava/lang/SafeVarargs;".toCharArray(); //$NON-NLS-1$
-	// java 7 java.dyn.MethodHandle.invokeExact(..)/invokeGeneric(..)
-	public static final char[] JAVA_DYN_METHODHANDLE_POLYMORPHICSIGNATURE = "Ljava/dyn/MethodHandle$PolymorphicSignature;".toCharArray(); //$NON-NLS-1$
+	// java 7 java.lang.invoke.MethodHandle.invokeExact(..)/invokeGeneric(..)
+	public static final char[] JAVA_LANG_INVOKE_METHODHANDLE_POLYMORPHICSIGNATURE = "Ljava/lang/invoke/MethodHandle$PolymorphicSignature;".toCharArray(); //$NON-NLS-1$
 
 	public static final char[] HashCode = "hashCode".toCharArray(); //$NON-NLS-1$
 	public static final char[] HashCodeSignature = "()I".toCharArray(); //$NON-NLS-1$; 

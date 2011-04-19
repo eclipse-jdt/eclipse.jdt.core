@@ -324,8 +324,8 @@ private int scanAnnotation(int offset, boolean expectRuntimeVisibleAnno, boolean
 					return currentOffset;
 				}
 				break;
-			case 44:
-				if (CharOperation.equals(typeName, ConstantPool.JAVA_DYN_METHODHANDLE_POLYMORPHICSIGNATURE)) {
+			case 52:
+				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_INVOKE_METHODHANDLE_POLYMORPHICSIGNATURE)) {
 					this.standardAnnotationTagBits |= TagBits.AnnotationPolymorphicSignature;
 					return currentOffset;
 				}
