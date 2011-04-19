@@ -62,6 +62,7 @@ import org.eclipse.jdt.internal.core.IJavaElementRequestor;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
+import org.eclipse.test.performance.Performance;
 
 /**
  */
@@ -1149,7 +1150,7 @@ public void testCreateJavaElement() throws CoreException {
 
 public void testInitJDTPlugin() throws JavaModelException, CoreException {
 	tagAsSummary("JDT/Core plugin initialization", true); // put in fingerprint
-
+	setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Bug 338649:Extra check for source attachment in missing drive causing regression");
 	// Warm-up
 	int wmax = WARMUP_COUNT / 5;
 	for (int i=0; i<wmax; i++) {
