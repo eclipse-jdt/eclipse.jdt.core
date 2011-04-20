@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 328281 - visibility leaks not detected when analyzing unused field in private class
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -5148,6 +5149,152 @@ public void test099() {
 		"The method foo(double) from the type X.B is never used locally\n" + 
 		"----------\n" + 
 		"6. WARNING in X.java (at line 30)\n" + 
+		"	public class C extends B {\n" + 
+		"	             ^\n" + 
+		"Access to enclosing constructor X.B() is emulated by a synthetic accessor method\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+// check independence of textual order
+public void test099a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"   public class C extends B {\n" +
+		    "		public void foo(int a) {\n" +
+			"			System.out.println(\"Hello\");\n" +    
+			"		}\n" +
+		    "		public void foo(double a) {\n" +
+			"			System.out.println(\"Hello\");\n" +    
+			"		}\n" +
+			"		public void foo(boolean a) {\n" +
+			"			System.out.println(\"Hello\");\n" +    
+			"		}\n" +
+			"		public void foo(byte a) {\n" +
+			"			System.out.println(\"Hello\");\n" +     
+			"		}\n" +
+		    "   }\n" +
+			"   private class B extends A {\n" +
+			"		public void foo(int a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"		public void foo(float a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   	public void foo(double a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   	public void foo(char a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   }\n" +
+			"   private class A {\n" +
+			"    	public void foo(int a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"    	}\n" +
+			"	    public void foo(float a) {\n" +
+			"   		System.out.println(\"Hello\");\n" + 
+			"   	}\n" +
+			"   	public void foo(boolean a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"      	public void foo(Integer a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	public class C extends B {\n" + 
+		"	             ^\n" + 
+		"Access to enclosing constructor X.B() is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 16)\n" + 
+		"	private class B extends A {\n" + 
+		"	              ^\n" + 
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 23)\n" + 
+		"	public void foo(double a) {\n" + 
+		"	            ^^^^^^^^^^^^^\n" + 
+		"The method foo(double) from the type X.B is never used locally\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 31)\n" + 
+		"	public void foo(int a) {\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"The method foo(int) from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 34)\n" + 
+		"	public void foo(float a) {\n" + 
+		"	            ^^^^^^^^^^^^\n" + 
+		"The method foo(float) from the type X.A is never used locally\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 37)\n" + 
+		"	public void foo(boolean a) {\n" + 
+		"	            ^^^^^^^^^^^^^^\n" + 
+		"The method foo(boolean) from the type X.A is never used locally\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
+// check usage via super-call
+public void test099b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    private class A {\n" +
+			"    	public void foo(int a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"    	}\n" +
+			"	    public void foo(float a) {\n" +
+			"   		System.out.println(\"Hello\");\n" + 
+			"   	}\n" +
+			"   	public void foo(boolean a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"      	public void foo(Integer a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   }\n" + 
+			"   private class B extends A {\n" +
+			"		public void foo(int a) {\n" +
+			"   		super.foo(a);\n" +    
+			"   	}\n" +
+			"		public void foo(float a) {\n" +
+			"   		super.foo(a);\n" +    
+			"   	}\n" +
+			"   	public void foo(double a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   	public void foo(char a) {\n" +
+			"   		System.out.println(\"Hello\");\n" +    
+			"   	}\n" +
+			"   }\n" +
+			"   public class C extends B {\n" +
+		    "		public void foo(int a) {\n" +
+			"			System.out.println(\"Hello\");\n" +    
+			"		}\n" +
+		    "		public void foo(double a) {\n" +
+			"			super.foo(a);\n" +    
+			"		}\n" +
+			"		public void foo(boolean a) {\n" +
+			"			super.foo(a);\n" +    
+			"		}\n" +
+			"		public void foo(byte a) {\n" +
+			"			System.out.println(\"Hello\");\n" +     
+			"		}\n" +
+		    "   }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 16)\n" + 
+		"	private class B extends A {\n" + 
+		"	              ^\n" + 
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 30)\n" + 
 		"	public class C extends B {\n" + 
 		"	             ^\n" + 
 		"Access to enclosing constructor X.B() is emulated by a synthetic accessor method\n" + 
