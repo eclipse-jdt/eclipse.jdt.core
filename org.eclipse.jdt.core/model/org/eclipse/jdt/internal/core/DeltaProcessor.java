@@ -105,26 +105,35 @@ public class DeltaProcessor {
 		IPath rootPath;
 		int entryKind;
 		IPackageFragmentRoot root;
+		IPackageFragmentRoot cache;
 		RootInfo(JavaProject project, IPath rootPath, char[][] inclusionPatterns, char[][] exclusionPatterns, int entryKind) {
 			this.project = project;
 			this.rootPath = rootPath;
 			this.inclusionPatterns = inclusionPatterns;
 			this.exclusionPatterns = exclusionPatterns;
 			this.entryKind = entryKind;
+			this.cache = getPackageFragmentRoot();
+		}
+		public IPackageFragmentRoot getPackageFragmentRoot() {
+			IPackageFragmentRoot tRoot = null;
+			Object target = JavaModel.getTarget(this.rootPath, false/*don't check existence*/);
+			if (target instanceof IResource) {
+				tRoot = this.project.getPackageFragmentRoot((IResource)target);
+			} else {
+				tRoot = this.project.getPackageFragmentRoot(this.rootPath.toOSString());
+			}
+			return tRoot;
 		}
 		public IPackageFragmentRoot getPackageFragmentRoot(IResource resource) {
 			if (this.root == null) {
 				if (resource != null) {
 					this.root = this.project.getPackageFragmentRoot(resource);
 				} else {
-					Object target = JavaModel.getTarget(this.rootPath, false/*don't check existence*/);
-					if (target instanceof IResource) {
-						this.root = this.project.getPackageFragmentRoot((IResource)target);
-					} else {
-						this.root = this.project.getPackageFragmentRoot(this.rootPath.toOSString());
-					}
+					this.root = getPackageFragmentRoot();
 				}
 			}
+			if (this.root != null) 
+				this.cache = this.root;
 			return this.root;
 		}
 		boolean isRootOfProject(IPath path) {
