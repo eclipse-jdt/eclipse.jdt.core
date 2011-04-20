@@ -2432,7 +2432,8 @@ public void testRemoveExternalLibFolder2() throws CoreException {
 		setClasspath(p, new IClasspathEntry[] {});
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	"+ getExternalPath() + "externalLib[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {
@@ -2523,7 +2524,8 @@ public void testRemoveZIPArchive2() throws CoreException {
 		setClasspath(p, new IClasspathEntry[] {});
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	"+ getExternalPath() + "externalLib.abc[*]: {REMOVED FROM CLASSPATH}\n" + 
 			"	ResourceDelta(/P/.classpath)[*]"		);
 	} finally {
 		stopDeltas();
