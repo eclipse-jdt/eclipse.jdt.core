@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 328281 - visibility leaks not detected when analyzing unused field in private class
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1679,5 +1680,20 @@ void verifyMethods(MethodVerifier verifier) {
 
 public FieldBinding[] unResolvedFields() {
 	return this.fields;
+}
+
+public void tagIndirectlyAccessibleMembers() {
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328281
+	for (int i = 0; i < this.fields.length; i++) {
+		if (!this.fields[i].isPrivate())
+			this.fields[i].modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+	}
+	for (int i = 0; i < this.memberTypes.length; i++) {
+		if (!this.memberTypes[i].isPrivate())
+			this.memberTypes[i].modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+	}
+	if (this.superclass.isPrivate()) 
+		if (this.superclass instanceof SourceTypeBinding)  // should always be true because private super type can only be accessed in same CU
+			((SourceTypeBinding) this.superclass).tagIndirectlyAccessibleMembers();
 }
 }

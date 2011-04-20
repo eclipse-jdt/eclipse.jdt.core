@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *     						bug 185682 - Increment/decrement operators mark local variables as read
+ *     						bug 328281 - visibility leaks not detected when analyzing unused field in private class
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2124,6 +2126,79 @@ public void test0051() {
 			null/*classLibraries*/,
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328281
+public void test0052() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"class X {\n" +
+					"    Y y = new Y();\n" +
+					"    private class Y {\n" +
+					"        int abc;\n" + 
+					"        Y() {\n" + 
+					"            abc++;\n" +    // not a relevant usage
+					"        }\n" +
+					"    }\n" +
+					"    class Z extends Y {}\n" + // makes 'abc' externally accessible
+					"}"
+			},
+			"",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			null/*vmArguments*/,
+			customOptions,
+			null/*requestor*/);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328281
+// multi-level inheritance
+public void test0052a() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	this.runConformTest(
+			new String[] {
+					"Outer.java",
+					"class Outer {\n" + 
+					"    private class Inner1 {\n" + 
+					"        int foo;\n" +
+					"    }\n" + 
+					"    private class Inner2 extends Inner1 { }\n" + 
+					"    class Inner3 extends Inner2 { }\n" +  // foo is exposed here
+					"}\n"
+			},
+			"",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			null/*vmArguments*/,
+			customOptions,
+			null/*requestor*/);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328281
+// member type of private
+public void test0052b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	this.runConformTest(
+			new String[] {
+					"Outer.java",
+					"class Outer {\n" + 
+					"    private class Inner1 {\n" + 
+					"        class Foo{}\n" +
+					"    }\n" + 
+					"    private class Inner2 extends Inner1 { }\n" + 
+					"    class Inner3 extends Inner2 { }\n" +  // Foo is exposed here
+					"}\n"
+			},
+			"",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			null/*vmArguments*/,
+			customOptions,
+			null/*requestor*/);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
 public void test0053() throws Exception {
