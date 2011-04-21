@@ -611,6 +611,7 @@ public class ElementUtilsProc extends BaseProcessor
 				if (constantExpression == null
 						|| constantExpression.charAt(0) != '\"'
 						|| constantExpression.charAt(constantExpression.length() - 1) != '\"') {
+					reportError("Unexpected value for String: " + String.valueOf(constantExpression));
 					return false;
 				}
 			} else if (constantValue instanceof Character) {
@@ -618,11 +619,13 @@ public class ElementUtilsProc extends BaseProcessor
 				if (constantExpression == null
 						|| constantExpression.charAt(0) != '\''
 						|| constantExpression.charAt(constantExpression.length() - 1) != '\'') {
+					reportError("Unexpected value for Character: " + String.valueOf(constantExpression));
 					return false;
 				}
 			} else {
 				String constantExpression = _elementUtils.getConstantExpression(constantValue);
 				if (constantExpression == null) {
+					reportError("Constant expression is null");
 					return false;
 				}
 			}

@@ -279,9 +279,27 @@ public class ElementsImpl implements Elements {
 			builder.append('\"').append(value).append('\"');
 			return String.valueOf(builder);
 		} else if (value instanceof Float) {
-			return String.valueOf(value)+'f';
+			StringBuilder builder = new StringBuilder();
+			builder.append(value).append('f');
+			return String.valueOf(builder);
 		} else if (value instanceof Long) {
-			return String.valueOf(value)+'L';
+			StringBuilder builder = new StringBuilder();
+			builder.append(value).append('L');
+			return String.valueOf(builder);
+		} else if (value instanceof Short) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("(short)").append(value); //$NON-NLS-1$
+			return String.valueOf(builder);
+		} else if (value instanceof Byte) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("(byte)0x"); //$NON-NLS-1$
+			int intValue = ((Byte) value).byteValue();
+			String hexString = Integer.toHexString(intValue & 0xFF);
+			if (hexString.length() < 2) {
+				builder.append('0');
+			}
+			builder.append(hexString);
+			return String.valueOf(builder);
 		}
 		return String.valueOf(value);
 	}
