@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.apt.model.ElementsImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.Factory;
 import org.eclipse.jdt.internal.compiler.apt.model.TypesImpl;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -116,11 +117,18 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 
 	@Override
 	public SourceVersion getSourceVersion() {
-		// As of this writing, RELEASE_6 is the highest level available.
-		// It is also the lowest level for which this code can possibly
-		// be called.  When Java 7 is released, this method will need to
-		// return a value based on _compiler.options.sourceLevel.
-		return SourceVersion.RELEASE_6;
+		if (this._compiler.options.sourceLevel <= ClassFileConstants.JDK1_5) {
+			return SourceVersion.RELEASE_5;
+		}
+		if (this._compiler.options.sourceLevel == ClassFileConstants.JDK1_6) {
+			return SourceVersion.RELEASE_6;
+		}
+		try {
+			return SourceVersion.valueOf("RELEASE_7"); //$NON-NLS-1$
+		} catch(IllegalArgumentException e) {
+			// handle call on a JDK 6
+			return SourceVersion.RELEASE_6;
+		}
 	}
 
 	/**

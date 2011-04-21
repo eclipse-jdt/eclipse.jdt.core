@@ -290,6 +290,61 @@ public class NegativeModelProc extends AbstractProcessor
 		"  <superclass>\n" + 
 		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" + 
 		"  </superclass>\n" + 
+		"  <interfaces>\n" + 
+		"   <type-mirror kind=\"ERROR\" to-string=\"RemoteNegative8a\"/>\n" + 
+		"  </interfaces>\n" + 
+		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" + 
+		" </type-element>\n" + 
+		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8b\" sname=\"Negative8b\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"  </superclass>\n" + 
+		"  <interfaces>\n" + 
+		"   <type-mirror kind=\"ERROR\" to-string=\"RemoteNegative8a\"/>\n" + 
+		"  </interfaces>\n" + 
+		" </type-element>\n" + 
+		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative8c\" sname=\"Negative8c\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" + 
+		"  </superclass>\n" + 
+		"  <interfaces>\n" + 
+		"   <type-mirror kind=\"ERROR\" to-string=\"RemoteNegative8b&lt;T&gt;\"/>\n" + 
+		"  </interfaces>\n" + 
+		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" + 
+		" </type-element>\n" + 
+		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8d\" sname=\"Negative8d\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"  </superclass>\n" + 
+		"  <interfaces>\n" + 
+		"   <type-mirror kind=\"ERROR\" to-string=\"RemoteNegative8b&lt;T&gt;\"/>\n" + 
+		"  </interfaces>\n" + 
+		" </type-element>\n" + 
+		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8e\" sname=\"Negative8e\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"  </superclass>\n" + 
+		"  <interfaces>\n" + 
+		"   <type-mirror kind=\"ERROR\" to-string=\"targets.negative.pa.Negative8f&lt;T&gt;\"/>\n" + 
+		"  </interfaces>\n" + 
+		" </type-element>\n" + 
+		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8f\" sname=\"Negative8f\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"  </superclass>\n" + 
+		" </type-element>\n" + 
+		"</model>\n";
+
+	/*
+	 * Reference model for class Negative8.
+	 */
+	private static final String NEGATIVE_8_MODEL_VERSION6 = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
+		"<model>\n" + 
+		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative8a\" sname=\"Negative8a\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" + 
+		"  </superclass>\n" + 
 		"  <executable-element kind=\"CONSTRUCTOR\" sname=\"&lt;init&gt;\"/>\n" + 
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8b\" sname=\"Negative8b\">\n" + 
@@ -312,9 +367,6 @@ public class NegativeModelProc extends AbstractProcessor
 		"  <superclass>\n" + 
 		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
 		"  </superclass>\n" + 
-		"  <interfaces>\n" + 
-		"   <type-mirror kind=\"DECLARED\" to-string=\"targets.negative.pa.Negative8f&lt;T&gt;\"/>\n" + 
-		"  </interfaces>\n" + 
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8f\" sname=\"Negative8f\">\n" + 
 		"  <superclass>\n" + 
@@ -322,7 +374,7 @@ public class NegativeModelProc extends AbstractProcessor
 		"  </superclass>\n" + 
 		" </type-element>\n" + 
 		"</model>\n";
-	
+
 	/**
 	 * Reference model for types in Negative1 test
 	 */
@@ -339,11 +391,29 @@ public class NegativeModelProc extends AbstractProcessor
 		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
 		"  </superclass>\n" + 
 		"  <interfaces>\n" + 
-		"   <type-mirror kind=\"DECLARED\" to-string=\"targets.negative.pa.Negative9a&lt;T&gt;\"/>\n" + 
+		"   <type-mirror kind=\"ERROR\" to-string=\"targets.negative.pa.Negative9a&lt;T&gt;\"/>\n" + 
 		"  </interfaces>\n" + 
 		" </type-element>\n" + 
 		"</model>\n";
-
+	
+	/**
+	 * Reference model for types in Negative1 test
+	 */
+	private static final String NEGATIVE_9_MODEL_VERSION6 = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
+		"<model>\n" + 
+		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative9a\" sname=\"Negative9a\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"  </superclass>\n" + 
+		" </type-element>\n" + 
+		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative9b\" sname=\"Negative9b\">\n" + 
+		"  <superclass>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"  </superclass>\n" + 
+		" </type-element>\n" + 
+		"</model>\n";
+	
 	/**
 	 * Declare this option (-AignoreJavacBugs) to ignore failures of cases that are
 	 * known to fail under javac, i.e., known bugs in javac.
@@ -702,24 +772,14 @@ public class NegativeModelProc extends AbstractProcessor
 			}
 			rootElements.add(element);
 		}
-		if (!checkModel(rootElements, NEGATIVE_8_MODEL, "Negative8")) {
+		if (this.processingEnv.getSourceVersion() == SourceVersion.RELEASE_6) {
+			if (!checkModel(rootElements, NEGATIVE_8_MODEL_VERSION6, "Negative8")) {
+				return false;
+			}
+		} else if (!checkModel(rootElements, NEGATIVE_8_MODEL, "Negative8")) {
 			return false;
 		}
-		// check that specific elements are not here
-		suffixes = new String[] {"a", "b", "c", "d"};
-		boolean result = true;
-		String errorMessage = "";
-		for (int i = 0, l = suffixes.length; i < l; i++) {
-			TypeElement element = _elementUtils.getTypeElement("targets.negative.pa.Negative8" + suffixes[i]);
-			if (! element.getInterfaces().isEmpty()) {
-				errorMessage += "Element Negative8" + suffixes[i] + " has extraneous interfaces\n";
-				result = false;
-			}
-		}
-		if (!result) {
-			reportError(errorMessage);
-		}
-		return result;
+		return true;
 	}
 	/**
 	 * Check the model of resources/targets.negative.pa.Negative9
@@ -737,41 +797,32 @@ public class NegativeModelProc extends AbstractProcessor
 			}
 			rootElements.add(element);
 		}
-		if (!checkModel(rootElements, NEGATIVE_9_MODEL, "Negative9")) {
-			return false;
-		}
-		// check that specific elements are not here
-		suffixes = new String[] { "b" };
-		boolean result = true;
-		String errorMessage = "";
-		for (int i = 0, l = suffixes.length; i < l; i++) {
-			TypeElement element = _elementUtils.getTypeElement("targets.negative.pa.Negative9" + suffixes[i]);
-			List<? extends TypeMirror> interfaces = element.getInterfaces();
-			if (interfaces.isEmpty()) {
-				errorMessage += "Element Negative9" + suffixes[i] + " has extraneous interfaces\n";
-				result = false;
+		if (this.processingEnv.getSourceVersion() == SourceVersion.RELEASE_6) {
+			if (!checkModel(rootElements, NEGATIVE_9_MODEL_VERSION6, "Negative9")) {
+				return false;
 			}
-			for (TypeMirror typeMirror : interfaces) {
-				TypeKind kind = typeMirror.getKind();
-				if (kind != TypeKind.DECLARED) {
-					errorMessage += "Element Negative9" + suffixes[i] + " super interface is not a declared type: " + kind + " \n";
+			return true;
+		} else {
+			if (!checkModel(rootElements, NEGATIVE_9_MODEL, "Negative9")) {
+				return false;
+			}
+			// check that specific elements are not here
+			suffixes = new String[] { "b" };
+			boolean result = true;
+			String errorMessage = "";
+			for (int i = 0, l = suffixes.length; i < l; i++) {
+				TypeElement element = _elementUtils.getTypeElement("targets.negative.pa.Negative9" + suffixes[i]);
+				List<? extends TypeMirror> interfaces = element.getInterfaces();
+				if (interfaces.isEmpty()) {
+					errorMessage += "Element Negative9" + suffixes[i] + " has missing interfaces\n";
 					result = false;
 				}
-				DeclaredType type = (DeclaredType) typeMirror;
-				List<? extends TypeMirror> typeArguments = type.getTypeArguments();
-				for (TypeMirror typeMirror2 : typeArguments) {
-					kind = typeMirror2.getKind();
-					if (kind != TypeKind.ERROR) {
-						errorMessage += "Element Negative9" + suffixes[i] + " superinterface's type argument is not an error type: " + kind + " \n";
-						result = false;
-					}
-				}
 			}
+			if (!result) {
+				reportError(errorMessage);
+			}
+			return result;
 		}
-		if (!result) {
-			reportError(errorMessage);
-		}
-		return result;
 	}
 	/**
 	 * Compare a set of elements to a reference model, and output error information if there is a
