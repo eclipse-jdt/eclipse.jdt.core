@@ -8,6 +8,7 @@
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - fix for 342470
+ *    IBM Corporation - fix for 342598
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
@@ -65,9 +66,16 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 		ReferenceBinding varSuperclass = typeVariableBinding.superclass();
 		TypeBinding firstClassOrArrayBound = typeVariableBinding.firstBound;
 		int boundsLength = 0;
+		boolean isFirstBoundATypeVariable = false;
 		if (firstClassOrArrayBound != null) {
+			if (firstClassOrArrayBound.isTypeVariable()) {
+				isFirstBoundATypeVariable = true;
+			}
 			if (firstClassOrArrayBound == varSuperclass) {
 				boundsLength++;
+				if (firstClassOrArrayBound.isTypeVariable()) {
+					isFirstBoundATypeVariable = true;
+				}
 			} else if (firstClassOrArrayBound.isArrayType()) { // capture of ? extends/super arrayType
 				boundsLength++;
 			} else {
@@ -89,7 +97,8 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 				}
 				typeBounds.add(typeBinding);
 			}
-			if (superinterfaces != null) {
+			// we need to filter out remaining bounds if the first bound is a type variable
+			if (superinterfaces != null && !isFirstBoundATypeVariable) {
 				for (int i = 0; i < superinterfacesLength; i++) {
 					TypeMirror typeBinding = _env.getFactory().newTypeMirror(superinterfaces[i]);
 					if (typeBinding == null) {

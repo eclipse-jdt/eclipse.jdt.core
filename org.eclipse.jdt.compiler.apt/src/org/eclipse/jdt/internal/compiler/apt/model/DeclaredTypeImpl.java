@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2009 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2011 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *    IBM Corporation - fix for 342598
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
@@ -64,7 +64,9 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 	public TypeMirror getEnclosingType() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
 		ReferenceBinding enclosingType = binding.enclosingType();
-		if (enclosingType != null) return _env.getFactory().newDeclaredType(enclosingType);
+		if (enclosingType != null) {
+			return _env.getFactory().newTypeMirror(enclosingType);
+		}
 		return _env.getFactory().getNoType(TypeKind.NONE);
 	}
 
@@ -108,13 +110,6 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 
 	@Override
 	public TypeKind getKind() {
-		// Binding.isValidBinding() will return true for a parameterized or array type whose raw
-		// or member type is unresolved.  So we need to be a little more sensitive, so that we
-		// can report Zork<Quux> or Zork[] as error types.
-		ReferenceBinding type = (ReferenceBinding)_binding;
-		if (!type.isValidBinding()) {
-			return TypeKind.ERROR;
-		}
 		return TypeKind.DECLARED;
 	}
 

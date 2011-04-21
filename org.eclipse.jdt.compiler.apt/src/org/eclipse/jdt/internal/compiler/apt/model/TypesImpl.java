@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2011 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *
+ *    IBM Corporation - fix for 342598
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
@@ -195,18 +195,19 @@ public class TypesImpl implements Types {
      */
     @Override
     public TypeMirror erasure(TypeMirror t) {
-        TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
-        Binding binding = typeMirrorImpl._binding;
-        if (binding instanceof ReferenceBinding) {
-            return _env.getFactory().newTypeMirror(((ReferenceBinding) binding).erasure());
-        }
-        if (binding instanceof ArrayBinding) {
-        	TypeBinding typeBinding = (TypeBinding) binding;
-            return new ArrayTypeImpl(_env, this._env.getLookupEnvironment().createArrayType(
-                    typeBinding.leafComponentType().erasure(),
-                    typeBinding.dimensions()));
-        }
-        return t;
+    	TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
+    	Binding binding = typeMirrorImpl._binding;
+    	if (binding instanceof ReferenceBinding) {
+    		return _env.getFactory().newTypeMirror(((ReferenceBinding) binding).erasure());
+    	}
+    	if (binding instanceof ArrayBinding) {
+    		TypeBinding typeBinding = (TypeBinding) binding;
+    		return _env.getFactory().newTypeMirror(
+    				this._env.getLookupEnvironment().createArrayType(
+    						typeBinding.leafComponentType().erasure(),
+    						typeBinding.dimensions()));
+    	}
+    	return t;
     }
 
     /* (non-Javadoc)
@@ -216,9 +217,10 @@ public class TypesImpl implements Types {
     public ArrayType getArrayType(TypeMirror componentType) {
         TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) componentType;
         TypeBinding typeBinding = (TypeBinding) typeMirrorImpl._binding;
-        return new ArrayTypeImpl(_env, this._env.getLookupEnvironment().createArrayType(
-                typeBinding.leafComponentType(),
-                typeBinding.dimensions() + 1));
+        return (ArrayType) _env.getFactory().newTypeMirror(
+        		this._env.getLookupEnvironment().createArrayType(
+        				typeBinding.leafComponentType(),
+        				typeBinding.dimensions() + 1));
     }
 
     /* (non-Javadoc)
@@ -234,7 +236,7 @@ public class TypesImpl implements Types {
         if (typeArgsLength == 0) {
             if (referenceBinding.isGenericType()) {
                 // must return a raw type
-                return _env.getFactory().newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, null));
+                return (DeclaredType) _env.getFactory().newTypeMirror(this._env.getLookupEnvironment().createRawType(referenceBinding, null));
             }
             return (DeclaredType)typeElem.asType();
         } else if (typeArgsLength != typeVariablesLength) {
@@ -249,7 +251,7 @@ public class TypesImpl implements Types {
             }
             typeArguments[i] = (TypeBinding) binding;
         }
-        return _env.getFactory().newDeclaredType(
+        return (DeclaredType) _env.getFactory().newTypeMirror(
                 this._env.getLookupEnvironment().createParameterizedType(referenceBinding, typeArguments, null));
     }
 
@@ -269,7 +271,7 @@ public class TypesImpl implements Types {
         if (typeArgsLength == 0) {
             if (referenceBinding.isGenericType()) {
                 // must return a raw type
-                return _env.getFactory().newDeclaredType(this._env.getLookupEnvironment().createRawType(referenceBinding, enclosingType));
+                return (DeclaredType) _env.getFactory().newTypeMirror(this._env.getLookupEnvironment().createRawType(referenceBinding, enclosingType));
             }
             // TODO (see how to create a member type binding
             throw new UnsupportedOperationException("NYI: TypesImpl.getDeclaredType(...) for member types"); //$NON-NLS-1$
@@ -285,7 +287,7 @@ public class TypesImpl implements Types {
             }
             typeArguments[i] = (TypeBinding) binding;
         }
-        return _env.getFactory().newDeclaredType(
+        return (DeclaredType) _env.getFactory().newTypeMirror(
                 this._env.getLookupEnvironment().createParameterizedType(referenceBinding, typeArguments, enclosingType));
     }
 
@@ -321,12 +323,13 @@ public class TypesImpl implements Types {
         if (extendsBound != null) {
             TypeMirrorImpl extendsBoundMirrorType = (TypeMirrorImpl) extendsBound;
             TypeBinding typeBinding = (TypeBinding) extendsBoundMirrorType._binding;
-            return new WildcardTypeImpl(_env, this._env.getLookupEnvironment().createWildcard(
-                    null,
-                    0,
-                    typeBinding,
-                    null,
-                    Wildcard.EXTENDS));
+            return (WildcardType) _env.getFactory().newTypeMirror(
+            		this._env.getLookupEnvironment().createWildcard(
+	                    null,
+	                    0,
+	                    typeBinding,
+	                    null,
+	                    Wildcard.EXTENDS));
         }
         if (superBound != null) {
             TypeMirrorImpl superBoundMirrorType = (TypeMirrorImpl) superBound;
@@ -452,7 +455,7 @@ public class TypesImpl implements Types {
             // No boxing conversion was found
             throw new IllegalArgumentException();
         }
-        return _env.getFactory().getPrimitiveType((BaseTypeBinding)unboxed);
+        return (PrimitiveType) _env.getFactory().newTypeMirror((BaseTypeBinding)unboxed);
     }
 
 }

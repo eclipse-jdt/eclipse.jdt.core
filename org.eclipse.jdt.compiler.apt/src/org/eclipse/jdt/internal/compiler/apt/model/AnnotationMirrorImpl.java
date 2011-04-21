@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -93,11 +93,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 	}
 
 	public DeclaredType getAnnotationType() {
-		if (this._binding == null) {
-			return _env.getFactory().getErrorType();
-		}
-		ReferenceBinding annoType = _binding.getAnnotationType();
-		return _env.getFactory().newAnnotationType(annoType);
+		return (DeclaredType) _env.getFactory().newTypeMirror(_binding.getAnnotationType());
 	}
 	
 	/**
