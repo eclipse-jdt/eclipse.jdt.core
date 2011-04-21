@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,16 +26,17 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
-import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
  * Element corresponding to the Error type mirror
  */
 public class ErrorTypeElement extends TypeElementImpl {
 	
-	ErrorTypeElement(BaseProcessingEnvImpl env) {
-		super(env, null, null);
+	ErrorTypeElement(BaseProcessingEnvImpl env, ReferenceBinding binding) {
+		super(env, binding, null);
 	}
 	/* (non-Javadoc)
 	 * @see javax.lang.model.element.TypeElement#getInterfaces()
@@ -58,7 +59,15 @@ public class ErrorTypeElement extends TypeElementImpl {
 	 */
 	@Override
 	public Name getQualifiedName() {
-		return new NameImpl(Util.EMPTY_STRING);
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		char[] qName;
+		if (binding.isMemberType()) {
+			qName = CharOperation.concatWith(binding.enclosingType().compoundName, binding.sourceName, '.');
+			CharOperation.replace(qName, '$', '.');
+		} else {
+			qName = CharOperation.concatWith(binding.compoundName, '.');
+		}
+		return new NameImpl(qName);
 	}
 
 	/* (non-Javadoc)
@@ -82,7 +91,7 @@ public class ErrorTypeElement extends TypeElementImpl {
 	 */
 	@Override
 	public TypeMirror asType() {
-		return this._env.getFactory().getErrorType();
+		return this._env.getFactory().getErrorType((ReferenceBinding) this._binding);
 	}
 
 	/* (non-Javadoc)
@@ -138,6 +147,7 @@ public class ErrorTypeElement extends TypeElementImpl {
 	 */
 	@Override
 	public Name getSimpleName() {
-		return new NameImpl(Util.EMPTY_STRING);
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		return new NameImpl(binding.sourceName());
 	}
 }

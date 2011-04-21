@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ElementVisitor;
@@ -35,9 +36,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
@@ -118,18 +117,13 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		}
 		List<TypeMirror> interfaces = new ArrayList<TypeMirror>(binding.superInterfaces().length);
 		for (ReferenceBinding interfaceBinding : binding.superInterfaces()) {
-			// JSR269 spec requires us to return unresolved superinterfaces, but javac has
-			// a bug in this regard; as of 5/08 we emulate javac, rather than follow the spec.
-			// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=231521
-			if (interfaceBinding.isValidBinding() &&
-				// using binding types...
-					!(interfaceBinding instanceof MissingTypeBinding) &&
-					!(interfaceBinding instanceof ParameterizedTypeBinding &&
-							((ParameterizedTypeBinding) interfaceBinding).genericType() instanceof MissingTypeBinding)
-				// since HasMissingType reports indirect missing types, which is not what we need
-				/* &&
-					(interfaceBinding.tagBits & TagBits.HasMissingType) == 0 */) {
-				TypeMirror interfaceType = _env.getFactory().newTypeMirror(interfaceBinding);
+			TypeMirror interfaceType = _env.getFactory().newTypeMirror(interfaceBinding);
+			if (interfaceType.getKind() == TypeKind.ERROR) {
+				if (this._env.getSourceVersion().compareTo(SourceVersion.RELEASE_6) > 0) {
+					// for jdk 7 and above, add error types
+					interfaces.add(interfaceType);
+				}
+			} else {
 				interfaces.add(interfaceType);
 			}
 		}
@@ -225,7 +219,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 			return _env.getFactory().getNoType(TypeKind.NONE);
 		}
 		// superclass of a type must be a DeclaredType
-		return _env.getFactory().newDeclaredType(superBinding);
+		return _env.getFactory().newTypeMirror(superBinding);
 	}
 	
 	@Override
