@@ -999,6 +999,8 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testBug292087b"));
 	suite.addTest(new CompletionTests("testBug292087c"));
 	suite.addTest(new CompletionTests("testBug292087d"));
+	suite.addTest(new CompletionTests("testBug343476"));
+	suite.addTest(new CompletionTests("testBug343476a"));
 	return suite;
 }
 public CompletionTests(String name) {
@@ -23506,5 +23508,106 @@ public void testBug343342b() throws JavaModelException {
 			"ZZZ7[FIELD_REF]{ZZZ7, Ltest.CompletionAfterCase2;, S, ZZZ7, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_FINAL + R_QUALIFIED) + "}\n" +
 			"ZZZ1[FIELD_REF]{ZZZ1, Ltest.CompletionAfterCase2;, I, ZZZ1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_NON_RESTRICTED + R_FINAL + R_QUALIFIED) + "}",
 			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343476
+public void testBug343476() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterCase2.java",
+		"package test;\n" +
+		"public class CompletionAfterCase2 {\n" +
+		"	public static final int ZZZ1 = 5;\n" +
+		"	public static final long ZZZ2 = 5;\n" +
+		"	public static final double ZZZ3 = 0;\n" +
+		"	public static final Object ZZZ4 = null;\n" +
+		"	public static final int[] ZZZ5 = null;\n" +
+		"	public static final Object[] ZZZ6 = null;\n" +
+		"	public static final short ZZZ7 = 0;\n" +
+		"	public static final String ZZZString = null;\n" +
+		"	public static String ZZZString2 = null;\n" +
+		"	public static String ZZZStringM() { return null;}\n" +
+		"	int ZZZ8(){return 1;}\n" +
+		"	void foo(String i){\n" +
+		"		final int ZZZ01 = 1;\n" +
+		"		int ZZZ02 = 1;\n" +
+		"		final char ZZZ03;\n" +
+		"		final String ZZZ04 = \"\";\n" +
+		"		String ZZZ05 = \"\";\n" +
+		"		switch(i) {\n" +
+		"			case ZZ\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n");
+
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+		assertResults(
+				"ZZZ04[LOCAL_VARIABLE_REF]{ZZZ04, null, Ljava.lang.String;, ZZZ04, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_FINAL + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+				"ZZZString[FIELD_REF]{ZZZString, Ltest.CompletionAfterCase2;, Ljava.lang.String;, ZZZString, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_FINAL + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE) + "}",
+				requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343476
+public void testBug343476a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterCase2.java",
+		"package test;\n" +
+		"public class CompletionAfterCase2 {\n" +
+		"	public static final int ZZZ1 = 5;\n" +
+		"	public static final long ZZZ2 = 5;\n" +
+		"	public static final double ZZZ3 = 0;\n" +
+		"	public static final Object ZZZ4 = null;\n" +
+		"	public static final int[] ZZZ5 = null;\n" +
+		"	public static final Object[] ZZZ6 = null;\n" +
+		"	public static final short ZZZ7 = 0;\n" +
+		"	public static final String ZZZString = null;\n" +
+		"	public static String ZZZString2 = null;\n" +
+		"	public static String ZZZStringM() { return null;}\n" +
+		"	int ZZZ8(){return 1;}\n" +
+		"	void foo(String i){\n" +
+		"		final int ZZZ01 = 1;\n" +
+		"		int ZZZ02 = 1;\n" +
+		"		final char ZZZ03;\n" +
+		"		final String ZZZ04 = \"\";\n" +
+		"		String ZZZ05 = \"\";\n" +
+		"		switch(i) {\n" +
+		"			case CompletionAfterCase2.ZZ\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n");
+
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "CompletionAfterCase2.ZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+		assertResults(
+				"ZZZString[FIELD_REF]{ZZZString, Ltest.CompletionAfterCase2;, Ljava.lang.String;, ZZZString, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_FINAL + R_QUALIFIED + R_EXACT_EXPECTED_TYPE) + "}",
+				requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
 }
 }

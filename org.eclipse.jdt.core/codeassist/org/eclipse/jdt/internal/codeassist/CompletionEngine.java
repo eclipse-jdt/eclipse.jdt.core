@@ -526,6 +526,7 @@ public final class CompletionEngine
 	int  assistNodeInJavadoc = 0;
 	boolean assistNodeCanBeSingleMemberAnnotation = false;
 	boolean assistNodeIsInsideCase = false; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
+	boolean assistNodeIsString = false;	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343476
 	
 	long targetedElement;
 	
@@ -3663,6 +3664,14 @@ public final class CompletionEngine
 			this.assistNodeIsInsideCase = assistNodeIsInsideCase(node, parent);
 			if (switchStatement.expression != null &&
 					switchStatement.expression.resolvedType != null) {
+				if (this.assistNodeIsInsideCase &&
+						switchStatement.expression.resolvedType.id == TypeIds.T_JavaLangString &&
+						this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_7) {
+					// set the field to true even though the expected types array will contain String as
+					// expected type to avoid traversing the array in every case later on.
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343476
+					this.assistNodeIsString = true;
+				}
 				addExpectedType(switchStatement.expression.resolvedType, scope);
 			}
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253008, flag boolean as the expected
@@ -6047,7 +6056,10 @@ public final class CompletionEngine
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343342
 			if (this.assistNodeIsInsideCase) {
 				if (field.isFinal() && field.isStatic()) {
-					if (!(field.type instanceof BaseTypeBinding))
+					if (this.assistNodeIsString){
+						if (field.type == null || field.type.id != TypeIds.T_JavaLangString)
+							continue next;
+					} else if (!(field.type instanceof BaseTypeBinding))
 						continue next; 
 				} else {
 					continue next; // non-constants not allowed in case.	
@@ -11438,7 +11450,10 @@ public final class CompletionEngine
 							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343342
 							if (this.assistNodeIsInsideCase) {
 								if (local.isFinal()) {
-									if (!(local.type instanceof BaseTypeBinding))
+									if (this.assistNodeIsString){
+										if (local.type == null || local.type.id != TypeIds.T_JavaLangString)
+											continue next;
+									} else if (!(local.type instanceof BaseTypeBinding))
 										continue next; 
 								} else {
 									continue next; // non-constants not allowed in case.	
