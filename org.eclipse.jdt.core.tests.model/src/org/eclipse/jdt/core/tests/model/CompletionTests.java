@@ -23026,6 +23026,7 @@ public void testBug343342b() throws JavaModelException {
 		"	public static final int[] ZZZ5 = null;\n" +
 		"	public static final Object[] ZZZ6 = null;\n" +
 		"	public static final short ZZZ7 = 0;\n" +
+		"	public static int ZZZMethod(){ return 1;}\n" +
 		"	int ZZZ8(){return 1;}\n" +
 		"	void foo(int i){\n" +
 		"		final int ZZZ01 = 1;\n" +
