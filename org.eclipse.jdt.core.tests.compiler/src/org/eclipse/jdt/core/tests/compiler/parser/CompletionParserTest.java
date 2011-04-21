@@ -19,7 +19,7 @@ public CompletionParserTest(String testName) {
 	super(testName);
 }
 static {
-//	TESTS_NAMES = new String[] { "testXA_1FGGUQF_1FHSL8H_1" };
+//	TESTS_NAMES = new String[] { "testBug292087" };
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(CompletionParserTest.class);
@@ -8677,6 +8677,122 @@ public void testBug310423(){
 		"  public Test() {\n" + 
 		"  }\n" +
 		"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
+// To verify that the completion node is found inside a field initializer
+// that contains an anonymous class.
+public void testBug292087a(){
+	String str =
+			"package test;\n" +
+			"class MyClass{\n" +
+			"}\n" +
+			"public class Try extends Thread{\n" +
+			"	public static MyClass MyClassField;" +
+			"	public static MyClass MyClassMethod(){\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public MyClass member[] = {\n" +
+			"		" +
+			"		new MyClass (){\n" +
+			"			public void abc() {}\n" +
+			"		},\n" +
+			"		/*Complete here*/\n" +
+			"	};\n" +
+			"}\n";
+
+	String testName = "";
+	String completeBehind = "/*Complete here*/";
+	String expectedCompletionNodeToString = "<CompleteOnName:>";
+	String expectedParentNodeToString = 
+		"public MyClass[] member = {<CompleteOnName:>};";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	int cursorLocation = str.lastIndexOf("/*Complete here*/") + completeBehind.length() - 1;
+	String expectedUnitDisplayString =
+			"package test;\n" + 
+			"class MyClass {\n" + 
+			"  MyClass() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class Try extends Thread {\n" + 
+			"  public static MyClass MyClassField;\n" + 
+			"  public MyClass[] member = {<CompleteOnName:>};\n" + 
+			"  public Try() {\n" + 
+			"  }\n" + 
+			"  <clinit>() {\n" + 
+			"  }\n" + 
+			"  public static MyClass MyClassMethod() {\n" + 
+			"  }\n" + 
+			"}\n";
+
+	checkDietParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
+// To verify that anonymous class inside an array initializer of a recovered field
+// doesn't end up at a bogus location.
+public void testBug292087b(){
+	String str =
+			"package test;\n" +
+			"class MyClass{\n" +
+			"}\n" +
+			"public class Try extends Thread{\n" +
+			"	public static MyClass MyClassField;" +
+			"	public static MyClass MyClassMethod(){\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public MyClass member[] = {\n" +
+			"		/*Complete here*/\n" +
+			"		new MyClass (){\n" +
+			"			public void abc() {}\n" +
+			"		},\n" +
+			"		" +
+			"	};\n" +
+			"}\n";
+
+	String testName = "";
+	String completeBehind = "/*Complete here*/";
+	String expectedCompletionNodeToString = "<CompleteOnName:>";
+	String expectedParentNodeToString = 
+		"public MyClass[] member = {<CompleteOnName:>};";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	int cursorLocation = str.lastIndexOf("/*Complete here*/") + completeBehind.length() - 1;
+	String expectedUnitDisplayString =
+			"package test;\n" + 
+			"class MyClass {\n" + 
+			"  MyClass() {\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class Try extends Thread {\n" + 
+			"  public static MyClass MyClassField;\n" + 
+			"  public MyClass[] member = {<CompleteOnName:>};\n" + 
+			"  public Try() {\n" + 
+			"  }\n" + 
+			"  <clinit>() {\n" + 
+			"  }\n" + 
+			"  public static MyClass MyClassMethod() {\n" + 
+			"  }\n" + 
+			"}\n";
 
 	checkDietParse(
 		str.toCharArray(),

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1650,7 +1650,13 @@ protected boolean resumeAfterRecovery() {
 			){
 			prepareForBlockStatements();
 			goForBlockStatementsOrCatchHeader();
-		} else {
+		} else if((isInsideArrayInitializer()) &&
+				isIndirectlyInsideFieldInitialization() &&
+				this.assistNode == null
+				){
+				prepareForBlockStatements();
+				goForBlockStatementsopt();
+			} else {
 			prepareForHeaders();
 			goForHeaders();
 			this.diet = true; // passed this point, will not consider method bodies
@@ -1670,6 +1676,11 @@ protected boolean resumeAfterRecovery() {
 		return true;
 	}
 	// does not know how to restart
+	return false;
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
+// To be implemented in children viz. CompletionParser that are aware of array initializers
+protected boolean isInsideArrayInitializer() {
 	return false;
 }
 public abstract void setAssistIdentifier(char[] assistIdent);

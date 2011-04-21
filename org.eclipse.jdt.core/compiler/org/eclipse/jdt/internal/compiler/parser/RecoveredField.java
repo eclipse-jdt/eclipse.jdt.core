@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,7 +76,9 @@ public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 	if (this.alreadyCompletedFieldInitialization || !(statement instanceof Expression)) {
 		return super.add(statement, bracketBalanceValue);
 	} else {
-		this.alreadyCompletedFieldInitialization = true;
+		if (statement.sourceEnd > 0)
+			this.alreadyCompletedFieldInitialization = true;
+		// else we may still be inside the initialization, having parsed only a part of it yet
 		this.fieldDeclaration.initialization = (Expression)statement;
 		this.fieldDeclaration.declarationSourceEnd = statement.sourceEnd;
 		this.fieldDeclaration.declarationEnd = statement.sourceEnd;
