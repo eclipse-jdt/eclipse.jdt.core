@@ -37,7 +37,7 @@ public class DietRecoveryTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = ClassFileConstants.JDK1_3; //$NON-NLS-1$
 static {
-//	TESTS_NUMBERS = new int[] { 113 };
+	TESTS_NUMBERS = new int[] { 75 };
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(DietRecoveryTest.class);
@@ -4661,15 +4661,23 @@ public void test75() {
 
 	String expectedCompletionDietUnitToString =
 		"package ZKentTest;\n" +
-		"import java.awt.color.*;\n" +
-		"public class A {\n" +
-		"  int[] ii;\n" +
-		"  public A() {\n" +
-		"  }\n" +
-		"  A foo(int i) {\n" +
-		"  }\n" +
-		"  int bar() {\n" +
-		"  }\n" +
+		"import java.awt.color.*;\n" + 
+		"public class A {\n" + 
+		"  int[] ii;\n" + 
+		"  public A() {\n" + 
+		"  }\n" + 
+		"  A foo(int i) {\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"class Local {\n" + 
+		"  Local() {\n" + 
+		"  }\n" + 
+		"  int hello() {\n" + 
+		"  }\n" + 
+		"  int world() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
 		"}\n";
 
 	String testName = "<bunch of syntax errors>";
