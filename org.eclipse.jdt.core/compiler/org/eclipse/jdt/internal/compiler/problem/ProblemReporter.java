@@ -2794,12 +2794,21 @@ public void incorrectLocationForNonEmptyDimension(ArrayAllocationExpression expr
 		expression.dimensions[index].sourceEnd);
 }
 public void incorrectSwitchType(Expression expression, TypeBinding testType) {
-	this.handle(
-		IProblem.IncorrectSwitchType,
-		new String[] {new String(testType.readableName())},
-		new String[] {new String(testType.shortReadableName())},
-		expression.sourceStart,
-		expression.sourceEnd);
+	if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
+		this.handle(
+			IProblem.IncorrectSwitchType,
+			new String[] {new String(testType.readableName())},
+			new String[] {new String(testType.shortReadableName())},
+			expression.sourceStart,
+			expression.sourceEnd);
+	} else {
+		this.handle(
+				IProblem.IncorrectSwitchType17,
+				new String[] {new String(testType.readableName())},
+				new String[] {new String(testType.shortReadableName())},
+				expression.sourceStart,
+				expression.sourceEnd);
+	}
 }
 public void indirectAccessToStaticField(ASTNode location, FieldBinding field){
 	int severity = computeSeverity(IProblem.IndirectAccessToStaticField);

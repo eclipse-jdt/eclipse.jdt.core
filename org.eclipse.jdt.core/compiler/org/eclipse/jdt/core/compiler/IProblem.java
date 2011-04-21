@@ -1377,6 +1377,8 @@ void setSourceStart(int sourceStart);
 	int MultiCatchNotBelow17 =  Syntax + Internal + 875;
 	/** @since 3.7 */
 	int PolymorphicMethodNotBelow17 = MethodRelated + 876;
+	/** @since 3.7 */
+	int IncorrectSwitchType17 = TypeRelated + 877;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

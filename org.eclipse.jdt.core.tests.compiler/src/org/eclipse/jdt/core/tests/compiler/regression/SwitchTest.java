@@ -229,6 +229,50 @@ public void test009() {
 	"SUCCESS");
 }
 public void test010() {
+	String newMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	switch(this){\n" +
+			"	       ^^^^\n" +
+			"Cannot switch on a value of type X. Only convertible int values, strings or enum constants are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 11)\n" +
+			"	switch(x){\n" +
+			"	       ^\n" +
+			"x cannot be resolved to a variable\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 13)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n";
+	String oldMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	switch(this){\n" +
+			"	       ^^^^\n" +
+			"Cannot switch on a value of type X. Only convertible int values or enum constants are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 11)\n" +
+			"	switch(x){\n" +
+			"	       ^\n" +
+			"x cannot be resolved to a variable\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 13)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n";
 	this.runNegativeTest(new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -248,27 +292,8 @@ public void test010() {
 		"	}	\n" +
 		"}\n",
 	},
-	"----------\n" +
-	"1. ERROR in X.java (at line 4)\n" +
-	"	switch(this){\n" +
-	"	       ^^^^\n" +
-	"Cannot switch on a value of type X. Only convertible int values or enum constants are permitted\n" +
-	"----------\n" +
-	"2. ERROR in X.java (at line 6)\n" +
-	"	Zork z;\n" +
-	"	^^^^\n" +
-	"Zork cannot be resolved to a type\n" +
-	"----------\n" +
-	"3. ERROR in X.java (at line 11)\n" +
-	"	switch(x){\n" +
-	"	       ^\n" +
-	"x cannot be resolved to a variable\n" +
-	"----------\n" +
-	"4. ERROR in X.java (at line 13)\n" +
-	"	Zork z;\n" +
-	"	^^^^\n" +
-	"Zork cannot be resolved to a type\n" +
-	"----------\n");
+	this.complianceLevel >= JDKLevelSupportingStringSwitch ? newMessage : oldMessage);
+	
 }
 public void test011() {
 	this.runConformTest(new String[] {
