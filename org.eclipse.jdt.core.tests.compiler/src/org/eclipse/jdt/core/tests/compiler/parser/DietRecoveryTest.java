@@ -37,7 +37,7 @@ public class DietRecoveryTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = ClassFileConstants.JDK1_3; //$NON-NLS-1$
 static {
-	TESTS_NUMBERS = new int[] { 75 };
+//	TESTS_NUMBERS = new int[] { 75 };
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(DietRecoveryTest.class);
