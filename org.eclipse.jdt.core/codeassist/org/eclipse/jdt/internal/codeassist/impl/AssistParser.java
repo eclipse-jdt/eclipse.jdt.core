@@ -1652,11 +1652,10 @@ protected boolean resumeAfterRecovery() {
 			goForBlockStatementsOrCatchHeader();
 		} else if((isInsideArrayInitializer()) &&
 				isIndirectlyInsideFieldInitialization() &&
-				this.assistNode == null
-				){
-				prepareForBlockStatements();
-				goForBlockStatementsopt();
-			} else {
+				this.assistNode == null) {
+			prepareForBlockStatements();
+			goForBlockStatementsopt();
+		} else {
 			prepareForHeaders();
 			goForHeaders();
 			this.diet = true; // passed this point, will not consider method bodies
