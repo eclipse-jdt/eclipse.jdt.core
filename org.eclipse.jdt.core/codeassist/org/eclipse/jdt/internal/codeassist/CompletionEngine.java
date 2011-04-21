@@ -6045,10 +6045,17 @@ public final class CompletionEngine
 			if (this.options.checkVisibility
 				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
 			
-			// don't propose array types in case expression
+			// don't propose non constant fields or strings (1.6 or below) in case expression
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
-			if (this.assistNodeIsInsideCase && field.type instanceof ArrayBinding)
-				continue next;
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343342
+			if (this.assistNodeIsInsideCase) {
+				if (field.isFinal() && field.isStatic()) {
+					if (!(field.type instanceof BaseTypeBinding))
+						continue next; 
+				} else {
+					continue next; // non-constants not allowed in case.	
+				}
+			}
 
 			boolean prefixRequired = false;
 
@@ -11426,10 +11433,17 @@ public final class CompletionEngine
 								continue next;
 							}
 												
-							// don't propose array types in case expression
+							// don't propose non constant variables or strings (1.6 or below) in case expression
 							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
-							if (this.assistNodeIsInsideCase && local.type instanceof ArrayBinding)
-								continue next;
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343342
+							if (this.assistNodeIsInsideCase) {
+								if (local.isFinal()) {
+									if (!(local.type instanceof BaseTypeBinding))
+										continue next; 
+								} else {
+									continue next; // non-constants not allowed in case.	
+								}
+							}
 							
 							int ptr = this.uninterestingBindingsPtr;
 							// Cases where the binding is uninteresting eg. for completion occurring inside a local var
@@ -11541,7 +11555,7 @@ public final class CompletionEngine
 									-1,
 									-1);
 							}
-							if(proposeMethod && !insideAnnotationAttribute) {
+							if(proposeMethod && !insideAnnotationAttribute && !this.assistNodeIsInsideCase) {
 								findMethods(
 									token,
 									null,
