@@ -2935,8 +2935,7 @@ public final class CompletionEngine
 			(CompletionOnQualifiedNameReference) astNode;
 		this.completionToken = ref.completionIdentifier;
 		long completionPosition = ref.sourcePositions[ref.sourcePositions.length - 1];
-		this.assistNodeIsInsideCase = assistNodeIsInsideCase(astNode, this.parser.assistNodeParent);
-
+		
 		if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
 			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 			// complete field members with missing fields type
@@ -3080,7 +3079,6 @@ public final class CompletionEngine
 		this.assistNodeIsSuperType = ref.isSuperType();
 		this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
 		this.assistNodeIsInterfaceExcludingAnnotation = assistNodeIsInterfaceExcludingAnnotation(astNode, astNodeParent);
-		this.assistNodeIsInsideCase = assistNodeIsInsideCase(astNode, astNodeParent);
 		
 		this.completionToken = ref.completionIdentifier;
 		long completionPosition = ref.sourcePositions[ref.tokens.length];
@@ -3141,7 +3139,6 @@ public final class CompletionEngine
 		CompletionOnSingleNameReference singleNameReference = (CompletionOnSingleNameReference) astNode;
 		this.completionToken = singleNameReference.token;
 		SwitchStatement switchStatement = astNodeParent instanceof SwitchStatement ? (SwitchStatement) astNodeParent : null;
-		this.assistNodeIsInsideCase = assistNodeIsInsideCase(astNode, astNodeParent);
 		if (switchStatement != null
 				&& switchStatement.expression.resolvedType != null
 				&& switchStatement.expression.resolvedType.isEnum()) {
@@ -3217,7 +3214,6 @@ public final class CompletionEngine
 		this.assistNodeIsSuperType = singleRef.isSuperType();
 		this.assistNodeIsExtendedType = assistNodeIsExtendedType(astNode, astNodeParent);
 		this.assistNodeIsInterfaceExcludingAnnotation = assistNodeIsInterfaceExcludingAnnotation(astNode, astNodeParent);
-		this.assistNodeIsInsideCase = assistNodeIsInsideCase(astNode, astNodeParent);
 		
 		// can be the start of a qualified type name
 		if (qualifiedBinding == null) {
@@ -3664,6 +3660,7 @@ public final class CompletionEngine
 			}
 		} else if (parent instanceof SwitchStatement) {
 			SwitchStatement switchStatement = (SwitchStatement) parent;
+			this.assistNodeIsInsideCase = assistNodeIsInsideCase(node, parent);
 			if (switchStatement.expression != null &&
 					switchStatement.expression.resolvedType != null) {
 				addExpectedType(switchStatement.expression.resolvedType, scope);
@@ -9727,6 +9724,9 @@ public final class CompletionEngine
 		if (selector == null && notInJavadoc) {
 			return;
 		}
+		
+		if (this.assistNodeIsInsideCase)
+			return;		// no methods should be proposed inside case expression
 
 		ReferenceBinding currentType = receiverType;
 		if (notInJavadoc) {
@@ -11555,7 +11555,7 @@ public final class CompletionEngine
 									-1,
 									-1);
 							}
-							if(proposeMethod && !insideAnnotationAttribute && !this.assistNodeIsInsideCase) {
+							if(proposeMethod && !insideAnnotationAttribute) {
 								findMethods(
 									token,
 									null,
