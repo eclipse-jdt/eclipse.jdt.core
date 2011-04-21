@@ -569,38 +569,51 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		private void logExtraProblem(CategorizedProblem problem, int localErrorCount, int globalErrorCount) {
 			char[] originatingFileName = problem.getOriginatingFileName();
-			String fileName =
-				originatingFileName == null
-				? this.main.bind("requestor.noFileNameSpecified")//$NON-NLS-1$
-				: new String(originatingFileName);
-			if ((this.tagBits & Logger.EMACS) != 0) {
-				String result = fileName
-						+ ":" //$NON-NLS-1$
-						+ problem.getSourceLineNumber()
-						+ ": " //$NON-NLS-1$
-						+ (problem.isError() ? this.main.bind("output.emacs.error") : this.main.bind("output.emacs.warning")) //$NON-NLS-1$ //$NON-NLS-2$
-						+ ": " //$NON-NLS-1$
-						+ problem.getMessage();
-				this.printlnErr(result);
-				final String errorReportSource = errorReportSource(problem, null, this.tagBits);
-				this.printlnErr(errorReportSource);
+			if (originatingFileName == null) {
+				// simplified message output
+				if (problem.isError()) {
+					printErr(this.main.bind(
+								"requestor.extraerror", //$NON-NLS-1$
+								Integer.toString(globalErrorCount)));
+				} else {
+					// warning / mandatory warning / other
+					printErr(this.main.bind(
+							"requestor.extrawarning", //$NON-NLS-1$
+							Integer.toString(globalErrorCount)));
+				}
+				printErr(" "); //$NON-NLS-1$
+				this.printlnErr(problem.getMessage());
 			} else {
-				if (localErrorCount == 0) {
+				String fileName = new String(originatingFileName);
+				if ((this.tagBits & Logger.EMACS) != 0) {
+					String result = fileName
+							+ ":" //$NON-NLS-1$
+							+ problem.getSourceLineNumber()
+							+ ": " //$NON-NLS-1$
+							+ (problem.isError() ? this.main.bind("output.emacs.error") : this.main.bind("output.emacs.warning")) //$NON-NLS-1$ //$NON-NLS-2$
+							+ ": " //$NON-NLS-1$
+							+ problem.getMessage();
+					this.printlnErr(result);
+					final String errorReportSource = errorReportSource(problem, null, this.tagBits);
+					this.printlnErr(errorReportSource);
+				} else {
+					if (localErrorCount == 0) {
+						this.printlnErr("----------"); //$NON-NLS-1$
+					}
+					printErr(problem.isError() ?
+							this.main.bind(
+									"requestor.error", //$NON-NLS-1$
+									Integer.toString(globalErrorCount),
+									new String(fileName))
+									: this.main.bind(
+											"requestor.warning", //$NON-NLS-1$
+											Integer.toString(globalErrorCount),
+											new String(fileName)));
+					final String errorReportSource = errorReportSource(problem, null, 0);
+					this.printlnErr(errorReportSource);
+					this.printlnErr(problem.getMessage());
 					this.printlnErr("----------"); //$NON-NLS-1$
 				}
-				printErr(problem.isError() ?
-						this.main.bind(
-								"requestor.error", //$NON-NLS-1$
-								Integer.toString(globalErrorCount),
-								new String(fileName))
-								: this.main.bind(
-										"requestor.warning", //$NON-NLS-1$
-										Integer.toString(globalErrorCount),
-										new String(fileName)));
-				final String errorReportSource = errorReportSource(problem, null, 0);
-				this.printlnErr(errorReportSource);
-				this.printlnErr(problem.getMessage());
-				this.printlnErr("----------"); //$NON-NLS-1$
 			}
 		}
 
