@@ -33,7 +33,6 @@ public class AllocationExpression extends Expression implements InvocationSite {
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
 	public FieldDeclaration enumConstant; // for enum constant initializations
-	private TypeBinding expectedTypeForInference;	  // for <> inference
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	// check captured variables are initialized in current context (26134)
@@ -260,12 +259,25 @@ public TypeBinding resolveType(BlockScope scope) {
 		// initialization of an enum constant
 		this.resolvedType = scope.enclosingReceiverType();
 	} else {
-		if ((this.type.bits & ASTNode.IsDiamond) != 0) {
-			this.resolvedType = null; // can be done only after type arguments and method arguments resolution.
-		} else {
-			this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
+		this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
+		checkParameterizedAllocation: {
+			if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()
+				ReferenceBinding currentType = (ReferenceBinding)this.resolvedType;
+				if (currentType == null) return currentType;
+				do {
+					// isStatic() is answering true for toplevel types
+					if ((currentType.modifiers & ClassFileConstants.AccStatic) != 0) break checkParameterizedAllocation;
+					if (currentType.isRawType()) break checkParameterizedAllocation;
+				} while ((currentType = currentType.enclosingType())!= null);
+				ParameterizedQualifiedTypeReference qRef = (ParameterizedQualifiedTypeReference) this.type;
+				for (int i = qRef.typeArguments.length - 2; i >= 0; i--) {
+					if (qRef.typeArguments[i] != null) {
+						scope.problemReporter().illegalQualifiedParameterizedTypeAllocation(this.type, this.resolvedType);
+						break;
+					}
+				}
+			}
 		}
-		// check for parameterized allocation deferred to below.
 	}
 	// will check for null after args are resolved
 
@@ -338,28 +350,6 @@ public TypeBinding resolveType(BlockScope scope) {
 			return this.resolvedType;
 		}
 	}
-	if (this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0) {
-		// Perform diamond inference here. (Not done yet.) 
-		this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);  // for now just do what we do for 1.6-
-	}
-	checkParameterizedAllocation: {
-		if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()
-			ReferenceBinding currentType = (ReferenceBinding)this.resolvedType;
-			if (currentType == null) return currentType;
-			do {
-				// isStatic() is answering true for toplevel types
-				if ((currentType.modifiers & ClassFileConstants.AccStatic) != 0) break checkParameterizedAllocation;
-				if (currentType.isRawType()) break checkParameterizedAllocation;
-			} while ((currentType = currentType.enclosingType())!= null);
-			ParameterizedQualifiedTypeReference qRef = (ParameterizedQualifiedTypeReference) this.type;
-			for (int i = qRef.typeArguments.length - 2; i >= 0; i--) {
-				if (qRef.typeArguments[i] != null) {
-					scope.problemReporter().illegalQualifiedParameterizedTypeAllocation(this.type, this.resolvedType);
-					break;
-				}
-			}
-		}
-	}
 	if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
 		return null;
 	}
@@ -423,17 +413,4 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 	}
 	visitor.endVisit(this, scope);
 }
-/**
- * @see org.eclipse.jdt.internal.compiler.ast.Expression#setExpectedType(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
- */
-public void setExpectedType(TypeBinding expectedType) {
-	this.expectedTypeForInference = expectedType;
-}
-/**
- * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#expectedType()
- */
-public TypeBinding expectedType() {
-	return this.expectedTypeForInference;
-}
-
 }

@@ -275,13 +275,29 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				// initialization of an enum constant
 				receiverType = scope.enclosingSourceType();
 			} else {
-				if ((this.type.bits & ASTNode.IsDiamond) == 0) {
-					receiverType = this.type.resolveType(scope, true /* check bounds*/);
-				} else {
-					// can be done only after type arguments and method arguments resolution
+				receiverType = this.type.resolveType(scope, true /* check bounds*/);
+				checkParameterizedAllocation: {
+					if (receiverType == null || !receiverType.isValidBinding()) break checkParameterizedAllocation;
+					if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()
+						ReferenceBinding currentType = (ReferenceBinding)receiverType;
+						do {
+							// isStatic() is answering true for toplevel types
+							if ((currentType.modifiers & ClassFileConstants.AccStatic) != 0) break checkParameterizedAllocation;
+							if (currentType.isRawType()) break checkParameterizedAllocation;
+						} while ((currentType = currentType.enclosingType())!= null);
+						ParameterizedQualifiedTypeReference qRef = (ParameterizedQualifiedTypeReference) this.type;
+						for (int i = qRef.typeArguments.length - 2; i >= 0; i--) {
+							if (qRef.typeArguments[i] != null) {
+								scope.problemReporter().illegalQualifiedParameterizedTypeAllocation(this.type, receiverType);
+								break;
+							}
+						}
+					}
 				}
-				// check for parameterized allocation deferred to below.
 			}
+		}
+		if (receiverType == null || !receiverType.isValidBinding()) {
+			hasError = true;
 		}
 
 		// resolve type arguments (for generic constructor call)
@@ -323,31 +339,6 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					hasError = true;
 				}
 			}
-		}
-		if (this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0) {
-			// Perform diamond inference here. (Not done yet.)
-			receiverType = this.type.resolveType(scope, true /* check bounds*/); // for now just do what we do for 1.6-
-		}	
-		checkParameterizedAllocation: {
-			if (receiverType == null || !receiverType.isValidBinding()) break checkParameterizedAllocation;
-			if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()
-				ReferenceBinding currentType = (ReferenceBinding)receiverType;
-				do {
-					// isStatic() is answering true for toplevel types
-					if ((currentType.modifiers & ClassFileConstants.AccStatic) != 0) break checkParameterizedAllocation;
-					if (currentType.isRawType()) break checkParameterizedAllocation;
-				} while ((currentType = currentType.enclosingType())!= null);
-				ParameterizedQualifiedTypeReference qRef = (ParameterizedQualifiedTypeReference) this.type;
-				for (int i = qRef.typeArguments.length - 2; i >= 0; i--) {
-					if (qRef.typeArguments[i] != null) {
-						scope.problemReporter().illegalQualifiedParameterizedTypeAllocation(this.type, receiverType);
-						break;
-					}
-				}
-			}
-		}
-		if (receiverType == null || !receiverType.isValidBinding()) {
-			hasError = true;
 		}
 
 		// limit of fault-tolerance
