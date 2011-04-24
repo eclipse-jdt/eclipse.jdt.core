@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
 public abstract class Scope {
@@ -4022,5 +4023,138 @@ public abstract class Scope {
 	// start position in this scope - for ordering scopes vs. variables
 	int startIndex() {
 		return 0;
+	}
+	/* Given an allocation type and arguments at the allocation site, answer a synthetic generic static factory method
+	   that could instead be invoked with identical results. Return null if no compatible, visible, most specific method
+	   could be found. This method is modeled after Scope.getConstructor and Scope.getMethod.
+	 */
+	public MethodBinding getStaticFactory (ReferenceBinding allocationType, TypeBinding[] argumentTypes, final InvocationSite allocationSite) {
+		TypeVariableBinding[] classTypeVariables = allocationType.typeVariables();
+		int classTypeVariablesArity = classTypeVariables.length;
+		MethodBinding[] methods = allocationType.getMethods(TypeConstants.INIT, argumentTypes.length);
+		MethodBinding [] staticFactories = new MethodBinding[methods.length];
+		int sfi = 0;
+		for (int i = 0, length = methods.length; i < length; i++) {
+			MethodBinding method = methods[i];
+			
+			TypeVariableBinding[] methodTypeVariables = method.typeVariables();
+			int methodTypeVariablesArity = methodTypeVariables.length;
+	        
+			final TypeBinding[] genericTypeArguments = allocationSite.genericTypeArguments();
+			if (genericTypeArguments != null && genericTypeArguments.length < methodTypeVariablesArity)
+				continue; // wrong tree, don't bark.
+			MethodBinding staticFactory = new MethodBinding(method.modifiers | ClassFileConstants.AccStatic, TypeConstants.SYNTHETIC_STATIC_FACTORY,
+																		null, null, null, method.declaringClass);
+			staticFactory.typeVariables = new TypeVariableBinding[classTypeVariablesArity + (genericTypeArguments == null ? methodTypeVariablesArity : 0)];
+			final SimpleLookupTable map = new SimpleLookupTable(classTypeVariablesArity + methodTypeVariablesArity);
+			// Rename each type variable T of the type to T'
+			final LookupEnvironment environment = environment();
+			for (int j = 0; j < classTypeVariablesArity; j++) {
+				map.put(classTypeVariables[j], staticFactory.typeVariables[j] = new TypeVariableBinding(CharOperation.concat(classTypeVariables[j].sourceName, "'".toCharArray()), //$NON-NLS-1$
+																			staticFactory, j, environment));
+			}
+			// Rename each type variable U of method U to U'' if not explicitly parameterized. Otherwise use the parameterizing type.
+			for (int j = classTypeVariablesArity, max = classTypeVariablesArity + methodTypeVariablesArity; j < max; j++) {
+				map.put(methodTypeVariables[j - classTypeVariablesArity], 
+						genericTypeArguments != null ? genericTypeArguments[j - classTypeVariablesArity] :
+							(staticFactory.typeVariables[j] = new TypeVariableBinding(CharOperation.concat(methodTypeVariables[j - classTypeVariablesArity].sourceName, "''".toCharArray()), //$NON-NLS-1$
+																			staticFactory, j, environment)));
+			}
+			final Scope scope = this;
+			Substitution substitution = new Substitution() {
+					public LookupEnvironment environment() {
+						return scope.environment();
+					}
+					public boolean isRawSubstitution() {
+						return false;
+					}
+					public TypeBinding substitute(TypeVariableBinding typeVariable) {
+						return (TypeBinding) map.get(typeVariable);
+					}
+				};
+
+			// initialize new variable bounds
+			for (int j = 0, max = classTypeVariablesArity + methodTypeVariablesArity; j < max; j++) {
+				TypeVariableBinding originalVariable = j < classTypeVariablesArity ? classTypeVariables[j] : methodTypeVariables[j - classTypeVariablesArity];
+				TypeBinding substitutedType = (TypeBinding) map.get(originalVariable);
+				if (substitutedType instanceof TypeVariableBinding) {
+					TypeVariableBinding substitutedVariable = (TypeVariableBinding) substitutedType;
+					TypeBinding substitutedSuperclass = Scope.substitute(substitution, originalVariable.superclass);
+					ReferenceBinding[] substitutedInterfaces = Scope.substitute(substitution, originalVariable.superInterfaces);
+					if (originalVariable.firstBound != null) {
+						substitutedVariable.firstBound = originalVariable.firstBound == originalVariable.superclass
+								? substitutedSuperclass // could be array type or interface
+										: substitutedInterfaces[0];
+					}
+					switch (substitutedSuperclass.kind()) {
+						case Binding.ARRAY_TYPE :
+							substitutedVariable.superclass = environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
+							substitutedVariable.superInterfaces = substitutedInterfaces;
+							break;
+						default:
+							if (substitutedSuperclass.isInterface()) {
+								substitutedVariable.superclass = environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
+								int interfaceCount = substitutedInterfaces.length;
+								System.arraycopy(substitutedInterfaces, 0, substitutedInterfaces = new ReferenceBinding[interfaceCount+1], 1, interfaceCount);
+								substitutedInterfaces[0] = (ReferenceBinding) substitutedSuperclass;
+								substitutedVariable.superInterfaces = substitutedInterfaces;
+							} else {
+								substitutedVariable.superclass = (ReferenceBinding) substitutedSuperclass; // typeVar was extending other typeVar which got substituted with interface
+								substitutedVariable.superInterfaces = substitutedInterfaces;
+							}
+					}
+				}
+			}
+		    TypeVariableBinding[] returnTypeParameters = new TypeVariableBinding[classTypeVariablesArity];
+			for (int j = 0; j < classTypeVariablesArity; j++) {
+				returnTypeParameters[j] = (TypeVariableBinding) map.get(classTypeVariables[j]);
+			}
+			staticFactory.returnType = environment.createParameterizedType(allocationType, returnTypeParameters, allocationType.enclosingType());
+			staticFactory.parameters = Scope.substitute(substitution, method.parameters);
+			staticFactory.thrownExceptions = Scope.substitute(substitution, method.thrownExceptions);
+			if (staticFactory.thrownExceptions == null) { 
+				staticFactory.thrownExceptions = Binding.NO_EXCEPTIONS;
+			}
+			staticFactories[sfi++] = new ParameterizedMethodBinding((ParameterizedTypeBinding) environment.convertToParameterizedType(staticFactory.declaringClass),
+																												staticFactory);
+		}
+		if (sfi != methods.length) {
+			System.arraycopy(staticFactories, 0, staticFactories = new MethodBinding[sfi], 0, sfi);
+		}
+		InvocationSite site = new InvocationSite() { // Alternate site to not expose the generic type arguments as they have already been substituted.
+			public int sourceStart() { return allocationSite.sourceStart(); }
+			public int sourceEnd() { return allocationSite.sourceEnd(); }
+			public void setFieldIndex(int depth) {	allocationSite.setFieldIndex(depth);	}
+			public void setDepth(int depth) { allocationSite.setDepth(depth);}
+			public void setActualReceiverType(ReferenceBinding receiverType) { allocationSite.setActualReceiverType(receiverType);}
+			public boolean isTypeAccess() { return allocationSite.isTypeAccess(); }
+			public boolean isSuperAccess() { return allocationSite.isSuperAccess(); }
+			public TypeBinding[] genericTypeArguments() { return null; }
+			public TypeBinding expectedType() { return allocationSite.expectedType(); }
+		};
+		MethodBinding[] compatible = new MethodBinding[sfi];
+		int compatibleIndex = 0;
+		for (int i = 0; i < sfi; i++) {
+			MethodBinding compatibleMethod = computeCompatibleMethod(staticFactories[i], argumentTypes, site);
+			if (compatibleMethod != null) {
+				if (compatibleMethod.isValidBinding())
+					compatible[compatibleIndex++] = compatibleMethod;
+			}
+		}
+
+		if (compatibleIndex == 0) {
+			return null;
+		}
+		MethodBinding[] visible = new MethodBinding[compatibleIndex];
+		int visibleIndex = 0;
+		for (int i = 0; i < compatibleIndex; i++) {
+			MethodBinding method = compatible[i];
+			if (method.canBeSeenBy(allocationSite, this))
+				visible[visibleIndex++] = method;
+		}
+		if (visibleIndex == 0) {
+			return null;
+		}
+		return visibleIndex == 1 ? visible[0] : mostSpecificMethodBinding(visible, visibleIndex, argumentTypes, allocationSite, allocationType);
 	}
 }

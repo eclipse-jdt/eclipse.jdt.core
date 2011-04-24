@@ -209,6 +209,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				return null;
 		}
 
+		final boolean isDiamond = (this.bits & ASTNode.IsDiamond) != 0;
 		TypeVariableBinding[] typeVariables = currentOriginal.typeVariables();
 		if (typeVariables == Binding.NO_TYPE_VARIABLES) { // non generic invoked with arguments
 			boolean isCompliant15 = scope.compilerOptions().originalSourceLevel >= ClassFileConstants.JDK1_5;
@@ -227,11 +228,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 			// if missing generic type, and compliance >= 1.5, then will rebuild a parameterized binding
 		} else if (argLength != typeVariables.length) {
-			if ((this.bits & ASTNode.IsDiamond) == 0) { // check arity, IsDiamond never set for 1.6-
+			if (!isDiamond) { // check arity, IsDiamond never set for 1.6-
 				scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
 				return null;
 			} 
-			checkBounds = false; // successful <> inference needs no bounds check, we will scream foul if needed during inference.
 		} else if (!currentType.isStatic()) {
 			ReferenceBinding actualEnclosing = currentType.enclosingType();
 			if (actualEnclosing != null && actualEnclosing.isRawType()){
@@ -242,11 +242,13 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		}
 
     	ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentOriginal, argTypes, enclosingType);
-		// check argument type compatibility
-		if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
-			parameterizedType.boundCheck(scope, this.typeArguments);
-		else
-			scope.deferBoundCheck(this);
+		// check argument type compatibility for non <> cases - <> case needs no bounds check, we will scream foul if needed during inference.
+    	if (!isDiamond) {
+    		if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
+    			parameterizedType.boundCheck(scope, this.typeArguments);
+    		else
+    			scope.deferBoundCheck(this);
+    	}
 		if (isTypeUseDeprecated(parameterizedType, scope))
 			reportDeprecatedType(parameterizedType, scope);
 

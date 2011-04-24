@@ -382,6 +382,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("CannotExtendEnum", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("CannotHideAnInstanceMethodWithAStaticMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("CannotImportPackage", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
+		expectedProblemAttributes.put("CannotInferElidedTypes", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("CannotInvokeSuperConstructorInEnum", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("CannotOverrideAStaticMethodWithAnInstanceMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("CannotReadSource", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1041,6 +1042,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("CannotExtendEnum", SKIP);
 		expectedProblemAttributes.put("CannotHideAnInstanceMethodWithAStaticMethod", SKIP);
 		expectedProblemAttributes.put("CannotImportPackage", SKIP);
+		expectedProblemAttributes.put("CannotInferElidedTypes", SKIP);
 		expectedProblemAttributes.put("CannotInvokeSuperConstructorInEnum", SKIP);
 		expectedProblemAttributes.put("CannotOverrideAStaticMethodWithAnInstanceMethod", SKIP);
 		expectedProblemAttributes.put("CannotReadSource", SKIP);

@@ -1379,6 +1379,8 @@ void setSourceStart(int sourceStart);
 	int PolymorphicMethodNotBelow17 = MethodRelated + 876;
 	/** @since 3.7 */
 	int IncorrectSwitchType17 = TypeRelated + 877;
+	/** @since 3.7 */
+	int CannotInferElidedTypes = TypeRelated + 878;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

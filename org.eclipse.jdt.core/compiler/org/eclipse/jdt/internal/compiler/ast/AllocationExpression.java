@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -33,6 +34,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
 	public FieldDeclaration enumConstant; // for enum constant initializations
+	protected TypeBinding typeExpected;	  // for <> inference
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	// check captured variables are initialized in current context (26134)
@@ -359,6 +361,10 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().cannotInstantiate(this.type, this.resolvedType);
 		return this.resolvedType;
 	}
+	if (this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0) {
+		TypeBinding [] inferredTypes = inferElidedTypes(((ParameterizedTypeBinding) this.resolvedType).genericType(), argumentTypes, scope);
+		this.resolvedType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) this.resolvedType).genericType(), inferredTypes, ((ParameterizedTypeBinding) this.resolvedType).enclosingType());
+ 	}
 	ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 	if (!(this.binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
 		if (this.binding.declaringClass == null) {
@@ -382,6 +388,25 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
 	}
 	return allocationType;
+}
+
+public TypeBinding[] inferElidedTypes(ReferenceBinding allocationType, TypeBinding[] argumentTypes, final BlockScope scope) {
+	/* Given the allocation type and the arguments to the constructor, see if we can synthesize a generic static factory
+	   method that would, given the argument types and the invocation site, manufacture a parameterized object of type allocationType.
+	   If we are successful then by design and construction, the parameterization of the return type of the factory method is identical
+	   to the types elided in the <>.
+	 */   
+	MethodBinding factory = scope.getStaticFactory(allocationType, argumentTypes, this);
+	if (factory instanceof ParameterizedGenericMethodBinding && factory.isValidBinding()) {
+		return ((ParameterizedTypeBinding)factory.returnType).arguments;
+	}
+	scope.problemReporter().cannotInferElidedTypes(this);
+	int arity = allocationType.typeVariables().length;
+	TypeBinding [] inferredTypes = new TypeBinding[arity];
+	for (int i = 0; i < arity; i++) {
+		inferredTypes[i] = new ProblemReferenceBinding(CharOperation.NO_CHAR_CHAR, null, ProblemReasons.InferenceFailed);
+	}
+	return inferredTypes;
 }
 
 public void setActualReceiverType(ReferenceBinding receiverType) {
@@ -413,4 +438,17 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 	}
 	visitor.endVisit(this, scope);
 }
+/**
+ * @see org.eclipse.jdt.internal.compiler.ast.Expression#setExpectedType(org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
+ */
+public void setExpectedType(TypeBinding expectedType) {
+	this.typeExpected = expectedType;
+}
+/**
+ * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#expectedType()
+ */
+public TypeBinding expectedType() {
+	return this.typeExpected;
+}
+
 }

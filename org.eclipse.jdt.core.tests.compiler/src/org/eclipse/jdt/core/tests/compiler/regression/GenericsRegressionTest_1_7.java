@@ -28,7 +28,7 @@ public GenericsRegressionTest_1_7(String name) {
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_7);
 }
-public void _test001() {
+public void test001() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -44,7 +44,7 @@ public void _test001() {
 		},
 		"SUCCESS");
 }
-public void _test001a() {
+public void test001a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -65,7 +65,7 @@ public void _test001a() {
 		"The method testFunction(String) in the type X<String> is not applicable for the arguments (int)\n" + 
 		"----------\n");
 }
-public void _test001b() {
+public void test001b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -80,7 +80,7 @@ public void _test001b() {
 		"SUCCESS");
 }
 // fields
-public void _test001b_1() {
+public void test001b_1() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -94,7 +94,7 @@ public void _test001b_1() {
 		},
 		"SUCCESS");
 }
-public void _test001c() {
+public void test001c() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -114,7 +114,7 @@ public void _test001c() {
 		"----------\n");
 }
 // fields
-public void _test001c_1() {
+public void test001c_1() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -133,7 +133,7 @@ public void _test001c_1() {
 		"The method add(int, String) in the type ArrayList<String> is not applicable for the arguments (int)\n" + 
 		"----------\n");
 }
-public void _test001d() {
+public void test001d() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -155,7 +155,7 @@ public void _test001d() {
 		"The method ab(ArrayList<String>) in the type X<String> is not applicable for the arguments (ArrayList<Object>)\n" + 
 		"----------\n");
 }
-public void _test001e() {
+public void test001e() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -177,8 +177,8 @@ public void _test001e() {
 		"The method ab(ArrayList<String>) in the type X<String> is not applicable for the arguments (ArrayList<Object>)\n" + 
 		"----------\n");
 }
-public void _test001f() {
-	this.runConformTest(
+public void test001f() {
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
@@ -193,7 +193,17 @@ public void _test001f() {
 			"	}\n" +
 			"}",
 		},
-		"SUCCESS");
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	class X2<T>{\n" + 
+		"	         ^\n" + 
+		"The type parameter T is hiding the type T\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	X<String>.X2<String> x = new X<>().new X2<>();\n" + 
+		"	                         ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Object>.X2<String> to X<String>.X2<String>\n" + 
+		"----------\n");
 }
 // fields
 public void test001f_1() {
@@ -216,8 +226,8 @@ public void test001f_1() {
 		},
 		"SUCCESS");
 }
-public void _test001g() {
-	this.runConformTest(
+public void test001g() {
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
@@ -233,7 +243,12 @@ public void _test001g() {
 			"	}\n" +
 			"}",
 		},
-		"SUCCESS\n1");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	X<String>.X2<Integer> x = new X<>().new X2<>();\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Object>.X2<Integer> to X<String>.X2<Integer>\n" + 
+		"----------\n");
 }
 public void test001g_1() {
 	this.runConformTest(
@@ -256,7 +271,7 @@ public void test001g_1() {
 		},
 		"SUCCESS\n1");
 }
-public void _test001h() {
+public void test001h() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -278,13 +293,18 @@ public void _test001h() {
 		"	         ^\n" + 
 		"The type parameter T is hiding the type T\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	X<String>.X2<String> x = new X<>().new X2<>();\n" + 
+		"	                         ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Object>.X2<String> to X<String>.X2<String>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
 		"	x.methodx(1);\n" + 
 		"	  ^^^^^^^\n" + 
 		"The method methodx(String) in the type X<String>.X2<String> is not applicable for the arguments (int)\n" + 
 		"----------\n");
 }
-public void _test001h_1() {
+public void test001h_1() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -329,8 +349,28 @@ public void _test001h_1() {
 		"Type safety: The method methodx(Object) belongs to the raw type X.X2. References to generic type X<T>.X2<T> should be parameterized\n" + 
 		"----------\n");
 }
-public void _test001i() {
+public void test001h_2() {
 	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	class X2<T>{\n" +
+			"		void methodx(T param){\n" +
+			"			System.out.println(param);\n" +
+			"		}\n" +
+			"	}\n" +
+			"	X<String>.X2<String> x;\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		X test = new X();\n" + 
+			"		test.x = new X<>().new X2<>();\n" + 
+			"		test.x.methodx(1);\n" + 
+			"	}\n" +
+			"}",
+		},
+		"1");
+}
+public void test001i() {
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
@@ -348,7 +388,12 @@ public void _test001i() {
 			"	}\n" +
 			"}",
 		},
-		"SUCCESS");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	X<String> test = new X<>();		X<String>.X2<Integer>.X22<X<String>> x = new X<>().new X2<>().new X22<>();\n" + 
+		"	                           		                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Object>.X2<Object>.X22<X<String>> to X<String>.X2<Integer>.X22<X<String>>\n" + 
+		"----------\n");
 }
 public void test002() {
 	this.runNegativeTest(
@@ -376,7 +421,7 @@ public void test002() {
 		"Type safety: The method testFunction(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
 		"----------\n");
 }
-public void _test003() {
+public void test003() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -392,7 +437,7 @@ public void _test003() {
 		"SUCCESS");
 }
 
-public void _test004b() {
+public void test004b() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -437,7 +482,7 @@ public void test004c() {
 		"1");
 }
 
-public void _test006() {
+public void test006() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -460,7 +505,7 @@ public void _test006() {
 		"SUCCESS");
 }
 // shows the difference between using <> and the raw type - different semantics
-public void _test007() {
+public void test007() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -487,7 +532,7 @@ public void _test007() {
 		"1\n" + 
 		"2");
 }
-public void _test007a() {
+public void test007a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -529,12 +574,12 @@ public void _test007a() {
 		"----------\n");
 }
 //shows the difference between using <> and the raw type - different semantics
-public void _test008() {
-	this.runConformTest(
+public void test008() {
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
-			"	T field1;" +
+			"	T field1;\n" +
 			"	public X(T param){\n" +
 			"		field1 = param;\n" +
 			"	}\n" +
@@ -547,10 +592,30 @@ public void _test008() {
 			"	}\n" + 
 			"}",
 		},
-		"");
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	X<?> x1 = new X(1).get(\"\");\n" + 
+		"	          ^^^^^^^^\n" + 
+		"Type safety: The constructor X(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	X<?> x1 = new X(1).get(\"\");\n" + 
+		"	          ^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method get(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 7)\n" + 
+		"	X<?> x1 = new X(1).get(\"\");\n" + 
+		"	              ^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	X<?> x2 = new X<>(1).get(\"\");\n" + 
+		"	                     ^^^\n" + 
+		"The method get(Integer) in the type X<Integer> is not applicable for the arguments (String)\n" + 
+		"----------\n");
 }
 
-public void _test0014() {
+public void test0014() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -568,7 +633,7 @@ public void _test0014() {
 		"SUCCESS\n" +
 		"123");
 }
-public void _test0014a() {
+public void test0014a() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -590,7 +655,7 @@ public void _test0014a() {
 		"The method testFunction(String, Integer) in the type X<String,Integer> is not applicable for the arguments (int, String)\n" + 
 		"----------\n");
 }
-public void _test0015() {
+public void test0015() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -611,8 +676,8 @@ public void _test0015() {
 }
 // To verify that a parameterized invocation of a generic constructor works even if <> is used
 // to elide class type parameters.
-public void _test0016() {
-	this.runConformTest(
+public void test0016() {
+	this.runConformTest(  // javac fails to compile this, looks buggy
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
@@ -632,8 +697,8 @@ public void _test0016() {
 }
 // To verify that a parameterized invocation of a generic constructor works even if <> is used
 // to elide class type parameters. This test handles fields
-public void _test0016b() {
-	this.runConformTest(
+public void test0016b() {
+	this.runConformTest(  // javac fails to compile this, looks buggy
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
@@ -657,8 +722,8 @@ public void _test0016b() {
 // To verify that a parameterized invocation of a non-generic constructor works even if <> is used
 // to elide class type parameters.
 // This was not allowed in java 1.6 and 1.5 (https://bugs.eclipse.org/bugs/show_bug.cgi?id=168230)
-public void _test0017() {
-	this.runConformTest(
+public void test0017() {
+	this.runConformTest( // javac fails to compile this, looks buggy
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
@@ -679,7 +744,7 @@ public void _test0017() {
 		"const.1\nconst.1\nconst.2");
 }
 // To verify that the correct constructor is found by parameter substitution in the diamond case
-public void _test0018() {
+public void test0018() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -700,7 +765,7 @@ public void _test0018() {
 }
 // To verify that the correct constructor is found by parameter substitution 
 // in the diamond case -- fields
-public void _test0018b() {
+public void test0018b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -738,7 +803,7 @@ public void test0019() {
 		"----------\n");
 }
 // check inference at method argument position.
-public void _test0020() {
+public void test0020() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -757,7 +822,7 @@ public void _test0020() {
 		"----------\n");
 }
 //check inference at method argument position.
-public void _test0021() {
+public void test0021() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

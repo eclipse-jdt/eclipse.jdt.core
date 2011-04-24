@@ -253,7 +253,6 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes, i);
 						return null;
 					}
-					checkBounds = false; // successful <> inference needs no bounds check, we will scream foul if needed during inference.
 				}
 				// check parameterizing non-static member type of raw type
 				if (typeIsConsistent && !currentType.isStatic()) {
@@ -265,11 +264,13 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					}
 				}
 				ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentOriginal, argTypes, qualifyingType);
-				// check argument type compatibility
-				if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
-					parameterizedType.boundCheck(scope, args);
-				else
-					scope.deferBoundCheck(this);
+				// check argument type compatibility for non <> cases - <> case needs no bounds check, we will scream foul if needed during inference.
+				if (!isDiamond) {
+					if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
+						parameterizedType.boundCheck(scope, args);
+					else
+						scope.deferBoundCheck(this);
+				}
 				qualifyingType = parameterizedType;
 		    } else {
 				ReferenceBinding currentOriginal = (ReferenceBinding)currentType.original();

@@ -31,4 +31,5 @@ public interface ProblemReasons {
 	final int TypeArgumentsForRawGenericMethod = 13; // for generic method
 	final int InvalidTypeForStaticImport = 14;
 	final int InvalidTypeForAutoManagedResource = 15;
+	final int InferenceFailed = 16;
 }

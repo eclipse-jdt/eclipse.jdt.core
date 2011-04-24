@@ -7748,4 +7748,12 @@ public void autoManagedResourcesNotBelow17(LocalDeclaration[] resources) {
 			resources[0].declarationSourceStart,
 			resources[resources.length - 1].declarationSourceEnd);
 }
+public void cannotInferElidedTypes(AllocationExpression allocationExpression) {
+	this.handle(
+			IProblem.CannotInferElidedTypes,
+			NoArgument,
+			NoArgument,
+			allocationExpression.sourceStart, 
+			allocationExpression.sourceEnd);
+}
 }
