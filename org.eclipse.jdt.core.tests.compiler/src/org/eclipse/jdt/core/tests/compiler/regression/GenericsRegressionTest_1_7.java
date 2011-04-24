@@ -841,6 +841,109 @@ public void test0021() {
 		"The method f(List<String>) in the type X<T> is not applicable for the arguments (ArrayList<Object>)\n" + 
 		"----------\n");
 }
+public void test0022() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.HashMap;\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"class StringKeyHashMap<V> extends HashMap<String, V>  {  \n" +
+			"}\n" +
+			"\n" +
+			"class IntegerValueHashMap<K> extends HashMap<K, Integer>  {  \n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"    Map<String, Integer> m1 = new StringKeyHashMap<>();\n" +
+			"    Map<String, Integer> m2 = new IntegerValueHashMap<>();\n" +
+			"}\n"
+		},
+		"");
+}
+public void test0023() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.HashMap;\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"class StringKeyHashMap<V> extends HashMap<String, V>  {  \n" +
+			"}\n" +
+			"\n" +
+			"class IntegerValueHashMap<K> extends HashMap<K, Integer>  {  \n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"    Map<String, Integer> m1 = new StringKeyHashMap<>(10);\n" +
+			"    Map<String, Integer> m2 = new IntegerValueHashMap<>();\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	class StringKeyHashMap<V> extends HashMap<String, V>  {  \n" + 
+		"	      ^^^^^^^^^^^^^^^^\n" + 
+		"The serializable class StringKeyHashMap does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	class IntegerValueHashMap<K> extends HashMap<K, Integer>  {  \n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The serializable class IntegerValueHashMap does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	Map<String, Integer> m1 = new StringKeyHashMap<>(10);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	Map<String, Integer> m1 = new StringKeyHashMap<>(10);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor StringKeyHashMap<>(int) is undefined\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 11)\n" + 
+		"	Map<String, Integer> m1 = new StringKeyHashMap<>(10);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from StringKeyHashMap<> to Map<String,Integer>\n" + 
+		"----------\n");
+}
+// check inference at return expression.
+public void test0024() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"class X<T> {\n" +
+			"  public X() {}\n" +
+			"  X<String> f(List<String> p) {return new X<>();}\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	import java.util.ArrayList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The import java.util.ArrayList is never used\n" + 
+		"----------\n");
+}
+// check inference at cast expression.
+public void test0025() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"class X<T> {\n" +
+			"  public X() {}\n" +
+			"  void f(List<String> p) { Object o = (X<String>) new X<>();}\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	void f(List<String> p) { Object o = (X<String>) new X<>();}\n" + 
+		"	                                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from X<Object> to X<String>\n" + 
+		"----------\n");
+}
 
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
