@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for Bug 343713 - [compiler] bogus line number in constructor of inner class in 1.5 compliance
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -335,6 +336,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 
 		if (needFieldInitializations && preInitSyntheticFields){
 			generateSyntheticFieldInitializationsIfNecessary(this.scope, codeStream, declaringClass);
+			codeStream.recordPositionsFrom(0, this.bodyStart);
 		}
 		// generate constructor call
 		if (this.constructorCall != null) {
