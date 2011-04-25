@@ -430,4 +430,20 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		typeBinding = typeBinding.getGenericTypeOfWildcardType();
 		assertNull("This should be null for intersection type", typeBinding);
 	}
+	/*
+	 * Binary literals with underscores
+	 */
+	public void test0012() throws JavaModelException {
+		AST localAst= AST.newAST(AST.JLS4);
+		NumberLiteral literal= localAst.newNumberLiteral();
+		try {
+			literal.setToken("0b1010");
+			literal.setToken("0xCAFE_BABE");
+			literal.setToken("01_234");
+			literal.setToken("1_234");
+			literal.setToken("0b1_01_0");
+		} catch(IllegalArgumentException e) {
+			assertTrue("Should not happen", false);
+		}
+	}
 }

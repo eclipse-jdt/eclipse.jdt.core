@@ -648,22 +648,34 @@ public final class AST {
 		switch(level) {
 			case JLS2_INTERNAL :
 			case JLS3 :
+				this.apiLevel = level;
+				// initialize a scanner
+				this.scanner = new Scanner(
+						true /*comment*/,
+						true /*whitespace*/,
+						false /*nls*/,
+						ClassFileConstants.JDK1_3 /*sourceLevel*/,
+						ClassFileConstants.JDK1_5 /*complianceLevel*/,
+						null/*taskTag*/,
+						null/*taskPriorities*/,
+						true/*taskCaseSensitive*/);
+				break;
 			case JLS4 :
+				this.apiLevel = level;
+				// initialize a scanner
+				this.scanner = new Scanner(
+						true /*comment*/,
+						true /*whitespace*/,
+						false /*nls*/,
+						ClassFileConstants.JDK1_7 /*sourceLevel*/,
+						ClassFileConstants.JDK1_7 /*complianceLevel*/,
+						null/*taskTag*/,
+						null/*taskPriorities*/,
+						true/*taskCaseSensitive*/);
 				break;
 			default:
 				throw new IllegalArgumentException("Unsupported JLS level"); //$NON-NLS-1$
 		}
-		this.apiLevel = level;
-		// initialize a scanner
-		this.scanner = new Scanner(
-				true /*comment*/,
-				true /*whitespace*/,
-				false /*nls*/,
-				ClassFileConstants.JDK1_3 /*sourceLevel*/,
-				ClassFileConstants.JDK1_5 /*complianceLevel*/,
-				null/*taskTag*/,
-				null/*taskPriorities*/,
-				true/*taskCaseSensitive*/);
 	}
 
 	/**
