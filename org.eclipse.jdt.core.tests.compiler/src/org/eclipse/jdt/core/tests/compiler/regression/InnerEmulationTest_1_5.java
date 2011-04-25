@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 IBM Corporation and others.
+ * Copyright (c) 2009, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for Bug 343713 - [compiler] bogus line number in constructor of inner class in 1.5 compliance
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -285,6 +286,41 @@ public void test13() throws Exception {
 		"    [inner class info: #3 p/C$D, outer class info: #22 p/C\n" + 
 		"     inner name: #24 D, accessflags: 8 static]\n";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p" + File.separator + "X.class", "X", expectedOutput);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343713
+// [compiler] bogus line number in constructor of inner class in 1.5 compliance
+public void test14() throws Exception {
+	runConformTest(new String[] {
+		"LineNumberBug.java",
+		"public class LineNumberBug {\n" + 
+		"    class Inner {\n" + 
+		"		public Inner() {\n" + 
+		"			System.out.println(\"Inner()\");\n" + 
+		"		}\n" + 
+		"    }\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		new LineNumberBug().new Inner();\n" + 
+		"	}\n" + 
+		"}\n"
+	});
+	String expectedOutput =
+		"  // Method descriptor #8 (LLineNumberBug;)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  public LineNumberBug$Inner(LineNumberBug arg0);\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  aload_1 [arg0]\n" + 
+		"     2  putfield LineNumberBug$Inner.this$0 : LineNumberBug [10]\n" + 
+		"     5  aload_0 [this]\n" + 
+		"     6  invokespecial java.lang.Object() [12]\n" + 
+		"     9  getstatic java.lang.System.out : java.io.PrintStream [15]\n" + 
+		"    12  ldc <String \"Inner()\"> [21]\n" + 
+		"    14  invokevirtual java.io.PrintStream.println(java.lang.String) : void [23]\n" + 
+		"    17  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 9, line: 4]\n" +
+		"        [pc: 17, line: 5]\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "LineNumberBug$Inner.class", "LineNumberBug$Inner", expectedOutput);	
 }
 public static Class testClass() {
 	return InnerEmulationTest_1_5.class;
