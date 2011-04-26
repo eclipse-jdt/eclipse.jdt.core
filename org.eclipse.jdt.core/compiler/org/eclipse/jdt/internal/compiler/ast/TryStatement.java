@@ -483,10 +483,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				if ((this.bits & ASTNode.IsTryBlockExiting) == 0) {
 					// inline resource closure
 					if (i > 0) {
+						int invokeCloseStartPc = codeStream.position; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343785
 						codeStream.load(localVariable);
 				    	codeStream.ifnull(exitLabel);
 				    	codeStream.load(localVariable);
 				    	codeStream.invokeAutoCloseableClose(localVariable.type);
+				    	codeStream.recordPositionsFrom(invokeCloseStartPc, this.tryBlock.sourceEnd);	
 				    }
 					codeStream.goto_(exitLabel); // skip over the catch block.
 				}
@@ -516,10 +518,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				if (i > 0) {
 					// inline resource close here rather than bracketing the current catch block with a try region.
 					BranchLabel postCloseLabel = new BranchLabel(codeStream);
+					int invokeCloseStartPc = codeStream.position; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343785			
 					codeStream.load(localVariable);
 					codeStream.ifnull(postCloseLabel);
 					codeStream.load(localVariable);
 					codeStream.invokeAutoCloseableClose(localVariable.type);
+					codeStream.recordPositionsFrom(invokeCloseStartPc, this.tryBlock.sourceEnd);
 					codeStream.removeVariable(localVariable);
 					postCloseLabel.place();
 				}
@@ -787,10 +791,12 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 			this.resourceExceptionLabels[i].placeEnd();
 			LocalVariableBinding localVariable = this.resources[i-1].binding;
 			BranchLabel exitLabel = new BranchLabel(codeStream);
+			int invokeCloseStartPc = codeStream.position; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343785
 			codeStream.load(localVariable);
 			codeStream.ifnull(exitLabel);
 			codeStream.load(localVariable);
 			codeStream.invokeAutoCloseableClose(localVariable.type);
+			codeStream.recordPositionsFrom(invokeCloseStartPc, this.tryBlock.sourceEnd);
 			exitLabel.place();
 		}
 		// Reinstall handlers

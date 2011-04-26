@@ -3192,6 +3192,35 @@ public void test050() {
 		"java.lang.Exception: E::~E\n" + 
 		"All done");
 }
+public void test051() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+					"    public static void main(String[] args) throws Throwable {\n" +
+					"        try (Test t = new Test()) {\n" +
+					"            for (int i = 0; i < 10; i++) {\n" +
+					"            }\n" +
+					"\n" +
+					"\n" +
+					"        } \n" +
+					"\n" +
+					"        catch (Exception e) {\n" +
+					"            StackTraceElement t = e.getStackTrace()[1];\n" +
+					"            String file = t.getFileName();\n" +
+					"            int line = t.getLineNumber();\n" +
+					"            System.out.println(\"File = \" + file + \" \" + \"line = \" + line);\n" +
+					"        }\n" +
+					"    }\n" +
+					"}\n" +
+					"class Test implements AutoCloseable {\n" +
+					"    public void close() throws Exception {\n" +
+					"        throw new Exception();\n" +
+					"    }\n" +
+					"}\n"
+		},
+		"File = X.java line = 8");
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }
