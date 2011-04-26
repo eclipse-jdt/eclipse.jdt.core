@@ -944,6 +944,51 @@ public void test0025() {
 		"Cannot cast from X<Object> to X<String>\n" + 
 		"----------\n");
 }
+// Test various scenarios.
+public void test0026() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"public class X<T> {\n" +
+			"	X(T t) {}\n" +
+			"   X(String s) {}\n" +
+			"   X(List<?> l) {}\n" +
+			"   X<T> idem() { return this; }\n" +
+			"   X<Number> x = new X<>(1);\n" +
+			"   X<Integer> x2 = new X<>(1);\n" +
+			"   List<?> list = new ArrayList<>();\n" +
+			"   X<?> x3 = new X<>(1);\n" +
+			"   X<Object> x4 = new X<>(1).idem();\n" +
+			"   X<Object> x5 = new X<>(1);\n" +
+			"   int m(X<String> xs) { return 0; }\n" +
+			"   int i = m(new X<>(\"\"));\n" +
+			"   X<?> x6 = new X<>(list);\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	X<Number> x = new X<>(1);\n" + 
+		"	              ^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Integer> to X<Number>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 12)\n" + 
+		"	X<Object> x4 = new X<>(1).idem();\n" + 
+		"	               ^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Integer> to X<Object>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
+		"	X<Object> x5 = new X<>(1);\n" + 
+		"	               ^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Integer> to X<Object>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 15)\n" + 
+		"	int i = m(new X<>(\"\"));\n" + 
+		"	        ^\n" + 
+		"The method m(X<String>) in the type X<T> is not applicable for the arguments (X<Object>)\n" + 
+		"----------\n");
+}
 
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
