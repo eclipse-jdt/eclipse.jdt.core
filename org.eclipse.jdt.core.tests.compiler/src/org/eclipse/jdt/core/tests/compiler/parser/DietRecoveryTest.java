@@ -4661,23 +4661,15 @@ public void test75() {
 
 	String expectedCompletionDietUnitToString =
 		"package ZKentTest;\n" +
-		"import java.awt.color.*;\n" + 
-		"public class A {\n" + 
-		"  int[] ii;\n" + 
-		"  public A() {\n" + 
-		"  }\n" + 
-		"  A foo(int i) {\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"class Local {\n" + 
-		"  Local() {\n" + 
-		"  }\n" + 
-		"  int hello() {\n" + 
-		"  }\n" + 
-		"  int world() {\n" + 
-		"  }\n" + 
-		"  void foo() {\n" + 
-		"  }\n" + 
+		"import java.awt.color.*;\n" +
+		"public class A {\n" +
+		"  int[] ii;\n" +
+		"  public A() {\n" +
+		"  }\n" +
+		"  A foo(int i) {\n" +
+		"  }\n" +
+		"  int bar() {\n" +
+		"  }\n" +
 		"}\n";
 
 	String testName = "<bunch of syntax errors>";
