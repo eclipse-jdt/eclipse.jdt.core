@@ -223,8 +223,8 @@ public final class CompilationUnitSorter {
      * representing body declarations at the same level. The nodes are from an
      * AST of the specified level
      * ({@link org.eclipse.jdt.core.dom.ASTParser#newParser(int)}. Clients
-     * will generally specify {@link AST#JLS4 AST.JLS4} since that will cover all
-     * constructs found in Java up to 1.7 source code.
+     * will generally specify the latest available <code>{@link AST}.JLS*</code> constant since that will
+     * cover all constructs found in all version of Java source code.
      * The comparator is called on body declarations of nested classes, including
      * anonymous and local classes, but always at the same level. Clients need to provide
      * a comparator implementation (there is no standard comparator). The
@@ -289,7 +289,7 @@ public final class CompilationUnitSorter {
      * non-recursive sorting, etc.)
      * </p>
      *
-     * @param level the AST level; one of the AST LEVEL constants
+     * @param level the AST level; one of the <code>{@link AST}.JLS*</code> constants
      * @param compilationUnit the given compilation unit, which must be a
      * working copy
      * @param positions an array of source positions to map, or
