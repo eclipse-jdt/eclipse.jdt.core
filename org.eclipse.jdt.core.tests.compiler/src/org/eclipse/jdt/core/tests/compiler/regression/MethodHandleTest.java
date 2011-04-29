@@ -89,4 +89,34 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			"foo:3\n" +
 			"bar");
 	}
+	public void test002() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.invoke.MethodType;\n" + 
+				"import java.lang.invoke.WrongMethodTypeException;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void foo() {\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			MethodHandle handle = MethodHandles.lookup().findStatic(X.class, \"foo\", MethodType.methodType(void.class));\n" + 
+				"			try {\n" + 
+				"				handle.invokeGeneric(null);\n" + 
+				"			} catch (WrongMethodTypeException ok) {\n" + 
+				"				System.out.println(\"This is ok\");\n" + 
+				"			} catch (Throwable e) {\n" + 
+				"				e.printStackTrace();\n" + 
+				"			}\n" + 
+				"		} catch (Throwable e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"This is ok");
+	}
 }

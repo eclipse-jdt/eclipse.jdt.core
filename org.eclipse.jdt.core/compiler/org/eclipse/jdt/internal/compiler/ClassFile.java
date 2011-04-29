@@ -3817,7 +3817,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					i++;
 					break;
 				default:
-					throw new IllegalArgumentException();
+					throw new IllegalArgumentException("Invalid starting type character : " + currentCharacter); //$NON-NLS-1$
 			}
 		}
 	}

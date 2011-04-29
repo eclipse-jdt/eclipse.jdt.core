@@ -833,7 +833,12 @@ public MethodBinding createPolymorphicMethod(MethodBinding originalMethod, TypeB
 	int parametersLength = parameters == null ? 0: parameters.length;
 	TypeBinding[] parametersTypeBinding = new TypeBinding[parametersLength]; 
 	for (int i = 0; i < parametersLength; i++) {
-		parametersTypeBinding[i] = parameters[i].erasure();
+		TypeBinding parameterTypeBinding = parameters[i];
+		if (parameterTypeBinding.id == TypeIds.T_null) {
+			parametersTypeBinding[i] = getType(JAVA_LANG_VOID);
+		} else {
+			parametersTypeBinding[i] = parameterTypeBinding.erasure();
+		}
 	}
 	boolean needToGrow = false;
 	int index = 0;
