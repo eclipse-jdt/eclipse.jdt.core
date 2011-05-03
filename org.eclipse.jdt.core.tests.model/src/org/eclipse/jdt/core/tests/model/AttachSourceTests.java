@@ -30,6 +30,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
@@ -606,6 +607,33 @@ public void testZIPArchive4() throws CoreException {
 	}
 }
 /*
+ * Test that a path must have at least one segment
+ */
+public void test264301() throws CoreException {
+	String os = Platform.getOS();
+	if (!Platform.OS_WIN32.equals(os)) {
+		return;
+	}
+
+	try {
+		IJavaProject javaProject = createJavaProject("Test", new String[]{""}, new String[]{"/AttachSourceTests/test.jar"}, "");
+		createFolder("/Test/test1");
+		createFile("/Test/test1/Test.java",
+			"package test1;\n" +
+			"\n" +
+			"public class Test {}");
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(getFile("/AttachSourceTests/test.jar"));
+		try {
+			attachSource(root, "C:/", null);
+			assertTrue("Should not be there", false);
+		} catch(JavaModelException e) {
+			// expected exception
+		}
+	} finally {
+		deleteProject("Test");
+	}
+}
+/*
  * Ensures that the source of a generic method can be retrieved.
  */
 public void testGeneric1() throws JavaModelException {
@@ -985,7 +1013,6 @@ public void testInnerClass9() throws JavaModelException {
 		type.getSource());
 	attachSource(root, null, null); // detach source
 }
-
 /**
  * Ensures that a source folder can be attached to a lib folder.
  */

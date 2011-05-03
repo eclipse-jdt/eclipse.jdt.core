@@ -91,7 +91,8 @@ public class ExternalFoldersManager {
 	public static boolean isExternalFolderPath(IPath externalPath) {
 		if (externalPath == null)
 			return false;
-		if (ResourcesPlugin.getWorkspace().getRoot().getProject(externalPath.segment(0)).exists())
+		String firstSegment = externalPath.segment(0);
+		if (firstSegment != null && ResourcesPlugin.getWorkspace().getRoot().getProject(firstSegment).exists())
 			return false;
 		File externalFolder = externalPath.toFile();
 		if (externalFolder.isFile())
