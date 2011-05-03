@@ -119,4 +119,136 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			},
 			"This is ok");
 	}
+	public void test003() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.invoke.MethodType;\n" + 
+				"import java.lang.invoke.WrongMethodTypeException;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static <T> T foo(T param){\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			MethodHandle handle = MethodHandles.lookup().findStatic(X.class, \"foo\", MethodType.methodType(Object.class, Object.class));\n" + 
+				"			try {\r\n" + 
+				"				handle.invokeGeneric(null);\r\n" + 
+				"			} catch (Throwable e) {\r\n" + 
+				"				e.printStackTrace();\r\n" + 
+				"			}\r\n" + 
+				"		} catch (Throwable e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"");
+	}
+	public void test004() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.invoke.MethodType;\n" + 
+				"import java.lang.invoke.WrongMethodTypeException;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static <T> T foo(T param){\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			MethodHandle handle = MethodHandles.lookup().findStatic(X.class, \"foo\", MethodType.methodType(Object.class, Object.class));\n" + 
+				"			try {\n" + 
+				"				handle.invokeGeneric(new Object());\n" + 
+				"			} catch (Throwable e) {\n" + 
+				"				e.printStackTrace();\n" + 
+				"			}\n" + 
+				"		} catch (Throwable e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"");
+	}
+	public void test005() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.invoke.MethodType;\n" + 
+				"import java.lang.invoke.WrongMethodTypeException;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static <T> T foo(T param){\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			MethodHandle handle = MethodHandles.lookup().findStatic(X.class, \"foo\", MethodType.methodType(Object.class, Object.class));\n" + 
+				"			try {\n" + 
+				"				Object o = handle.invokeGeneric(new Object());\n" + 
+				"			} catch (Throwable e) {\n" + 
+				"				e.printStackTrace();\n" + 
+				"			}\n" + 
+				"		} catch (Throwable e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"");
+	}
+	public void test006() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.invoke.MethodType;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) throws Throwable {\n" + 
+				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" + 
+				"\n" + 
+				"		MethodType mt = MethodType.methodType(String.class, String.class, char.class);\n" + 
+				"		MethodHandle mh = lookup.findStatic(X.class, \"append\", mt);\n" + 
+				"		String s = (String) mh.invokeExact(\"follo\",'w');\n" + 
+				"		System.out.println(s);\n" + 
+				"\n" + 
+				"		MethodType mt2 = MethodType.methodType(String.class, String.class, char.class);\n" + 
+				"		MethodHandle mh2 = lookup.findStatic(X.class, \"append\", mt2);\n" + 
+				"		mh2.invokeExact(\"follo\",'w');\n" + 
+				"	}\n" +
+				"	public static void bar() {\n" + 
+				"		System.out.println(\"bar\");\n" + 
+				"	}\n" +
+				"	public Object foo(String s, int i) {\n" + 
+				"		System.out.println(s + i);\n" + 
+				"		return s + i;\n" + 
+				"	}\n" +
+				"	public static String append(String s, char c) {\n" + 
+				"		return s + c;\n" + 
+				"	}\n" +
+				"	public int arrayLength(Object[] array) {\n" + 
+				"		return array.length;\n" + 
+				"	}\n" + 
+				"	public static void hello(String name) {\n" + 
+				"		System.out.println(\"Hello, \"+ name);\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"follow\n" + 
+			"3\n" + 
+			"Hello, world\n" + 
+			"foo:3\n" +
+			"bar");
+	}
 }

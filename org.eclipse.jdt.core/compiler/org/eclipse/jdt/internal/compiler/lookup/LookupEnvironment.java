@@ -854,6 +854,17 @@ public MethodBinding createPolymorphicMethod(MethodBinding originalMethod, TypeB
 				for (int j = 0; j < cachedParametersLength; j++){
 					if (parametersTypeBinding[j] != cachedParameters[j]) continue nextCachedMethod;
 				}
+				TypeBinding cachedReturnType = cachedMethod.returnType;
+				TypeBinding returnType = originalMethod.returnType;
+				if (returnType == null) {
+					if (cachedReturnType != null) {
+						continue nextCachedMethod;
+					}
+				} else if (cachedReturnType == null) {
+					continue nextCachedMethod;
+				} else if (returnType != cachedReturnType) {
+					continue nextCachedMethod;
+				}
 				// all arguments match, reuse current
 				return cachedMethod;
 		}
