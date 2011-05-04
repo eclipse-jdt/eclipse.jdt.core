@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -716,7 +716,7 @@ private boolean isWorthBuilding() throws CoreException {
  * needs to propagate structural changes to the other projects in the cycle.
  */
 void mustPropagateStructuralChanges() {
-	HashSet cycleParticipants = new HashSet(3);
+	LinkedHashSet cycleParticipants = new LinkedHashSet(3);
 	this.javaProject.updateCycleParticipants(new ArrayList(), cycleParticipants, this.workspaceRoot, new HashSet(3), null);
 	IPath currentPath = this.javaProject.getPath();
 	Iterator i= cycleParticipants.iterator();

@@ -4360,11 +4360,11 @@ public void testMissingPrereq4() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers for project A",
-			"A cycle was detected in the build path of project 'A'",
+			"A cycle was detected in the build path of project 'A'. The cycle consists of projects {A, B}",
 			projectA);
 		this.assertMarkers(
 			"Unexpected markers for project B",
-			"A cycle was detected in the build path of project 'B'",
+			"A cycle was detected in the build path of project 'B'. The cycle consists of projects {A, B}",
 			projectB);
 
 		// delete project B
@@ -4384,11 +4384,11 @@ public void testMissingPrereq4() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers for project A after adding project B back",
-			"A cycle was detected in the build path of project 'A'",
+			"A cycle was detected in the build path of project 'A'. The cycle consists of projects {A, B}",
 			projectA);
 		this.assertMarkers(
 			"Unexpected markers for project B after adding project B back",
-			"A cycle was detected in the build path of project 'B'",
+			"A cycle was detected in the build path of project 'B'. The cycle consists of projects {A, B}",
 			projectB);
 
 	} finally {

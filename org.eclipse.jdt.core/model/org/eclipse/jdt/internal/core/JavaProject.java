@@ -372,7 +372,7 @@ public class JavaProject
 		int length = rscProjects.length;
 		JavaProject[] projects = new JavaProject[length];
 
-		HashSet cycleParticipants = new HashSet();
+		LinkedHashSet cycleParticipants = new LinkedHashSet();
 		HashSet traversed = new HashSet();
 
 		// compute cycle participants
@@ -406,9 +406,29 @@ public class JavaProject
 							throw new JavaModelException(e);
 						}
 					} else {
+						IJavaProject[] projectsInCycle;
+						String cycleString = "";	 //$NON-NLS-1$
+						if (cycleParticipants.isEmpty()) {
+							projectsInCycle = null;
+						} else {
+							projectsInCycle = new IJavaProject[cycleParticipants.size()];
+							Iterator it = cycleParticipants.iterator();
+							int k = 0;
+							while (it.hasNext()) {
+								//projectsInCycle[i++] = (IPath) it.next();
+								IResource member = workspaceRoot.findMember((IPath) it.next());
+								if (member != null && member.getType() == IResource.PROJECT){
+									projectsInCycle[k] = JavaCore.create((IProject)member);
+									if (projectsInCycle[k] != null) {
+										if (k != 0) cycleString += ", "; //$NON-NLS-1$
+										cycleString += projectsInCycle[k++].getElementName();
+									}
+								}
+							}
+						}
 						// create new marker
 						project.createClasspathProblemMarker(
-							new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE, project));
+							new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE, project, cycleString));
 					}
 				} else {
 					project.flushClasspathProblemMarkers(true, false);
@@ -2063,7 +2083,7 @@ public class JavaProject
 	 * @see IJavaProject
 	 */
 	public boolean hasClasspathCycle(IClasspathEntry[] preferredClasspath) {
-		HashSet cycleParticipants = new HashSet();
+		LinkedHashSet cycleParticipants = new LinkedHashSet();
 		HashMap preferredClasspaths = new HashMap(1);
 		preferredClasspaths.put(this, preferredClasspath);
 		updateCycleParticipants(new ArrayList(2), cycleParticipants, ResourcesPlugin.getWorkspace().getRoot(), new HashSet(2), preferredClasspaths);
@@ -3127,7 +3147,7 @@ public class JavaProject
 	 */
 	public void updateCycleParticipants(
 			ArrayList prereqChain,
-			HashSet cycleParticipants,
+			LinkedHashSet cycleParticipants,
 			IWorkspaceRoot workspaceRoot,
 			HashSet traversed,
 			Map preferredClasspaths){
