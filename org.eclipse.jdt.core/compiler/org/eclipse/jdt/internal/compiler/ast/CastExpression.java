@@ -493,7 +493,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		MessageSend messageSend = (MessageSend) this.expression;
 		MethodBinding methodBinding = messageSend.binding;
 		if (MethodBinding.isPolymorphic(methodBinding)) {
-			methodBinding.returnType = castType;
+			messageSend.binding = scope.environment().updatePolymorphicMethodReturnType(methodBinding, castType);
 			expressionType = castType;
 		}
 	}

@@ -213,6 +213,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 				"import java.lang.invoke.MethodHandle;\n" + 
 				"import java.lang.invoke.MethodHandles;\n" + 
 				"import java.lang.invoke.MethodType;\n" + 
+				"import java.lang.invoke.WrongMethodTypeException;\n" + 
 				"\n" + 
 				"public class X {\n" + 
 				"	public static void main(String[] args) throws Throwable {\n" + 
@@ -222,33 +223,20 @@ public class MethodHandleTest extends AbstractRegressionTest {
 				"		MethodHandle mh = lookup.findStatic(X.class, \"append\", mt);\n" + 
 				"		String s = (String) mh.invokeExact(\"follo\",'w');\n" + 
 				"		System.out.println(s);\n" + 
-				"\n" + 
 				"		MethodType mt2 = MethodType.methodType(String.class, String.class, char.class);\n" + 
 				"		MethodHandle mh2 = lookup.findStatic(X.class, \"append\", mt2);\n" + 
-				"		mh2.invokeExact(\"follo\",'w');\n" + 
-				"	}\n" +
-				"	public static void bar() {\n" + 
-				"		System.out.println(\"bar\");\n" + 
-				"	}\n" +
-				"	public Object foo(String s, int i) {\n" + 
-				"		System.out.println(s + i);\n" + 
-				"		return s + i;\n" + 
+				"		try {\n" + 
+				"			mh2.invokeExact(\"follo\",'w');\n" + 
+				"		} catch(WrongMethodTypeException e) {\n" + 
+				"			System.out.println(\"Expected exception\");\n" + 
+				"		}\n" + 
 				"	}\n" +
 				"	public static String append(String s, char c) {\n" + 
 				"		return s + c;\n" + 
 				"	}\n" +
-				"	public int arrayLength(Object[] array) {\n" + 
-				"		return array.length;\n" + 
-				"	}\n" + 
-				"	public static void hello(String name) {\n" + 
-				"		System.out.println(\"Hello, \"+ name);\n" + 
-				"	}\n" + 
 				"}"
 			},
 			"follow\n" + 
-			"3\n" + 
-			"Hello, world\n" + 
-			"foo:3\n" +
-			"bar");
+			"Expected exception");
 	}
 }

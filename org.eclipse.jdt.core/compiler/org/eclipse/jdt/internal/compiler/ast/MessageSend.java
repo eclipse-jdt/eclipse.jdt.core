@@ -471,7 +471,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (MethodBinding.isPolymorphic(this.binding)
 			&& ((this.bits & ASTNode.InsideExpressionStatement) != 0)) {
 		// we only set the return type to be void if this method invocation is used inside an expression statement
-		this.binding.returnType = TypeBinding.VOID;
+		this.binding = scope.environment().updatePolymorphicMethodReturnType(this.binding, TypeBinding.VOID);
 	}
 	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 		scope.problemReporter().missingTypeInMethod(this, this.binding);

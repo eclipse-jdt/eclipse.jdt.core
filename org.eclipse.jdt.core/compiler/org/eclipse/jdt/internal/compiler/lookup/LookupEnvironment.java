@@ -63,6 +63,8 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private SimpleLookupTable uniqueRawTypeBindings;
 	private SimpleLookupTable uniqueWildcardBindings;
 	private SimpleLookupTable uniqueParameterizedGenericMethodBindings;
+	
+	// key is a string with the method selector value is an array of method bindings
 	private SimpleLookupTable uniquePolymorphicMethodBindings;
 	private SimpleLookupTable uniqueGetClassMethodBinding; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
 
@@ -829,7 +831,8 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 }
 public MethodBinding createPolymorphicMethod(MethodBinding originalMethod, TypeBinding[] parameters) {
 	// cached info is array of already created polymorphic methods for this type
-	MethodBinding[] cachedInfo = (MethodBinding[]) this.uniquePolymorphicMethodBindings.get(originalMethod);
+	String key = new String(originalMethod.selector);
+	MethodBinding[] cachedInfo = (MethodBinding[]) this.uniquePolymorphicMethodBindings.get(key);
 	int parametersLength = parameters == null ? 0: parameters.length;
 	TypeBinding[] parametersTypeBinding = new TypeBinding[parametersLength]; 
 	for (int i = 0; i < parametersLength; i++) {
@@ -842,7 +845,7 @@ public MethodBinding createPolymorphicMethod(MethodBinding originalMethod, TypeB
 	}
 	boolean needToGrow = false;
 	int index = 0;
-	if (cachedInfo != null){
+	if (cachedInfo != null) {
 		nextCachedMethod :
 			// iterate existing polymorphic method for reusing one with same type arguments if any
 			for (int max = cachedInfo.length; index < max; index++) {
@@ -871,13 +874,13 @@ public MethodBinding createPolymorphicMethod(MethodBinding originalMethod, TypeB
 		needToGrow = true;
 	} else {
 		cachedInfo = new MethodBinding[5];
-		this.uniquePolymorphicMethodBindings.put(originalMethod, cachedInfo);
+		this.uniquePolymorphicMethodBindings.put(key, cachedInfo);
 	}
 	// grow cache ?
 	int length = cachedInfo.length;
-	if (needToGrow && index == length){
+	if (needToGrow && index == length) {
 		System.arraycopy(cachedInfo, 0, cachedInfo = new MethodBinding[length*2], 0, length);
-		this.uniquePolymorphicMethodBindings.put(originalMethod, cachedInfo);
+		this.uniquePolymorphicMethodBindings.put(key, cachedInfo);
 	}
 	// add new binding
 	MethodBinding polymorphicMethod = new MethodBinding(
@@ -888,6 +891,62 @@ public MethodBinding createPolymorphicMethod(MethodBinding originalMethod, TypeB
 			originalMethod.thrownExceptions,
 			originalMethod.declaringClass);
 	polymorphicMethod.tagBits = originalMethod.tagBits;
+	cachedInfo[index] = polymorphicMethod;
+	return polymorphicMethod;
+}
+public MethodBinding updatePolymorphicMethodReturnType(MethodBinding binding, TypeBinding typeBinding) {
+	// update the return type to be the given return type, but reuse existing binding if one can match
+	String key = new String(binding.selector);
+	MethodBinding[] cachedInfo = (MethodBinding[]) this.uniquePolymorphicMethodBindings.get(key);
+	boolean needToGrow = false;
+	int index = 0;
+	TypeBinding[] parameters = binding.parameters;
+	int parametersLength = parameters == null ? 0 : parameters.length;
+	if (cachedInfo != null) {
+		nextCachedMethod :
+			// iterate existing polymorphic method for reusing one with same type arguments if any
+			for (int max = cachedInfo.length; index < max; index++) {
+				MethodBinding cachedMethod = cachedInfo[index];
+				if (cachedMethod == null) break nextCachedMethod;
+				TypeBinding[] cachedParameters = cachedMethod.parameters;
+				int cachedParametersLength = cachedParameters == null ? 0 : cachedParameters.length;
+				if (parametersLength != cachedParametersLength) continue nextCachedMethod;
+				for (int j = 0; j < cachedParametersLength; j++){
+					if (parameters[j] != cachedParameters[j]) continue nextCachedMethod;
+				}
+				TypeBinding cachedReturnType = cachedMethod.returnType;
+				if (typeBinding == null) {
+					if (cachedReturnType != null) {
+						continue nextCachedMethod;
+					}
+				} else if (cachedReturnType == null) {
+					continue nextCachedMethod;
+				} else if (typeBinding != cachedReturnType) {
+					continue nextCachedMethod;
+				}
+				// all arguments match, reuse current
+				return cachedMethod;
+		}
+		needToGrow = true;
+	} else {
+		cachedInfo = new MethodBinding[5];
+		this.uniquePolymorphicMethodBindings.put(key, cachedInfo);
+	}
+	// grow cache ?
+	int length = cachedInfo.length;
+	if (needToGrow && index == length) {
+		System.arraycopy(cachedInfo, 0, cachedInfo = new MethodBinding[length*2], 0, length);
+		this.uniquePolymorphicMethodBindings.put(key, cachedInfo);
+	}
+	// add new binding
+	MethodBinding polymorphicMethod = new MethodBinding(
+			binding.modifiers,
+			binding.selector,
+			typeBinding,
+			parameters,
+			binding.thrownExceptions,
+			binding.declaringClass);
+	polymorphicMethod.tagBits = binding.tagBits;
 	cachedInfo[index] = polymorphicMethod;
 	return polymorphicMethod;
 }
