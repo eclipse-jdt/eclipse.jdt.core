@@ -670,6 +670,17 @@ public final class CompletionEngine
 		this.monitor = monitor;
 	}
 	
+	public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
+		if (!CharOperation.equals(sourceUnit.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME)) {
+			// do not accept package-info.java as a type for completion engine
+			// because it contains no extra info that will help in completion
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343865
+			// Required after the fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=337868
+			// because now we get a type corresponding to the package-info.java from the java model.
+			super.accept(sourceUnit, accessRestriction);
+		}
+	}
+	
 	public void acceptConstructor(
 			int modifiers,
 			char[] simpleTypeName,
