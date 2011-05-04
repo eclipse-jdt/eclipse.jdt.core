@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2423,6 +2423,7 @@ public void test0087() throws JavaModelException {
 	} else {
 		assertResults(
 				"interface[KEYWORD]{interface, null, null, interface, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
+				"YAAnnot[TYPE_REF]{testxxx.YAAnnot, testxxx, Ltestxxx.YAAnnot;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 				"_ConfigurationData[TYPE_REF]{test325481._ConfigurationData, test325481, Ltest325481._ConfigurationData;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 				"_Path[TYPE_REF]{test325481._Path, test325481, Ltest325481._Path;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 				"Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}\n" +
@@ -9021,6 +9022,7 @@ public void test0290() throws JavaModelException {
 	assertResults(
 			"interface[KEYWORD]{interface, null, null, interface, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 			"QQAnnotation[TYPE_REF]{pkgannotations.QQAnnotation, pkgannotations, Lpkgannotations.QQAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
+			"YAAnnot[TYPE_REF]{testxxx.YAAnnot, testxxx, Ltestxxx.YAAnnot;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
 			"_ConfigurationData[TYPE_REF]{test325481._ConfigurationData, test325481, Ltest325481._ConfigurationData;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 			"_Path[TYPE_REF]{test325481._Path, test325481, Ltest325481._Path;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 			"Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
@@ -13873,5 +13875,44 @@ public void testBug310423b() throws JavaModelException {
 			"Inn.Inn2[TYPE_REF]{Inn2, label, Llabel.Inn$Inn2;, null, null, 44}\n" +
 			"Inn.Inn3[TYPE_REF]{Inn3, label, Llabel.Inn$Inn3;, null, null, 44}",
 			requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343865
+// Verify that no NPE is thrown and we get correct proposals
+public void testBug343865a() throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "testxxx", "TestType.java");
+
+	String str = cu.getSource();
+	String completeBehind = "@YAAnnot(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+		"name[ANNOTATION_ATTRIBUTE_REF]{name, Ltestxxx.YAAnnot;, Ljava.lang.String;, name, null, " + (R_NAME_FIRST_PREFIX + R_EXPECTED_TYPE + R_RESOLVED) + "}\n" +
+		"val[ANNOTATION_ATTRIBUTE_REF]{val, Ltestxxx.YAAnnot;, I, val, null, " + (R_NAME_FIRST_PREFIX + R_EXPECTED_TYPE + R_RESOLVED) + "}",
+		requestor.getResults());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343865
+// Verify that the correct expected type is computed
+public void testBug343865b() throws JavaModelException {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "testxxx", "TestType2.java");
+
+	String str = cu.getSource();
+	String completeBehind = "String xxyy2 = xxy";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"expectedTypesSignatures={Ljava.lang.String;}\n" +
+			"expectedTypesKeys={Ljava/lang/String;}",
+			requestor.getContext());
+	
+	assertResults(
+		"xxyy[FIELD_REF]{xxyy, Ltestxxx.TestType2;, I, xxyy, null, " + (R_NAME_FIRST_PREFIX + R_EXPECTED_TYPE + R_RESOLVED) + "}\n" +
+		"xxyy1[FIELD_REF]{xxyy1, Ltestxxx.TestType2;, Ljava.lang.String;, xxyy1, null, " + (R_NAME_FIRST_PREFIX + R_EXPECTED_TYPE + R_RESOLVED + R_EXACT_EXPECTED_TYPE) + "}",
+		requestor.getResults());
 }
 }
