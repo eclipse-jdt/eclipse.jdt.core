@@ -9820,7 +9820,12 @@ public void test297() {
 	};
 	runNegativeTest(
 			testFiles,
-			"",
+			"----------\n" + 
+			"1. ERROR in A.java (at line 15)\n" + 
+			"	return i == i;\n" + 
+			"	       ^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n",
 			null,
 			true,
 			customOptions);
