@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,6 +72,7 @@ public class CompilationResult {
 	public boolean hasSyntaxError = false;
 	public char[][] packageName;
 	public boolean checkSecondaryTypes = false; // check for secondary types which were created after the initial buildTypeBindings call
+	public int numberOfErrors;
 
 	private static final int[] EMPTY_LINE_ENDS = Util.EMPTY_INT_ARRAY;
 	private static final Comparator PROBLEM_COMPARATOR = new Comparator() {
@@ -270,12 +271,7 @@ public CategorizedProblem[] getTasks() {
 }
 
 public boolean hasErrors() {
-	if (this.problems != null)
-		for (int i = 0; i < this.problemCount; i++) {
-			if (this.problems[i].isError())
-				return true;
-		}
-	return false;
+	return this.numberOfErrors != 0;
 }
 
 public boolean hasProblems() {
@@ -345,8 +341,12 @@ public void record(CategorizedProblem newProblem, ReferenceContext referenceCont
 		if (newProblem.isError() && !referenceContext.hasErrors()) this.firstErrors.add(newProblem);
 		this.problemsMap.put(newProblem, referenceContext);
 	}
-	if ((newProblem.getID() & IProblem.Syntax) != 0 && newProblem.isError())
-		this.hasSyntaxError = true;
+	if (newProblem.isError()) {
+		this.numberOfErrors++;
+		if ((newProblem.getID() & IProblem.Syntax) != 0) {
+			this.hasSyntaxError = true;
+		}
+	}
 }
 
 /**

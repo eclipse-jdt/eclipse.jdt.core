@@ -199,10 +199,7 @@ void computeLocalVariablePositions(int ilocal, int initOffset, CodeStream codeSt
 				&& ((local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0)) { // declaration is reachable
 
 				if (!(local.declaration instanceof Argument)) // do not report unused catch arguments
-					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=336648
-					if (!this.referenceCompilationUnit().compilationResult.hasErrors()) {
-						problemReporter().unusedLocalVariable(local.declaration);
-					}
+					problemReporter().unusedLocalVariable(local.declaration);
 			}
 
 			// could be optimized out, but does need to preserve unread variables ?

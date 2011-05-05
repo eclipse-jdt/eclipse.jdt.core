@@ -46,7 +46,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test293" };
-//		TESTS_NUMBERS = new int[] { 294 };
+//		TESTS_NUMBERS = new int[] { 297 };
 //		TESTS_RANGE = new int[] { 294, -1 };
 	}
 
@@ -9788,5 +9788,41 @@ public void test296() {
 			null,
 			customOptions,
 			null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=343621
+public void test297() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
+	String testFiles [] = new String[] {
+			"A.java",
+			"public class A {\n" + 
+			"	public void one() {\n" + 
+			"		@SuppressWarnings(\"unused\")\n" + 
+			"		Object object = new Object();\n" + 
+			"	}\n" + 
+			"	public void two() {\n" + 
+			"		@SuppressWarnings({ \"unchecked\", \"unused\" })\n" + 
+			"		Object object = build();\n" + 
+			"	}\n" + 
+			"	public final Object build(Class<? super Object>... objects) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public boolean bar() {\n" +
+			"		int i = 0;\n" +
+			"		return i == i;\n" + 
+			"	}\n" + 
+			"}"
+	};
+	runNegativeTest(
+			testFiles,
+			"",
+			null,
+			true,
+			customOptions);
 }
 }

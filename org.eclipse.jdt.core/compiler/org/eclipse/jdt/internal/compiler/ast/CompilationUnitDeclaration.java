@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.util.Comparator;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -207,24 +208,56 @@ public TypeDeclaration declarationOfType(char[][] typeName) {
 }
 
 public void finalizeProblems() {
-	if (this.suppressWarningsCount == 0) return;
+	if (this.suppressWarningsCount == 0) {
+		if (this.compilationResult.hasErrors()) {
+			// we need to check if we should discard unused locals warnings (336648)
+			int removed = 0;
+			CategorizedProblem[] problems = this.compilationResult.problems;
+			int problemCount = this.compilationResult.problemCount;
+			for (int i = 0; i < problemCount; i++) {
+				if (problems[i].getID() == IProblem.LocalVariableIsNeverUsed) {
+					problems[i] = null;
+					removed++;
+				}
+			}
+			// compact remaining problems
+			if (removed > 0) {
+				for (int i = 0, index = 0; i < problemCount; i++) {
+					CategorizedProblem problem;
+					if ((problem = problems[i]) != null) {
+						if (i > index) {
+							problems[index++] = problem;
+						} else {
+							index++;
+						}
+					}
+				}
+				this.compilationResult.problemCount -= removed;
+			}
+		}
+		return;
+	}
 	int removed = 0;
 	CategorizedProblem[] problems = this.compilationResult.problems;
 	int problemCount = this.compilationResult.problemCount;
 	IrritantSet[] foundIrritants = new IrritantSet[this.suppressWarningsCount];
 	CompilerOptions options = this.scope.compilerOptions();
 	boolean hasMandatoryErrors = false;
+	int remainingErrors = 0;
 	nextProblem: for (int iProblem = 0, length = problemCount; iProblem < length; iProblem++) {
 		CategorizedProblem problem = problems[iProblem];
 		int problemID = problem.getID();
 		int irritant = ProblemReporter.getIrritant(problemID);
-		if (problem.isError()) {
+		boolean isError = problem.isError();
+		if (isError) {
 			if (irritant == 0) {
 				// tolerate unused warning tokens when mandatory errors
 				hasMandatoryErrors = true;
+				remainingErrors++;
 				continue;
 			}
 			if (!options.suppressOptionalErrors) {
+				remainingErrors++;
 				continue;
 			}
 		}
@@ -234,13 +267,21 @@ public void finalizeProblems() {
 			long position = this.suppressWarningScopePositions[iSuppress];
 			int startSuppress = (int) (position >>> 32);
 			int endSuppress = (int) position;
-			if (start < startSuppress) continue nextSuppress;
-			if (end > endSuppress) continue nextSuppress;
-			if (!this.suppressWarningIrritants[iSuppress].isSet(irritant))
+			if (start < startSuppress) {
 				continue nextSuppress;
+			}
+			if (end > endSuppress) {
+				continue nextSuppress;
+			}
+			if (!this.suppressWarningIrritants[iSuppress].isSet(irritant)) {
+				continue nextSuppress;
+			}
 			// discard suppressed warning
 			removed++;
 			problems[iProblem] = null;
+			if (isError) {
+				this.compilationResult.numberOfErrors--;
+			}
 			if (this.compilationResult.problemsMap != null) this.compilationResult.problemsMap.remove(problem);
 			if (this.compilationResult.firstErrors != null) this.compilationResult.firstErrors.remove(problem);
 			if (foundIrritants[iSuppress] == null){
@@ -249,6 +290,19 @@ public void finalizeProblems() {
 				foundIrritants[iSuppress].set(irritant);
 			}
 			continue nextProblem;
+		}
+		if (isError) {
+			remainingErrors++;
+		}
+	}
+	// we need to check if we should discard unused locals warnings that were not already filtered out (336648)
+	if (remainingErrors > 0) {
+		for (int i = 0; i < problemCount; i++) {
+			CategorizedProblem problem;
+			if ((problem = problems[i]) != null && problem.getID() == IProblem.LocalVariableIsNeverUsed) {
+				problems[i] = null;
+				removed++;
+			}
 		}
 	}
 	// compact remaining problems
