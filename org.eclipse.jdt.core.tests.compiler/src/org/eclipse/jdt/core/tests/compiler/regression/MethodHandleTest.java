@@ -135,11 +135,11 @@ public class MethodHandleTest extends AbstractRegressionTest {
 				"	public static void main(String[] args) {\n" + 
 				"		try {\n" + 
 				"			MethodHandle handle = MethodHandles.lookup().findStatic(X.class, \"foo\", MethodType.methodType(Object.class, Object.class));\n" + 
-				"			try {\r\n" + 
-				"				handle.invokeGeneric(null);\r\n" + 
-				"			} catch (Throwable e) {\r\n" + 
-				"				e.printStackTrace();\r\n" + 
-				"			}\r\n" + 
+				"			try {\n" + 
+				"				handle.invokeGeneric(null);\n" + 
+				"			} catch (Throwable e) {\n" + 
+				"				e.printStackTrace();\n" + 
+				"			}\n" + 
 				"		} catch (Throwable e) {\n" + 
 				"			e.printStackTrace();\n" + 
 				"		}\n" + 
@@ -238,5 +238,30 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			},
 			"follow\n" + 
 			"Expected exception");
+	}
+	public void test007() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static java.lang.invoke.MethodHandles.lookup;\n" + 
+				"import static java.lang.invoke.MethodType.methodType;\n" + 
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) throws Throwable {\n" + 
+				"		MethodHandle fooMH = lookup().findStatic(X.class, \"foo\", methodType(String.class));\n" + 
+				"		String s = (String) fooMH.invokeExact();\n" + 
+				"		System.out.println(s);\n" + 
+				"		fooMH.asType(methodType(void.class)).invokeExact();\n" + 
+				"	}\n" + 
+				"	public static String foo() {\n" + 
+				"		System.out.println(\"Inside foo\");\n" + 
+				"		return \"foo\";\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"Inside foo\n" + 
+			"foo\n" + 
+			"Inside foo");
 	}
 }
