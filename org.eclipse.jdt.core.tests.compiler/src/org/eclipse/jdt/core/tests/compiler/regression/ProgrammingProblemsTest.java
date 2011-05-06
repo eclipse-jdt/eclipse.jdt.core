@@ -2355,7 +2355,7 @@ public void test0057() throws Exception {
 		null);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=336648
-public void test0058() {
+public void _test0058() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 	this.runNegativeTest(
