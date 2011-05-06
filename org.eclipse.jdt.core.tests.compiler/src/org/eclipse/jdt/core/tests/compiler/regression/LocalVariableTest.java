@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 IBM Corporation and others.
+ * Copyright (c) 2005, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -713,32 +713,6 @@ public void test020() {
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=343621
-public void test021() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] { /* test files */
-			"X.java",
-			"public class X {\n" + 
-			"	public Object[] foo() {\n" + 
-			"		Object[] i, j= new Object[0];\n" + 
-			"		i= j = null;\n" + 
-			"		i= (new Object[] { null, null });\n" + 
-			"		return j;\n" + 
-			"	}\n" + 
-			"}", // =================
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	Object[] i, j= new Object[0];\n" + 
-		"	         ^\n" + 
-		"The value of the local variable i is not used\n" + 
-		"----------\n",
-		null /* no class libraries */,
-		true,
-		options /* custom options */);
 }
 public static Class testClass() {
 	return LocalVariableTest.class;
