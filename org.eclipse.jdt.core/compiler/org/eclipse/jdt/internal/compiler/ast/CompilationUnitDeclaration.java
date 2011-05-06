@@ -262,7 +262,6 @@ public void finalizeProblems() {
 				}
 			}
 		}
-		this.compilationResult.problemCount -= removed;
 	}
 	// flag SuppressWarnings which had no effect (only if no (mandatory) error got detected within unit
 	if (!hasMandatoryErrors) {

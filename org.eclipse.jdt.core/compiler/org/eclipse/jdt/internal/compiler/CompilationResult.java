@@ -374,6 +374,7 @@ public void removeProblem(CategorizedProblem problem) {
 	if (problem.isError()) {
 		this.numberOfErrors--;
 	}
+	this.problemCount--;
 }
 public CompilationResult tagAsAccepted(){
 	this.hasBeenAccepted = true;
