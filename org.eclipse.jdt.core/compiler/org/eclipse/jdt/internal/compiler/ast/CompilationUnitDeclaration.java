@@ -241,8 +241,7 @@ public void finalizeProblems() {
 			// discard suppressed warning
 			removed++;
 			problems[iProblem] = null;
-			if (this.compilationResult.problemsMap != null) this.compilationResult.problemsMap.remove(problem);
-			if (this.compilationResult.firstErrors != null) this.compilationResult.firstErrors.remove(problem);
+			this.compilationResult.removeProblem(problem);
 			if (foundIrritants[iSuppress] == null){
 				foundIrritants[iSuppress] = new IrritantSet(irritant);
 			} else {

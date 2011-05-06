@@ -55,8 +55,8 @@ public class CompilationResult {
 	public int problemCount;
 	public int taskCount;
 	public ICompilationUnit compilationUnit;
-	public Map problemsMap;
-	public Set firstErrors;
+	private Map problemsMap;
+	private Set firstErrors;
 	private int maxProblemPerUnit;
 	public char[][][] qualifiedReferences;
 	public char[][] simpleNameReferences;
@@ -72,7 +72,7 @@ public class CompilationResult {
 	public boolean hasSyntaxError = false;
 	public char[][] packageName;
 	public boolean checkSecondaryTypes = false; // check for secondary types which were created after the initial buildTypeBindings call
-	public int numberOfErrors;
+	private int numberOfErrors;
 
 	private static final int[] EMPTY_LINE_ENDS = Util.EMPTY_INT_ARRAY;
 	private static final Comparator PROBLEM_COMPARATOR = new Comparator() {
@@ -368,7 +368,13 @@ private void recordTask(CategorizedProblem newProblem) {
 	}
 	this.tasks[this.taskCount++] = newProblem;
 }
-
+public void removeProblem(CategorizedProblem problem) {
+	if (this.problemsMap != null) this.problemsMap.remove(problem);
+	if (this.firstErrors != null) this.firstErrors.remove(problem);
+	if (problem.isError()) {
+		this.numberOfErrors--;
+	}
+}
 public CompilationResult tagAsAccepted(){
 	this.hasBeenAccepted = true;
 	this.problemsMap = null; // flush
