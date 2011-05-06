@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -438,9 +438,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getAnnotationTagBits()
 	 */
 	public long getAnnotationTagBits() {
-		return this.type.getAnnotationTagBits();
+		return genericType().getAnnotationTagBits();
 	}
 
+	public AnnotationBinding[] getAnnotations() {
+		return genericType().getAnnotations();
+	}
+	
 	public int getEnclosingInstancesSlotSize() {
 		return genericType().getEnclosingInstancesSlotSize();
 	}
