@@ -215,7 +215,9 @@ public void finalizeProblems() {
 			CategorizedProblem[] problems = this.compilationResult.problems;
 			int problemCount = this.compilationResult.problemCount;
 			for (int i = 0; i < problemCount; i++) {
-				if (problems[i].getID() == IProblem.LocalVariableIsNeverUsed) {
+				CategorizedProblem currentProblem = problems[i];
+				if (currentProblem.getID() == IProblem.LocalVariableIsNeverUsed
+						&& currentProblem.isWarning()) {
 					problems[i] = null;
 					removed++;
 				}
@@ -299,7 +301,9 @@ public void finalizeProblems() {
 	if (remainingErrors > 0) {
 		for (int i = 0; i < problemCount; i++) {
 			CategorizedProblem problem;
-			if ((problem = problems[i]) != null && problem.getID() == IProblem.LocalVariableIsNeverUsed) {
+			if ((problem = problems[i]) != null
+					&& problem.getID() == IProblem.LocalVariableIsNeverUsed
+					&& problem.isWarning()) {
 				problems[i] = null;
 				removed++;
 			}
