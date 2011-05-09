@@ -12,8 +12,10 @@
 
 package org.eclipse.jdt.compiler.apt.tests;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +23,10 @@ import java.util.List;
 import java.util.Set;
 
 import javax.lang.model.SourceVersion;
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 
 import junit.framework.TestCase;
@@ -29,10 +34,34 @@ import junit.framework.TestCase;
 /**
  * Test cases for annotation processing behavior when code contains semantic errors
  */
-public class NegativeTests extends TestCase
-{
+public class NegativeTests extends TestCase {
+	static class TestDiagnosticListener implements DiagnosticListener<JavaFileObject> {
+		public static final int NONE = 0;
+		public static final int ERROR = 1;
+		public static final int INFO = 2;
+		public static final int WARNING = 4;
+		
+		public int errorCounter;
+		private PrintWriter writer;
+		
+		public TestDiagnosticListener(PrintWriter writer) {
+			this.writer = writer;
+		}
+
+		@Override
+		public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+			switch(diagnostic.getKind()) {
+				case ERROR :
+					this.writer.print(diagnostic.getMessage(null));
+					this.errorCounter++;
+					break;
+			}
+		}
+	}
+
 	// See corresponding usages in the NegativeModelProc class
 	private static final String NEGATIVEMODELPROCNAME = "org.eclipse.jdt.compiler.apt.tests.processors.negative.NegativeModelProc";
+	private static final String INHERITED_PROCNAME ="org.eclipse.jdt.compiler.apt.tests.processors.inherited.ArgsConstructorProcessor";
 	private static final String IGNOREJAVACBUGS = "ignoreJavacBugs";
 	
 	@Override
@@ -149,6 +178,67 @@ public class NegativeTests extends TestCase
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestNegativeModel(compiler, 9, null);
 	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=328575 
+	 */
+	public void testNegativeModel10WithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		System.clearProperty(NEGATIVEMODELPROCNAME);
+		System.clearProperty(INHERITED_PROCNAME);
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "inherited");
+		BatchTestUtils.copyResources("targets/inherited", targetFolder);
+
+		// Invoke processing by compiling the targets.model resources
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter printWriter = new PrintWriter(errBuffer);
+		TestDiagnosticListener diagnosticListener = new TestDiagnosticListener(printWriter);
+		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, new ArrayList<String>(), targetFolder, diagnosticListener);
+		
+		assertTrue("Compilation should have failed due to expected errors, but it didn't", !success);
+		assertEquals("Two errors should be reported", 2, diagnosticListener.errorCounter);
+		printWriter.flush();
+		printWriter.close();
+		String expectedErrors = 
+				"Class targets.inherited.TestGenericChild lacks a public constructor with args: java.awt.Point" +
+				"Class targets.inherited.TestNormalChild lacks a public constructor with args: java.awt.Point";
+
+		assertEquals("Wrong output", expectedErrors, String.valueOf(errBuffer));
+		String property = System.getProperty(INHERITED_PROCNAME);
+		assertNotNull("No property - probably processing did not take place", property);
+		assertEquals("succeeded", property);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=328575 
+	 */
+	public void testNegativeModel10WithSystemCompiler() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
+		System.clearProperty(NEGATIVEMODELPROCNAME);
+		System.clearProperty(INHERITED_PROCNAME);
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "inherited");
+		BatchTestUtils.copyResources("targets/inherited", targetFolder);
+
+		// Invoke processing by compiling the targets.model resources
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter printWriter = new PrintWriter(errBuffer);
+		TestDiagnosticListener diagnosticListener = new TestDiagnosticListener(printWriter);
+		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, new ArrayList<String>(), targetFolder, diagnosticListener);
+		
+		assertTrue("Compilation should have failed due to expected errors, but it didn't", !success);
+		assertEquals("Two errors should be reported", 2, diagnosticListener.errorCounter);
+		printWriter.flush();
+		printWriter.close();
+
+		String property = System.getProperty(INHERITED_PROCNAME);
+		assertNotNull("No property - probably processing did not take place", property);
+		assertEquals("succeeded", property);
+	}
+
 	/**
 	 * Attempt to report errors on various elements.
 	 * @throws IOException
@@ -168,7 +258,6 @@ public class NegativeTests extends TestCase
 		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, null);
 		
 		assertTrue("Compilation should have failed due to expected errors, but it didn't", !success);
-
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
 		String property = System.getProperty(NEGATIVEMODELPROCNAME);

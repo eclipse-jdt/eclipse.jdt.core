@@ -49,6 +49,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -88,6 +89,9 @@ public class ElementsImpl implements Elements {
 			Set<ReferenceBinding> annotationTypes = new HashSet<ReferenceBinding>();
 			ReferenceBinding binding = (ReferenceBinding)((TypeElementImpl)e)._binding;
 			while (null != binding) {
+				if (binding instanceof ParameterizedTypeBinding) {
+					binding = ((ParameterizedTypeBinding) binding).genericType();
+				}
 				for (AnnotationBinding annotation : binding.getAnnotations()) {
 					if (annotation == null) continue;
 					ReferenceBinding annotationType = annotation.getAnnotationType();
