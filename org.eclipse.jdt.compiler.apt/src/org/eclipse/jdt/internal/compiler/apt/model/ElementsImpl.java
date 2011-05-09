@@ -8,6 +8,7 @@
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - Fix for bug 341494
+ *    IBM Corporation - Fix for bug 328575
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
