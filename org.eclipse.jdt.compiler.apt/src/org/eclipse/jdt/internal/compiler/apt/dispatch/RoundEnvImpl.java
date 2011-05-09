@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -64,6 +65,9 @@ public class RoundEnvImpl implements RoundEnvironment
 	private void collectAnnotations(ReferenceBinding[] referenceBindings) {
 		for (ReferenceBinding referenceBinding : referenceBindings) {
 			// collect all annotations from the binary types
+			if (referenceBinding instanceof ParameterizedTypeBinding) {
+				referenceBinding = ((ParameterizedTypeBinding) referenceBinding).genericType();
+			}
 			AnnotationBinding[] annotationBindings = referenceBinding.getAnnotations();
 			for (AnnotationBinding annotationBinding : annotationBindings) {
 				TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType()); 
@@ -127,7 +131,7 @@ public class RoundEnvImpl implements RoundEnvironment
 			Set<Element> annotatedElements = new HashSet<Element>(_annoToUnit.getValues(a));
 			// For all other root elements that are TypeElements, and for their recursively enclosed
 			// types, add each element if it has a superclass are annotated with 'a'
-			ReferenceBinding annoTypeBinding = (ReferenceBinding)((TypeElementImpl)a)._binding;
+			ReferenceBinding annoTypeBinding = (ReferenceBinding) annoBinding;
 			for (TypeElement element : ElementFilter.typesIn(getRootElements())) {
 				ReferenceBinding typeBinding = (ReferenceBinding)((TypeElementImpl)element)._binding;
 				addAnnotatedElements(annoTypeBinding, typeBinding, annotatedElements);
@@ -162,15 +166,19 @@ public class RoundEnvImpl implements RoundEnvironment
 	 * @return true if element has a superclass that is annotated with anno
 	 */
 	private boolean inheritsAnno(ReferenceBinding element, ReferenceBinding anno) {
+		ReferenceBinding searchedElement = element;
 		do {
-			AnnotationBinding[] annos = element.getAnnotations();
+			if (searchedElement instanceof ParameterizedTypeBinding) {
+				searchedElement = ((ParameterizedTypeBinding) searchedElement).genericType();
+			}
+			AnnotationBinding[] annos = searchedElement.getAnnotations();
 			for (AnnotationBinding annoBinding : annos) {
 				if (annoBinding.getAnnotationType() == anno) {
 					// element is annotated with anno
 					return true;
 				}
 			}
-		} while (null != (element = element.superclass()));
+		} while (null != (searchedElement = searchedElement.superclass()));
 		return false;
 	}
 	

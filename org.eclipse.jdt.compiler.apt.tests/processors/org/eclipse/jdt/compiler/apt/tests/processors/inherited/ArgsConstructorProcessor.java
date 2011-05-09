@@ -15,9 +15,10 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -28,10 +29,12 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
 
 import org.eclipse.jdt.compiler.apt.tests.annotations.ArgsConstructor;
+import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 @SupportedAnnotationTypes("org.eclipse.jdt.compiler.apt.tests.annotations.ArgsConstructor")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
-public class ArgsConstructorProcessor extends AbstractProcessor {
+public class ArgsConstructorProcessor extends BaseProcessor {
+	private TypeElement _elementAC;
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
@@ -40,8 +43,36 @@ public class ArgsConstructorProcessor extends AbstractProcessor {
 		for (TypeElement type : annotations) {
 			processArgsConstructorClasses(env, type);
 		}
-		return true;
 
+		if (!collectElements()) {
+			reportError("Failed");
+			return false;
+		}
+		TypeMirror superclass = _elementAC.getSuperclass();
+		if (TypeKind.DECLARED != superclass.getKind()) {
+			reportError("Wrong type: should be a declared type");
+			return false;
+		}
+		Element typeElement = _typeUtils.asElement(superclass);
+		if (typeElement.getAnnotationMirrors().size() != 1) {
+			reportError("Should contain an annotation");
+			return false;
+		}
+		reportSuccess();
+		return true;
+	}
+
+	/**
+	 * Collect some elements that will be reused in various tests
+	 * @return true if all tests passed
+	 */
+	private boolean collectElements() {
+		_elementAC = _elementUtils.getTypeElement("targets.inherited.TestGenericChild");
+		if (_elementAC == null) {
+			reportError("TestGenericChild was not found");
+			return false;
+		}
+		return true;
 	}
 
 	private void processArgsConstructorClasses(RoundEnvironment env,
