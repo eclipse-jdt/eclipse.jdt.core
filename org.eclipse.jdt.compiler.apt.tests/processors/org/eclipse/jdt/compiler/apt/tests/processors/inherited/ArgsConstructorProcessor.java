@@ -6,7 +6,8 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *    IBM Corporation - initial API and implementation
+ *    IBM Corporation - Fix for bug 328575
  *******************************************************************************/
 package org.eclipse.jdt.compiler.apt.tests.processors.inherited;
 

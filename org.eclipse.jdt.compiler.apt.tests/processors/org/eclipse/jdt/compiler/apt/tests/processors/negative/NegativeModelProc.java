@@ -9,7 +9,6 @@
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - fix for 342598
  *******************************************************************************/
-
 package org.eclipse.jdt.compiler.apt.tests.processors.negative;
 
 import java.io.ByteArrayOutputStream;

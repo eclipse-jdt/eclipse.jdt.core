@@ -8,6 +8,7 @@
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - fix for 342936
+ *    IBM Corporation - Fix for bug 328575
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests;
