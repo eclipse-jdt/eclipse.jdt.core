@@ -61,6 +61,7 @@ public class NegativeTests extends TestCase {
 
 	// See corresponding usages in the NegativeModelProc class
 	private static final String NEGATIVEMODELPROCNAME = "org.eclipse.jdt.compiler.apt.tests.processors.negative.NegativeModelProc";
+	private static final String INHERITED_PROCNAME ="org.eclipse.jdt.compiler.apt.tests.processors.inherited.ArgsConstructorProcessor";
 	private static final String IGNOREJAVACBUGS = "ignoreJavacBugs";
 	
 	@Override
@@ -184,6 +185,7 @@ public class NegativeTests extends TestCase {
 	public void testNegativeModel10WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		System.clearProperty(NEGATIVEMODELPROCNAME);
+		System.clearProperty(INHERITED_PROCNAME);
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "inherited");
 		BatchTestUtils.copyResources("targets/inherited", targetFolder);
 
@@ -202,6 +204,39 @@ public class NegativeTests extends TestCase {
 				"Class targets.inherited.TestNormalChild lacks a public constructor with args: java.awt.Point";
 
 		assertEquals("Wrong output", expectedErrors, String.valueOf(errBuffer));
+		String property = System.getProperty(INHERITED_PROCNAME);
+		assertNotNull("No property - probably processing did not take place", property);
+		assertEquals("succeeded", property);
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=328575 
+	 */
+	public void testNegativeModel10WithSystemCompiler() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
+		System.clearProperty(NEGATIVEMODELPROCNAME);
+		System.clearProperty(INHERITED_PROCNAME);
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "inherited");
+		BatchTestUtils.copyResources("targets/inherited", targetFolder);
+
+		// Invoke processing by compiling the targets.model resources
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter printWriter = new PrintWriter(errBuffer);
+		TestDiagnosticListener diagnosticListener = new TestDiagnosticListener(printWriter);
+		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, new ArrayList<String>(), targetFolder, diagnosticListener);
+		
+		assertTrue("Compilation should have failed due to expected errors, but it didn't", !success);
+		assertEquals("Two errors should be reported", 2, diagnosticListener.errorCounter);
+		printWriter.flush();
+		printWriter.close();
+
+		String property = System.getProperty(INHERITED_PROCNAME);
+		assertNotNull("No property - probably processing did not take place", property);
+		assertEquals("succeeded", property);
 	}
 
 	/**
