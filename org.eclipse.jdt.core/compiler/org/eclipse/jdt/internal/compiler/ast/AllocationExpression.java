@@ -297,6 +297,10 @@ public TypeBinding resolveType(BlockScope scope) {
 				scope.problemReporter().illegalUsageOfWildcard(typeReference);
 			}
 		}
+		if (this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0) {
+			scope.problemReporter().diamondNotWithExplicitTypeArguments(this.typeArguments);
+			return null;
+		}
 		if (argHasError) {
 			if (this.arguments != null) { // still attempt to resolve arguments
 				for (int i = 0, max = this.arguments.length; i < max; i++) {

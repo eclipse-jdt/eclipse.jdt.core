@@ -389,6 +389,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("CannotReturnInInitializer", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("CannotThrowNull", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("CannotThrowType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("CannotUseDiamondWithExplicitTypeArguments", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("CannotUseSuperInCodeSnippet", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ClassExtendFinalClass", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("CodeCannotBeReached", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1049,6 +1050,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("CannotReturnInInitializer", SKIP);
 		expectedProblemAttributes.put("CannotThrowNull", SKIP);
 		expectedProblemAttributes.put("CannotThrowType", SKIP);
+		expectedProblemAttributes.put("CannotUseDiamondWithExplicitTypeArguments", SKIP);
 		expectedProblemAttributes.put("CannotUseSuperInCodeSnippet", SKIP);
 		expectedProblemAttributes.put("ClassExtendFinalClass", SKIP);
 		expectedProblemAttributes.put("CodeCannotBeReached", SKIP);

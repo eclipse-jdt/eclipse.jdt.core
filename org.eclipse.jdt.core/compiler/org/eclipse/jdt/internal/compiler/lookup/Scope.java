@@ -4040,12 +4040,9 @@ public abstract class Scope {
 			TypeVariableBinding[] methodTypeVariables = method.typeVariables();
 			int methodTypeVariablesArity = methodTypeVariables.length;
 	        
-			final TypeBinding[] genericTypeArguments = allocationSite.genericTypeArguments();
-			if (genericTypeArguments != null && genericTypeArguments.length < methodTypeVariablesArity)
-				continue; // wrong tree, don't bark.
 			MethodBinding staticFactory = new MethodBinding(method.modifiers | ClassFileConstants.AccStatic, TypeConstants.SYNTHETIC_STATIC_FACTORY,
 																		null, null, null, method.declaringClass);
-			staticFactory.typeVariables = new TypeVariableBinding[classTypeVariablesArity + (genericTypeArguments == null ? methodTypeVariablesArity : 0)];
+			staticFactory.typeVariables = new TypeVariableBinding[classTypeVariablesArity + methodTypeVariablesArity];
 			final SimpleLookupTable map = new SimpleLookupTable(classTypeVariablesArity + methodTypeVariablesArity);
 			// Rename each type variable T of the type to T'
 			final LookupEnvironment environment = environment();
@@ -4056,8 +4053,7 @@ public abstract class Scope {
 			// Rename each type variable U of method U to U'' if not explicitly parameterized. Otherwise use the parameterizing type.
 			for (int j = classTypeVariablesArity, max = classTypeVariablesArity + methodTypeVariablesArity; j < max; j++) {
 				map.put(methodTypeVariables[j - classTypeVariablesArity], 
-						genericTypeArguments != null ? genericTypeArguments[j - classTypeVariablesArity] :
-							(staticFactory.typeVariables[j] = new TypeVariableBinding(CharOperation.concat(methodTypeVariables[j - classTypeVariablesArity].sourceName, "''".toCharArray()), //$NON-NLS-1$
+						(staticFactory.typeVariables[j] = new TypeVariableBinding(CharOperation.concat(methodTypeVariables[j - classTypeVariablesArity].sourceName, "''".toCharArray()), //$NON-NLS-1$
 																			staticFactory, j, environment)));
 			}
 			final Scope scope = this;
@@ -4121,21 +4117,10 @@ public abstract class Scope {
 		if (sfi != methods.length) {
 			System.arraycopy(staticFactories, 0, staticFactories = new MethodBinding[sfi], 0, sfi);
 		}
-		InvocationSite site = new InvocationSite() { // Alternate site to not expose the generic type arguments as they have already been substituted.
-			public int sourceStart() { return allocationSite.sourceStart(); }
-			public int sourceEnd() { return allocationSite.sourceEnd(); }
-			public void setFieldIndex(int depth) {	allocationSite.setFieldIndex(depth);	}
-			public void setDepth(int depth) { allocationSite.setDepth(depth);}
-			public void setActualReceiverType(ReferenceBinding receiverType) { allocationSite.setActualReceiverType(receiverType);}
-			public boolean isTypeAccess() { return allocationSite.isTypeAccess(); }
-			public boolean isSuperAccess() { return allocationSite.isSuperAccess(); }
-			public TypeBinding[] genericTypeArguments() { return null; }
-			public TypeBinding expectedType() { return allocationSite.expectedType(); }
-		};
 		MethodBinding[] compatible = new MethodBinding[sfi];
 		int compatibleIndex = 0;
 		for (int i = 0; i < sfi; i++) {
-			MethodBinding compatibleMethod = computeCompatibleMethod(staticFactories[i], argumentTypes, site);
+			MethodBinding compatibleMethod = computeCompatibleMethod(staticFactories[i], argumentTypes, allocationSite);
 			if (compatibleMethod != null) {
 				if (compatibleMethod.isValidBinding())
 					compatible[compatibleIndex++] = compatibleMethod;

@@ -1381,7 +1381,8 @@ void setSourceStart(int sourceStart);
 	int IncorrectSwitchType17 = TypeRelated + 877;
 	/** @since 3.7 */
 	int CannotInferElidedTypes = TypeRelated + 878;
-
+	/** @since 3.7 */
+	int CannotUseDiamondWithExplicitTypeArguments = TypeRelated + 879;
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */
