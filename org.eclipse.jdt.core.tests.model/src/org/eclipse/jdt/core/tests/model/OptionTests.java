@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -699,6 +700,197 @@ public void testBug152578() throws CoreException {
 	} finally {
 		deleteProject("P");
 		JavaCore.setOptions(wkspOptions);
+	}
+}
+
+/**
+ * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * @test Verify that a deprecated option is well preserved when a client use it
+ * 		through the IJavaProject.setOption(String, String) API
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
+ * @deprecated As using deprecated constants
+ */
+public void testBug324987_Project01() throws CoreException {
+	try {
+		// Set the obsolete option using the IJavaProject API
+		JavaProject project = (JavaProject) createJavaProject("P");
+		final String obsoleteOption = DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER;
+		project.setOption(obsoleteOption, JavaCore.DO_NOT_INSERT);
+		// Verify that obsolete preference is not stored
+		assertNull(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				project.getEclipsePreferences().get(obsoleteOption, null));
+		// Verify that project obsolete option is well retrieved
+		assertEquals(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaCore.DO_NOT_INSERT,
+				project.getOption(obsoleteOption, true));
+	} finally {
+		deleteProject("P");
+	}
+}
+/**
+ * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * @test Verify that a new option beats the deprecated option when a client sets both
+ * 		through the IJavaProject#setOptions(Map) API
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
+ * @deprecated As using deprecated constants
+ */
+public void testBug324987_Project02() throws CoreException {
+	try {
+		// Set the obsolete option using the IJavaProject API
+		JavaProject project = (JavaProject) createJavaProject("P");
+		final String obsoleteOption = DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER;
+		Map testOptions = project.getOptions(true);
+		testOptions.put(obsoleteOption, JavaCore.DO_NOT_INSERT);
+		project.setOptions(testOptions);
+		// Verify that obsolete preference is not stored
+		assertNull(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				project.getEclipsePreferences().get(obsoleteOption, null));
+		// Verify that project obsolete option is well retrieved
+		assertEquals(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaCore.INSERT,
+				project.getOption(obsoleteOption, true));
+	} finally {
+		deleteProject("P");
+	}
+}
+/**
+ * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * @test Verify that a deprecated option is well preserved when read through
+ * 		the IEclipsePreferences (i.e. simulate reading project preferences of a project
+ * 		coming from an older workspace)
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
+ * @deprecated As using deprecated constants
+ */
+public void testBug324987_Project03() throws CoreException {
+	try {
+		// Set the obsolete preference simulating a project coming from an older version workspace
+		JavaProject project = (JavaProject) createJavaProject("P");
+		final String obsoleteOption = DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER;
+		project.getEclipsePreferences().put(obsoleteOption, JavaCore.DO_NOT_INSERT);
+		// Verify that obsolete preference is stored
+		assertEquals(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaCore.DO_NOT_INSERT,
+				project.getEclipsePreferences().get(obsoleteOption, null));
+		// Verify that project obsolete option is well retrieved
+		assertEquals(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaCore.DO_NOT_INSERT,
+				project.getOption(obsoleteOption, true));
+	} finally {
+		deleteProject("P");
+	}
+}
+/**
+ * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * @test Verify that a new option beats the deprecated option when a client sets both
+ * 		through the JavaCore.setOptions(Hashtable) API
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
+ * @deprecated As using deprecated constants
+ */
+public void testBug324987_Workspace01() throws CoreException {
+	try {
+		// Set the obsolete option using the JavaCore API
+		final String obsoleteOption = DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER;
+		Hashtable testOptions = JavaCore.getOptions();
+		testOptions.put(obsoleteOption, JavaCore.DO_NOT_INSERT);
+		JavaCore.setOptions(testOptions);
+		// Verify that obsolete preference is not stored
+		assertNull(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaModelManager.getJavaModelManager().getInstancePreferences().get(obsoleteOption, null));
+		// Verify that workspace obsolete option is well retrieved
+		assertEquals(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaCore.INSERT,
+				JavaCore.getOption(obsoleteOption));
+	} finally {
+		JavaCore.setOptions(JavaCore.getDefaultOptions());
+	}
+}
+/**
+ * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * @test Verify that a deprecated option is well preserved when read through
+ * 		the IEclipsePreferences (i.e. simulate reading an older workspace)
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
+ * @deprecated As using deprecated constants
+ */
+public void testBug324987_Workspace02() throws CoreException {
+	try {
+		// Set the obsolete preference simulating an older version workspace
+		final String obsoleteOption = DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER;
+		IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
+		instancePreferences.put(obsoleteOption, JavaCore.DO_NOT_INSERT);
+		// Verify that obsolete preference is stored
+		assertEquals(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaCore.DO_NOT_INSERT,
+				instancePreferences.get(obsoleteOption, null));
+		// Verify that project obsolete option is well retrieved
+		assertEquals(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaCore.DO_NOT_INSERT,
+				JavaCore.getOption(obsoleteOption));
+	} finally {
+		deleteProject("P");
+	}
+}
+/**
+ * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * @test Verify that a deprecated option is well preserved when a client use it
+ * 		through the JavaCore.setOptions(Hashtable) API
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
+ * @deprecated As using deprecated constants
+ */
+public void testBug324987_Workspace03() throws CoreException {
+	try {
+		// Set the obsolete option using the JavaCore API
+		final String obsoleteOption = DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER;
+		Hashtable testOptions = JavaCore.getOptions();
+		testOptions.put(obsoleteOption, JavaCore.INSERT);
+		JavaCore.setOptions(testOptions);
+		// Verify that obsolete preference is not stored
+		assertNull(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaModelManager.getJavaModelManager().getInstancePreferences().get(obsoleteOption, null));
+		// Verify that workspace obsolete option is well retrieved
+		assertEquals(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaCore.INSERT,
+				JavaCore.getOption(obsoleteOption));
+	} finally {
+		JavaCore.setOptions(JavaCore.getDefaultOptions());
+	}
+}
+/**
+ * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * @test Verify that a deprecated option is well preserved when read through
+ * 		the IEclipsePreferences (i.e. simulate reading an older workspace)
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
+ * @deprecated As using deprecated constants
+ */
+public void testBug324987_Workspace04() throws CoreException {
+	try {
+		// Set the obsolete preference simulating an older version workspace
+		final String obsoleteOption = DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER;
+		IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
+		instancePreferences.put(obsoleteOption, JavaCore.INSERT);
+		// Verify that obsolete preference is stored
+		assertEquals(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaCore.INSERT,
+				instancePreferences.get(obsoleteOption, null));
+		// Verify that project obsolete option is well retrieved
+		assertEquals(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaCore.INSERT,
+				JavaCore.getOption(obsoleteOption));
+	} finally {
+		deleteProject("P");
 	}
 }
 }
