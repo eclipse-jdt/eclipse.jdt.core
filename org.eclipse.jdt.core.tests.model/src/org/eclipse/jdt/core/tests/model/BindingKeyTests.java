@@ -639,4 +639,26 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"LNullBinding~One<[LNullBinding~Outer<Ljava/lang/Integer;>.Inner<Ljava/lang/Double;>;>;"
 		);
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=336451
+	 * Make sure that the binding obtained is a type binding corresponding to the
+	 * method type variables
+	 */
+	public void test057() {
+		assertBindingKeySignatureEquals(
+			"TT;",
+			"LEclipseTest$InvokerIF;.invoke<T::LEclipseTest$ArgIF;>(TT;)TT;|Ljava/lang/RuntimeException;:TT;"
+		);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=336451
+	 * Make sure that the binding obtained is a type binding corresponding to the
+	 * method type variables. In this case method has 2 exceptions and 2 type variables.
+	 */
+	public void test058() {
+		assertBindingKeySignatureEquals(
+			"TT;",
+			"LEclipseTest$InvokerIF;.invoke<T::LEclipseTest$ArgIF;Y:Ljava/lang/Object;>(TT;)TT;|Ljava/lang/RuntimeException;|Ljava/lang/IndexOutOfBoundsException;:TT;"
+		);
+	}
 }
