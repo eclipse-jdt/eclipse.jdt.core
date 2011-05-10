@@ -1635,14 +1635,7 @@ public class JavaProject
 	 * @see org.eclipse.jdt.core.IJavaProject#getOption(String, boolean)
 	 */
 	public String getOption(String optionName, boolean inheritJavaCoreOptions) {
-		if (JavaModelManager.getJavaModelManager().optionNames.contains(optionName)){
-			IEclipsePreferences projectPreferences = getEclipsePreferences();
-			String javaCoreDefault = inheritJavaCoreOptions ? JavaCore.getOption(optionName) : null;
-			if (projectPreferences == null) return javaCoreDefault;
-			String value = projectPreferences.get(optionName, javaCoreDefault);
-			return value == null ? null : value.trim();
-		}
-		return null;
+		return JavaModelManager.getJavaModelManager().getOption(optionName, inheritJavaCoreOptions, getEclipsePreferences());
 	}
 
 	/**
@@ -1672,11 +1665,20 @@ public class JavaProject
 					String propertyName = propertyNames[i];
 					String value = projectPreferences.get(propertyName, null);
 					if (value != null) {
-						if (optionNames.contains(propertyName)){
-							projectOptions.put(propertyName, value.trim());
-						} else {
-							// Maybe an obsolete preference, try to migrate it...
-							javaModelManager.migrateObsoleteOption(projectOptions, propertyName, value.trim());
+						value = value.trim();
+						// Keep the option value, even if it's deprecated
+						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987
+						projectOptions.put(propertyName, value);
+						if (!optionNames.contains(propertyName)) {
+							// try to migrate deprecated options
+							String[] compatibleOptions = (String[]) javaModelManager.deprecatedOptions.get(propertyName);
+							if (compatibleOptions != null) {
+								for (int co=0, length=compatibleOptions.length; co < length; co++) {
+									String compatibleOption = compatibleOptions[co];
+									if (!projectOptions.containsKey(compatibleOption))
+										projectOptions.put(compatibleOption, value);
+								}
+							}
 						}
 					}
 				}
@@ -1696,7 +1698,7 @@ public class JavaProject
 				Map.Entry entry = (Map.Entry) propertyNames.next();
 				String propertyName = (String) entry.getKey();
 				String propertyValue = (String) entry.getValue();
-				if (propertyValue != null && optionNames.contains(propertyName)){
+				if (propertyValue != null && javaModelManager.knowsOption(propertyName)){
 					options.put(propertyName, propertyValue.trim());
 				}
 			}
@@ -2924,20 +2926,17 @@ public class JavaProject
 	 * @see org.eclipse.jdt.core.IJavaProject#setOption(java.lang.String, java.lang.String)
 	 */
 	public void setOption(String optionName, String optionValue) {
-		if (!JavaModelManager.getJavaModelManager().optionNames.contains(optionName)) return; // unrecognized option
+		// Store option value
 		IEclipsePreferences projectPreferences = getEclipsePreferences();
-		if (optionValue == null) {
-			// remove preference
-			projectPreferences.remove(optionName);
-		} else {
-			projectPreferences.put(optionName, optionValue);
-		}
+		boolean modified = JavaModelManager.getJavaModelManager().storePreference(optionName, optionValue, projectPreferences);
 
-		// Dump changes
-		try {
-			projectPreferences.flush();
-		} catch (BackingStoreException e) {
-			// problem with pref store - quietly ignore
+		// Write changes
+		if (modified) {
+			try {
+				projectPreferences.flush();
+			} catch (BackingStoreException e) {
+				// problem with pref store - quietly ignore
+			}
 		}
 	}
 
@@ -2953,12 +2952,12 @@ public class JavaProject
 				projectPreferences.clear();
 			} else {
 				Iterator entries = newOptions.entrySet().iterator();
+				JavaModelManager javaModelManager = JavaModelManager.getJavaModelManager();
 				while (entries.hasNext()){
 					Map.Entry entry = (Map.Entry) entries.next();
 					String key = (String) entry.getKey();
-					if (!JavaModelManager.getJavaModelManager().optionNames.contains(key)) continue; // unrecognized option
-					// no filtering for encoding (custom encoding for project is allowed)
-					projectPreferences.put(key, (String) entry.getValue());
+					String value = (String) entry.getValue();
+					javaModelManager.storePreference(key, value, projectPreferences);
 				}
 
 				// reset to default all options not in new map
