@@ -906,6 +906,50 @@ public void test024a() {
 			"The exception FileNotFoundException is already caught by the alternative IOException\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=344824
+public void test025() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        try {\n" +
+				"            throw new D();\n" +
+				"        } catch (F e) {\n" +
+				"            try {\n" +
+				"                throw e;\n" +
+				"            } catch (F f) {\n" +
+				"            } catch (RuntimeException | S f) {\n" +
+				"            }\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n" +
+				"class F extends Exception {}\n" +
+				"class S extends F {}\n" +
+				"class D extends F {}\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	} catch (RuntimeException | S f) {\n" + 
+			"	                            ^\n" + 
+			"Unreachable catch block for S. It is already handled by the catch block for F\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	class F extends Exception {}\n" + 
+			"	      ^\n" + 
+			"The serializable class F does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 15)\n" + 
+			"	class S extends F {}\n" + 
+			"	      ^\n" + 
+			"The serializable class S does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 16)\n" + 
+			"	class D extends F {}\n" + 
+			"	      ^\n" + 
+			"The serializable class D does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return TryStatement17Test.class;
 }

@@ -1112,7 +1112,7 @@ protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes
 						if (exception.isCompatibleWith(currentException)) {
 							TypeReference catchArgumentType = this.catchArguments[i].type;
 							if ((catchArgumentType.bits & ASTNode.IsDisjuntive) != 0) {
-								catchArgumentType = ((DisjunctiveTypeReference) catchArgumentType).typeReferences[n];
+								catchArgumentType = ((DisjunctiveTypeReference) catchArgumentType).typeReferences[j];
 							}
 							this.scope.problemReporter().wrongSequenceOfExceptionTypesError(
 								catchArgumentType,
