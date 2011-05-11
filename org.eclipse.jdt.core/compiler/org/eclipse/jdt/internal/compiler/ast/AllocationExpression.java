@@ -283,6 +283,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	// will check for null after args are resolved
 
+	final boolean isDiamond = this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0;
 	// resolve type arguments (for generic constructor call)
 	if (this.typeArguments != null) {
 		int length = this.typeArguments.length;
@@ -297,7 +298,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				scope.problemReporter().illegalUsageOfWildcard(typeReference);
 			}
 		}
-		if (this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0) {
+		if (isDiamond) {
 			scope.problemReporter().diamondNotWithExplicitTypeArguments(this.typeArguments);
 			return null;
 		}
@@ -329,8 +330,15 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 		if (argHasError) {
+			/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=345359, if arguments have errors, completely bail out in the <> case.
+			   No meaningful type resolution is possible since inference of the elided types is fully tied to argument types. Do
+			   not return the partially resolved type.
+			 */
+			if (isDiamond) {
+				return null; // not the partially cooked this.resolvedType
+			}
 			if (this.resolvedType instanceof ReferenceBinding) {
-				// record a best guess, for clients who need hint about possible contructor match
+				// record a best guess, for clients who need hint about possible constructor match
 				TypeBinding[] pseudoArgs = new TypeBinding[length];
 				for (int i = length; --i >= 0;) {
 					pseudoArgs[i] = argumentTypes[i] == null ? TypeBinding.NULL : argumentTypes[i]; // replace args with errors with null type
@@ -365,7 +373,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().cannotInstantiate(this.type, this.resolvedType);
 		return this.resolvedType;
 	}
-	if (this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0) {
+	if (isDiamond) {
 		TypeBinding [] inferredTypes = inferElidedTypes(((ParameterizedTypeBinding) this.resolvedType).genericType(), argumentTypes, scope);
 		this.resolvedType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) this.resolvedType).genericType(), inferredTypes, ((ParameterizedTypeBinding) this.resolvedType).enclosingType());
  	}

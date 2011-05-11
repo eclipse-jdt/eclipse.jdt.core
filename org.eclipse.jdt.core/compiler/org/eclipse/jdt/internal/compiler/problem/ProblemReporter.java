@@ -7756,7 +7756,6 @@ public void cannotInferElidedTypes(AllocationExpression allocationExpression) {
 			allocationExpression.sourceStart, 
 			allocationExpression.sourceEnd);
 }
-
 public void diamondNotWithExplicitTypeArguments(TypeReference[] typeArguments) {
 	this.handle(
 			IProblem.CannotUseDiamondWithExplicitTypeArguments,
@@ -7764,5 +7763,13 @@ public void diamondNotWithExplicitTypeArguments(TypeReference[] typeArguments) {
 			NoArgument,
 			typeArguments[0].sourceStart, 
 			typeArguments[typeArguments.length - 1].sourceEnd);
+}
+public void diamondNotWithAnoymousClasses(TypeReference type) {
+	this.handle(
+			IProblem.CannotUseDiamondWithAnonymousClasses,
+			NoArgument,
+			NoArgument,
+			type.sourceStart, 
+			type.sourceEnd);
 }
 }

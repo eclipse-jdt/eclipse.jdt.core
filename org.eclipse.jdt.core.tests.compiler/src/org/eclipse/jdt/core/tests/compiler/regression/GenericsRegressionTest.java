@@ -2027,12 +2027,19 @@ public void test339478o() {
 			"	}\n" + 
 			"}",
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	new X<>(){\n" + 
 		"	    ^\n" + 
 		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
-		"----------\n");
+		"----------\n" :
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	new X<>(){\n" + 
+			"	    ^\n" + 
+			"\'<>\' cannot be used with anonymous classes\n" + 
+			"----------\n");
 }
 public void test339478p() {
 	this.runNegativeTest(
@@ -2050,6 +2057,7 @@ public void test339478p() {
 			"	}\n" + 
 			"}",
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
 		"----------\n" + 
 		"1. WARNING in X.java (at line 3)\n" + 
 		"	X Test = new X<>(){\n" + 
@@ -2060,7 +2068,18 @@ public void test339478p() {
 		"	X Test = new X<>(){\n" + 
 		"	             ^\n" + 
 		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
-		"----------\n");
+		"----------\n" : 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	X Test = new X<>(){\n" + 
+			"	^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	X Test = new X<>(){\n" + 
+			"	             ^\n" + 
+			"\'<>\' cannot be used with anonymous classes\n" + 
+			"----------\n");
 }
 public void test339478q() {
 	this.runNegativeTest(

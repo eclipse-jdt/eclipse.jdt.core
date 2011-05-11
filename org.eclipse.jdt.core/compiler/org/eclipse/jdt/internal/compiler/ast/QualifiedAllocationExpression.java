@@ -429,6 +429,11 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			}
 			scope.problemReporter().typeMismatchError(enclosingInstanceType, expectedType, this.enclosingInstance, null);
 			return this.resolvedType = receiverType;
+		} else {
+			if (this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0) {
+				scope.problemReporter().diamondNotWithAnoymousClasses(this.type);
+				return null;
+			}	
 		}
 		ReferenceBinding superType = (ReferenceBinding) receiverType;
 		if (superType.isTypeVariable()) {

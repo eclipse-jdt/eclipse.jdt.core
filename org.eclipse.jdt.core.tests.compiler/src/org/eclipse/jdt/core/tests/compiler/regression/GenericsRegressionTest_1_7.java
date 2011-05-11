@@ -456,7 +456,7 @@ public void test004b() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	new X<>().new X2<>(){\n" + 
 		"	              ^^\n" + 
-		"Incorrect number of arguments for type X<Object>.X2; it cannot be parameterized with arguments <>\n" + 
+		"\'<>\' cannot be used with anonymous classes\n" + 
 		"----------\n");
 }
 public void test004c() {
@@ -696,12 +696,12 @@ public void test0016() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	X<String> x = new <String>X<>();\n" + 
 		"	                   ^^^^^^\n" + 
-		"<> operator cannot be used in an allocation expression with explicit type arguments\n" + 
+		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 10)\n" + 
 		"	X<String> x2 = new <String, Integer>X<>(1);\n" + 
 		"	                    ^^^^^^^^^^^^^^^\n" + 
-		"<> operator cannot be used in an allocation expression with explicit type arguments\n" + 
+		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
 		"----------\n");
 }
 public void test0016a() {
@@ -748,17 +748,17 @@ public void test0016b() {
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	X<Integer> test = new <String>X<>();\n" + 
 		"	                       ^^^^^^\n" + 
-		"<> operator cannot be used in an allocation expression with explicit type arguments\n" + 
+		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 12)\n" + 
 		"	test.x = new <String>X<>();\n" + 
 		"	              ^^^^^^\n" + 
-		"<> operator cannot be used in an allocation expression with explicit type arguments\n" + 
+		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 13)\n" + 
 		"	test.x2 = new <String, Integer>X<>(1);\n" + 
 		"	               ^^^^^^^^^^^^^^^\n" + 
-		"<> operator cannot be used in an allocation expression with explicit type arguments\n" + 
+		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
 		"----------\n");
 }
 //To verify that a parameterized invocation of a generic constructor works even if <> is used
@@ -809,12 +809,12 @@ public void test0017() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	X<String> x2 = new <String, Integer>X<>(1);\n" + 
 		"	                    ^^^^^^^^^^^^^^^\n" + 
-		"<> operator cannot be used in an allocation expression with explicit type arguments\n" + 
+		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 12)\n" + 
 		"	X<String> x3 = new <String, Integer>X<>(i);\n" + 
 		"	                    ^^^^^^^^^^^^^^^\n" + 
-		"<> operator cannot be used in an allocation expression with explicit type arguments\n" + 
+		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
 		"----------\n");
 }
 // To verify that a parameterized invocation of a non-generic constructor works even if <> is used
@@ -1110,15 +1110,56 @@ public void test0027() {
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	X<String> x = new <String, Integer> X<>(1);\n" + 
 		"	                   ^^^^^^^^^^^^^^^\n" + 
-		"<> operator cannot be used in an allocation expression with explicit type arguments\n" + 
+		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 12)\n" + 
 		"	X<String> x2 = x.new <String, Integer> Y<>(1);\n" + 
 		"	                      ^^^^^^^^^^^^^^^\n" + 
-		"<> operator cannot be used in an allocation expression with explicit type arguments\n" + 
+		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
+		"----------\n"
+);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345239
+public void test0028() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"     X<String> x = new X<> () {}\n;" +
+			"     class Y<U> {\n" +
+			"	  }\n" +
+			"     X<String>.Y<String> y = x.new Y<>() {};\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	X<String> x = new X<> () {}\n" + 
+		"	                  ^\n" + 
+		"\'<>\' cannot be used with anonymous classes\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	X<String>.Y<String> y = x.new Y<>() {};\n" + 
+		"	                              ^\n" + 
+		"\'<>\' cannot be used with anonymous classes\n" + 
 		"----------\n");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345359
+public void test0029() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    X(T t) {}\n" +
+			"    X<String> f2 = new X<>(new Y()); \n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<String> f2 = new X<>(new Y()); \n" + 
+		"	                           ^\n" + 
+		"Y cannot be resolved to a type\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
 }

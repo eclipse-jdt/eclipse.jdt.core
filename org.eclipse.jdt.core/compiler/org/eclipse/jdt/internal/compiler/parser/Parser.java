@@ -1197,6 +1197,9 @@ protected void classInstanceCreation(boolean isQualified) {
 		anonymousTypeDeclaration.bodyEnd = this.endStatementPosition;
 		if (anonymousTypeDeclaration.allocation != null) {
 			anonymousTypeDeclaration.allocation.sourceEnd = this.endStatementPosition;
+			if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
+				checkForDiamond(anonymousTypeDeclaration.allocation.type);
+			}
 		}
 		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
 			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlock;
@@ -2494,6 +2497,9 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 			this.genericsPtr -= length;
 			System.arraycopy(this.genericsStack, this.genericsPtr + 1, allocationExpression.typeArguments = new TypeReference[length], 0, length);
 			allocationExpression.sourceStart = this.intStack[this.intPtr--];
+			if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
+				checkForDiamond(allocationExpression.type);
+			}
 		}
 	}
 	
@@ -2561,6 +2567,9 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 			this.genericsPtr -= length;
 			System.arraycopy(this.genericsStack, this.genericsPtr + 1, allocationExpression.typeArguments = new TypeReference[length], 0, length);
 			allocationExpression.sourceStart = this.intStack[this.intPtr--];
+			if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
+				checkForDiamond(allocationExpression.type);
+			}
 		}
 	}
 }

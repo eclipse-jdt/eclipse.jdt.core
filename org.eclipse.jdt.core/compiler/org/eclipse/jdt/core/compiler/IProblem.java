@@ -1383,6 +1383,8 @@ void setSourceStart(int sourceStart);
 	int CannotInferElidedTypes = TypeRelated + 878;
 	/** @since 3.7 */
 	int CannotUseDiamondWithExplicitTypeArguments = TypeRelated + 879;
+	/** @since 3.7 */
+	int CannotUseDiamondWithAnonymousClasses = TypeRelated + 880;
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */
