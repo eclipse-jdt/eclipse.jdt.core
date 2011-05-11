@@ -87,15 +87,18 @@ public class DisjunctiveTypeReference extends TypeReference {
 				hasError = true;
 			}
 			allExceptionTypes[i] = exceptionType;
-		}
-		// need to check if exception type was already handled by previous exceptions
-		for (int i = 0; i < length; i++) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340486, ensure types are disjunctive.
 			for (int j = 0; j < i; j++) {
-				if (allExceptionTypes[i].isCompatibleWith(allExceptionTypes[j])) {
+				if (allExceptionTypes[j].isCompatibleWith(exceptionType)) {
+					scope.problemReporter().wrongSequenceOfExceptionTypes(
+							this.typeReferences[j],
+							allExceptionTypes[j],
+							exceptionType);
+					hasError = true;
+				} else if (exceptionType.isCompatibleWith(allExceptionTypes[j])) {
 					scope.problemReporter().wrongSequenceOfExceptionTypes(
 							this.typeReferences[i],
-							allExceptionTypes[i],
-							i,
+							exceptionType,
 							allExceptionTypes[j]);
 					hasError = true;
 				}

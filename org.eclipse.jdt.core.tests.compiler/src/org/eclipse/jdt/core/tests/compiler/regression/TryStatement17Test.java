@@ -50,7 +50,7 @@ public void test001() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	} catch(IOException | FileNotFoundException e) {\n" + 
 		"	                      ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The exception FileNotFoundException is already caught by the exception IOException\n" + 
+		"The exception FileNotFoundException is already caught by the alternative IOException\n" + 
 		"----------\n");
 }
 public void test002() {
@@ -74,8 +74,18 @@ public void test002() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	} catch(FileNotFoundException | FileNotFoundException | IOException e) {\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The exception FileNotFoundException is already caught by the alternative FileNotFoundException\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	} catch(FileNotFoundException | FileNotFoundException | IOException e) {\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The exception FileNotFoundException is already caught by the alternative IOException\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	} catch(FileNotFoundException | FileNotFoundException | IOException e) {\n" + 
 		"	                                ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The exception FileNotFoundException is already caught by the exception FileNotFoundException\n" + 
+		"The exception FileNotFoundException is already caught by the alternative IOException\n" + 
 		"----------\n");
 }
 public void test003() {
@@ -102,7 +112,7 @@ public void test003() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	} catch(FileNotFoundException | IOException e) {\n" + 
 		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unreachable catch block for FileNotFoundException. It is already handled by the catch block for FileNotFoundException\n" + 
+		"The exception FileNotFoundException is already caught by the alternative IOException\n" + 
 		"----------\n");
 }
 public void test004() {
@@ -126,14 +136,19 @@ public void test004() {
 			"}",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 10)\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	} catch(RuntimeException | Exception e) {			e.printStackTrace();\n" + 
+		"	        ^^^^^^^^^^^^^^^^\n" + 
+		"The exception RuntimeException is already caught by the alternative Exception\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
 		"	} catch(FileNotFoundException | IOException e) {\n" + 
-		"	                                ^^^^^^^^^^^\n" + 
-		"Unreachable catch block for FileNotFoundException. It is already handled by the catch block for Exception\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The exception FileNotFoundException is already caught by the alternative IOException\n" + 
 		"----------\n");
 }
 public void test005() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"import java.io.*;\n" + 
@@ -152,7 +167,17 @@ public void test005() {
 			"	}\n" + 
 			"}",
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	} catch(NumberFormatException | RuntimeException e) {\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The exception NumberFormatException is already caught by the alternative RuntimeException\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	} catch(FileNotFoundException | IOException e) {\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The exception FileNotFoundException is already caught by the alternative IOException\n" + 
+		"----------\n");
 }
 //Test that lub is not used for checking for checking the exceptions
 public void test006() {
@@ -831,6 +856,55 @@ public void test023() {
     			"Cannot use the parameterized type X<String> either in catch block or throws clause\n" + 
     			"----------\n"
 			);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340486
+public void test024() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.FileNotFoundException;\n" +
+				"import java.io.IOException;\n" +
+				"public class X {\n" +
+				"    public static void main(String [] args) {\n" +
+				"        try {\n" +
+				"            if (args.length == 0)\n" +
+				"                throw new FileNotFoundException();\n" +
+				"            throw new IOException();\n" +
+				"        } catch(IOException | FileNotFoundException e) {\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	} catch(IOException | FileNotFoundException e) {\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The exception FileNotFoundException is already caught by the alternative IOException\n" + 
+			"----------\n");
+}
+public void test024a() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.FileNotFoundException;\n" +
+				"import java.io.IOException;\n" +
+				"public class X {\n" +
+				"    public static void main(String [] args) {\n" +
+				"        try {\n" +
+				"            if (args.length == 0)\n" +
+				"                throw new FileNotFoundException();\n" +
+				"            throw new IOException();\n" +
+				"        } catch(FileNotFoundException | IOException e) {\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	} catch(FileNotFoundException | IOException e) {\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The exception FileNotFoundException is already caught by the alternative IOException\n" + 
+			"----------\n");
 }
 public static Class testClass() {
 	return TryStatement17Test.class;

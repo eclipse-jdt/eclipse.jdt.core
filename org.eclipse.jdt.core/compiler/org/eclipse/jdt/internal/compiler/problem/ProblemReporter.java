@@ -7724,8 +7724,8 @@ public void wrongSequenceOfExceptionTypesError(TypeReference typeRef, TypeBindin
 		typeRef.sourceStart,
 		typeRef.sourceEnd);
 }
-public void wrongSequenceOfExceptionTypes(TypeReference typeRef, TypeBinding exceptionType, int under, TypeBinding hidingExceptionType) {
-	// the order of type reference inside a disjunctive type is wrong
+public void wrongSequenceOfExceptionTypes(TypeReference typeRef, TypeBinding exceptionType, TypeBinding hidingExceptionType) {
+	// type references inside a multi-catch block are not disjunctive
 	this.handle(
 		IProblem.InvalidDisjunctiveTypeReferenceSequence,
 		new String[] {
