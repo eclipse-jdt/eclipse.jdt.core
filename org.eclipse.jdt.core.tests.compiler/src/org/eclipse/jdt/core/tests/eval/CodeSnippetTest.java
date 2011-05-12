@@ -57,8 +57,6 @@ public Map getCompilerOptions() {
 	defaultOptions.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
 	defaultOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, CompilerOptions.WARNING);
-	defaultOptions.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotation, CompilerOptions.ERROR);
-	defaultOptions.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.ERROR);
 	return defaultOptions;
 }
 /**
@@ -910,5 +908,23 @@ public void testFor89632() {
 		// clean up
 		this.context.setImports(new char[0][]);
 	}
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=345334
+ */
+public void testBug345334() {
+	Map options = getCompilerOptions();
+	if (this.complianceLevel == ClassFileConstants.JDK1_5) {
+		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotation, CompilerOptions.ERROR);
+	} else if (this.complianceLevel >= ClassFileConstants.JDK1_6) {
+		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotation, CompilerOptions.ERROR);
+		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.ERROR);
+	}
+	evaluateWithExpectedDisplayString(
+			options,
+			buildCharArray(new String[] {
+			"return \"SUCCESS\";\n",
+			}),
+			"SUCCESS".toCharArray());
 }
 }
