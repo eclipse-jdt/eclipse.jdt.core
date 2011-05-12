@@ -950,6 +950,58 @@ public void test025() {
 			"The serializable class D does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345522
+public void test026() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.EOFException;\n" +
+				"import java.io.FileNotFoundException;\n" +
+				"public class X {\n" +
+				"    X() { \n" +
+				"        try {\n" +
+				"            zoo();\n" +
+				"        } catch (EOFException ea) {\n" +
+				"        } catch (FileNotFoundException eb) {\n" +
+				"        } catch (Exception ec) {\n" +
+				"            throw ec;\n" +
+				"        }\n" +
+				"    }\n" +
+				"    void zoo() throws FileNotFoundException, EOFException {\n" +
+				"    }\n" +
+				"}\n"
+			}, 
+			"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345522
+public void test026a() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.EOFException;\n" +
+				"import java.io.FileNotFoundException;\n" +
+				"public class X {\n" +
+				"    X() { \n" +
+				"        try {\n" +
+				"            zoo();\n" +
+				"            throw new Exception();\n" +
+				"        } catch (EOFException ea) {\n" +
+				"        } catch (FileNotFoundException eb) {\n" +
+				"        } catch (Exception ec) {\n" +
+				"            throw ec;\n" +
+				"        }\n" +
+				"    }\n" +
+				"    void zoo() throws FileNotFoundException, EOFException {\n" +
+				"    }\n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	throw ec;\n" + 
+			"	^^^^^^^^^\n" + 
+			"Unhandled exception type Exception\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return TryStatement17Test.class;
 }

@@ -105,11 +105,8 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 		LocalVariableBinding throwArgBinding = ((ThrowStatement)location).exception.localVariableBinding();
 		if (throwArgBinding instanceof CatchParameterBinding && throwArgBinding.isEffectivelyFinal()) {
 			CatchParameterBinding parameter = (CatchParameterBinding) throwArgBinding;
-			TypeBinding [] preciseRethrowableExceptions = parameter.getPreciseTypes();
-			if (preciseRethrowableExceptions.length > 0) {
-				checkExceptionHandlers(preciseRethrowableExceptions, location, flowInfo, scope);
-				return;
-			} // else fall through and consider the throw as a 1.6 throw and operate in light version.
+			checkExceptionHandlers(parameter.getPreciseTypes(), location, flowInfo, scope);
+			return;
 		}
 	}
 	while (traversedContext != null) {

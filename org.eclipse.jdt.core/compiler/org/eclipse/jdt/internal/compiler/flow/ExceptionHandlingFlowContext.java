@@ -264,7 +264,7 @@ public void recordHandlingException(
 	}
 	this.isReached[cacheIndex] |= bitMask;
 	int catchBlock = this.exceptionToCatchBlockMap != null? this.exceptionToCatchBlockMap[index] : index;
-	if (this.catchArguments != null && this.catchArguments.length > 0) {
+	if (this.catchArguments != null && this.catchArguments.length > 0 && !wasAlreadyDefinitelyCaught) {
 		CatchParameterBinding catchParameter = (CatchParameterBinding) this.catchArguments[catchBlock].binding;
 		catchParameter.setPreciseType(raisedException);
 	}
