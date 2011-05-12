@@ -302,6 +302,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 
 		// resolve type arguments (for generic constructor call)
+		final boolean isDiamond = this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0;
 		if (this.typeArguments != null) {
 			int length = this.typeArguments.length;
 			boolean argHasError = scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5;
@@ -315,7 +316,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					scope.problemReporter().illegalUsageOfWildcard(typeReference);
 				}
 			}
-			if (this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0) {
+			if (isDiamond) {
 				scope.problemReporter().diamondNotWithExplicitTypeArguments(this.typeArguments);
 				return null;
 			}
@@ -348,6 +349,13 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		// limit of fault-tolerance
 		if (hasError) {
+			/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=345359, if arguments have errors, completely bail out in the <> case.
+			   No meaningful type resolution is possible since inference of the elided types is fully tied to argument types. Do
+			   not return the partially resolved type.
+			 */
+			if (isDiamond) {
+				return null; // not the partially cooked this.resolvedType
+			}
 			if (receiverType instanceof ReferenceBinding) {
 				ReferenceBinding referenceReceiver = (ReferenceBinding) receiverType;
 				if (receiverType.isValidBinding()) {
@@ -390,7 +398,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				scope.problemReporter().cannotInstantiate(this.type, receiverType);
 				return this.resolvedType = receiverType;
 			}
-			if (this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0) {
+			if (isDiamond) {
 				TypeBinding [] inferredTypes = inferElidedTypes(((ParameterizedTypeBinding) receiverType).genericType(), argumentTypes, scope);
 				receiverType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) receiverType).genericType(), inferredTypes, ((ParameterizedTypeBinding) receiverType).enclosingType());
 			}
@@ -430,7 +438,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			scope.problemReporter().typeMismatchError(enclosingInstanceType, expectedType, this.enclosingInstance, null);
 			return this.resolvedType = receiverType;
 		} else {
-			if (this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0) {
+			if (isDiamond) {
 				scope.problemReporter().diamondNotWithAnoymousClasses(this.type);
 				return null;
 			}	
