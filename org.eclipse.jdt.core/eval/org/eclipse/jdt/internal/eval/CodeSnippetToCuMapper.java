@@ -143,7 +143,7 @@ private void buildCUSource(String lineSeparator) {
 		}
 	}
 	// run() method declaration
-	if (this.complianceVersion >= ClassFileConstants.JDK1_6) {
+	if (this.complianceVersion >= ClassFileConstants.JDK1_5) {
 		buffer.append("@Override "); //$NON-NLS-1$
 	}
 	buffer.append("public void run() throws Throwable {").append(lineSeparator); //$NON-NLS-1$
