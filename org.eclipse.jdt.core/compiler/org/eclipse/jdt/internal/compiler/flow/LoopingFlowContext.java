@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - contribution for Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
@@ -58,8 +62,8 @@ public class LoopingFlowContext extends SwitchFlowContext {
 		}
 		void simulateThrowAfterLoopBack(FlowInfo flowInfo) {
 			this.catchingContext.recordHandlingException(this.caughtException,
-					flowInfo.unconditionalInits(), null, // raised exception, irrelevant here
-					null, /* invocation site, irrelevant here */ true // we have no business altering the needed status.
+					flowInfo.unconditionalInits(), null, // raised exception, irrelevant here,
+					null, null, /* invocation site, irrelevant here */ true // we have no business altering the needed status.
 					);
 		}
 	}

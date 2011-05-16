@@ -253,6 +253,7 @@ public void recordHandlingException(
 		ReferenceBinding exceptionType,
 		UnconditionalFlowInfo flowInfo,
 		TypeBinding raisedException,
+		TypeBinding caughtException,
 		ASTNode invocationSite,
 		boolean wasAlreadyDefinitelyCaught) {
 
@@ -264,9 +265,9 @@ public void recordHandlingException(
 	}
 	this.isReached[cacheIndex] |= bitMask;
 	int catchBlock = this.exceptionToCatchBlockMap != null? this.exceptionToCatchBlockMap[index] : index;
-	if (this.catchArguments != null && this.catchArguments.length > 0 && !wasAlreadyDefinitelyCaught) {
+	if (caughtException != null && this.catchArguments != null && this.catchArguments.length > 0 && !wasAlreadyDefinitelyCaught) {
 		CatchParameterBinding catchParameter = (CatchParameterBinding) this.catchArguments[catchBlock].binding;
-		catchParameter.setPreciseType(raisedException);
+		catchParameter.setPreciseType(caughtException);
 	}
 	this.initsOnExceptions[catchBlock] =
 		(this.initsOnExceptions[catchBlock].tagBits & FlowInfo.UNREACHABLE) == 0 ?

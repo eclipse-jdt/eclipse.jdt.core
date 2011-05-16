@@ -1002,6 +1002,24 @@ public void test026a() {
 			"Unhandled exception type Exception\n" + 
 			"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=345579
+public void test027() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    X() throws Exception {\n"+
+				"        try {\n"+
+				"            throw (Throwable) new Exception();\n"+
+				"        } catch (Exception e) {\n"+
+				"            throw e;\n"+
+				"        } catch (Throwable e) {\n"+
+				"        }\n"+
+				"    }\n"+
+				"}\n"
+			}, 
+			"");
+}
 public static Class testClass() {
 	return TryStatement17Test.class;
 }

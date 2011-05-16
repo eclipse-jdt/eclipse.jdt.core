@@ -144,6 +144,7 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 								caughtException,
 								flowInfo.unconditionalInits(),
 								raisedException,
+								raisedException, // precise exception that will be caught
 								location,
 								definitelyCaught);
 							// was it already definitely caught ?
@@ -154,6 +155,7 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 								caughtException,
 								flowInfo.unconditionalInits(),
 								raisedException,
+								caughtException,
 								location,
 								false);
 							// was not caught already per construction
@@ -261,6 +263,7 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 										caughtException,
 										flowInfo.unconditionalInits(),
 										raisedException,
+										raisedException, // precise exception that will be caught
 										location,
 										locallyCaught[raisedIndex]);
 									// was already definitely caught ?
@@ -275,6 +278,7 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 										caughtException,
 										flowInfo.unconditionalInits(),
 										raisedException,
+										caughtException, 
 										location,
 										false);
 									// was not caught already per construction
