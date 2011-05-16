@@ -12144,4 +12144,33 @@ public void test334306() throws Exception {
 		"Name clash: The method foo(X<Integer>) of type J has the same erasure as foo(X<Number>) of type I but does not override it\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=342819
+public void test342819() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"TwoWayDTOAdapter.java",
+			"public interface TwoWayDTOAdapter<A, B> extends DTOAdapter <A, B>{\n" +
+			"    public A convert(B b);\n" +
+			"}\n",
+			"DTOAdapter.java",
+			"public interface DTOAdapter<A, B> {\n" +
+			"    public B convert(A a);\n" +
+			"}\n",
+			"TestAdapter.java",
+			"public class TestAdapter implements TwoWayDTOAdapter<Long, Integer> {\n" +
+			"    public Long convert(Integer b) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"    public Integer convert(Long a) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in TwoWayDTOAdapter.java (at line 2)\n" + 
+		"	public A convert(B b);\n" + 
+		"	         ^^^^^^^^^^^^\n" + 
+		"Name clash: The method convert(B) of type TwoWayDTOAdapter<A,B> has the same erasure as convert(A) of type DTOAdapter<A,B> but does not override it\n" + 
+		"----------\n");
+}
 }
