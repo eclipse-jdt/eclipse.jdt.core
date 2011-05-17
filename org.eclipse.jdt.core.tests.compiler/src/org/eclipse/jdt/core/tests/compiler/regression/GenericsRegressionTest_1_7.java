@@ -1179,6 +1179,25 @@ public void test0029a() {
 		"Y cannot be resolved to a type\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
+public void _test0030() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class C {}\n" +
+			"interface I {}\n" +
+			"public class X<T extends C & I> {\n" +
+			"    X() {}\n" +
+			"    X f = new X<>();\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	X.I<String> f = new X().new I<>(new Y()); \n" + 
+		"	                                    ^\n" + 
+		"Y cannot be resolved to a type\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
 }
