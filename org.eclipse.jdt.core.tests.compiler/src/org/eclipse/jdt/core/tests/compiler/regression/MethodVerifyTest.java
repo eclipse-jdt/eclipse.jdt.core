@@ -12173,4 +12173,28 @@ public void test342819() throws Exception {
 		"Name clash: The method convert(B) of type TwoWayDTOAdapter<A,B> has the same erasure as convert(A) of type DTOAdapter<A,B> but does not override it\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
+public void _test346029() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" +
+			"    void f(String s) {}\n" +
+			"}\n" +
+			"class B<T> extends A<T> {\n" +
+			"    void f(T t) {}\n" +
+			"}\n" +
+			"public class X extends B<String> {\n" +
+			"    void foo(X x) {\n" +
+			"        x.f(\"\");\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in TwoWayDTOAdapter.java (at line 2)\n" + 
+		"	public A convert(B b);\n" + 
+		"	         ^^^^^^^^^^^^\n" + 
+		"Name clash: The method convert(B) of type TwoWayDTOAdapter<A,B> has the same erasure as convert(A) of type DTOAdapter<A,B> but does not override it\n" + 
+		"----------\n");
+}
 }
