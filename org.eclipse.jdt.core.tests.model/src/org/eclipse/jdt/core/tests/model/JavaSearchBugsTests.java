@@ -710,6 +710,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugsTests("testBug336322b"));
 	suite.addTest(new JavaSearchBugsTests("testBug336322c"));
 	suite.addTest(new JavaSearchBugsTests("testBug339891"));
+	suite.addTest(new JavaSearchBugsTests("testBug341462"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -13560,6 +13561,41 @@ public void testBug339891() throws CoreException {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{project}, IJavaSearchScope.SOURCES);
 		search("Ref.*", METHOD, REFERENCES, EXACT_RULE, scope, this.resultCollector);
 		assertSearchResults("Test.java void Test.foo(Ref) [foo()] EXACT_MATCH");
+	} finally {
+		deleteProject("P");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=341462
+public void testBug341462() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.7");
+		createFile("/P/X.java", 
+				"public class X<T> {\n" +
+				"        T field1;\n" +
+				"        public X(T param) {\n" +
+				"            field1 = param;\n" +
+				"        }\n" +
+				"        public static void testFunction(String param){\n" +
+				"            System.out.println(1);\n" +
+				"        }\n" +
+				"        public static void testFunction(Object Param) {\n" +
+				"            System.out.println(2);\n" +
+				"        }\n" +
+				"        public T getField() {\n" +
+				"            return field1;\n" +
+				"        }\n" +
+				"        public static void main(String[] args) {\n" +
+				"            X.testFunction(new X<>(\"hello\").getField());\n" +
+				"...         X.testFunction(new X<>(new Object()).getField());\n" +
+				"        }\n" +
+				"}\n");
+		waitUntilIndexesReady();
+		IType type = project.findType("X");
+		IMethod method = type.getMethod("testFunction", new String[] { "QString;" });
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{project}, IJavaSearchScope.SOURCES);
+		search(method, REFERENCES, ERASURE_RULE, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "X.java void X.main(String[]) [testFunction(new X<>(\"hello\").getField())] EXACT_MATCH", this.resultCollector);		
 	} finally {
 		deleteProject("P");
 	}
