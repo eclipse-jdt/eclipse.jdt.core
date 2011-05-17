@@ -400,6 +400,10 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			}
 			if (isDiamond) {
 				TypeBinding [] inferredTypes = inferElidedTypes(((ParameterizedTypeBinding) receiverType).genericType(), argumentTypes, scope);
+				if (inferredTypes == null) {
+					scope.problemReporter().cannotInferElidedTypes(this);
+					return this.resolvedType = null;
+				}
 				receiverType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) receiverType).genericType(), inferredTypes, ((ParameterizedTypeBinding) receiverType).enclosingType());
 			}
 			ReferenceBinding allocationType = (ReferenceBinding) receiverType;

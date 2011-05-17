@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -375,6 +374,10 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (isDiamond) {
 		TypeBinding [] inferredTypes = inferElidedTypes(((ParameterizedTypeBinding) this.resolvedType).genericType(), argumentTypes, scope);
+		if (inferredTypes == null) {
+			scope.problemReporter().cannotInferElidedTypes(this);
+			return this.resolvedType = null;
+		}
 		this.resolvedType = this.type.resolvedType = scope.environment().createParameterizedType(((ParameterizedTypeBinding) this.resolvedType).genericType(), inferredTypes, ((ParameterizedTypeBinding) this.resolvedType).enclosingType());
  	}
 	ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
@@ -412,13 +415,7 @@ public TypeBinding[] inferElidedTypes(ReferenceBinding allocationType, TypeBindi
 	if (factory instanceof ParameterizedGenericMethodBinding && factory.isValidBinding()) {
 		return ((ParameterizedTypeBinding)factory.returnType).arguments;
 	}
-	scope.problemReporter().cannotInferElidedTypes(this);
-	int arity = allocationType.typeVariables().length;
-	TypeBinding [] inferredTypes = new TypeBinding[arity];
-	for (int i = 0; i < arity; i++) {
-		inferredTypes[i] = new ProblemReferenceBinding(CharOperation.NO_CHAR_CHAR, null, ProblemReasons.InferenceFailed);
-	}
-	return inferredTypes;
+	return null;
 }
 
 public void setActualReceiverType(ReferenceBinding receiverType) {

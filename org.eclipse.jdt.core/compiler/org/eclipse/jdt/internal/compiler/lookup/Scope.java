@@ -4036,7 +4036,11 @@ public abstract class Scope {
 		int sfi = 0;
 		for (int i = 0, length = methods.length; i < length; i++) {
 			MethodBinding method = methods[i];
-			
+			int paramLength = method.parameters.length;
+			boolean isVarArgs = method.isVarargs();
+			if (argumentTypes.length != paramLength)
+				if (!isVarArgs || argumentTypes.length < paramLength - 1)
+					continue; // incompatible
 			TypeVariableBinding[] methodTypeVariables = method.typeVariables();
 			int methodTypeVariablesArity = methodTypeVariables.length;
 	        
@@ -4114,6 +4118,8 @@ public abstract class Scope {
 			staticFactories[sfi++] = new ParameterizedMethodBinding((ParameterizedTypeBinding) environment.convertToParameterizedType(staticFactory.declaringClass),
 																												staticFactory);
 		}
+		if (sfi == 0)
+			return null;
 		if (sfi != methods.length) {
 			System.arraycopy(staticFactories, 0, staticFactories = new MethodBinding[sfi], 0, sfi);
 		}
