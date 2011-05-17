@@ -991,16 +991,6 @@ public void test0023() {
 		"	Map<String, Integer> m1 = new StringKeyHashMap<>(10);\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot infer elided type(s)\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 11)\n" + 
-		"	Map<String, Integer> m1 = new StringKeyHashMap<>(10);\n" + 
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The constructor StringKeyHashMap<>(int) is undefined\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 11)\n" + 
-		"	Map<String, Integer> m1 = new StringKeyHashMap<>(10);\n" + 
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from StringKeyHashMap<> to Map<String,Integer>\n" + 
 		"----------\n");
 }
 // check inference at return expression.
@@ -1191,7 +1181,7 @@ public void _test0030() {
 			"    X f = new X<>();\n" +
 			"}\n"
 		},
-		"");
+			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
 public void _test0031() {
@@ -1238,6 +1228,260 @@ public void _test0033() {
 			"}\n"
 		},
 		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+// TODO(ayush) enable and update the error message after bug 345968 is fixed
+public void _test0034() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    X(T t) {}\n" +
+			"    X() {}\n" +
+			"    void foo(T a) {\n" +
+			"	 System.out.println(a);\n" +
+			"	 }\n" +
+			"	 class Y<K>{\n" +
+			"		Y(T t,K k) {}\n" +
+			"	 }\n" +
+			"    public static void main(String[] args) {\n" +
+			"		X<Integer> x1 = new X<>(1,1);\n" +
+			"		X<Integer> x2 = new X<>(1);\n" +
+			"		X<Integer> x3 = new X<>();\n" +
+			"		X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();\n" +
+			"		X<Integer>.Y<String> y2 = new X<>(1,1).new Y<>(1);\n" +
+			"		X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);\n" +
+			"		X<Integer>.Y<String> y4 = new X<>(1).new Y<>(\"\",\"\");\n" +
+			"		X<Integer>.Y<String> y5 = new X<>(1).new Y<>(1,\"\");\n" +
+			"		X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\");\n" +
+			"		X<Integer>.Y<String> y7 = new X<>().new Y<>(1,1);\n" +
+			"	 }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<String> f2 = new X<>(new Y()); \n" + 
+		"	                           ^\n" + 
+		"Y cannot be resolved to a type\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+// TODO(ayush) enable and update the error message after bug 345968 is fixed
+public void _test0035() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    X(T t) {}\n" +
+			"    X() {}\n" +
+			"    X(String abc, String abc2, T... t) {}\n" +
+			"    void foo(T a) {\n" +
+			"	 System.out.println(a);\n" +
+			"	 }\n" +
+			"	 class Y<K>{\n" +
+			"		Y(T t,String abc, K... k) {}\n" +
+			"	 }\n" +
+			"    public static void main(String[] args) {\n" +
+			"		X<Integer> x1 = new X<>(1,1);\n" +
+			"		X<Integer> x2 = new X<>(1);\n" +
+			"		X<Integer> x3 = new X<>();\n" +
+			"		X<Integer> x4 = new X<>(\"\",\"\");\n" +
+			"		X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" +
+			"		X<Integer> x6 = new X<>(\"\",\"\",1);\n" +
+			"		X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();\n" +
+			"		X<Integer>.Y<String> y2 = new X<>(\"\",1).new Y<>(\"\");\n" +
+			"		X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);\n" +
+			"		X<Integer>.Y<String> y4 = new X<>(1).new Y<>(1,\"\");\n" +
+			"		X<Integer>.Y<String> y5 = new X<>(1).new Y<>(1,\"\",\"\");\n" +
+			"		X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\",1);\n" +
+			"		X<Integer>.Y<String> y7 = new X<>().new Y<>(\"\",\"\",1);\n" +
+			"	 }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<String> f2 = new X<>(new Y()); \n" + 
+		"	                           ^\n" + 
+		"Y cannot be resolved to a type\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+// TODO(ayush) enable and update the error message after bug 345968 is fixed
+public void _test0036() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    X(T t) {}\n" +
+			"    X() {}\n" +
+			"    X(String abc, String abc2, T... t) {}\n" +
+			"    void foo(T a) {\n" +
+			"	 System.out.println(a);\n" +
+			"	 }\n" +
+			"	 class Y<K>{\n" +
+			"		Y(T t,String abc, K... k) {}\n" +
+			"	 }\n" +
+			"	X<Integer> x1 = new X<>(1,1);\n" +
+			"	X<Integer> x2 = new X<>(1);\n" +
+			"	X<Integer> x3 = new X<>();\n" +
+			"	X<Integer> x4 = new X<>(\"\",\"\");\n" +
+			"	X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" +
+			"	X<Integer> x6 = new X<>(\"\",\"\",1);\n" +
+			"	X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();\n" +
+			"	X<Integer>.Y<String> y2 = new X<>(\"\",1).new Y<>(\"\");\n" +
+			"	X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);\n" +
+			"	X<Integer>.Y<String> y4 = new X<>(1).new Y<>(1,\"\");\n" +
+			"	X<Integer>.Y<String> y5 = new X<>(1).new Y<>(1,\"\",\"\");\n" +
+			"	X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\",1);\n" +
+			"	X<Integer>.Y<String> y7 = new X<>().new Y<>(\"\",\"\",1);\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<String> f2 = new X<>(new Y()); \n" + 
+		"	                           ^\n" + 
+		"Y cannot be resolved to a type\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+public void test0034a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    X(T t) {}\n" +
+			"    X() {}\n" +
+			"    void foo(T a) {\n" +
+			"	 System.out.println(a);\n" +
+			"	 }\n" +
+			"    public static void main(String[] args) {\n" +
+			"		X<Integer> x1 = new X<>(1,1);\n" +
+			"		X<Integer> x2 = new X<>(1);\n" +
+			"		X<Integer> x3 = new X<>();\n" +
+			"	 }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	X<Integer> x1 = new X<>(1,1);\n" + 
+		"	                ^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+public void test0035a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    X(T t) {}\n" +
+			"    X() {}\n" +
+			"	 @SafeVarargs\n" +
+			"    X(String abc, String abc2, T... t) {}\n" +
+			"    void foo(T a) {\n" +
+			"	 	System.out.println(a);\n" +
+			"	 }\n" +
+			"    public static void main(String[] args) {\n" +
+			"		X<Integer> x1 = new X<>(1,1);\n" +
+			"		X<Integer> x2 = new X<>(1);\n" +
+			"		X<Integer> x3 = new X<>();\n" +
+			"		X<Integer> x4 = new X<>(\"\",\"\");\n" +
+			"		X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" +
+			"		X<Integer> x6 = new X<>(\"\",\"\",1);\n" +
+			"	 }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	X<Integer> x1 = new X<>(1,1);\n" + 
+		"	                ^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" + 
+		"	                ^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<String> to X<Integer>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+public void test0036a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    X(T t) {}\n" +
+			"    X() {}\n" +
+			"	 @SafeVarargs\n" +
+			"    X(String abc, String abc2, T... t) {}\n" +
+			"    void foo(T a) {\n" +
+			"	 System.out.println(a);\n" +
+			"	 }\n" +
+			"	X<Integer> x1 = new X<>(1,1);\n" +
+			"	X<Integer> x2 = new X<>(1);\n" +
+			"	X<Integer> x3 = new X<>();\n" +
+			"	X<Integer> x4 = new X<>(\"\",\"\");\n" +
+			"	X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" +
+			"	X<Integer> x6 = new X<>(\"\",\"\",1);\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	X<Integer> x1 = new X<>(1,1);\n" + 
+		"	                ^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" + 
+		"	                ^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<String> to X<Integer>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
+public void test0037() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    X(T t) {}\n" +
+			"    X() {}\n" +
+			"	 @SafeVarargs\n" +
+			"    X(String abc, String abc2, T... t) {}\n" +
+			"    void foo(T a) {\n" +
+			"	 System.out.println(a);\n" +
+			"	 }\n" +
+			"	 class Y<K>{\n" +
+			"		@SafeVarargs\n" +
+			"		Y(T t,String abc, K... k) {}\n" +
+			"	 }\n" +
+			"    public static void main(String[] args) {\n" +
+			"		X<Integer>.Y<String> y1 = new X<>().new Y<>(1);\n" +
+			"		X<Integer>.Y<String> y2 = new X<>(1).new Y<>(1);\n" +
+			"		X<Integer>.Y<String> y3 = new X<>(\"\",\"\",1).new Y<>(1);\n" +
+			"		X<Integer>.Y<String> y4 = new X<>(1,\"\").new Y<>(1,\"\");\n" +
+			"	 }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	X<Integer>.Y<String> y1 = new X<>().new Y<>(1);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 15)\n" + 
+		"	X<Integer>.Y<String> y2 = new X<>(1).new Y<>(1);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 16)\n" + 
+		"	X<Integer>.Y<String> y3 = new X<>(\"\",\"\",1).new Y<>(1);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 17)\n" + 
+		"	X<Integer>.Y<String> y4 = new X<>(1,\"\").new Y<>(1,\"\");\n" + 
+		"	                          ^^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
