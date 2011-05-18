@@ -437,7 +437,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			ExceptionLabel exceptionLabel = null;
 			if ((argument.binding.tagBits & TagBits.MultiCatchParameter) != 0) {
 				MultiCatchExceptionLabel multiCatchExceptionLabel = new MultiCatchExceptionLabel(codeStream, argument.binding.type);
-				multiCatchExceptionLabel.initialize((DisjunctiveTypeReference) argument.type);
+				multiCatchExceptionLabel.initialize((UnionTypeReference) argument.type);
 				exceptionLabel = multiCatchExceptionLabel;
 			} else {
 				exceptionLabel = new ExceptionLabel(codeStream, argument.binding.type);
@@ -1023,7 +1023,7 @@ public void resolve(BlockScope upperScope) {
 	if (this.catchBlocks != null) {
 		int length = this.catchArguments.length;
 		TypeBinding[] argumentTypes = new TypeBinding[length];
-		boolean containsDisjunctiveTypes = false;
+		boolean containsUnionTypes = false;
 		boolean catchHasError = false;
 		for (int i = 0; i < length; i++) {
 			BlockScope catchScope = new BlockScope(this.scope);
@@ -1032,7 +1032,7 @@ public void resolve(BlockScope upperScope) {
 			}
 			// side effect on catchScope in resolveForCatch(..)
 			Argument catchArgument = this.catchArguments[i];
-			containsDisjunctiveTypes |= (catchArgument.type.bits & ASTNode.IsDisjuntive) != 0;
+			containsUnionTypes |= (catchArgument.type.bits & ASTNode.IsDisjuntive) != 0;
 			if ((argumentTypes[i] = catchArgument.resolveForCatch(catchScope)) == null) {
 				catchHasError = true;
 			}
@@ -1043,7 +1043,7 @@ public void resolve(BlockScope upperScope) {
 		}
 		// Verify that the catch clause are ordered in the right way:
 		// more specialized first.
-		verifyDuplicationAndOrder(length, argumentTypes, containsDisjunctiveTypes);
+		verifyDuplicationAndOrder(length, argumentTypes, containsUnionTypes);
 	} else {
 		this.caughtExceptionTypes = new ReferenceBinding[0];
 	}
@@ -1073,24 +1073,24 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	}
 	visitor.endVisit(this, blockScope);
 }
-protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes, boolean containsDisjunctiveTypes) {
+protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes, boolean containsUnionTypes) {
 	// Verify that the catch clause are ordered in the right way:
 	// more specialized first.
-	if (containsDisjunctiveTypes) {
+	if (containsUnionTypes) {
 		int totalCount = 0;
 		ReferenceBinding[][] allExceptionTypes = new ReferenceBinding[length][];
 		for (int i = 0; i < length; i++) {
 			ReferenceBinding currentExceptionType = (ReferenceBinding) argumentTypes[i];
 			TypeReference catchArgumentType = this.catchArguments[i].type;
 			if ((catchArgumentType.bits & ASTNode.IsDisjuntive) != 0) {
-				TypeReference[] typeReferences = ((DisjunctiveTypeReference) catchArgumentType).typeReferences;
+				TypeReference[] typeReferences = ((UnionTypeReference) catchArgumentType).typeReferences;
 				int typeReferencesLength = typeReferences.length;
-				ReferenceBinding[] disjunctiveExceptionTypes = new ReferenceBinding[typeReferencesLength];
+				ReferenceBinding[] unionExceptionTypes = new ReferenceBinding[typeReferencesLength];
 				for (int j = 0; j < typeReferencesLength; j++) {
-					disjunctiveExceptionTypes[j] = (ReferenceBinding) typeReferences[j].resolvedType;
+					unionExceptionTypes[j] = (ReferenceBinding) typeReferences[j].resolvedType;
 				}
 				totalCount += typeReferencesLength;
-				allExceptionTypes[i] = disjunctiveExceptionTypes;
+				allExceptionTypes[i] = unionExceptionTypes;
 			} else {
 				allExceptionTypes[i] = new ReferenceBinding[] { currentExceptionType };
 				totalCount++;
@@ -1112,7 +1112,7 @@ protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes
 						if (exception.isCompatibleWith(currentException)) {
 							TypeReference catchArgumentType = this.catchArguments[i].type;
 							if ((catchArgumentType.bits & ASTNode.IsDisjuntive) != 0) {
-								catchArgumentType = ((DisjunctiveTypeReference) catchArgumentType).typeReferences[j];
+								catchArgumentType = ((UnionTypeReference) catchArgumentType).typeReferences[j];
 							}
 							this.scope.problemReporter().wrongSequenceOfExceptionTypesError(
 								catchArgumentType,

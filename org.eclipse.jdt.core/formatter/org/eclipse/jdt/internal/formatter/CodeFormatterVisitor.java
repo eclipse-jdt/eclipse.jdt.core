@@ -53,7 +53,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ContinueStatement;
-import org.eclipse.jdt.internal.compiler.ast.DisjunctiveTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.DoStatement;
 import org.eclipse.jdt.internal.compiler.ast.DoubleLiteral;
 import org.eclipse.jdt.internal.compiler.ast.EmptyStatement;
@@ -3534,42 +3534,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	}
 
 	/**
-	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SingleTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
-	public boolean visit(
-		DisjunctiveTypeReference disjunctiveTypeReference,
-		BlockScope scope) {
-
-		TypeReference[] typeReferences = disjunctiveTypeReference.typeReferences;
-		for (int i = 0, max = typeReferences.length; i < max; i++) {
-			if (i != 0) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameOR, true);
-				this.scribe.space();
-			}
-			typeReferences[i].traverse(this, scope);
-		}
-		return false;
-	}
-
-	/**
-	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.SingleTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
-	public boolean visit(
-		DisjunctiveTypeReference disjunctiveTypeReference,
-		ClassScope scope) {
-
-		TypeReference[] typeReferences = disjunctiveTypeReference.typeReferences;
-		for (int i = 0, max = typeReferences.length; i < max; i++) {
-			if (i != 0) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameOR, true);
-				this.scribe.space();
-			}
-			typeReferences[i].traverse(this, scope);
-		}
-		return false;
-	}
-
-	/**
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.DoStatement, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(DoStatement doStatement, BlockScope scope) {
@@ -5635,6 +5599,42 @@ public class CodeFormatterVisitor extends ASTVisitor {
 
 		if (numberOfParens > 0) {
 			manageClosingParenthesizedExpression(unaryExpression, numberOfParens);
+		}
+		return false;
+	}
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.UnionTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(
+		UnionTypeReference unionTypeReference,
+		BlockScope scope) {
+
+		TypeReference[] typeReferences = unionTypeReference.typeReferences;
+		for (int i = 0, max = typeReferences.length; i < max; i++) {
+			if (i != 0) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameOR, true);
+				this.scribe.space();
+			}
+			typeReferences[i].traverse(this, scope);
+		}
+		return false;
+	}
+
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.UnionTypeReference, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
+	 */
+	public boolean visit(
+		UnionTypeReference unionTypeReference,
+		ClassScope scope) {
+
+		TypeReference[] typeReferences = unionTypeReference.typeReferences;
+		for (int i = 0, max = typeReferences.length; i < max; i++) {
+			if (i != 0) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameOR, true);
+				this.scribe.space();
+			}
+			typeReferences[i].traverse(this, scope);
 		}
 		return false;
 	}

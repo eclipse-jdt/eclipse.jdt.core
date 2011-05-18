@@ -7725,9 +7725,9 @@ public void wrongSequenceOfExceptionTypesError(TypeReference typeRef, TypeBindin
 		typeRef.sourceEnd);
 }
 public void wrongSequenceOfExceptionTypes(TypeReference typeRef, TypeBinding exceptionType, TypeBinding hidingExceptionType) {
-	// type references inside a multi-catch block are not disjunctive
+	// type references inside a multi-catch block are not of union type
 	this.handle(
-		IProblem.InvalidDisjunctiveTypeReferenceSequence,
+		IProblem.InvalidUnionTypeReferenceSequence,
 		new String[] {
 			new String(exceptionType.readableName()),
 			new String(hidingExceptionType.readableName()),

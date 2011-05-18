@@ -41,7 +41,7 @@ import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.DisjunctiveTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -2677,9 +2677,9 @@ public class Util {
 	public static String typeSignature(TypeReference type) {
 		String signature = null;
 		if ((type.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsDisjuntive) != 0) {
-			// special treatment for disjunctive type reference
-			DisjunctiveTypeReference disjunctiveTypeReference = (DisjunctiveTypeReference) type;
-			TypeReference[] typeReferences = disjunctiveTypeReference.typeReferences;
+			// special treatment for union type reference
+			UnionTypeReference unionTypeReference = (UnionTypeReference) type;
+			TypeReference[] typeReferences = unionTypeReference.typeReferences;
 			int length = typeReferences.length;
 			String[] typeSignatures = new String[length];
 			for(int i = 0; i < length; i++) {

@@ -1301,14 +1301,14 @@ public final class AST {
 	}
 
 	/**
-	 * Creates a new unparented disjunctive type node owned by this AST.
-	 * By default, the disjunctive type has no types.
+	 * Creates a new unparented union type node owned by this AST.
+	 * By default, the union type has no types.
 	 *
 	 * @return a new unparented do statement node
 	 * @since 3.7
 	 */
-	public DisjunctiveType newDisjunctiveType() {
-		return new DisjunctiveType(this);
+	public UnionType newUnionType() {
+		return new UnionType(this);
 	}
 
 	/**

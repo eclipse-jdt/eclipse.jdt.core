@@ -395,10 +395,6 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 
-	public boolean visit(DisjunctiveType node) {
-		visitList(node, DisjunctiveType.TYPES_PROPERTY, " | ", Util.EMPTY_STRING, Util.EMPTY_STRING); //$NON-NLS-1$
-		return false;
-	}
 	/*
 	 * @see ASTVisitor#visit(DoStatement)
 	 */
@@ -992,6 +988,14 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 
+	/*
+	 * @see ASTVisitor#visit(UnionType)
+	 */
+	public boolean visit(UnionType node) {
+		visitList(node, UnionType.TYPES_PROPERTY, " | ", Util.EMPTY_STRING, Util.EMPTY_STRING); //$NON-NLS-1$
+		return false;
+	}
+	
 	/*
 	 * @see ASTVisitor#visit(VariableDeclarationExpression)
 	 */

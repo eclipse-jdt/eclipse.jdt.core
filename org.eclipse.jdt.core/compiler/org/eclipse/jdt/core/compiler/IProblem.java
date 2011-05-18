@@ -1370,7 +1370,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.7 */
 	int AssignmentToResource = Internal + 872;
 	/** @since 3.7 */
-	int InvalidDisjunctiveTypeReferenceSequence = Internal + TypeRelated + 873; 
+	int InvalidUnionTypeReferenceSequence = Internal + TypeRelated + 873; 
 	/** @since 3.7 */
 	int AutoManagedResourceNotBelow17 = Syntax + Internal + 874;
 	/** @since 3.7 */

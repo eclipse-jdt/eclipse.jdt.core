@@ -125,16 +125,6 @@ public abstract class ASTVisitor {
 	public void endVisit(ContinueStatement continueStatement, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(
-			DisjunctiveTypeReference disjunctiveTypeReference,
-			BlockScope scope) {
-		// do nothing by default
-	}
-	public void endVisit(
-			DisjunctiveTypeReference disjunctiveTypeReference,
-			ClassScope scope) {
-		// do nothing by default
-	}
 	public void endVisit(DoStatement doStatement, BlockScope scope) {
 		// do nothing by default
 	}
@@ -461,6 +451,16 @@ public abstract class ASTVisitor {
 	public void endVisit(UnaryExpression unaryExpression, BlockScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(
+			UnionTypeReference unionTypeReference,
+			BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(
+			UnionTypeReference unionTypeReference,
+			ClassScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(WhileStatement whileStatement, BlockScope scope) {
 		// do nothing by default
 	}
@@ -565,16 +565,6 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(ContinueStatement continueStatement, BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(
-			DisjunctiveTypeReference disjunctiveTypeReference,
-			BlockScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(
-			DisjunctiveTypeReference disjunctiveTypeReference,
-			ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(DoStatement doStatement, BlockScope scope) {
@@ -904,6 +894,16 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(UnaryExpression unaryExpression, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(
+			UnionTypeReference unionTypeReference,
+			BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(
+			UnionTypeReference unionTypeReference,
+			ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(WhileStatement whileStatement, BlockScope scope) {

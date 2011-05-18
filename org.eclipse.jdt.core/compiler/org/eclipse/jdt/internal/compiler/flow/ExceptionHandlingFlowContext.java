@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.DisjunctiveTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -174,8 +174,8 @@ private ASTNode getExceptionType(int index) {
 	}
 	int catchBlock = this.exceptionToCatchBlockMap[index];
 	ASTNode node = this.catchArguments[catchBlock].type;
-	if (node instanceof DisjunctiveTypeReference) {
-		TypeReference[] typeRefs = ((DisjunctiveTypeReference)node).typeReferences;
+	if (node instanceof UnionTypeReference) {
+		TypeReference[] typeRefs = ((UnionTypeReference)node).typeReferences;
 		for (int i = 0, len = typeRefs.length; i < len; i++) {
 			TypeReference typeRef = typeRefs[i];
 			if (typeRef.resolvedType == this.handledExceptions[index]) return typeRef;

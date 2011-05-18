@@ -766,11 +766,11 @@ public abstract class ASTNode {
 
 	/**
 	 * Node type constant indicating a node of type
-	 * <code>DisjunctiveType</code>.
-	 * @see DisjunctiveType
+	 * <code>UnionType</code>.
+	 * @see UnionType
 	 * @since 3.7
 	 */
-	public static final int DISJUNCTIVE_TYPE = 84;
+	public static final int UNION_TYPE = 84;
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -826,8 +826,8 @@ public abstract class ASTNode {
 				return ConstructorInvocation.class;
 			case CONTINUE_STATEMENT :
 				return ContinueStatement.class;
-			case DISJUNCTIVE_TYPE :
-				return DisjunctiveType.class;
+			case UNION_TYPE :
+				return UnionType.class;
 			case DO_STATEMENT :
 				return DoStatement.class;
 			case EMPTY_STATEMENT :

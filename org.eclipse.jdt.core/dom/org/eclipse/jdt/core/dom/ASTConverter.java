@@ -3295,7 +3295,7 @@ class ASTConverter {
 				type = simpleType;
 				type.setSourceRange(sourceStart, length);
 			} else {
-				TypeReference[] typeReferences = ((org.eclipse.jdt.internal.compiler.ast.DisjunctiveTypeReference) typeReference).typeReferences;
+				TypeReference[] typeReferences = ((org.eclipse.jdt.internal.compiler.ast.UnionTypeReference) typeReference).typeReferences;
 				switch(this.ast.apiLevel) {
 					case AST.JLS2_INTERNAL :
 					case AST.JLS3 :
@@ -3308,13 +3308,13 @@ class ASTConverter {
 						type.setFlags(type.getFlags() | ASTNode.MALFORMED);
 						break;
 					default:
-						// disjunctive type reference
-						final DisjunctiveType disjunctiveType = new DisjunctiveType(this.ast);
+						// union type reference
+						final UnionType unionType = new UnionType(this.ast);
 						for (int i = 0, max = typeReferences.length; i < max; i++) {
-							disjunctiveType.types().add(this.convertType(typeReferences[i]));
+							unionType.types().add(this.convertType(typeReferences[i]));
 						}
-						type = disjunctiveType;
-						List types = disjunctiveType.types();
+						type = unionType;
+						List types = unionType.types();
 						int size = types.size();
 						start = ((Type) types.get(0)).getStartPosition();
 						Type lastType = (Type) types.get(size - 1);

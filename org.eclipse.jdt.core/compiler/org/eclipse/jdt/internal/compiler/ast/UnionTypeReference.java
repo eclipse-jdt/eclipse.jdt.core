@@ -22,10 +22,10 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
-public class DisjunctiveTypeReference extends TypeReference {
+public class UnionTypeReference extends TypeReference {
 	public TypeReference[] typeReferences;
 
-	public DisjunctiveTypeReference(TypeReference[] typeReferences) {
+	public UnionTypeReference(TypeReference[] typeReferences) {
 		this.bits |= ASTNode.IsDisjuntive;
 		this.typeReferences = typeReferences;
 		this.sourceStart = typeReferences[0].sourceStart;
@@ -87,7 +87,7 @@ public class DisjunctiveTypeReference extends TypeReference {
 				hasError = true;
 			}
 			allExceptionTypes[i] = exceptionType;
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340486, ensure types are disjunctive.
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340486, ensure types are of union type.
 			for (int j = 0; j < i; j++) {
 				if (allExceptionTypes[j].isCompatibleWith(exceptionType)) {
 					scope.problemReporter().wrongSequenceOfExceptionTypes(

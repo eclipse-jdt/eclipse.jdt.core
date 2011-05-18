@@ -522,8 +522,8 @@ protected void consumeStatementCatch() {
 	if ((this.patternFineGrain & IJavaSearchConstants.CATCH_TYPE_REFERENCE) != 0) {
 		// when no fine grain flag is set, type reference match is evaluated in getTypeReference(int) method
 		LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr-1];
-		if (localDeclaration.type instanceof DisjunctiveTypeReference) {
-			TypeReference[] refs = ((DisjunctiveTypeReference)localDeclaration.type).typeReferences;
+		if (localDeclaration.type instanceof UnionTypeReference) {
+			TypeReference[] refs = ((UnionTypeReference)localDeclaration.type).typeReferences;
 			for (int i = 0, len  = refs.length; i < len; i++) {
 				this.patternLocator.match(refs[i], this.nodeSet);
 			}

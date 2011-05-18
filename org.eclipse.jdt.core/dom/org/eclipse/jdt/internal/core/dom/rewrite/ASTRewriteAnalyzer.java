@@ -2176,19 +2176,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		return false;
 	}
-	
-	public boolean visit(DisjunctiveType node) {
-		if (!hasChildrenChanges(node)) {
-			return doVisitUnchangedChildren(node);
-		}
-		int pos= node.getStartPosition();
-		if (isChanged(node, DisjunctiveType.TYPES_PROPERTY)) {
-			pos= rewriteNodeList(node, DisjunctiveType.TYPES_PROPERTY, pos, Util.EMPTY_STRING, " | "); //$NON-NLS-1$
-		} else {
-			pos= doVisit(node, DisjunctiveType.TYPES_PROPERTY, pos);
-		}
-		return false;
-	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(DoStatement)
@@ -3111,6 +3098,22 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(UnionType)
+	 */
+	public boolean visit(UnionType node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		int pos= node.getStartPosition();
+		if (isChanged(node, UnionType.TYPES_PROPERTY)) {
+			pos= rewriteNodeList(node, UnionType.TYPES_PROPERTY, pos, Util.EMPTY_STRING, " | "); //$NON-NLS-1$
+		} else {
+			pos= doVisit(node, UnionType.TYPES_PROPERTY, pos);
+		}
+		return false;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(VariableDeclarationExpression)
 	 */

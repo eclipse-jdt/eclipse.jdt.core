@@ -700,11 +700,11 @@ public class ASTMatcher {
 	 *   different node type or is <code>null</code>
 	 * @since 3.7
 	 */
-	public boolean match(DisjunctiveType node, Object other) {
-		if (!(other instanceof DisjunctiveType)) {
+	public boolean match(UnionType node, Object other) {
+		if (!(other instanceof UnionType)) {
 			return false;
 		}
-		DisjunctiveType o = (DisjunctiveType) other;
+		UnionType o = (UnionType) other;
 		return
 			safeSubtreeListMatch(
 				node.types(),

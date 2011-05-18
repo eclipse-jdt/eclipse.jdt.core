@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Type node for a disjunctive type (added in JLS4 API).
+ * Type node for an union type (added in JLS4 API).
  * <pre>
- * DisjunctiveType:
+ * UnionType:
  *    Type <b>|</b> Type { <b>|</b> Type }
  * </pre>
  * <p>
@@ -31,13 +31,13 @@ import java.util.List;
  * @since 3.7
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
-public class DisjunctiveType extends Type {
+public class UnionType extends Type {
 
 	/**
 	 * The "types" structural property of this node type (element type: {@link Type}).
 	 */
 	public static final ChildListPropertyDescriptor TYPES_PROPERTY =
-		new ChildListPropertyDescriptor(DisjunctiveType.class, "types", Type.class, CYCLE_RISK); //$NON-NLS-1$
+		new ChildListPropertyDescriptor(UnionType.class, "types", Type.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -48,7 +48,7 @@ public class DisjunctiveType extends Type {
 
 	static {
 		List propertyList = new ArrayList(2);
-		createPropertyList(DisjunctiveType.class, propertyList);
+		createPropertyList(UnionType.class, propertyList);
 		addProperty(TYPES_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
@@ -72,7 +72,7 @@ public class DisjunctiveType extends Type {
 	private ASTNode.NodeList types = new ASTNode.NodeList(TYPES_PROPERTY);
 
 	/**
-	 * Creates a new unparented node for a disjunctive type owned by the given AST.
+	 * Creates a new unparented node for an union type owned by the given AST.
 	 * By default, it has no types.<p>
 	 * 
 	 * N.B. This constructor is package-private.
@@ -80,7 +80,7 @@ public class DisjunctiveType extends Type {
 	 *
 	 * @param ast the AST that is to own this node
 	 */
-	DisjunctiveType(AST ast) {
+	UnionType(AST ast) {
 		super(ast);
 		unsupportedIn2_3();
 	}
@@ -107,14 +107,14 @@ public class DisjunctiveType extends Type {
 	 * Method declared on ASTNode.
 	 */
 	final int getNodeType0() {
-		return DISJUNCTIVE_TYPE;
+		return UNION_TYPE;
 	}
 
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	ASTNode clone0(AST target) {
-		DisjunctiveType result = new DisjunctiveType(target);
+		UnionType result = new UnionType(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.types().addAll(
 				ASTNode.copySubtrees(target, types()));
@@ -142,13 +142,13 @@ public class DisjunctiveType extends Type {
 	}
 
 	/**
-	 * Returns the live ordered list of types in this disjunctive type.
+	 * Returns the live ordered list of types in this union type.
 	 * Adding and removing nodes from this list affects this node
 	 * dynamically. All nodes in this list must be
 	 * <code>Type</code>s; attempts to add any other
 	 * type of node will trigger an exception.
 	 *
-	 * @return the live list of types in this disjunctive type (element type: {@link Type})
+	 * @return the live list of types in this union type (element type: {@link Type})
 	 */
 	public List types() {
 		return this.types;

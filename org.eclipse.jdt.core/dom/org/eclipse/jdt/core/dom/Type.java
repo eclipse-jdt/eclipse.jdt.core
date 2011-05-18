@@ -71,18 +71,6 @@ public abstract class Type extends ASTNode {
 	}
 
 	/**
-	 * Returns whether this type is a disjunctive type
-	 * ({@link DisjunctiveType}).
-	 *
-	 * @return <code>true</code> if this is a disjunctive type, and
-	 *    <code>false</code> otherwise
-	 * @since 3.7
-	 */
-	public final boolean isDisjunctiveType() {
-		return (this instanceof DisjunctiveType);
-	}
-
-	/**
 	 * Returns whether this type is a primitive type
 	 * ({@link PrimitiveType}).
 	 *
@@ -153,6 +141,18 @@ public abstract class Type extends ASTNode {
 	 */
 	public final boolean isQualifiedType() {
 		return (this instanceof QualifiedType);
+	}
+
+	/**
+	 * Returns whether this type is a union type
+	 * ({@link UnionType}).
+	 *
+	 * @return <code>true</code> if this is a union type, and
+	 *    <code>false</code> otherwise
+	 * @since 3.7
+	 */
+	public final boolean isUnionType() {
+		return (this instanceof UnionType);
 	}
 
 	/**

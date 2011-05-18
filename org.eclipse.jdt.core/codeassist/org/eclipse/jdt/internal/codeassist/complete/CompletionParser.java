@@ -2330,16 +2330,6 @@ protected void consumeDimWithOrWithOutExpr() {
 	// DimWithOrWithOutExpr ::= '[' ']'
 	pushOnExpressionStack(null);
 }
-protected void consumeDisjunctiveType() {
-	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
-	super.consumeDisjunctiveType();
-	popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
-}
-protected void consumeDisjunctiveTypeAsClassType() {
-	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
-	super.consumeDisjunctiveTypeAsClassType();
-	popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
-}
 protected void consumeEnhancedForStatement() {
 	super.consumeEnhancedForStatement();
 
@@ -3682,7 +3672,7 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_BINARY_OPERATOR, XOR);
 				break;
 			case TokenNameOR:
-				// Don't push the OR operator used for Disjunctive Types in a catch declaration
+				// Don't push the OR operator used for union types in a catch declaration
 				if (topKnownElementKind(COMPLETION_PARSER) != K_BETWEEN_CATCH_AND_RIGHT_PAREN)
 					pushOnElementStack(K_BINARY_OPERATOR, OR);
 				break;
@@ -3940,6 +3930,16 @@ protected void consumeTypeParameter1WithExtendsAndBounds() {
 			this.assistNodeParent = typeParameter;
 	}
 	popElement(K_EXTENDS_KEYWORD);
+}
+protected void consumeUnionType() {
+	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
+	super.consumeUnionType();
+	popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
+}
+protected void consumeUnionTypeAsClassType() {
+	pushOnElementStack(K_NEXT_TYPEREF_IS_EXCEPTION);
+	super.consumeUnionTypeAsClassType();
+	popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
 }
 protected void consumeWildcard() {
 	super.consumeWildcard();

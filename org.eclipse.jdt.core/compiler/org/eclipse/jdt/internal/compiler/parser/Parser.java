@@ -2204,7 +2204,7 @@ protected void consumeCatchHeader() {
 	this.lastIgnoredToken = -1;
 }
 protected void consumeCatchType() {
-	// CatchType ::= DisjunctiveType
+	// CatchType ::= UnionType
 	int length = this.astLengthStack[this.astLengthPtr--];
 	if (length != 1) {
 		TypeReference[] typeReferences;
@@ -2214,7 +2214,7 @@ protected void consumeCatchType() {
 				(typeReferences = new TypeReference[length]),
 				0,
 				length);
-		DisjunctiveTypeReference typeReference = new DisjunctiveTypeReference(typeReferences);
+		UnionTypeReference typeReference = new UnionTypeReference(typeReferences);
 		pushOnAstStack(typeReference);
 		if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
 			problemReporter().multiCatchNotBelow17(typeReference);
@@ -2894,13 +2894,13 @@ protected void consumeDimWithOrWithOutExprs() {
 	// DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr
 	concatExpressionLists();
 }
-protected void consumeDisjunctiveType() {
-	// DisjunctiveType ::= DisjunctiveType '|' Type
+protected void consumeUnionType() {
+	// UnionType ::= UnionType '|' Type
 	pushOnAstStack(getTypeReference(this.intStack[this.intPtr--]));
 	optimizedConcatNodeLists();
 }
-protected void consumeDisjunctiveTypeAsClassType() {
-	// DisjunctiveType ::= Type
+protected void consumeUnionTypeAsClassType() {
+	// UnionType ::= Type
 	pushOnAstStack(getTypeReference(this.intStack[this.intPtr--]));
 }
 protected void consumeEmptyAnnotationTypeMemberDeclarationsopt() {
@@ -5613,16 +5613,16 @@ protected void consumeRule(int act) {
 		    consumeCatchFormalParameter();  
 			break;
  
-    case 183 : if (DEBUG) { System.out.println("CatchType ::= DisjunctiveType"); }  //$NON-NLS-1$
+    case 183 : if (DEBUG) { System.out.println("CatchType ::= UnionType"); }  //$NON-NLS-1$
 		    consumeCatchType();  
 			break;
  
-    case 184 : if (DEBUG) { System.out.println("DisjunctiveType ::= Type"); }  //$NON-NLS-1$
-		    consumeDisjunctiveTypeAsClassType();  
+    case 184 : if (DEBUG) { System.out.println("UnionType ::= Type"); }  //$NON-NLS-1$
+		    consumeUnionTypeAsClassType();  
 			break;
  
-    case 185 : if (DEBUG) { System.out.println("DisjunctiveType ::= DisjunctiveType OR Type"); }  //$NON-NLS-1$
-		    consumeDisjunctiveType();  
+    case 185 : if (DEBUG) { System.out.println("UnionType ::= UnionType OR Type"); }  //$NON-NLS-1$
+		    consumeUnionType();  
 			break;
  
     case 187 : if (DEBUG) { System.out.println("ClassTypeList ::= ClassTypeList COMMA ClassTypeElt"); }  //$NON-NLS-1$

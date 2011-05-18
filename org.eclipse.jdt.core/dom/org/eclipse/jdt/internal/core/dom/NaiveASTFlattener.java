@@ -44,7 +44,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.ContinueStatement;
-import org.eclipse.jdt.core.dom.DisjunctiveType;
+import org.eclipse.jdt.core.dom.UnionType;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EmptyStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
@@ -625,21 +625,6 @@ public class NaiveASTFlattener extends ASTVisitor {
 			node.getLabel().accept(this);
 		}
 		this.buffer.append(";\n");//$NON-NLS-1$
-		return false;
-	}
-
-	/*
-	 * @see ASTVisitor#visit(DisjunctiveType)
-	 * @since 3.7
-	 */
-	public boolean visit(DisjunctiveType node) {
-		for (Iterator it = node.types().iterator(); it.hasNext(); ) {
-			Type t = (Type) it.next();
-			t.accept(this);
-			if (it.hasNext()) {
-				this.buffer.append('|');
-			}
-		}
 		return false;
 	}
 	
@@ -1687,6 +1672,21 @@ public class NaiveASTFlattener extends ASTVisitor {
 				if (it.hasNext()) {
 					this.buffer.append(" & ");//$NON-NLS-1$
 				}
+			}
+		}
+		return false;
+	}
+
+	/*
+	 * @see ASTVisitor#visit(UnionType)
+	 * @since 3.7
+	 */
+	public boolean visit(UnionType node) {
+		for (Iterator it = node.types().iterator(); it.hasNext(); ) {
+			Type t = (Type) it.next();
+			t.accept(this);
+			if (it.hasNext()) {
+				this.buffer.append('|');
 			}
 		}
 		return false;

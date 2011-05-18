@@ -672,15 +672,15 @@ CatchFormalParameter ::= Modifiersopt CatchType VariableDeclaratorId
 /:$readableName FormalParameter:/
 /:$recovery_template Identifier Identifier:/
 
-CatchType ::= DisjunctiveType
+CatchType ::= UnionType
 /.$putCase consumeCatchType(); $break ./
 /:$readableName CatchType:/
 
-DisjunctiveType ::= Type
-/.$putCase consumeDisjunctiveTypeAsClassType(); $break ./
-DisjunctiveType ::= DisjunctiveType '|' Type
-/.$putCase consumeDisjunctiveType(); $break ./
-/:$readableName DisjunctiveType:/
+UnionType ::= Type
+/.$putCase consumeUnionTypeAsClassType(); $break ./
+UnionType ::= UnionType '|' Type
+/.$putCase consumeUnionType(); $break ./
+/:$readableName UnionType:/
 /:$compliance 1.7:/
 
 ClassTypeList -> ClassTypeElt

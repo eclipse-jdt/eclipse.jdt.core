@@ -14,7 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
-import org.eclipse.jdt.internal.compiler.ast.DisjunctiveTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -26,7 +26,7 @@ public class MultiCatchExceptionLabel extends ExceptionLabel {
 		super(codeStream, exceptionType);
 	}
 	
-	public void initialize(DisjunctiveTypeReference typeReference) {
+	public void initialize(UnionTypeReference typeReference) {
 		TypeReference[] typeReferences = typeReference.typeReferences;
 		int length = typeReferences.length;
 		this.exceptionLabels = new ExceptionLabel[length];
