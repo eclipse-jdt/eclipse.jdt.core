@@ -176,7 +176,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		assertEquals("Wrong type", "java.lang.String", typeBinding.getQualifiedName());
 	}
 	/*
-	 * Disjunctive types (update for bug 340608)
+	 * Union types (update for bug 340608)
 	 */
 	public void test0005() throws JavaModelException {
 		String contents =
@@ -203,13 +203,13 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		CatchClause clause = (CatchClause) catchClauses.get(0);
 		SingleVariableDeclaration exception = clause.getException();
 		Type type = exception.getType();
-		assertEquals("Not a disjunctive type", ASTNode.DISJUNCTIVE_TYPE, type.getNodeType());
+		assertEquals("Not an union type", ASTNode.UNION_TYPE, type.getNodeType());
 		checkSourceRange(type, "NumberFormatException | Exception", contents);
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertNotNull("No binding", typeBinding);
 	}
 	/*
-	 * Check that catch type with disjunctive type as a simple type is converted to a simple type
+	 * Check that catch type with union type as a simple type is converted to a simple type
 	 */
 	public void test0006() throws JavaModelException {
 		String contents =
@@ -240,7 +240,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		checkSourceRange(type, "NumberFormatException", contents);
 	}
 	/*
-	 * Check that catch type with disjunctive type as a simple type is converted to a simple type
+	 * Check that catch type with union type as a simple type is converted to a simple type
 	 */
 	public void test0007() throws JavaModelException {
 		String contents =
@@ -273,7 +273,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s)", contents);
 	}
 	/*
-	 * Check that catch type with disjunctive type as a simple type is converted to a simple type
+	 * Check that catch type with union type as a simple type is converted to a simple type
 	 */
 	public void test0008() throws JavaModelException {
 		String contents =
@@ -306,7 +306,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s);", contents);
 	}
 	/*
-	 * Check that catch type with disjunctive type as a simple type is converted to a simple type
+	 * Check that catch type with union type as a simple type is converted to a simple type
 	 */
 	public void test0009() throws JavaModelException {
 		String contents =
@@ -340,7 +340,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		checkSourceRange((ASTNode) resources.get(1), "Reader r2 = new FileReader(s);", contents);
 	}
 	/*
-	 * Check that catch type with disjunctive type as a simple type is converted to a simple type
+	 * Check that catch type with union type as a simple type is converted to a simple type
 	 */
 	public void test0010() throws JavaModelException {
 		String contents =
@@ -374,7 +374,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		checkSourceRange((ASTNode) resources.get(1), "Reader r2 = new FileReader(s)", contents);
 	}
 	/*
-	 * Disjunctive types (update for bug 340608)
+	 * Union types (update for bug 340608)
 	 */
 	public void test0011() throws JavaModelException {
 		String contents =
@@ -423,7 +423,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		CatchClause clause = (CatchClause) catchClauses.get(0);
 		SingleVariableDeclaration exception = clause.getException();
 		Type type = exception.getType();
-		assertEquals("Not a disjunctive type", ASTNode.DISJUNCTIVE_TYPE, type.getNodeType());
+		assertEquals("Not an union type", ASTNode.UNION_TYPE, type.getNodeType());
 		checkSourceRange(type, "ExceptionA | ExceptionB", contents);
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertNotNull("No binding", typeBinding);

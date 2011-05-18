@@ -561,7 +561,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InvalidClassInstantiation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidContinue", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidDigit", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
-		expectedProblemAttributes.put("InvalidDisjunctiveTypeReferenceSequence", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("InvalidUnionTypeReferenceSequence", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidEncoding", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidEscape", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidExplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -1223,7 +1223,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InvalidClassInstantiation", SKIP);
 		expectedProblemAttributes.put("InvalidContinue", SKIP);
 		expectedProblemAttributes.put("InvalidDigit", SKIP);
-		expectedProblemAttributes.put("InvalidDisjunctiveTypeReferenceSequence", SKIP);
+		expectedProblemAttributes.put("InvalidUnionTypeReferenceSequence", SKIP);
 		expectedProblemAttributes.put("InvalidEncoding", SKIP);
 		expectedProblemAttributes.put("InvalidEscape", SKIP);
 		expectedProblemAttributes.put("InvalidExplicitConstructorCall", SKIP);

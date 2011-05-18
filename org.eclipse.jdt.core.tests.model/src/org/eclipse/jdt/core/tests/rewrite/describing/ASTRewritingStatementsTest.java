@@ -4747,17 +4747,17 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			Block block= methodDecl.getBody();
 			List blockStatements= block.statements();
 			assertTrue("Number of statements not 1", blockStatements.size() == 1);
-			{ // replace catch exception type with a disjunctive type
+			{ // replace catch exception type with a union type
 				TryStatement tryStatement= (TryStatement) blockStatements.get(0);
 	
 				List catchClauses= tryStatement.catchClauses();
 	
 				CatchClause catchClause= (CatchClause) catchClauses.get(0);
 				SingleVariableDeclaration exception = catchClause.getException();
-				DisjunctiveType disjunctiveType = ast.newDisjunctiveType();
-				disjunctiveType.types().add(ast.newSimpleType(ast.newSimpleName("IOException")));
-				disjunctiveType.types().add(ast.newSimpleType(ast.newSimpleName("Exception")));
-				rewrite.set(exception, SingleVariableDeclaration.TYPE_PROPERTY, disjunctiveType, null);
+				UnionType unionType = ast.newUnionType();
+				unionType.types().add(ast.newSimpleType(ast.newSimpleName("IOException")));
+				unionType.types().add(ast.newSimpleType(ast.newSimpleName("Exception")));
+				rewrite.set(exception, SingleVariableDeclaration.TYPE_PROPERTY, unionType, null);
 			}	
 	
 			String preview= evaluateRewrite(cu, rewrite);
@@ -4805,17 +4805,17 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			Block block= methodDecl.getBody();
 			List blockStatements= block.statements();
 			assertTrue("Number of statements not 1", blockStatements.size() == 1);
-			{ // replace catch exception type with a disjunctive type
+			{ // replace catch exception type with a union type
 				TryStatement tryStatement= (TryStatement) blockStatements.get(0);
 	
 				List catchClauses= tryStatement.catchClauses();
 	
 				CatchClause catchClause= (CatchClause) catchClauses.get(0);
 				SingleVariableDeclaration exception = catchClause.getException();
-				DisjunctiveType disjunctiveType = (DisjunctiveType) exception.getType();
+				UnionType unionType = (UnionType) exception.getType();
 				
-				SimpleType exceptionType = (SimpleType) disjunctiveType.types().get(0);
-				rewrite.getListRewrite(disjunctiveType, DisjunctiveType.TYPES_PROPERTY)
+				SimpleType exceptionType = (SimpleType) unionType.types().get(0);
+				rewrite.getListRewrite(unionType, UnionType.TYPES_PROPERTY)
 					.replace(
 							exceptionType,
 							ast.newSimpleType(ast.newSimpleName("FileNotFoundException")),

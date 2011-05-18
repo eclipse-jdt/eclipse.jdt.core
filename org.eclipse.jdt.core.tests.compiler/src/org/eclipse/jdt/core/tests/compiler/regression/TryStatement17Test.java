@@ -303,7 +303,7 @@ public void test009() {
 		"The parameter e of a multi-catch block cannot be assigned\n" + 
 		"----------\n");
 }
-//Test that disjunctive type checks are done for a precise throw too
+//Test that union type checks are done for a precise throw too
 public void test010() {
 	this.runNegativeTest(
 		new String[] {

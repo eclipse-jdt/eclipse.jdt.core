@@ -341,7 +341,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(ContinueStatement node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
-		public boolean match(DisjunctiveType node, Object other) {
+		public boolean match(UnionType node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(DoStatement node, Object other) {
@@ -655,11 +655,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
-	public void testDisjunctiveType() {
+	public void testUnionType() {
 		if (this.ast.apiLevel() < AST.JLS4) {
 			return;
 		}
-		DisjunctiveType x1 = this.ast.newDisjunctiveType();
+		UnionType x1 = this.ast.newUnionType();
 		x1.types().add(this.ast.newSimpleType(this.N1));
 		basicMatch(x1);
 	}
