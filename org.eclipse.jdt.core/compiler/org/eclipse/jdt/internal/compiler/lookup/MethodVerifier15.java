@@ -342,12 +342,14 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 		MethodBinding[] duplicates = null;
 		for (int j = i + 1; j <= l; j++) {
 			MethodBinding method2 = methods[j];
-			if (method.declaringClass == method2.declaringClass && areMethodsCompatible(method, method2)) {
-				skip[j] = -1;
-				if (duplicates == null)
-					duplicates = new MethodBinding[length];
-				duplicates[j] = method2;
-			}
+			/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029, Multiple methods with override equivalent signatures
+			   could be inherited from different classes too. Also note that we get here only with override equivalent methods.
+			   Earlier code would only look for duplicates in the same class, would also perform needless compatbility checks.
+			*/
+			skip[j] = -1;
+			if (duplicates == null)
+				duplicates = new MethodBinding[length];
+			duplicates[j] = method2;
 		}
 		if (duplicates != null) {
 			// found an inherited ParameterizedType that defines duplicate methods
@@ -363,7 +365,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 					}
 				}
 			}
-			if (concreteCount != 1) {
+			if (concreteCount > 1) {
 				for (int m = 0, s = duplicates.length; m < s; m++) {
 					if (duplicates[m] != null) {
 						problemReporter().duplicateInheritedMethods(this.type, method, duplicates[m]);
@@ -533,8 +535,8 @@ void checkMethods() {
 
 		int index = -1;
 		int inheritedLength = inherited.length;
-		MethodBinding[] matchingInherited = new MethodBinding[inherited.length];
-		MethodBinding[] foundMatch = new MethodBinding[inherited.length]; // null is no match, otherwise value is matching currentMethod
+		MethodBinding[] matchingInherited = new MethodBinding[inheritedLength];
+		MethodBinding[] foundMatch = new MethodBinding[inheritedLength]; // null is no match, otherwise value is matching currentMethod
 		if (current != null) {
 			for (int i = 0, length1 = current.length; i < length1; i++) {
 				MethodBinding currentMethod = current[i];

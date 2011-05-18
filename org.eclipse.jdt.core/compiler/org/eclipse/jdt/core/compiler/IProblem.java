@@ -1153,6 +1153,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.6*/
 	int InvalidTypeForCollectionTarget14 = Internal + 582;
 
+	/** @since 3.7 */
+	int DuplicateInheritedMethods = MethodRelated + 583;
+	
 	/**
 	 * 1.5 Syntax errors (when source level < 1.5)
 	 */

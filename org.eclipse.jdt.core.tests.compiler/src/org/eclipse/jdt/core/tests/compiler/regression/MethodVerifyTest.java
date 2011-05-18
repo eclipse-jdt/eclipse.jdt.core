@@ -12174,7 +12174,7 @@ public void test342819() throws Exception {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
-public void _test346029() throws Exception {
+public void test346029() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -12191,10 +12191,137 @@ public void _test346029() throws Exception {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in TwoWayDTOAdapter.java (at line 2)\n" + 
-		"	public A convert(B b);\n" + 
-		"	         ^^^^^^^^^^^^\n" + 
-		"Name clash: The method convert(B) of type TwoWayDTOAdapter<A,B> has the same erasure as convert(A) of type DTOAdapter<A,B> but does not override it\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	public class X extends B<String> {\n" + 
+		"	             ^\n" + 
+		"Duplicate methods named f with the parameters (T) and (String) are inherited from the types B<String> and A<String>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	x.f(\"\");\n" + 
+		"	  ^\n" + 
+		"The method f(String) is ambiguous for the type X\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
+public void test346029b() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface A<T> {\n" +
+			"    void f(String s);\n" +
+			"}\n" +
+			"interface B<T> extends A<T> {\n" +
+			"    void f(T t);\n" +
+			"}\n" +
+			"public class X implements B<String> {\n" +
+			"    public void f(String t) {\n" +
+			"        Zork z;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
+public void test346029c() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" +
+			"    void f(String s) {}\n" +
+			"}\n" +
+			"interface B<T> {\n" +
+			"    void f(T t);\n" +
+			"}\n" +
+			"public class X extends A<String> implements B<String> {\n" +
+			"    public void f(String t) {\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	public void f(String t) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
+public void test346029d() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" +
+			"    void f(T s) {}\n" +
+			"}\n" +
+			"interface B<T> {\n" +
+			"    void f(String t);\n" +
+			"}\n" +
+			"public class X extends A<String> implements B<String> {\n" +
+			"    public void f(String t) {\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	public void f(String t) {\n" + 
+		"	            ^^^^^^^^^^^\n" + 
+		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
+public void test346029e() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" +
+			"    void f(String s) {}\n" +
+			"}\n" +
+			"class B<T> extends A<T> {\n" +
+			"    void f(T t) {}\n" +
+			"}\n" +
+			"public class X extends B<String> {\n" +
+			"    	void f(String s) {\n" +
+			"       }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	void f(String s) {\n" + 
+		"	     ^^^^^^^^^^^\n" + 
+		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
+public void test346029f() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A<T> {\n" +
+			"    void f(String s) {}\n" +
+			"}\n" +
+			"class B<T> extends A<T> {\n" +
+			"    void f(T t) {}\n" +
+			"}\n" +
+			"public class X extends B<String> {\n" +
+			"	void f(String s) {\n" +
+			"		super.f(s);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	void f(String s) {\n" + 
+		"	     ^^^^^^^^^^^\n" + 
+		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	super.f(s);\n" + 
+		"	      ^\n" + 
+		"The method f(String) is ambiguous for the type B<String>\n" + 
 		"----------\n");
 }
 }

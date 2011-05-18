@@ -1538,6 +1538,28 @@ public void duplicateImport(ImportReference importRef) {
 }
 
 public void duplicateInheritedMethods(SourceTypeBinding type, MethodBinding inheritedMethod1, MethodBinding inheritedMethod2) {
+	if (inheritedMethod1.declaringClass != inheritedMethod2.declaringClass) {
+		this.handle(
+			IProblem.DuplicateInheritedMethods,
+			new String[] {
+		        new String(inheritedMethod1.selector),
+				typesAsString(inheritedMethod1.isVarargs(), inheritedMethod1.original().parameters, false),
+				typesAsString(inheritedMethod2.isVarargs(), inheritedMethod2.original().parameters, false),
+				new String(inheritedMethod1.declaringClass.readableName()),
+				new String(inheritedMethod2.declaringClass.readableName()),
+			},
+			new String[] {
+				new String(inheritedMethod1.selector),
+				typesAsString(inheritedMethod1.isVarargs(), inheritedMethod1.original().parameters, true),
+				typesAsString(inheritedMethod2.isVarargs(), inheritedMethod2.original().parameters, true),
+				new String(inheritedMethod1.declaringClass.shortReadableName()),
+				new String(inheritedMethod2.declaringClass.shortReadableName()),
+			},
+			type.sourceStart(),
+			type.sourceEnd());
+		return;
+	}
+	// Handle duplicates from same class.
 	this.handle(
 		IProblem.DuplicateParameterizedMethods,
 		new String[] {
