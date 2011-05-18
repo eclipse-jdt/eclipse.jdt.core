@@ -1032,7 +1032,7 @@ public void resolve(BlockScope upperScope) {
 			}
 			// side effect on catchScope in resolveForCatch(..)
 			Argument catchArgument = this.catchArguments[i];
-			containsUnionTypes |= (catchArgument.type.bits & ASTNode.IsDisjuntive) != 0;
+			containsUnionTypes |= (catchArgument.type.bits & ASTNode.IsUnionType) != 0;
 			if ((argumentTypes[i] = catchArgument.resolveForCatch(catchScope)) == null) {
 				catchHasError = true;
 			}
@@ -1082,7 +1082,7 @@ protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes
 		for (int i = 0; i < length; i++) {
 			ReferenceBinding currentExceptionType = (ReferenceBinding) argumentTypes[i];
 			TypeReference catchArgumentType = this.catchArguments[i].type;
-			if ((catchArgumentType.bits & ASTNode.IsDisjuntive) != 0) {
+			if ((catchArgumentType.bits & ASTNode.IsUnionType) != 0) {
 				TypeReference[] typeReferences = ((UnionTypeReference) catchArgumentType).typeReferences;
 				int typeReferencesLength = typeReferences.length;
 				ReferenceBinding[] unionExceptionTypes = new ReferenceBinding[typeReferencesLength];
@@ -1111,7 +1111,7 @@ protected void verifyDuplicationAndOrder(int length, TypeBinding[] argumentTypes
 						ReferenceBinding currentException = exceptions[n];
 						if (exception.isCompatibleWith(currentException)) {
 							TypeReference catchArgumentType = this.catchArguments[i].type;
-							if ((catchArgumentType.bits & ASTNode.IsDisjuntive) != 0) {
+							if ((catchArgumentType.bits & ASTNode.IsUnionType) != 0) {
 								catchArgumentType = ((UnionTypeReference) catchArgumentType).typeReferences[j];
 							}
 							this.scope.problemReporter().wrongSequenceOfExceptionTypesError(

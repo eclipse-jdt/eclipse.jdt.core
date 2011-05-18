@@ -2676,7 +2676,7 @@ public class Util {
 	 */
 	public static String typeSignature(TypeReference type) {
 		String signature = null;
-		if ((type.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsDisjuntive) != 0) {
+		if ((type.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsUnionType) != 0) {
 			// special treatment for union type reference
 			UnionTypeReference unionTypeReference = (UnionTypeReference) type;
 			TypeReference[] typeReferences = unionTypeReference.typeReferences;

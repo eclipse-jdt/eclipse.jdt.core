@@ -26,7 +26,7 @@ public class UnionTypeReference extends TypeReference {
 	public TypeReference[] typeReferences;
 
 	public UnionTypeReference(TypeReference[] typeReferences) {
-		this.bits |= ASTNode.IsDisjuntive;
+		this.bits |= ASTNode.IsUnionType;
 		this.typeReferences = typeReferences;
 		this.sourceStart = typeReferences[0].sourceStart;
 		int length = typeReferences.length;
