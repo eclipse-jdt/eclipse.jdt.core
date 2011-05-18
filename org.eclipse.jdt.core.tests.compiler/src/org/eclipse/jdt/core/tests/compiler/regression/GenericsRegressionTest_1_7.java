@@ -1483,6 +1483,105 @@ public void test0037() {
 		"Cannot infer elided type(s)\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
+public void _test0038() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class C {}\n" +
+			"interface I {}\n" +
+			"public class X<T extends C & I> {\n" +
+			"    X() {}\n" +
+			"    X f = new X<>();\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	X f = new X<>();\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
+public void _test0039() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class C {}\n" +
+			"interface I {}\n" +
+			"public class X<T extends C & I> {\n" +
+			"    X() {}\n" +
+			"    X<?> f = new X<>();\n" +
+			"    Zork z;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
+public void _test0040() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class C {}\n" +
+			"interface I {}\n" +
+			"public class X<T extends C & I> {\n" +
+			"    static <U extends C & I> X<U> getX() {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"    X<?> f2 = getX();\n" +
+			"    Zork z;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
+public void _test0041() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class C {}\n" +
+			"interface I {}\n" +
+			"public class X<T extends C & I> {\n" +
+			"    static <U extends C & I> X<U> getX() {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"    X f2 = getX();\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	X f2 = getX();\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n");
+}
+public void _test0042() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I<T> {}\n" +
+			"public class X{\n" +
+			"    <T extends I<T>> void m() { }\n" +
+			"    { m(); } \n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	X f2 = getX();\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
 }
