@@ -19,9 +19,11 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.UserLibrary;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
 
 import junit.framework.Test;
@@ -77,7 +79,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testContainerInitializer12" };
+//		TESTS_NAMES = new String[] { "testBug346002" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		TESTS_NUMBERS = new int[] { 2, 12 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -1608,6 +1610,51 @@ public void testUserLibraryInitializer1() throws Exception {
 		assertEquals("Invalid source attachement path for project 61872 classpath entry!", srcFullPath.toLowerCase(), entries[0].getSourceAttachmentPath().toString().toLowerCase());
 	} finally {
 		deleteProject("p61872");
+	}
+}
+/**
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=346002"
+ * @throws Exception
+ */
+public void testBug346002() throws Exception {
+	ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(JavaCore.USER_LIBRARY_CONTAINER_ID);
+	String libraryName = "TEST";
+	IPath containerPath = new Path(JavaCore.USER_LIBRARY_CONTAINER_ID);
+	UserLibraryClasspathContainer containerSuggestion = new UserLibraryClasspathContainer(libraryName);
+	initializer.requestClasspathContainerUpdate(containerPath.append(libraryName), null, containerSuggestion);
+
+	String libPath = "C:/test/test.jar";
+
+	IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+	String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+ "TEST";
+
+	StringBuffer propertyValue = new StringBuffer(
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"2\">\r\n<archive");
+	propertyValue.append(" path=\"" + libPath + "\"/>\r\n");
+	propertyValue.append("</userlibrary>\r\n");
+	preferences.put(propertyName, propertyValue.toString());
+
+	propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX + "INVALID";
+	propertyValue = new StringBuffer(
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"2\">\r\n<archive");
+	propertyValue.append(" path=\"\"/>");
+	propertyValue.append("</userlibrary>\r\n");
+	preferences.put(propertyName, propertyValue.toString());
+	preferences.flush();
+
+	try {
+		simulateExitRestart();
+
+		UserLibrary userLibrary = JavaModelManager.getUserLibraryManager().getUserLibrary(libraryName);
+		assertNotNull(userLibrary);
+		IPath entryPath = userLibrary.getEntries()[0].getPath();
+		assertEquals("Path should be absolute", true, entryPath.isAbsolute());
+
+		userLibrary = JavaModelManager.getUserLibraryManager().getUserLibrary("INVALID");
+		assertNull(userLibrary);
+	}
+	catch (ClasspathEntry.AssertionFailedException e) {
+		fail("Should not throw AssertionFailedException");
 	}
 }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2322,7 +2322,7 @@ public void testUserLibrary() throws JavaModelException {
 	assertSourceEquals(
 		"Invalid library contents",
 		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-		"<userlibrary systemlibrary=\"false\" version=\"1\">\n" +
+		"<userlibrary systemlibrary=\"false\" version=\"2\">\n" +
 		"	<archive path=\"/tmp/test.jar\">\n" +
 		"		<attributes>\n" +
 		"			<attribute name=\"javadoc_location\" value=\"http://www.sample-url.org/doc/\"/>\n" +
