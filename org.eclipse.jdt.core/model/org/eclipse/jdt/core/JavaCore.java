@@ -2215,7 +2215,8 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$
 	/**
-	 * Configurable option value: {@value}.
+	 * Configurable option value: {@value}.<br>
+	 * <i>Note: The compiler currently does not support 1.7 compliance level</i>
 	 * @since 3.3
 	 * @category OptionValue
 	 */
