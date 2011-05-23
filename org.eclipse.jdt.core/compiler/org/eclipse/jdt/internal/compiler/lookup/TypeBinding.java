@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -563,12 +563,11 @@ public boolean isParameterizedWithOwnVariables() {
 	return true;
 }
 
-private boolean isProvableDistinctSubType(TypeBinding otherType, boolean isClassLiteral) {
+private boolean isProvableDistinctSubType(TypeBinding otherType) {
 	if (otherType.isInterface()) {
 		if (isInterface())
 			return false;
 		if (isArrayType()
-			//	|| isClassLiteral // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
 				|| ((this instanceof ReferenceBinding) && ((ReferenceBinding) this).isFinal())
 				|| (isTypeVariable() && ((TypeVariableBinding)this).superclass().isFinal())) {
 			return !isCompatibleWith(otherType);
@@ -577,7 +576,6 @@ private boolean isProvableDistinctSubType(TypeBinding otherType, boolean isClass
 	} else {
 		if (isInterface()) {
 			if (otherType.isArrayType()
-				//	|| isClassLiteral // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
 					|| ((otherType instanceof ReferenceBinding) && ((ReferenceBinding) otherType).isFinal())
 					|| (otherType.isTypeVariable() && ((TypeVariableBinding)otherType).superclass().isFinal())) {
 				return !isCompatibleWith(otherType);
@@ -842,10 +840,10 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 		if (lowerBound2 != null) {
 			return !lowerBound2.isCompatibleWith(upperBound1);
 		} else if (upperBound2 != null) {
-			return upperBound1.isProvableDistinctSubType(upperBound2, false)
-							&& upperBound2.isProvableDistinctSubType(upperBound1, false);
+			return upperBound1.isProvableDistinctSubType(upperBound2)
+							&& upperBound2.isProvableDistinctSubType(upperBound1);
 		} else {
-			return otherArgument.isProvableDistinctSubType(upperBound1, genericType.id == TypeIds.T_JavaLangClass);
+			return otherArgument.isProvableDistinctSubType(upperBound1);
 		}
 	} else {
 		if (lowerBound2 != null) {
@@ -854,7 +852,7 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 			}
 			return !lowerBound2.isCompatibleWith(this);
 		} else if (upperBound2 != null) {
-			return isProvableDistinctSubType(upperBound2, genericType.id == TypeIds.T_JavaLangClass);
+			return isProvableDistinctSubType(upperBound2);
 		} else {
 			return true; // ground types should have been the same
 		}
