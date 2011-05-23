@@ -2141,4 +2141,105 @@ public void test334493() {
 				"T is a raw type. References to generic type T<B> should be parameterized\n" + 
 				"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334313
+public void test334313() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"abstract class C<T>  {\n" +
+				"	public abstract Object foo(T x);\n" +
+				"   public Integer foo(String x){ return 1; }\n" +
+				"}\n" +
+				"public class X extends C<String> {\n" +
+				"    zork z;\n" +
+				"}\n"			
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	zork z;\n" + 
+				"	^^^^\n" + 
+				"zork cannot be resolved to a type\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334313
+public void test334313b() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"abstract class C<T>  {\n" +
+				"	public abstract Integer foo(T x);\n" +
+				"   public Object foo(String x){ return 1; }\n" +
+				"}\n" +
+				"public class X extends C<String> {\n" +
+				"}\n"			
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	public class X extends C<String> {\n" + 
+				"	             ^\n" + 
+				"The type X must implement the inherited abstract method C<String>.foo(String) to override C<String>.foo(String)\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334313
+public void test334313c() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"abstract class B<T> {\n" +
+				"	public abstract Object foo(T x);\n" +
+				"}\n" +
+				"abstract class C<T> extends B<T> {\n" +
+				"    public Integer foo(String x){ return 1; }\n" +
+				"}\n" +
+				"public class X extends C<String> {\n" +
+				"    zork z;\n" +
+				"}\n"			
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	zork z;\n" + 
+				"	^^^^\n" + 
+				"zork cannot be resolved to a type\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334313
+public void test334313d() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"abstract class B<T> {\n" +
+				"	public abstract Integer foo(T x);\n" +
+				"}\n" +
+				"abstract class C<T> extends B<T> {\n" +
+				"    public Object foo(String x){ return 1; }\n" +
+				"}\n" +
+				"public class X extends C<String> {\n" +
+				"}\n"			
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	public class X extends C<String> {\n" + 
+				"	             ^\n" + 
+				"The type X must implement the inherited abstract method B<String>.foo(String) to override C<String>.foo(String)\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334313
+public void test334313e() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"abstract class C<T>  {\n" +
+				"	public abstract Object foo(T x);\n" +
+				"   public static Integer foo(String x){ return 1; }\n" +
+				"}\n" +
+				"public class X extends C<String> {\n" +
+				"}\n"			
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	public class X extends C<String> {\n" + 
+				"	             ^\n" + 
+				"The static method foo(String) conflicts with the abstract method in C<String>\n" + 
+				"----------\n");
+}
 }

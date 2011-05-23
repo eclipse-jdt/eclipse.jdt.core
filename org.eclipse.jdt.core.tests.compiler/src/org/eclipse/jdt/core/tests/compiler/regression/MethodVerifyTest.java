@@ -9255,18 +9255,22 @@ public void test159() {
 			"abstract class Y extends X {}\n" +
 			"class Z extends X {}",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" +
-		"	public abstract class X extends Root implements AFoo, BFoo {}\n" +
-		"	                      ^\n" +
-		"The return types are incompatible for the inherited methods BFoo.bar(), AFoo.bar()\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 17)\n" +
-		"	class Z extends X {}\n" +
-		"	      ^\n" +
-		"The type Z must implement the inherited abstract method AFoo.bar()\n" +
-		"----------\n"
-	);
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	public abstract class X extends Root implements AFoo, BFoo {}\n" + 
+		"	                      ^\n" + 
+		"The return types are incompatible for the inherited methods BFoo.bar(), AFoo.bar()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 16)\n" + 
+		"	abstract class Y extends X {}\n" + 
+		"	               ^\n" + 
+		"The return types are incompatible for the inherited methods BFoo.bar(), AFoo.bar()\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 17)\n" + 
+		"	class Z extends X {}\n" + 
+		"	      ^\n" + 
+		"The type Z must implement the inherited abstract method AFoo.bar()\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=208010
 public void test160() {
