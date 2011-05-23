@@ -1582,6 +1582,163 @@ public void _test0042() {
 		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+public void test0043() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    class Y<Z>  {\n" +
+			"        Y(T a, Z b) {\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        X<String>.Y<String>  x1 = new X<String>().new Y<String>(\"\",\"\");\n" +
+			"        X<String>.Y<String>  x2 = new X<String>().new Y<>(\"\",\"\");\n" +
+			"        System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"SUCCESS");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+public void test0044() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"    class Y<Z> {\n" +
+			"         Y(T a, Z b) {\n" +
+			"         }\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        X<String>.Y<String> x = new X<>().new Y<>(\"\",\"\");\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	X<String>.Y<String> x = new X<>().new Y<>(\"\",\"\");\n" + 
+		"	                        ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Object>.Y<String> to X<String>.Y<String>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+public void test0045() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    class Y<T, Z> {\n" +
+			"         Y(T a, Z b) {\n" +
+			"         }\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        X.Y<String, String> x = new X().new Y<>(\"\",\"\");\n" +
+			"        System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"SUCCESS");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+public void test0046() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"    class Y<Z> {\n" +
+			"         Y(T a, Z b) { \n" +
+			"         }\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        X<String>.Y<String> x = new X<String>().new Y<>(\"\",\"\");\n" +
+			"        System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"SUCCESS");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+public void test0047() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"    class Y<Z> {\n" +
+			"         Y(T a, Z b) {\n" +
+			"         }\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        X<String>.Y<String> x1 = new X<String>().new Y<String>(\"\",\"\"); \n" +
+			"        X<String>.Y<String> x2 = new X<String>().new Y<>(\"\",\"\"); // javac wrong error \n" +
+			"        System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"SUCCESS");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+public void test0048() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"    <T> X(T t) {\n" +
+			"    }\n" +
+			"    X<String> x = new X<>(\"\"); \n" +
+			"    Zork z;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	<T> X(T t) {\n" + 
+		"	 ^\n" + 
+		"The type parameter T is hiding the type T\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+public void test0049() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"     class Y<Z> {\n" +
+			"          Y(T a, Z b) {\n" +
+			"          }\n" +
+			"     }\n" +
+			"   public static void main(String[] args) {\n" +
+			"       X<Object>.Y<String> x1 = new X<Object>().new Y<String>(new Object(),\"\");\n" +
+			"       X<Object>.Y<String> x2 = new X<>().new Y<String>(new Object(),\"\");\n" +
+			"       X<Object>.Y<String> x3 = new X<Object>().new Y<>(new Object(),\"\");\n" +
+			"       X<Object>.Y<String> x4 = new X<>().new Y<>(new Object(),\"\");\n" +
+			"     }\n" +
+			"}\n"
+		},
+		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+public void test0050() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Comparable<T>> {\n" +
+			"     class Y<Z> {\n" +
+			"          Y(T a, Z b) {\n" +
+			"          }\n" +
+			"     }\n" +
+			"   public static void main(String[] args) {\n" +
+			"       X<String>.Y<String> x1 = new X<String>().new Y<>(\"\",\"\");\n" +
+			"     }\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
 }

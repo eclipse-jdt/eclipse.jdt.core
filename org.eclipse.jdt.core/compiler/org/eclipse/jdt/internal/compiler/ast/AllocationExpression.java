@@ -373,7 +373,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		return this.resolvedType;
 	}
 	if (isDiamond) {
-		TypeBinding [] inferredTypes = inferElidedTypes(((ParameterizedTypeBinding) this.resolvedType).genericType(), argumentTypes, scope);
+		TypeBinding [] inferredTypes = inferElidedTypes(((ParameterizedTypeBinding) this.resolvedType).genericType(), null, argumentTypes, scope);
 		if (inferredTypes == null) {
 			scope.problemReporter().cannotInferElidedTypes(this);
 			return this.resolvedType = null;
@@ -405,13 +405,13 @@ public TypeBinding resolveType(BlockScope scope) {
 	return allocationType;
 }
 
-public TypeBinding[] inferElidedTypes(ReferenceBinding allocationType, TypeBinding[] argumentTypes, final BlockScope scope) {
+public TypeBinding[] inferElidedTypes(ReferenceBinding allocationType, ReferenceBinding enclosingType, TypeBinding[] argumentTypes, final BlockScope scope) {
 	/* Given the allocation type and the arguments to the constructor, see if we can synthesize a generic static factory
 	   method that would, given the argument types and the invocation site, manufacture a parameterized object of type allocationType.
 	   If we are successful then by design and construction, the parameterization of the return type of the factory method is identical
 	   to the types elided in the <>.
 	 */   
-	MethodBinding factory = scope.getStaticFactory(allocationType, argumentTypes, this);
+	MethodBinding factory = scope.getStaticFactory(allocationType, enclosingType, argumentTypes, this);
 	if (factory instanceof ParameterizedGenericMethodBinding && factory.isValidBinding()) {
 		return ((ParameterizedTypeBinding)factory.returnType).arguments;
 	}

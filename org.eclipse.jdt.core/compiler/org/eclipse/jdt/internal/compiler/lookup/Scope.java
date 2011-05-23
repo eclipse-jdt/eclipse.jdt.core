@@ -4028,7 +4028,7 @@ public abstract class Scope {
 	   that could instead be invoked with identical results. Return null if no compatible, visible, most specific method
 	   could be found. This method is modeled after Scope.getConstructor and Scope.getMethod.
 	 */
-	public MethodBinding getStaticFactory (ReferenceBinding allocationType, TypeBinding[] argumentTypes, final InvocationSite allocationSite) {
+	public MethodBinding getStaticFactory (ReferenceBinding allocationType, ReferenceBinding enclosingType, TypeBinding[] argumentTypes, final InvocationSite allocationSite) {
 		TypeVariableBinding[] classTypeVariables = allocationType.typeVariables();
 		int classTypeVariablesArity = classTypeVariables.length;
 		MethodBinding[] methods = allocationType.getMethods(TypeConstants.INIT, argumentTypes.length);
@@ -4060,6 +4060,18 @@ public abstract class Scope {
 						(staticFactory.typeVariables[j] = new TypeVariableBinding(CharOperation.concat(methodTypeVariables[j - classTypeVariablesArity].sourceName, "''".toCharArray()), //$NON-NLS-1$
 																			staticFactory, j, environment)));
 			}
+			while (enclosingType != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+				if (enclosingType.kind() == Binding.PARAMETERIZED_TYPE) {
+					final ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) enclosingType;
+					final ReferenceBinding genericType = parameterizedType.genericType();
+					TypeVariableBinding[] enclosingClassTypeVariables = genericType.typeVariables();
+					int enclosingClassTypeVariablesArity = enclosingClassTypeVariables.length;
+					for (int j = 0; j < enclosingClassTypeVariablesArity; j++) {
+						map.put(enclosingClassTypeVariables[j], parameterizedType.arguments[j]);
+					}
+				}
+				enclosingType = enclosingType.enclosingType();
+			}
 			final Scope scope = this;
 			Substitution substitution = new Substitution() {
 					public LookupEnvironment environment() {
@@ -4069,7 +4081,8 @@ public abstract class Scope {
 						return false;
 					}
 					public TypeBinding substitute(TypeVariableBinding typeVariable) {
-						return (TypeBinding) map.get(typeVariable);
+						TypeBinding retVal = (TypeBinding) map.get(typeVariable);
+						return retVal != null ? retVal : typeVariable;
 					}
 				};
 
