@@ -4028,7 +4028,7 @@ public abstract class Scope {
 	   that could instead be invoked with identical results. Return null if no compatible, visible, most specific method
 	   could be found. This method is modeled after Scope.getConstructor and Scope.getMethod.
 	 */
-	public MethodBinding getStaticFactory (ReferenceBinding allocationType, ReferenceBinding enclosingType, TypeBinding[] argumentTypes, final InvocationSite allocationSite) {
+	public MethodBinding getStaticFactory (ReferenceBinding allocationType, ReferenceBinding originalEnclosingType, TypeBinding[] argumentTypes, final InvocationSite allocationSite) {
 		TypeVariableBinding[] classTypeVariables = allocationType.typeVariables();
 		int classTypeVariablesArity = classTypeVariables.length;
 		MethodBinding[] methods = allocationType.getMethods(TypeConstants.INIT, argumentTypes.length);
@@ -4054,12 +4054,13 @@ public abstract class Scope {
 				map.put(classTypeVariables[j], staticFactory.typeVariables[j] = new TypeVariableBinding(CharOperation.concat(classTypeVariables[j].sourceName, "'".toCharArray()), //$NON-NLS-1$
 																			staticFactory, j, environment));
 			}
-			// Rename each type variable U of method U to U'' if not explicitly parameterized. Otherwise use the parameterizing type.
+			// Rename each type variable U of method U to U''.
 			for (int j = classTypeVariablesArity, max = classTypeVariablesArity + methodTypeVariablesArity; j < max; j++) {
 				map.put(methodTypeVariables[j - classTypeVariablesArity], 
 						(staticFactory.typeVariables[j] = new TypeVariableBinding(CharOperation.concat(methodTypeVariables[j - classTypeVariablesArity].sourceName, "''".toCharArray()), //$NON-NLS-1$
 																			staticFactory, j, environment)));
 			}
+			ReferenceBinding enclosingType = originalEnclosingType;
 			while (enclosingType != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
 				if (enclosingType.kind() == Binding.PARAMETERIZED_TYPE) {
 					final ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) enclosingType;

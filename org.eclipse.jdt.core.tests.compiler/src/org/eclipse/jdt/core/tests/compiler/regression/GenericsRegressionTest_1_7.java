@@ -1739,6 +1739,25 @@ public void test0050() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
+public void test0051() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Comparable<T>> {\n" +
+			"     class Y<Z> {\n" +
+			"          Y(Integer a, Z b) {\n" +
+			"          }\n" +
+			"          Y(T a, Z b) {\n" +
+			"          }\n" +
+			"     }\n" +
+			"   public static void main(String[] args) {\n" +
+			"       X<String>.Y<String> x1 = new X<String>().new Y<>(\"\",\"\");\n" +
+			"     }\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
 }
