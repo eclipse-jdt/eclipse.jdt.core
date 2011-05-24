@@ -1230,8 +1230,7 @@ public void _test0033() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
-// TODO(ayush) enable and update the error message after bug 345968 is fixed
-public void _test0034() {
+public void test0034() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1259,26 +1258,57 @@ public void _test0034() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	X<String> f2 = new X<>(new Y()); \n" + 
-		"	                           ^\n" + 
-		"Y cannot be resolved to a type\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	X<Integer> x1 = new X<>(1,1);\n" + 
+		"	                ^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();\n" + 
+		"	                          ^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 15)\n" + 
+		"	X<Integer>.Y<String> y2 = new X<>(1,1).new Y<>(1);\n" + 
+		"	                          ^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 16)\n" + 
+		"	X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 17)\n" + 
+		"	X<Integer>.Y<String> y4 = new X<>(1).new Y<>(\"\",\"\");\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 19)\n" + 
+		"	X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\");\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Object>.Y<String> to X<Integer>.Y<String>\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 20)\n" + 
+		"	X<Integer>.Y<String> y7 = new X<>().new Y<>(1,1);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Object>.Y<Integer> to X<Integer>.Y<String>\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
-// TODO(ayush) enable and update the error message after bug 345968 is fixed
-public void _test0035() {
+public void test0035() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T>  {\n" +
 			"    X(T t) {}\n" +
 			"    X() {}\n" +
+			"	 @SafeVarargs\n" +
 			"    X(String abc, String abc2, T... t) {}\n" +
 			"    void foo(T a) {\n" +
 			"	 System.out.println(a);\n" +
 			"	 }\n" +
 			"	 class Y<K>{\n" +
+			"		@SafeVarargs\n" +
 			"		Y(T t,String abc, K... k) {}\n" +
 			"	 }\n" +
 			"    public static void main(String[] args) {\n" +
@@ -1299,26 +1329,57 @@ public void _test0035() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	X<String> f2 = new X<>(new Y()); \n" + 
-		"	                           ^\n" + 
-		"Y cannot be resolved to a type\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	X<Integer> x1 = new X<>(1,1);\n" + 
+		"	                ^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 18)\n" + 
+		"	X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" + 
+		"	                ^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<String> to X<Integer>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 20)\n" + 
+		"	X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();\n" + 
+		"	                          ^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 21)\n" + 
+		"	X<Integer>.Y<String> y2 = new X<>(\"\",1).new Y<>(\"\");\n" + 
+		"	                          ^^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 22)\n" + 
+		"	X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 25)\n" + 
+		"	X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\",1);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Object>.Y<Integer> to X<Integer>.Y<String>\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 26)\n" + 
+		"	X<Integer>.Y<String> y7 = new X<>().new Y<>(\"\",\"\",1);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Object>.Y<Integer> to X<Integer>.Y<String>\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
-// TODO(ayush) enable and update the error message after bug 345968 is fixed
-public void _test0036() {
+public void test0036() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T>  {\n" +
 			"    X(T t) {}\n" +
 			"    X() {}\n" +
+			"	 @SafeVarargs\n" +
 			"    X(String abc, String abc2, T... t) {}\n" +
 			"    void foo(T a) {\n" +
 			"	 System.out.println(a);\n" +
 			"	 }\n" +
 			"	 class Y<K>{\n" +
+			"		@SafeVarargs\n" +
 			"		Y(T t,String abc, K... k) {}\n" +
 			"	 }\n" +
 			"	X<Integer> x1 = new X<>(1,1);\n" +
@@ -1337,10 +1398,40 @@ public void _test0036() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	X<String> f2 = new X<>(new Y()); \n" + 
-		"	                           ^\n" + 
-		"Y cannot be resolved to a type\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	X<Integer> x1 = new X<>(1,1);\n" + 
+		"	                ^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 17)\n" + 
+		"	X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" + 
+		"	                ^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<String> to X<Integer>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 19)\n" + 
+		"	X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();\n" + 
+		"	                          ^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 20)\n" + 
+		"	X<Integer>.Y<String> y2 = new X<>(\"\",1).new Y<>(\"\");\n" + 
+		"	                          ^^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 21)\n" + 
+		"	X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot infer elided type(s)\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 24)\n" + 
+		"	X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\",1);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Object>.Y<Integer> to X<Integer>.Y<String>\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 25)\n" + 
+		"	X<Integer>.Y<String> y7 = new X<>().new Y<>(\"\",\"\",1);\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Object>.Y<Integer> to X<Integer>.Y<String>\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
