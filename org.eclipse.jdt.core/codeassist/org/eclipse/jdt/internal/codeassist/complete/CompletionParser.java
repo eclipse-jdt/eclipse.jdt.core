@@ -1199,7 +1199,12 @@ private void buildMoreTryStatementCompletionContext(TypeReference exceptionRef) 
 		}
 
 		bks[bks.length - 1] = new Block(0);
-		args[args.length - 1] = new Argument(FAKE_ARGUMENT_NAME,0,exceptionRef,0);
+		if (this.astStack[this.astPtr] instanceof UnionTypeReference) {
+			UnionTypeReference disjunctiveTypeReference = (UnionTypeReference) this.astStack[this.astPtr];
+			args[args.length - 1] = new Argument(FAKE_ARGUMENT_NAME,0,disjunctiveTypeReference,0);
+		} else {
+			args[args.length - 1] = new Argument(FAKE_ARGUMENT_NAME,0,exceptionRef,0);
+		}
 
 		tryStatement.tryBlock = (Block) this.astStack[newAstPtr--];
 
@@ -1217,7 +1222,12 @@ private void buildMoreTryStatementCompletionContext(TypeReference exceptionRef) 
 		Argument[] args = (tryStatement.catchArguments = new Argument[1]);
 
 		bks[0] = new Block(0);
-		args[0] = new Argument(FAKE_ARGUMENT_NAME,0,exceptionRef,0);
+		if (this.astStack[this.astPtr] instanceof UnionTypeReference) {
+			UnionTypeReference disjunctiveTypeReference = (UnionTypeReference) this.astStack[this.astPtr];
+			args[0] = new Argument(FAKE_ARGUMENT_NAME,0,disjunctiveTypeReference,0);
+		} else {
+			args[0] = new Argument(FAKE_ARGUMENT_NAME,0,exceptionRef,0);
+		}
 
 		tryStatement.tryBlock = (Block) this.astStack[newAstPtr--];
 

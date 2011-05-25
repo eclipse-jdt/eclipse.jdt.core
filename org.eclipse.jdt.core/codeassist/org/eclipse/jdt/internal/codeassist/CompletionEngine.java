@@ -3662,12 +3662,20 @@ public final class CompletionEngine
 			}
 			if (isException) {
 				ThrownExceptionFinder thrownExceptionFinder = new ThrownExceptionFinder();
-				ReferenceBinding[] bindings = thrownExceptionFinder.find((TryStatement) parent, (BlockScope)scope);
+				thrownExceptionFinder.processThrownExceptions((TryStatement) parent, (BlockScope)scope);
+				ReferenceBinding[] bindings = thrownExceptionFinder.getThrownUncaughtExceptions();
+				ReferenceBinding[] alreadyCaughtExceptions = thrownExceptionFinder.getAlreadyCaughtExceptions();
 				if (bindings != null && bindings.length > 0) {
 					for (int i = 0; i < bindings.length; i++) {
 						addExpectedType(bindings[i], scope);
 					}
 					this.expectedTypesFilter = SUPERTYPE;
+				}
+				if (alreadyCaughtExceptions != null && alreadyCaughtExceptions.length > 0) {
+					for (int i = 0; i < alreadyCaughtExceptions.length; i++) {
+						addForbiddenBindings(alreadyCaughtExceptions[i]);
+						this.knownTypes.put(CharOperation.concat(alreadyCaughtExceptions[i].qualifiedPackageName(), alreadyCaughtExceptions[i].qualifiedSourceName(), '.'), KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS);
+					}
 				}
 			}
 		} else if (parent instanceof SwitchStatement) {
@@ -3879,15 +3887,8 @@ public final class CompletionEngine
 					isException = ((CompletionOnParameterizedQualifiedTypeReference)astNode).isException();
 				}
 				if (isException) {
-					Argument[] catchArguments = ((TryStatement) astNodeParent).catchArguments;
-					int length = catchArguments == null ? 0 : catchArguments.length;
-					for (int i = 0; i < length; i++) {
-						TypeBinding caughtException = catchArguments[i].type.resolvedType;
-						if (caughtException != null) {
-							addForbiddenBindings(caughtException);
-							this.knownTypes.put(CharOperation.concat(caughtException.qualifiedPackageName(), caughtException.qualifiedSourceName(), '.'), KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS);
-						}
-					}
+					// the forbidden bindings will be calculated later
+					// during the calculation of expected types.
 					this.forbbidenBindingsFilter = SUBTYPE;
 				}
 			}

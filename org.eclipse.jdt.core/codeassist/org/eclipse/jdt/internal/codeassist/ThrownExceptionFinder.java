@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 IBM Corporation and others.
+ * Copyright (c) 2007, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.ThrowStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
@@ -32,16 +33,22 @@ public class ThrownExceptionFinder extends ASTVisitor {
 
 	private SimpleSet thrownExceptions;
 	private Stack exceptionsStack;
+	private SimpleSet caughtExceptions;
 
-	public ReferenceBinding[] find(TryStatement tryStatement, BlockScope scope) {
+	/**
+	 * Finds the thrown exceptions minus the ones that are already caught in previous catch blocks.
+	 * Exception is already caught even if its super type is being caught. Also computes, separately,
+	 * a list comprising of (a)those exceptions that have been caught already and (b)those exceptions that are thrown
+	 * by the method and whose super type has been caught already. 
+	 * @param tryStatement
+	 * @param scope
+	 */
+	public void processThrownExceptions(TryStatement tryStatement, BlockScope scope) {
 		this.thrownExceptions = new SimpleSet();
 		this.exceptionsStack = new Stack();
+		this.caughtExceptions = new SimpleSet();
 		tryStatement.traverse(this, scope);
-		removeCaughtExceptions(tryStatement);
-
-		ReferenceBinding[] result = new ReferenceBinding[this.thrownExceptions.elementSize];
-		this.thrownExceptions.asArray(result);
-		return result;
+		removeCaughtExceptions(tryStatement, true /*remove unchecked exceptions this time*/);
 	}
 
 	private void acceptException(ReferenceBinding binding) {
@@ -78,6 +85,31 @@ public class ThrownExceptionFinder extends ASTVisitor {
 		}
 	}
 
+
+	/**
+	 * Returns all the already caught exceptions in catch blocks, found by the call to
+	 * {@link ThrownExceptionFinder#processThrownExceptions(TryStatement, BlockScope)}
+	 * @return Returns an array of (a)those exceptions that have been caught already and 
+	 * (b)those exceptions that are thrown by the method and whose super type has been 
+	 * caught already.
+	 */
+	public ReferenceBinding[] getAlreadyCaughtExceptions() {
+		ReferenceBinding[] allCaughtExceptions = new ReferenceBinding[this.caughtExceptions.elementSize];
+		this.caughtExceptions.asArray(allCaughtExceptions);
+		return allCaughtExceptions;
+	}
+	
+	/**
+	 * Returns all the thrown exceptions minus the ones that are already caught in previous catch blocks,
+	 * found by the call to {@link ThrownExceptionFinder#processThrownExceptions(TryStatement, BlockScope)}.
+	 * Exception is already caught even if its super type is being caught
+	 * @return Returns an array of thrown exceptions that are still not caught in any catch block.
+	 */
+	public ReferenceBinding[] getThrownUncaughtExceptions() {
+		ReferenceBinding[] result = new ReferenceBinding[this.thrownExceptions.elementSize];
+		this.thrownExceptions.asArray(result);
+		return result;
+	}
 	public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
 		return visitType(typeDeclaration);
 	}
@@ -100,7 +132,7 @@ public class ThrownExceptionFinder extends ASTVisitor {
 		this.thrownExceptions = exceptionSet;
 		tryStatement.tryBlock.traverse(this, scope);
 
-		removeCaughtExceptions(tryStatement);
+		removeCaughtExceptions(tryStatement, false);
 
 		this.thrownExceptions = (SimpleSet)this.exceptionsStack.pop();
 
@@ -118,15 +150,31 @@ public class ThrownExceptionFinder extends ASTVisitor {
 		}
 		return false;
 	}
-
-	private void removeCaughtExceptions(TryStatement tryStatement) {
+	
+	private void removeCaughtExceptions(TryStatement tryStatement, boolean recordUncheckedCaughtExceptions) {
 		Argument[] catchArguments = tryStatement.catchArguments;
 		int length = catchArguments == null ? 0 : catchArguments.length;
 		for (int i = 0; i < length; i++) {
-			TypeBinding exception = catchArguments[i].type.resolvedType;
-			if (exception != null && exception.isValidBinding()) {
-				removeCaughtException((ReferenceBinding)exception);
-
+			if (catchArguments[i].type instanceof UnionTypeReference) {
+				UnionTypeReference disjunctiveTypeReference = (UnionTypeReference) catchArguments[i].type;
+				TypeBinding caughtException;
+				for (int j = 0; j < disjunctiveTypeReference.typeReferences.length; j++) {
+					caughtException = disjunctiveTypeReference.typeReferences[j].resolvedType;
+					if (caughtException != null && caughtException.isValidBinding()) {	// might be null when its the completion node
+						if (!caughtException.isUncheckedException(true) || recordUncheckedCaughtExceptions) {
+							removeCaughtException((ReferenceBinding)caughtException);
+							this.caughtExceptions.add(caughtException);
+						}
+					}
+				}
+			} else {
+				TypeBinding exception = catchArguments[i].type.resolvedType;
+				if (exception != null && exception.isValidBinding()) {
+					if (!exception.isUncheckedException(true) || recordUncheckedCaughtExceptions) {
+						removeCaughtException((ReferenceBinding)exception);
+						this.caughtExceptions.add(exception);
+					}
+				}
 			}
 		}
 	}
@@ -136,8 +184,11 @@ public class ThrownExceptionFinder extends ASTVisitor {
 		for (int i = 0; i < exceptions.length; i++) {
 			ReferenceBinding exception = (ReferenceBinding)exceptions[i];
 			if (exception != null) {
-				if (exception == caughtException || caughtException.isSuperclassOf(exception)) {
+				if (exception == caughtException) {
 					this.thrownExceptions.remove(exception);
+				} else if (caughtException.isSuperclassOf(exception)) {
+					this.thrownExceptions.remove(exception);
+					this.caughtExceptions.add(exception);
 				}
 			}
 		}

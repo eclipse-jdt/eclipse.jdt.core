@@ -8734,7 +8734,7 @@ public void testBug338789(){
 		"      {\n" + 
 		"        throwing();\n" + 
 		"      }\n" + 
-		"    catch (<CompleteOnException:IZZ>  )\n" + 
+		"    catch (IZZException | <CompleteOnException:IZZ>  )\n" + 
 		"      {\n" + 
 		"      }\n" + 
 		"  }\n" + 
@@ -8797,7 +8797,62 @@ public void testBug338789b(){
 		"      {\n" + 
 		"        throwing();\n" + 
 		"      }\n" + 
-		"    catch (<CompleteOnException:java.lang.I>  )\n" + 
+		"    catch (java.lang.IllegalArgumentException | <CompleteOnException:java.lang.I>  )\n" + 
+		"      {\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	int cursorLocation = str.indexOf("java.lang.IllegalArgumentException | java.lang.I") + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343637
+// Check that the whole disjunctive type ref is part of the completion node parent
+public void testBug343637(){
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test {\n" +
+		"	public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException, java.lang.IOException {}\n" +
+		"	public void foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"	   catch (java.lang.IOException e){}\n" +
+		"      catch (java.lang.IllegalArgumentException | java.lang.I) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"   }" +
+		"}\n";
+
+	String testName = "<complete on multi-catch block exception type declaration qualified>";
+	String completeBehind = "java.lang.IllegalArgumentException | java.lang.I";
+	String expectedCompletionNodeToString = "<CompleteOnException:java.lang.I>";
+	String completionIdentifier = "I";
+	String expectedReplacedSource = "java.lang.I";
+	String expectedUnitDisplayString =			
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException, java.lang.IOException {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    try\n" + 
+		"      {\n" + 
+		"        throwing();\n" + 
+		"      }\n" + 
+		"    catch (java.lang.IOException e)\n" + 
+		"      {\n" + 
+		"      }\n" + 
+		"    catch (java.lang.IllegalArgumentException | <CompleteOnException:java.lang.I>  )\n" + 
 		"      {\n" + 
 		"      }\n" + 
 		"  }\n" + 

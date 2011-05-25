@@ -954,9 +954,14 @@ protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identi
 	/* no need to take action if not inside completed identifiers */
 	if (/*(indexOfAssistIdentifier()) < 0 ||*/ (identifierLength == 1 && numberOfIdentifiers == 1)) {
 		int currentTypeArgumentsLength = this.genericsLengthStack[this.genericsLengthPtr--];
-		TypeReference[] typeArguments = new TypeReference[currentTypeArgumentsLength];
-		this.genericsPtr -= currentTypeArgumentsLength;
-		System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeArguments, 0, currentTypeArgumentsLength);
+		TypeReference[] typeArguments;
+		if (currentTypeArgumentsLength > -1) {
+			typeArguments = new TypeReference[currentTypeArgumentsLength];
+			this.genericsPtr -= currentTypeArgumentsLength;
+			System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeArguments, 0, currentTypeArgumentsLength);
+		} else {
+			typeArguments = TypeReference.NO_TYPE_ARGUMENTS;
+		}
 		long[] positions = new long[identifierLength];
 		System.arraycopy(
 			this.identifierPositionStack,
