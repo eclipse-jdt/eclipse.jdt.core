@@ -2242,4 +2242,22 @@ public void test334313e() {
 				"The static method foo(String) conflicts with the abstract method in C<String>\n" + 
 				"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347145
+public void _test347145() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class A {}\n" +
+				"class B<V> extends A {} \n" +
+				"class F<T extends A, Y extends B<T>> {\n" +
+				"	static <U extends A , V extends B<U>> F<U,V> g() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    F<? extends B, ? extends B<? extends B>> f011 = F.g();\n" +
+				"}\n"
+			},
+			"");
+}
 }
