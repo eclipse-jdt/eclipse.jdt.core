@@ -2721,12 +2721,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		javaProject.setRawClasspath(classpath, null);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
-		if ("1.5".equals(compliance)) {
+		if ("1.5".equals(compliance) || "1.6".equals(compliance) || "1.7".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL15_LIB") == null) {
 				setupExternalJCL("jclMin1.5");
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL15_LIB", "JCL15_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
+					new IPath[] {getExternalJCLPath("1.5"), getExternalJCLSourcePath("1.5"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {

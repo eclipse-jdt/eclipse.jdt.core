@@ -217,6 +217,9 @@ protected void classInstanceCreation(boolean hasClassBody) {
 		char [] oldIdent = assistIdentifier();
 		setAssistIdentifier(null);
 		alloc.type = getTypeReference(0);
+		if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
+			checkForDiamond(alloc.type);
+		}
 
 		setAssistIdentifier(oldIdent);
 
@@ -373,6 +376,9 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 		char [] oldIdent = assistIdentifier();
 		setAssistIdentifier(null);
 		alloc.type = getTypeReference(0);
+		if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
+			checkForDiamond(alloc.type);
+		}
 
 		setAssistIdentifier(oldIdent);
 
@@ -436,6 +442,9 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 		char [] oldIdent = assistIdentifier();
 		setAssistIdentifier(null);
 		alloc.type = getTypeReference(0);
+		if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
+			checkForDiamond(alloc.type);
+		}
 
 		setAssistIdentifier(oldIdent);
 

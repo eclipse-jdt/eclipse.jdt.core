@@ -1208,7 +1208,7 @@ protected void classInstanceCreation(boolean isQualified) {
 		this.astLengthPtr--;
 	}
 }
-private void checkForDiamond(TypeReference allocType) {
+protected void checkForDiamond(TypeReference allocType) {
 	if (allocType instanceof ParameterizedSingleTypeReference) {
 		ParameterizedSingleTypeReference type = (ParameterizedSingleTypeReference) allocType;
 		if (type.typeArguments == TypeReference.NO_TYPE_ARGUMENTS) {

@@ -1108,4 +1108,47 @@ public void testBug249027b() throws Exception {
 		this.deleteProject("P1");
 	}
 }
+
+public void testBug343693() throws Exception{
+	try {
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{"JCL15_LIB"},
+			 "bin",
+			 "1.7");
+
+		this.createFolder("/P1/src/p1");
+		this.createFile(
+				"/P1/src/p1/X.java",
+				"package p1;\n"+
+				"public class X<T> {\n" +
+					"public X(T Param){}\n"+
+					"public void foo() {\n"+
+					"  new X<>(\"hello\");\n"+
+					"}\n"+
+				"}");
+		
+		waitUntilIndexesReady();
+
+		// do code select
+		ICompilationUnit cu= getCompilationUnit("P1", "src", "p1", "X.java");
+
+		String str = cu.getSource();
+
+		String selection = "X";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+		IJavaElement[] elements = cu.codeSelect(start, length);
+
+		assertElementsEqual(
+			"Unexpected elements",
+			"X(T) [in X [in X.java [in p1 [in src [in P1]]]]]",
+			elements
+		);
+	} finally {
+		this.deleteProject("P1");
+	}
+}
 }
