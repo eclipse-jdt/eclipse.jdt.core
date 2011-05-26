@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -31,7 +35,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test1203c", "test1203d" };
+//		TESTS_NAMES = new String[] { "test1404" };
 //		TESTS_NUMBERS = new int[] { 593, 701, 746, 848, 953, 985, 1029, 1136, 1227, 1295, 1341 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -12734,7 +12738,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	public void test0423() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -12753,12 +12757,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"\n" +
 				"}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
-			"	foo();\n" +
-			"	^^^\n" +
-			"Bound mismatch: The generic method foo() of type X is not applicable for the arguments (). The inferred type X is not a valid substitute for the bounded parameter <U extends X & Runnable>\n" +
-			"----------\n");
+			"");
 	}
 
 	public void test0424() {
@@ -28389,11 +28388,6 @@ public void test0881() {
 		"	String s = (String) Foo.foo();\n" +
 		"	           ^^^^^^^^^^^^^^^^^^\n" +
 		"Cannot cast from List<List<U>> to String\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
-		"	String s = (String) Foo.foo();\n" +
-		"	                        ^^^\n" +
-		"Bound mismatch: The generic method foo() of type Foo is not applicable for the arguments (). The inferred type List<List<U>> is not a valid substitute for the bounded parameter <U extends List<U>>\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
@@ -31424,17 +31418,12 @@ public void test0960() {
 		"	^\n" + 
 		"X is a raw type. References to generic type X<A> should be parameterized\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	X x = newInstance();\n" + 
-		"	      ^^^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method newInstance() of type X<A> is not applicable for the arguments (). The inferred type Comparable<Comparable<B>> is not a valid substitute for the bounded parameter <B extends Comparable<B>>\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 8)\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
 		"	return new X[] { x };\n" + 
 		"	       ^^^^^^^^^^^^^\n" + 
 		"Type safety: The expression of type X[] needs unchecked conversion to conform to X<String>[]\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 10)\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -34370,16 +34359,6 @@ public void test1035() {
 		"	static <M extends String> Comparator<M> baz() {\n" + 
 		"	                  ^^^^^^\n" + 
 		"The type parameter M should not be bounded by the final type String. Final types cannot be further extended\n" + 
-		"----------\n" + 
-		"2. ERROR in ComparableComparator.java (at line 25)\n" + 
-		"	static Comparator BAR = ComparableComparator.bar();//0\n" + 
-		"	                                             ^^^\n" + 
-		"Bound mismatch: The generic method bar() of type ComparableComparator<T> is not applicable for the arguments (). The inferred type Comparable<Comparable<M>> is not a valid substitute for the bounded parameter <M extends Comparable<M>>\n" + 
-		"----------\n" + 
-		"3. ERROR in ComparableComparator.java (at line 27)\n" + 
-		"	static Object BAR2 = ComparableComparator.bar();//1a\n" + 
-		"	                                          ^^^\n" + 
-		"Bound mismatch: The generic method bar() of type ComparableComparator<T> is not applicable for the arguments (). The inferred type Comparable<Comparable<M>> is not a valid substitute for the bounded parameter <M extends Comparable<M>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158548
@@ -41591,11 +41570,16 @@ public void test1210() {
 			"    }\n" +
 			"}\n", // =================
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	Object[] o  = throwE(objs);\n" +
-		"	              ^^^^^^\n" +
-		"Bound mismatch: The generic method throwE(Object...) of type X is not applicable for the arguments (Object[]). The inferred type Object[] is not a valid substitute for the bounded parameter <E extends Exception>\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Object[] o  = throwE(objs);\n" + 
+		"	              ^^^^^^\n" + 
+		"Bound mismatch: The generic method throwE(Object...) of type X is not applicable for the arguments (Object[]). The inferred type Object[]&Exception is not a valid substitute for the bounded parameter <E extends Exception>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	Object[] o  = throwE(objs);\n" + 
+		"	              ^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object[]&Exception to Object[]\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=208030
@@ -45140,26 +45124,31 @@ public void test1317() {
 					"        }\n" +
 					"}\n", // =================
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	<T extends N<T>> T foo3(String name, T value) {}\n" +
-			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"This method must return a result of type T\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 15)\n" +
-			"	new X().foo(\"HI\", null); // correctly report error\n" +
-			"	        ^^^\n" +
-			"The method foo(String, String) is ambiguous for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 18)\n" +
-			"	Thread t1 = foo3(\"HI\", null);\n" +
-			"	            ^^^^\n" +
-			"The method foo3(String, null) is undefined for the type Test\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 19)\n" +
-			"	Thread t2 = (Thread)foo3(\"HI\", null);\n" +
-			"	                    ^^^^\n" +
-			"The method foo3(String, null) is undefined for the type Test\n" +
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	<T extends N<T>> T foo3(String name, T value) {}\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"This method must return a result of type T\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
+			"	new X().foo(\"HI\", null); // correctly report error\n" + 
+			"	        ^^^\n" + 
+			"The method foo(String, String) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 16)\n" + 
+			"	new X().foo2(\"HI\", null); // miss ambiguous error\n" + 
+			"	        ^^^^\n" + 
+			"The method foo2(String, String) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 18)\n" + 
+			"	Thread t1 = foo3(\"HI\", null);\n" + 
+			"	            ^^^^\n" + 
+			"The method foo3(String, null) is undefined for the type Test\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 19)\n" + 
+			"	Thread t2 = (Thread)foo3(\"HI\", null);\n" + 
+			"	                    ^^^^\n" + 
+			"The method foo3(String, null) is undefined for the type Test\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928 - variation
@@ -45181,17 +45170,12 @@ public void test1318() {
 					"}\n", // =================
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	new X().foo2(\"HI\", null);\n" +
-			"	        ^^^^\n" +
-			"Bound mismatch: The generic method foo2(String, T) of type X is not applicable for the arguments (String, null). The inferred type N<N<T>> is not a valid substitute for the bounded parameter <T extends N<T>>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
+			"1. ERROR in X.java (at line 9)\n" +
 			"	new X().<N<?>>foo2(\"HI\", null);\n" +
 			"	              ^^^^\n" +
 			"Bound mismatch: The generic method foo2(String, T) of type X is not applicable for the arguments (String, null). The inferred type N<?> is not a valid substitute for the bounded parameter <T extends N<T>>\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
+			"2. ERROR in X.java (at line 10)\n" +
 			"	new X().<N<? extends N<?>>>foo2(\"HI\", null);\n" +
 			"	                           ^^^^\n" +
 			"Bound mismatch: The generic method foo2(String, T) of type X is not applicable for the arguments (String, null). The inferred type N<? extends N<?>> is not a valid substitute for the bounded parameter <T extends N<T>>\n" +
@@ -45199,7 +45183,7 @@ public void test1318() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928 - variation
 public void test1319() {
-	this.runNegativeTest(
+	this.runConformTest(
 			new String[] {
 					"X.java", // =================
 					"import java.util.List;\n" +
@@ -45213,16 +45197,11 @@ public void test1319() {
 					"        }\n" +
 					"}\n", // =================
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	new X().foo2(\"HI\", null, null, null);\n" +
-			"	        ^^^^\n" +
-			"Bound mismatch: The generic method foo2(String, U, T, W) of type X is not applicable for the arguments (String, null, null, null). The inferred type List<List<W>> is not a valid substitute for the bounded parameter <T extends List<U>>\n" +
-			"----------\n");
+			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928 - variation
 public void test1320() {
-	this.runNegativeTest(
+	this.runConformTest(
 			new String[] {
 					"X.java", // =================
 					"import java.util.List;\n" +
@@ -45236,16 +45215,11 @@ public void test1320() {
 					"        }\n" +
 					"}\n", // =================
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	new X().foo2(\"HI\", null, null, null);\n" +
-			"	        ^^^^\n" +
-			"Bound mismatch: The generic method foo2(String, U, T, W) of type X is not applicable for the arguments (String, null, null, null). The inferred type List<List<W>> is not a valid substitute for the bounded parameter <T extends List<U>>\n" +
-			"----------\n");
+			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928 - variation
 public void test1321() {
-	this.runNegativeTest(
+	this.runConformTest(
 			new String[] {
 					"X.java", // =================
 					"import java.util.List;\n" +
@@ -45259,12 +45233,7 @@ public void test1321() {
 					"        }\n" +
 					"}\n", // =================
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	new X().foo2(\"HI\", null, null, null);\n" +
-			"	        ^^^^\n" +
-			"Bound mismatch: The generic method foo2(String, U, T, W) of type X is not applicable for the arguments (String, null, null, null). The inferred type List<List<T>> is not a valid substitute for the bounded parameter <W extends List<U>>\n" +
-			"----------\n");
+			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094
 public void test1322() {
@@ -47212,7 +47181,7 @@ public void test1379() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=174447
 public void test1380() {
-	this.runNegativeTest(
+	this.runConformTest(
 			new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" + 
@@ -47223,12 +47192,7 @@ public void test1380() {
 				"    }\n" + 
 				"}\n",//-----------------------------------------------------------------------
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	f();\n" + 
-			"	^\n" + 
-			"Bound mismatch: The generic method f() of type X is not applicable for the arguments (). The inferred type Enum<Enum<E>> is not a valid substitute for the bounded parameter <E extends Enum<E>>\n" + 
-			"----------\n");
+			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953
 public void test1381()  throws Exception {
@@ -48237,8 +48201,8 @@ public void test1403()  throws Exception {
 		"Syntax error, insert \")\" to complete Expression\n" + 
 		"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242159
-public void _test1404()  throws Exception {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=242159
+public void test1404()  throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -48255,20 +48219,10 @@ public void _test1404()  throws Exception {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	bar(); // 0 rejected\n" + 
-		"	^^^\n" + 
-		"Bound mismatch: The generic method bar() of type X<A> is not applicable for the arguments (). The inferred type Comparable<Comparable<B>> is not a valid substitute for the bounded parameter <B extends Comparable<B>>\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 8)\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
 		"	X raw = bar(); // 1 accepted\n" + 
 		"	^\n" + 
 		"X is a raw type. References to generic type X<A> should be parameterized\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
-		"	X<?> wild = bar(); // 2 rejected\n" + 
-		"	            ^^^\n" + 
-		"Bound mismatch: The generic method bar() of type X<A> is not applicable for the arguments (). The inferred type Comparable<Comparable<B>> is not a valid substitute for the bounded parameter <B extends Comparable<B>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=240807

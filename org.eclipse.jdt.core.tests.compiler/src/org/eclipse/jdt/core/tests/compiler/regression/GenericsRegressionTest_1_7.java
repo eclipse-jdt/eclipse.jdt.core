@@ -1170,7 +1170,7 @@ public void test0029a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
-public void _test0030() {
+public void test0030() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1181,11 +1181,16 @@ public void _test0030() {
 			"    X f = new X<>();\n" +
 			"}\n"
 		},
-			"");
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	X f = new X<>();\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
-public void _test0031() {
-	this.runNegativeTest(
+public void test0031() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"class C {}\n" +
@@ -1198,8 +1203,8 @@ public void _test0031() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
-public void _test0032() {
-	this.runNegativeTest(
+public void test0032() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"class C {}\n" +
@@ -1214,7 +1219,7 @@ public void _test0032() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
-public void _test0033() {
+public void test0033() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1227,7 +1232,12 @@ public void _test0033() {
 			"    X f2 = getX();\n" +
 			"}\n"
 		},
-		"");
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	X f2 = getX();\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
 public void test0034() {
@@ -1574,104 +1584,55 @@ public void test0037() {
 		"Cannot infer elided type(s)\n" + 
 		"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
-public void _test0038() {
-	this.runNegativeTest(
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=341795
+public void test0038() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class C {}\n" +
-			"interface I {}\n" +
-			"public class X<T extends C & I> {\n" +
-			"    X() {}\n" +
-			"    X f = new X<>();\n" +
-			"}\n"
-		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 5)\n" + 
-		"	X f = new X<>();\n" + 
-		"	^\n" + 
-		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
-		"----------\n");
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
-public void _test0039() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"class C {}\n" +
-			"interface I {}\n" +
-			"public class X<T extends C & I> {\n" +
-			"    X() {}\n" +
-			"    X<?> f = new X<>();\n" +
-			"    Zork z;\n" +
-			"}\n"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n");
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
-public void _test0040() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"class C {}\n" +
-			"interface I {}\n" +
-			"public class X<T extends C & I> {\n" +
-			"    static <U extends C & I> X<U> getX() {\n" +
-			"        return null;\n" +
+			"interface A {\n" +
+			"    <T extends B & C> T getaMethod();\n" +
+			"    <T extends B & C> void setaMethod(T param);\n" +
+			"}\n" +
+			"class B {\n" +
+			"}\n" +
+			"interface C {\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    public void someMethod(A aInstance) {\n" +
+			"        aInstance.getaMethod();\n" +
 			"    }\n" +
-			"    X<?> f2 = getX();\n" +
-			"    Zork z;\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n");
+		"");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=346026
-public void _test0041() {
-	this.runNegativeTest(
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319436
+public void test0039() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class C {}\n" +
-			"interface I {}\n" +
-			"public class X<T extends C & I> {\n" +
-			"    static <U extends C & I> X<U> getX() {\n" +
-			"        return null;\n" +
-			"    }\n" +
-			"    X f2 = getX();\n" +
-			"}\n"
+			"import java.io.Serializable;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    createObject();\n" +
+			"  }\n" +
+			"  private static <T extends Comparable<?> & Serializable> T createObject() {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n" 
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 7)\n" + 
-		"	X f2 = getX();\n" + 
-		"	^\n" + 
-		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
-		"----------\n");
+		"");
 }
-public void _test0042() {
+public void test0042() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"interface I<T> {}\n" +
-			"public class X{\n" +
+			"public class X {\n" +
 			"    <T extends I<T>> void m() { }\n" +
 			"    { m(); } \n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 7)\n" + 
-		"	X f2 = getX();\n" + 
-		"	^\n" + 
-		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
-		"----------\n");
+		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345968
 public void test0043() {

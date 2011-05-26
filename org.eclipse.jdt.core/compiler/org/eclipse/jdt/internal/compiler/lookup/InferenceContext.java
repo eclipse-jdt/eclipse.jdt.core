@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -13,7 +17,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 /**
  * Context used during type inference for a generic method invocation
  */
-public class InferenceContext {
+public class InferenceContext implements Substitution {
 
 	private TypeBinding[][][] collectedSubstitutes;
 	MethodBinding genericMethod;
@@ -23,14 +27,16 @@ public class InferenceContext {
 	boolean hasExplicitExpectedType; // indicates whether the expectedType (if set) was explicit in code, or set by default
     public boolean isUnchecked;
 	TypeBinding[] substitutes;
+	private final LookupEnvironment environment;
 	final static int FAILED = 1;
 
-public InferenceContext(MethodBinding genericMethod) {
+public InferenceContext(MethodBinding genericMethod, LookupEnvironment environment) {
 	this.genericMethod = genericMethod;
 	TypeVariableBinding[] typeVariables = genericMethod.typeVariables;
 	int varLength = typeVariables.length;
 	this.collectedSubstitutes = new TypeBinding[varLength][3][];
 	this.substitutes = new TypeBinding[varLength];
+	this.environment = environment;
 }
 
 public TypeBinding[] getSubstitutes(TypeVariableBinding typeVariable, int constraint) {
@@ -134,5 +140,23 @@ public String toString() {
 	if (count == 0) buffer.append("{}"); //$NON-NLS-1$
 	buffer.append(']');
 	return buffer.toString();
+}
+
+public TypeBinding substitute(TypeVariableBinding originalVariable) {
+    TypeVariableBinding[] variables = this.genericMethod.typeVariables;
+    int length = variables.length;
+    // check this variable can be substituted given parameterized type
+    if (originalVariable.rank < length && variables[originalVariable.rank] == originalVariable) {
+		return this.substitutes[originalVariable.rank];
+    }
+    return originalVariable;
+}
+
+public LookupEnvironment environment() {
+	return this.environment;
+}
+
+public boolean isRawSubstitution() {
+	return false;
 }
 }

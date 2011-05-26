@@ -5,10 +5,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
+
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
  * Binding denoting a generic method after type parameter substitutions got performed.
@@ -32,6 +38,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		ParameterizedGenericMethodBinding methodSubstitute;
 		TypeVariableBinding[] typeVariables = originalMethod.typeVariables;
 		TypeBinding[] substitutes = invocationSite.genericTypeArguments();
+		InferenceContext inferenceContext = null;
 		TypeBinding[] uncheckedArguments = null;
 		computeSubstitutes: {
 			if (substitutes != null) {
@@ -46,7 +53,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			// perform type argument inference (15.12.2.7)
 			// initializes the map of substitutes (var --> type[][]{ equal, extends, super}
 			TypeBinding[] parameters = originalMethod.parameters;
-			InferenceContext inferenceContext = new InferenceContext(originalMethod);
+			inferenceContext = new InferenceContext(originalMethod, scope.environment());
 			methodSubstitute = inferFromArgumentTypes(scope, originalMethod, arguments, parameters, inferenceContext);
 			if (methodSubstitute == null)
 				return null;
@@ -74,12 +81,19 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			}
 		}
 
-		// bounds check
+		/* bounds check: https://bugs.eclipse.org/bugs/show_bug.cgi?id=242159, Inferred types may contain self reference
+		   in formal bounds. If "T extends I<T>" is a original type variable and T was inferred to be I<T> due possibly
+		   to under constraints and resultant glb application per 15.12.2.8, using this.typeArguments to drive the bounds
+		   check against itself is doomed to fail. For, the variable T would after substitution be I<I<T>> and would fail
+		   bounds check against I<T>. Use the inferred types from the context directly - see that there is one round of
+		   extra substitution that has taken place to properly substitute a remaining unresolved variable which also appears
+		   in a formal bound  (So we really have a bounds mismatch between I<I<T>> and I<I<I<T>>>, in the absence of a fix.)
+		*/
 		for (int i = 0, length = typeVariables.length; i < length; i++) {
 		    TypeVariableBinding typeVariable = typeVariables[i];
 		    TypeBinding substitute = methodSubstitute.typeArguments[i];
 		    if (uncheckedArguments != null && uncheckedArguments[i] == null) continue; // only bound check if inferred through 15.12.2.6
-			switch (typeVariable.boundCheck(methodSubstitute, substitute)) {
+			switch (typeVariable.boundCheck((inferenceContext != null) ? inferenceContext : (Substitution) methodSubstitute, substitute)) {
 				case TypeConstants.MISMATCH :
 			        // incompatible due to bound check
 					int argLength = arguments.length;
@@ -233,12 +247,20 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					if (bounds == null) continue nextTypeParameter;
 					TypeBinding[] glb = Scope.greaterLowerBound(bounds);
 					TypeBinding mostSpecificSubstitute = null;
-					if (glb != null) mostSpecificSubstitute = glb[0]; // TODO (philippe) need to improve
-						//TypeBinding mostSpecificSubstitute = scope.greaterLowerBound(bounds);
-						if (mostSpecificSubstitute != null) {
-							substitutes[i] = mostSpecificSubstitute;
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=341795 - Per 15.12.2.8, we should fully apply glb
+					if (glb != null) {
+						if (glb.length == 1) {
+							mostSpecificSubstitute = glb[0];
+						} else {
+							TypeBinding [] otherBounds = new TypeBinding[glb.length - 1];
+							System.arraycopy(glb, 1, otherBounds, 0, glb.length - 1);
+							mostSpecificSubstitute = scope.environment().createWildcard(null, 0, glb[0], otherBounds, Wildcard.EXTENDS);
 						}
 					}
+					if (mostSpecificSubstitute != null) {
+						substitutes[i] = mostSpecificSubstitute;
+					}
+				}
 		}
 		return true;
 	}
@@ -413,14 +435,19 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     	for (int i = 0; i < varLength; i++) {
     		TypeBinding substitute = inferenceContext.substitutes[i];
     		if (substitute != null) {
-    			this.typeArguments[i] = inferenceContext.substitutes[i];
+    			this.typeArguments[i] = substitute;
     		} else {
     			// remaining unresolved variable are considered to be Object (or their bound actually)
-	    		this.typeArguments[i] = originalVariables[i].upperBound();
+	    		this.typeArguments[i] = inferenceContext.substitutes[i] = originalVariables[i].upperBound();
 	    	}
     	}
-		// may still need an extra substitution at the end (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369)
-		// to properly substitute a remaining unresolved variable which also appear in a formal bound
+		/* May still need an extra substitution at the end (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369)
+		   to properly substitute a remaining unresolved variable which also appear in a formal bound. See also
+		   http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5021635. It is questionable though whether this extra
+		   substitution should take place when the invocation site offers no guidance whatsoever and the type variables
+		   are inferred to be the glb of the published bounds - as there can recursion in the formal bounds, the
+		   inferred bounds would no longer be glb. See also http://bugs.sun.com/view_bug.do?bug_id=6932571
+		*/    	
     	this.typeArguments = Scope.substitute(this, this.typeArguments);
 
     	// adjust method types to reflect latest inference
