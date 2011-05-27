@@ -32,7 +32,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test322531j" };
+//		TESTS_NAMES = new String[] { "test347426" };
 //		TESTS_NAMES = new String[] { "test1464" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
@@ -2256,6 +2256,26 @@ public void _test347145() {
 				"}\n" +
 				"public class X  {\n" +
 				"    F<? extends B, ? extends B<? extends B>> f011 = F.g();\n" +
+				"}\n"
+			},
+			"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347426
+public void _test347426() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    class A<T extends B<?>> {  }\n" +
+				"    class B<T extends A<?>> {\n" +
+				"        D<? extends B<T>> x;\n" +
+				"    }\n" +
+				"    class D<T extends B<?>> {}\n" +
+				"    <E extends B<?>> X(E x, D<B<A<?>>> d) {\n" +
+				"        if (x.x == d) {\n" +
+				"            return;\n" +
+				"        }\n" +
+				"    }\n" +
 				"}\n"
 			},
 			"");
