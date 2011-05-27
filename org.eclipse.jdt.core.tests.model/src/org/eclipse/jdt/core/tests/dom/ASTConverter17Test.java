@@ -185,7 +185,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"		try {\n" +
 			"			System.out.println(s);\n" +
 			"			Integer.parseInt(s);\n" +
-			"		} catch(NumberFormatException | Exception e) {\n" +
+			"		} catch(NumberFormatException | ArithmeticException e) {\n" +
 			"			e.printStackTrace();\n" +
 			"		}\n" +
 			"	}\n" +
@@ -204,7 +204,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		SingleVariableDeclaration exception = clause.getException();
 		Type type = exception.getType();
 		assertEquals("Not an union type", ASTNode.UNION_TYPE, type.getNodeType());
-		checkSourceRange(type, "NumberFormatException | Exception", contents);
+		checkSourceRange(type, "NumberFormatException | ArithmeticException", contents);
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertNotNull("No binding", typeBinding);
 	}
