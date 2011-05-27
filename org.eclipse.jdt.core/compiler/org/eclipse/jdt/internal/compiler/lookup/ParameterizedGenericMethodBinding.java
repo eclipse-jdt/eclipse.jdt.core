@@ -93,7 +93,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		    TypeVariableBinding typeVariable = typeVariables[i];
 		    TypeBinding substitute = methodSubstitute.typeArguments[i];
 		    if (uncheckedArguments != null && uncheckedArguments[i] == null) continue; // only bound check if inferred through 15.12.2.6
-			switch (typeVariable.boundCheck((inferenceContext != null) ? inferenceContext : (Substitution) methodSubstitute, substitute)) {
+			switch (typeVariable.boundCheck(inferenceContext != null ? inferenceContext : (Substitution) methodSubstitute, substitute)) {
 				case TypeConstants.MISMATCH :
 			        // incompatible due to bound check
 					int argLength = arguments.length;
