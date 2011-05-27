@@ -3939,7 +3939,7 @@ class ASTConverter {
 
 	/**
 	 * This method is used to retrieve the end position of the block.
-	 * @return int the dimension found, -1 if none
+	 * @return the dimension found, -1 if none
 	 */
 	protected int retrieveClosingAngleBracketPosition(int start) {
 		this.scanner.resetTo(start, this.compilationUnitSourceLength);
@@ -3950,6 +3950,9 @@ class ASTConverter {
 				switch(token) {
 					case TerminalTokens.TokenNameGREATER:
 						return this.scanner.currentPosition - 1;
+					case TerminalTokens.TokenNameLESS:
+						// TokenNameLESS can only be found if the current type has a diamond, start is located before the '<'
+						continue;
 					default:
 						return start;
 				}

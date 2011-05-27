@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CatchClause;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -34,6 +35,7 @@ import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public class ASTConverter17Test extends ConverterTestSetup {
 
@@ -49,7 +51,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 7 };
+//		TESTS_NUMBERS = new int[] { 13 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] {"test0001"};
 	}
@@ -445,5 +447,31 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		} catch(IllegalArgumentException e) {
 			assertTrue("Should not happen", false);
 		}
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=344522
+	 */
+	public void test0013() throws JavaModelException {
+		String contents =
+				"import java.util.*;\n" +
+				"public class X {\n" + 
+				"	public static Object foo() {\n" + 
+				"		List<String> l = new ArrayList<>();\n" +
+				"		return l;\n" +
+				"	}\n" + 
+				"}";
+		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS4, this.workingCopy, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not a try statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) ((VariableDeclarationFragment) statement.fragments().get(0)).getInitializer();
+		Type type = classInstanceCreation.getType();
+		assertTrue("Should be Parameterized type", type.isParameterizedType());
+		checkSourceRange(type, "ArrayList<>", contents);
 	}
 }
