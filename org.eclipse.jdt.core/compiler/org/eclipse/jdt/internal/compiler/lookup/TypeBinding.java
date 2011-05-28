@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *      Stephen Herrmann <stephan@cs.tu-berlin.de> -  Contribution for bug 317046
@@ -910,6 +914,32 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 	if (this == otherType)
 		return true;
 	switch (otherType.kind()) {
+		// handle captured wildcards.
+		case Binding.TYPE_PARAMETER: {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347426
+			if (!isParameterizedType() || !otherType.isCapture()) {
+				return false;
+			}
+			CaptureBinding capture = (CaptureBinding) otherType;
+			WildcardBinding wildcard = capture.wildcard;
+			TypeBinding upperBound = null;
+			TypeBinding [] otherBounds = null;
+			switch (wildcard.boundKind) {
+				case Wildcard.SUPER:
+					return false; // T super syntax isn't allowed, impossible capture.
+				case Wildcard.UNBOUND:
+					TypeVariableBinding variable = wildcard.genericType.typeVariables()[wildcard.rank];
+					upperBound = variable.upperBound();
+					otherBounds = variable.boundsCount() > 1 ? variable.otherUpperBounds() : null;
+					break;
+				case Wildcard.EXTENDS:
+					upperBound = wildcard.bound;
+					otherBounds = wildcard.otherBounds;
+					break;
+			}
+			otherType = capture.environment.createWildcard(null, 0, upperBound, otherBounds, Wildcard.EXTENDS);
+			return isTypeArgumentContainedBy(otherType);
+		}
 		// allow wildcard containment
 		case Binding.WILDCARD_TYPE:
 		case Binding.INTERSECTION_TYPE:

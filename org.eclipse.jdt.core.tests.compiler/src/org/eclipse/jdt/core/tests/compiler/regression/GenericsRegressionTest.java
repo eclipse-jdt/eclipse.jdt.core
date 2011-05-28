@@ -2261,7 +2261,7 @@ public void _test347145() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=347426
-public void _test347426() {
+public void test347426() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2276,6 +2276,36 @@ public void _test347426() {
 				"            return;\n" +
 				"        }\n" +
 				"    }\n" +
+				"}\n"
+			},
+			"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347426
+public void test347426b() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" +
+				"    class A<T extends X<?>> {\n" +
+				"        B<? extends A<T>> x;\n" +
+				"    }\n" +
+				"    class B<T extends A<?>> {}\n" +
+				"    boolean b = ((A<?>)null).x == ((B<A<X<?>>>)null);   \n" +
+				"}\n"
+			},
+			"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347426
+public void test347426c() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" +
+				"    class A<T extends X<? extends String>> {\n" +
+				"        B<? extends A<T>> x;\n" +
+				"    }\n" +
+				"    class B<T extends A<?>> {}\n" +
+				"    boolean b = ((A<? extends X<?>>)null).x == ((B<A<X<? extends String>>>)null);       \n" +
 				"}\n"
 			},
 			"");
