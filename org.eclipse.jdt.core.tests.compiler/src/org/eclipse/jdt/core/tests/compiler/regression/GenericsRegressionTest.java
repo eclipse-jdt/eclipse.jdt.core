@@ -2320,4 +2320,28 @@ public void test347426c() {
 			},
 			"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=283353
+public void test283353() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    EntityKey entityKey = null;\n" +
+				"    new EntityCondenser().condense(entityKey);  \n" +
+				"  }\n" +
+				"  public static class EntityCondenser {\n" +
+				"    <I, E extends EntityType<I, E, K>, K extends EntityKey<I>> void condense(K entityKey) {\n" +
+				"    }\n" +
+				"  }\n" +
+				"  public class EntityKey<I> {}\n" +
+				"  public interface EntityType<\n" +
+				"    I,\n" +
+				"    E extends EntityType<I, E, K>,\n" +
+				"    K extends EntityKey<I>> {\n" +
+				"  }\n" +
+				"}\n"
+			},
+			"");
+}
 }
