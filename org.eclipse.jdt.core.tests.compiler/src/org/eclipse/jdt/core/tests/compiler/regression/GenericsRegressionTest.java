@@ -2354,8 +2354,7 @@ public void _test347600() {
 				"class D extends B<E> {}\n" +
 				"class E extends B<D> {}\n" +
 				"public class X<T, Y extends B<U>, U extends B<Y>> {    \n" +
-				"    public static <T1, Y1 extends B<U1>, U1 extends B<Y1>> X<T1, Y1, U1> getX()\n" +
-				"{\n" +
+				"    public static <T1, Y1 extends B<U1>, U1 extends B<Y1>> X<T1, Y1, U1> getX() {\n" +
 				"        return null;\n" +
 				"    }\n" +
 				"    X<B, ? extends D, ? extends E> f = getX();   \n" +
