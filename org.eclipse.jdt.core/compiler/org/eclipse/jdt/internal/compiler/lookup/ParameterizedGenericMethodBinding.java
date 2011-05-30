@@ -441,14 +441,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    		this.typeArguments[i] = inferenceContext.substitutes[i] = originalVariables[i].upperBound();
 	    	}
     	}
-		/* May still need an extra substitution at the end (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369)
-		   to properly substitute a remaining unresolved variable which also appear in a formal bound. See also
-		   http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5021635. It is questionable though whether this extra
-		   substitution should take place when the invocation site offers no guidance whatsoever and the type variables
-		   are inferred to be the glb of the published bounds - as there can recursion in the formal bounds, the
-		   inferred bounds would no longer be glb. See also http://bugs.sun.com/view_bug.do?bug_id=6932571
-		*/    	
-    	this.typeArguments = Scope.substitute(this, this.typeArguments);
+		substituteLingeringTypeVariables(scope);
 
     	// adjust method types to reflect latest inference
 		TypeBinding oldReturnType = this.returnType;
@@ -479,6 +472,42 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			}
 		}
 	    return this;
+	}
+
+	private void substituteLingeringTypeVariables(Scope scope) {
+
+		/* May still need an extra substitution at the end (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369)
+		   to properly substitute a remaining unresolved variable which also appear in a formal bound. See also
+		   http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5021635. It is questionable though whether this extra
+		   substitution should take place when the invocation site offers no guidance whatsoever and the type variables
+		   are inferred to be the glb of the published bounds - as there can recursion in the formal bounds, the
+		   inferred bounds would no longer be glb. See also http://bugs.sun.com/view_bug.do?bug_id=6932571
+		*/
+    	this.typeArguments = Scope.substitute(this, this.typeArguments);
+		
+    	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=347145: this round of substitution may have altered the types,
+		   re-evaluate intersection types as they could change.
+		*/
+    	for (int i = 0, length = this.typeArguments.length; i < length; i++) {
+    		TypeBinding typeArgument = this.typeArguments[i];
+    		if (typeArgument.kind() == Binding.INTERSECTION_TYPE) {
+    			WildcardBinding wildcard = (WildcardBinding) typeArgument;
+    			TypeBinding [] bounds = new TypeBinding[1 + wildcard.otherBounds.length];
+    			bounds[0] = wildcard.bound;
+    			System.arraycopy(wildcard.otherBounds, 0, bounds, 1, wildcard.otherBounds.length);
+    			TypeBinding[] glb = Scope.greaterLowerBound(bounds); // re-evaluate
+    			if (glb != null && glb != bounds) {
+    				if (glb.length == 1) {
+    					typeArgument = glb[0];
+    				} else {
+    					TypeBinding [] otherBounds = new TypeBinding[glb.length - 1];
+    					System.arraycopy(glb, 1, otherBounds, 0, glb.length - 1);
+    					typeArgument = scope.environment().createWildcard(wildcard.genericType, wildcard.rank, glb[0], otherBounds, wildcard.boundKind);
+    				}
+    				this.typeArguments[i] = typeArgument;
+    			}
+    		}
+    	}
 	}
 
 	/**

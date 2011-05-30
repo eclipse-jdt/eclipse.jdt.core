@@ -2243,7 +2243,7 @@ public void test334313e() {
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=347145
-public void _test347145() {
+public void test347145() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2258,7 +2258,17 @@ public void _test347145() {
 				"    F<? extends B, ? extends B<? extends B>> f011 = F.g();\n" +
 				"}\n"
 			},
-			"");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	F<? extends B, ? extends B<? extends B>> f011 = F.g();\n" + 
+			"	            ^\n" + 
+			"B is a raw type. References to generic type B<V> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	F<? extends B, ? extends B<? extends B>> f011 = F.g();\n" + 
+			"	                                     ^\n" + 
+			"B is a raw type. References to generic type B<V> should be parameterized\n" + 
+			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=347426
 public void test347426() {
