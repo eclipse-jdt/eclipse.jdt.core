@@ -2344,4 +2344,28 @@ public void test283353() {
 			},
 			"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347600
+public void _test347600() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"class A {}\n" +
+				"class B<V> extends A {} \n" +
+				"class D extends B<E> {}\n" +
+				"class E extends B<D> {}\n" +
+				"public class X<T, Y extends B<U>, U extends B<Y>> {    \n" +
+				"    public static <T1, Y1 extends B<U1>, U1 extends B<Y1>> X<T1, Y1, U1> getX()\n" +
+				"{\n" +
+				"        return null;\n" +
+				"    }\n" +
+				"    X<B, ? extends D, ? extends E> f = getX();   \n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 10)\n" + 
+			"	X<B, ? extends D, ? extends E> f = getX();   \n" + 
+			"	  ^\n" + 
+			"B is a raw type. References to generic type B<V> should be parameterized\n" + 
+			"----------\n");
+}
 }
