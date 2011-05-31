@@ -441,7 +441,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    		this.typeArguments[i] = inferenceContext.substitutes[i] = originalVariables[i].upperBound();
 	    	}
     	}
-		substituteLingeringTypeVariables(scope);
+		substituteLingeringTypeVariables(scope, inferenceContext);
 
     	// adjust method types to reflect latest inference
 		TypeBinding oldReturnType = this.returnType;
@@ -474,7 +474,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    return this;
 	}
 
-	private void substituteLingeringTypeVariables(Scope scope) {
+	private void substituteLingeringTypeVariables(Scope scope, InferenceContext inferenceContext) {
 
 		/* May still need an extra substitution at the end (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369)
 		   to properly substitute a remaining unresolved variable which also appear in a formal bound. See also
@@ -504,7 +504,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     					System.arraycopy(glb, 1, otherBounds, 0, glb.length - 1);
     					typeArgument = scope.environment().createWildcard(wildcard.genericType, wildcard.rank, glb[0], otherBounds, wildcard.boundKind);
     				}
-    				this.typeArguments[i] = typeArgument;
+    				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347746, also propagate the more precise type to the inference context  
+    				this.typeArguments[i] = inferenceContext.substitutes[i] = typeArgument;
     			}
     		}
     	}

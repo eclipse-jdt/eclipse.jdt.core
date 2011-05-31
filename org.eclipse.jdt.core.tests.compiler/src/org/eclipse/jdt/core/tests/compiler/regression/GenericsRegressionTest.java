@@ -2367,4 +2367,25 @@ public void _test347600() {
 			"B is a raw type. References to generic type B<V> should be parameterized\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347746
+public void test347746() {
+	 this.runNegativeTest(
+	     new String[] {
+	         "X.java",
+	         "public class X {\n" +
+	   		 "    class A<T extends B<?>> {}\n" +
+	   		 "    class B<T extends A<?>> extends D {}\n" +
+	   		 "    class C<T extends D> {}\n" +
+	   		 "    class D {}\n" +
+	   		 "    class E<T extends C<? extends B<?>>> {}\n" +
+	   		 "    <U extends C<V>, V extends B<W>, W extends A<V>> W foo(E<U> e) {\n" +
+	   		 "        return goo(e);\n" +
+	   		 "    }\n" +
+	   		 "    <P extends C<Q>, Q extends B<R>, R extends A<Q>> R goo(E<P> e) {\n" +
+	   		 "        return null;\n" +
+	   		 "    }\n" +
+	   		 "}\n"
+	     },
+	     "");
+	}
 }
