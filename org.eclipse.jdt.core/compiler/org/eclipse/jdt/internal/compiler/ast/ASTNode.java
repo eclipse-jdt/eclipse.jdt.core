@@ -250,6 +250,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	// for type reference (diamond case) - Java 7
 	public static final int IsUnionType = Bit30;
+	// Used to tag ParameterizedSingleTypeReference or ParameterizedQualifiedTypeReference when they are
+	// used without any type args. It is also used to tag CompletionOnQualifiedExpression when the
+	// generics inference has failed and the resolved type still has <>.
 	public static final int IsDiamond = Bit20;
 
 	// this is only used for method invocation as the expression inside an expression statement

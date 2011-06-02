@@ -8868,4 +8868,80 @@ public void testBug343637(){
 		expectedReplacedSource,
 		testName);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+public void testBug346454(){
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test<T> {\n" +
+		"	public void foo() {\n" +
+		"      Test<String> t = new Test<>()\n" +
+		"   }" +
+		"}\n";
+
+	String testName = "<complete after diamond type>";
+	String completeBehind = "new Test<>(";
+	String expectedCompletionNodeToString = "<CompleteOnAllocationExpression:new Test<>()>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =			
+		"public class Test<T> {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    Test<String> t = <CompleteOnAllocationExpression:new Test<>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+public void testBug346454b(){
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test<T> {\n" +
+		"	public class T2<Z>{}\n" +
+		"	public void foo() {\n" +
+		"      Test<String>.T2<String> t = new Test<>().new T2<>()\n" +
+		"   }" +
+		"}\n";
+
+	String testName = "<complete after diamond type>";
+	String completeBehind = "new Test<>().new T2<>(";
+	String expectedCompletionNodeToString = "<CompleteOnQualifiedAllocationExpression:new Test<>().new T2<>()>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =			
+		"public class Test<T> {\n" + 
+		"  public class T2<Z> {\n" + 
+		"    public T2() {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    Test<String>.T2<String> t = <CompleteOnQualifiedAllocationExpression:new Test<>().new T2<>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
 }

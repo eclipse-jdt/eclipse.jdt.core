@@ -989,7 +989,7 @@ protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identi
 	int currentIdentifiersLength = identifierLength;
 	while (index > 0) {
 		int currentTypeArgumentsLength = this.genericsLengthStack[this.genericsLengthPtr--];
-		if (currentTypeArgumentsLength != 0) {
+		if (currentTypeArgumentsLength > 0) {
 			this.genericsPtr -= currentTypeArgumentsLength;
 			System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeArguments[index - 1] = new TypeReference[currentTypeArgumentsLength], 0, currentTypeArgumentsLength);
 		}

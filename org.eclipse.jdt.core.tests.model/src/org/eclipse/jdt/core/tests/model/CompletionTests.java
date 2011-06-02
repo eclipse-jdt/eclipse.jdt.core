@@ -1006,6 +1006,16 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testBug343637f"));
 	suite.addTest(new CompletionTests("testBug343637g"));
 	suite.addTest(new CompletionTests("testBug343637h"));
+	suite.addTest(new CompletionTests("testBug346454"));
+	suite.addTest(new CompletionTests("testBug346454b"));
+	suite.addTest(new CompletionTests("testBug346454c"));
+	suite.addTest(new CompletionTests("testBug346454c_2"));
+	suite.addTest(new CompletionTests("testBug346454d"));
+	suite.addTest(new CompletionTests("testBug346454e"));
+	suite.addTest(new CompletionTests("testBug346454f"));
+	suite.addTest(new CompletionTests("testBug346454g"));
+	suite.addTest(new CompletionTests("testBug346454h"));
+	suite.addTest(new CompletionTests("testBug346454i"));
 	return suite;
 }
 public CompletionTests(String name) {
@@ -24002,6 +24012,404 @@ public void testBug343637h() throws JavaModelException {
 		assertResults(
 			"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
 			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+// Should not get NegativeArraySizeException or show proposals for types
+public void testBug346454() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test<T> {\n" +
+			"	public void foo() {\n" +
+			"     Test<String> x = new Test<>\n" +
+			"   }" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new Test<>";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+// Should not get NegativeArraySizeException
+public void testBug346454b() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test<T> {\n" +
+			"	public void foo() {\n" +
+			"     Test<String> x = new Test<>.\n" +
+			"   }" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new Test<>.";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+// Should get proposals for constructor parameters
+public void testBug346454c() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test<T> {\n" +
+			"	public Test(int i){}\n" +
+			"	public void foo() {\n" +
+			"	  int j = 1;\n" +
+			"     new Test<>()\n" +
+			"   }" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new Test<>(";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"Test[METHOD_REF<CONSTRUCTOR>]{, Ltest.Test<>;, (I)V, Test, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Test<>[ANONYMOUS_CLASS_DECLARATION]{, Ltest.Test<>;, (I)V, null, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+// Inference fails but be resilient. At least propose unsubstituted methods.
+public void testBug346454c_2() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test<T> {\n" +
+			"	public Test(T t){}\n" +
+			"	public Test(int i){}\n" +
+			"	public void foo() {\n" +
+			"       new Test<>()\n" +
+			"   }" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new Test<>(";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"Test[METHOD_REF<CONSTRUCTOR>]{, Ltest.Test<>;, (I)V, Test, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Test[METHOD_REF<CONSTRUCTOR>]{, Ltest.Test<>;, (TT;)V, Test, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Test<>[ANONYMOUS_CLASS_DECLARATION]{, Ltest.Test<>;, (I)V, null, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Test<>[ANONYMOUS_CLASS_DECLARATION]{, Ltest.Test<>;, (TT;)V, null, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+// Qualified exp case. Should get proposals for constructor parameters.
+// This tests changes in CompleteOnQualifiedAllocationExpression
+public void testBug346454d() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/X.java",
+			"package test;"+
+			"public class X<T> {\n" +
+			"	public void foo() {\n" +
+			"     new pack.Test<>()\n" +
+			"   }" +
+			"}\n");
+		
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/pack/Test.java",
+				"package pack;"+
+				"public class Test<T> {\n" +
+				"	public Test(T t){}\n" +
+				"	public Test(int i){}\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = " new pack.Test<>(";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"Test[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<>;, (I)V, Test, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Test[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<>;, (TT;)V, Test, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Test<>[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<>;, (I)V, null, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Test<>[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<>;, (TT;)V, null, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+// Qualified exp case. Should get proposals for constructor completion
+public void testBug346454e() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/X.java",
+			"package test;"+
+			"public class X<T> {\n" +
+			"	public void foo() {\n" +
+			"     new pack.Test<>.\n" +
+			"   }" +
+			"}\n");
+		
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/pack/Test.java",
+				"package pack;"+
+				"public class Test<T> {\n" +
+				"	public Test(T t){}\n" +
+				"	public Test(int i){}\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new pack.Test<>.";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"",
+				requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+// Qualified allocation case. Should get proposals for constructor completion
+// This tests changes in CompleteOnQualifiedAllocationExpression
+public void testBug346454f() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;" +
+			"import pack.Test;\n"+
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"     Test<String>.T2<String> t = new Test<>().new T2<>()\n" +
+			"   }" +
+			"}\n");
+		
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/pack/Test.java",
+				"package pack;"+
+				"public class Test<T> {\n" +
+				"	public class T2<Z> {\n" +
+				"		public T2(Z z){}\n" +
+				"   }" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new Test<>().new T2<>(";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<>.T2;, (TZ;)V, T2, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Test<>.T2[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<>.T2;, (TZ;)V, null, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+// Qualified allocation case. Should get proposals for constructor completion
+// This tests changes in CompleteOnQualifiedAllocationExpression
+public void testBug346454g() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;" +
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"     new pack.Test<>().new T2<>()\n" +
+			"   }" +
+			"}\n");
+		
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/pack/Test.java",
+				"package pack;"+
+				"public class Test<T> {\n" +
+				"	public Test(T t){}\n" +
+				"	public class T2<Z> {\n" +
+				"		public T2(Z z){}\n" +
+				"   }" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new pack.Test<>().new T2<>(";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<>.T2;, (TZ;)V, T2, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Test<>.T2[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<>.T2;, (TZ;)V, null, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+// Allocation case with explicit type args and diamond together. Should not throw exception.
+// This tests changes in CompleteOnQualifiedAllocationExpression
+public void testBug346454h() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;" +
+			"import pack.Test;\n"+
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"     new <String> Test<>()\n" +
+			"   }" +
+			"}\n");
+		
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/pack/Test.java",
+				"package pack;"+
+				"public class Test<T> {\n" +
+				"	public <Z> Test(T t, Z z) {\n" +
+				"   }" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new <String> Test<>(";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"Test[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<>;, <Z:Ljava.lang.Object;>(TT;TZ;)V, Test, (t, z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Test<>[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<>;, <Z:Ljava.lang.Object;>(TT;TZ;)V, null, (t, z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",	
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+// Qualified Allocation case with explicit type args and diamond together. Should not throw exception.
+// This tests changes in CompleteOnQualifiedAllocationExpression
+public void testBug346454i() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;" +
+			"import pack.Test;\n"+
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"     new <String> Test<>().new T2<>()\n" +
+			"   }" +
+			"}\n");
+		
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/pack/Test.java",
+				"package pack;"+
+				"public class Test<T> {\n" +
+				"	public <Z> Test(T t) {\n" +
+				"   }\n" +
+				"	public class T2<U> {\n" +
+				"		public T2(U u) {\n" +
+				"   	}\n" +
+				"	}\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new <String> Test<>().new T2<>(";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<>.T2;, (TU;)V, T2, (u), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Test<>.T2[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<>.T2;, (TU;)V, null, (u), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",	
+				requestor.getResults());
 	} finally {
 		// Restore compliance settings.
 		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);

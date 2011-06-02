@@ -2614,6 +2614,14 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		this.listLength++;
 	}
 }
+protected void consumeGenericTypeWithDiamond() {
+	super.consumeGenericTypeWithDiamond();
+	// we need to pop the <> of the diamond from the stack.
+	// This is not required in usual case when the type argument isn't elided
+	// since the < and > get popped while parsing the type argument. 
+	popElement(K_BINARY_OPERATOR); // pop >
+	popElement(K_BINARY_OPERATOR); // pop <
+}
 protected void consumeStatementFor() {
 	super.consumeStatementFor();
 
@@ -4366,7 +4374,10 @@ public void flushAssistState() {
 
 protected TypeReference getTypeReferenceForGenericType(int dim,	int identifierLength, int numberOfIdentifiers) {
 	TypeReference ref = super.getTypeReferenceForGenericType(dim, identifierLength, numberOfIdentifiers);
-
+	// in completion case we might have encountered the assist node before really parsing
+	// the complete class instance creation, and so a separate check for diamond is needed here.
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+	checkForDiamond(ref);
 	if(this.assistNode != null) {
 		if (identifierLength == 1 && numberOfIdentifiers == 1) {
 			ParameterizedSingleTypeReference singleRef = (ParameterizedSingleTypeReference) ref;

@@ -5003,7 +5003,22 @@ public final class CompletionEngine
 		int relevance) {
 
 		// No visibility checks can be performed without the scope & invocationSite
-		MethodBinding[] methods = currentType.availableMethods();
+		MethodBinding[] methods = null;
+		if (currentType instanceof ParameterizedTypeBinding && invocationSite instanceof CompletionOnQualifiedAllocationExpression) {
+			CompletionOnQualifiedAllocationExpression alloc = (CompletionOnQualifiedAllocationExpression) invocationSite;
+			if ((alloc.bits & ASTNode.IsDiamond) != 0) {
+				// inference failed. So don't substitute type arguments. Just return the unsubstituted methods
+				// and let the user decide what to substitute.
+				ParameterizedTypeBinding binding = (ParameterizedTypeBinding) currentType;
+				ReferenceBinding originalGenericType = binding.genericType();
+				if (originalGenericType != null)
+					methods = originalGenericType.methods();
+			} else {
+				methods = currentType.availableMethods();
+			}
+		} else {
+			methods = currentType.availableMethods();
+		}
 		if(methods != null) {
 			int minArgLength = argTypes == null ? 0 : argTypes.length;
 			next : for (int f = methods.length; --f >= 0;) {
