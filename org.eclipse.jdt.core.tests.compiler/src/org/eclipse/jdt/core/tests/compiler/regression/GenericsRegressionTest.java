@@ -2345,8 +2345,8 @@ public void test283353() {
 			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=347600
-public void _test347600() {
-	this.runConformTest(
+public void test347600() {
+	this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"class A {}\n" +
@@ -2361,7 +2361,7 @@ public void _test347600() {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 10)\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
 			"	X<B, ? extends D, ? extends E> f = getX();   \n" + 
 			"	  ^\n" + 
 			"B is a raw type. References to generic type B<V> should be parameterized\n" + 

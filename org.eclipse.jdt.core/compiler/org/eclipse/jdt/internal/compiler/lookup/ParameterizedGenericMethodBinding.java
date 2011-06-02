@@ -53,7 +53,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			// perform type argument inference (15.12.2.7)
 			// initializes the map of substitutes (var --> type[][]{ equal, extends, super}
 			TypeBinding[] parameters = originalMethod.parameters;
-			inferenceContext = new InferenceContext(originalMethod, scope.environment());
+			inferenceContext = new InferenceContext(originalMethod);
 			methodSubstitute = inferFromArgumentTypes(scope, originalMethod, arguments, parameters, inferenceContext);
 			if (methodSubstitute == null)
 				return null;
@@ -89,11 +89,18 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		   extra substitution that has taken place to properly substitute a remaining unresolved variable which also appears
 		   in a formal bound  (So we really have a bounds mismatch between I<I<T>> and I<I<I<T>>>, in the absence of a fix.)
 		*/
+		Substitution substitution = null;
+		if (inferenceContext != null) {
+			substitution = new LingeringTypeVariableEliminator(typeVariables, inferenceContext.substitutes, scope);
+		} else {
+			substitution = methodSubstitute;
+		}
 		for (int i = 0, length = typeVariables.length; i < length; i++) {
 		    TypeVariableBinding typeVariable = typeVariables[i];
-		    TypeBinding substitute = methodSubstitute.typeArguments[i];
+		    TypeBinding substitute = methodSubstitute.typeArguments[i]; // retain for diagnostics
+		    TypeBinding substituteForChecks = Scope.substitute(new LingeringTypeVariableEliminator(typeVariables, null, scope), substitute); // while using this for bounds check
 		    if (uncheckedArguments != null && uncheckedArguments[i] == null) continue; // only bound check if inferred through 15.12.2.6
-			switch (typeVariable.boundCheck(inferenceContext != null ? inferenceContext : (Substitution) methodSubstitute, substitute)) {
+			switch (typeVariable.boundCheck(substitution, substituteForChecks)) {
 				case TypeConstants.MISMATCH :
 			        // incompatible due to bound check
 					int argLength = arguments.length;
@@ -441,7 +448,15 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    		this.typeArguments[i] = inferenceContext.substitutes[i] = originalVariables[i].upperBound();
 	    	}
     	}
-		substituteLingeringTypeVariables(scope, inferenceContext);
+		/* May still need an extra substitution at the end (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369)
+		   to properly substitute a remaining unresolved variable which also appear in a formal bound. See also
+		   http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5021635. It is questionable though whether this extra
+		   substitution should take place when the invocation site offers no guidance whatsoever and the type variables
+		   are inferred to be the glb of the published bounds - as there can recursion in the formal bounds, the
+		   inferred bounds would no longer be glb.
+		*/
+		
+		this.typeArguments = Scope.substitute(this, this.typeArguments);
 
     	// adjust method types to reflect latest inference
 		TypeBinding oldReturnType = this.returnType;
@@ -474,41 +489,46 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    return this;
 	}
 
-	private void substituteLingeringTypeVariables(Scope scope, InferenceContext inferenceContext) {
+	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=347600 && https://bugs.eclipse.org/bugs/show_bug.cgi?id=242159
+	   Sometimes due to recursion/circularity in formal bounds, even *published bounds* fail bound check. We need to
+	   break the circularity/self reference in order not to be overly strict during type equivalence checks.  
+	   See also http://bugs.sun.com/view_bug.do?bug_id=6932571
+	 */
+	private static class LingeringTypeVariableEliminator implements Substitution {
 
-		/* May still need an extra substitution at the end (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369)
-		   to properly substitute a remaining unresolved variable which also appear in a formal bound. See also
-		   http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5021635. It is questionable though whether this extra
-		   substitution should take place when the invocation site offers no guidance whatsoever and the type variables
-		   are inferred to be the glb of the published bounds - as there can recursion in the formal bounds, the
-		   inferred bounds would no longer be glb. See also http://bugs.sun.com/view_bug.do?bug_id=6932571
-		*/
-    	this.typeArguments = Scope.substitute(this, this.typeArguments);
+		final private TypeVariableBinding [] variables;
+		final private TypeBinding [] substitutes; // when null, substitute type variables by unbounded wildcard
+		final private Scope scope;
 		
-    	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=347145: this round of substitution may have altered the types,
-		   re-evaluate intersection types as they could change.
-		*/
-    	for (int i = 0, length = this.typeArguments.length; i < length; i++) {
-    		TypeBinding typeArgument = this.typeArguments[i];
-    		if (typeArgument.kind() == Binding.INTERSECTION_TYPE) {
-    			WildcardBinding wildcard = (WildcardBinding) typeArgument;
-    			TypeBinding [] bounds = new TypeBinding[1 + wildcard.otherBounds.length];
-    			bounds[0] = wildcard.bound;
-    			System.arraycopy(wildcard.otherBounds, 0, bounds, 1, wildcard.otherBounds.length);
-    			TypeBinding[] glb = Scope.greaterLowerBound(bounds); // re-evaluate
-    			if (glb != null && glb != bounds) {
-    				if (glb.length == 1) {
-    					typeArgument = glb[0];
-    				} else {
-    					TypeBinding [] otherBounds = new TypeBinding[glb.length - 1];
-    					System.arraycopy(glb, 1, otherBounds, 0, glb.length - 1);
-    					typeArgument = scope.environment().createWildcard(wildcard.genericType, wildcard.rank, glb[0], otherBounds, wildcard.boundKind);
-    				}
-    				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347746, also propagate the more precise type to the inference context  
-    				this.typeArguments[i] = inferenceContext.substitutes[i] = typeArgument;
-    			}
-    		}
-    	}
+		/**
+		 * @param variables
+		 * @param substitutes when null, substitute type variable by unbounded wildcard
+		 * @param scope
+		 */
+		public LingeringTypeVariableEliminator(TypeVariableBinding [] variables, TypeBinding [] substitutes, Scope scope) {
+			this.variables = variables;
+			this.substitutes = substitutes;
+			this.scope = scope;
+		}
+		// With T mapping to I<T>, answer of I<?>, when given T, having eliminated the circularity/self reference.
+		public TypeBinding substitute(TypeVariableBinding typeVariable) {
+			if (typeVariable.rank >= this.variables.length || this.variables[typeVariable.rank] != typeVariable) {   // not kosher, don't touch.
+				return typeVariable;
+			}
+			if (this.substitutes != null) {
+				return Scope.substitute(new LingeringTypeVariableEliminator(this.variables, null, this.scope), this.substitutes[typeVariable.rank]); 
+			}
+			ReferenceBinding genericType = (ReferenceBinding) (typeVariable.declaringElement instanceof ReferenceBinding ? typeVariable.declaringElement : null);
+			return this.scope.environment().createWildcard(genericType, typeVariable.rank, null, null, Wildcard.UNBOUND);
+		}
+
+		public LookupEnvironment environment() {
+			return this.scope.environment();
+		}
+
+		public boolean isRawSubstitution() {
+			return false;
+		}
 	}
 
 	/**

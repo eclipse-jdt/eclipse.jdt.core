@@ -314,7 +314,7 @@ public abstract class Scope {
 			}
 		}
 		if (removed == 0) return result;
-		if (length == removed) return null;
+		if (length == removed) return null; // how is this possible ???
 		TypeBinding[] trimmedResult = new TypeBinding[length - removed];
 		for (int i = 0, index = 0; i < length; i++) {
 			TypeBinding iType = result[i];
@@ -407,6 +407,24 @@ public abstract class Scope {
 			        TypeBinding[] originalOtherBounds = wildcard.otherBounds;
 			        TypeBinding[] substitutedOtherBounds = substitute(substitution, originalOtherBounds);
 			        if (substitutedBound != originalBound || originalOtherBounds != substitutedOtherBounds) {
+			        	if (originalOtherBounds != null) {
+			        		/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=347145: the constituent intersecting types have changed
+			        		   in the last round of substitution. Reevaluate the composite intersection type, as there is a possibility
+			        		   of the intersection collapsing into one of the constituents, the other being fully subsumed.
+			        		*/
+			    			TypeBinding [] bounds = new TypeBinding[1 + substitutedOtherBounds.length];
+			    			bounds[0] = substitutedBound;
+			    			System.arraycopy(substitutedOtherBounds, 0, bounds, 1, substitutedOtherBounds.length);
+			    			TypeBinding[] glb = Scope.greaterLowerBound(bounds); // re-evaluate
+			    			if (glb != null && glb != bounds) {
+			    				substitutedBound = glb[0];
+		    					if (glb.length == 1) {
+			    					substitutedOtherBounds = null;
+			    				} else {
+			    					System.arraycopy(glb, 1, substitutedOtherBounds = new TypeBinding[glb.length - 1], 0, glb.length - 1);
+			    				}
+			    			}
+			        	}
 		        		return wildcard.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, substitutedOtherBounds, wildcard.boundKind);
 			        }
 		        }

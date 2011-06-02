@@ -17,7 +17,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 /**
  * Context used during type inference for a generic method invocation
  */
-public class InferenceContext implements Substitution {
+public class InferenceContext {
 
 	private TypeBinding[][][] collectedSubstitutes;
 	MethodBinding genericMethod;
@@ -27,16 +27,14 @@ public class InferenceContext implements Substitution {
 	boolean hasExplicitExpectedType; // indicates whether the expectedType (if set) was explicit in code, or set by default
     public boolean isUnchecked;
 	TypeBinding[] substitutes;
-	private final LookupEnvironment environment;
 	final static int FAILED = 1;
 
-public InferenceContext(MethodBinding genericMethod, LookupEnvironment environment) {
+public InferenceContext(MethodBinding genericMethod) {
 	this.genericMethod = genericMethod;
 	TypeVariableBinding[] typeVariables = genericMethod.typeVariables;
 	int varLength = typeVariables.length;
 	this.collectedSubstitutes = new TypeBinding[varLength][3][];
 	this.substitutes = new TypeBinding[varLength];
-	this.environment = environment;
 }
 
 public TypeBinding[] getSubstitutes(TypeVariableBinding typeVariable, int constraint) {
@@ -140,23 +138,5 @@ public String toString() {
 	if (count == 0) buffer.append("{}"); //$NON-NLS-1$
 	buffer.append(']');
 	return buffer.toString();
-}
-
-public TypeBinding substitute(TypeVariableBinding originalVariable) {
-    TypeVariableBinding[] variables = this.genericMethod.typeVariables;
-    int length = variables.length;
-    // check this variable can be substituted given parameterized type
-    if (originalVariable.rank < length && variables[originalVariable.rank] == originalVariable) {
-		return this.substitutes[originalVariable.rank];
-    }
-    return originalVariable;
-}
-
-public LookupEnvironment environment() {
-	return this.environment;
-}
-
-public boolean isRawSubstitution() {
-	return false;
 }
 }
