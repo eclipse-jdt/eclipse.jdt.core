@@ -8944,4 +8944,61 @@ public void testBug346454b(){
 		expectedReplacedSource,
 		testName);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346415
+// To make sure that all catch blocks before the one in which we're invoking assist are avaiable in the ast.
+public void testBug346415(){
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test {\n" +
+		"	public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException, java.lang.IOException {}\n" +
+		"	public void foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"	   catch (java.lang.IOException e){\n" +
+		"      } catch (java.lang.IllegalArgumentException e){\n" +
+		"	   } catch (/*propose*/) {\n" +
+		"      }\n" +
+		"   }\n" +
+		"}\n";
+
+	String testName = "<complete on third catch block>";
+	String completeBehind = "catch (/*propose*/";
+	String expectedCompletionNodeToString = "<CompleteOnException:>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =			
+			"public class Test {\n" + 
+			"  public Test() {\n" + 
+			"  }\n" + 
+			"  public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException, java.lang.IOException {\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    try\n" + 
+			"      {\n" + 
+			"        throwing();\n" + 
+			"      }\n" + 
+			"    catch (java.lang.IOException e)\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"    catch (java.lang.IllegalArgumentException e)\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"    catch (<CompleteOnException:>  )\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"  }\n" + 
+			"}\n";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
 }

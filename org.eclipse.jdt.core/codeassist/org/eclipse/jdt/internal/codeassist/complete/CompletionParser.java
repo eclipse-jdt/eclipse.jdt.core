@@ -1179,7 +1179,7 @@ private void buildMoreGenericsCompletionContext(ASTNode node, boolean consumeTyp
 	}
 }
 private void buildMoreTryStatementCompletionContext(TypeReference exceptionRef) {
-	if (this.astLengthPtr > -1 &&
+	if (this.astLengthPtr > 0 &&
 			this.astPtr > 2 &&
 			this.astStack[this.astPtr -1] instanceof Block &&
 			this.astStack[this.astPtr - 2] instanceof Argument) {
@@ -1187,7 +1187,7 @@ private void buildMoreTryStatementCompletionContext(TypeReference exceptionRef) 
 
 		int newAstPtr = this.astPtr - 1;
 
-		int length = this.astLengthStack[this.astLengthPtr];
+		int length = this.astLengthStack[this.astLengthPtr - 1];
 		Block[] bks = (tryStatement.catchBlocks = new Block[length + 1]);
 		Argument[] args = (tryStatement.catchArguments = new Argument[length + 1]);
 		if (length != 0) {
