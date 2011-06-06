@@ -44,7 +44,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug325229" };
+//		TESTS_NAMES = new String[] { "testBug348379" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -14672,6 +14672,170 @@ public void testBug342300b() throws Exception {
 			"	if (escapeChar != null && escapeChar != null) {\n" + 
 			"	                          ^^^^^^^^^^\n" + 
 			"Redundant null check: The variable escapeChar cannot be null at this location\n" + 
+			"----------\n");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+public void testBug348379a() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo() {\n" + 
+				"		String s = null;\n" +
+				"		switch(s) {\n" +
+				"		case \"abcd\":\n" +
+				"			System.out.println(\"abcd\");\n" +
+				"			break;\n" +
+				"		default:\n" +
+				"			System.out.println(\"oops\");\n" +
+				"			break;\n" +
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	switch(s) {\n" + 
+			"	       ^\n" + 
+			"Null pointer access: The variable s can only be null at this location\n" + 
+			"----------\n");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+public void testBug348379b() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String s = \"abcd\";\n" +
+				"		switch(s) {\n" +	// no warning since s is not null
+				"		case \"abcd\":\n" +
+				"			System.out.println(\"abcd\");\n" +
+				"			break;\n" +
+				"		default:\n" +
+				"			System.out.println(\"oops\");\n" +
+				"			break;\n" +
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"abcd");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+public void testBug348379c() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(String s) {\n" + 
+				"		if (s == null) {}\n" +		// tainting s
+				"		switch(s) {\n" +
+				"		case \"abcd\":\n" +
+				"			System.out.println(\"abcd\");\n" +
+				"			break;\n" +
+				"		default:\n" +
+				"			System.out.println(\"oops\");\n" +
+				"			break;\n" +
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	switch(s) {\n" + 
+			"	       ^\n" + 
+			"Potential null pointer access: The variable s may be null at this location\n" + 
+			"----------\n");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+public void testBug348379d() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(String s) {\n" + 
+				"		if (s != null) {}\n" +		// tainting s
+				"		switch(s) {\n" +
+				"		case \"abcd\":\n" +
+				"			System.out.println(\"abcd\");\n" +
+				"			break;\n" +
+				"		default:\n" +
+				"			System.out.println(\"oops\");\n" +
+				"			break;\n" +
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	switch(s) {\n" + 
+			"	       ^\n" + 
+			"Potential null pointer access: The variable s may be null at this location\n" + 
+			"----------\n");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+public void testBug348379e() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(String s) {\n" + 
+				"		if (s == null) {}\n" +		// tainting s
+				"		else\n" +
+				"		switch(s) {\n" +   // no warning because we're inside else
+				"		case \"abcd\":\n" +
+				"			System.out.println(\"abcd\");\n" +
+				"			break;\n" +
+				"		default:\n" +
+				"			System.out.println(\"oops\");\n" +
+				"			break;\n" +
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+public void testBug348379f() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(String s) {\n" + 
+				"		s = null;\n" +
+				"		switch(s) {\n" +
+				"		case \"abcd\":\n" +
+				"			System.out.println(\"abcd\");\n" +
+				"			break;\n" +
+				"		default:\n" +
+				"			switch(s) {\n" +	// do not warn again
+				"				case \"abcd\":\n" +
+				"					System.out.println(\"abcd\");\n" +
+				"					break;\n" +
+				"				default:\n" +
+				"					break;\n" +
+				"			}\n" +
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	switch(s) {\n" + 
+			"	       ^\n" + 
+			"Null pointer access: The variable s can only be null at this location\n" + 
 			"----------\n");
 	}
 }

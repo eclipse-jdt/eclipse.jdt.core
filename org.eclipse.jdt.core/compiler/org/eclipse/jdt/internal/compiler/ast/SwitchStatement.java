@@ -62,7 +62,8 @@ public class SwitchStatement extends Statement {
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		try {
 			flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
-			if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
+			if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0
+					|| (this.expression.resolvedType != null && this.expression.resolvedType.id == T_JavaLangString)) {
 				this.expression.checkNPE(currentScope, flowContext, flowInfo);
 			}
 			SwitchFlowContext switchContext =
