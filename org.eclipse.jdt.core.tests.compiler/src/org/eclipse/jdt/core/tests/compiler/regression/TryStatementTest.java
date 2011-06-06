@@ -5908,6 +5908,66 @@ public void test070() {
 				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
 				"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
+public void test071() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		try {\n" +
+			"		} catch (Exception [][][][][]  e [][][][]) {\n" +
+			"		}\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	} catch (Exception [][][][][]  e [][][][]) {\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"No exception of type Exception[][][][][][][][][] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
+public void test072() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		try {\n" +
+			"		} catch (Exception e []) {\n" +
+			"		}\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	} catch (Exception e []) {\n" + 
+		"	         ^^^^^^^^^^^^^^\n" + 
+		"No exception of type Exception[] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
+public void test073() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		try {\n" +
+			"		} catch (Exception [] e) {\n" +
+			"		}\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	} catch (Exception [] e) {\n" + 
+		"	         ^^^^^^^^^^^^\n" + 
+		"No exception of type Exception[] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return TryStatementTest.class;
 }

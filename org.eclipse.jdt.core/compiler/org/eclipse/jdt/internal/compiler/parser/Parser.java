@@ -2142,12 +2142,12 @@ protected void consumeCatchFormalParameter() {
 	this.identifierLengthPtr--;
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];
-	// pop dimensions
-	// TODO (olivier) verify if this is needed
-	this.intPtr--; // dimension opt (part of VariableDeclaratorId)
-	// might need to remove an extra dimension
-	// pop the type out of ast stack
+	int extendedDimensions = this.intStack[this.intPtr--]; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
 	TypeReference type = (TypeReference) this.astStack[this.astPtr--];
+	if (extendedDimensions > 0) {
+		type = type.copyDims(type.dimensions() + extendedDimensions);
+		type.sourceEnd = this.endPosition;
+	}
 	this.astLengthPtr--;
 	int modifierPositions = this.intStack[this.intPtr--];
 	this.intPtr--;
