@@ -6419,12 +6419,12 @@ public void scannerError(Parser parser, String errorTokenName) {
 		flag = IProblem.InvalidDigit;
 	else if (errorTokenName.equals(Scanner.INVALID_BINARY))
 		flag = IProblem.InvalidBinary;
-	else if (errorTokenName.equals(Scanner.ILLEGAL_BINARY_LITERAL))
-		flag = IProblem.IllegalBinaryLiteral;
+	else if (errorTokenName.equals(Scanner.BINARY_LITERAL_NOT_BELOW_17))
+		flag = IProblem.BinaryLiteralNotBelow17;
 	else if (errorTokenName.equals(Scanner.INVALID_UNDERSCORE))
 		flag = IProblem.IllegalUnderscorePosition;
-	else if (errorTokenName.equals(Scanner.INVALID_USAGE_OF_UNDERSCORE))
-		flag = IProblem.IllegalUsageOfUnderscore;
+	else if (errorTokenName.equals(Scanner.UNDERSCORES_IN_LITERALS_NOT_BELOW_17))
+		flag = IProblem.UnderscoresInLiteralsNotBelow17;
 
 	String[] arguments = flag == IProblem.ParsingErrorNoSuggestion
 			? new String[] {errorTokenName}

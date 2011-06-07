@@ -119,10 +119,10 @@ public class Scanner implements TerminalTokens {
 	private static final int[] EMPTY_LINE_ENDS = Util.EMPTY_INT_ARRAY;
 
 	public static final String INVALID_BINARY = "Invalid_Binary_Literal"; //$NON-NLS-1$
-	public static final String ILLEGAL_BINARY_LITERAL = "Illegal_Binary_Literal"; //$NON-NLS-1$
+	public static final String BINARY_LITERAL_NOT_BELOW_17 = "Binary_Literal_Not_Below_17"; //$NON-NLS-1$
 	public static final String ILLEGAL_HEXA_LITERAL = "Illegal_Hexa_Literal"; //$NON-NLS-1$
 	public static final String INVALID_UNDERSCORE = "Invalid_Underscore"; //$NON-NLS-1$
-	public static final String INVALID_USAGE_OF_UNDERSCORE = "Invalid_Usage_Of_Underscore"; //$NON-NLS-1$`
+	public static final String UNDERSCORES_IN_LITERALS_NOT_BELOW_17 = "Underscores_In_Literals_Not_Below_17"; //$NON-NLS-1$`
 
 	//----------------optimized identifier managment------------------
 	static final char[] charArray_a = new char[] {'a'},
@@ -756,12 +756,12 @@ private final void consumeDigits(int radix, boolean expectingDigitFirst) throws 
 	switch(consumeDigits0(radix, USING_UNDERSCORE, INVALID_POSITION, expectingDigitFirst)) {
 		case USING_UNDERSCORE :
 			if (this.sourceLevel < ClassFileConstants.JDK1_7) {
-				throw new InvalidInputException(INVALID_USAGE_OF_UNDERSCORE);
+				throw new InvalidInputException(UNDERSCORES_IN_LITERALS_NOT_BELOW_17);
 			}
 			break;
 		case INVALID_POSITION :
 			if (this.sourceLevel < ClassFileConstants.JDK1_7) {
-				throw new InvalidInputException(INVALID_USAGE_OF_UNDERSCORE);
+				throw new InvalidInputException(UNDERSCORES_IN_LITERALS_NOT_BELOW_17);
 			}
 			throw new InvalidInputException(INVALID_UNDERSCORE);
 	}
@@ -3603,18 +3603,18 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 			int end = this.currentPosition;
 			if (end == start) {
 				if (this.sourceLevel < ClassFileConstants.JDK1_7) {
-					throw new InvalidInputException(ILLEGAL_BINARY_LITERAL);
+					throw new InvalidInputException(BINARY_LITERAL_NOT_BELOW_17);
 				}
 				throw new InvalidInputException(INVALID_BINARY);
 			}
 			if (getNextChar('l', 'L') >= 0) {
 				if (this.sourceLevel < ClassFileConstants.JDK1_7) {
-					throw new InvalidInputException(ILLEGAL_BINARY_LITERAL);
+					throw new InvalidInputException(BINARY_LITERAL_NOT_BELOW_17);
 				}
 				return TokenNameLongLiteral;
 			}
 			if (this.sourceLevel < ClassFileConstants.JDK1_7) {
-				throw new InvalidInputException(ILLEGAL_BINARY_LITERAL);
+				throw new InvalidInputException(BINARY_LITERAL_NOT_BELOW_17);
 			}
 			return TokenNameIntegerLiteral;
 		}

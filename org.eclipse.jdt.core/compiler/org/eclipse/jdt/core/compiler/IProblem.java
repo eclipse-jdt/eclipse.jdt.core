@@ -606,11 +606,11 @@ void setSourceStart(int sourceStart);
 	/** @since 3.7 */
 	int InvalidBinary = Syntax + Internal + 266;
 	/** @since 3.7 */
-	int IllegalBinaryLiteral = Syntax + Internal + 267;
+	int BinaryLiteralNotBelow17 = Syntax + Internal + 267;
 	/** @since 3.7 */
 	int IllegalUnderscorePosition = Syntax + Internal + 268;
 	/** @since 3.7 */
-	int IllegalUsageOfUnderscore = Syntax + Internal + 269;
+	int UnderscoresInLiteralsNotBelow17 = Syntax + Internal + 269;
 	/** @since 3.7 */
 	int IllegalHexaLiteral = Syntax + Internal + 270;
 
