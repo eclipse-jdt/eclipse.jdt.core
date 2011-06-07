@@ -6259,6 +6259,9 @@ public void reset() {
 	this.positionScanner = null;
 }
 public void resourceHasToBeAutoCloseable(TypeBinding binding, TypeReference typeReference) {
+	if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
+		return; // Not supported in 1.7 would have been reported. Hence another not required
+	}
 	this.handle(
 			IProblem.ResourceHasToBeAutoCloseable,
 			new String[] {new String(binding.readableName())},

@@ -3221,6 +3221,37 @@ public void test051() {
 		},
 		"File = X.java line = 8");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348406
+public void test052() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+					"    public static void main(String[] args) throws Throwable {\n" +
+					"        try (Test t = new Test()) {\n" +
+					"        } \n" +
+					"    }\n" +
+					"}\n" +
+					"class Test {\n" +
+					"    public void close() throws Exception {\n" +
+					"        throw new Exception();\n" +
+					"    }\n" +
+					"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (Test t = new Test()) {\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource specification not allowed here for source level below 1.7\n" + 
+		"----------\n",
+		null, 
+		true,
+		options);
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }
