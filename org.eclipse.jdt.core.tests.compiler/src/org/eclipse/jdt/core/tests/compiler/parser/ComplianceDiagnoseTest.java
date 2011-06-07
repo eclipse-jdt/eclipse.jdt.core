@@ -2476,11 +2476,6 @@ public void test0054() {
 		"	try (int i = 0) {};\n" + 
 		"	     ^^^^^^^^^\n" + 
 		"Resource specification not allowed here for source level below 1.7\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	try (int i = 0) {};\n" + 
-		"	     ^^^\n" + 
-		"The resource type int has to be a subclass of java.lang.AutoCloseable\n" + 
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
