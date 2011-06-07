@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -492,8 +493,8 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (this.expression instanceof MessageSend) {
 		MessageSend messageSend = (MessageSend) this.expression;
 		MethodBinding methodBinding = messageSend.binding;
-		if (MethodBinding.isPolymorphic(methodBinding)) {
-			messageSend.binding = scope.environment().updatePolymorphicMethodReturnType(methodBinding, castType);
+		if (methodBinding != null && methodBinding.isPolymorphic()) {
+			messageSend.binding = scope.environment().updatePolymorphicMethodReturnType((PolymorphicMethodBinding) methodBinding, castType);
 			expressionType = castType;
 		}
 	}

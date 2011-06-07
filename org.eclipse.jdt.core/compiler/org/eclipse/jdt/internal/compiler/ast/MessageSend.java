@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
@@ -463,15 +464,16 @@ public TypeBinding resolveType(BlockScope scope) {
 						: null;
 	}
 	final CompilerOptions compilerOptions = scope.compilerOptions();
-	if (compilerOptions.complianceLevel <= ClassFileConstants.JDK1_6 && MethodBinding.isPolymorphic(this.binding)) {
+	if (compilerOptions.complianceLevel <= ClassFileConstants.JDK1_6
+			&& this.binding.isPolymorphic()) {
 		scope.problemReporter().polymorphicMethodNotBelow17(this);
 		return null;
 	}
 
-	if (MethodBinding.isPolymorphic(this.binding)
-			&& ((this.bits & ASTNode.InsideExpressionStatement) != 0)) {
+	if (((this.bits & ASTNode.InsideExpressionStatement) != 0)
+			&& this.binding.isPolymorphic()) {
 		// we only set the return type to be void if this method invocation is used inside an expression statement
-		this.binding = scope.environment().updatePolymorphicMethodReturnType(this.binding, TypeBinding.VOID);
+		this.binding = scope.environment().updatePolymorphicMethodReturnType((PolymorphicMethodBinding) this.binding, TypeBinding.VOID);
 	}
 	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 		scope.problemReporter().missingTypeInMethod(this, this.binding);

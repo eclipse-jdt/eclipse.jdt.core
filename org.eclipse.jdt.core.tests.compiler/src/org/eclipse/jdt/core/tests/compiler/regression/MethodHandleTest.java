@@ -14,6 +14,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.core.JavaCore;
+
 import junit.framework.Test;
 
 /**
@@ -263,5 +267,44 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			"Inside foo\n" + 
 			"foo\n" + 
 			"Inside foo");
+	}
+	public void test008() {
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.ERROR);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.invoke.MethodType;\n" + 
+				"import java.lang.invoke.WrongMethodTypeException;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static <T> T foo(T param){\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			MethodHandle handle = MethodHandles.lookup().findStatic(X.class, \"foo\", MethodType.methodType(Object.class, Object.class));\n" + 
+				"			try {\n" + 
+				"				Object o = handle.invokeGeneric(new Object());\n" + 
+				"			} catch (Throwable e) {\n" + 
+				"				e.printStackTrace();\n" + 
+				"			}\n" + 
+				"		} catch (Throwable e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 14)\n" + 
+			"	Object o = handle.invokeGeneric(new Object());\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The method invokeGeneric(Object...) from the type MethodHandle is deprecated\n" + 
+			"----------\n",
+			null,
+			true,
+			options);
 	}
 }

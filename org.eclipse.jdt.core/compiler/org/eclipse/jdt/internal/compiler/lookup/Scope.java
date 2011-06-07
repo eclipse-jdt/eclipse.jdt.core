@@ -576,7 +576,7 @@ public abstract class Scope {
 		}
 
 		if (parameterCompatibilityLevel(method, arguments) > NOT_COMPATIBLE) {
-			if (MethodBinding.isPolymorphic(method)) {
+			if ((method.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
 				// generate polymorphic method
 				return this.environment().createPolymorphicMethod(method, arguments);
 			}

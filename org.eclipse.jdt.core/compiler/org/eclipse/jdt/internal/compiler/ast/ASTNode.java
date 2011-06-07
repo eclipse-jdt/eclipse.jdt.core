@@ -280,7 +280,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	}
 	public static boolean checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
 		boolean is1_7 = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_7;
-		if (is1_7 && MethodBinding.isPolymorphic(method)) {
+		if (is1_7 && method.isPolymorphic()) {
 			return false;
 		}
 		TypeBinding[] params = method.parameters;

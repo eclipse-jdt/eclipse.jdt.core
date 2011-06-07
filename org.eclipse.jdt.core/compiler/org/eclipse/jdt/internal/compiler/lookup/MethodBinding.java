@@ -27,9 +27,6 @@ import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class MethodBinding extends Binding {
-	public static boolean isPolymorphic(MethodBinding methodBinding) {
-		return methodBinding != null &&  ((methodBinding.tagBits & TagBits.AnnotationPolymorphicSignature) != 0);
-	}
 
 	public int modifiers;
 	public char[] selector;
@@ -759,10 +756,12 @@ public final boolean isUsed() {
 
 /* Answer true if the receiver method has varargs
 */
-public final boolean isVarargs() {
+public boolean isVarargs() {
 	return (this.modifiers & ClassFileConstants.AccVarargs) != 0;
 }
-
+public boolean isPolymorphic() {
+	return false;
+}
 /* Answer true if the receiver's declaring type is deprecated (or any of its enclosing types)
 */
 public final boolean isViewedAsDeprecated() {

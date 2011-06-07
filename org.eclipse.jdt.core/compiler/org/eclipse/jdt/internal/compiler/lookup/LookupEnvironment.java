@@ -829,10 +829,10 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 	cachedInfo[index] = parameterizedGenericMethod;
 	return parameterizedGenericMethod;
 }
-public MethodBinding createPolymorphicMethod(MethodBinding originalMethod, TypeBinding[] parameters) {
+public MethodBinding createPolymorphicMethod(MethodBinding originalPolymorphicMethod, TypeBinding[] parameters) {
 	// cached info is array of already created polymorphic methods for this type
-	String key = new String(originalMethod.selector);
-	MethodBinding[] cachedInfo = (MethodBinding[]) this.uniquePolymorphicMethodBindings.get(key);
+	String key = new String(originalPolymorphicMethod.selector);
+	PolymorphicMethodBinding[] cachedInfo = (PolymorphicMethodBinding[]) this.uniquePolymorphicMethodBindings.get(key);
 	int parametersLength = parameters == null ? 0: parameters.length;
 	TypeBinding[] parametersTypeBinding = new TypeBinding[parametersLength]; 
 	for (int i = 0; i < parametersLength; i++) {
@@ -849,104 +849,67 @@ public MethodBinding createPolymorphicMethod(MethodBinding originalMethod, TypeB
 		nextCachedMethod :
 			// iterate existing polymorphic method for reusing one with same type arguments if any
 			for (int max = cachedInfo.length; index < max; index++) {
-				MethodBinding cachedMethod = cachedInfo[index];
-				if (cachedMethod == null) break nextCachedMethod;
-				TypeBinding[] cachedParameters = cachedMethod.parameters;
-				int cachedParametersLength = cachedParameters == null ? 0 : cachedParameters.length;
-				if (parametersLength != cachedParametersLength) continue nextCachedMethod;
-				for (int j = 0; j < cachedParametersLength; j++){
-					if (parametersTypeBinding[j] != cachedParameters[j]) continue nextCachedMethod;
+				PolymorphicMethodBinding cachedMethod = cachedInfo[index];
+				if (cachedMethod == null) {
+					break nextCachedMethod;
 				}
-				TypeBinding cachedReturnType = cachedMethod.returnType;
-				TypeBinding returnType = originalMethod.returnType;
-				if (returnType == null) {
-					if (cachedReturnType != null) {
-						continue nextCachedMethod;
-					}
-				} else if (cachedReturnType == null) {
-					continue nextCachedMethod;
-				} else if (returnType != cachedReturnType) {
-					continue nextCachedMethod;
+				if (cachedMethod.matches(parametersTypeBinding, originalPolymorphicMethod.returnType)) {
+					return cachedMethod;
 				}
-				// all arguments match, reuse current
-				return cachedMethod;
 		}
 		needToGrow = true;
 	} else {
-		cachedInfo = new MethodBinding[5];
+		cachedInfo = new PolymorphicMethodBinding[5];
 		this.uniquePolymorphicMethodBindings.put(key, cachedInfo);
 	}
 	// grow cache ?
 	int length = cachedInfo.length;
 	if (needToGrow && index == length) {
-		System.arraycopy(cachedInfo, 0, cachedInfo = new MethodBinding[length*2], 0, length);
+		System.arraycopy(cachedInfo, 0, cachedInfo = new PolymorphicMethodBinding[length*2], 0, length);
 		this.uniquePolymorphicMethodBindings.put(key, cachedInfo);
 	}
 	// add new binding
-	MethodBinding polymorphicMethod = new MethodBinding(
-			originalMethod.modifiers,
-			originalMethod.selector,
-			originalMethod.returnType,
-			parametersTypeBinding,
-			originalMethod.thrownExceptions,
-			originalMethod.declaringClass);
-	polymorphicMethod.tagBits = originalMethod.tagBits;
+	PolymorphicMethodBinding polymorphicMethod = new PolymorphicMethodBinding(
+			originalPolymorphicMethod,
+			parametersTypeBinding);
 	cachedInfo[index] = polymorphicMethod;
 	return polymorphicMethod;
 }
-public MethodBinding updatePolymorphicMethodReturnType(MethodBinding binding, TypeBinding typeBinding) {
+public MethodBinding updatePolymorphicMethodReturnType(PolymorphicMethodBinding binding, TypeBinding typeBinding) {
 	// update the return type to be the given return type, but reuse existing binding if one can match
 	String key = new String(binding.selector);
-	MethodBinding[] cachedInfo = (MethodBinding[]) this.uniquePolymorphicMethodBindings.get(key);
+	PolymorphicMethodBinding[] cachedInfo = (PolymorphicMethodBinding[]) this.uniquePolymorphicMethodBindings.get(key);
 	boolean needToGrow = false;
 	int index = 0;
 	TypeBinding[] parameters = binding.parameters;
-	int parametersLength = parameters == null ? 0 : parameters.length;
 	if (cachedInfo != null) {
 		nextCachedMethod :
 			// iterate existing polymorphic method for reusing one with same type arguments if any
 			for (int max = cachedInfo.length; index < max; index++) {
-				MethodBinding cachedMethod = cachedInfo[index];
-				if (cachedMethod == null) break nextCachedMethod;
-				TypeBinding[] cachedParameters = cachedMethod.parameters;
-				int cachedParametersLength = cachedParameters == null ? 0 : cachedParameters.length;
-				if (parametersLength != cachedParametersLength) continue nextCachedMethod;
-				for (int j = 0; j < cachedParametersLength; j++){
-					if (parameters[j] != cachedParameters[j]) continue nextCachedMethod;
+				PolymorphicMethodBinding cachedMethod = cachedInfo[index];
+				if (cachedMethod == null) {
+					break nextCachedMethod;
 				}
-				TypeBinding cachedReturnType = cachedMethod.returnType;
-				if (typeBinding == null) {
-					if (cachedReturnType != null) {
-						continue nextCachedMethod;
-					}
-				} else if (cachedReturnType == null) {
-					continue nextCachedMethod;
-				} else if (typeBinding != cachedReturnType) {
-					continue nextCachedMethod;
+				if (cachedMethod.matches(parameters, typeBinding)) {
+					return cachedMethod;
 				}
-				// all arguments match, reuse current
-				return cachedMethod;
 		}
 		needToGrow = true;
 	} else {
-		cachedInfo = new MethodBinding[5];
+		cachedInfo = new PolymorphicMethodBinding[5];
 		this.uniquePolymorphicMethodBindings.put(key, cachedInfo);
 	}
 	// grow cache ?
 	int length = cachedInfo.length;
 	if (needToGrow && index == length) {
-		System.arraycopy(cachedInfo, 0, cachedInfo = new MethodBinding[length*2], 0, length);
+		System.arraycopy(cachedInfo, 0, cachedInfo = new PolymorphicMethodBinding[length*2], 0, length);
 		this.uniquePolymorphicMethodBindings.put(key, cachedInfo);
 	}
 	// add new binding
-	MethodBinding polymorphicMethod = new MethodBinding(
-			binding.modifiers,
-			binding.selector,
+	PolymorphicMethodBinding polymorphicMethod = new PolymorphicMethodBinding(
+			binding.polymorphicMethod(),
 			typeBinding,
-			parameters,
-			binding.thrownExceptions,
-			binding.declaringClass);
-	polymorphicMethod.tagBits = binding.tagBits;
+			parameters);
 	cachedInfo[index] = polymorphicMethod;
 	return polymorphicMethod;
 }
