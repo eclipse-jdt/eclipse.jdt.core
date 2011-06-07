@@ -1388,6 +1388,8 @@ void setSourceStart(int sourceStart);
 	int CannotUseDiamondWithExplicitTypeArguments = TypeRelated + 879;
 	/** @since 3.7 */
 	int CannotUseDiamondWithAnonymousClasses = TypeRelated + 880;
+	/** @since 3.7 */
+	int SwitchOnStringsNotBelow17 = TypeRelated + 881;	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348492
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */

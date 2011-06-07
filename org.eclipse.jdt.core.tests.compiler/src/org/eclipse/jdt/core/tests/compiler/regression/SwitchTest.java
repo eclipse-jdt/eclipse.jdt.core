@@ -876,7 +876,7 @@ public void testStringSwitchAtJDK6() {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	switch(args[0]) {\n" + 
 			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	default: return args;\n" + 
@@ -956,7 +956,7 @@ public void testCaseTypeMismatch() {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	switch(args[0]) {\n" + 
 			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 12)\n" + 
 			"	case (boolean) 8: break;\n" + 
@@ -1001,7 +1001,7 @@ public void testCaseTypeMismatch2() {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	switch (\"Sunday\") {\n" + 
 			"	        ^^^^^^^^\n" + 
-			"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 			"----------\n";
 				
 		this.runNegativeTest(new String[] {
@@ -1088,7 +1088,7 @@ public void testDuplicateCase() {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	switch(args[0]) {\n" + 
 			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	default: return args;\n" + 
@@ -1161,7 +1161,7 @@ public void testDuplicateCase2() {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	switch(args[0]) {\n" + 
 			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 15)\n" + 
 			"	case ifield: break;\n" + 
@@ -1241,7 +1241,7 @@ public void testVariableCase() {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	switch(args[0]) {\n" + 
 			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 			"----------\n";
 				
 		this.runNegativeTest(new String[] {
@@ -1283,7 +1283,7 @@ public void testVariableCaseFinal() {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	switch(args[0]) {\n" + 
 			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 			"----------\n";
 				
 		this.runNegativeTest(new String[] {
@@ -1350,7 +1350,7 @@ public void testNullCase() {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	switch(args[0]) {\n" + 
 			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 			"----------\n";
 				
 		this.runNegativeTest(new String[] {
@@ -1413,7 +1413,7 @@ public void testDuplicateCase3() {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	switch(args[0]) {\n" + 
 			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 18)\n" + 
 			"	default: break;\n" + 
@@ -1454,7 +1454,7 @@ public void testDuplicateHashCode() {
 		"1. ERROR in testDuplicateHashCode.java (at line 5)\n" + 
 		"	switch (dispatcher) {\n" + 
 		"	        ^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n";
 	
 	String [] sourceFiles = 
@@ -1510,7 +1510,7 @@ public void testDuplicateHashCode2() {
 		"1. ERROR in testDuplicateHashCode.java (at line 5)\n" + 
 		"	switch (dispatcher) {\n" + 
 		"	        ^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n";
 	
 	String [] sourceFiles = 
@@ -1573,27 +1573,27 @@ public void testSwitchOnNull() {
 		"1. ERROR in testSwitchOnNull.java (at line 13)\n" + 
 		"	switch (s) {\n" + 
 		"	        ^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n" + 
 		"2. ERROR in testSwitchOnNull.java (at line 23)\n" + 
 		"	switch ((String) null) {\n" + 
 		"	        ^^^^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n" + 
 		"3. ERROR in testSwitchOnNull.java (at line 33)\n" + 
 		"	switch (someMethod()) {\n" + 
 		"	        ^^^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n" + 
 		"4. ERROR in testSwitchOnNull.java (at line 40)\n" + 
 		"	switch (nullString) {\n" + 
 		"	        ^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n" + 
 		"5. ERROR in testSwitchOnNull.java (at line 47)\n" + 
 		"	switch (someMethod()) {\n" + 
 		"	        ^^^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n";
 	
 	String [] sourceFiles = 
@@ -1669,7 +1669,7 @@ public void testSideEffect() {
 		"1. ERROR in testSideEffect.java (at line 11)\n" + 
 		"	switch(dispatcher()) {\n" + 
 		"	       ^^^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n";
 	
 	String [] sourceFiles = 
@@ -1707,7 +1707,7 @@ public void testFallThrough() {
 		"1. ERROR in testFallThrough.java (at line 11)\n" + 
 		"	switch(s = dispatcher()) {\n" + 
 		"	       ^^^^^^^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n";
 	
 	String [] sourceFiles = 
@@ -1757,7 +1757,7 @@ public void testFallThrough2() {
 		"1. ERROR in testFallThrough.java (at line 11)\n" + 
 		"	switch(s = dispatcher()) {\n" + 
 		"	       ^^^^^^^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n";
 	
 	String [] sourceFiles = 
@@ -1802,7 +1802,7 @@ public void testMarysLamb() {
 		"1. ERROR in testMarysLamb.java (at line 4)\n" + 
 		"	switch(s) {\n" + 
 		"	       ^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n";
 	
 	String [] sourceFiles = 
@@ -1830,7 +1830,7 @@ public void testBreakOut() {
 		"1. ERROR in testBreakOut.java (at line 5)\n" + 
 		"	switch(s) {\n" + 
 		"	       ^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n";
 	
 	String [] sourceFiles = 
@@ -1868,17 +1868,17 @@ public void testMultipleSwitches() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	switch (s) {\n" + 
 		"	        ^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 35)\n" + 
 		"	switch (s) {\n" + 
 		"	        ^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 51)\n" + 
 		"	switch (s) {\n" + 
 		"	        ^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n";
 	
 	String [] sourceFiles = 
@@ -1970,17 +1970,17 @@ public void testNestedSwitches() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	switch (s) {\n" + 
 		"	        ^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\n" + 
 		"	switch (s) {\n" + 
 		"	        ^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 18)\n" + 
 		"	switch (s) {\n" + 
 		"	        ^\n" + 
-		"Cannot switch on a value of type String. Only convertible int values or enum constants are permitted\n" + 
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
 		"----------\n";
 	
 	String [] sourceFiles = 

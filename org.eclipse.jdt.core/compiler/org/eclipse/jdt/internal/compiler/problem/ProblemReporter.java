@@ -2817,12 +2817,21 @@ public void incorrectLocationForNonEmptyDimension(ArrayAllocationExpression expr
 }
 public void incorrectSwitchType(Expression expression, TypeBinding testType) {
 	if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
-		this.handle(
-			IProblem.IncorrectSwitchType,
-			new String[] {new String(testType.readableName())},
-			new String[] {new String(testType.shortReadableName())},
-			expression.sourceStart,
-			expression.sourceEnd);
+		if (testType.id == TypeIds.T_JavaLangString) {
+			this.handle(
+					IProblem.SwitchOnStringsNotBelow17,
+					new String[] {new String(testType.readableName())},
+					new String[] {new String(testType.shortReadableName())},
+					expression.sourceStart,
+					expression.sourceEnd);
+		} else {
+			this.handle(
+				IProblem.IncorrectSwitchType,
+				new String[] {new String(testType.readableName())},
+				new String[] {new String(testType.shortReadableName())},
+				expression.sourceStart,
+				expression.sourceEnd);
+		}
 	} else {
 		this.handle(
 				IProblem.IncorrectSwitchType17,
