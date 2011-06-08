@@ -6454,6 +6454,65 @@ public void test0575_try_multi_catch_finally_unchecked_and_checked_exception() {
 	}
 }
 
+// null test for resources inside try with resources statement
+public void test0576_try_with_resources() {
+	if (this.complianceLevel >=  ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.FileInputStream;\n" +
+				"import java.io.IOException;\n" +
+				"import java.io.FileNotFoundException;\n" +
+				"class MyException extends Exception {}\n" +
+				"public class X {\n" +
+				"   static void m(int n) throws IllegalArgumentException, MyException {}\n" +
+				"   void foo(String name, boolean b) throws FileNotFoundException, IOException{\n" +
+				"    FileInputStream fis;\n" +
+				"	 if (b) fis = new FileInputStream(\"\");\n" +
+				"	 else fis = null;\n" +
+				"    try (FileInputStream fis2 = fis; FileInputStream fis3 = fis2; FileInputStream fis4 = null) {\n" +
+				"		fis = new FileInputStream(\"\");\n" +
+				"		fis2.available();\n" +	// may be null since fis may be null
+				"		fis3.close();\n" +
+				"		fis4.available();\n" +	// will always be null
+				"		m(1);\n" +
+				"    } catch (IllegalArgumentException e) {\n" +
+				"      fis.available();\n" + // may be null
+				"    } catch (MyException e) {\n" +
+				"      fis.available();\n" + // cannot be null
+				"    } finally {}\n" +
+				"  }\n" +
+				"}\n"},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	class MyException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class MyException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	fis2.available();\n" + 
+		"	^^^^\n" + 
+		"Potential null pointer access: The variable fis2 may be null at this location\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
+		"	fis3.close();\n" + 
+		"	^^^^\n" + 
+		"Potential null pointer access: The variable fis3 may be null at this location\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 15)\n" + 
+		"	fis4.available();\n" + 
+		"	^^^^\n" + 
+		"Null pointer access: The variable fis4 can only be null at this location\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 18)\n" + 
+		"	fis.available();\n" + 
+		"	^^^\n" + 
+		"Potential null pointer access: The variable fis may be null at this location\n" + 
+		"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+}
+
 // null analysis - throw
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
 public void test0595_throw() {
