@@ -561,7 +561,6 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InvalidClassInstantiation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidContinue", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidDigit", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
-		expectedProblemAttributes.put("InvalidUnionTypeReferenceSequence", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidEncoding", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidEscape", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidExplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -585,6 +584,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InvalidTypeVariableExceptionType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidUnaryExpression", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidUnicodeEscape", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("InvalidUnionTypeReferenceSequence", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidUsageOfAnnotationDeclarations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidUsageOfAnnotations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidUsageOfEnumDeclarations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -846,6 +846,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UnhandledException", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("UnhandledExceptionInDefaultConstructor", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("UnhandledExceptionInImplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("UnhandledExceptionOnAutoClose", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("UnhandledWarningToken", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UninitializedBlankFinalField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("UninitializedLocalVariable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1225,7 +1226,6 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InvalidClassInstantiation", SKIP);
 		expectedProblemAttributes.put("InvalidContinue", SKIP);
 		expectedProblemAttributes.put("InvalidDigit", SKIP);
-		expectedProblemAttributes.put("InvalidUnionTypeReferenceSequence", SKIP);
 		expectedProblemAttributes.put("InvalidEncoding", SKIP);
 		expectedProblemAttributes.put("InvalidEscape", SKIP);
 		expectedProblemAttributes.put("InvalidExplicitConstructorCall", SKIP);
@@ -1249,6 +1249,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InvalidTypeVariableExceptionType", SKIP);
 		expectedProblemAttributes.put("InvalidUnaryExpression", SKIP);
 		expectedProblemAttributes.put("InvalidUnicodeEscape", SKIP);
+		expectedProblemAttributes.put("InvalidUnionTypeReferenceSequence", SKIP);
 		expectedProblemAttributes.put("InvalidUsageOfAnnotationDeclarations", SKIP);
 		expectedProblemAttributes.put("InvalidUsageOfAnnotations", SKIP);
 		expectedProblemAttributes.put("InvalidUsageOfEnumDeclarations", SKIP);
@@ -1510,6 +1511,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UnhandledException", SKIP);
 		expectedProblemAttributes.put("UnhandledExceptionInDefaultConstructor", SKIP);
 		expectedProblemAttributes.put("UnhandledExceptionInImplicitConstructorCall", SKIP);
+		expectedProblemAttributes.put("UnhandledExceptionOnAutoClose", SKIP);
 		expectedProblemAttributes.put("UnhandledWarningToken", new ProblemAttributes(JavaCore.COMPILER_PB_UNHANDLED_WARNING_TOKEN));
 		expectedProblemAttributes.put("UninitializedBlankFinalField", SKIP);
 		expectedProblemAttributes.put("UninitializedLocalVariable", SKIP);
