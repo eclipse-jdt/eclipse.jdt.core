@@ -128,7 +128,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				if (closeMethod != null && closeMethod.returnType.id == TypeIds.T_void) {
 					ReferenceBinding[] thrownExceptions = closeMethod.thrownExceptions;
 					for (int j = 0, length = thrownExceptions.length; j < length; j++) {
-						handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[i], flowInfo, currentScope);
+						handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[i], flowInfo, currentScope, true);
 					}
 				}
 			}

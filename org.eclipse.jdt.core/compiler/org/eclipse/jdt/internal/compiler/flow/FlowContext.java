@@ -94,6 +94,14 @@ public BranchLabel breakLabel() {
 }
 
 public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location, FlowInfo flowInfo, BlockScope scope) {
+	checkExceptionHandlers(raisedException, location, flowInfo, scope, false);
+}
+/**
+ * @param isExceptionOnAutoClose This is for checking exception handlers for exceptions raised during the
+ * auto close of resources inside a try with resources statement. (Relevant for
+ * source levels 1.7 and above only)
+ */
+public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location, FlowInfo flowInfo, BlockScope scope, boolean isExceptionOnAutoClose) {
 	// LIGHT-VERSION OF THE EQUIVALENT WITH AN ARRAY OF EXCEPTIONS
 	// check that all the argument exception types are handled
 	// JDK Compatible implementation - when an exception type is thrown,
@@ -200,7 +208,11 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 		traversedContext = traversedContext.parent;
 	}
 	// if reaches this point, then there are some remaining unhandled exception types.
-	scope.problemReporter().unhandledException(raisedException, location);
+	if (isExceptionOnAutoClose) {
+		scope.problemReporter().unhandledExceptionFromAutoClose(raisedException, location);
+	} else {
+		scope.problemReporter().unhandledException(raisedException, location);
+	}
 }
 
 public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode location, FlowInfo flowInfo, BlockScope scope) {

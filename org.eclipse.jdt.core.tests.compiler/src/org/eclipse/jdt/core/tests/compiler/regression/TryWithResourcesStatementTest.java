@@ -22,7 +22,7 @@ import junit.framework.Test;
 public class TryWithResourcesStatementTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test000" };
+//	TESTS_NAMES = new String[] { "test053" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -93,8 +93,8 @@ public void test003() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	try (AutoCloseable a = new X()) {\n" + 
-		"	                   ^^^^^^^^^^^\n" + 
-		"Unhandled exception type Exception\n" + 
+		"	                   ^\n" + 
+		"Unhandled exception type Exception, caused due to auto close of resource a\n" + 
 		"----------\n");
 }
 // Type resource type related errors 
@@ -667,18 +667,18 @@ public void test020() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
-		"	       ^^^^^^^^^^^^\n" + 
-		"Unhandled exception type XXException\n" + 
+		"	       ^\n" + 
+		"Unhandled exception type XXException, caused due to auto close of resource x\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
-		"	                      ^^^^^^^^^^^^\n" + 
-		"Unhandled exception type YYException\n" + 
+		"	                      ^\n" + 
+		"Unhandled exception type YYException, caused due to auto close of resource y\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
-		"	                                     ^^^^^^^^^^^\n" + 
-		"Unhandled exception type ZZException\n" + 
+		"	                                     ^\n" + 
+		"Unhandled exception type ZZException, caused due to auto close of resource z\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 4)\n" + 
 		"	throw new XXException();\n" + 
@@ -782,8 +782,8 @@ public void test023() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (Y i = null) {\n" + 
-		"	       ^^^^^^^^\n" + 
-		"Unhandled exception type Blah\n" + 
+		"	       ^\n" + 
+		"Unhandled exception type Blah, caused due to auto close of resource i\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	public void close () throws Blah {}\n" + 
@@ -924,18 +924,18 @@ public void test025() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
-		"	       ^^^^^^^^^^^^\n" + 
-		"Unhandled exception type XXException\n" + 
+		"	       ^\n" + 
+		"Unhandled exception type XXException, caused due to auto close of resource x\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
-		"	                      ^^^^^^^^^^^^\n" + 
-		"Unhandled exception type YYException\n" + 
+		"	                      ^\n" + 
+		"Unhandled exception type YYException, caused due to auto close of resource y\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
-		"	                                     ^^^^^^^^^^^\n" + 
-		"Unhandled exception type ZZException\n" + 
+		"	                                     ^\n" + 
+		"Unhandled exception type ZZException, caused due to auto close of resource z\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 4)\n" + 
 		"	throw new XXException();\n" + 
@@ -3251,6 +3251,55 @@ public void test052() {
 		null, 
 		true,
 		options);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348705
+// Unhandled exception due to autoclose should be reported separately
+public void test053() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void method1(){\n" +
+			"		try (Y y = new Y()) { \n" +
+			"			y.close();\n" +
+			"			System.out.println();\n" +
+			"		} catch (RuntimeException e) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements Managed {\n" +
+			"	 public Y() throws CloneNotSupportedException {}\n" +
+			"    public void close () throws ClassNotFoundException, java.io.IOException {\n" +
+			"    }\n" +
+			"}\n" +
+			"interface Managed extends AutoCloseable {}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (Y y = new Y()) { \n" + 
+		"	       ^\n" + 
+		"Unhandled exception type ClassNotFoundException, caused due to auto close of resource y\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	try (Y y = new Y()) { \n" + 
+		"	       ^\n" + 
+		"Unhandled exception type IOException, caused due to auto close of resource y\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	try (Y y = new Y()) { \n" + 
+		"	           ^^^^^^^\n" + 
+		"Unhandled exception type CloneNotSupportedException\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	y.close();\n" + 
+		"	^^^^^^^^^\n" + 
+		"Unhandled exception type ClassNotFoundException\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 4)\n" + 
+		"	y.close();\n" + 
+		"	^^^^^^^^^\n" + 
+		"Unhandled exception type IOException\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;

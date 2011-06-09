@@ -6961,6 +6961,21 @@ public void unhandledException(TypeBinding exceptionType, ASTNode location) {
 		location.sourceStart,
 		sourceEnd);
 }
+public void unhandledExceptionFromAutoClose (TypeBinding exceptionType, ASTNode location) {
+	LocalVariableBinding localBinding = ((LocalDeclaration)location).binding;
+	if (localBinding != null) {
+		this.handle(
+			IProblem.UnhandledExceptionOnAutoClose,
+			new String[] {
+					new String(exceptionType.readableName()),
+					new String(localBinding.readableName())},
+			new String[] {
+					new String(exceptionType.shortReadableName()),
+					new String(localBinding.shortReadableName())},
+			location.sourceStart,
+			location.sourceEnd);
+	}
+}
 public void unhandledWarningToken(Expression token) {
 	String[] arguments = new String[] { token.constant.stringValue() };
 	this.handle(
