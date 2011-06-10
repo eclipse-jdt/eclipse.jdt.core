@@ -94,7 +94,7 @@ public void test003() {
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	try (AutoCloseable a = new X()) {\n" + 
 		"	                   ^\n" + 
-		"Unhandled exception type Exception, caused by automatic closure of resource a\n" + 
+		"Unhandled exception type Exception thrown by automatic close() invocation on a\n" + 
 		"----------\n");
 }
 // Type resource type related errors 
@@ -668,17 +668,17 @@ public void test020() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
 		"	       ^\n" + 
-		"Unhandled exception type XXException, caused by automatic closure of resource x\n" + 
+		"Unhandled exception type XXException thrown by automatic close() invocation on x\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
 		"	                      ^\n" + 
-		"Unhandled exception type YYException, caused by automatic closure of resource y\n" + 
+		"Unhandled exception type YYException thrown by automatic close() invocation on y\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
 		"	                                     ^\n" + 
-		"Unhandled exception type ZZException, caused by automatic closure of resource z\n" + 
+		"Unhandled exception type ZZException thrown by automatic close() invocation on z\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 4)\n" + 
 		"	throw new XXException();\n" + 
@@ -783,7 +783,7 @@ public void test023() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (Y i = null) {\n" + 
 		"	       ^\n" + 
-		"Unhandled exception type Blah, caused by automatic closure of resource i\n" + 
+		"Unhandled exception type Blah thrown by automatic close() invocation on i\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	public void close () throws Blah {}\n" + 
@@ -925,17 +925,17 @@ public void test025() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
 		"	       ^\n" + 
-		"Unhandled exception type XXException, caused by automatic closure of resource x\n" + 
+		"Unhandled exception type XXException thrown by automatic close() invocation on x\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
 		"	                      ^\n" + 
-		"Unhandled exception type YYException, caused by automatic closure of resource y\n" + 
+		"Unhandled exception type YYException thrown by automatic close() invocation on y\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 3)\n" + 
 		"	try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" + 
 		"	                                     ^\n" + 
-		"Unhandled exception type ZZException, caused by automatic closure of resource z\n" + 
+		"Unhandled exception type ZZException thrown by automatic close() invocation on z\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 4)\n" + 
 		"	throw new XXException();\n" + 
@@ -3278,12 +3278,12 @@ public void test053() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (Y y = new Y()) { \n" + 
 		"	       ^\n" + 
-		"Unhandled exception type ClassNotFoundException, caused by automatic closure of resource y\n" + 
+		"Unhandled exception type ClassNotFoundException thrown by automatic close() invocation on y\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	try (Y y = new Y()) { \n" + 
 		"	       ^\n" + 
-		"Unhandled exception type IOException, caused by automatic closure of resource y\n" + 
+		"Unhandled exception type IOException thrown by automatic close() invocation on y\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 3)\n" + 
 		"	try (Y y = new Y()) { \n" + 
