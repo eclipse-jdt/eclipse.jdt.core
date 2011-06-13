@@ -990,7 +990,7 @@ public void test0023() {
 		"3. ERROR in X.java (at line 11)\n" + 
 		"	Map<String, Integer> m1 = new StringKeyHashMap<>(10);\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for StringKeyHashMap<>\n" + 
 		"----------\n");
 }
 // check inference at return expression.
@@ -1271,27 +1271,27 @@ public void test0034() {
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	X<Integer> x1 = new X<>(1,1);\n" + 
 		"	                ^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 14)\n" + 
 		"	X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();\n" + 
 		"	                          ^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 15)\n" + 
 		"	X<Integer>.Y<String> y2 = new X<>(1,1).new Y<>(1);\n" + 
 		"	                          ^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 16)\n" + 
 		"	X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for Y<>\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 17)\n" + 
 		"	X<Integer>.Y<String> y4 = new X<>(1).new Y<>(\"\",\"\");\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for Y<>\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 19)\n" + 
 		"	X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\");\n" + 
@@ -1342,7 +1342,7 @@ public void test0035() {
 		"1. ERROR in X.java (at line 14)\n" + 
 		"	X<Integer> x1 = new X<>(1,1);\n" + 
 		"	                ^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 18)\n" + 
 		"	X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" + 
@@ -1352,17 +1352,17 @@ public void test0035() {
 		"3. ERROR in X.java (at line 20)\n" + 
 		"	X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();\n" + 
 		"	                          ^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 21)\n" + 
 		"	X<Integer>.Y<String> y2 = new X<>(\"\",1).new Y<>(\"\");\n" + 
 		"	                          ^^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 22)\n" + 
 		"	X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for Y<>\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 25)\n" + 
 		"	X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\",1);\n" + 
@@ -1411,7 +1411,7 @@ public void test0036() {
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	X<Integer> x1 = new X<>(1,1);\n" + 
 		"	                ^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 17)\n" + 
 		"	X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" + 
@@ -1421,17 +1421,17 @@ public void test0036() {
 		"3. ERROR in X.java (at line 19)\n" + 
 		"	X<Integer>.Y<String> y1 = new X<>(1,1).new Y<>();\n" + 
 		"	                          ^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 20)\n" + 
 		"	X<Integer>.Y<String> y2 = new X<>(\"\",1).new Y<>(\"\");\n" + 
 		"	                          ^^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 21)\n" + 
 		"	X<Integer>.Y<String> y3 = new X<>(1).new Y<>(1);\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for Y<>\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 24)\n" + 
 		"	X<Integer>.Y<String> y6 = new X<>().new Y<>(1,\"\",1);\n" + 
@@ -1466,7 +1466,7 @@ public void test0034a() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	X<Integer> x1 = new X<>(1,1);\n" + 
 		"	                ^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559
@@ -1496,7 +1496,7 @@ public void test0035a() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	X<Integer> x1 = new X<>(1,1);\n" + 
 		"	                ^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 14)\n" + 
 		"	X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" + 
@@ -1529,7 +1529,7 @@ public void test0036a() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	X<Integer> x1 = new X<>(1,1);\n" + 
 		"	                ^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 13)\n" + 
 		"	X<Integer> x5 = new X<>(\"\",\"\",\"\");\n" + 
@@ -1566,22 +1566,22 @@ public void test0037() {
 		"1. ERROR in X.java (at line 14)\n" + 
 		"	X<Integer>.Y<String> y1 = new X<>().new Y<>(1);\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for Y<>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 15)\n" + 
 		"	X<Integer>.Y<String> y2 = new X<>(1).new Y<>(1);\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for Y<>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 16)\n" + 
 		"	X<Integer>.Y<String> y3 = new X<>(\"\",\"\",1).new Y<>(1);\n" + 
 		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for Y<>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 17)\n" + 
 		"	X<Integer>.Y<String> y4 = new X<>(1,\"\").new Y<>(1,\"\");\n" + 
 		"	                          ^^^^^^^^^^^^^\n" + 
-		"Cannot infer elided type(s)\n" + 
+		"Cannot infer type arguments for X<>\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=341795
