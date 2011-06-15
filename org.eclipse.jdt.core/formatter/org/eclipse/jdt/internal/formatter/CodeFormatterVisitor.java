@@ -5393,10 +5393,12 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, true);
 		}
 		for (int i = 0; i < length; i++) {
-			if (i != 0) {
+			if (i > 0) {
 				this.scribe.printNewLine();
+				if (i == 1) {
 				this.scribe.indent();
 				this.scribe.indent();
+				}
 			}
 			formatLocalDeclaration(resources[i], scope, false, false);
 			if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {

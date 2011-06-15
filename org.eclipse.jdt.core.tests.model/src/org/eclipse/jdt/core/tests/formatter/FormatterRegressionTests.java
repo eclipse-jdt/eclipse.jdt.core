@@ -11435,4 +11435,32 @@ public void test748() {
 	};
 	runTest(codeFormatter, "test748", "RecipeDocumentProvider.java", CodeFormatter.K_COMPILATION_UNIT, 0, true, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349008
+public void testBug749() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try (FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s)) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try (FileReader fis = new FileReader(s);\n" + 
+		"				FileReader fis2 = new FileReader(s);\n" + 
+		"				FileReader fis3 = new FileReader(s)) {\n" +
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }
