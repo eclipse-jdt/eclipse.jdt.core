@@ -9813,7 +9813,7 @@ public void test297() {
 			"1. ERROR in A.java (at line 10)\n" + 
 			"	public final Object build(Class<? super Object>... objects) {\n" + 
 			"	                                                   ^^^^^^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter objects\n" + 
+			"Type safety: Potential heap pollution via varargs parameter objects\n" + 
 			"----------\n" + 
 			"2. ERROR in A.java (at line 15)\n" + 
 			"	return i == i;\n" + 

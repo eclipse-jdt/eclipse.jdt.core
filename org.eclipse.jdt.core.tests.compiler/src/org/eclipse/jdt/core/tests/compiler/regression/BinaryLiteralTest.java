@@ -96,7 +96,7 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	System.out.println(0b1110000);\n" + 
 			"	                   ^^^^^^^^^\n" + 
-			"Binary literals can only be used with source level greater or equals to 1.7\n" + 
+			"Binary literals can only be used with source level 1.7 or greater\n" + 
 			"----------\n",
 			null,
 			true,
@@ -120,7 +120,7 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	System.out.println(-0b1110000);\n" + 
 			"	                    ^^^^^^^^^\n" + 
-			"Binary literals can only be used with source level greater or equals to 1.7\n" + 
+			"Binary literals can only be used with source level 1.7 or greater\n" + 
 			"----------\n",
 			null,
 			true,
@@ -144,7 +144,7 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	System.out.println(0b1113000);\n" + 
 			"	                   ^^^^^\n" + 
-			"Binary literals can only be used with source level greater or equals to 1.7\n" + 
+			"Binary literals can only be used with source level 1.7 or greater\n" + 
 			"----------\n",
 			null,
 			true,

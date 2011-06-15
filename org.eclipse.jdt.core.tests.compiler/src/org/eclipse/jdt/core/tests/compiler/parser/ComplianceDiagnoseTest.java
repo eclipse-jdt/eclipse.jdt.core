@@ -2314,7 +2314,7 @@ public void test0050() {
 		"2. WARNING in X.java (at line 2)\n" + 
 		"	void foo(List<String>... args) {}\n" + 
 		"	                         ^^^^\n" + 
-		"Type safety : Potential heap pollution via varargs parameter args\n" + 
+		"Type safety: Potential heap pollution via varargs parameter args\n" + 
 		"----------\n";
 
 	runComplianceParserTest(

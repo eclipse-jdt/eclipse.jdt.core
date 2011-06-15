@@ -2154,7 +2154,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"1. WARNING in X.java (at line 5)\n" +
 				"	Collections.addAll(constantClassSet, String.class, Object.class);\n" +
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Type safety : A generic array of Class<? extends Object> is created for a varargs parameter\n" +
+				"Type safety: A generic array of Class<? extends Object> is created for a varargs parameter\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 6)\n" +
 				"	Zork z;\n" +
@@ -2374,18 +2374,18 @@ public class VarargsTest extends AbstractComparableTest {
 				"1. WARNING in X.java (at line 18)\n" + 
 				"	new IteratorChain<Number>(null, null);\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Type safety : A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
+				"Type safety: A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
 				"----------\n":
 				"----------\n" + 
 				"1. WARNING in X.java (at line 5)\n" + 
 				"	public IteratorChain(Collection<? extends T> a, Collection<? extends T> b, Collection<? extends T> ... collections) {\n" + 
 				"	                                                                                                       ^^^^^^^^^^^\n" + 
-				"Type safety : Potential heap pollution via varargs parameter collections\n" + 
+				"Type safety: Potential heap pollution via varargs parameter collections\n" + 
 				"----------\n" + 
 				"2. WARNING in X.java (at line 18)\n" + 
 				"	new IteratorChain<Number>(null, null);\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Type safety : A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
+				"Type safety: A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
 				"----------\n",
 				null, 
 				true,
@@ -2448,12 +2448,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	public static <T> List<T> asList() {  // Error, not varargs\n" + 
 			"	                          ^^^^^^^^\n" + 
-			"SafeVarargs annotation should not be applied to fixed arity method asList\n" + 
+			"@SafeVarargs annotation cannot be applied to fixed arity method asList\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	public <T> List<T> asList2(T ... a) {    // error not static or final\n" + 
 			"	                   ^^^^^^^^^^^^^^^^\n" + 
-			"SafeVarargs annotation should not be applied to non final instance method asList2\n" + 
+			"@SafeVarargs annotation cannot be applied to non-final instance method asList2\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 23)\n" + 
 			"	@SafeVarargs\n" + 
@@ -2463,7 +2463,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"4. ERROR in X.java (at line 28)\n" + 
 			"	public  <T> List<T> asList(T ... t);\n" + 
 			"	                    ^^^^^^^^^^^^^^^\n" + 
-			"SafeVarargs annotation should not be applied to non final instance method asList\n" + 
+			"@SafeVarargs annotation cannot be applied to non-final instance method asList\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
@@ -2503,7 +2503,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	public X() {  // Error, not varargs\n" + 
 			"	       ^^^\n" + 
-			"SafeVarargs annotation should not be applied to fixed arity method X\n" + 
+			"@SafeVarargs annotation cannot be applied to fixed arity method X\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (make sure there is no warning if vararg parameter is reifiable)
@@ -2591,22 +2591,22 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public <T> X(T ... a) {\n" + 
 			"	                   ^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter a\n" + 
+			"Type safety: Potential heap pollution via varargs parameter a\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	public <T> X(int i, T ... a) {\n" + 
 			"	                          ^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter a\n" + 
+			"Type safety: Potential heap pollution via varargs parameter a\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 7)\n" + 
 			"	public <T> List<T> asList(T ... a) {\n" + 
 			"	                                ^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter a\n" + 
+			"Type safety: Potential heap pollution via varargs parameter a\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	public <T> List<T> asList(T t, T ... a) {\n" + 
 			"	                                     ^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter a\n" + 
+			"Type safety: Potential heap pollution via varargs parameter a\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
@@ -2654,12 +2654,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 10)\n" + 
 			"	public <T> List<T> asList(T ... a) {\n" + 
 			"	                   ^^^^^^^^^^^^^^^\n" + 
-			"SafeVarargs annotation should not be applied to non final instance method asList\n" + 
+			"@SafeVarargs annotation cannot be applied to non-final instance method asList\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 14)\n" + 
 			"	public <T> List<T> asList(T t, T ... a) {\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"SafeVarargs annotation should not be applied to non final instance method asList\n" + 
+			"@SafeVarargs annotation cannot be applied to non-final instance method asList\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
@@ -2705,12 +2705,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	public static <T> List<T> asList2(T ... a) {\n" + 
 			"	                                        ^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter a\n" + 
+			"Type safety: Potential heap pollution via varargs parameter a\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 13)\n" + 
 			"	classes = X.asList2(String.class, Boolean.class);\n" + 
 			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (test effect of SuppressWarnings (should suppress at declaration site, but not at call site)
@@ -2757,7 +2757,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 14)\n" + 
 			"	classes = X.asList2(String.class, Boolean.class);\n" + 
 			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
 			"----------\n");
 	}
 }

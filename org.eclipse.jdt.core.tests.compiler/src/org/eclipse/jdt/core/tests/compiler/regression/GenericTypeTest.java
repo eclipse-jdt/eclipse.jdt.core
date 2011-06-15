@@ -11775,7 +11775,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"2. WARNING in X.java (at line 8)\n" + 
 				"	public <F> F foo(F f, F... others) {\n" + 
 				"	                           ^^^^^^\n" + 
-				"Type safety : Potential heap pollution via varargs parameter others\n" + 
+				"Type safety: Potential heap pollution via varargs parameter others\n" + 
 				"----------\n"
 		);
 	}
@@ -12450,7 +12450,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"1. WARNING in X.java (at line 3)\n" + 
 				"	public static <T> T first(T... args) {\n" + 
 				"	                               ^^^^\n" + 
-				"Type safety : Potential heap pollution via varargs parameter args\n" + 
+				"Type safety: Potential heap pollution via varargs parameter args\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 15)\n" + 
 				"	Zork z;\n" + 
@@ -12486,7 +12486,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 10)\n" +
 			"	List<String> ls = first(); \n" +
 			"	                  ^^^^^^^\n" +
-			"Type safety : A generic array of List<String> is created for a varargs parameter\n" +
+			"Type safety: A generic array of List<String> is created for a varargs parameter\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 16)\n" +
 			"	Zork z;\n" +
@@ -12497,12 +12497,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"1. WARNING in X.java (at line 4)\n" + 
 				"	public static <T> T first(T... args) {\n" + 
 				"	                               ^^^^\n" + 
-				"Type safety : Potential heap pollution via varargs parameter args\n" + 
+				"Type safety: Potential heap pollution via varargs parameter args\n" + 
 				"----------\n" + 
 				"2. WARNING in X.java (at line 10)\n" + 
 				"	List<String> ls = first(); \n" + 
 				"	                  ^^^^^^^\n" + 
-				"Type safety : A generic array of List<String> is created for a varargs parameter\n" + 
+				"Type safety: A generic array of List<String> is created for a varargs parameter\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 16)\n" + 
 				"	Zork z;\n" + 
@@ -25337,7 +25337,7 @@ public void test0798() {
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	private static <T extends Comparable<? super T>> T max(T... elems)\n" + 
 			"	                                                            ^^^^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter elems\n" + 
+			"Type safety: Potential heap pollution via varargs parameter elems\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 16)\n" + 
 			"	System.out.println(max(1, 2.0, new BigDecimal(Math.PI)));\n" + 
@@ -30885,17 +30885,17 @@ public void test0949() {
 		"1. WARNING in X.java (at line 10)\n" +
 		"	m3(m(3, 3, 3));\n" +
 		"	^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Integer> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Integer> is created for a varargs parameter\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 11)\n" +
 		"	m3(m());\n" +
 		"	^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 12)\n" +
 		"	m3(m(new Object[]{}));\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 13)\n" +
 		"	Zork z;\n" +
@@ -30906,27 +30906,27 @@ public void test0949() {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	public <T> Iterable<T> m(T... ts) {\n" + 
 			"	                              ^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter ts\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	public <T> void m3(Iterable<T>... ts) {\n" + 
 			"	                                  ^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter ts\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 10)\n" + 
 			"	m3(m(3, 3, 3));\n" + 
 			"	^^^^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Iterable<Integer> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Iterable<Integer> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 11)\n" + 
 			"	m3(m());\n" + 
 			"	^^^^^^^\n" + 
-			"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 12)\n" + 
 			"	m3(m(new Object[]{}));\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 13)\n" + 
 			"	Zork z;\n" + 
@@ -30960,17 +30960,17 @@ public void test0950() {
 		"1. WARNING in X.java (at line 10)\n" +
 		"	m3(m(new Integer[]{3, 3, 3}));\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 11)\n" +
 		"	m3(m());\n" +
 		"	^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 12)\n" +
 		"	m3(m(new Object[][]{}));\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 13)\n" +
 		"	Zork z;\n" +
@@ -30981,27 +30981,27 @@ public void test0950() {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	public <T> Iterable<T> m(T[]... ts) {\n" + 
 			"	                                ^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter ts\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	public <T> void m3(Iterable<T>... ts) {\n" + 
 			"	                                  ^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter ts\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 10)\n" + 
 			"	m3(m(new Integer[]{3, 3, 3}));\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 11)\n" + 
 			"	m3(m());\n" + 
 			"	^^^^^^^\n" + 
-			"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 12)\n" + 
 			"	m3(m(new Object[][]{}));\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 13)\n" + 
 			"	Zork z;\n" + 
@@ -31042,12 +31042,12 @@ public void test0951() {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	public <T> Iterable<T> m(T[]... ts) {\n" + 
 			"	                                ^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter ts\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	public <T> void m3(Iterable<T>... ts) {\n" + 
 			"	                                  ^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter ts\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 14)\n" + 
 			"	Zork z;\n" + 
@@ -31077,7 +31077,7 @@ public void test0952() {
 		"1. WARNING in X.java (at line 8)\n" +
 		"	m3(m(null));\n" +
 		"	^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 8)\n" +
 		"	m3(m(null));\n" +
@@ -31093,17 +31093,17 @@ public void test0952() {
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	public <T> Iterable<T> m(T... ts) {\n" + 
 			"	                              ^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter ts\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	public <T> void m3(Iterable<T>... ts) {\n" + 
 			"	                                  ^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter ts\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	m3(m(null));\n" + 
 			"	^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 8)\n" + 
 			"	m3(m(null));\n" + 
@@ -31137,7 +31137,7 @@ public void test0953() {
 		"1. WARNING in X.java (at line 7)\n" +
 		"	List<WeakReference<Integer>> list= Arrays.asList(ref);\n" +
 		"	                                   ^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of WeakReference<Integer> is created for a varargs parameter\n" +
+		"Type safety: A generic array of WeakReference<Integer> is created for a varargs parameter\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 8)\n" +
 		"	Zork z;\n" +
@@ -32823,13 +32823,13 @@ public void test0999() {
 		"5. WARNING in X.java (at line 18)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety : A generic array of Iterator<Integer> is created for a varargs parameter\n" + 
+		"Type safety: A generic array of Iterator<Integer> is created for a varargs parameter\n" + 
 		"----------\n" :
 			"----------\n" + 
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public static final <T,E extends T> Iterator<T> chain(Iterator<E>... it) {\n" + 
 			"	                                                                     ^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter it\n" + 
+			"Type safety: Potential heap pollution via varargs parameter it\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
@@ -32854,7 +32854,7 @@ public void test0999() {
 			"6. WARNING in X.java (at line 18)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
 			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Iterator<Integer> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Iterator<Integer> is created for a varargs parameter\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=144879
@@ -32903,7 +32903,7 @@ public void test1000() {
 		"4. WARNING in X.java (at line 14)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety : A generic array of Iterator<? extends Number&Comparable<?>> is created for a varargs parameter\n" + 
+		"Type safety: A generic array of Iterator<? extends Number&Comparable<?>> is created for a varargs parameter\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 14)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
@@ -32913,7 +32913,7 @@ public void test1000() {
 		"6. WARNING in X.java (at line 18)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety : A generic array of Iterator<? extends Integer> is created for a varargs parameter\n" + 
+		"Type safety: A generic array of Iterator<? extends Integer> is created for a varargs parameter\n" + 
 		"----------\n" + 
 		"7. ERROR in X.java (at line 18)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
@@ -32924,7 +32924,7 @@ public void test1000() {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public static final <T> Iterator<T> chain(Iterator<? extends T>... it) {\n" + 
 			"	                                                                   ^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter it\n" + 
+			"Type safety: Potential heap pollution via varargs parameter it\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
@@ -32944,7 +32944,7 @@ public void test1000() {
 			"5. WARNING in X.java (at line 14)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
 			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Iterator<? extends Number&Comparable<?>> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Iterator<? extends Number&Comparable<?>> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 14)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
@@ -32954,7 +32954,7 @@ public void test1000() {
 			"7. WARNING in X.java (at line 18)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
 			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Iterator<? extends Integer> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Iterator<? extends Integer> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"8. ERROR in X.java (at line 18)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
@@ -37437,7 +37437,7 @@ public void test1099() {
 				"1. WARNING in X.java (at line 21)\n" + 
 				"	public <U, V extends U> List<U> newList(V... values) {\n" + 
 				"	                                             ^^^^^^\n" + 
-				"Type safety : Potential heap pollution via varargs parameter values\n" + 
+				"Type safety: Potential heap pollution via varargs parameter values\n" + 
 				"----------\n",
 		// runtime results
 		"SUCCESS" /* expected output string */,
@@ -39155,7 +39155,7 @@ public void test1146() {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	Comparator<? super T>... rest) {\n" + 
 			"	                         ^^^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter rest\n" + 
+			"Type safety: Potential heap pollution via varargs parameter rest\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	int i = asList(a, b, rest);\n" + 
@@ -39175,7 +39175,7 @@ public void test1146() {
 			"5. WARNING in X.java (at line 14)\n" + 
 			"	public static <E> List<E> asList(E a, E b, E... rest) {\n" + 
 			"	                                                ^^^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter rest\n" + 
+			"Type safety: Potential heap pollution via varargs parameter rest\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
@@ -39279,7 +39279,7 @@ public void test1148() {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public static <T> Comparator<T> compound(Comparator<? super T> a, Comparator<? super T> b, Comparator<? super T>... rest) {\n" + 
 			"	                                                                                                                    ^^^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter rest\n" + 
+			"Type safety: Potential heap pollution via varargs parameter rest\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	int i = asList(a, b, rest);\n" + 
@@ -39314,7 +39314,7 @@ public void test1148() {
 			"8. WARNING in X.java (at line 16)\n" + 
 			"	public static <E> List<E> asList(E a, E b, E... rest) {\n" + 
 			"	                                                ^^^^\n" + 
-			"Type safety : Potential heap pollution via varargs parameter rest\n" + 
+			"Type safety: Potential heap pollution via varargs parameter rest\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=198051
@@ -42200,7 +42200,7 @@ public void test1227() {
 		"1. WARNING in X.java (at line 4)\n" +
 		"	Arrays.asList(String.class, Integer.class);\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 6)\n" +
 		"	Zork z;\n" +

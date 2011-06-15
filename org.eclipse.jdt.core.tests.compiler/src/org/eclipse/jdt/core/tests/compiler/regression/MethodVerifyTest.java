@@ -3029,7 +3029,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. WARNING in p\\X.java (at line 6)\n" + 
 			"	public X() { foo(data.l); }\n" + 
 			"	             ^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of List<Object> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of List<Object> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"2. WARNING in p\\X.java (at line 6)\n" + 
 			"	public X() { foo(data.l); }\n" + 
@@ -3051,7 +3051,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"1. WARNING in p\\X.java (at line 6)\n" + 
 				"	public X() { foo(data.l); }\n" + 
 				"	             ^^^^^^^^^^^\n" + 
-				"Type safety : A generic array of List<Object> is created for a varargs parameter\n" + 
+				"Type safety: A generic array of List<Object> is created for a varargs parameter\n" + 
 				"----------\n" + 
 				"2. WARNING in p\\X.java (at line 6)\n" + 
 				"	public X() { foo(data.l); }\n" + 
@@ -3072,13 +3072,13 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"2. WARNING in p\\Y.java (at line 5)\n" + 
 				"	public static <T> void foo(T... e) {}\n" + 
 				"	                                ^\n" + 
-				"Type safety : Potential heap pollution via varargs parameter e\n" + 
+				"Type safety: Potential heap pollution via varargs parameter e\n" + 
 				"----------\n" + 
 				"----------\n" + 
 				"1. WARNING in p\\Z.java (at line 4)\n" + 
 				"	public static <T> void foo(List<T>... e) {}\n" + 
 				"	                                      ^\n" + 
-				"Type safety : Potential heap pollution via varargs parameter e\n" + 
+				"Type safety: Potential heap pollution via varargs parameter e\n" + 
 				"----------\n"
 			// unchecked conversion warnings
 		);
@@ -3108,7 +3108,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1. WARNING in p\\X.java (at line 5)\n" + 
 			"	public X() { foo(data.l); }\n" + 
 			"	             ^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of List<Object> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of List<Object> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"2. WARNING in p\\X.java (at line 5)\n" + 
 			"	public X() { foo(data.l); }\n" + 
@@ -3130,7 +3130,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"1. WARNING in p\\X.java (at line 5)\n" + 
 				"	public X() { foo(data.l); }\n" + 
 				"	             ^^^^^^^^^^^\n" + 
-				"Type safety : A generic array of List<Object> is created for a varargs parameter\n" + 
+				"Type safety: A generic array of List<Object> is created for a varargs parameter\n" + 
 				"----------\n" + 
 				"2. WARNING in p\\X.java (at line 5)\n" + 
 				"	public X() { foo(data.l); }\n" + 
@@ -3151,12 +3151,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"2. WARNING in p\\Y.java (at line 5)\n" + 
 				"	public static <T> void foo(T... e) {}\n" + 
 				"	                                ^\n" + 
-				"Type safety : Potential heap pollution via varargs parameter e\n" + 
+				"Type safety: Potential heap pollution via varargs parameter e\n" + 
 				"----------\n" + 
 				"3. WARNING in p\\Y.java (at line 6)\n" + 
 				"	public static <T> void foo(List<T>... e) {}\n" + 
 				"	                                      ^\n" + 
-				"Type safety : Potential heap pollution via varargs parameter e\n" + 
+				"Type safety: Potential heap pollution via varargs parameter e\n" + 
 				"----------\n"
 			// unchecked conversion warnings
 		);
