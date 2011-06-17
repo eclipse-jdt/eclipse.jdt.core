@@ -937,6 +937,10 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 					otherBounds = wildcard.otherBounds;
 					break;
 			}
+			// Given class A<T extends B<?>>, A<?> cannot be the universe of all parameterizations of A
+			if (upperBound.id == TypeIds.T_JavaLangObject && otherBounds == null) {
+				return false; // but given class A<T>, A<?> stays an unbounded wildcard, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=348956
+			}
 			otherType = capture.environment.createWildcard(null, 0, upperBound, otherBounds, Wildcard.EXTENDS);
 			return isTypeArgumentContainedBy(otherType);
 		}
