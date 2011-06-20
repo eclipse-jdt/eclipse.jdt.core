@@ -46,7 +46,7 @@ import java.util.List;
 public class TryStatement extends Statement {
 
 	/**
-	 * The "resources" structural property of this node type (element type: {@link VariableDeclarationExpression}).
+	 * The "resources" structural property of this node type (element type: {@link VariableDeclarationExpression}) (added in JLS4 API).
 	 * @since 3.7
 	 */
 	public static final ChildListPropertyDescriptor RESOURCES_PROPERTY =
