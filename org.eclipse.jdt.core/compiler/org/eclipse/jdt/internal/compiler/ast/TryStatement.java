@@ -960,7 +960,7 @@ public void resolve(BlockScope upperScope) {
 					upperScope.problemReporter().resourceHasToBeAutoCloseable(resourceType, this.resources[i].type);
 					localVariableBinding.type = new ProblemReferenceBinding(CharOperation.splitOn('.', resourceType.shortReadableName()), null, ProblemReasons.InvalidTypeForAutoManagedResource);
 				}
-			} else { 
+			} else if (resourceType != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349862, avoid secondary error in problematic null case
 				upperScope.problemReporter().resourceHasToBeAutoCloseable(resourceType, this.resources[i].type);
 				localVariableBinding.type = new ProblemReferenceBinding(CharOperation.splitOn('.', resourceType.shortReadableName()), null, ProblemReasons.InvalidTypeForAutoManagedResource);
 			}

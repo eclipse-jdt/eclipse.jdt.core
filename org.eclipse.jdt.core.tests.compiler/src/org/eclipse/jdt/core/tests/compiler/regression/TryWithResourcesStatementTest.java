@@ -3301,6 +3301,46 @@ public void test053() {
 		"Unhandled exception type IOException\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349862 (NPE when union type is used in the resource section.)
+public void test054() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo() {\n" +
+			"        try (Object | Integer res = null) {\n" +
+			"        } catch (Exception e) {\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (Object | Integer res = null) {\n" + 
+		"	            ^\n" + 
+		"Syntax error on token \"|\", . expected\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349862 (NPE when union type is used in the resource section.)
+public void test054a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo() {\n" +
+			"        try (Object.Integer res = null) {\n" +
+			"        } catch (Exception e) {\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (Object.Integer res = null) {\n" + 
+		"	     ^^^^^^^^^^^^^^\n" + 
+		"Object.Integer cannot be resolved to a type\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }
