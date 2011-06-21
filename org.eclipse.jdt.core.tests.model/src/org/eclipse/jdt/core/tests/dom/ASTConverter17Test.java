@@ -34,7 +34,6 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
@@ -52,7 +51,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 14 };
+//		TESTS_NUMBERS = new int[] { 13 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] {"test0001"};
 	}
@@ -493,10 +492,6 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		node = getASTNode(unit, 0, 0);
-		assertFalse("The method declaration is not malformed", isMalformed(node));
-		node = getASTNode(unit, 0, 0, 0);
-		TryStatement tryStatement = (TryStatement) node;
-		VariableDeclarationExpression variable = (VariableDeclarationExpression) (tryStatement.resources().get(0));
-		assertTrue("The variable declaration is not malformed", isMalformed(variable));
+		assertTrue("The method declaration is not malformed", isMalformed(node));
 	}
 }
