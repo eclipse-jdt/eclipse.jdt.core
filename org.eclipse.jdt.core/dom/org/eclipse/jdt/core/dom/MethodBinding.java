@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -425,6 +426,9 @@ class MethodBinding implements IMethodBinding {
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#getMethodDeclaration()
 	 */
 	public IMethodBinding getMethodDeclaration() {
+		if (this.binding.isPolymorphic()) {
+			return this.resolver.getMethodBinding(((PolymorphicMethodBinding) this.binding).polymorphicMethod());
+		}
 		return this.resolver.getMethodBinding(this.binding.original());
 	}
 

@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -1410,7 +1411,12 @@ public class Util {
 			}
 		} else {
 			// case of method not in the created AST, or a binary method
-			org.eclipse.jdt.internal.compiler.lookup.MethodBinding original = methodBinding.original();
+			org.eclipse.jdt.internal.compiler.lookup.MethodBinding original = null;
+			if (methodBinding.isPolymorphic()) {
+				original = ((PolymorphicMethodBinding) methodBinding).polymorphicMethod();
+			} else {
+				original = methodBinding.original();
+			}
 			String selector = original.isConstructor() ? declaringType.getElementName() : new String(original.selector);
 			boolean isBinary = declaringType.isBinary();
 			ReferenceBinding enclosingType = original.declaringClass.enclosingType();

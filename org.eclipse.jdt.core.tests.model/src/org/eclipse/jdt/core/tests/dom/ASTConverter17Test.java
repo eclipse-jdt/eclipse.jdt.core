@@ -14,21 +14,29 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SwitchStatement;
@@ -51,7 +59,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 13 };
+//		TESTS_NUMBERS = new int[] { 15 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] {"test0001"};
 	}
@@ -397,6 +405,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"    public void myMethod();\n" + 
 			"}\n" + 
 			"class ExceptionA extends RuntimeException implements Mix {\n" + 
+			"    private static final long serialVersionUID = 1L;\n" + 
 			"    public void myMethod() {\n" + 
 			"        System.out.println(\"ExceptionA.myMethod()\");\n" + 
 			"    }\n" + 
@@ -405,6 +414,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"    }\n" + 
 			"}\n" + 
 			"class ExceptionB extends RuntimeException implements Mix {\n" + 
+			"    private static final long serialVersionUID = 1L;\n" + 
 			"    public void myMethod() {\n" + 
 			"        System.out.println(\"ExceptionB.myMethod()\");\n" + 
 			"    }\n" + 
@@ -493,5 +503,98 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		CompilationUnit unit = (CompilationUnit) node;
 		node = getASTNode(unit, 0, 0);
 		assertTrue("The method declaration is not malformed", isMalformed(node));
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=344522
+	 */
+	public void test0015() throws JavaModelException {
+		String contents =
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.invoke.MethodType;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) throws Throwable {\n" + 
+				"		Object x;\n" + 
+				"		String s;\n" + 
+				"		int i;\n" + 
+				"		MethodType mt;\n" + 
+				"		MethodHandle mh;\n" + 
+				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" + 
+				"		// mt is (char,char)String\n" + 
+				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" + 
+				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" + 
+				"		s = (String) mh.invokeExact(\"daddy\", 'd', 'n');\n" + 
+				"		// invokeExact(Ljava/lang/String;CC)Ljava/lang/String;\n" + 
+				"		assert s.equals(\"nanny\");\n" + 
+				"		// weakly typed invocation (using MHs.invoke)\n" + 
+				"		s = (String) mh.invokeWithArguments(\"sappy\", 'p', 'v');\n" + 
+				"		assert s.equals(\"nanny\");\n" + 
+				"		// mt is (Object[])List\n" + 
+				"		mt = MethodType.methodType(java.util.List.class, Object[].class);\n" + 
+				"		mh = lookup.findStatic(java.util.Arrays.class, \"asList\", mt);\n" + 
+				"		assert (mh.isVarargsCollector());\n" + 
+				"		x = mh.invoke(\"one\", \"two\");\n" + 
+				"		// invoke(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;\n" + 
+				"		System.out.println(x);\n" + 
+				"		// mt is (Object,Object,Object)Object\n" + 
+				"		mt = MethodType.genericMethodType(3);\n" + 
+				"		mh = mh.asType(mt);\n" + 
+				"		x = mh.invokeExact((Object) 1, (Object) 2, (Object) 3);\n" + 
+				"		// invokeExact(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n" + 
+				"		System.out.println(x);\n" + 
+				"		// mt is ()int\n" + 
+				"		mt = MethodType.methodType(int.class);\n" + 
+				"		mh = lookup.findVirtual(java.util.List.class, \"size\", mt);\n" + 
+				"		i = (int) mh.invokeExact(java.util.Arrays.asList(1, 2, 3));\n" + 
+				"		// invokeExact(Ljava/util/List;)I\n" + 
+				"		assert (i == 3);\n" + 
+				"		mt = MethodType.methodType(void.class, String.class);\n" + 
+				"		mh = lookup.findVirtual(java.io.PrintStream.class, \"println\", mt);\n" + 
+				"		mh.invokeExact(System.out, \"Hello, world.\");\n" + 
+				"		// invokeExact(Ljava/io/PrintStream;Ljava/lang/String;)V\n" + 
+				"	}\n" + 
+				"}";
+		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS4, this.workingCopy, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		IProblem[] problems = unit.getProblems();
+		for (int i = 0; i < problems.length; i++) {
+			IProblem iProblem = problems[i];
+			System.err.println(iProblem);
+		}
+		final List invokeExactMethods = new ArrayList();
+		unit.accept(new ASTVisitor() {
+			public boolean visit(MethodInvocation methodInvocation) {
+				IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+				if (methodBinding != null) {
+					IJavaElement javaElement = methodBinding.getJavaElement();
+					assertNotNull("No java element for : " + methodBinding, javaElement);
+					String elementName = javaElement.getElementName();
+					if ("invokeExact".equals(elementName)) {
+						invokeExactMethods.add(methodBinding);
+					}
+				}
+				return true;
+			}
+		});
+		assertEquals("Wrong size", 4, invokeExactMethods.size());
+		IMethodBinding first = (IMethodBinding) invokeExactMethods.get(0);
+		IMethodBinding second = (IMethodBinding) invokeExactMethods.get(1);
+		assertEquals(first.getMethodDeclaration(), second.getMethodDeclaration());
+		String firstKey = first.getKey();
+		String secondKey = second.getKey();
+		assertEquals("Wrong key", "Ljava/lang/invoke/MethodHandle;.invokeExact(Ljava/lang/String;CC)Ljava/lang/String;|Ljava/lang/Throwable;", firstKey);
+		assertEquals("Wrong key", "Ljava/lang/invoke/MethodHandle;.invokeExact(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;|Ljava/lang/Throwable;", secondKey);
+		assertFalse("Not the same key", firstKey.equals(secondKey));
+		// check that all are resolved
+		for (Iterator iterator = invokeExactMethods.iterator(); iterator.hasNext();) {
+			IMethodBinding methodBinding = (IMethodBinding) iterator.next();
+			assertTrue("Not resolved", ((IMethod) methodBinding.getJavaElement()).isResolved());
+			assertTrue("Not a varargs method", methodBinding.getMethodDeclaration().isVarargs());
+			assertFalse("Is a varargs method", methodBinding.isVarargs());
+		}
 	}
 }

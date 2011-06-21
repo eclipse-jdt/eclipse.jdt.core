@@ -92,14 +92,20 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 					new IPath[] {getConverterJCLPath(compliance), getConverterJCLSourcePath(compliance), getConverterJCLRootSourcePath()},
 					null);
 			}
-		} else {
-			if (JavaCore.getClasspathVariable("CONVERTER_JCL_LIB") == null) {
-				setupExternalJCL("converterJclMin");
+		} else if ("1.7".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("CONVERTER_JCL17_LIB") == null) {
+				setupExternalJCL("converterJclMin1.7");
 				JavaCore.setClasspathVariables(
-					new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"},
-					new IPath[] {getConverterJCLPath(), getConverterJCLSourcePath(), getConverterJCLRootSourcePath()},
+					new String[] {"CONVERTER_JCL17_LIB", "CONVERTER_JCL17_SRC", "CONVERTER_JCL17_SRCROOT"},
+					new IPath[] {getConverterJCLPath("1.7"), getConverterJCLSourcePath("1.7"), getConverterJCLRootSourcePath()},
 					null);
 			}
+		} else if (JavaCore.getClasspathVariable("CONVERTER_JCL_LIB") == null) {
+			setupExternalJCL("converterJclMin");
+			JavaCore.setClasspathVariables(
+				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"},
+				new IPath[] {getConverterJCLPath(), getConverterJCLSourcePath(), getConverterJCLRootSourcePath()},
+				null);
 		}
 	}
 
