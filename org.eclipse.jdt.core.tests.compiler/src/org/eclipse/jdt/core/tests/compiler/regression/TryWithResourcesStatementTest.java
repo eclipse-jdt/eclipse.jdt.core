@@ -49,7 +49,7 @@ public void test001() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (int i = 0) {\n" + 
 		"	     ^^^\n" + 
-		"The resource type int has to be a subclass of java.lang.AutoCloseable\n" + 
+		"The resource type int does not implement java.lang.AutoCloseable\n" + 
 		"----------\n");
 }
 // Test resource type related errors 
@@ -69,7 +69,7 @@ public void test002() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (int[] tab = {}) {\n" + 
 		"	     ^^^^^\n" + 
-		"The resource type int[] has to be a subclass of java.lang.AutoCloseable\n" + 
+		"The resource type int[] does not implement java.lang.AutoCloseable\n" + 
 		"----------\n");
 }
 // Test that resource type could be interface type. 
@@ -268,7 +268,7 @@ public void test008() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (Y [] i = null) {\n" + 
 		"	     ^^^^\n" + 
-		"The resource type Y[] has to be a subclass of java.lang.AutoCloseable\n" + 
+		"The resource type Y[] does not implement java.lang.AutoCloseable\n" + 
 		"----------\n");
 }
 // Resource Type tests
@@ -291,7 +291,7 @@ public void test009() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (Y i [] = null) {\n" + 
 		"	     ^\n" + 
-		"The resource type Y[] has to be a subclass of java.lang.AutoCloseable\n" + 
+		"The resource type Y[] does not implement java.lang.AutoCloseable\n" + 
 		"----------\n");
 }
 // Scope, visibility tests
@@ -736,7 +736,7 @@ public void test021() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	try (Y i = null) {\n" + 
 		"	     ^\n" + 
-		"The resource type Y has to be a subclass of java.lang.AutoCloseable\n" + 
+		"The resource type Y does not implement java.lang.AutoCloseable\n" + 
 		"----------\n");
 }
 // Interface method return type compatibility test
