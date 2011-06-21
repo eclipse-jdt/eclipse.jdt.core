@@ -6259,12 +6259,12 @@ public void referenceMustBeArrayTypeAt(TypeBinding arrayType, ArrayReference arr
 public void reset() {
 	this.positionScanner = null;
 }
-public void resourceHasToBeAutoCloseable(TypeBinding binding, TypeReference typeReference) {
+public void resourceHasToImplementAutoCloseable(TypeBinding binding, TypeReference typeReference) {
 	if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
 		return; // Not supported in 1.7 would have been reported. Hence another not required
 	}
 	this.handle(
-			IProblem.ResourceHasToBeAutoCloseable,
+			IProblem.ResourceHasToImplementAutoCloseable,
 			new String[] {new String(binding.readableName())},
 			new String[] {new String(binding.shortReadableName())},
 			typeReference.sourceStart,

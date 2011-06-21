@@ -1369,7 +1369,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.7 */
 	int AssignmentToMultiCatchParameter = Internal + 870;
 	/** @since 3.7 */
-	int ResourceHasToBeAutoCloseable = TypeRelated + 871;
+	int ResourceHasToImplementAutoCloseable = TypeRelated + 871;
 	/** @since 3.7 */
 	int AssignmentToResource = Internal + 872;
 	/** @since 3.7 */
