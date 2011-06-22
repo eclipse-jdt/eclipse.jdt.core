@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added J2SE 1.5 support
@@ -117,8 +121,12 @@ ILocalVariable[] getParameters() throws JavaModelException;
 
 /**
  * Returns the binding key for this method only if the given method is {@link #isResolved() resolved}.
- * A binding key is a key that uniquely identifies this method. It allows access
- * to generic info for parameterized methods.
+ * A binding key is a key that uniquely identifies this method. It allows access to:
+ * <ul>
+ * <li>generic info for parameterized methods</li>
+ * <li>the actual return type for references to {@link Object#getClass() Object.getClass()}</li>
+ * <li>the actual parameter types and return type for references to signature polymorphic methods from class MethodHandle</li>
+ * </ul>
  *
  * <p>If the given method is not resolved, the returned key is simply the java element's key.
  * </p>

@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -254,16 +258,22 @@ public interface IMethodBinding extends IBinding {
 
 	/**
 	 * Returns the binding for the method declaration corresponding to this
-	 * method binding. For parameterized methods ({@link #isParameterizedMethod()})
+	 * method binding.
+	 * <ul>
+	 * <li>For parameterized methods ({@link #isParameterizedMethod()})
 	 * and raw methods ({@link #isRawMethod()}), this method returns the binding
-	 * for the corresponding generic method. For other method bindings, this
-	 * returns the same binding.
-	 *
-	 * <p>Note: The one notable exception is the method <code>Object.getClass()</code>,
-	 * which is declared to return <code>Class&lt;? extends Object&gt;</code>, but
-	 * when invoked its return type becomes <code>Class&lt;? extends
-	 * </code><em>R</em><code>&gt;</code>, where <em>R</em> is the compile type of
-	 * the receiver of the method invocation.</p>
+	 * for the corresponding generic method.</li>
+	 * <li>For references to the method {@link Object#getClass() Object.getClass()},
+	 * returns the binding for the method declaration which is declared to return
+	 * <code>Class&lt;?&gt;</code> or <code>Class&lt;? extends Object&gt;</code>. In the
+	 * reference binding, the return type becomes
+	 * <code>Class&lt;? extends </code><em>R</em><code>&gt;</code>, where <em>R</em>
+	 * is the erasure of the static type of the receiver of the method invocation.</li>
+	 * <li>For references to a signature polymorphic method from class MethodHandle,
+	 * returns the declaration of the method. In the reference binding, the parameter types and
+	 * the return type are determined by the concrete invocation context.</li>
+	 * <li>For other method bindings, this returns the same binding.</li>
+	 * </ul>
 	 *
 	 * @return the method binding
 	 * @since 3.1
