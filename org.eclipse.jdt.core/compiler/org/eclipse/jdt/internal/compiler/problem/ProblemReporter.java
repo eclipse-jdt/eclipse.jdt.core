@@ -96,7 +96,6 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
@@ -6834,7 +6833,7 @@ private String typesAsString(MethodBinding methodBinding, boolean makeShort) {
 private String typesAsString(MethodBinding methodBinding, TypeBinding[] parameters, boolean makeShort) {
 	if (methodBinding.isPolymorphic()) {
 		// get the original polymorphicMethod method
-		TypeBinding[] types = ((PolymorphicMethodBinding) methodBinding).polymorphicMethod().parameters;
+		TypeBinding[] types = methodBinding.original().parameters;
 		StringBuffer buffer = new StringBuffer(10);
 		for (int i = 0, length = types.length; i < length; i++) {
 			if (i != 0) {

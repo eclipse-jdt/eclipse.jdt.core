@@ -907,7 +907,7 @@ public MethodBinding updatePolymorphicMethodReturnType(PolymorphicMethodBinding 
 	}
 	// add new binding
 	PolymorphicMethodBinding polymorphicMethod = new PolymorphicMethodBinding(
-			binding.polymorphicMethod(),
+			binding.original(),
 			typeBinding,
 			parameters);
 	cachedInfo[index] = polymorphicMethod;

@@ -775,7 +775,7 @@ public final int kind() {
 */
 
 /**
- * Returns the original method (as opposed to parameterized instances)
+ * Returns the original method (as opposed to parameterized/polymorphic instances)
  */
 public MethodBinding original() {
 	return this;

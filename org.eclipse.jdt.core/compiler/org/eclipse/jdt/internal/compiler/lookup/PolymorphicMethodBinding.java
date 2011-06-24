@@ -45,7 +45,7 @@ public class PolymorphicMethodBinding extends MethodBinding {
 		this.tagBits = polymorphicMethod.tagBits;
 	}
 
-	public MethodBinding polymorphicMethod() {
+	public MethodBinding original() {
 		return this.polymorphicMethod;
 	}
 	
