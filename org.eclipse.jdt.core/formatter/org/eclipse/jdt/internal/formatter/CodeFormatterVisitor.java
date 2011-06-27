@@ -1825,6 +1825,73 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		}
 	}
 
+	private void formatTryResources(
+			TryStatement tryStatement,
+			boolean spaceBeforeOpenParen,
+			boolean spaceBeforeClosingParen,
+			boolean spaceBeforeFirstResource,
+			boolean spaceBeforeSemicolon,
+			boolean spaceAfterSemicolon,
+			int tryResourcesAligment) {
+
+		LocalDeclaration[] resources = tryStatement.resources;
+		int length = resources != null ? resources.length : 0;
+		if (length > 0) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, spaceBeforeOpenParen);
+			if (spaceBeforeFirstResource) {
+				this.scribe.space();
+			}
+			Alignment resourcesAlignment = this.scribe.createAlignment(
+					Alignment.TRY_RESOURCES,
+					tryResourcesAligment,
+					length,
+					this.scribe.scanner.currentPosition);
+			this.scribe.enterAlignment(resourcesAlignment);
+			boolean ok = false;
+			do {
+				switch (tryResourcesAligment & Alignment.SPLIT_MASK) {
+					case Alignment.M_COMPACT_SPLIT:
+					case Alignment.M_NEXT_PER_LINE_SPLIT:
+						resourcesAlignment.startingColumn = this.scribe.column;
+						break;
+				}
+				try {
+					for (int i = 0; i < length; i++) {
+						if (i > 0) {
+							this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, spaceBeforeSemicolon);
+							this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
+							if (this.scribe.lastNumberOfNewLines == 1) {
+								// a new line has been inserted while printing the comment
+								// hence we need to use the break indentation level before printing next token...
+								this.scribe.indentationLevel = resourcesAlignment.breakIndentationLevel;
+							}
+						}
+						this.scribe.alignFragment(resourcesAlignment, i);
+						if (i == 0) {
+							int fragmentIndentation = resourcesAlignment.fragmentIndentations[0];
+							if ((resourcesAlignment.mode & Alignment.M_INDENT_ON_COLUMN) != 0 && fragmentIndentation > 0) {
+								this.scribe.indentationLevel = fragmentIndentation;
+							}
+						} else if (spaceAfterSemicolon) {
+							this.scribe.space();
+						}
+						resources[i].traverse(this, null);
+						resourcesAlignment.startingColumn = -1;
+					}
+					ok = true;
+				} catch (AlignmentException e) {
+					this.scribe.redoAlignment(e);
+				}
+			} while (!ok);
+			if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
+				// take care of trailing semicolon
+				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, spaceBeforeSemicolon);
+			}
+			this.scribe.exitAlignment(resourcesAlignment, true);
+
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, spaceBeforeClosingParen);
+		}
+	}
 	private void formatMethodArguments(
 			AbstractMethodDeclaration methodDeclaration,
 			boolean spaceBeforeOpenParen,
@@ -5387,31 +5454,14 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	public boolean visit(TryStatement tryStatement, BlockScope scope) {
 
 		this.scribe.printNextToken(TerminalTokens.TokenNametry);
-		LocalDeclaration[] resources = tryStatement.resources;
-		int length = resources.length;
-		if (length > 0) {
-			this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, true);
-		}
-		for (int i = 0; i < length; i++) {
-			if (i > 0) {
-				this.scribe.printNewLine();
-				if (i == 1) {
-				this.scribe.indent();
-				this.scribe.indent();
-				}
-			}
-			formatLocalDeclaration(resources[i], scope, false, false);
-			if (isNextToken(TerminalTokens.TokenNameSEMICOLON)) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON);
-			}
-		}
-		if (length >= 2) {
-			this.scribe.unIndent();
-			this.scribe.unIndent();
-		}
-		if (length > 0) {
-			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN);
-		}
+		formatTryResources(
+				tryStatement, 
+				this.preferences.insert_space_before_opening_paren_in_try, 
+				this.preferences.insert_space_before_closing_paren_in_try,
+				this.preferences.insert_space_after_opening_paren_in_try,
+				this.preferences.insert_space_before_semicolon_in_try_resources,
+				this.preferences.insert_space_after_semicolon_in_try_resources,
+				this.preferences.alignment_for_resources_in_try);
 		tryStatement.tryBlock.traverse(this, scope);
 		if (tryStatement.catchArguments != null) {
 			for (int i = 0, max = tryStatement.catchBlocks.length; i < max; i++) {

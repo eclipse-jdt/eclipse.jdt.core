@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -47,6 +51,7 @@ public class Alignment {
 	public static final int THROWS = 22;
 	public static final int TYPE_MEMBERS = 23;
 	public static final int STRING_CONCATENATION = 24;
+	public static final int TRY_RESOURCES = 25;
 
 	// name of alignment
 	public String name;
@@ -76,6 +81,7 @@ public class Alignment {
 		"throws", //$NON-NLS-1$
 		"typeMembers", //$NON-NLS-1$
 		"stringConcatenation", //$NON-NLS-1$
+		"tryResources", //$NON-NLS-1$
 	};
 
 	// link to enclosing alignment
@@ -195,7 +201,7 @@ public class Alignment {
 	// location to align and break on.
 	public Alignment(int kind, int mode, int tieBreakRule, Scribe scribe, int fragmentCount, int sourceRestart, int continuationIndent){
 
-		Assert.isTrue(kind >=ALLOCATION && kind <=STRING_CONCATENATION);
+		Assert.isTrue(kind >=ALLOCATION && kind <=TRY_RESOURCES);
 		this.kind = kind;
 		this.name = NAMES[kind];
 		this.location = new Location(scribe, sourceRestart);

@@ -11161,6 +11161,7 @@ public void test739() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11189,6 +11190,7 @@ public void test740() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11217,6 +11219,7 @@ public void test741() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11249,6 +11252,7 @@ public void test742() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11281,6 +11285,7 @@ public void test743() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11313,6 +11318,7 @@ public void test744() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11348,6 +11354,7 @@ public void test745() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11436,11 +11443,12 @@ public void test748() {
 	runTest(codeFormatter, "test748", "RecipeDocumentProvider.java", CodeFormatter.K_COMPILATION_UNIT, 0, true, regions, "\n");//$NON-NLS-1$ //$NON-NLS-2$
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=349008
-public void testBug749() throws Exception {
+public void test749() throws Exception {
 	this.formatterPrefs = null;
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"package test;\n" +
 		"\n" +
@@ -11458,6 +11466,533 @@ public void testBug749() throws Exception {
 		"		try (FileReader fis = new FileReader(s);\n" + 
 		"				FileReader fis2 = new FileReader(s);\n" + 
 		"				FileReader fis3 = new FileReader(s)) {\n" +
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To verify that the whitespace options for resources in try statement work correctly
+public void test750() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_TRY, JavaCore.INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON_IN_TRY_RESOURCES, JavaCore.INSERT);
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try ( FileReader fis = new FileReader(s) ;\n" + 
+		"				FileReader fis2 = new FileReader(s) ;\n" + 
+		"				FileReader fis3 = new FileReader(s) ; ) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test751() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NO_SPLIT, DefaultCodeFormatterConstants.INDENT_DEFAULT));
+	String source =
+			"package test;\n" +
+			"\n" +
+			"public class FormatterError {\n" +
+			"	public void storeSomething(String s) throws Exception {\n" +
+			"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+			"	}\n" +
+			"	}\n" +
+			"}\n";
+	formatSource(source,
+			"package test;\n" + 
+			"\n" + 
+			"public class FormatterError {\n" + 
+			"	public void storeSomething(String s) throws Exception {\n" + 
+			"		try(FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(\n" + 
+			"				s); FileReader fis3 = new FileReader(s);) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test752() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(FileReader fis = new FileReader(s);\n" + 
+		"			FileReader fis2 = new FileReader(s);\n" + 
+		"			FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test753() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.INDENT_BY_ONE));
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(FileReader fis = new FileReader(s);\n" + 
+		"			FileReader fis2 = new FileReader(s);\n" + 
+		"			FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test754() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_DEFAULT));
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
+		"				FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test755() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
+		"			FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test756() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_BY_ONE));
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
+		"			FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test757() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT_FIRST_BREAK, DefaultCodeFormatterConstants.INDENT_DEFAULT));
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(\n" + 
+		"				FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
+		"				FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test758() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT_FIRST_BREAK, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(\n" + 
+		"			FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
+		"			FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test759() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT_FIRST_BREAK, DefaultCodeFormatterConstants.INDENT_BY_ONE));
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(\n" + 
+		"			FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
+		"			FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test760() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.INDENT_DEFAULT));
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(\n" + 
+		"				FileReader fis = new FileReader(s);\n" + 
+		"					FileReader fis2 = new FileReader(s);\n" + 
+		"					FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test761() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(\n" + 
+		"			FileReader fis = new FileReader(s);\n" + 
+		"				FileReader fis2 = new FileReader(s);\n" + 
+		"				FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test762() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_NEXT_SHIFTED, DefaultCodeFormatterConstants.INDENT_BY_ONE));
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(\n" + 
+		"			FileReader fis = new FileReader(s);\n" + 
+		"				FileReader fis2 = new FileReader(s);\n" + 
+		"				FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test763() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT));
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(\n" + 
+		"				FileReader fis = new FileReader(s);\n" + 
+		"				FileReader fis2 = new FileReader(s);\n" + 
+		"				FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test764() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_BY_ONE));
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(\n" + 
+		"			FileReader fis = new FileReader(s);\n" + 
+		"			FileReader fis2 = new FileReader(s);\n" + 
+		"			FileReader fis3 = new FileReader(s);) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=349396
+// To check behavior with different line wrapping and indentation policies.
+public void test765() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "120");
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void storeSomething(String s) throws Exception {\n" +
+		"		try(          FileReader fis = new FileReader(s);FileReader fis2 = new FileReader(s); FileReader fis3 = new FileReader(s);) {\n" +
+		"	}\n" +
+		"	}\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void storeSomething(String s) throws Exception {\n" + 
+		"		try(\n" + 
+		"			FileReader fis = new FileReader(s);\n" + 
+		"			FileReader fis2 = new FileReader(s);\n" + 
+		"			FileReader fis3 = new FileReader(s);) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation  - initial API and implementation
  *     Brock Janiczak   - Contribution for bug 150741
@@ -240,6 +244,17 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_parameters_in_method_declaration";	 //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of resources in a try with resources statement
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_resources_in_try"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_NEXT_PER_LINE, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.7
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY = JavaCore.PLUGIN_ID + ".formatter.alignment_for_resources_in_try";	 //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option for alignment of selector in method invocation
@@ -2197,6 +2212,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_SYNCHRONIZED = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_opening_paren_in_synchronized"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a space after the opening parenthesis in a try with resources statement
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_try"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           DO_NOT_INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.7
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_TRY = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_opening_paren_in_try"; //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space after the opening parenthesis in a while statement
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_opening_paren_in_while"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -2267,6 +2294,19 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_INSERT_SPACE_AFTER_SEMICOLON_IN_FOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_semicolon_in_for"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space after semicolons following each resource declaration in a try with 
+	 * resources statement
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_semicolon_in_try_resources"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.7
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_SEMICOLON_IN_TRY_RESOURCES = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_semicolon_in_try_resources"; //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space after an unary operator
@@ -2543,6 +2583,18 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_SYNCHRONIZED = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_closing_paren_in_synchronized";	//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before the closing parenthesis in a try with resources statement
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_closing_paren_in_try"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           DO_NOT_INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.7
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_TRY = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_closing_paren_in_try";	//$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space before the closing parenthesis in a while statement
@@ -3205,6 +3257,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_SYNCHRONIZED = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_opening_paren_in_synchronized";	//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a space before the opening parenthesis in a try with resources statement
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_try"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           DO_NOT_INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.7
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_opening_paren_in_try";	//$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space before the opening parenthesis in a while statement
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_while"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -3313,6 +3377,19 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON_IN_FOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_semicolon_in_for";	//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before semicolons following each resource declaration in a try with
+	 * resources statement
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_semicolon_in_try_resources"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           DO_NOT_INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.7
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON_IN_TRY_RESOURCES = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_semicolon_in_try_resources";	//$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space before unary operator
