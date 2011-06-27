@@ -27,12 +27,14 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -59,7 +61,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 15 };
+//		TESTS_NUMBERS = new int[] { 16 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] {"test0001"};
 	}
@@ -596,5 +598,57 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			assertTrue("Not a varargs method", methodBinding.getMethodDeclaration().isVarargs());
 			assertFalse("Is a varargs method", methodBinding.isVarargs());
 		}
+	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=350039
+	 */
+	public void test0016() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
+		String contents =
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.invoke.MethodType;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void bar() throws Throwable {\n" + 
+				"		MethodType mt; MethodHandle mh;\n" + 
+				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" + 
+				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" + 
+				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" + 
+				"		String s = (String) mh.invokeExact(\"daddy\",'d','n');\n" + 
+				"	}\n" + 
+				"}";
+		this.workingCopy.getBuffer().setContents(contents);
+		this.workingCopy.save(null, true);
+		final ASTNode[] asts = new ASTNode[1];
+		final IBinding[] bindings = new IBinding[1];
+		final String key = "Ljava/lang/invoke/MethodHandle;.invokeExact(Ljava/lang/String;CC)Ljava/lang/String;|Ljava/lang/Throwable;";
+		resolveASTs(
+			new ICompilationUnit[] {
+				this.workingCopy
+			},
+			new String[] {
+				key
+			},
+			new ASTRequestor() {
+				public void acceptAST(ICompilationUnit source, CompilationUnit localAst) {
+					asts[0] = localAst;
+				}
+				public void acceptBinding(String bindingKey, IBinding binding) {
+					if (key.equals(bindingKey)) {
+						bindings[0] = binding;
+					}
+				}
+			},
+			getJavaProject("Converter17"),
+			null);
+		ASTNode node = asts[0];
+		assertNotNull("Should not be null", node);
+		assertNotNull("Should not be null", bindings[0]);
+		assertEquals("Wrong kind", IBinding.METHOD, bindings[0].getKind());
+		ITypeBinding[] parameterTypes = ((IMethodBinding) bindings[0]).getParameterTypes();
+		assertEquals("Wrong size", 3, parameterTypes.length);
+		assertEquals("Wrong key", key, bindings[0].getKey());
 	}
 }
