@@ -1020,6 +1020,24 @@ public void test027() {
 			}, 
 			"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=350361
+public void test028() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    public void foo () {\n"+
+				"        try {\n"+
+				"            throw new Exception(); \n"+
+				"        } catch (Exception e) {\n"+
+				"            if (e instanceof RuntimeException) \n" +
+				"            	throw (RuntimeException) e; \n"+
+				"        } \n"+
+				"    }\n"+
+				"}\n"
+			}, 
+			"");
+}
 public static Class testClass() {
 	return TryStatement17Test.class;
 }

@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.LabeledStatement;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
 import org.eclipse.jdt.internal.compiler.ast.ThrowStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
@@ -110,8 +111,10 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 	FlowContext traversedContext = this;
 	ArrayList abruptlyExitedLoops = null;
 	if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_7 && location instanceof ThrowStatement) {
-		LocalVariableBinding throwArgBinding = ((ThrowStatement)location).exception.localVariableBinding();
-		if (throwArgBinding instanceof CatchParameterBinding && throwArgBinding.isEffectivelyFinal()) {
+		Expression throwExpression = ((ThrowStatement)location).exception;
+		LocalVariableBinding throwArgBinding = throwExpression.localVariableBinding();
+		if (throwExpression instanceof SingleNameReference // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350361 
+				&& throwArgBinding instanceof CatchParameterBinding && throwArgBinding.isEffectivelyFinal()) {
 			CatchParameterBinding parameter = (CatchParameterBinding) throwArgBinding;
 			checkExceptionHandlers(parameter.getPreciseTypes(), location, flowInfo, scope);
 			return;
