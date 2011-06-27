@@ -11161,7 +11161,6 @@ public void test739() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11190,7 +11189,6 @@ public void test740() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11219,7 +11217,6 @@ public void test741() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11252,7 +11249,6 @@ public void test742() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11285,7 +11281,6 @@ public void test743() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11318,7 +11313,6 @@ public void test744() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11354,7 +11348,6 @@ public void test745() {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"public class Test {\n" +
 		"	void foo(String s) {\n" +
@@ -11448,7 +11441,6 @@ public void test749() throws Exception {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	String source =
 		"package test;\n" +
 		"\n" +
@@ -11478,7 +11470,7 @@ public void test750() throws Exception {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.DO_NOT_INSERT);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_TRY, JavaCore.INSERT);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON_IN_TRY_RESOURCES, JavaCore.INSERT);
@@ -11496,7 +11488,7 @@ public void test750() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try ( FileReader fis = new FileReader(s) ;\n" + 
+		"		try( FileReader fis = new FileReader(s) ;\n" + 
 		"				FileReader fis2 = new FileReader(s) ;\n" + 
 		"				FileReader fis3 = new FileReader(s) ; ) {\n" + 
 		"		}\n" + 
@@ -11528,7 +11520,7 @@ public void test751() throws Exception {
 			"\n" + 
 			"public class FormatterError {\n" + 
 			"	public void storeSomething(String s) throws Exception {\n" + 
-			"		try(FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(\n" + 
+			"		try (FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(\n" + 
 			"				s); FileReader fis3 = new FileReader(s);) {\n" + 
 			"		}\n" + 
 			"	}\n" + 
@@ -11559,9 +11551,9 @@ public void test752() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(FileReader fis = new FileReader(s);\n" + 
-		"			FileReader fis2 = new FileReader(s);\n" + 
-		"			FileReader fis3 = new FileReader(s);) {\n" + 
+		"		try (	FileReader fis = new FileReader(s);\n" + 
+		"				FileReader fis2 = new FileReader(s);\n" + 
+		"				FileReader fis3 = new FileReader(s);) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -11591,7 +11583,7 @@ public void test753() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(FileReader fis = new FileReader(s);\n" + 
+		"		try (FileReader fis = new FileReader(s);\n" + 
 		"			FileReader fis2 = new FileReader(s);\n" + 
 		"			FileReader fis3 = new FileReader(s);) {\n" + 
 		"		}\n" + 
@@ -11624,7 +11616,7 @@ public void test754() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
+		"		try (FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
 		"				FileReader fis3 = new FileReader(s);) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -11656,8 +11648,8 @@ public void test755() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
-		"			FileReader fis3 = new FileReader(s);) {\n" + 
+		"		try (FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
+		"				FileReader fis3 = new FileReader(s);) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -11688,7 +11680,7 @@ public void test756() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
+		"		try (FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
 		"			FileReader fis3 = new FileReader(s);) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -11720,7 +11712,7 @@ public void test757() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(\n" + 
+		"		try (\n" + 
 		"				FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
 		"				FileReader fis3 = new FileReader(s);) {\n" + 
 		"		}\n" + 
@@ -11753,9 +11745,9 @@ public void test758() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(\n" + 
-		"			FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
-		"			FileReader fis3 = new FileReader(s);) {\n" + 
+		"		try (\n" + 
+		"				FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
+		"				FileReader fis3 = new FileReader(s);) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -11786,7 +11778,7 @@ public void test759() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(\n" + 
+		"		try (\n" + 
 		"			FileReader fis = new FileReader(s); FileReader fis2 = new FileReader(s);\n" + 
 		"			FileReader fis3 = new FileReader(s);) {\n" + 
 		"		}\n" + 
@@ -11819,7 +11811,7 @@ public void test760() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(\n" + 
+		"		try (\n" + 
 		"				FileReader fis = new FileReader(s);\n" + 
 		"					FileReader fis2 = new FileReader(s);\n" + 
 		"					FileReader fis3 = new FileReader(s);) {\n" + 
@@ -11853,10 +11845,10 @@ public void test761() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(\n" + 
-		"			FileReader fis = new FileReader(s);\n" + 
-		"				FileReader fis2 = new FileReader(s);\n" + 
-		"				FileReader fis3 = new FileReader(s);) {\n" + 
+		"		try (\n" + 
+		"				FileReader fis = new FileReader(s);\n" + 
+		"					FileReader fis2 = new FileReader(s);\n" + 
+		"					FileReader fis3 = new FileReader(s);) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -11887,7 +11879,7 @@ public void test762() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(\n" + 
+		"		try (\n" + 
 		"			FileReader fis = new FileReader(s);\n" + 
 		"				FileReader fis2 = new FileReader(s);\n" + 
 		"				FileReader fis3 = new FileReader(s);) {\n" + 
@@ -11921,7 +11913,7 @@ public void test763() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(\n" + 
+		"		try (\n" + 
 		"				FileReader fis = new FileReader(s);\n" + 
 		"				FileReader fis2 = new FileReader(s);\n" + 
 		"				FileReader fis3 = new FileReader(s);) {\n" + 
@@ -11955,7 +11947,7 @@ public void test764() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(\n" + 
+		"		try (\n" + 
 		"			FileReader fis = new FileReader(s);\n" + 
 		"			FileReader fis2 = new FileReader(s);\n" + 
 		"			FileReader fis3 = new FileReader(s);) {\n" + 
@@ -11989,10 +11981,10 @@ public void test765() throws Exception {
 		"\n" + 
 		"public class FormatterError {\n" + 
 		"	public void storeSomething(String s) throws Exception {\n" + 
-		"		try(\n" + 
-		"			FileReader fis = new FileReader(s);\n" + 
-		"			FileReader fis2 = new FileReader(s);\n" + 
-		"			FileReader fis3 = new FileReader(s);) {\n" + 
+		"		try (\n" + 
+		"				FileReader fis = new FileReader(s);\n" + 
+		"				FileReader fis2 = new FileReader(s);\n" + 
+		"				FileReader fis3 = new FileReader(s);) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"

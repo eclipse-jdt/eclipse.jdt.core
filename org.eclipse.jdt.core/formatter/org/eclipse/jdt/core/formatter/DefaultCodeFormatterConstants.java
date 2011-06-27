@@ -3260,7 +3260,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to insert a space before the opening parenthesis in a try with resources statement
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_opening_paren_in_try"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
-	 *     - default:           DO_NOT_INSERT
+	 *     - default:           INSERT
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT

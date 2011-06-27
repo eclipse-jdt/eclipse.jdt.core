@@ -1844,6 +1844,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			Alignment resourcesAlignment = this.scribe.createAlignment(
 					Alignment.TRY_RESOURCES,
 					tryResourcesAligment,
+					// make sure alignment options for try with resources takes precedence
+					Alignment.R_OUTERMOST,
 					length,
 					this.scribe.scanner.currentPosition);
 			this.scribe.enterAlignment(resourcesAlignment);

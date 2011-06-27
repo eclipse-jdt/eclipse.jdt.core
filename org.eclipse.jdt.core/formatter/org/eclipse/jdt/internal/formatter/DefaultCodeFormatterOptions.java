@@ -2393,7 +2393,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_opening_paren_in_method_declaration = false;
 		this.insert_space_before_opening_paren_in_switch = true;
 		this.insert_space_before_opening_paren_in_synchronized = true;
-		this.insert_space_before_opening_paren_in_try = false;
+		this.insert_space_before_opening_paren_in_try = true;
 		this.insert_space_before_opening_paren_in_parenthesized_expression = false;
 		this.insert_space_before_opening_paren_in_while = true;
 		this.insert_space_before_postfix_operator = false;
@@ -2678,7 +2678,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_opening_paren_in_method_declaration = false;
 		this.insert_space_before_opening_paren_in_switch = true;
 		this.insert_space_before_opening_paren_in_synchronized = true;
-		this.insert_space_before_opening_paren_in_try = false;
+		this.insert_space_before_opening_paren_in_try = true;
 		this.insert_space_before_opening_paren_in_parenthesized_expression = false;
 		this.insert_space_before_opening_paren_in_while = true;
 		this.insert_space_before_postfix_operator = false;
