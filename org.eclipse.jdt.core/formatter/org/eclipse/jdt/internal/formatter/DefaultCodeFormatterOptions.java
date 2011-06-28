@@ -75,6 +75,7 @@ public class DefaultCodeFormatterOptions {
 	public int alignment_for_throws_clause_in_constructor_declaration;
 	public int alignment_for_throws_clause_in_method_declaration;
 	public int alignment_for_resources_in_try;
+	public int alignment_for_union_type_in_multicatch;
 
 	public boolean align_type_members_on_columns;
 
@@ -384,6 +385,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_TYPE_DECLARATION, getAlignment(this.alignment_for_superinterfaces_in_type_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_CONSTRUCTOR_DECLARATION, getAlignment(this.alignment_for_throws_clause_in_constructor_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_METHOD_DECLARATION, getAlignment(this.alignment_for_throws_clause_in_method_declaration));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_UNION_TYPE_IN_MULTICATCH, getAlignment(this.alignment_for_union_type_in_multicatch));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS, this.align_type_members_on_columns ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ANNOTATION_TYPE_DECLARATION, this.brace_position_for_annotation_type_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ANONYMOUS_TYPE_DECLARATION, this.brace_position_for_anonymous_type_declaration);
@@ -881,6 +883,16 @@ public class DefaultCodeFormatterOptions {
 				this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
 			} catch(ClassCastException e) {
 				this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+			}
+		}
+		final Object alignmentForUnionTypeInMulticatch = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_UNION_TYPE_IN_MULTICATCH);
+		if (alignmentForUnionTypeInMulticatch != null) {
+			try {
+				this.alignment_for_union_type_in_multicatch = Integer.parseInt((String) alignmentForUnionTypeInMulticatch);
+			} catch (NumberFormatException e) {
+				this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
+			} catch(ClassCastException e) {
+				this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
 			}
 		}
 		final Object alignTypeMembersOnColumnsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS);
@@ -2180,6 +2192,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_superinterfaces_in_type_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
 		this.alignment_for_throws_clause_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
 		this.align_type_members_on_columns = false;
 		this.brace_position_for_annotation_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_anonymous_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
@@ -2465,6 +2478,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_superinterfaces_in_type_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_throws_clause_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
 		this.align_type_members_on_columns = false;
 		this.brace_position_for_annotation_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_anonymous_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;

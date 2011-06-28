@@ -2634,7 +2634,16 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		 * Argument type
 		 */
 		if (argument.type != null) {
-			argument.type.traverse(this, scope);
+			if (argument.type instanceof UnionTypeReference) {
+				formatMultiCatchArguments(
+						argument, 
+						this.preferences.insert_space_before_binary_operator, 
+						this.preferences.insert_space_after_binary_operator,
+						this.preferences.alignment_for_union_type_in_multicatch,
+						scope);
+			} else {
+				argument.type.traverse(this, scope);
+			}
 		}
 
 		if (argument.isVarArgs()) {
@@ -5477,8 +5486,15 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				if (this.preferences.insert_space_after_opening_paren_in_catch) {
 					this.scribe.space();
 				}
-
-				tryStatement.catchArguments[i].traverse(this, scope);
+//				if (tryStatement.catchArguments[i].type instanceof UnionTypeReference)
+//					formatMultiCatchArguments(
+//							tryStatement.catchArguments[i], 
+//							this.preferences.insert_space_before_comma_in_method_declaration_parameters, 
+//							this.preferences.insert_space_after_comma_in_method_declaration_parameters,
+//							this.preferences.alignment_for_parameters_in_method_declaration,
+//							scope);
+//				else
+					tryStatement.catchArguments[i].traverse(this, scope);
 
 				this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_catch);
 
@@ -5494,6 +5510,62 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			tryStatement.finallyBlock.traverse(this, scope);
 		}
 		return false;
+	}
+
+	private void formatMultiCatchArguments(Argument argument,
+			boolean spaceBeforePipe,
+			boolean spaceAfterPipe,
+			int multiCatchAlignment,
+			BlockScope scope) {
+		UnionTypeReference unionType = (UnionTypeReference) argument.type;
+		int length = unionType.typeReferences != null ? unionType.typeReferences.length : 0;
+		if (length > 0) {
+			Alignment argumentsAlignment = this.scribe.createAlignment(
+					Alignment.MULTI_CATCH,
+					multiCatchAlignment,
+					length,
+					this.scribe.scanner.currentPosition);
+			this.scribe.enterAlignment(argumentsAlignment);
+			boolean ok = false;
+			do {
+				switch (multiCatchAlignment & Alignment.SPLIT_MASK) {
+					case Alignment.M_COMPACT_SPLIT:
+					case Alignment.M_NEXT_PER_LINE_SPLIT:
+						argumentsAlignment.startingColumn = this.scribe.column;
+						break;
+				}
+				try {
+					for (int i = 0; i < length; i++) {
+						if (i > 0) {
+							this.scribe.printNextToken(TerminalTokens.TokenNameOR, spaceBeforePipe);
+							this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
+							if (this.scribe.lastNumberOfNewLines == 1) {
+								// a new line has been inserted while printing the comment
+								// hence we need to use the break indentation level before printing next token...
+								this.scribe.indentationLevel = argumentsAlignment.breakIndentationLevel;
+							}
+						}
+						this.scribe.alignFragment(argumentsAlignment, i);
+						if (i == 0) {
+							int fragmentIndentation = argumentsAlignment.fragmentIndentations[0];
+							if ((argumentsAlignment.mode & Alignment.M_INDENT_ON_COLUMN) != 0 && fragmentIndentation > 0) {
+								this.scribe.indentationLevel = fragmentIndentation;
+							}
+						} else if (spaceAfterPipe) {
+							this.scribe.space();
+						}
+						unionType.typeReferences[i].traverse(this, scope);
+						argumentsAlignment.startingColumn = -1;
+					}
+					ok = true;
+				} catch (AlignmentException e) {
+					this.scribe.redoAlignment(e);
+				}
+			} while (!ok);
+			
+			this.scribe.exitAlignment(argumentsAlignment, true);
+		}
+		
 	}
 
 	/**

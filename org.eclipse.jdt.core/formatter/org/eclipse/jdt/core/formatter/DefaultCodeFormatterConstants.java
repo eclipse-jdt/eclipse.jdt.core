@@ -321,7 +321,17 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_METHOD_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_throws_clause_in_method_declaration";	 //$NON-NLS-1$
-
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of exceptions declared in a Union Type in the argument of a multicatch statement
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_union_type_in_multicatch"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.7
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_UNION_TYPE_IN_MULTICATCH = JavaCore.PLUGIN_ID + ".formatter.alignment_for_union_type_in_multicatch";	 //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to add blank lines after the imports declaration
