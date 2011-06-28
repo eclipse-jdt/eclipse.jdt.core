@@ -173,6 +173,7 @@ public static Test suite() {
 		tests_1_7.add(TryStatement17Test.class);
 		tests_1_7.add(TryWithResourcesStatementTest.class);
 		tests_1_7.add(GenericsRegressionTest_1_7.class);
+		tests_1_7.add(PolymorphicSignatureTest.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

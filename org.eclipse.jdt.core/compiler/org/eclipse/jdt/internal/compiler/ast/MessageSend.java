@@ -148,7 +148,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
 	// generate receiver/enclosing instance access
-	MethodBinding codegenBinding = this.binding.original();
+	MethodBinding codegenBinding = this.binding instanceof PolymorphicMethodBinding ? this.binding : this.binding.original();
 	boolean isStatic = codegenBinding.isStatic();
 	if (isStatic) {
 		this.receiver.generateCode(currentScope, codeStream, false);
