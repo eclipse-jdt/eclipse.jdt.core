@@ -5486,15 +5486,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				if (this.preferences.insert_space_after_opening_paren_in_catch) {
 					this.scribe.space();
 				}
-//				if (tryStatement.catchArguments[i].type instanceof UnionTypeReference)
-//					formatMultiCatchArguments(
-//							tryStatement.catchArguments[i], 
-//							this.preferences.insert_space_before_comma_in_method_declaration_parameters, 
-//							this.preferences.insert_space_after_comma_in_method_declaration_parameters,
-//							this.preferences.alignment_for_parameters_in_method_declaration,
-//							scope);
-//				else
-					tryStatement.catchArguments[i].traverse(this, scope);
+				tryStatement.catchArguments[i].traverse(this, scope);
 
 				this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_catch);
 
