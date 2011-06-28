@@ -156,10 +156,10 @@ public class ThrownExceptionFinder extends ASTVisitor {
 		int length = catchArguments == null ? 0 : catchArguments.length;
 		for (int i = 0; i < length; i++) {
 			if (catchArguments[i].type instanceof UnionTypeReference) {
-				UnionTypeReference disjunctiveTypeReference = (UnionTypeReference) catchArguments[i].type;
+				UnionTypeReference unionTypeReference = (UnionTypeReference) catchArguments[i].type;
 				TypeBinding caughtException;
-				for (int j = 0; j < disjunctiveTypeReference.typeReferences.length; j++) {
-					caughtException = disjunctiveTypeReference.typeReferences[j].resolvedType;
+				for (int j = 0; j < unionTypeReference.typeReferences.length; j++) {
+					caughtException = unionTypeReference.typeReferences[j].resolvedType;
 					if (caughtException != null && caughtException.isValidBinding()) {	// might be null when its the completion node
 						if (!caughtException.isUncheckedException(true) || recordUncheckedCaughtExceptions) {
 							removeCaughtException((ReferenceBinding)caughtException);

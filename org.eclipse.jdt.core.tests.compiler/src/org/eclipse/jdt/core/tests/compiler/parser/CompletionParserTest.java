@@ -8815,7 +8815,7 @@ public void testBug338789b(){
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343637
-// Check that the whole disjunctive type ref is part of the completion node parent
+// Check that the whole union type ref is part of the completion node parent
 public void testBug343637(){
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;

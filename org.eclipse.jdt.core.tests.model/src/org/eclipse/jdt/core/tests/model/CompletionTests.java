@@ -23612,7 +23612,7 @@ public void testBug343637b() throws JavaModelException {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343637
-// To make sure that if an inner catch block contains disjunctive type ref, all 'checked' exceptions from it
+// To make sure that if an inner catch block contains union type ref, all 'checked' exceptions from it
 // are not proposed in an outer catch, but unchecked ones can be proposed again.
 public void testBug343637c() throws JavaModelException {
 	Map options = COMPLETION_PROJECT.getOptions(true);
