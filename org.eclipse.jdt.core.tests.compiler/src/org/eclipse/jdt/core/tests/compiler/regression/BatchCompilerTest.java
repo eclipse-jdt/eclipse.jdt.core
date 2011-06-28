@@ -10991,7 +10991,7 @@ public void test286_option_files() {
         "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
         "	public @interface X {\n" +
         "	                  ^\n" +
-        "Syntax error, annotation declarations are only available if source level is 1.5\n" +
+        "Syntax error, annotation declarations are only available if source level is 1.5 or greater\n" +
         "----------\n" +
         "1 problem (1 error)",
         true /*shouldFlushOutput*/);
