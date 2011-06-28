@@ -20,9 +20,11 @@ import java.util.List;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
@@ -61,7 +63,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 16 };
+//		TESTS_NUMBERS = new int[] { 17 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] {"test0001"};
 	}
@@ -650,5 +652,31 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		ITypeBinding[] parameterTypes = ((IMethodBinding) bindings[0]).getParameterTypes();
 		assertEquals("Wrong size", 3, parameterTypes.length);
 		assertEquals("Wrong key", key, bindings[0].getKey());
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=350496
+	 */
+	public void test0017() throws JavaModelException {
+		String contents =
+			"package test0017;\n" +
+			"public class Y {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter17/src/test0017/Y.java",
+				contents,
+				true/*resolve*/
+			);
+		IType type = this.workingCopy.getJavaProject().findType("java.lang.invoke.MethodHandle");
+		IMethod[] methods = type.getMethods();
+		boolean found = false;
+		for (int i = 0; i < methods.length; i++) {
+			IMethod iMethod = methods[i];
+			if ("invokeExact".equals(iMethod.getElementName())) {
+				IAnnotation[] annotations = iMethod.getAnnotations();
+				assertEquals("Wrong size", 1, annotations.length);
+				assertAnnotationsEqual("@java.lang.invoke.MethodHandle$PolymorphicSignature\n", annotations);
+				found = true;
+			}
+		}
+		assertTrue("No method found", found);
 	}
 }

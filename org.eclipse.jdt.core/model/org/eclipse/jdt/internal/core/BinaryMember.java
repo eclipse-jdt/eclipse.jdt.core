@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -82,6 +86,9 @@ protected IAnnotation[] getStandardAnnotations(long tagBits) {
 		annotations.add(getAnnotation(TypeConstants.JAVA_LANG_ANNOTATION_INHERITED));
 	}
 	// note that JAVA_LANG_SUPPRESSWARNINGS and JAVA_LANG_OVERRIDE cannot appear in binaries
+	if ((tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
+		annotations.add(getAnnotation(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_$_POLYMORPHICSIGNATURE));
+	}
 	return (IAnnotation[]) annotations.toArray(new IAnnotation[annotations.size()]);
 }
 
