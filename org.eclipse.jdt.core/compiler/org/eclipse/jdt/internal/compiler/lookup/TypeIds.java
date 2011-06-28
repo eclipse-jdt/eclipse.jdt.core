@@ -96,7 +96,7 @@ public interface TypeIds {
 	// java 7
 	final int T_JavaLangSafeVarargs = 60;
 	
-	final int T_JavaLangInvokeMethodHandlePolymorphiSignature = 61;
+	final int T_JavaLangInvokeMethodHandlePolymorphicSignature = 61;
 
 	// java 7 java.lang.AutoCloseable
 	final int T_JavaLangAutoCloseable = 62;

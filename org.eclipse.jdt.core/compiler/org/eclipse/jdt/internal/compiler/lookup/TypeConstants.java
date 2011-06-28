@@ -140,12 +140,18 @@ public interface TypeConstants {
 	};
 	char[][] JAVA_LANG_SAFEVARARGS =  {JAVA, LANG, "SafeVarargs".toCharArray()}; //$NON-NLS-1$
 	char[] INVOKE = "invoke".toCharArray(); //$NON-NLS-1$
-	char[][] JAVA_LANG_INVOKE_METHODHANDLE_POLIMORPHICSIGNATURE = {
+	char[][] JAVA_LANG_INVOKE_METHODHANDLE_POLYMORPHICSIGNATURE = { // Signature while parsing binary file
 			JAVA,
 			LANG,
 			INVOKE,
 			"MethodHandle".toCharArray(), //$NON-NLS-1$
 			"PolymorphicSignature".toCharArray() //$NON-NLS-1$
+	};
+	char[][] JAVA_LANG_INVOKE_METHODHANDLE_$_POLYMORPHICSIGNATURE = { // Signature while parsing source file
+			JAVA,
+			LANG,
+			INVOKE,
+			"MethodHandle$PolymorphicSignature".toCharArray() //$NON-NLS-1$
 	};
 	char[][] JAVA_LANG_AUTOCLOSEABLE =  {JAVA, LANG, "AutoCloseable".toCharArray()}; //$NON-NLS-1$
 

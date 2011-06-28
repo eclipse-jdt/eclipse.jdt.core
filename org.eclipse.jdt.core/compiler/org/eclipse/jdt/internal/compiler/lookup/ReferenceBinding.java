@@ -629,6 +629,17 @@ public void computeId() {
 						}
 					}
 					return;
+				case 'i':
+					if (CharOperation.equals(packageName, TypeConstants.INVOKE)) {
+						if (typeName.length == 0) return; // just to be safe
+						switch (typeName[0]) {
+							case 'M' :
+								if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_$_POLYMORPHICSIGNATURE[3]))
+									this.id = TypeIds.T_JavaLangInvokeMethodHandlePolymorphicSignature;
+								return;
+						}
+					}
+					return;
 				case 'r' :
 					if (CharOperation.equals(packageName, TypeConstants.REFLECT)) {
 						switch (typeName[0]) {
@@ -660,16 +671,16 @@ public void computeId() {
 				if (packageName.length == 0) return; // just to be safe
 				switch (packageName[0]) {
 					case 'i' :
-						if (CharOperation.equals(packageName, TypeConstants.INVOKE)) {
+						if (CharOperation.equals(packageName, TypeConstants.INVOKE)) { 
 							typeName = this.compoundName[3];
 							if (typeName.length == 0) return; // just to be safe
 							switch (typeName[0]) {
 								case 'M' :
 									char[] memberTypeName = this.compoundName[4];
 									if (memberTypeName.length == 0) return; // just to be safe
-									if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_POLIMORPHICSIGNATURE[3])
-											&& CharOperation.equals(memberTypeName, TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_POLIMORPHICSIGNATURE[4]))
-										this.id = TypeIds.T_JavaLangInvokeMethodHandlePolymorphiSignature;
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_POLYMORPHICSIGNATURE[3])
+											&& CharOperation.equals(memberTypeName, TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_POLYMORPHICSIGNATURE[4]))
+										this.id = TypeIds.T_JavaLangInvokeMethodHandlePolymorphicSignature;
 									return;
 							}
 						}
