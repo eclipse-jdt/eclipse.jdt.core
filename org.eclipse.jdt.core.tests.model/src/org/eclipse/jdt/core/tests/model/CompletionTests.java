@@ -1018,6 +1018,8 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testBug346454i"));
 	suite.addTest(new CompletionTests("testBug346415"));
 	suite.addTest(new CompletionTests("testBug346415a"));
+	suite.addTest(new CompletionTests("testBug350767"));
+	suite.addTest(new CompletionTests("testBug350767b"));
 	return suite;
 }
 public CompletionTests(String name) {
@@ -24547,5 +24549,87 @@ public void testBug346415a() throws JavaModelException {
 		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
 		COMPLETION_PROJECT.setOptions(options);	
 	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350767
+// To make sure we don't get a CCE
+public void testBug350767() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"	public void throwing() {\n" +
+			"		  try {\n" +
+			"			throw new IZZException();\n" +
+			"		  } catch (IZZAException[] | IZZ) {\n" +
+			"		  }\n" +
+			"   }" +
+			"}\n" +
+			"class IZZException extends Exception {\n" +
+			"}\n");
+
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/test/IZZException.java",
+				"package test;"+
+				"public class IZZException extends Exception {\n" +
+				"}\n");
+		
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/test/IZZException.java",
+				"package test;"+
+				"public class IZZAException extends Exception {\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "catch (IZZAException[] | IZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"IZZAException[TYPE_REF]{IZZAException, test, Ltest.IZZAException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}\n" +
+				"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+				requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350767
+// To make sure we don't get a CCE
+public void testBug350767b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"	public void throwing() {\n" +
+		"		  try {\n" +
+		"			throw new IZZException();\n" +
+		"		  } catch (NullPointerException[] e) {\n" +
+		"		  } catch (IZZ){\n" +
+		"		  }\n" +
+		"   }" +
+		"}\n");
+
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/IZZException.java",
+			"package test;"+
+			"public class IZZException extends Exception {\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "catch (IZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			requestor.getResults());
 }
 }

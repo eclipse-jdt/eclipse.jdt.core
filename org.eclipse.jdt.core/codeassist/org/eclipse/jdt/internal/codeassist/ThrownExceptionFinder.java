@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -160,7 +164,7 @@ public class ThrownExceptionFinder extends ASTVisitor {
 				TypeBinding caughtException;
 				for (int j = 0; j < unionTypeReference.typeReferences.length; j++) {
 					caughtException = unionTypeReference.typeReferences[j].resolvedType;
-					if (caughtException != null && caughtException.isValidBinding()) {	// might be null when its the completion node
+					if ((caughtException instanceof ReferenceBinding) && caughtException.isValidBinding()) {	// might be null when its the completion node
 						if (!caughtException.isUncheckedException(true) || recordUncheckedCaughtExceptions) {
 							removeCaughtException((ReferenceBinding)caughtException);
 							this.caughtExceptions.add(caughtException);
@@ -169,7 +173,7 @@ public class ThrownExceptionFinder extends ASTVisitor {
 				}
 			} else {
 				TypeBinding exception = catchArguments[i].type.resolvedType;
-				if (exception != null && exception.isValidBinding()) {
+				if ((exception instanceof ReferenceBinding) && exception.isValidBinding()) {
 					if (!exception.isUncheckedException(true) || recordUncheckedCaughtExceptions) {
 						removeCaughtException((ReferenceBinding)exception);
 						this.caughtExceptions.add(exception);
