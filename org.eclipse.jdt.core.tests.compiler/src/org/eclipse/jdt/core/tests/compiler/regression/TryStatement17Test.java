@@ -1038,6 +1038,70 @@ public void test028() {
 			}, 
 			"");
 }
+public void _test029() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X implements AutoCloseable {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        try (X x = new X();) {\n" +
+				"        } catch (Exception x) {\n" +
+				"        } catch (Throwable y) {\n" +
+				"        } \n" +
+				"        System.out.println(\"Done\");\n" +
+				"    }\n" +
+				"    public void close() {\n" +
+				"    }\n" +
+				"}\n"
+			}, 
+			"Done");
+}
+public void _test030() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X implements AutoCloseable {\n" +
+				"    public static void main(String [] args) throws XXException, YYException, ZZException {\n" +
+				"        try (X x = new X(); Y y = new Y(); Z z = new Z()) {\n" +
+				"        } catch (XException x) {\n" +
+				"        } catch (YException y) {\n" +
+				"        } catch (ZException z) {\n" +
+				"        } finally {\n" +
+				"        }\n" +
+				"        System.out.println(\"Done\");\n" +
+				"    }\n" +
+				"    public X() throws XException {\n" +
+				"        throw new XException();\n" +
+				"    }\n" +
+				"    public void close() throws XXException {\n" +
+				"        throw new XXException();\n" +
+				"    }\n" +
+				"}\n" +
+				"class Y implements AutoCloseable {\n" +
+				"    public Y() throws YException {\n" +
+				"        throw new YException();\n" +
+				"    }\n" +
+				"    public void close() throws YYException {\n" +
+				"        throw new YYException();\n" +
+				"    }\n" +
+				"}\n" +
+				"class Z implements AutoCloseable {\n" +
+				"    public Z() throws ZException {\n" +
+				"        throw new ZException();\n" +
+				"    }\n" +
+				"    public void close() throws ZZException {\n" +
+				"        throw new ZZException();\n" +
+				"    }\n" +
+				"}\n" +
+				"class XException extends Exception {}\n" +
+				"class XXException extends Exception {}\n" +
+				"class YException extends Exception {}\n" +
+				"class YYException extends Exception {}\n" +
+				"class ZException extends Exception {}\n" +
+				"class ZZException extends Exception {}\n"
+			}, 
+			"Done");
+}
 public static Class testClass() {
 	return TryStatement17Test.class;
 }
