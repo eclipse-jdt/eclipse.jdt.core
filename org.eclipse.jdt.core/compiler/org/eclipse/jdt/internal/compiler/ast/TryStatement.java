@@ -185,7 +185,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				"(uncheckedExceptionTypes notNil and: [uncheckedExceptionTypes at: index])
 				ifTrue: [catchInits addPotentialInitializationsFrom: tryInits]."
 				*/
-				if (this.tryBlock.statements == null) {
+				if (this.tryBlock.statements == null && this.resources == NO_RESOURCES) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350579
 					catchInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 				}
 				catchInfo =
@@ -310,7 +310,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				"(uncheckedExceptionTypes notNil and: [uncheckedExceptionTypes at: index])
 				ifTrue: [catchInits addPotentialInitializationsFrom: tryInits]."
 				*/
-				if (this.tryBlock.statements == null) {
+				if (this.tryBlock.statements == null && this.resources == NO_RESOURCES) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350579
 					catchInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 				}
 				catchInfo =
