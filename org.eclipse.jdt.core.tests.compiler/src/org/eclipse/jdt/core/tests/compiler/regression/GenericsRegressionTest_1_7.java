@@ -696,12 +696,12 @@ public void test0016() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	X<String> x = new <String>X<>();\n" + 
 		"	                   ^^^^^^\n" + 
-		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
+		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 10)\n" + 
 		"	X<String> x2 = new <String, Integer>X<>(1);\n" + 
 		"	                    ^^^^^^^^^^^^^^^\n" + 
-		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
+		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" + 
 		"----------\n");
 }
 public void test0016a() {
@@ -748,17 +748,17 @@ public void test0016b() {
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	X<Integer> test = new <String>X<>();\n" + 
 		"	                       ^^^^^^\n" + 
-		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
+		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 12)\n" + 
 		"	test.x = new <String>X<>();\n" + 
 		"	              ^^^^^^\n" + 
-		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
+		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 13)\n" + 
 		"	test.x2 = new <String, Integer>X<>(1);\n" + 
 		"	               ^^^^^^^^^^^^^^^\n" + 
-		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
+		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" + 
 		"----------\n");
 }
 //To verify that a parameterized invocation of a generic constructor works even if <> is used
@@ -809,13 +809,14 @@ public void test0017() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	X<String> x2 = new <String, Integer>X<>(1);\n" + 
 		"	                    ^^^^^^^^^^^^^^^\n" + 
-		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
+		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 12)\n" + 
 		"	X<String> x3 = new <String, Integer>X<>(i);\n" + 
 		"	                    ^^^^^^^^^^^^^^^\n" + 
-		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
-		"----------\n");
+		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" + 
+		"----------\n"
+);
 }
 // To verify that a parameterized invocation of a non-generic constructor works even if <> is used
 // to elide class type parameters.
@@ -1100,12 +1101,12 @@ public void test0027() {
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	X<String> x = new <String, Integer> X<>(1);\n" + 
 		"	                   ^^^^^^^^^^^^^^^\n" + 
-		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
+		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 12)\n" + 
 		"	X<String> x2 = x.new <String, Integer> Y<>(1);\n" + 
 		"	                      ^^^^^^^^^^^^^^^\n" + 
-		"\'<>\' cannot be used in an allocation expression with explicit type arguments\n" + 
+		"Explicit type arguments cannot be used with \'<>\' in an allocation expression\n" + 
 		"----------\n"
 );
 }
