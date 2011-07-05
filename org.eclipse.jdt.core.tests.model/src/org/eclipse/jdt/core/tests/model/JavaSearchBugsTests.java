@@ -711,6 +711,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugsTests("testBug336322c"));
 	suite.addTest(new JavaSearchBugsTests("testBug339891"));
 	suite.addTest(new JavaSearchBugsTests("testBug341462"));
+	suite.addTest(new JavaSearchBugsTests("testBug350885"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -13597,6 +13598,42 @@ public void testBug341462() throws CoreException {
 		search(method, REFERENCES, ERASURE_RULE, scope, this.resultCollector);
 		assertSearchResults("Unexpected search results!", "X.java void X.main(String[]) [testFunction(new X<>(\"hello\").getField())] EXACT_MATCH", this.resultCollector);		
 	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug350885() throws CoreException {
+	boolean autoBuild = getWorkspace().isAutoBuilding();
+	IWorkspaceDescription preferences = getWorkspace().getDescription();
+	try {
+		// ensure that the workspace auto-build is ON
+		preferences.setAutoBuilding(true);
+		getWorkspace().setDescription(preferences);
+		
+		IJavaProject project = createJavaProject("P");
+		createFile("/P/X.java",
+			"class Parent {" +
+			" public void foo() {} \n"+
+			"}\n"+
+			"class Child extends Parent{\n"+
+			" public void foo() {}\n"+
+			"}\n"+
+			"}\n");
+		waitUntilIndexesReady();
+		
+		// search
+		IType type = getCompilationUnit("/P/X.java").getType("Child");
+		IMethod method = type.getMethods()[0];
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{project}, IJavaSearchScope.SOURCES);
+		search(method, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+		assertSearchResults("X.java void Child.foo() [foo] EXACT_MATCH");
+	}
+	finally {
+		// put back initial setup
+		preferences.setAutoBuilding(autoBuild);
+		getWorkspace().setDescription(preferences);
+		
+		// delete the created project
 		deleteProject("P");
 	}
 }
