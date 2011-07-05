@@ -712,6 +712,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugsTests("testBug339891"));
 	suite.addTest(new JavaSearchBugsTests("testBug341462"));
 	suite.addTest(new JavaSearchBugsTests("testBug350885"));
+	suite.addTest(new JavaSearchBugsTests("testBug349683"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -13637,4 +13638,42 @@ public void testBug350885() throws CoreException {
 		deleteProject("P");
 	}
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=349683
+public void testBug349683() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "", "1.7");
+		createFile("/P/X.java",
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.invoke.MethodType;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) throws Throwable {\n" + 
+				"		Object x;\n" + 
+				"		String s;\n" + 
+				"		int i;\n" + 
+				"		MethodType mt;\n" + 
+				"		MethodHandle mh;\n" + 
+				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" + 
+				"		// mt is (char,char)String\n" + 
+				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" + 
+				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" + 
+				"		s = (String) mh.invokeExact(\"daddy\", 'd', 'n');\n" + 
+				"     }\n" +
+				"}\n");
+		waitUntilIndexesReady();
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{project}, IJavaSearchScope.SOURCES | IJavaSearchScope.SYSTEM_LIBRARIES | IJavaSearchScope.APPLICATION_LIBRARIES);
+		search("invokeExact", METHOD, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+		IMethod method = (IMethod)this.resultCollector.match.getElement();
+		this.resultCollector = new TestCollector();
+		this.resultCollector.showAccuracy(true);
+		search(method, REFERENCES, ERASURE_RULE, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "X.java void X.main(String[]) [invokeExact(\"daddy\", \'d\', \'n\')] EXACT_MATCH", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
 }
