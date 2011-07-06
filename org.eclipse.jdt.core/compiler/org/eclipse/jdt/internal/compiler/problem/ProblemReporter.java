@@ -2807,6 +2807,28 @@ public void incorrectArityForParameterizedType(ASTNode location, TypeBinding typ
 		location.sourceStart,
 		nodeSourceEnd(null, location, index));
 }
+public void diamondNotBelow17(ASTNode location) {
+	diamondNotBelow17(location, Integer.MAX_VALUE);
+}
+public void diamondNotBelow17(ASTNode location, int index) {
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348493
+    if (location == null) {
+		this.handle(
+			IProblem.DiamondNotBelow17,
+			NoArgument,
+			NoArgument,
+			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
+			0,
+			0);
+		return; // not reached since aborted above
+    }
+	this.handle(
+		IProblem.DiamondNotBelow17,
+		NoArgument,
+		NoArgument,
+		location.sourceStart,
+		nodeSourceEnd(null, location, index));
+}
 public void incorrectLocationForNonEmptyDimension(ArrayAllocationExpression expression, int index) {
 	this.handle(
 		IProblem.IllegalDimension,

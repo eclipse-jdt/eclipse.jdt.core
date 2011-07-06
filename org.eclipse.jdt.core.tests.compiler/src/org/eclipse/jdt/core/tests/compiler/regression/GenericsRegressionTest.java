@@ -1766,7 +1766,7 @@ public void test339478a() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	X<String> x = new X<>();\n" + 
 		"	                  ^\n" + 
-		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"\'<>\' operator is not allowed for source level below 1.7\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=339478
@@ -2032,8 +2032,13 @@ public void test339478o() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	new X<>(){\n" + 
 		"	    ^\n" + 
-		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
-		"----------\n" :
+		"\'<>\' operator is not allowed for source level below 1.7\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	new X<>(){\n" + 
+		"	    ^\n" + 
+		"\'<>\' cannot be used with anonymous classes\n" + 
+		"----------\n":
 			"----------\n" + 
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	new X<>(){\n" + 
@@ -2067,7 +2072,12 @@ public void test339478p() {
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	X Test = new X<>(){\n" + 
 		"	             ^\n" + 
-		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"\'<>\' operator is not allowed for source level below 1.7\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	X Test = new X<>(){\n" + 
+		"	             ^\n" + 
+		"\'<>\' cannot be used with anonymous classes\n" + 
 		"----------\n" : 
 			"----------\n" + 
 			"1. WARNING in X.java (at line 3)\n" + 
@@ -2091,6 +2101,18 @@ public void test339478q() {
 			"	}\n" +
 			"}",
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X Test = new X<>();\n" + 
+		"	             ^\n" + 
+		"\'<>\' operator is not allowed for source level below 1.7\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	X Test = new X<>();\n" + 
+		"	             ^\n" + 
+		"The type X is not generic; it cannot be parameterized with arguments <>\n" + 
+		"----------\n":
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	X Test = new X<>();\n" + 
@@ -2387,5 +2409,64 @@ public void test347746() {
 	   		 "}\n"
 	     },
 	     "");
-	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348493
+// To verify that diamond construct is not allowed in source level 1.6 or below
+public void test348493() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	class X2<Z> {}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X<String>.X2<> x = new X<String>().new X2<>();\n" + 
+			"	}\n" +
+			"	public void testFunction(T param){\n" +
+			"		System.out.println(param);\n" +
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	X<String>.X2<> x = new X<String>().new X2<>();\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"Incorrect number of arguments for type X<String>.X2; it cannot be parameterized with arguments <>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	X<String>.X2<> x = new X<String>().new X2<>();\n" + 
+		"	                                       ^^\n" + 
+		"\'<>\' operator is not allowed for source level below 1.7\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348493
+// To verify that diamond construct is not allowed in source level 1.6 or below
+public void test348493a() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		X<> x = new X<>();\n" + 
+			"	}\n" +
+			"	public void testFunction(T param){\n" +
+			"		System.out.println(param);\n" +
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<> x = new X<>();\n" + 
+		"	^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	X<> x = new X<>();\n" + 
+		"	            ^\n" + 
+		"\'<>\' operator is not allowed for source level below 1.7\n" + 
+		"----------\n");
+}
 }

@@ -1182,9 +1182,7 @@ protected void classInstanceCreation(boolean isQualified) {
 				length);
 		}
 		alloc.type = getTypeReference(0);
-		if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
-			checkForDiamond(alloc.type);
-		}
+		checkForDiamond(alloc.type);
 
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
@@ -1197,9 +1195,7 @@ protected void classInstanceCreation(boolean isQualified) {
 		anonymousTypeDeclaration.bodyEnd = this.endStatementPosition;
 		if (anonymousTypeDeclaration.allocation != null) {
 			anonymousTypeDeclaration.allocation.sourceEnd = this.endStatementPosition;
-			if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
-				checkForDiamond(anonymousTypeDeclaration.allocation.type);
-			}
+			checkForDiamond(anonymousTypeDeclaration.allocation.type);
 		}
 		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
 			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlock;
@@ -1213,12 +1209,18 @@ protected void checkForDiamond(TypeReference allocType) {
 		ParameterizedSingleTypeReference type = (ParameterizedSingleTypeReference) allocType;
 		if (type.typeArguments == TypeReference.NO_TYPE_ARGUMENTS) {
 			type.bits |= ASTNode.IsDiamond;
+			if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
+				problemReporter().diamondNotBelow17(allocType);
+			}
 		}
 	} 
 	else if (allocType instanceof ParameterizedQualifiedTypeReference) {
 		ParameterizedQualifiedTypeReference type = (ParameterizedQualifiedTypeReference) allocType;
 		if (type.typeArguments[type.typeArguments.length - 1] == TypeReference.NO_TYPE_ARGUMENTS) { // Don't care for X<>.Y<> and X<>.Y<String>
 			type.bits |= ASTNode.IsDiamond;
+			if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
+				problemReporter().diamondNotBelow17(allocType, type.typeArguments.length - 1);
+			}
 		}
 	}
 }
@@ -2466,9 +2468,7 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 				length);
 		}
 		alloc.type = getTypeReference(0);
-		if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
-			checkForDiamond(alloc.type);
-		}
+		checkForDiamond(alloc.type);
 		length = this.genericsLengthStack[this.genericsLengthPtr--];
 		this.genericsPtr -= length;
 		System.arraycopy(this.genericsStack, this.genericsPtr + 1, alloc.typeArguments = new TypeReference[length], 0, length);
@@ -2497,9 +2497,7 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 			this.genericsPtr -= length;
 			System.arraycopy(this.genericsStack, this.genericsPtr + 1, allocationExpression.typeArguments = new TypeReference[length], 0, length);
 			allocationExpression.sourceStart = this.intStack[this.intPtr--];
-			if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
-				checkForDiamond(allocationExpression.type);
-			}
+			checkForDiamond(allocationExpression.type);
 		}
 	}
 	
@@ -2535,9 +2533,7 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 				length);
 		}
 		alloc.type = getTypeReference(0);
-		if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
-			checkForDiamond(alloc.type);
-		}		
+		checkForDiamond(alloc.type);
 
 		length = this.genericsLengthStack[this.genericsLengthPtr--];
 		this.genericsPtr -= length;
@@ -2567,9 +2563,7 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 			this.genericsPtr -= length;
 			System.arraycopy(this.genericsStack, this.genericsPtr + 1, allocationExpression.typeArguments = new TypeReference[length], 0, length);
 			allocationExpression.sourceStart = this.intStack[this.intPtr--];
-			if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
-				checkForDiamond(allocationExpression.type);
-			}
+			checkForDiamond(allocationExpression.type);
 		}
 	}
 }

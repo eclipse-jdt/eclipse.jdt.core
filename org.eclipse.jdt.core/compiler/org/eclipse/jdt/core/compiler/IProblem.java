@@ -1392,6 +1392,8 @@ void setSourceStart(int sourceStart);
 	int SwitchOnStringsNotBelow17 = TypeRelated + 881;	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348492
 	/** @since 3.7 */
 	int UnhandledExceptionOnAutoClose =  TypeRelated + 882;
+	/** @since 3.7 */
+	int DiamondNotBelow17 =  TypeRelated + 883;
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */

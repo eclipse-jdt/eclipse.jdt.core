@@ -18,7 +18,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -74,9 +73,7 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 				length);
 		}
 		alloc.type = getTypeReference(0);
-		if (this.options.sourceLevel >= ClassFileConstants.JDK1_7) {
-			checkForDiamond(alloc.type);
-		}
+		checkForDiamond(alloc.type);
 		
 		//the default constructor with the correct number of argument
 		//will be created and added by the TC (see createsInternalConstructorWithBinding)
