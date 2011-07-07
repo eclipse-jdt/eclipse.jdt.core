@@ -213,7 +213,7 @@ public class Clinit extends AbstractMethodDeclaration {
 								if (count > ENUM_CONSTANTS_THRESHOLD) {
 									SyntheticMethodBinding syntheticMethod = declaringType.binding.addSyntheticMethodForEnumInitialization(begin, i);
 									codeStream.invoke(Opcodes.OPC_invokestatic, syntheticMethod, null /* default declaringClass */);
-									begin = -1;
+									begin = i;
 									count = 0;
 								}
 							}
