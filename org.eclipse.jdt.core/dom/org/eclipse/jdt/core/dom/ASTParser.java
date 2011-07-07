@@ -339,7 +339,9 @@ public class ASTParser {
 				throw new IllegalArgumentException(); 
 			}
 		}
-		this.bits |= CompilationUnitResolver.INCLUDE_RUNNING_VM_BOOTCLASSPATH;
+		if (includeRunningVMBootclasspath) {
+			this.bits |= CompilationUnitResolver.INCLUDE_RUNNING_VM_BOOTCLASSPATH;
+		}
 	}
 	/**
 	 * Sets the compiler options to be used when parsing.
