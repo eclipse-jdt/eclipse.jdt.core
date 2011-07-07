@@ -34,6 +34,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 	public TypeBinding[] genericTypeArguments;
 	public FieldDeclaration enumConstant; // for enum constant initializations
 	protected TypeBinding typeExpected;	  // for <> inference
+	public boolean inferredReturnType;
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	// check captured variables are initialized in current context (26134)
@@ -413,6 +414,8 @@ public TypeBinding[] inferElidedTypes(ReferenceBinding allocationType, Reference
 	 */   
 	MethodBinding factory = scope.getStaticFactory(allocationType, enclosingType, argumentTypes, this);
 	if (factory instanceof ParameterizedGenericMethodBinding && factory.isValidBinding()) {
+		ParameterizedGenericMethodBinding genericFactory = (ParameterizedGenericMethodBinding) factory;
+		this.inferredReturnType = genericFactory.inferredReturnType;
 		return ((ParameterizedTypeBinding)factory.returnType).arguments;
 	}
 	return null;

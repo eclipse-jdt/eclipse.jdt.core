@@ -63,7 +63,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 17 };
+//		TESTS_NUMBERS = new int[] { 18 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] {"test0001"};
 	}
@@ -678,5 +678,57 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			}
 		}
 		assertTrue("No method found", found);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=350897
+	 */
+	public void test0018() throws JavaModelException {
+		String contents =
+			"public class X<T> {\n" + 
+			"	T field1;\n" + 
+			"	public X(T param){\n" + 
+			"		field1 = param;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X<Object> a = new X<Object>(\"hello\");\n" + 
+			"		X.testFunction(a.getField()); //prints 2\n" + 
+			"		X<String> b = new X<>(\"hello\");\n" + 
+			"		X.testFunction(b.getField()); // prints 1\n" + 
+			"\n" + 
+			"		X<Object> c = new X<>(null);\n" + 
+			"		X.testFunction(c.getField()); // prints 2\n" + 
+			"		X<String> d = new X<>(null);\n" + 
+			"		X.testFunction(d.getField()); // prints 1\n" + 
+			"	}\n" + 
+			"	public static void testFunction(String param){\n" + 
+			"		System.out.println(1 + \", String param: \" + param);\n" + 
+			"	}\n" + 
+			"	public static void testFunction(Object param){\n" + 
+			"		System.out.println(2);\n" + 
+			"	}\n" + 
+			"	public T getField(){\n" + 
+			"		return field1;\n" + 
+			"	}\n" + 
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(AST.JLS4, this.workingCopy, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		class InferredTypeFromExpectedVisitor extends ASTVisitor {
+			StringBuffer buf = new StringBuffer();
+			public boolean visit(ClassInstanceCreation creation) {
+				this.buf.append(creation.isResolvedTypeInferredFromExpectedType());
+				return false;
+			}
+			public String toString() {
+				return String.valueOf(this.buf);
+			}
+		}
+		InferredTypeFromExpectedVisitor visitor = new InferredTypeFromExpectedVisitor();
+		unit.accept(visitor);
+		assertEquals("Wrong contents", "falsefalsetruetrue", String.valueOf(visitor));
 	}
 }
