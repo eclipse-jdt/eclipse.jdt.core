@@ -317,7 +317,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
 		checkSourceRange(type, "NumberFormatException", contents);
 		List resources = tryStatement.resources();
-		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s);", contents);
+		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s)", contents);
 	}
 	/*
 	 * Check that catch type with union type as a simple type is converted to a simple type
@@ -350,8 +350,8 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
 		checkSourceRange(type, "NumberFormatException", contents);
 		List resources = TryStatement.resources();
-		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s);", contents);
-		checkSourceRange((ASTNode) resources.get(1), "Reader r2 = new FileReader(s);", contents);
+		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s)", contents);
+		checkSourceRange((ASTNode) resources.get(1), "Reader r2 = new FileReader(s)", contents);
 	}
 	/*
 	 * Check that catch type with union type as a simple type is converted to a simple type
@@ -384,7 +384,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		assertEquals("Not a simple type", ASTNode.SIMPLE_TYPE, type.getNodeType());
 		checkSourceRange(type, "NumberFormatException", contents);
 		List resources = tryStatement.resources();
-		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s);", contents);
+		checkSourceRange((ASTNode) resources.get(0), "Reader r = new FileReader(s)", contents);
 		checkSourceRange((ASTNode) resources.get(1), "Reader r2 = new FileReader(s)", contents);
 	}
 	/*

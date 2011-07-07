@@ -48,6 +48,11 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	public static Test suite() {
 		return buildModelTestSuite(THIS);
+//		TestSuite suite= new Suite(THIS.getClass().getName());
+//		suite.addTest(new ASTRewritingStatementsTest("testTryStatementWithResources3"));
+//		suite.addTest(new ASTRewritingStatementsTest("testTryStatementWithResources4"));
+//		suite.addTest(new ASTRewritingStatementsTest("testTryStatementWithResources5"));
+//		return suite;
 	}
 
 	public void testInsert1() throws Exception {
@@ -4970,7 +4975,8 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("package test1;\n");
 			buf.append("public class E {\n");
 			buf.append("    public void foo(int i) {\n");
-			buf.append("        try (Reader reader = null; Reader reader2 = null) {\n");
+			buf.append("        try (Reader reader = null;\n");
+			buf.append("                Reader reader2 = null) {\n");
 			buf.append("        } catch (IOException e) {\n");
 			buf.append("        } finally {\n");
 			buf.append("            return;\n");
@@ -5036,6 +5042,235 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("        }\n");
 			buf.append("    }\n");
 			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			deleteProject("P_17");
+		}
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351170
+	 */
+	public void testTryStatementWithResources3() throws Exception {
+
+		createProject("P_17", JavaCore.VERSION_1_7);
+		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
+
+		try {
+			IPackageFragment pack1 = currentSourceFolder.createPackageFragment("test0017", false, null);
+			StringBuffer buf = new StringBuffer();
+			buf.append("package test0017;\n");
+			buf.append("\n");
+			buf.append("public class X {\n");
+			buf.append("	void foo() {\n");
+			buf.append("		FileReader reader1 = new FileReader(\"file1\");\n");
+			buf.append("		try {\n");
+			buf.append("			int ch;\n");
+			buf.append("			while ((ch = reader1.read()) != -1) {\n");
+			buf.append("				System.out.println(ch);\n");
+			buf.append("			}\n");
+			buf.append("		} finally {\n");
+			buf.append("		}\n");
+			buf.append("	}\n");
+			buf.append("}");
+
+			ICompilationUnit cu = pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+			CompilationUnit astRoot= createAST(AST.JLS4, cu, true, true);
+			AST ast= astRoot.getAST();
+			ASTRewrite rewrite= ASTRewrite.create(ast);
+
+			Block block = ((MethodDeclaration) ((TypeDeclaration) astRoot.types().get(0)).bodyDeclarations().get(0)).getBody();
+			List statements = block.statements();
+			Statement statement = (Statement) statements.get(1);
+			assertTrue(statement instanceof TryStatement);
+
+			TryStatement tryStatement = (TryStatement) statement;
+
+			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statements.get(0);
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+			VariableDeclarationExpression newVariableDeclarationExpression = ast.newVariableDeclarationExpression(
+					(VariableDeclarationFragment) rewrite.createCopyTarget(fragment));
+			newVariableDeclarationExpression.setType((Type) rewrite.createCopyTarget(variableDeclarationStatement.getType()));
+
+			ListRewrite listRewrite = rewrite.getListRewrite(tryStatement, TryStatement.RESOURCES_PROPERTY);
+			listRewrite.insertLast(newVariableDeclarationExpression, null);
+			rewrite.remove(variableDeclarationStatement, null);
+
+			Document document1= new Document(cu.getSource());
+			TextEdit res= rewrite.rewriteAST(document1, null);
+			res.apply(document1);
+			String preview = document1.get();
+			
+			buf= new StringBuffer();
+			buf.append("package test0017;\n");
+			buf.append("\n");
+			buf.append("public class X {\n");
+			buf.append("	void foo() {\n");
+			buf.append("		try (FileReader reader1 = new FileReader(\"file1\")) {\n");
+			buf.append("			int ch;\n");
+			buf.append("			while ((ch = reader1.read()) != -1) {\n");
+			buf.append("				System.out.println(ch);\n");
+			buf.append("			}\n");
+			buf.append("		} finally {\n");
+			buf.append("		}\n");
+			buf.append("	}\n");
+			buf.append("}");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			deleteProject("P_17");
+		}
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351170
+	 */
+	public void testTryStatementWithResources4() throws Exception {
+
+		createProject("P_17", JavaCore.VERSION_1_7);
+		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
+
+		try {
+			IPackageFragment pack1 = currentSourceFolder.createPackageFragment("test0017", false, null);
+			StringBuffer buf = new StringBuffer();
+			buf.append("package test0017;\n");
+			buf.append("\n");
+			buf.append("public class X {\n");
+			buf.append("	void foo() {\n");
+			buf.append("		try (FileReader reader1 = new FileReader(\"file1\")) {\n");
+			buf.append("			int ch;\n");
+			buf.append("			while ((ch = reader1.read()) != -1) {\n");
+			buf.append("				System.out.println(ch);\n");
+			buf.append("			}\n");
+			buf.append("		} finally {\n");
+			buf.append("		}\n");
+			buf.append("	}\n");
+			buf.append("}");
+
+			ICompilationUnit cu = pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+			CompilationUnit astRoot= createAST(AST.JLS4, cu, true, true);
+			AST ast= astRoot.getAST();
+			ASTRewrite rewrite= ASTRewrite.create(ast);
+
+			Block block = ((MethodDeclaration) ((TypeDeclaration) astRoot.types().get(0)).bodyDeclarations().get(0)).getBody();
+			List statements = block.statements();
+			Statement statement = (Statement) statements.get(0);
+			assertTrue(statement instanceof TryStatement);
+
+			TryStatement tryStatement = (TryStatement) statement;
+
+			VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+			fragment.setExtraDimensions(0);
+			fragment.setName(ast.newSimpleName("reader2"));
+			ClassInstanceCreation classInstanceCreation = ast.newClassInstanceCreation();
+			classInstanceCreation.setType(ast.newSimpleType(ast.newSimpleName("FileReader")));
+			StringLiteral literal = ast.newStringLiteral();
+			literal.setLiteralValue("file2");
+			classInstanceCreation.arguments().add(literal);
+			fragment.setInitializer(classInstanceCreation);
+			VariableDeclarationExpression newVariableDeclarationExpression = ast.newVariableDeclarationExpression(fragment);
+			newVariableDeclarationExpression.setType(ast.newSimpleType(ast.newSimpleName("FileReader")));
+
+			ListRewrite listRewrite = rewrite.getListRewrite(tryStatement, TryStatement.RESOURCES_PROPERTY);
+			listRewrite.insertLast(newVariableDeclarationExpression, null);
+
+			Document document1= new Document(cu.getSource());
+			TextEdit res= rewrite.rewriteAST(document1, null);
+			res.apply(document1);
+			String preview = document1.get();
+			
+			buf= new StringBuffer();
+			buf.append("package test0017;\n");
+			buf.append("\n");
+			buf.append("public class X {\n");
+			buf.append("	void foo() {\n");
+			buf.append("		try (FileReader reader1 = new FileReader(\"file1\");\n");
+			buf.append("				FileReader reader2 = new FileReader(\"file2\")) {\n");
+			buf.append("			int ch;\n");
+			buf.append("			while ((ch = reader1.read()) != -1) {\n");
+			buf.append("				System.out.println(ch);\n");
+			buf.append("			}\n");
+			buf.append("		} finally {\n");
+			buf.append("		}\n");
+			buf.append("	}\n");
+			buf.append("}");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			deleteProject("P_17");
+		}
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351170
+	 */
+	public void testTryStatementWithResources5() throws Exception {
+
+		createProject("P_17", JavaCore.VERSION_1_7);
+		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
+
+		try {
+			IPackageFragment pack1 = currentSourceFolder.createPackageFragment("test0017", false, null);
+			StringBuffer buf = new StringBuffer();
+			buf.append("package test0017;\n");
+			buf.append("\n");
+			buf.append("public class X {\n");
+			buf.append("	void foo() {\n");
+			buf.append("		try (FileReader reader1 = new FileReader(\"file1\");) {\n");
+			buf.append("			int ch;\n");
+			buf.append("			while ((ch = reader1.read()) != -1) {\n");
+			buf.append("				System.out.println(ch);\n");
+			buf.append("			}\n");
+			buf.append("		} finally {\n");
+			buf.append("		}\n");
+			buf.append("	}\n");
+			buf.append("}");
+
+			ICompilationUnit cu = pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+			CompilationUnit astRoot= createAST(AST.JLS4, cu, true, true);
+			AST ast= astRoot.getAST();
+			ASTRewrite rewrite= ASTRewrite.create(ast);
+
+			Block block = ((MethodDeclaration) ((TypeDeclaration) astRoot.types().get(0)).bodyDeclarations().get(0)).getBody();
+			List statements = block.statements();
+			Statement statement = (Statement) statements.get(0);
+			assertTrue(statement instanceof TryStatement);
+
+			TryStatement tryStatement = (TryStatement) statement;
+
+			VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
+			fragment.setExtraDimensions(0);
+			fragment.setName(ast.newSimpleName("reader2"));
+			ClassInstanceCreation classInstanceCreation = ast.newClassInstanceCreation();
+			classInstanceCreation.setType(ast.newSimpleType(ast.newSimpleName("FileReader")));
+			StringLiteral literal = ast.newStringLiteral();
+			literal.setLiteralValue("file2");
+			classInstanceCreation.arguments().add(literal);
+			fragment.setInitializer(classInstanceCreation);
+			VariableDeclarationExpression newVariableDeclarationExpression = ast.newVariableDeclarationExpression(fragment);
+			newVariableDeclarationExpression.setType(ast.newSimpleType(ast.newSimpleName("FileReader")));
+
+			ListRewrite listRewrite = rewrite.getListRewrite(tryStatement, TryStatement.RESOURCES_PROPERTY);
+			listRewrite.insertLast(newVariableDeclarationExpression, null);
+
+			Document document1= new Document(cu.getSource());
+			TextEdit res= rewrite.rewriteAST(document1, null);
+			res.apply(document1);
+			String preview = document1.get();
+			
+			buf= new StringBuffer();
+			buf.append("package test0017;\n");
+			buf.append("\n");
+			buf.append("public class X {\n");
+			buf.append("	void foo() {\n");
+			buf.append("		try (FileReader reader1 = new FileReader(\"file1\");\n");
+			buf.append("				FileReader reader2 = new FileReader(\"file2\");) {\n");
+			buf.append("			int ch;\n");
+			buf.append("			while ((ch = reader1.read()) != -1) {\n");
+			buf.append("				System.out.println(ch);\n");
+			buf.append("			}\n");
+			buf.append("		} finally {\n");
+			buf.append("		}\n");
+			buf.append("	}\n");
+			buf.append("}");
 			assertEqualString(preview, buf.toString());
 		} finally {
 			deleteProject("P_17");

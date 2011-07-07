@@ -5299,7 +5299,7 @@ protected void consumeResourceOptionalTrailingSemiColon(boolean punctuated) {
 	// TrailingSemiColon ::= ';'
 	LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr];
 	if (punctuated) {
-		localDeclaration.declarationEnd = localDeclaration.declarationSourceEnd = this.endStatementPosition;
+		localDeclaration.declarationSourceEnd = this.endStatementPosition;
 	}
 }
 protected void consumeRestoreDiet() {

@@ -2563,7 +2563,7 @@ class ASTConverter {
 						LocalDeclaration localDeclaration = localDeclarations[i];
 						VariableDeclarationExpression variableDeclarationExpression = convertToVariableDeclarationExpression(localDeclaration);
 						int start = variableDeclarationExpression.getStartPosition();
-						int end = localDeclaration.declarationSourceEnd;
+						int end = localDeclaration.declarationEnd;
 						variableDeclarationExpression.setSourceRange(start, end - start + 1);
 						tryStatement.resources().add(variableDeclarationExpression);
 					}

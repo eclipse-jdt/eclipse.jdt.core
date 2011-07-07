@@ -444,7 +444,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 
 	class ListRewriter {
-		protected String contantSeparator;
+		protected String constantSeparator;
 		protected int startPos;
 
 		protected RewriteEvent[] list;
@@ -458,7 +458,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		protected String getSeparatorString(int nodeIndex) {
-			return this.contantSeparator;
+			return this.constantSeparator;
 		}
 
 		protected int getInitialIndent() {
@@ -495,19 +495,24 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		public final int rewriteList(ASTNode parent, StructuralPropertyDescriptor property, int offset, String keyword, String separator) {
-			this.contantSeparator= separator;
-			return rewriteList(parent, property, offset, keyword);
+			this.constantSeparator= separator;
+			return rewriteList(parent, property, keyword, null, offset);
 		}
 
 		private boolean insertAfterSeparator(ASTNode node) {
 			return !isInsertBoundToPrevious(node);
 		}
-		
+
 		protected boolean mustRemoveSeparator(int originalOffset, int nodeIndex) {
 			return true;
 		}
 
-		public final int rewriteList(ASTNode parent, StructuralPropertyDescriptor property, int offset, String keyword) {
+		private int rewriteList(
+				ASTNode parent,
+				StructuralPropertyDescriptor property,
+				String keyword,
+				String endKeyword,
+				int offset) {
 			this.startPos= offset;
 			this.list= getEvent(parent, property).getChildren();
 
@@ -536,7 +541,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 			}
 
-			if (currPos == -1) { // only inserts
+			boolean insertNew = currPos == -1;
+			if (insertNew) { // only inserts
 				if (keyword.length() > 0) {  // creating a new list -> insert keyword first (e.g. " throws ")
 					TextEditGroup editGroup= getEditGroup(this.list[0]); // first node is insert
 					doTextInsert(offset, keyword, editGroup);
@@ -584,6 +590,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					} else { // EXISTING && insert before separator
 						doTextInsert(prevEnd, getSeparatorString(i - 1), editGroup);
 						doTextInsert(prevEnd, node, getNodeIndent(i), true, editGroup);
+					}
+					if (insertNew) {
+						if (endKeyword != null && endKeyword.length() > 0) {
+							doTextInsert(currPos, endKeyword, editGroup);
+						}
 					}
 				} else if (currMark == RewriteEvent.REMOVED) {
 					ASTNode node= (ASTNode) currEvent.getOriginalValue();
@@ -718,9 +729,17 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			}
 			return currPos;
 		}
+		public final int rewriteList(ASTNode parent, StructuralPropertyDescriptor property, int offset, String keyword) {
+			return rewriteList(parent, property, keyword, null, offset);
+		}
 		
 		protected void updateIndent(int prevMark, int originalOffset, int nodeIndex, TextEditGroup editGroup) {
 			// Do nothing.
+		}
+
+		public final int rewriteList(ASTNode parent, StructuralPropertyDescriptor property, int offset, String keyword, String endKeyword, String separator) {
+			this.constantSeparator= separator;
+			return rewriteList(parent, property, keyword, endKeyword, offset);
 		}
 	}
 
@@ -1141,6 +1160,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return true;
 	}
 
+	private int rewriteNodeList(ASTNode parent, StructuralPropertyDescriptor property, int pos, String keyword, String endKeyword, String separator) {
+		RewriteEvent event= getEvent(parent, property);
+		if (event != null && event.getChangeKind() != RewriteEvent.UNCHANGED) {
+			return new ListRewriter().rewriteList(parent, property, pos, keyword, endKeyword, separator);
+		}
+		return doVisit(parent, property, pos);
+	}
+
 	private int rewriteNodeList(ASTNode parent, StructuralPropertyDescriptor property, int pos, String keyword, String separator) {
 		RewriteEvent event= getEvent(parent, property);
 		if (event != null && event.getChangeKind() != RewriteEvent.UNCHANGED) {
@@ -1225,6 +1252,21 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		try {
 			int nextToken= getScanner().readNext(pos, true);
 			if (nextToken == TerminalTokens.TokenNameLBRACE) {
+				return getScanner().getCurrentEndOffset();
+			}
+		} catch (CoreException e) {
+			handleException(e);
+		}
+		return pos;
+	}
+
+	/*
+	 * Next token is try keyword. Returns the offset after 'try' keyword. For incomplete code, return the start offset.
+	 */
+	private int getPosAfterTry(int pos) {
+		try {
+			int nextToken= getScanner().readNext(pos, true);
+			if (nextToken == TerminalTokens.TokenNametry) {
 				return getScanner().getCurrentEndOffset();
 			}
 		} catch (CoreException e) {
@@ -3050,7 +3092,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		int pos= node.getStartPosition();
 		if (node.getAST().apiLevel() >= AST.JLS4) {
 			if (isChanged(node, TryStatement.RESOURCES_PROPERTY)) {
-				pos= rewriteNodeList(node, TryStatement.RESOURCES_PROPERTY, pos, Util.EMPTY_STRING, "; "); //$NON-NLS-1$
+				int indent= getIndent(node.getStartPosition());
+				String prefix= this.formatter.TRY_RESOURCES.getPrefix(indent);
+				String newParen = this.formatter.TRY_RESOURCES_PAREN.getPrefix(indent) + "("; //$NON-NLS-1$
+				pos= rewriteNodeList(node, TryStatement.RESOURCES_PROPERTY, getPosAfterTry(pos), newParen, ")", ";" + prefix); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
 				pos= doVisit(node, TryStatement.RESOURCES_PROPERTY, pos);
 			}
