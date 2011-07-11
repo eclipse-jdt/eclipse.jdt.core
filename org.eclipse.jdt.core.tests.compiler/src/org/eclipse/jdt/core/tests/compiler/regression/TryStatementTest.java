@@ -5968,6 +5968,26 @@ public void test073() {
 		"No exception of type Exception[] can be thrown; an exception type must be a subclass of Throwable\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=351653
+public void _test074() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] p) {\n" +
+			"        int i;\n" +
+			"        try {\n" +
+			"          if (p == null || p == null)\n" +
+			"            return;\n" +
+			"          i = 0;\n" +
+			"        } finally {\n" +
+			"            i = 0;\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"");
+}
 public static Class testClass() {
 	return TryStatementTest.class;
 }
