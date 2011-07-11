@@ -12066,8 +12066,8 @@ public void test767() throws Exception {
 		"				throw new FileNotFoundException();\n" + 
 		"			else\n" + 
 		"				throw new MyE();\n" + 
-		"		} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException |\n" + 
-		"				IllegalArgumentException ex) {\n" + 
+		"		} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException\n" + 
+		"				| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12109,9 +12109,9 @@ public void test767a() throws Exception {
 		"				throw new FileNotFoundException();\n" + 
 		"			else\n" + 
 		"				throw new MyE();\n" + 
-		"		} catch (MyE | FileNotFoundException |\n" + 
-		"				ArrayIndexOutOfBoundsException |\n" + 
-		"				IllegalArgumentException ex) {\n" + 
+		"		} catch (MyE | FileNotFoundException\n" + 
+		"				| ArrayIndexOutOfBoundsException\n" + 
+		"				| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12154,8 +12154,8 @@ public void test767b() throws Exception {
 		"				throw new FileNotFoundException();\n" + 
 		"			else\n" + 
 		"				throw new MyE();\n" + 
-		"		} catch (MyE |FileNotFoundException |ArrayIndexOutOfBoundsException |\n" + 
-		"				IllegalArgumentException ex) {\n" + 
+		"		} catch (MyE |FileNotFoundException |ArrayIndexOutOfBoundsException\n" + 
+		"				|IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12199,8 +12199,8 @@ public void test768() throws Exception {
 		"				throw new FileNotFoundException();\n" + 
 		"			else\n" + 
 		"				throw new MyE();\n" + 
-		"		} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException |\n" + 
-		"					IllegalArgumentException ex) {\n" + 
+		"		} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException\n" + 
+		"					| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12244,8 +12244,8 @@ public void test769() throws Exception {
 		"				throw new FileNotFoundException();\n" + 
 		"			else\n" + 
 		"				throw new MyE();\n" + 
-		"		} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException |\n" + 
-		"			IllegalArgumentException ex) {\n" + 
+		"		} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException\n" + 
+		"			| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12290,8 +12290,8 @@ public void test770() throws Exception {
 		"			else\n" + 
 		"				throw new MyE();\n" + 
 		"		} catch (\n" + 
-		"				MyE | FileNotFoundException | ArrayIndexOutOfBoundsException |\n" + 
-		"				IllegalArgumentException ex) {\n" + 
+		"				MyE | FileNotFoundException | ArrayIndexOutOfBoundsException\n" + 
+		"				| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12336,8 +12336,8 @@ public void test771() throws Exception {
 		"			else\n" + 
 		"				throw new MyE();\n" + 
 		"		} catch (\n" + 
-		"					MyE | FileNotFoundException |\n" + 
-		"					ArrayIndexOutOfBoundsException | IllegalArgumentException ex) {\n" + 
+		"					MyE | FileNotFoundException\n" + 
+		"					| ArrayIndexOutOfBoundsException | IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12382,8 +12382,8 @@ public void test772() throws Exception {
 		"			else\n" + 
 		"				throw new MyE();\n" + 
 		"		} catch (\n" + 
-		"			MyE | FileNotFoundException | ArrayIndexOutOfBoundsException |\n" + 
-		"			IllegalArgumentException ex) {\n" + 
+		"			MyE | FileNotFoundException | ArrayIndexOutOfBoundsException\n" + 
+		"			| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12428,10 +12428,10 @@ public void test773() throws Exception {
 		"				throw new FileNotFoundException();\n" + 
 		"			else\n" + 
 		"				throw new MyE();\n" + 
-		"		} catch (MyE |\n" + 
-		"				FileNotFoundException |\n" + 
-		"				ArrayIndexOutOfBoundsException |\n" + 
-		"				IllegalArgumentException ex) {\n" + 
+		"		} catch (MyE\n" + 
+		"				| FileNotFoundException\n" + 
+		"				| ArrayIndexOutOfBoundsException\n" + 
+		"				| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12475,10 +12475,10 @@ public void test774() throws Exception {
 		"				throw new FileNotFoundException();\n" + 
 		"			else\n" + 
 		"				throw new MyE();\n" + 
-		"		} catch (	MyE |\n" + 
-		"					FileNotFoundException |\n" + 
-		"					ArrayIndexOutOfBoundsException |\n" + 
-		"					IllegalArgumentException ex) {\n" + 
+		"		} catch (	MyE\n" + 
+		"					| FileNotFoundException\n" + 
+		"					| ArrayIndexOutOfBoundsException\n" + 
+		"					| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12522,10 +12522,10 @@ public void test775() throws Exception {
 		"				throw new FileNotFoundException();\n" + 
 		"			else\n" + 
 		"				throw new MyE();\n" + 
-		"		} catch (MyE |\n" + 
-		"			FileNotFoundException |\n" + 
-		"			ArrayIndexOutOfBoundsException |\n" + 
-		"			IllegalArgumentException ex) {\n" + 
+		"		} catch (MyE\n" + 
+		"			| FileNotFoundException\n" + 
+		"			| ArrayIndexOutOfBoundsException\n" + 
+		"			| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12570,10 +12570,10 @@ public void test776() throws Exception {
 		"			else\n" + 
 		"				throw new MyE();\n" + 
 		"		} catch (\n" + 
-		"				MyE |\n" + 
-		"					FileNotFoundException |\n" + 
-		"					ArrayIndexOutOfBoundsException |\n" + 
-		"					IllegalArgumentException ex) {\n" + 
+		"				MyE\n" + 
+		"					| FileNotFoundException\n" + 
+		"					| ArrayIndexOutOfBoundsException\n" + 
+		"					| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12618,10 +12618,10 @@ public void test777() throws Exception {
 		"			else\n" + 
 		"				throw new MyE();\n" + 
 		"		} catch (\n" + 
-		"					MyE |\n" + 
-		"						FileNotFoundException |\n" + 
-		"						ArrayIndexOutOfBoundsException |\n" + 
-		"						IllegalArgumentException ex) {\n" + 
+		"					MyE\n" + 
+		"						| FileNotFoundException\n" + 
+		"						| ArrayIndexOutOfBoundsException\n" + 
+		"						| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12666,10 +12666,10 @@ public void test778() throws Exception {
 		"			else\n" + 
 		"				throw new MyE();\n" + 
 		"		} catch (\n" + 
-		"			MyE |\n" + 
-		"				FileNotFoundException |\n" + 
-		"				ArrayIndexOutOfBoundsException |\n" + 
-		"				IllegalArgumentException ex) {\n" + 
+		"			MyE\n" + 
+		"				| FileNotFoundException\n" + 
+		"				| ArrayIndexOutOfBoundsException\n" + 
+		"				| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12714,10 +12714,10 @@ public void test779() throws Exception {
 		"			else\n" + 
 		"				throw new MyE();\n" + 
 		"		} catch (\n" + 
-		"				MyE |\n" + 
-		"				FileNotFoundException |\n" + 
-		"				ArrayIndexOutOfBoundsException |\n" + 
-		"				IllegalArgumentException ex) {\n" + 
+		"				MyE\n" + 
+		"				| FileNotFoundException\n" + 
+		"				| ArrayIndexOutOfBoundsException\n" + 
+		"				| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12762,10 +12762,10 @@ public void test780() throws Exception {
 		"			else\n" + 
 		"				throw new MyE();\n" + 
 		"		} catch (\n" + 
-		"					MyE |\n" + 
-		"					FileNotFoundException |\n" + 
-		"					ArrayIndexOutOfBoundsException |\n" + 
-		"					IllegalArgumentException ex) {\n" + 
+		"					MyE\n" + 
+		"					| FileNotFoundException\n" + 
+		"					| ArrayIndexOutOfBoundsException\n" + 
+		"					| IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -12810,10 +12810,53 @@ public void test781() throws Exception {
 		"			else\n" + 
 		"				throw new MyE();\n" + 
 		"		} catch (\n" + 
-		"			MyE |\n" + 
-		"			FileNotFoundException |\n" + 
-		"			ArrayIndexOutOfBoundsException |\n" + 
-		"			IllegalArgumentException ex) {\n" + 
+		"			MyE\n" + 
+		"			| FileNotFoundException\n" + 
+		"			| ArrayIndexOutOfBoundsException\n" + 
+		"			| IllegalArgumentException ex) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"\n" + 
+		"class MyE extends Exception {\n" + 
+		"}"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350895
+// To check behavior with default settings and wrap before '|' operator disabled.
+public void test782() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_OR_OPERATOR_MULTICATCH, JavaCore.DISABLED);
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"	public void foo(boolean a) {\n" +
+		"		try{\n" +
+		"			if (a)\n" +
+		"				throw new FileNotFoundException();\n" +
+		"			else\n" +
+		"				throw new MyE();\n" +
+		"		} catch (MyE| FileNotFoundException| ArrayIndexOutOfBoundsException| IllegalArgumentException ex) {\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n" +
+		"class MyE extends Exception {}";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"	public void foo(boolean a) {\n" + 
+		"		try {\n" + 
+		"			if (a)\n" + 
+		"				throw new FileNotFoundException();\n" + 
+		"			else\n" + 
+		"				throw new MyE();\n" + 
+		"		} catch (MyE | FileNotFoundException | ArrayIndexOutOfBoundsException |\n" + 
+		"				IllegalArgumentException ex) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n" + 

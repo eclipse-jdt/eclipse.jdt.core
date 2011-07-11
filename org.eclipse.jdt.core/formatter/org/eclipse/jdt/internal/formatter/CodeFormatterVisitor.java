@@ -5529,6 +5529,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				try {
 					for (int i = 0; i < length; i++) {
 						if (i > 0) {
+							if (this.preferences.wrap_before_or_operator_multicatch) {
+								this.scribe.alignFragment(argumentsAlignment, i);
+							}
 							this.scribe.printNextToken(TerminalTokens.TokenNameOR, spaceBeforePipe);
 							this.scribe.printComment(CodeFormatter.K_UNKNOWN, Scribe.BASIC_TRAILING_COMMENT);
 							if (this.scribe.lastNumberOfNewLines == 1) {
@@ -5536,9 +5539,12 @@ public class CodeFormatterVisitor extends ASTVisitor {
 								// hence we need to use the break indentation level before printing next token...
 								this.scribe.indentationLevel = argumentsAlignment.breakIndentationLevel;
 							}
+							if (!this.preferences.wrap_before_or_operator_multicatch) {
+								this.scribe.alignFragment(argumentsAlignment, i);
+							}
 						}
-						this.scribe.alignFragment(argumentsAlignment, i);
 						if (i == 0) {
+							this.scribe.alignFragment(argumentsAlignment, i);
 							int fragmentIndentation = argumentsAlignment.fragmentIndentations[0];
 							if ((argumentsAlignment.mode & Alignment.M_INDENT_ON_COLUMN) != 0 && fragmentIndentation > 0) {
 								this.scribe.indentationLevel = fragmentIndentation;

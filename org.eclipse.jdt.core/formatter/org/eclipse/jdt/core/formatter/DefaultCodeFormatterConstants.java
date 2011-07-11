@@ -3741,6 +3741,19 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_WRAP_BEFORE_BINARY_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_binary_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to wrap before the '|' operator in multi-catch statements
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_or_operator_multicatch"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_UNION_TYPE_IN_MULTICATCH} is set.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.7
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_OR_OPERATOR_MULTICATCH = JavaCore.PLUGIN_ID + ".formatter.wrap_before_or_operator_multicatch"; //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to wrap outer expressions in nested expressions
 	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_outer_expressions_when_nested"
 	 *     - possible values:   { TRUE, FALSE }
