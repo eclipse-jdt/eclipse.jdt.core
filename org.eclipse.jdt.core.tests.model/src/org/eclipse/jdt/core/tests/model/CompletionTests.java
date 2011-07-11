@@ -1020,6 +1020,20 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testBug346415a"));
 	suite.addTest(new CompletionTests("testBug350767"));
 	suite.addTest(new CompletionTests("testBug350767b"));
+	suite.addTest(new CompletionTests("testBug350652"));
+	suite.addTest(new CompletionTests("testBug350652b"));
+	suite.addTest(new CompletionTests("testBug350652c"));
+	suite.addTest(new CompletionTests("testBug350652d"));
+	suite.addTest(new CompletionTests("testBug350652e"));
+	suite.addTest(new CompletionTests("testBug350652f"));
+	suite.addTest(new CompletionTests("testBug350652g"));
+	suite.addTest(new CompletionTests("testBug350652h"));
+	suite.addTest(new CompletionTests("testBug350652i"));
+	suite.addTest(new CompletionTests("testBug350652j"));
+	suite.addTest(new CompletionTests("testBug350652k"));
+	suite.addTest(new CompletionTests("testBug350652l"));
+	suite.addTest(new CompletionTests("testBug350652m"));
+	suite.addTest(new CompletionTests("testBug350652n"));
 	return suite;
 }
 public CompletionTests(String name) {
@@ -2290,6 +2304,7 @@ public void testCatchClauseExceptionRef09() throws JavaModelException {
 
 	assertResults(
 			"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}\n" +
+		    "IZZCException[TYPE_REF]{IZZCException, test, Ltest.IZZCException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
 			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
@@ -2484,7 +2499,8 @@ public void testCatchClauseExceptionRef13() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+			"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}\n" +
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCatchClauseExceptionRef13b() throws JavaModelException {
@@ -2518,6 +2534,7 @@ public void testCatchClauseExceptionRef13b() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}\n" +
 			"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
@@ -23615,7 +23632,7 @@ public void testBug343637b() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343637
 // To make sure that if an inner catch block contains union type ref, all 'checked' exceptions from it
-// are not proposed in an outer catch, but unchecked ones can be proposed again.
+// are proposed with lower relevance in an outer catch, but unchecked ones can be proposed again.
 public void testBug343637c() throws JavaModelException {
 	Map options = COMPLETION_PROJECT.getOptions(true);
 	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
@@ -23670,6 +23687,7 @@ public void testBug343637c() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
 			"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
 			"IZZRuntimeException[TYPE_REF]{IZZRuntimeException, test, Ltest.IZZRuntimeException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
 			requestor.getResults());
@@ -23743,9 +23761,11 @@ public void testBug343637d() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);	
 		assertResults(
-			"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
-			"IZZRuntimeException[TYPE_REF]{IZZRuntimeException, test, Ltest.IZZRuntimeException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
-			requestor.getResults());
+				"IZZCException[TYPE_REF]{IZZCException, test, Ltest.IZZCException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}\n" +
+				"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+				"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+				"IZZRuntimeException[TYPE_REF]{IZZRuntimeException, test, Ltest.IZZRuntimeException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+				requestor.getResults());
 	} finally {
 		// Restore compliance settings.
 		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
@@ -23754,7 +23774,7 @@ public void testBug343637d() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343637
 // This test makes sure that if superclass of a thrown exception has been already caught,
-// the thrown exception is not proposed.
+// the thrown exception is proposed but with lower relevance.
 public void testBug343637e() throws JavaModelException {
 	Map options = COMPLETION_PROJECT.getOptions(true);
 	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
@@ -23766,7 +23786,7 @@ public void testBug343637e() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			"package test;"+
 			"public class Test {\n" +
-			"	public void throwing() throws IZZBException, IZZException, IZZAException, IZZRuntimeException, IZZException {}\n" +
+			"	public void throwing() throws IZZBException, IZZAException, IZZRuntimeException, IZZException {}\n" +
 			"	public void foo() {\n" +
 			"      try {\n" +
 			"		  try {\n" +
@@ -23817,9 +23837,11 @@ public void testBug343637e() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		
 		assertResults(
-			"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
-			"IZZRuntimeException[TYPE_REF]{IZZRuntimeException, test, Ltest.IZZRuntimeException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
-			requestor.getResults());
+				"IZZSuperException[TYPE_REF]{IZZSuperException, test, Ltest.IZZSuperException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}\n" +
+				"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+				"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+				"IZZRuntimeException[TYPE_REF]{IZZRuntimeException, test, Ltest.IZZRuntimeException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+				requestor.getResults());
 	} finally {
 		// Restore compliance settings.
 		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
@@ -23892,7 +23914,7 @@ public void testBug343637f() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343637
 // To make sure that an unchecked exception does get proposed again in an outer catch block
-// when using multiple catch blocks.
+// when using multiple catch blocks. Unchecked exceptions also get proposed but with lower priority.
 public void testBug343637g() throws JavaModelException {
 	Map options = COMPLETION_PROJECT.getOptions(true);
 	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
@@ -23948,8 +23970,11 @@ public void testBug343637g() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"IZZRuntimeException[TYPE_REF]{IZZRuntimeException, test, Ltest.IZZRuntimeException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
-			requestor.getResults());
+				"IZZAException[TYPE_REF]{IZZAException, test, Ltest.IZZAException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+				"IZZBException[TYPE_REF]{IZZBException, test, Ltest.IZZBException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+				"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+				"IZZRuntimeException[TYPE_REF]{IZZRuntimeException, test, Ltest.IZZRuntimeException;, null, null, " + (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+				requestor.getResults());
 	} finally {
 		// Restore compliance settings.
 		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
@@ -24630,6 +24655,567 @@ public void testBug350767b() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
 			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// annotation / interface / enum types not allowed in catch
+public void testBug350652() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[5];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"	public void throwing() {\n" +
+		"		  try {\n" +
+		"		  } catch (IZZ) {\n" +
+		"		  }\n" +
+		"   }" +
+		"}\n");
+
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/IZZException.java",
+			"package test;"+
+			"public class IZZException extends Exception {\n" +
+			"}\n");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/test/IZZAnnotation.java",
+			"package test;"+
+			"public @interface IZZAnnotation{\n" +
+			"}\n");
+	
+	this.workingCopies[3] = getWorkingCopy(
+			"/Completion/src/test/IZZInterface.java",
+			"package test;"+
+			"public interface IZZInterface{\n" +
+			"}\n");
+	
+	this.workingCopies[4] = getWorkingCopy(
+			"/Completion/src/test/IZZEnum.java",
+			"package test;"+
+			"public enum IZZEnum{\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "catch (IZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// annotation / interface / enum types not allowed in catch
+public void testBug350652b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"	public void throwing() {\n" +
+		"		  try {\n" +
+		"		  } catch (IZZ) {\n" +
+		"		  }\n" +
+		"   }" +
+		"}\n" +
+		"class IZZException extends Exception {\n" +
+		"}\n" +
+		"@interface IZZAnnotation{\n" +
+		"}\n" +
+		"interface IZZInterface {\n" +
+		"}\n" +
+		"enum IZZEnum {\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "catch (IZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// superclass exception type is allowed in multi-catch
+// types in different CU's
+public void testBug350652c() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"	public void foo() {\n" +
+			"      try {\n" +
+			"      }\n" +
+			"      catch (IZZAException | IZZ) {\n" +
+			"      }\n" +
+			"   }" +
+			"}\n");
+
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/test/IZZException.java",
+				"package test;"+
+				"public class IZZException extends Exception {\n" +
+				"}\n");
+		
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/test/IZZAException.java",
+				"package test;"+
+				"public class IZZAException extends IZZException {\n" +
+				"}\n");
+
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "IZZAException | IZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+		assertResults(
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// superclass exception type is allowed in multi-catch
+// types in same CU. Relevance of super type will be less.
+public void testBug350652d() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"	public void foo() {\n" +
+			"      try {\n" +
+			"      }\n" +
+			"      catch (IZZAException | IZZ) {\n" +
+			"      }\n" +
+			"   }" +
+			"}\n" +
+			"public class IZZException extends Exception {\n" +
+			"}\n" +
+			"public class IZZAException extends IZZException {\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "IZZAException | IZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+		assertResults(
+				"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// superclass exception type allowed in different catch blocks.
+// types in different CU
+public void testBug350652e() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"	public void throwing() {\n" +
+		"		  try {\n" +
+		"		  } catch (IZZAException e) {\n" +
+		"		  } catch (IZZ) {\n" +
+		"		  }\n" +
+		"   }" +
+		"}\n");
+
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/IZZException.java",
+			"package test;"+
+			"public class IZZException extends Exception {\n" +
+			"}\n");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/test/IZZAException.java",
+			"package test;"+
+			"public class IZZAException extends Exception{\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "catch (IZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// subclass exception type is allowed in multi-catch
+// types in different CU's
+public void testBug350652f() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"	public void foo() {\n" +
+			"      try {\n" +
+			"      }\n" +
+			"      catch (IZZException | IZZ) {\n" +
+			"      }\n" +
+			"   }" +
+			"}\n");
+
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/test/IZZException.java",
+				"package test;"+
+				"public class IZZException extends Exception {\n" +
+				"}\n");
+		
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/test/IZZAException.java",
+				"package test;"+
+				"public class IZZAException extends IZZException {\n" +
+				"}\n");
+
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "IZZException | IZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+		assertResults(
+			"IZZAException[TYPE_REF]{IZZAException, test, Ltest.IZZAException;, null, null, " + (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// subclass exception type is allowed in multi-catch
+// types in same CU. Relevance for subclass exception is lower.
+public void testBug350652g() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"	public void foo() {\n" +
+			"      try {\n" +
+			"      }\n" +
+			"      catch (IZZException | IZZ) {\n" +
+			"      }\n" +
+			"   }" +
+			"}\n" +
+			"public class IZZException extends Exception {\n" +
+			"}\n" +
+			"public class IZZAException extends IZZException {\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "IZZException | IZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+		assertResults(
+				"IZZAException[TYPE_REF]{IZZAException, test, Ltest.IZZAException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// subclass exception type is allowed in different catch blocks.
+// types in different CU
+public void testBug350652h() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"	public void throwing() {\n" +
+		"		  try {\n" +
+		"		  } catch (IZZSuperException e) {\n" +
+		"		  } catch (IZZB) {\n" +
+		"		  }\n" +
+		"   }" +
+		"}\n");
+
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/IZZSuperException.java",
+			"package test;"+
+			"public class IZZSuperException extends Exception {\n" +
+			"}\n");
+	
+	this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/test/IZZBaseException.java",
+			"package test;"+
+			"public class IZZBaseException extends IZZSuperException{\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "catch (IZZB";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"IZZBaseException[TYPE_REF]{IZZBaseException, test, Ltest.IZZBaseException;, null, null, " + (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// annotation / interface / enum member types not allowed in catch
+public void testBug350652i() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"	public void throwing() {\n" +
+		"		  try {\n" +
+		"		  } catch (IZZ) {\n" +
+		"		  }\n" +
+		"   }" +
+		"}\n" +
+		"class IZZException extends Exception {\n" +
+		"   @interface IZZAnnotation{\n" +
+		"   }\n" +
+		"   interface IZZInterface {\n" +
+		"   }\n" +
+		"   enum IZZEnum {\n" +
+		"   }\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "catch (IZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// annotation / interface / enum types from static imports not allowed in catch
+public void testBug350652j() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;\n" +
+		"import static test2.IZZGeneral.*;\n"+
+		"public class Test {\n" +
+		"	public void throwing() {\n" +
+		"		  try {\n" +
+		"		  } catch (IZZ) {\n" +
+		"		  }\n" +
+		"   }" +
+		"}\n");
+	
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test2/IZZGeneral.java",
+			"package test2;"+
+			"public class IZZException extends Exception {\n" +
+			"	static @interface IZZAnnot{}\n" +
+			"	static interface IZZInterface{}\n" +
+			"	static enum IZZEnum{}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "catch (IZZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"IZZException[TYPE_REF]{test2.IZZException, test2, Ltest2.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// superclass exception type not allowed in multi-catch
+// Test filtration of supertype from expected types when no prefix before caret (IZZException is expected here because of the 
+// throw, yet is not a valid proposal anymore since a child, IZZAException is present in the same multi-catch).
+// types in same CU
+public void testBug350652k() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"	public void foo() {\n" +
+			"      try {\n" +
+			"			throw new IZZException();\n" +
+			"      }\n" +
+			"      catch (IZZAException | ) {\n" +
+			"      }\n" +
+			"   }" +
+			"}\n" +
+			"public class IZZException extends Exception {\n" +
+			"}\n" +
+			"public class IZZAException extends IZZException {\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "IZZException |";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+		assertResults(
+			"",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// subclass exception type not allowed in multi-catch
+// Test relevance of sub-type from expected types when no prefix before caret (IZZAException is expected here because of the 
+// throw, yet is a less relevant proposal since a child, IZZException is present in the same multi-catch).
+// Also, sub-type should not be an expected type.
+// types in same CU
+public void testBug350652l() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"	public void foo() {\n" +
+			"      try {\n" +
+			"			throw new IZZAException();\n" +
+			"      }\n" +
+			"      catch (IZZException | ) {\n" +
+			"      }\n" +
+			"   }" +
+			"}\n" +
+			"public class IZZException extends Exception {\n" +
+			"}\n" +
+			"public class IZZAException extends IZZException {\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "IZZException |";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		
+		assertResults(
+			"IZZAException[TYPE_REF]{IZZAException, test, Ltest.IZZAException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// superclass exception types allowed in different catch blocks
+// Test filtration of super-type from expected types when no prefix before caret (IZZException is expected here because of the 
+// throw and is a valid proposal even though a child, IZZAException is present in an earlier catch).
+// types in same CU
+public void testBug350652m() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"	public void throwing() {\n" +
+		"		  try {\n" +
+		"			throw new IZZException();\n" +
+		"		  } catch (IZZAException e) {\n" +
+		"		  } catch (/*propose*/) {\n" +
+		"		  }\n" +
+		"   }" +
+		"}\n" +
+		"class IZZException extends Exception {\n" +
+		"}\n" +
+		"class IZZAException extends IZZException {\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "catch (/*propose*/";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"Exception[TYPE_REF]{Exception, java.lang, Ljava.lang.Exception;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
+// subclass exception types not allowed in different catch blocks
+// Test relevance of sub-type from expected types when no prefix before caret (IZZAException is expected here because of the 
+// throw, yet is a less relevant proposal since a parent, IZZException is present in an earlier catch).
+// Also, sub-type should not be an expected type.
+// types in same CU
+public void testBug350652n() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"	public void throwing() {\n" +
+		"		  try {\n" +
+		"			throw new IZZAException();\n" +
+		"		  } catch (IZZException e) {\n" +
+		"		  } catch (/*propose*/) {\n" +
+		"		  }\n" +
+		"   }" +
+		"}\n" +
+		"class IZZException extends Exception {\n" +
+		"}\n" +
+		"class IZZAException extends IZZException {\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "catch (/*propose*/";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"IZZAException[TYPE_REF]{IZZAException, test, Ltest.IZZAException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 }

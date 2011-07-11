@@ -514,7 +514,7 @@ public final class CompletionEngine
 	Binding[] uninterestingBindings = new Binding[1];
 	int forbbidenBindingsPtr = -1;
 	Binding[] forbbidenBindings = new Binding[1];
-	int forbbidenBindingsFilter;
+	int uninterestingBindingsFilter;     // only set when completing on an exception type
 	
 	ImportBinding[] favoriteReferenceBindings;
 	
@@ -1246,7 +1246,7 @@ public final class CompletionEngine
 	
 					int relevance = computeBaseRelevance();
 					relevance += computeRelevanceForResolution();
-					relevance += computeRelevanceForInterestingProposal();
+					relevance += computeRelevanceForInterestingProposal(packageName, fullyQualifiedName);
 					relevance += computeRelevanceForRestrictions(accessibility);
 					relevance += computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
 	
@@ -1639,7 +1639,7 @@ public final class CompletionEngine
 		setSourceAndTokenRange(astNode.sourceStart, astNode.sourceEnd);
 
 		scope = computeForbiddenBindings(astNode, astNodeParent, scope);
-		computeUninterestingBindings(astNodeParent, scope);
+		computeUninterestingBindings(astNode, astNodeParent, scope);
 		if(astNodeParent != null) {
 			if(!isValidParent(astNodeParent, astNode, scope)) return false;
 			computeExpectedTypes(astNodeParent, astNode, scope);
@@ -3669,6 +3669,7 @@ public final class CompletionEngine
 				thrownExceptionFinder.processThrownExceptions((TryStatement) parent, (BlockScope)scope);
 				ReferenceBinding[] bindings = thrownExceptionFinder.getThrownUncaughtExceptions();
 				ReferenceBinding[] alreadyCaughtExceptions = thrownExceptionFinder.getAlreadyCaughtExceptions();
+				ReferenceBinding[] discouragedExceptions = thrownExceptionFinder.getDiscouragedExceptions();
 				if (bindings != null && bindings.length > 0) {
 					for (int i = 0; i < bindings.length; i++) {
 						addExpectedType(bindings[i], scope);
@@ -3679,6 +3680,13 @@ public final class CompletionEngine
 					for (int i = 0; i < alreadyCaughtExceptions.length; i++) {
 						addForbiddenBindings(alreadyCaughtExceptions[i]);
 						this.knownTypes.put(CharOperation.concat(alreadyCaughtExceptions[i].qualifiedPackageName(), alreadyCaughtExceptions[i].qualifiedSourceName(), '.'), KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS);
+					}
+				}
+				if (discouragedExceptions != null && discouragedExceptions.length > 0) {
+					for (int i = 0; i < discouragedExceptions.length; i++) {
+						addUninterestingBindings(discouragedExceptions[i]);
+						// do not insert into known types. We do need these types to come from
+						// searchAllTypes(..) albeit with lower relevance
 					}
 				}
 			}
@@ -3854,7 +3862,6 @@ public final class CompletionEngine
 	}
 
 	private Scope computeForbiddenBindings(ASTNode astNode, ASTNode astNodeParent, Scope scope) {
-		this.forbbidenBindingsFilter = NONE;
 		if(scope instanceof ClassScope) {
 			TypeDeclaration typeDeclaration = ((ClassScope)scope).referenceContext;
 			if(typeDeclaration.superclass == astNode) {
@@ -3879,22 +3886,6 @@ public final class CompletionEngine
 					addForbiddenBindings(superInterfaces[i].resolvedType);
 				}
 				return scope.parent;
-			}
-		} else {
-			if (astNodeParent != null && astNodeParent instanceof TryStatement) {
-				boolean isException = false;
-				if (astNode instanceof CompletionOnSingleTypeReference) {
-					isException = ((CompletionOnSingleTypeReference)astNode).isException();
-				} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
-					isException = ((CompletionOnQualifiedTypeReference)astNode).isException();
-				} else if (astNode instanceof CompletionOnParameterizedQualifiedTypeReference) {
-					isException = ((CompletionOnParameterizedQualifiedTypeReference)astNode).isException();
-				}
-				if (isException) {
-					// the forbidden bindings will be calculated later
-					// during the calculation of expected types.
-					this.forbbidenBindingsFilter = SUBTYPE;
-				}
 			}
 		}
 //		else if(scope instanceof MethodScope) {
@@ -4102,6 +4093,36 @@ public final class CompletionEngine
 				if(this.uninterestingBindings[i] == binding) {
 					return 0;
 				}
+				if((this.uninterestingBindingsFilter & SUBTYPE) != 0) {
+					if (binding instanceof TypeBinding &&
+							this.uninterestingBindings[i] instanceof TypeBinding &&
+							((TypeBinding)binding).isCompatibleWith((TypeBinding)this.uninterestingBindings[i])) {
+						return 0;
+					}
+				}
+				if ((this.uninterestingBindingsFilter & SUPERTYPE) != 0) {
+					if (binding instanceof TypeBinding &&
+							this.uninterestingBindings[i] instanceof TypeBinding &&
+							((TypeBinding)this.uninterestingBindings[i]).isCompatibleWith((TypeBinding)binding)) {
+						return 0;
+					}
+				}
+			}
+		}
+		return R_INTERESTING;
+	}
+	
+	private int computeRelevanceForInterestingProposal(char[] givenPkgName, char[] fullTypeName) {
+		for (int i = 0; i <= this.uninterestingBindingsPtr; i++) {
+			if (this.uninterestingBindings[i] instanceof TypeBinding) {
+				TypeBinding typeBinding = (TypeBinding) this.uninterestingBindings[i];
+				char[] currPkgName = typeBinding.qualifiedPackageName();
+				if (CharOperation.equals(givenPkgName, currPkgName))	{
+					char[] currTypeName = typeBinding.qualifiedSourceName();
+					if (CharOperation.equals(fullTypeName, currTypeName)) {
+						return 0;
+					}
+				}
 			}
 		}
 		return R_INTERESTING;
@@ -4212,11 +4233,36 @@ public final class CompletionEngine
 		return argTypes;
 	}
 
-	private void computeUninterestingBindings(ASTNode parent, Scope scope){
+	private void computeUninterestingBindings(ASTNode astNode, ASTNode parent, Scope scope){
+		this.uninterestingBindingsFilter = NONE;
 		if(parent instanceof LocalDeclaration) {
 			addUninterestingBindings(((LocalDeclaration)parent).binding);
 		} else if (parent instanceof FieldDeclaration) {
 			addUninterestingBindings(((FieldDeclaration)parent).binding);
+		} else if (parent instanceof TryStatement) {
+			boolean isException = false;
+			if (astNode instanceof CompletionOnSingleTypeReference) {
+				isException = ((CompletionOnSingleTypeReference)astNode).isException();
+			} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
+				isException = ((CompletionOnQualifiedTypeReference)astNode).isException();
+			} else if (astNode instanceof CompletionOnParameterizedQualifiedTypeReference) {
+				isException = ((CompletionOnParameterizedQualifiedTypeReference)astNode).isException();
+			}
+			if (isException) {
+				this.uninterestingBindingsFilter |= SUBTYPE;
+				// super-types also need to be discouraged if we're in a union type (bug 350652)
+				Argument[] args = ((TryStatement)parent).catchArguments;
+				for (int i = 0; i < args.length; i++) {
+					if (args[i].type instanceof UnionTypeReference) {
+						CompletionNodeDetector detector = new CompletionNodeDetector(astNode, args[i]);
+						if (detector.containsCompletionNode()) {
+							this.uninterestingBindingsFilter |= SUPERTYPE;
+							break;
+						}
+					}
+				}
+				
+			}
 		}
 	}
 
@@ -4670,7 +4716,7 @@ public final class CompletionEngine
 		
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForResolution();
-		relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForInterestingProposal(currentType);
 		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 		
 		if (missingElements != null) {
@@ -5756,6 +5802,8 @@ public final class CompletionEngine
 				return;
 			}
 		}
+		
+		if (isForbidden(exceptionType)) return;
 
 		for (int j = typesFound.size; --j >= 0;) {
 			ReferenceBinding otherType = (ReferenceBinding) typesFound.elementAt(j);
@@ -5873,7 +5921,7 @@ public final class CompletionEngine
 
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForResolution();
-		relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForInterestingProposal(exceptionType);
 		relevance += computeRelevanceForCaseMatching(typeName, exceptionType.sourceName);
 		relevance += computeRelevanceForExpectingType(exceptionType);
 		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
@@ -9426,7 +9474,7 @@ public final class CompletionEngine
 			if (this.assistNodeIsExtendedType && memberType.isFinal()) continue next;
 			if (this.assistNodeIsInterfaceExcludingAnnotation && memberType.isAnnotationType()) continue next;
 			if(!this.insideQualifiedReference) {
-				if(this.assistNodeIsClass) {
+				if(this.assistNodeIsClass || this.assistNodeIsException) {
 					if(!memberType.isClass()) continue next;
 				} else if(this.assistNodeIsInterface) {
 					if(!memberType.isInterface() && !memberType.isAnnotationType()) continue next;
@@ -9460,7 +9508,7 @@ public final class CompletionEngine
 
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();
-			relevance += computeRelevanceForInterestingProposal();
+			relevance += computeRelevanceForInterestingProposal(memberType);
 			relevance += computeRelevanceForCaseMatching(typeName, memberType.sourceName);
 			relevance += computeRelevanceForExpectingType(memberType);
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
@@ -9927,7 +9975,7 @@ public final class CompletionEngine
 
 								int relevance = computeBaseRelevance();
 								relevance += computeRelevanceForResolution();
-								relevance += computeRelevanceForInterestingProposal();
+								relevance += computeRelevanceForInterestingProposal(localType);
 								relevance += computeRelevanceForCaseMatching(typeName, localType.sourceName);
 								relevance += computeRelevanceForExpectingType(localType);
 								relevance += computeRelevanceForException(localType.sourceName);
@@ -10305,15 +10353,18 @@ public final class CompletionEngine
 					if(!sourceType.isInterface() && !sourceType.isAnnotationType()) continue next;
 				} else if (this.assistNodeIsAnnotation) {
 					if(!sourceType.isAnnotationType()) continue next;
-				} else if (isEmptyPrefix && this.assistNodeIsException) {
-					if (sourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) == null) {
-						continue next;
-					}
+				} else if (this.assistNodeIsException) {
+					 if (!sourceType.isClass()) continue next;
+					 if (isEmptyPrefix) {
+						 if (sourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangThrowable, true) == null) {
+							 continue next;
+					     }
+					  }
 				}
 
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForResolution();
-				relevance += computeRelevanceForInterestingProposal();
+				relevance += computeRelevanceForInterestingProposal(sourceType);
 				relevance += computeRelevanceForCaseMatching(token, sourceType.sourceName);
 				relevance += computeRelevanceForExpectingType(sourceType);
 				relevance += computeRelevanceForQualification(false);
@@ -10430,7 +10481,7 @@ public final class CompletionEngine
 					this.knownTypes.put(fullyQualifiedTypeName, KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS);
 				}
 				int searchFor = IJavaSearchConstants.TYPE;
-				if(this.assistNodeIsClass) {
+				if(this.assistNodeIsClass || this.assistNodeIsException) {
 					searchFor = IJavaSearchConstants.CLASS;
 				} else if (this.assistNodeIsInterfaceExcludingAnnotation) {
 					searchFor = IJavaSearchConstants.INTERFACE;
@@ -10552,7 +10603,7 @@ public final class CompletionEngine
 
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForResolution();
-				relevance += computeRelevanceForInterestingProposal();
+				relevance += computeRelevanceForInterestingProposal(sourceType);
 				relevance += computeRelevanceForCaseMatching(qualifiedName, qualifiedSourceTypeName);
 				relevance += computeRelevanceForExpectingType(sourceType);
 				relevance += computeRelevanceForQualification(false);
@@ -10692,6 +10743,7 @@ public final class CompletionEngine
 							}
 						}
 					}
+					if(isForbidden(refBinding)) continue next;
 
 					for (int j = 0; j < typesFound.size(); j++) {
 						ReferenceBinding typeFound = (ReferenceBinding)typesFound.elementAt(j);
@@ -10733,7 +10785,7 @@ public final class CompletionEngine
 
 						int relevance = computeBaseRelevance();
 						relevance += computeRelevanceForResolution();
-						relevance += computeRelevanceForInterestingProposal();
+						relevance += computeRelevanceForInterestingProposal(refBinding);
 						relevance += computeRelevanceForCaseMatching(token, typeName);
 						relevance += computeRelevanceForExpectingType(refBinding);
 						relevance += computeRelevanceForQualification(isQualified);
@@ -10864,7 +10916,7 @@ public final class CompletionEngine
 							
 							int relevance = computeBaseRelevance();
 							relevance += computeRelevanceForResolution();
-							relevance += computeRelevanceForInterestingProposal();
+							relevance += computeRelevanceForInterestingProposal(typeBinding);
 							relevance += computeRelevanceForCaseMatching(token, typeBinding.sourceName);
 							relevance += computeRelevanceForExpectingType(typeBinding);
 							relevance += computeRelevanceForQualification(false);
@@ -10958,7 +11010,7 @@ public final class CompletionEngine
 
 							if (this.assistNodeIsExtendedType && typeBinding.isFinal()) continue;
 							if (this.assistNodeIsInterfaceExcludingAnnotation && typeBinding.isAnnotationType()) continue;
-							if(this.assistNodeIsClass) {
+							if(this.assistNodeIsClass || this.assistNodeIsException) {
 								if(!typeBinding.isClass()) continue;
 							} else if(this.assistNodeIsInterface) {
 								if(!typeBinding.isInterface() && !typeBinding.isAnnotationType()) continue;
@@ -10968,7 +11020,7 @@ public final class CompletionEngine
 
 							int relevance = computeBaseRelevance();
 							relevance += computeRelevanceForResolution();
-							relevance += computeRelevanceForInterestingProposal();
+							relevance += computeRelevanceForInterestingProposal(typeBinding);
 							relevance += computeRelevanceForCaseMatching(token, typeBinding.sourceName);
 							relevance += computeRelevanceForExpectingType(typeBinding);
 							relevance += computeRelevanceForQualification(false);
@@ -11884,13 +11936,6 @@ public final class CompletionEngine
 			if(this.forbbidenBindings[i] == binding) {
 				return true;
 			}
-			if((this.forbbidenBindingsFilter & SUBTYPE) != 0) {
-				if (binding instanceof TypeBinding &&
-						this.forbbidenBindings[i] instanceof TypeBinding &&
-						((TypeBinding)binding).isCompatibleWith((TypeBinding)this.forbbidenBindings[i])) {
-					return true;
-				}
-			}
 		}
 		return false;
 	}
@@ -12564,7 +12609,7 @@ public final class CompletionEngine
 
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForResolution();
-		relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForInterestingProposal(packageName, fullyQualifiedName);
 		relevance += computeRelevanceForRestrictions(accessibility);
 		relevance += computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
 		relevance += computeRelevanceForExpectingType(packageName, simpleTypeName);
