@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2010 IBM Corporation and others.
+ * Copyright (c) 2006, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -34,7 +38,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 47 };
+//		TESTS_NUMBERS = new int[] { 48, 49 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
@@ -6547,5 +6551,101 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"	              ^^^^^^\n" + 
 			"No enclosing instance of the type X is accessible in scope\n" + 
 			"----------\n");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=351653
+	public void test048() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String[] p) {\n" +
+				"        int i;\n" +
+				"        try {\n" +
+				"          if (p == null || p == null)\n" +
+				"            return;\n" +
+				"          i = 0;\n" +
+				"        } finally {\n" +
+				"            i = 0;\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=351653
+	public void test049() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.IOException;\n" + 
+				"import java.io.InputStream;\n" + 
+				"\n" + 
+				"public class X implements Runnable {\n" + 
+				"\n" + 
+				"	private boolean contentEquals(final String src, final String tar)\n" + 
+				"			throws IOException {\n" + 
+				"		if (src == null && tar == null) {\n" + 
+				"			return true;\n" + 
+				"		}\n" + 
+				"		if (!isFile(src) || !isFile(tar))\n" + 
+				"			throw new IOException(\"cannot compare non-files\");\n" + 
+				"		if (size(src) != size(tar))\n" + 
+				"			return false;\n" + 
+				"		final byte[] baSrc = new byte[8192];\n" + 
+				"		final byte[] baTar = new byte[baSrc.length];\n" + 
+				"		int lrSrc;\n" + 
+				"		int lrTar;\n" + 
+				"		InputStream isSrc = null;\n" + 
+				"		InputStream isTar = null;\n" + 
+				"		try {\n" + 
+				"			isSrc = newInputStream(src);\n" + 
+				"			if (isSrc == null)\n" + 
+				"				return false;\n" + 
+				"			isTar = newInputStream(tar);\n" + 
+				"			if (isTar == null)\n" + 
+				"				return false;\n" + 
+				"			do {\n" + 
+				"				lrSrc = isSrc.read(baSrc);\n" + 
+				"				lrTar = isTar.read(baTar);\n" + 
+				"				if (lrSrc != lrTar)\n" + 
+				"					return false;\n" + 
+				"				for (int i = 0; i < lrSrc; i++)\n" + 
+				"					if (baSrc[i] != baTar[i])\n" + 
+				"						return false;\n" + 
+				"			} while ((lrSrc >= 0) && (lrSrc == lrTar));\n" + 
+				"		} finally {\n" + 
+				"			try {\n" + 
+				"				close(isSrc);\n" + 
+				"			} finally {\n" + 
+				"				close(isTar);\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		return true;\n" + 
+				"	}\n" + 
+				"	private void close(final InputStream isSrc) {\n" + 
+				"	}\n" + 
+				"	private boolean isFile(final String src) {\n" + 
+				"		return false;\n" + 
+				"	}\n" + 
+				"	public void run() {\n" + 
+				"		try {\n" + 
+				"			System.out.println(contentEquals(null, null));\n" + 
+				"		} catch (final IOException e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" +
+				"	static InputStream newInputStream(String path) {\n" +
+				"		return null;\n" +
+				"	}\n" + 
+				"	static int size(String path) {\n" +
+				"		return 0;\n" +
+				"	}\n" + 
+				"	public static void main(final String[] args) {\n" + 
+				"		new X().run();\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"true");
 	}
 }

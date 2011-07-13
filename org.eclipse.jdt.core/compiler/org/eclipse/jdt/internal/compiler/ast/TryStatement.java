@@ -863,17 +863,6 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 	if (finallyMode == FINALLY_INLINE) {
 		if (isStackMapFrameCodeStream) {
 			((StackMapFrameCodeStream) codeStream).pushStateIndex(stateIndex);
-			if (this.naturalExitMergeInitStateIndex != -1 || stateIndex != -1) {
-				// reset initialization state, as for a normal catch block
-				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
-				codeStream.addDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
-			}
-		} else {
-			if (this.naturalExitMergeInitStateIndex != -1) {
-				// reset initialization state, as for a normal catch block
-				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
-				codeStream.addDefinitelyAssignedVariables(currentScope, this.naturalExitMergeInitStateIndex);
-			}
 		}
 		if (secretLocal != null) {
 			codeStream.addVariable(secretLocal);

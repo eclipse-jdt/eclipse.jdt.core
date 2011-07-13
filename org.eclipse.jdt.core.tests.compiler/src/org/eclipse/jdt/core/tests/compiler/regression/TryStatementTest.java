@@ -28,7 +28,7 @@ public class TryStatementTest extends AbstractRegressionTest {
 
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
+//	TESTS_NUMBERS = new int[] { 74, 75 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public TryStatementTest(String name) {
@@ -5225,19 +5225,19 @@ public void test058() throws Exception {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\r\n" +
-				"	public static void main(String args[]) {\r\n" +
-				"		try {\r\n" +
-				"			try {\r\n" +
-				"				System.out.print(\"SU\");\r\n" +
-				"			} finally {\r\n" +
-				"				System.out.print(\"CC\");\r\n" +
-				"			}\r\n" +
-				"		} finally {\r\n" +
-				"			System.out.println(\"ESS\");\r\n" +
-				"		}\r\n" +
-				"	}\r\n" +
-				"}\r\n" +
+				"public class X {\n" +
+				"	public static void main(String args[]) {\n" +
+				"		try {\n" +
+				"			try {\n" +
+				"				System.out.print(\"SU\");\n" +
+				"			} finally {\n" +
+				"				System.out.print(\"CC\");\n" +
+				"			}\n" +
+				"		} finally {\n" +
+				"			System.out.println(\"ESS\");\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n" +
 				"",
 			},
 			"SUCCESS");
@@ -5967,26 +5967,6 @@ public void test073() {
 		"	         ^^^^^^^^^^^^\n" + 
 		"No exception of type Exception[] can be thrown; an exception type must be a subclass of Throwable\n" + 
 		"----------\n");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=351653
-public void _test074() {
-	this.runConformTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"    public static void main(String[] p) {\n" +
-			"        int i;\n" +
-			"        try {\n" +
-			"          if (p == null || p == null)\n" +
-			"            return;\n" +
-			"          i = 0;\n" +
-			"        } finally {\n" +
-			"            i = 0;\n" +
-			"        }\n" +
-			"    }\n" +
-			"}\n"
-		},
-		"");
 }
 public static Class testClass() {
 	return TryStatementTest.class;
