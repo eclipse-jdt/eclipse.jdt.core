@@ -1394,6 +1394,8 @@ void setSourceStart(int sourceStart);
 	int UnhandledExceptionOnAutoClose =  TypeRelated + 882;
 	/** @since 3.7 */
 	int DiamondNotBelow17 =  TypeRelated + 883;
+	/** @since 3.7 */
+	int RedundantSpecificationOfTypeArguments = TypeRelated + 884;
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */

@@ -431,6 +431,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 				scope.problemReporter().missingTypeInConstructor(this, this.binding);
 			}
+			if (!isDiamond && receiverType.isParameterizedTypeWithActualArguments()) {
+		 		checkTypeArgumentRedundancy((ParameterizedTypeBinding)receiverType, receiverType.enclosingType(), argumentTypes , scope);
+		 	}
 			// The enclosing instance must be compatible with the innermost enclosing type
 			ReferenceBinding expectedType = this.binding.declaringClass.enclosingType();
 			if (expectedType != enclosingInstanceType) // must call before computeConversion() and typeMismatchError()

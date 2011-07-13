@@ -430,6 +430,9 @@ public static int getIrritant(int problemID) {
 			
 		case IProblem.MethodCanBePotentiallyStatic:
 			return CompilerOptions.MethodCanBePotentiallyStatic;
+				
+		case IProblem.RedundantSpecificationOfTypeArguments:
+			return CompilerOptions.RedundantSpecificationOfTypeArguments;
 	}
 	return 0;
 }
@@ -502,7 +505,8 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnhandledWarningToken :
 			case CompilerOptions.UnusedWarningToken :
 			case CompilerOptions.UnusedLabel :
-			case CompilerOptions.RedundantSuperinterface :	
+			case CompilerOptions.RedundantSuperinterface :
+			case CompilerOptions.RedundantSpecificationOfTypeArguments :
 				return CategorizedProblem.CAT_UNNECESSARY_CODE;
 
 			case CompilerOptions.UsingDeprecatedAPI :
@@ -7883,5 +7887,28 @@ public void diamondNotWithAnoymousClasses(TypeReference type) {
 			NoArgument,
 			type.sourceStart, 
 			type.sourceEnd);
+}
+public void redundantSpecificationOfTypeArguments(ASTNode location, TypeBinding[] argumentTypes) {
+	int severity = computeSeverity(IProblem.RedundantSpecificationOfTypeArguments);
+	if (severity != ProblemSeverities.Ignore) {
+		TypeReference[] args = null;
+		if (location instanceof ParameterizedSingleTypeReference) {
+			ParameterizedSingleTypeReference parameterizedSingleTypeReference = (ParameterizedSingleTypeReference) location;
+			args = parameterizedSingleTypeReference.typeArguments;
+		}
+		if (location instanceof ParameterizedQualifiedTypeReference) {
+			ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference = (ParameterizedQualifiedTypeReference) location;
+			args = parameterizedQualifiedTypeReference.typeArguments[parameterizedQualifiedTypeReference.typeArguments.length - 1];
+		}
+		if (args != null) {
+			this.handle(
+				IProblem.RedundantSpecificationOfTypeArguments,
+				new String[] {typesAsString(argumentTypes, false)},
+				new String[] {typesAsString(argumentTypes, true)},
+				severity,
+				args[0].sourceStart,
+				args[args.length - 1].sourceEnd);
+		}
+    }
 }
 }

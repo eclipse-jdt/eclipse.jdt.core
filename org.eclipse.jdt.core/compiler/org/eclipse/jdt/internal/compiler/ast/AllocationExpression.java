@@ -17,12 +17,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class AllocationExpression extends Expression implements InvocationSite {
 
@@ -403,6 +406,9 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
 		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
 	}
+	if (!isDiamond && this.resolvedType.isParameterizedTypeWithActualArguments()) {
+ 		checkTypeArgumentRedundancy((ParameterizedTypeBinding) this.resolvedType, null, argumentTypes, scope);
+ 	}
 	return allocationType;
 }
 
@@ -419,6 +425,38 @@ public TypeBinding[] inferElidedTypes(ReferenceBinding allocationType, Reference
 		return ((ParameterizedTypeBinding)factory.returnType).arguments;
 	}
 	return null;
+}
+
+public void checkTypeArgumentRedundancy(ParameterizedTypeBinding allocationType, ReferenceBinding enclosingType, TypeBinding[] argumentTypes, final BlockScope scope) {
+	ProblemReporter reporter = scope.problemReporter();
+	if ((reporter.computeSeverity(IProblem.RedundantSpecificationOfTypeArguments) == ProblemSeverities.Ignore) || scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_7) return;
+	if (allocationType.arguments == null) return;  // raw binding
+	if (this.genericTypeArguments != null) return; // diamond can't occur with explicit type args for constructor
+	if (argumentTypes == Binding.NO_PARAMETERS && this.typeExpected instanceof ParameterizedTypeBinding) {
+		ParameterizedTypeBinding expected = (ParameterizedTypeBinding) this.typeExpected;
+		if (expected.arguments != null && allocationType.arguments.length == expected.arguments.length) {
+			// check the case when no ctor takes no params and inference uses the expected type directly
+			// eg. X<String> x = new X<String>()
+			int i;
+			for (i = 0; i < allocationType.arguments.length; i++) {
+				if (allocationType.arguments[i] != expected.arguments[i])
+					break;
+			}
+			if (i == allocationType.arguments.length) {
+				reporter.redundantSpecificationOfTypeArguments(this.type, allocationType.arguments);
+				return;
+			}	
+		}
+	}
+	TypeBinding [] inferredTypes = inferElidedTypes(allocationType.genericType(), enclosingType, argumentTypes, scope);
+	if (inferredTypes == null) {
+		return;
+	}
+	for (int i = 0; i < inferredTypes.length; i++) {
+		if (inferredTypes[i] != allocationType.arguments[i])
+			return;
+	}
+	reporter.redundantSpecificationOfTypeArguments(this.type, allocationType.arguments);
 }
 
 public void setActualReceiverType(ReferenceBinding receiverType) {

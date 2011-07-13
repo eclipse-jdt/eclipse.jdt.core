@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -1857,8 +1861,9 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.parameterAssignment\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentialNullReference\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantNullCheck\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantSpecificationOfTypeArguments\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantSuperinterface\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic\" value=\"ignore\"/>\n" + 

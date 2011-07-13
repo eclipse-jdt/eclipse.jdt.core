@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - Contribution for bug 125961
@@ -3552,9 +3556,11 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				setSeverity(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, severity, isEnabling);
 				setSeverity(CompilerOptions.OPTION_ReportUnusedLabel, severity, isEnabling);
 				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, severity, isEnabling);
 				return;
 			} else if (token.equals("unusedTypeArgs")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, severity, isEnabling);
 				return;
 			} else if (token.equals("unavoidableGenericProblems")) { //$NON-NLS-1$
 				this.options.put(

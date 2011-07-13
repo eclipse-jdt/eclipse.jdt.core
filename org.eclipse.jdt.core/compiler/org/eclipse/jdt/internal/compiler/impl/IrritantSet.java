@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -120,7 +124,8 @@ public class IrritantSet {
 			.set(CompilerOptions.UnusedTypeArguments)
 			.set(CompilerOptions.RedundantSuperinterface)
 			.set(CompilerOptions.DeadCode)
-			.set(CompilerOptions.UnusedObjectAllocation);
+			.set(CompilerOptions.UnusedObjectAllocation)
+			.set(CompilerOptions.RedundantSpecificationOfTypeArguments);
 		STATIC_METHOD
 		    .set(CompilerOptions.MethodCanBePotentiallyStatic);
 		String suppressRawWhenUnchecked = System.getProperty("suppressRawWhenUnchecked"); //$NON-NLS-1$

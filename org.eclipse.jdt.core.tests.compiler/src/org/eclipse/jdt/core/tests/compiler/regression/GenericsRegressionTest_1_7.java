@@ -14,11 +14,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.Test;
 public class GenericsRegressionTest_1_7 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test0014" };
+//	TESTS_NAMES = new String[] { "test0056c" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1810,6 +1814,436 @@ public void test0051() {
 			"}\n"
 		},
 		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+public void test0052() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" +
+			"    X(E e) {}\n" +
+			"    X() {}\n" +
+			"    public static void main(String[] args) {\n" +
+			"        X<Number> x = new X<Number>(1);\n" +
+			"        X<String> x2 = new X<String>(\"SUCCESS\");\n" +
+			"        X<Integer> x3 = new X<Integer>(1);\n" +
+			"        X<AX> x4 = new X<AX>(new AX());\n" +
+			"		 X<? extends AX> x5 = new X<AX<String>>(new AX<String>());\n" +
+			"		 X<?> x6 = new X<AX<String>>(new AX<String>());\n" +
+			"		 X<Class<? extends Object>> x7 = new X<Class<? extends Object>>();\n" +
+			"	}\n" +
+			"}\n" +
+			"class AX<T>{}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X<String> x2 = new X<String>(\"SUCCESS\");\n" + 
+		"	                     ^^^^^^\n" + 
+		"Redundant specification of type arguments <String>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	X<Integer> x3 = new X<Integer>(1);\n" + 
+		"	                      ^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	X<AX> x4 = new X<AX>(new AX());\n" + 
+		"	                 ^^\n" + 
+		"Redundant specification of type arguments <AX>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
+		"	X<? extends AX> x5 = new X<AX<String>>(new AX<String>());\n" + 
+		"	                           ^^\n" + 
+		"Redundant specification of type arguments <AX<String>>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 10)\n" + 
+		"	X<?> x6 = new X<AX<String>>(new AX<String>());\n" + 
+		"	                ^^\n" + 
+		"Redundant specification of type arguments <AX<String>>\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 11)\n" + 
+		"	X<Class<? extends Object>> x7 = new X<Class<? extends Object>>();\n" + 
+		"	                                      ^^^^^\n" + 
+		"Redundant specification of type arguments <Class<? extends Object>>\n" + 
+		"----------\n",
+		null,
+		false,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+public void test0052b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" +
+			"	 E eField;\n" +
+			"	 E get() { return this.eField; }\n" +
+			"    X(E e) {}\n" +
+			"    X(int e, String e2) {}\n" +
+			"    public static void main(String[] args) {\n" +
+			"        X<Number> x = new X<Number>(1);\n" +
+			"        X<String> x2 = new X<String>(\"SUCCESS\");\n" +
+			"        X<String> x22 = new X<String>(1,\"SUCCESS\");\n" +
+			"        X<Integer> x3 = new X<Integer>(1);\n" +
+			"        String s = foo(new X<String>(\"aaa\"));\n" +
+			"        String s2 = foo(new X<String>(1,\"aaa\"));\n" +
+			"	}\n" +
+			"    static String foo(X<String> x) {\n" +
+			"		return x.get();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	X<String> x2 = new X<String>(\"SUCCESS\");\n" + 
+		"	                     ^^^^^^\n" + 
+		"Redundant specification of type arguments <String>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	X<String> x22 = new X<String>(1,\"SUCCESS\");\n" + 
+		"	                      ^^^^^^\n" + 
+		"Redundant specification of type arguments <String>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
+		"	X<Integer> x3 = new X<Integer>(1);\n" + 
+		"	                      ^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	String s = foo(new X<String>(\"aaa\"));\n" + 
+		"	                     ^^^^^^\n" + 
+		"Redundant specification of type arguments <String>\n" + 
+		"----------\n",
+		null,
+		false,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+public void test0052c() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" +
+			"	X(String abc, String def) {}\n" +
+			"	void foo() {\n" +
+			"		X<Integer> x = new X<Integer>(\"\",\"\");\n" +
+			"		foo3(new X<Integer>(\"\",\"\"));\n" +
+			"	}\n" +
+			"	X<Integer> foo2() {\n" +
+			"		return new X<Integer>(\"\",\"\");\n" +
+			"	}\n" +
+			"	void foo3(X<Integer> x) {}\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	X<Integer> x = new X<Integer>(\"\",\"\");\n" + 
+		"	                     ^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	return new X<Integer>(\"\",\"\");\n" + 
+		"	             ^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer>\n" + 
+		"----------\n",
+		null,
+		false,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+public void test0053() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);	
+	this.runNegativeTest(
+		new String[] {
+			"Z.java",
+			"public class Z <T extends ZB> { \n" +
+			"    public static void main(String[] args) {\n" +
+			"        foo(new Z<ZB>());\n" +
+			"    }\n" +
+			"    static void foo(Z<ZB> z) {\n" +
+			"    }\n" +
+			"}\n" +
+			"class ZB {\n" +
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in Z.java (at line 3)\n" + 
+		"	foo(new Z<ZB>());\n" + 
+		"	          ^^\n" + 
+		"Redundant specification of type arguments <ZB>\n" + 
+		"----------\n",
+		null,
+		false,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+public void test0054() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);	
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"public class Y<V> {\n" +
+			"  public static <W extends ABC> Y<W> make(Class<W> clazz) {\n" +
+			"    return new Y<W>();\n" +
+			"  }\n" +
+			"}\n" +
+			"class ABC{}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 3)\n" + 
+		"	return new Y<W>();\n" + 
+		"	             ^\n" + 
+		"Redundant specification of type arguments <W>\n" + 
+		"----------\n",
+		null,
+		false,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+public void test0055() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<A> {\n" +
+			"  class Inner<B> { }\n" +
+			"  static class Inner2<C> { }\n" +
+			"\n" +
+			"  void method() {\n" +
+			"    X<String>.Inner<Integer> a= new X<String>().new Inner<Integer>();\n" +
+			"    Inner<Integer> b= new X<A>().new Inner<Integer>();\n" +
+			"    Inner<Integer> c= new Inner<Integer>();\n" +
+			"    X<A>.Inner<Integer> e= new X<A>().new Inner<Integer>();\n" +
+			"    X<A>.Inner<Integer> f= new Inner<Integer>();\n" +
+			"    X.Inner2<Integer> d3 = new X.Inner2<Integer>();\n" +
+			"  }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X<String>.Inner<Integer> a= new X<String>().new Inner<Integer>();\n" + 
+		"	                                                      ^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	Inner<Integer> b= new X<A>().new Inner<Integer>();\n" + 
+		"	                                       ^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	Inner<Integer> c= new Inner<Integer>();\n" + 
+		"	                            ^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
+		"	X<A>.Inner<Integer> e= new X<A>().new Inner<Integer>();\n" + 
+		"	                                            ^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 10)\n" + 
+		"	X<A>.Inner<Integer> f= new Inner<Integer>();\n" + 
+		"	                                 ^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer>\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 11)\n" + 
+		"	X.Inner2<Integer> d3 = new X.Inner2<Integer>();\n" + 
+		"	                                    ^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer>\n" + 
+		"----------\n",
+		null,
+		false,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+// qualified allocation
+public void test0056() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" +
+			"	void foo1() {\n" +
+			"		X<String>.Item<Thread> i = new X<Exception>().new Item<Thread>();\n" +
+			"	}\n" +
+			"	void foo2() {\n" +
+			"		X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();\n" +
+			"	}\n" +
+			"	class Item <E> {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<String>.Item<Thread> i = new X<Exception>().new Item<Thread>();\n" + 
+		"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<Exception>.Item<Thread> to X<String>.Item<Thread>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	X<String>.Item<Thread> i = new X<Exception>().new Item<Thread>();\n" + 
+		"	                                                       ^^^^^^\n" + 
+		"Redundant specification of type arguments <Thread>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();\n" + 
+		"	                                  ^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot allocate the member type X<Exception>.Item<Thread> using a parameterized compound name; use its simple name and an enclosing instance of type X<Exception>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();\n" + 
+		"	                                                    ^^^^^^\n" + 
+		"Redundant specification of type arguments <Thread>\n" + 
+		"----------\n",
+		null,
+		false,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+// qualified allocation
+public void test0056b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" +
+			"	static class X1<Z> {\n" +
+			"		X1(Z z){}\n" +
+			"	}\n" +
+			"	X1<Integer> x1 = new X.X1<Integer>(1);\n" +
+			"	X1<Number> x2 = new X.X1<Number>(1);\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	X1<Integer> x1 = new X.X1<Integer>(1);\n" + 
+		"	                          ^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer>\n" + 
+		"----------\n",
+		null,
+		false,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+// qualified allocation
+public void test0056c() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X <T> {\n" +
+			"	X(T t){}\n" +
+			"	class X1<Z> {\n" +
+			"		X1(Z z){}\n" +
+			"	}\n" +
+			"	X<Integer>.X1<Number> x1 = new X<Integer>(1).new X1<Number>(1);\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X<Integer>.X1<Number> x1 = new X<Integer>(1).new X1<Number>(1);\n" + 
+		"	                                 ^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer>\n" + 
+		"----------\n",
+		null,
+		false,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+public void test0057() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	void test() {\n" +
+			"		Pair<Double, Integer> p = new InvertedPair<Integer, Double>();\n" +
+			"	}\n" +
+			"}\n" +
+			"class Pair<A, B> {\n" +
+			"}\n" +
+			"class InvertedPair<A, B> extends Pair<B, A> {\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Pair<Double, Integer> p = new InvertedPair<Integer, Double>();\n" + 
+		"	                                           ^^^^^^^^^^^^^^^\n" + 
+		"Redundant specification of type arguments <Integer, Double>\n" + 
+		"----------\n",
+		null,
+		false,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+public void test0058() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"\n" +
+			"public class X {\n" +
+			"    public void test(boolean param) {\n" +
+			"        ArrayList<?> ls = (param) \n" +
+			"        		? new ArrayList<String>()\n" +
+			"        		: new ArrayList<Object>();\n" +
+			"        		\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	: new ArrayList<Object>();\n" + 
+		"	                ^^^^^^\n" + 
+		"Redundant specification of type arguments <Object>\n" + 
+		"----------\n",
+		null,
+		false,
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747
+public void test0059() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);	
+	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X<T> {\n" +
+			"	 X(List<? extends T> p) {}\n" +
+			"    Object x = new X<CharSequence>((ArrayList<String>) null);\n" +
+			"}\n"
+		},
+		"",
+		null,
+		false,
+		customOptions);
 }
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
