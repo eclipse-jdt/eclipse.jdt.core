@@ -41,18 +41,6 @@
 	</td>
   </tr>
 </table>
-<a name="v_B69"></a>
-<hr><h1>
-Eclipse Platform Build Notes<br>
-Java development tools core</h1>
-Eclipse SDK 3.7 - %date% - 3.7.0
-<br>Project org.eclipse.jdt.core v_B69
-(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B69">cvs</a>).
-<h2>What's new in this drop</h2>
-
-<h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444">351444</a>
-[1.7][content assist] Need to know whether I can use diamond
 
 <a name="v_B68"></a>
 <hr><h1>
@@ -62,9 +50,29 @@ Eclipse SDK 3.7 - July 14, 2011
 <br>Project org.eclipse.jdt.core v_B68
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B68">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Added a new API in CompletionProposal to tell whether it diamond operator can be used (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444">351444</a> for details):
+<pre>
+/** 
+ * Returns whether it is safe to use the '<>' (diamond) operator in place of explicitly specifying
+ * type arguments for this proposal. 
+ * 
+ * This is only relevant for source level 1.7 or greater.
+ * 
+ * @param coreContext the completion context associated with the proposal
+ * @since 3.7
+ * @return <code>true</code> if it is safe to use the diamond operator for the constructor invocation, 
+ * <code>false</code> otherwise. Also returns <code>false</code> for source levels below 1.7
+ */
+public boolean canUseDiamond(CompletionContext coreContext);
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=352014">352014</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444">351444</a>
+[1.7][content assist] Need to know whether I can use diamond
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=352014">352014</a>
 \u1369 no longer accepted as a valid java identifier part
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=351653">351653</a>
 [1.7][compiler]: VerifyError in try statement with finally and return statements
