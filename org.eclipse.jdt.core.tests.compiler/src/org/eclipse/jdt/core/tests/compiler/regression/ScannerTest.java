@@ -35,7 +35,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 54, 55 };
+//		TESTS_NUMBERS = new int[] { 58 };
 //		TESTS_RANGE = new int[] { 54, -1 };
 	}
 
@@ -1234,6 +1234,37 @@ public class ScannerTest extends AbstractRegressionTest {
 			}
 		} catch (InvalidInputException e) {
 			assertTrue(false);
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352014
+	public void test058() {
+		if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
+			this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	void foo() {\n" + 
+					"		int a\\u1369b;\n" + 
+					"	}\n" + 
+					"}"
+				},
+				"");
+		} else {
+			this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	void foo() {\n" + 
+					"		int a\\u1369b;\n" + 
+					"	}\n" + 
+					"}"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	int a\\u1369b;\n" + 
+				"	     ^^^^^^\n" + 
+				"Syntax error on token \"Invalid Character\", = expected\n" + 
+				"----------\n");
 		}
 	}
 }
