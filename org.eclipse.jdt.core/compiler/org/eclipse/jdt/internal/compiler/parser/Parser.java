@@ -1208,19 +1208,23 @@ protected void checkForDiamond(TypeReference allocType) {
 	if (allocType instanceof ParameterizedSingleTypeReference) {
 		ParameterizedSingleTypeReference type = (ParameterizedSingleTypeReference) allocType;
 		if (type.typeArguments == TypeReference.NO_TYPE_ARGUMENTS) {
-			type.bits |= ASTNode.IsDiamond;
 			if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
 				problemReporter().diamondNotBelow17(allocType);
 			}
+			if (this.options.sourceLevel > ClassFileConstants.JDK1_4) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351965
+				type.bits |= ASTNode.IsDiamond;
+			} // else don't even bother to recognize this as <>
 		}
 	} 
 	else if (allocType instanceof ParameterizedQualifiedTypeReference) {
 		ParameterizedQualifiedTypeReference type = (ParameterizedQualifiedTypeReference) allocType;
 		if (type.typeArguments[type.typeArguments.length - 1] == TypeReference.NO_TYPE_ARGUMENTS) { // Don't care for X<>.Y<> and X<>.Y<String>
-			type.bits |= ASTNode.IsDiamond;
 			if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
 				problemReporter().diamondNotBelow17(allocType, type.typeArguments.length - 1);
 			}
+			if (this.options.sourceLevel > ClassFileConstants.JDK1_4) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351965
+				type.bits |= ASTNode.IsDiamond;
+			} // else don't even bother to recognize this as <>
 		}
 	}
 }
