@@ -1034,6 +1034,12 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testBug350652l"));
 	suite.addTest(new CompletionTests("testBug350652m"));
 	suite.addTest(new CompletionTests("testBug350652n"));
+	suite.addTest(new CompletionTests("testBug351444"));
+	suite.addTest(new CompletionTests("testBug351444a"));
+	suite.addTest(new CompletionTests("testBug351444b"));
+	suite.addTest(new CompletionTests("testBug351444c"));
+	suite.addTest(new CompletionTests("testBug351444d"));
+	suite.addTest(new CompletionTests("testBug351444e"));
 	return suite;
 }
 public CompletionTests(String name) {
@@ -25217,5 +25223,281 @@ public void testBug350652n() throws JavaModelException {
 	assertResults(
 			"IZZAException[TYPE_REF]{IZZAException, test, Ltest.IZZAException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444
+public void testBug351444() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/TXYU.java",
+			"package test;"+
+			"public class TXYU<T> {\n" +
+			"	TXYU(T t){}\n" +
+			"   TXYU(String s , String s2) {}\n" +
+			"	public void foo() {\n" +
+			"      TXYU<Number> t = new TXY" +
+			"   }\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+		requestor.allowAllRequiredProposals();
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeEnclosingElement(true);
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new TXY";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+		
+		assertResults(
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 27}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 27}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), 27}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 27}",
+				requestor.getResults());
+		assertEquals(true,
+			requestor.canUseDiamond(0));
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Source, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444
+public void testBug351444a() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/TXYU.java",
+				"package test;"+
+				"public class TXYU<T> {\n" +
+				"	TXYU(T t){}\n" +
+				"   TXYU(String s , String s2) {}\n" +
+				"	public void foo() {\n" +
+				"      TXYU<Number> t = new TXY\n" +
+				"   }\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+		requestor.allowAllRequiredProposals();
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeEnclosingElement(true);
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new TXY";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+		
+		assertResults(
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 27}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 27}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), 27}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 27}",
+				requestor.getResults());
+		assertEquals(false,
+			requestor.canUseDiamond(1));
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Source, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444
+// qualified
+public void testBug351444b() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/Test.java",
+				"package test;"+
+				"public class Test<E>{\n" +
+				" class TXYU<T> {\n" +
+				"	TXYU(T t){}\n" +
+				"   TXYU(String s , String s2) {}\n" +
+				"	public void foo() {\n" +
+				"      Test<Integer>.TXYU<Number> t = new Test<>().new TXY\n" +
+				"   }\n" +
+				" }\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+		requestor.allowAllRequiredProposals();
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeEnclosingElement(true);
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new TXY";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+		
+		assertResults(
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 27}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 27}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), 27}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 27}",
+				requestor.getResults());
+		assertEquals(true,
+			requestor.canUseDiamond(0));
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Source, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444
+// qualified
+public void testBug351444c() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/Test.java",
+				"package test;"+
+				"public class Test<E>{\n" +
+				" class TXYU<T> {\n" +
+				"	TXYU(T t){}\n" +
+				"   TXYU(String s , String s2) {}\n" +
+				"	public void foo() {\n" +
+				"      Test<Integer>.TXYU<Number> t = new Test<>().new TXY\n" +
+				"   }\n" +
+				" }\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+		requestor.allowAllRequiredProposals();
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeEnclosingElement(true);
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new TXY";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+		
+		assertResults(
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 27}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 27}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), 27}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 27}",
+				requestor.getResults());
+		assertEquals(false,
+			requestor.canUseDiamond(1));
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Source, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444
+// different CU
+public void testBug351444d() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/TXYU.java",
+			"package test;"+
+			"public class TXYU<T> {\n" +
+			"	TXYU(T t){}\n" +
+			"   TXYU(String s , String s2) {}\n" +
+			"}\n");
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/Test.java",
+				"package test;"+
+				"public class Test {\n" +
+				"	public void foo() {\n" +
+				"      TXYU<Number> t = new TXY\n" +
+				"   }\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+		requestor.allowAllRequiredProposals();
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeEnclosingElement(true);
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new TXY";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+		
+		assertResults(
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (LNumber;)V, TXYU, (t), 57}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 57}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 57}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 57}",
+				requestor.getResults());
+		assertEquals(false,
+			requestor.canUseDiamond(0));
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Source, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444
+// different CU
+public void testBug351444e() throws JavaModelException {
+	Map options = COMPLETION_PROJECT.getOptions(true);
+	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/TXYU.java",
+			"package test;"+
+			"public class TXYU<T> {\n" +
+			"	TXYU(T t){}\n" +
+			"   TXYU(String s , String s2) {}\n" +
+			"}\n");
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/test/Test.java",
+				"package test;"+
+				"public class Test {\n" +
+				"	public void foo() {\n" +
+				"      TXYU<Number> t = new TXY\n" +
+				"   }\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, false, true);
+		requestor.allowAllRequiredProposals();
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeEnclosingElement(true);
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new TXY";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+		
+		assertResults(
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (LNumber;)V, TXYU, (t), 57}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 57}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 57}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 57}",
+				requestor.getResults());
+		assertEquals(true,
+			requestor.canUseDiamond(1));
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Source, savedOptionCompliance);
+		COMPLETION_PROJECT.setOptions(options);	
+	}
 }
 }
