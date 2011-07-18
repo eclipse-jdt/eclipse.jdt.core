@@ -3949,24 +3949,14 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int resolvedPosition = 0;
 			// take into account enum constructor synthetic name+ordinal
 			final boolean isConstructor = methodBinding.isConstructor();
-			if (isConstructor) {
-				LocalVariableBinding localVariableBinding = new LocalVariableBinding("this".toCharArray(), methodBinding.declaringClass, 0, false); //$NON-NLS-1$
+			if (isConstructor || !methodBinding.isStatic()) {
+				LocalVariableBinding localVariableBinding = new LocalVariableBinding(ConstantPool.This, methodBinding.declaringClass, 0, false);
 				localVariableBinding.resolvedPosition = 0;
 				this.codeStream.record(localVariableBinding);
 				localVariableBinding.recordInitializationStartPC(0);
 				localVariableBinding.recordInitializationEndPC(codeLength);
 				frame.putLocal(resolvedPosition, new VerificationTypeInfo(
-						VerificationTypeInfo.ITEM_UNINITIALIZED_THIS,
-						methodBinding.declaringClass));
-				resolvedPosition++;
-			} else if (!methodBinding.isStatic()) {
-				LocalVariableBinding localVariableBinding = new LocalVariableBinding("this".toCharArray(), methodBinding.declaringClass, 0, false); //$NON-NLS-1$
-				localVariableBinding.resolvedPosition = 0;
-				this.codeStream.record(localVariableBinding);
-				localVariableBinding.recordInitializationStartPC(0);
-				localVariableBinding.recordInitializationEndPC(codeLength);
-				frame.putLocal(resolvedPosition, new VerificationTypeInfo(
-						VerificationTypeInfo.ITEM_OBJECT,
+						isConstructor ? VerificationTypeInfo.ITEM_UNINITIALIZED_THIS : VerificationTypeInfo.ITEM_OBJECT,
 						methodBinding.declaringClass));
 				resolvedPosition++;
 			}
@@ -4518,8 +4508,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					break;
 				case Opcodes.OPC_aload_0:
 					VerificationTypeInfo locals0 = frame.locals[0];
-					// special case to handle uninitialized object
-					if (locals0 == null) {
+					if (locals0.tag != VerificationTypeInfo.ITEM_UNINITIALIZED_THIS) {
+						// special case to handle uninitialized object
 						locals0 = retrieveLocal(currentPC, 0);
 					}
 					frame.addStackItem(locals0);

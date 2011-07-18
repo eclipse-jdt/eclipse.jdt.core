@@ -38,7 +38,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 48, 49 };
+//		TESTS_NUMBERS = new int[] { 50 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
@@ -2289,42 +2289,42 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.io.StringReader;\r\n" +
-				"\r\n" +
-				"public class X {\r\n" +
-				"	public void loadVariablesAndContainers() {\r\n" +
-				"		// backward compatibility, consider persistent property	\r\n" +
-				"		String qName = \"1\";\r\n" +
-				"		String xmlString = \"2\";\r\n" +
-				"		\r\n" +
-				"		try {\r\n" +
-				"			if (xmlString != null){\r\n" +
-				"				StringReader reader = new StringReader(xmlString);\r\n" +
-				"				Object o;\r\n" +
-				"				try {\r\n" +
-				"					StringBuffer buffer = null;\r\n" +
-				"					o = new Object();\r\n" +
-				"				} catch(RuntimeException e) {\r\n" +
-				"					return;\r\n" +
-				"				} catch(Exception e){\r\n" +
-				"					return;\r\n" +
-				"				} finally {\r\n" +
-				"					reader.close();\r\n" +
-				"				}\r\n" +
-				"				System.out.println(reader);\r\n" +
-				"			}\r\n" +
-				"		} catch(Exception e){\r\n" +
-				"			// problem loading xml file: nothing we can do\r\n" +
-				"		} finally {\r\n" +
-				"			if (xmlString != null){\r\n" +
-				"				System.out.println(xmlString);\r\n" +
-				"			}\r\n" +
-				"		}\r\n" +
-				"	}\r\n" +
-				"\r\n" +
-				"	public static void main(String[] args) {\r\n" +
+				"import java.io.StringReader;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public void loadVariablesAndContainers() {\n" +
+				"		// backward compatibility, consider persistent property	\n" +
+				"		String qName = \"1\";\n" +
+				"		String xmlString = \"2\";\n" +
+				"		\n" +
+				"		try {\n" +
+				"			if (xmlString != null){\n" +
+				"				StringReader reader = new StringReader(xmlString);\n" +
+				"				Object o;\n" +
+				"				try {\n" +
+				"					StringBuffer buffer = null;\n" +
+				"					o = new Object();\n" +
+				"				} catch(RuntimeException e) {\n" +
+				"					return;\n" +
+				"				} catch(Exception e){\n" +
+				"					return;\n" +
+				"				} finally {\n" +
+				"					reader.close();\n" +
+				"				}\n" +
+				"				System.out.println(reader);\n" +
+				"			}\n" +
+				"		} catch(Exception e){\n" +
+				"			// problem loading xml file: nothing we can do\n" +
+				"		} finally {\n" +
+				"			if (xmlString != null){\n" +
+				"				System.out.println(xmlString);\n" +
+				"			}\n" +
+				"		}\n" +
+				"	}\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
 				"		System.out.println(\"SUCCESS\");\n" +
-				"	}\r\n" +
+				"	}\n" +
 				"}"
 		},
 		"SUCCESS");
@@ -6496,24 +6496,24 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\r\n" + 
-				"	class E1 extends RuntimeException {\r\n" + 
-				"		private static final long serialVersionUID = 1L;\r\n" + 
-				"	}\r\n" + 
-				"	static Object bar() {\r\n" + 
-				"		return new Object() {\r\n" + 
-				"			public void foo() {\r\n" + 
-				"				if (condition())\r\n" + 
-				"					throw new E1();\r\n" + 
-				"			}\r\n" + 
-				"		};\r\n" + 
-				"	}\r\n" + 
-				"	static boolean condition() {\r\n" + 
-				"		return false;\r\n" + 
-				"	}\r\n" + 
-				"	public static void main(String[] args) {\r\n" + 
-				"	}\r\n" + 
-				"}\r\n" + 
+				"public class X {\n" + 
+				"	class E1 extends RuntimeException {\n" + 
+				"		private static final long serialVersionUID = 1L;\n" + 
+				"	}\n" + 
+				"	static Object bar() {\n" + 
+				"		return new Object() {\n" + 
+				"			public void foo() {\n" + 
+				"				if (condition())\n" + 
+				"					throw new E1();\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"	static boolean condition() {\n" + 
+				"		return false;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	}\n" + 
+				"}\n" + 
 				"",
 			},
 			"----------\n" + 
@@ -6647,5 +6647,107 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"}"
 			},
 			"true");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352145
+	public void test050() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.File;\n" + 
+				"import java.io.FileFilter;\n" + 
+				"import java.io.FileNotFoundException;\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	public static final List<File> copyDir(List<File> lf,\n" + 
+				"			final boolean overwrite, final boolean recursive,\n" + 
+				"			final boolean returnSrc, final File src, final File tar,\n" + 
+				"			final FileFilter filter) throws IOException {\n" + 
+				"		if (!src.isDirectory())\n" + 
+				"			throw new FileNotFoundException(\"not a directory: \" + src);\n" + 
+				"		if (!tar.isDirectory())\n" + 
+				"			throw new FileNotFoundException(\"not a directory: \" + tar);\n" + 
+				"		final File[] fa = src.listFiles();\n" + 
+				"		if (fa == null)\n" + 
+				"			throw new FileNotFoundException(\"directory not accessible: \" + src);\n" + 
+				"		if (lf == null)\n" + 
+				"			lf = new ArrayList<File>(fa.length);\n" + 
+				"		for (final File f : fa) {\n" + 
+				"			final File right = new File(tar, f.getName());\n" + 
+				"			if (f.isDirectory()) {\n" + 
+				"				if (recursive && filter.accept(f)) {\n" + 
+				"					if (!right.exists())\n" + 
+				"						right.mkdir();\n" + 
+				"					copyDir(lf, overwrite, recursive, returnSrc, f, right,\n" + 
+				"							filter);\n" + 
+				"				}\n" + 
+				"			} else {\n" + 
+				"				if (overwrite || (!right.exists() && filter.accept(f))) {\n" + 
+				"					lf.add(returnSrc ? f : right);\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		return lf;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(final String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}"
+			},
+			"SUCCESS");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352145
+	public void test051() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.File;\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	public static final List<File> copyDir(int j, List<File> lf,\n" + 
+				"			final boolean returnSrc, final File[] fa) throws IOException {\n" + 
+				"		if (lf == null)\n" + 
+				"			lf = null;\n" + 
+				"		for (int i = 0, max = fa.length; i < max; i++) {\n" + 
+				"			final File f = fa[i];\n" + 
+				"			final File right = new File(f.getName());\n" + 
+				"			if (f.isDirectory()) {\n" + 
+				"			} else {\n" + 
+				"				lf.add(returnSrc ? f : right);\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		return lf;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(final String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}"
+			},
+			"SUCCESS");
+	}
+	public void test052() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	X(int i) {}\n" +
+				"	void foo() {}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X(args.length == 2 ? 1 : 2).foo();\n" +
+				"		System.out.println(\"SUCCESS\");\n" +
+				"	}\n" +
+				"}",
+			},
+			"SUCCESS");
 	}
 }
