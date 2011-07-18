@@ -1012,7 +1012,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testBug346454c_2"));
 	suite.addTest(new CompletionTests("testBug346454d"));
 	suite.addTest(new CompletionTests("testBug346454e"));
-	//suite.addTest(new CompletionTests("testBug346454f"));
+	suite.addTest(new CompletionTests("testBug346454f"));
 	suite.addTest(new CompletionTests("testBug346454g"));
 	suite.addTest(new CompletionTests("testBug346454h"));
 	suite.addTest(new CompletionTests("testBug346454i"));
@@ -24288,7 +24288,7 @@ public void testBug346454e() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
 // Qualified allocation case. Should get proposals for constructor completion
 // This tests changes in CompleteOnQualifiedAllocationExpression
-public void _testBug346454f() throws JavaModelException {
+public void testBug346454f() throws JavaModelException {
 	Map options = COMPLETION_PROJECT.getOptions(true);
 	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
@@ -24322,8 +24322,8 @@ public void _testBug346454f() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<>.T2;, (TZ;)V, T2, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"Test<>.T2[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<>.T2;, (TZ;)V, null, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<Ljava.lang.Object;>.T2;, (TZ;)V, T2, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Test<java.lang.Object>.T2[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<Ljava.lang.Object;>.T2;, (TZ;)V, null, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
