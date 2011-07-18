@@ -121,6 +121,22 @@ usage of type arguments when diamond operator can be used instead. (see details 
 	public static final String COMPILER_PB_REDUNDANT_TYPE_ARGUMENTS = PLUGIN_ID + ".compiler.problem.redundantSpecificationOfTypeArguments";
 	</pre>
 </li>
+<li>Added a new API in ClassInstanceCreation to tell whether the resolved type is inferred from the assignment context:
+<br>(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=350897">350897</a> for details):
+<pre>
+	/**
+	 * Returns <code>true</code> if the resolved class type has been inferred
+	 * from the assignment context (JLS4 15.12.2.8), <code>false</code> otherwise.
+	 *
+	 * This information is available only when bindings are requested when the AST is being built.
+	 *
+	 * @return <code>true</code> if the resolved class type has been inferred
+	 * 	from the assignment context (JLS3 15.12.2.8), <code>false</code> otherwise
+	 * @since 3.7
+	 */
+	public boolean isResolvedTypeInferredFromExpectedType();
+</pre>
+</li>
 </ul>
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=340747">340747</a>
