@@ -923,6 +923,9 @@ public class ClassScope extends Scope {
 	private boolean connectEnumSuperclass() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		ReferenceBinding rootEnumType = getJavaLangEnum();
+		if ((rootEnumType.tagBits & TagBits.HasMissingType) != 0) {
+			return false;
+		}
 		boolean foundCycle = detectHierarchyCycle(sourceType, rootEnumType, null);
 		// arity check for well-known Enum<E>
 		TypeVariableBinding[] refTypeVariables = rootEnumType.typeVariables();

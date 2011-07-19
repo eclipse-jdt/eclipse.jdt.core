@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - contribution for Bug 300576 - NPE Computing type hierarchy when compliance doesn't match libraries
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.hierarchy;
 
@@ -776,26 +777,26 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=145333)
 		try {
 			this.lookupEnvironment.completeTypeBindings(parsedUnits, hasLocalType, unitsIndex);
+			// remember type bindings
+			for (int i = 0; i < unitsIndex; i++) {
+				CompilationUnitDeclaration parsedUnit = parsedUnits[i];
+				if (parsedUnit != null && !parsedUnit.hasErrors()) {
+					boolean containsLocalType = hasLocalType[i];
+					if (containsLocalType) {
+						if (monitor != null && monitor.isCanceled())
+							throw new OperationCanceledException();
+						parsedUnit.scope.faultInTypes();
+						parsedUnit.resolve();
+					}
+					
+					rememberAllTypes(parsedUnit, cus[i], containsLocalType);
+				}
+			}
 		} catch (AbortCompilation e) {
 			// skip it silently
 		}
 		worked(monitor, 1);
 
-		// remember type bindings
-		for (int i = 0; i < unitsIndex; i++) {
-			CompilationUnitDeclaration parsedUnit = parsedUnits[i];
-			if (parsedUnit != null) {
-				boolean containsLocalType = hasLocalType[i];
-				if (containsLocalType) {
-					if (monitor != null && monitor.isCanceled())
-						throw new OperationCanceledException();
-					parsedUnit.scope.faultInTypes();
-					parsedUnit.resolve();
-				}
-
-				rememberAllTypes(parsedUnit, cus[i], containsLocalType);
-			}
-		}
 
 		// if no potential subtype was a real subtype of the binary focus type, no need to go further
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=54043)

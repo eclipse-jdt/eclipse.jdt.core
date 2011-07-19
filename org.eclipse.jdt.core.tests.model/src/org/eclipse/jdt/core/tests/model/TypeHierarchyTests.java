@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - contribution for Bug 300576 - NPE Computing type hierarchy when compliance doesn't match libraries
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -18,6 +19,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 
@@ -35,7 +37,7 @@ public class TypeHierarchyTests extends ModifyingResourceTests {
 	ITypeHierarchy typeHierarchy;
 
 static {
-//	TESTS_NAMES= new String[] { "testGeneric7" };
+//	TESTS_NAMES= new String[] { "testBug300576" };
 }
 public static Test suite() {
 	return buildModelTestSuite(TypeHierarchyTests.class);
@@ -1895,12 +1897,12 @@ public void testRegion4() throws CoreException {
 		);
 		createFile(
 			"/P2/Y.java",
-			"public class Y extends X X {\n" +
+			"public class Y extends X {\n" +
 			"}"
 		);
 		createFile(
 			"/P3/Z.java",
-			"public class Z extends X X {\n" +
+			"public class Z extends X {\n" +
 			"}"
 		);
 		IRegion region = JavaCore.newRegion();
@@ -2253,7 +2255,6 @@ public void testSuperTypeHierarchyWithMissingBinary() throws JavaModelException 
 		assertHierarchyEquals(
 				"Focus: Z [in Z.java [in q3 [in src [in TypeHierarchy]]]]\n" +
 				"Super types:\n" +
-				"  Y49809 [in Y49809.class [in p49809 [in test49809.jar [in TypeHierarchy]]]]\n" +
 				"Sub types:\n",
 			hierarchy
 		);
@@ -2517,5 +2518,89 @@ finally{
 	deleteProject("P1");
 	deleteProject("P2");
 }
+}
+// Bug 300576 - NPE Computing type hierarchy when compliance doesn't match libraries
+// test that a missing java.lang.Enum doesn't cause NPE
+public void testBug300576() throws CoreException {
+	IJavaProject prj = null;
+	try {
+		prj = createJavaProject("Bug300576", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
+		createFolder("/Bug300576/src/p");
+		createFile("/Bug300576/src/p/Outer.java",
+				"package p;\n" + 
+				"class Outer {\n" + 
+				"    enum A {\n" + 
+				"        GREEN, DARK_GREEN, BLACK;\n" +
+				"        /** Javadoc of getNext() */\n" + 
+				"        A getNext() {\n" + 
+				"            switch (this) {\n" + 
+				"                case GREEN : return DARK_GREEN;\n" + 
+				"                case DARK_GREEN : return BLACK;\n" + 
+				"                case BLACK : return GREEN;\n" + 
+				"                default : return null;\n" + 
+				"            }\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    {\n" + 
+				"        A a= A.GREEN.getNext();\n" + 
+				"    }\n" + 
+				"}\n");
+		IType a = getCompilationUnit("Bug300576", "src", "p", "Outer.java").getType("Outer").getType("A");
+		IRegion region = JavaCore.newRegion();
+		region.add(getPackageFragmentRoot("Bug300576", "src"));
+		ITypeHierarchy hierarchy = prj.newTypeHierarchy(a, region, new NullProgressMonitor());
+		assertHierarchyEquals(
+				"Focus: A [in Outer [in Outer.java [in p [in src [in Bug300576]]]]]\n" + 
+				"Super types:\n" + 
+				"Sub types:\n",
+				hierarchy);
+	} finally {
+		if (prj != null)
+			deleteProject(prj);
+	}
+}
+// Bug 300576 - NPE Computing type hierarchy when compliance doesn't match libraries
+// test that a bogus java.lang.Enum (non-generic) doesn't cause NPE
+public void testBug300576b() throws CoreException {
+	IJavaProject prj = null;
+	try {
+		prj = createJavaProject("Bug300576", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
+		createFolder("/Bug300576/src/p");
+		createFolder("/Bug300576/src/java/lang");
+		createFile("/Bug300576/src/java/lang/Enum.java",
+				"package java.lang;\n" +
+				"public class Enum {}\n");
+		createFile("/Bug300576/src/p/Outer.java",
+				"package p;\n" + 
+				"class Outer {\n" + 
+				"    enum A {\n" + 
+				"        GREEN, DARK_GREEN, BLACK;\n" +
+				"        /** Javadoc of getNext() */\n" + 
+				"        A getNext() {\n" + 
+				"            switch (this) {\n" + 
+				"                case GREEN : return DARK_GREEN;\n" + 
+				"                case DARK_GREEN : return BLACK;\n" + 
+				"                case BLACK : return GREEN;\n" + 
+				"                default : return null;\n" + 
+				"            }\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    {\n" + 
+				"        A a= A.GREEN.getNext();\n" + 
+				"    }\n" + 
+				"}\n");
+		IType a = getCompilationUnit("Bug300576", "src", "p", "Outer.java").getType("Outer").getType("A");
+		IRegion region = JavaCore.newRegion();
+		region.add(getPackageFragmentRoot("Bug300576", "src"));
+		ITypeHierarchy hierarchy = prj.newTypeHierarchy(a, region, new NullProgressMonitor());
+		assertHierarchyEquals(
+				"Focus: A [in Outer [in Outer.java [in p [in src [in Bug300576]]]]]\n" + 
+				"Super types:\n" + 
+				"Sub types:\n",
+				hierarchy);
+	} finally {
+		if (prj != null)
+			deleteProject(prj);
+	}	
 }
 }
