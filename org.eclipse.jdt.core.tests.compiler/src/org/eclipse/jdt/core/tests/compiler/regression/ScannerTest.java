@@ -1238,32 +1238,59 @@ public class ScannerTest extends AbstractRegressionTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352014
 	public void test058() {
+		String source =
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		int a\\u1369b;\n" + 
+				"	}\n" + 
+				"}";
 		if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
 			this.runConformTest(
 				new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	void foo() {\n" + 
-					"		int a\\u1369b;\n" + 
-					"	}\n" + 
-					"}"
+					source
 				},
 				"");
 		} else {
 			this.runNegativeTest(
 				new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	void foo() {\n" + 
-					"		int a\\u1369b;\n" + 
-					"	}\n" + 
-					"}"
+					source
 				},
 				"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	int a\\u1369b;\n" + 
 				"	     ^^^^^^\n" + 
 				"Syntax error on token \"Invalid Character\", = expected\n" + 
+				"----------\n");
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352553
+	public void test059() {
+		String source =
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		int a\\u200B;\n" + 
+				"	}\n" + 
+				"}";
+		if (this.complianceLevel > ClassFileConstants.JDK1_6) {
+			this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"");
+		} else {
+			this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	int a\\u200B;\n" + 
+				"	     ^^^^^^\n" + 
+				"Syntax error on token \"Invalid Character\", delete this token\n" + 
 				"----------\n");
 		}
 	}
