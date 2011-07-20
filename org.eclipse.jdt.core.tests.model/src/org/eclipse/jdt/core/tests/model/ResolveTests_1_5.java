@@ -3107,15 +3107,19 @@ public void test0124() throws Exception {
 // test that missing java.lang.Enum due to bogus project setup doesn't cause NPE
 public void test0125() throws CoreException {
 	// using wrong JCL (should be "1.5"):
-	this.createJavaProject("P0125", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	WorkingCopyOwner owner = newWorkingCopyOwner(new BasicProblemRequestor());
-	ICompilationUnit cu = getWorkingCopy(
-			"/P0125/src/Test.java",
-			"public enum Test {\n" + 
-			"}",
-			owner);
-	IType type = cu.getType("Test");
-	assertEquals("", "Test", type.getElementName());
-	assertEquals("", null, type.getSuperclassName());
+	try {
+		this.createJavaProject("P0125", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		WorkingCopyOwner owner = newWorkingCopyOwner(new BasicProblemRequestor());
+		ICompilationUnit cu = getWorkingCopy(
+				"/P0125/src/Test.java",
+				"public enum Test {\n" + 
+				"}",
+				owner);
+		IType type = cu.getType("Test");
+		assertEquals("", "Test", type.getElementName());
+		assertEquals("", null, type.getSuperclassName());
+	} finally {
+		deleteProject("P0125");
+	}
 }
 }
