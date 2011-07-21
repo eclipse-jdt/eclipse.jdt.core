@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class Compliance_1_5 extends AbstractComparableTest {
@@ -2214,6 +2215,37 @@ public void test066() {
  * Check that indirect member type allocation is denied access to compatible enclosing instance available as constructor argument
  */
 public void test067() {
+	String expectedError =
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" +
+			"	super(null); //1\n" +
+			"	^^^^^^^^^^^^\n" +
+			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 14)\n" +
+			"	super(new M());//2\n" +
+			"	^^^^^^^^^^^^^^^\n" +
+			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 14)\n" +
+			"	super(new M());//2\n" +
+			"	      ^^^^^^^\n" +
+			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
+			"----------\n";
+	if (this.complianceLevel >= ClassFileConstants.JDK1_6) {
+		expectedError =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 11)\n" + 
+				"	super(null); //1\n" + 
+				"	^^^^^^^^^^^^\n" + 
+				"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 14)\n" + 
+				"	super(new M());//2\n" + 
+				"	^^^^^^^^^^^^^^^\n" + 
+				"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
+				"----------\n";
+	}
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2235,22 +2267,7 @@ public void test067() {
 			"	}\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	super(null); //1\n" +
-		"	^^^^^^^^^^^^\n" +
-		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 14)\n" +
-		"	super(new M());//2\n" +
-		"	^^^^^^^^^^^^^^^\n" +
-		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 14)\n" +
-		"	super(new M());//2\n" +
-		"	      ^^^^^^^\n" +
-		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
-		"----------\n");
+		expectedError);
 }
 
 /*
@@ -2287,6 +2304,37 @@ public void test068() {
  * Check that indirect member type allocation is denied access to compatible enclosing instance available as constructor argument
  */
 public void test069() {
+	String expectedError =
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	super(new MX4());	// ko\n" +
+			"	^^^^^^^^^^^^^^^^^\n" +
+			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	super(new MX4());	// ko\n" +
+			"	      ^^^^^^^^^\n" +
+			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 14)\n" +
+			"	this(new MX4());		// ko\n" +
+			"	     ^^^^^^^^^\n" +
+			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
+			"----------\n";
+	if (this.complianceLevel >= ClassFileConstants.JDK1_6) {
+		expectedError =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	super(new MX4());	// ko\n" + 
+				"	^^^^^^^^^^^^^^^^^\n" + 
+				"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 14)\n" + 
+				"	this(new MX4());		// ko\n" + 
+				"	     ^^^^^^^^^\n" + 
+				"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
+				"----------\n";
+	}
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2308,22 +2356,7 @@ public void test069() {
 			"	}\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	super(new MX4());	// ko\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	super(new MX4());	// ko\n" +
-		"	      ^^^^^^^^^\n" +
-		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 14)\n" +
-		"	this(new MX4());		// ko\n" +
-		"	     ^^^^^^^^^\n" +
-		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
-		"----------\n");
+		expectedError);
 }
 
 // binary compatibility
