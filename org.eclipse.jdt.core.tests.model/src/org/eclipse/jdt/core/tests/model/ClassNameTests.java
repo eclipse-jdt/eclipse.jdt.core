@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1321,6 +1321,40 @@ public void testBug306477() throws Exception {
 			"Bob [in Misc.java [in p [in <project root> [in P]]]]",
 			type
 		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug351498() throws CoreException, InterruptedException {
+	IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
+	try {
+		// Create project and file
+		assertNotNull("We should have got a Java Source content type!", javaContentType);
+		javaContentType.addFileSpec("b351498", IContentType.FILE_EXTENSION_SPEC);
+		IJavaProject javaProject = createJavaProject("P");
+		createFolder("/P/p");			
+		String filePath = "/P/p/Bug.b351498";
+		createFile(
+			filePath,
+			"package p;\n" +
+			"public class Bug {}\n" +
+			"class Secondary {}\n" +
+			"class AnotherSecondary{}\n" +
+			""
+		);
+		waitUntilIndexesReady();
+		
+		// Get the secondary type
+		IType type = javaProject.findType("p.Secondary", new NullProgressMonitor());
+		assertNotNull("We should have found the secondary type!", type);
+		
+		// Remove file extension
+		javaContentType.removeFileSpec("b351498", IContentType.FILE_EXTENSION_SPEC);
+		
+		// As there's no specific event fo
+		type = javaProject.findType("p.Secondary", new NullProgressMonitor());
+		assertNull("We should have not found the secondary type!", type);
 	} finally {
 		deleteProject("P");
 	}
