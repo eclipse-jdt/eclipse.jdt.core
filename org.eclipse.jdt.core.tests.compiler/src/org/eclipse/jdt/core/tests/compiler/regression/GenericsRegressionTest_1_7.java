@@ -1841,32 +1841,32 @@ public void test0052() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	X<String> x2 = new X<String>(\"SUCCESS\");\n" + 
-		"	                     ^^^^^^\n" + 
+		"	                   ^\n" + 
 		"Redundant specification of type arguments <String>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 7)\n" + 
 		"	X<Integer> x3 = new X<Integer>(1);\n" + 
-		"	                      ^^^^^^^\n" + 
+		"	                    ^\n" + 
 		"Redundant specification of type arguments <Integer>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 8)\n" + 
 		"	X<AX> x4 = new X<AX>(new AX());\n" + 
-		"	                 ^^\n" + 
+		"	               ^\n" + 
 		"Redundant specification of type arguments <AX>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 9)\n" + 
 		"	X<? extends AX> x5 = new X<AX<String>>(new AX<String>());\n" + 
-		"	                           ^^\n" + 
+		"	                         ^\n" + 
 		"Redundant specification of type arguments <AX<String>>\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 10)\n" + 
 		"	X<?> x6 = new X<AX<String>>(new AX<String>());\n" + 
-		"	                ^^\n" + 
+		"	              ^\n" + 
 		"Redundant specification of type arguments <AX<String>>\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 11)\n" + 
 		"	X<Class<? extends Object>> x7 = new X<Class<? extends Object>>();\n" + 
-		"	                                      ^^^^^\n" + 
+		"	                                    ^\n" + 
 		"Redundant specification of type arguments <Class<? extends Object>>\n" + 
 		"----------\n",
 		null,
@@ -1902,22 +1902,22 @@ public void test0052b() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	X<String> x2 = new X<String>(\"SUCCESS\");\n" + 
-		"	                     ^^^^^^\n" + 
+		"	                   ^\n" + 
 		"Redundant specification of type arguments <String>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	X<String> x22 = new X<String>(1,\"SUCCESS\");\n" + 
-		"	                      ^^^^^^\n" + 
+		"	                    ^\n" + 
 		"Redundant specification of type arguments <String>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 10)\n" + 
 		"	X<Integer> x3 = new X<Integer>(1);\n" + 
-		"	                      ^^^^^^^\n" + 
+		"	                    ^\n" + 
 		"Redundant specification of type arguments <Integer>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 11)\n" + 
 		"	String s = foo(new X<String>(\"aaa\"));\n" + 
-		"	                     ^^^^^^\n" + 
+		"	                   ^\n" + 
 		"Redundant specification of type arguments <String>\n" + 
 		"----------\n",
 		null,
@@ -1947,12 +1947,12 @@ public void test0052c() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	X<Integer> x = new X<Integer>(\"\",\"\");\n" + 
-		"	                     ^^^^^^^\n" + 
+		"	                   ^\n" + 
 		"Redundant specification of type arguments <Integer>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	return new X<Integer>(\"\",\"\");\n" + 
-		"	             ^^^^^^^\n" + 
+		"	           ^\n" + 
 		"Redundant specification of type arguments <Integer>\n" + 
 		"----------\n",
 		null,
@@ -1980,7 +1980,7 @@ public void test0053() {
 		"----------\n" + 
 		"1. ERROR in Z.java (at line 3)\n" + 
 		"	foo(new Z<ZB>());\n" + 
-		"	          ^^\n" + 
+		"	        ^\n" + 
 		"Redundant specification of type arguments <ZB>\n" + 
 		"----------\n",
 		null,
@@ -2005,7 +2005,7 @@ public void test0054() {
 		"----------\n" + 
 		"1. ERROR in Y.java (at line 3)\n" + 
 		"	return new Y<W>();\n" + 
-		"	             ^\n" + 
+		"	           ^\n" + 
 		"Redundant specification of type arguments <W>\n" + 
 		"----------\n",
 		null,
@@ -2026,6 +2026,7 @@ public void test0055() {
 			"\n" +
 			"  void method() {\n" +
 			"    X<String>.Inner<Integer> a= new X<String>().new Inner<Integer>();\n" +
+			"    X<String>.Inner<Integer> a1= new X<String>().new Inner<>();\n" +	// do not warn. Removing String from X<String> not possible
 			"    Inner<Integer> b= new X<A>().new Inner<Integer>();\n" +
 			"    Inner<Integer> c= new Inner<Integer>();\n" +
 			"    X<A>.Inner<Integer> e= new X<A>().new Inner<Integer>();\n" +
@@ -2037,32 +2038,32 @@ public void test0055() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	X<String>.Inner<Integer> a= new X<String>().new Inner<Integer>();\n" + 
-		"	                                                      ^^^^^^^\n" + 
+		"	                                                ^^^^^\n" + 
 		"Redundant specification of type arguments <Integer>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
 		"	Inner<Integer> b= new X<A>().new Inner<Integer>();\n" + 
-		"	                                       ^^^^^^^\n" + 
+		"	                                 ^^^^^\n" + 
 		"Redundant specification of type arguments <Integer>\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 8)\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
 		"	Inner<Integer> c= new Inner<Integer>();\n" + 
-		"	                            ^^^^^^^\n" + 
+		"	                      ^^^^^\n" + 
 		"Redundant specification of type arguments <Integer>\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 9)\n" + 
+		"4. ERROR in X.java (at line 10)\n" + 
 		"	X<A>.Inner<Integer> e= new X<A>().new Inner<Integer>();\n" + 
-		"	                                            ^^^^^^^\n" + 
+		"	                                      ^^^^^\n" + 
 		"Redundant specification of type arguments <Integer>\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 10)\n" + 
+		"5. ERROR in X.java (at line 11)\n" + 
 		"	X<A>.Inner<Integer> f= new Inner<Integer>();\n" + 
-		"	                                 ^^^^^^^\n" + 
+		"	                           ^^^^^\n" + 
 		"Redundant specification of type arguments <Integer>\n" + 
 		"----------\n" + 
-		"6. ERROR in X.java (at line 11)\n" + 
+		"6. ERROR in X.java (at line 12)\n" + 
 		"	X.Inner2<Integer> d3 = new X.Inner2<Integer>();\n" + 
-		"	                                    ^^^^^^^\n" + 
+		"	                             ^^^^^^\n" + 
 		"Redundant specification of type arguments <Integer>\n" + 
 		"----------\n",
 		null,
@@ -2096,7 +2097,7 @@ public void test0056() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	X<String>.Item<Thread> i = new X<Exception>().new Item<Thread>();\n" + 
-		"	                                                       ^^^^^^\n" + 
+		"	                                                  ^^^^\n" + 
 		"Redundant specification of type arguments <Thread>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 6)\n" + 
@@ -2106,7 +2107,7 @@ public void test0056() {
 		"----------\n" + 
 		"4. ERROR in X.java (at line 6)\n" + 
 		"	X<Exception>.Item<Thread> j = new X<Exception>.Item<Thread>();\n" + 
-		"	                                                    ^^^^^^\n" + 
+		"	                                               ^^^^\n" + 
 		"Redundant specification of type arguments <Thread>\n" + 
 		"----------\n",
 		null,
@@ -2133,7 +2134,7 @@ public void test0056b() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	X1<Integer> x1 = new X.X1<Integer>(1);\n" + 
-		"	                          ^^^^^^^\n" + 
+		"	                       ^^\n" + 
 		"Redundant specification of type arguments <Integer>\n" + 
 		"----------\n",
 		null,
@@ -2160,7 +2161,7 @@ public void test0056c() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	X<Integer>.X1<Number> x1 = new X<Integer>(1).new X1<Number>(1);\n" + 
-		"	                                 ^^^^^^^\n" + 
+		"	                               ^\n" + 
 		"Redundant specification of type arguments <Integer>\n" + 
 		"----------\n",
 		null,
@@ -2188,7 +2189,7 @@ public void test0057() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	Pair<Double, Integer> p = new InvertedPair<Integer, Double>();\n" + 
-		"	                                           ^^^^^^^^^^^^^^^\n" + 
+		"	                              ^^^^^^^^^^^^\n" + 
 		"Redundant specification of type arguments <Integer, Double>\n" + 
 		"----------\n",
 		null,
@@ -2217,7 +2218,7 @@ public void test0058() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	: new ArrayList<Object>();\n" + 
-		"	                ^^^^^^\n" + 
+		"	      ^^^^^^^^^\n" + 
 		"Redundant specification of type arguments <Object>\n" + 
 		"----------\n",
 		null,

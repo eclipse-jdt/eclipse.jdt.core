@@ -7891,24 +7891,20 @@ public void diamondNotWithAnoymousClasses(TypeReference type) {
 public void redundantSpecificationOfTypeArguments(ASTNode location, TypeBinding[] argumentTypes) {
 	int severity = computeSeverity(IProblem.RedundantSpecificationOfTypeArguments);
 	if (severity != ProblemSeverities.Ignore) {
-		TypeReference[] args = null;
-		if (location instanceof ParameterizedSingleTypeReference) {
-			ParameterizedSingleTypeReference parameterizedSingleTypeReference = (ParameterizedSingleTypeReference) location;
-			args = parameterizedSingleTypeReference.typeArguments;
+		int sourceStart = -1;
+		if (location instanceof QualifiedTypeReference) {
+			QualifiedTypeReference ref = (QualifiedTypeReference)location;
+			sourceStart = (int) (ref.sourcePositions[ref.sourcePositions.length - 1] >> 32);
+		} else {
+			sourceStart = location.sourceStart;
 		}
-		if (location instanceof ParameterizedQualifiedTypeReference) {
-			ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference = (ParameterizedQualifiedTypeReference) location;
-			args = parameterizedQualifiedTypeReference.typeArguments[parameterizedQualifiedTypeReference.typeArguments.length - 1];
-		}
-		if (args != null) {
-			this.handle(
-				IProblem.RedundantSpecificationOfTypeArguments,
-				new String[] {typesAsString(argumentTypes, false)},
-				new String[] {typesAsString(argumentTypes, true)},
-				severity,
-				args[0].sourceStart,
-				args[args.length - 1].sourceEnd);
-		}
+		this.handle(
+			IProblem.RedundantSpecificationOfTypeArguments,
+			new String[] {typesAsString(argumentTypes, false)},
+			new String[] {typesAsString(argumentTypes, true)},
+			severity,
+			sourceStart,
+			location.sourceEnd);
     }
 }
 }
