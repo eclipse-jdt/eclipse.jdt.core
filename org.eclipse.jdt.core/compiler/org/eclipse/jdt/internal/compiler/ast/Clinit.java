@@ -323,11 +323,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			}
 			// Record the end of the clinit: point to the declaration of the class
 			codeStream.recordPositionsFrom(0, declaringType.sourceStart);
-			try {
-				classFile.completeCodeAttributeForClinit(codeAttributeOffset);
-			} catch(NegativeArraySizeException e) {
-				throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
-			}
+			classFile.completeCodeAttributeForClinit(codeAttributeOffset);
 		}
 	}
 

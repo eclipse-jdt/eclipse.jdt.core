@@ -38,7 +38,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 50 };
+//		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
@@ -6749,5 +6749,37 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"}",
 			},
 			"SUCCESS");
+	}
+	// 352665
+	public void test053() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
+		customOptions.put(JavaCore.COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, JavaCore.IGNORE);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	static {\n" + 
+				"		for(int i = 0; i < 10; i++){\n" + 
+				"			A a = new A();\n" + 
+				"			a.foo();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	private class A {\n" + 
+				"		private A() {\n" + 
+				"		}\n" + 
+				"		void foo() {}\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	A a = new A();\n" + 
+			"	      ^^^^^^^\n" + 
+			"No enclosing instance of type X is accessible. Must qualify the allocation with an enclosing instance of type X (e.g. x.new A() where x is an instance of X).\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
 	}
 }
