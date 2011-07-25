@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.core.dom.rewrite;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
@@ -132,11 +133,13 @@ import org.eclipse.text.edits.TextEdit;
 		this.placeholders= placeholders;
 		this.eventStore= eventStore;
 	
-		this.options= options;
 		if (options != null) {
+			this.options= new HashMap(options);
 			this.options.put(
 				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
 				DefaultCodeFormatterConstants.createAlignmentValue(true, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT));
+		} else {
+			this.options = null;
 		}
 		this.lineDelimiter= lineDelimiter;
 	
