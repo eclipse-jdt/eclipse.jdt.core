@@ -51,6 +51,8 @@ public static AnnotationBinding[] addStandardAnnotations(AnnotationBinding[] rec
 		count++;
 	if ((annotationTagBits & TagBits.AnnotationSuppressWarnings) != 0)
 		count++;
+	if ((annotationTagBits & TagBits.AnnotationPolymorphicSignature) != 0)
+		count++;
 	if (count == 0)
 		return recordedAnnotations;
 
@@ -72,8 +74,18 @@ public static AnnotationBinding[] addStandardAnnotations(AnnotationBinding[] rec
 	if ((annotationTagBits & TagBits.AnnotationSuppressWarnings) != 0)
 		result[index++] = buildMarkerAnnotation(TypeConstants.JAVA_LANG_SUPPRESSWARNINGS, env);
 	if ((annotationTagBits & TagBits.AnnotationPolymorphicSignature) != 0)
-		result[index++] = buildMarkerAnnotation(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_$_POLYMORPHICSIGNATURE, env);
+		result[index++] = buildMarkerAnnotationForMemberType(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_$_POLYMORPHICSIGNATURE, env);
 	return result;
+}
+
+private static AnnotationBinding buildMarkerAnnotationForMemberType(char[][] compoundName, LookupEnvironment env) {
+	ReferenceBinding type = env.getResolvedType(compoundName, null);
+	// since this is a member type name using '$' the return binding is a
+	// problem reference binding with reason ProblemReasons.InternalNameProvided
+	if (!type.isValidBinding()) {
+		type = ((ProblemReferenceBinding) type).closestMatch;
+	}
+	return env.createAnnotation(type, Binding.NO_ELEMENT_VALUE_PAIRS);
 }
 
 private static AnnotationBinding buildMarkerAnnotation(char[][] compoundName, LookupEnvironment env) {

@@ -31,11 +31,13 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -63,7 +65,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 18 };
+//		TESTS_NUMBERS = new int[] { 16 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] {"test0001"};
 	}
@@ -614,7 +616,8 @@ public class ASTConverter17Test extends ConverterTestSetup {
 				"\n" + 
 				"public class X {\n" + 
 				"	void bar() throws Throwable {\n" + 
-				"		MethodType mt; MethodHandle mh;\n" + 
+				"		MethodType mt;\n" +
+				"		MethodHandle mh;\n" + 
 				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" + 
 				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" + 
 				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" + 
@@ -652,6 +655,14 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		ITypeBinding[] parameterTypes = ((IMethodBinding) bindings[0]).getParameterTypes();
 		assertEquals("Wrong size", 3, parameterTypes.length);
 		assertEquals("Wrong key", key, bindings[0].getKey());
+		
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) getASTNode((CompilationUnit) node, 0, 0, 5);
+		Expression initializer = ((VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0)).getInitializer();
+		MethodInvocation invocation = (MethodInvocation) ((CastExpression) initializer).getExpression();
+		IMethodBinding invokeExactBinding = invocation.resolveMethodBinding();
+		IAnnotationBinding[] annotations = invokeExactBinding.getAnnotations();
+		assertEquals("Wrong size", 1, annotations.length);
+		assertEquals("Wrong annotation", "java.lang.invoke.MethodHandle.PolymorphicSignature", annotations[0].getAnnotationType().getQualifiedName());
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=350496
