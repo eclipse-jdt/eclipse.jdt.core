@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
@@ -133,14 +134,11 @@ import org.eclipse.text.edits.TextEdit;
 		this.placeholders= placeholders;
 		this.eventStore= eventStore;
 	
-		if (options != null) {
-			this.options= new HashMap(options);
-			this.options.put(
+		this.options= options == null ? JavaCore.getOptions() : (Map) new HashMap(options);
+		this.options.put(
 				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
 				DefaultCodeFormatterConstants.createAlignmentValue(true, DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT));
-		} else {
-			this.options = null;
-		}
+
 		this.lineDelimiter= lineDelimiter;
 	
 		this.tabWidth= IndentManipulation.getTabWidth(options);
