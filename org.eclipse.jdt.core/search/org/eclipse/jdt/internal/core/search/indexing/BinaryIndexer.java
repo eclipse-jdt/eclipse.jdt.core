@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -74,6 +78,15 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 		}
 		if ((annotationTagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 			char[][] compoundName = TypeConstants.JAVA_LANG_SUPPRESSWARNINGS;
+			addAnnotationTypeReference(compoundName[compoundName.length-1]);
+		}
+		if ((annotationTagBits & TagBits.AnnotationSafeVarargs) != 0) {
+			char[][] compoundName = TypeConstants.JAVA_LANG_SAFEVARARGS;
+			addAnnotationTypeReference(compoundName[compoundName.length-1]);
+		}
+		if ((annotationTagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
+			char[][] compoundName =
+					TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_$_POLYMORPHICSIGNATURE;
 			addAnnotationTypeReference(compoundName[compoundName.length-1]);
 		}
 	}
