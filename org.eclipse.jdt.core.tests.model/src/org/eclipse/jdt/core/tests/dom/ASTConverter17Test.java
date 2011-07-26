@@ -65,7 +65,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 16 };
+//		TESTS_NUMBERS = new int[] { 19 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] {"test0001"};
 	}
@@ -741,5 +741,31 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		InferredTypeFromExpectedVisitor visitor = new InferredTypeFromExpectedVisitor();
 		unit.accept(visitor);
 		assertEquals("Wrong contents", "falsefalsetruetrue", String.valueOf(visitor));
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=353093
+	 */
+	public void test0019() throws JavaModelException {
+		String contents =
+			"package test0019;\n" +
+			"public class Y {}";
+		this.workingCopy = getWorkingCopy(
+				"/Converter17/src/test0017/Y.java",
+				contents,
+				true/*resolve*/
+			);
+		IType type = this.workingCopy.getJavaProject().findType("java.util.Arrays");
+		IMethod[] methods = type.getMethods();
+		boolean found = false;
+		for (int i = 0; i < methods.length; i++) {
+			IMethod iMethod = methods[i];
+			if ("asList".equals(iMethod.getElementName())) {
+				IAnnotation[] annotations = iMethod.getAnnotations();
+				assertEquals("Wrong size", 1, annotations.length);
+				assertAnnotationsEqual("@java.lang.SafeVarargs\n", annotations);
+				found = true;
+			}
+		}
+		assertTrue("No method found", found);
 	}
 }
