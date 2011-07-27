@@ -200,7 +200,9 @@ public class EclipseCompilerImpl extends Main {
 						}
 						@Override
 						public String getMessage(Locale locale) {
-							setLocale(locale);
+							if (locale != null) {
+								setLocale(locale);
+							}
 							return getLocalizedMessage(problemId, problemArguments);
 						}
 						@Override
