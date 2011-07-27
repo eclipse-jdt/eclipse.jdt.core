@@ -1166,8 +1166,39 @@ private void buildMoreGenericsCompletionContext(ASTNode node, boolean consumeTyp
 						}
 						if(this.currentElement instanceof RecoveredType) {
 							this.currentElement = this.currentElement.add(new CompletionOnFieldType(ref, false), 0);
-						} else {
-							this.currentElement = this.currentElement.add(ref, 0);
+						} else {							
+							
+							if (prevKind == K_BETWEEN_NEW_AND_LEFT_BRACKET) {
+								
+								AllocationExpression exp;
+								if (this.expressionPtr > -1 && this.expressionStack[this.expressionPtr] instanceof AllocationExpression) {
+									exp = new QualifiedAllocationExpression();
+									exp.type = ref;
+									((QualifiedAllocationExpression)exp).enclosingInstance = this.expressionStack[this.expressionPtr];
+								} else {
+									exp = new AllocationExpression();
+									exp.type = ref;
+								}
+								if (isInsideReturn()) {
+									ReturnStatement returnStatement = new ReturnStatement(exp, exp.sourceStart, exp.sourceEnd);
+									this.enclosingNode = returnStatement;
+									this.currentElement  = this.currentElement.add(returnStatement,0);
+								} else if (this.currentElement instanceof RecoveredLocalVariable) {
+									if (((RecoveredLocalVariable)this.currentElement).localDeclaration.initialization == null) {
+										this.enclosingNode = ((RecoveredLocalVariable) this.currentElement).localDeclaration;
+										this.currentElement = this.currentElement.add(exp, 0);
+									}
+								} else if (this.currentElement instanceof RecoveredField) {
+									if (((RecoveredField) this.currentElement).fieldDeclaration.initialization == null) {
+										this.enclosingNode = ((RecoveredField) this.currentElement).fieldDeclaration;
+										this.currentElement = this.currentElement.add(exp, 0);
+									}
+								} else {
+									this.currentElement = this.currentElement.add(ref, 0);
+								}
+							} else {
+								this.currentElement = this.currentElement.add(ref, 0);
+							}
 						}
 					} else if (this.currentElement.enclosingMethod() != null &&
 							this.currentElement.enclosingMethod().methodDeclaration.isConstructor()) {

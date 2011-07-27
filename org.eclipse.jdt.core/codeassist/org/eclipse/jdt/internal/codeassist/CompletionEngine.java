@@ -3600,28 +3600,60 @@ public final class CompletionEngine
 			addExpectedType(TypeBinding.LONG, scope);
 		} else if(parent instanceof ParameterizedSingleTypeReference) {
 			ParameterizedSingleTypeReference ref = (ParameterizedSingleTypeReference) parent;
-			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
-			int length = ref.typeArguments == null ? 0 : ref.typeArguments.length;
-			if(typeVariables != null && typeVariables.length >= length) {
-				int index = length - 1;
-				while(index > -1 && ref.typeArguments[index] != node) index--;
-
-				TypeBinding bound = typeVariables[index].firstBound;
-				addExpectedType(bound == null ? scope.getJavaLangObject() : bound, scope);
+			TypeBinding expected = null;
+			if (this.parser.enclosingNode instanceof AbstractVariableDeclaration ||
+					this.parser.enclosingNode instanceof ReturnStatement) {
+				// completing inside the diamond
+				if (this.parser.enclosingNode instanceof AbstractVariableDeclaration) {
+					AbstractVariableDeclaration abstractVariableDeclaration = (AbstractVariableDeclaration) this.parser.enclosingNode;
+					expected = abstractVariableDeclaration.initialization != null ? abstractVariableDeclaration.initialization.expectedType() : null;					
+				} else {
+					ReturnStatement returnStatement = (ReturnStatement) this.parser.enclosingNode;
+					if (returnStatement.expression != null) {
+						expected = returnStatement.expression.expectedType();
+					}
+				}	
+				addExpectedType(expected, scope);
+			} else {
+				TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
+				int length = ref.typeArguments == null ? 0 : ref.typeArguments.length;
+				if(typeVariables != null && typeVariables.length >= length) {
+					int index = length - 1;
+					while(index > -1 && ref.typeArguments[index] != node) index--;
+	
+					TypeBinding bound = typeVariables[index].firstBound;
+					addExpectedType(bound == null ? scope.getJavaLangObject() : bound, scope);
+				}
 			}
 		} else if(parent instanceof ParameterizedQualifiedTypeReference) {
 			ParameterizedQualifiedTypeReference ref = (ParameterizedQualifiedTypeReference) parent;
-			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
 			TypeReference[][] arguments = ref.typeArguments;
-			if(typeVariables != null) {
-				int iLength = arguments == null ? 0 : arguments.length;
-				done: for (int i = 0; i < iLength; i++) {
-					int jLength = arguments[i] == null ? 0 : arguments[i].length;
-					for (int j = 0; j < jLength; j++) {
-						if(arguments[i][j] == node && typeVariables.length > j) {
-							TypeBinding bound = typeVariables[j].firstBound;
-							addExpectedType(bound == null ? scope.getJavaLangObject() : bound, scope);
-							break done;
+			TypeBinding expected = null;
+			if (this.parser.enclosingNode instanceof AbstractVariableDeclaration ||
+					this.parser.enclosingNode instanceof ReturnStatement) {
+				// completing inside the diamond
+				if (this.parser.enclosingNode instanceof AbstractVariableDeclaration) {
+					AbstractVariableDeclaration abstractVariableDeclaration = (AbstractVariableDeclaration) this.parser.enclosingNode;
+					expected = abstractVariableDeclaration.initialization != null ? abstractVariableDeclaration.initialization.expectedType() : null;
+				} else {
+					ReturnStatement returnStatement = (ReturnStatement) this.parser.enclosingNode;
+					if (returnStatement.expression != null) {
+						expected = returnStatement.expression.expectedType();
+					}
+				}
+				addExpectedType(expected, scope);
+			} else {
+				TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
+				if(typeVariables != null) {
+					int iLength = arguments == null ? 0 : arguments.length;
+					done: for (int i = 0; i < iLength; i++) {
+						int jLength = arguments[i] == null ? 0 : arguments[i].length;
+						for (int j = 0; j < jLength; j++) {
+							if(arguments[i][j] == node && typeVariables.length > j) {
+								TypeBinding bound = typeVariables[j].firstBound;
+								addExpectedType(bound == null ? scope.getJavaLangObject() : bound, scope);
+								break done;
+							}
 						}
 					}
 				}
