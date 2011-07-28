@@ -42,11 +42,22 @@
 	</td>
   </tr>
 </table>
+<a name="v_C02"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java development tools core</h1>
+Eclipse SDK 3.8.0 - %date% - 3.8.0 M1
+<br>Project org.eclipse.jdt.core v_C02
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C02">cvs</a>).
+<h2>What's new in this drop</h2>
+
+<h3>Problem Reports Fixed</h3>
+
 <a name="v_C01"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.8.0 - July 27, 2011 - 3.8.0 M1
+Eclipse SDK 3.8.0 - July 27, 2011
 <br>Project org.eclipse.jdt.core v_C01
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C01">cvs</a>).
 <h2>What's new in this drop</h2>
@@ -233,6 +244,86 @@ The 2000th (0-based) enum constant is null
 [1.7][compiler] NPE while using diamond for inner class allocation
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=334313">334313</a>
 [1.5][compiler] Bug in the way eclipse handles overriding of generic abstract method by a non-abstract method
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029">346029</a>
+[1.7][compiler] Eclipse compiles code rejected by JDK7
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=345628">345628</a>
+[1.7] Rename disjunctive type to union type
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=345559">345559</a>
+[1.7][compiler] Type inference for generic allocation can be avoided for invalid constructor
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=342819">342819</a>
+Code rejected by javac with name clash error compiles under eclipse.
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=334306">334306</a>
+[1.7][compiler] name clash reported in javac 1.7 and not in javac 1.6
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=345579">345579</a>
+[1.7][compiler] Weird error message in rethrow site
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=345522">345522</a>
+[1.7][compiler] Compilers fails to compute precisely rethrown types
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=344824">344824</a>
+[1.7][compiler] Incorrect error range for unreachable catch block error in multi-catch
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=340486">340486</a>
+[1.7][compiler] Missing error in multi catch scenario
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=345359">345359</a>
+[1.7][compiler] AIOOB on diamond construct with argument error
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=345239">345239</a>
+[1.7][compiler] Compiler should issue better diagnostics for use of &lt;&gt; with anonymous classes
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=344655">344655</a>
+[1.7][compiler] Prohibit use of &lt;&gt; with explicit type arguments to generic constructor
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=328575">328575</a>
+Inheritance of annotation fails with generic classes
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=343785">343785</a>
+[1.7] Incorrect line numbers in stack trace with try with resources
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=343687">343687</a>
+[1.7] IAE in NumberLiteral#setToken(String) for binary tokens and tokens with underscore
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=339478">339478</a>
+[1.7][compiler] support for diamond case
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=343476">343476</a>
+[1.7][assist] propose String variables and fields inside catch expression
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087">292087</a>
+anonymous class in array member initializer confuses content assist
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=343475">343475</a>
+[1.7] Compiler warning for invalid type inside switch needs to be improved
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=342416">342416</a>
+[1.7] Signature#createIntersectionTypeSignature(..) should take array of signatures
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=340059">340059</a>
+[1.7] IAE when dealing with Signature of disjunctive type
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=338789">338789</a>
+[1.7][assist] No proposal inside a multi catch statement after '|'
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=341333">341333</a>
+[1.7][compiler] DisjunctiveTypeReference#resolveType(..) does not set the value for DisjunctiveTypeReference$resolvedType
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=340634">340634</a>
+[1.7][compiler][multicatch] Compiler accepts type variables as catch parameter type
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=340626">340626</a>
+[1.7][compiler] Inconsistent source pinpointing in multi-catch blocks
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=340513">340513</a>
+[1.7][compiler] Unicode 6.0 characters work at compiler compliance level 1.5 and 1.6
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=340445">340445</a>
+[1.7] ASTRewriteAnalyzer and ASTRewriteFlattener need updates
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=340372">340372</a>
+[1.7] NaiveASTFlattener needs to support the new AST nodes
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=340365">340365</a>
+[1.7] Problems in new APIs (TryStatementWithResources, DisjunctiveType)
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=340375">340375</a>
+[1.7] Merge TryStatementWithResources into TryStatement
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=340022">340022</a>
+[1.7][compiler] Support for precise rethrow
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=339837">339837</a>
+[1.7][compiler] Multicatch syntax not rejected at 1.6-
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=339864">339864</a>
+[1.7] Add recovery in ASTConverter for all new constructs in JLS3 mode
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=338402">338402</a>
+[1.7][compiler][enh] Open issues in try with resources implementation
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795">337795</a>
+[1.7][compiler] Missing unchecked warning at varargs method/ctor declaration site
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=337802">337802</a>
+[1.7][compiler] Usage of 0x0ffffffff is being reported as out of range.
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799">337799</a>
+[1.7][compiler][varargs] Eclipse fails to report error on incorrect SafeVarargs usage
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=337738">337738</a>
+[1.7][content assist]Test CompletionParserTest#testEA_1 fails
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=336782">336782</a>
+[1.7][recovery]Extra error tokens with invalid unary operator
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=336322">336322</a>
+[1.7][search]CCE while searching for a type reference in multiple catch parameters
 
 <hr>
 <p>For earlier build notes, also see <a href="http://dev.eclipse.org/viewcvs/index.cgi/%7Echeckout%7E/org.eclipse.jdt.core/notes/R36_buildnotes_jdt-core.html">build notes up to Release 3.6</a>.</p>
