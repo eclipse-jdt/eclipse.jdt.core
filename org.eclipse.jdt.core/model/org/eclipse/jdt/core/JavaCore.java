@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3486,9 +3486,9 @@ public final class JavaCore extends Plugin {
 			// and recreate links for external folders if needed
 			if (monitor != null)
 				monitor.subTask(Messages.javamodel_resetting_source_attachment_properties);
-			ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
 			final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
 			HashSet visitedPaths = new HashSet();
+			ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
 			for (int i = 0, length = projects.length; i < length; i++) {
 				JavaProject javaProject = (JavaProject) projects[i];
 				IClasspathEntry[] classpath;
@@ -3499,7 +3499,6 @@ public final class JavaCore extends Plugin {
 					continue;
 				}
 				if (classpath != null) {
-					boolean needExternalFolderCreation = false;
 					for (int j = 0, length2 = classpath.length; j < length2; j++) {
 						IClasspathEntry entry = classpath[j];
 						if (entry.getSourceAttachmentPath() != null) {
@@ -3509,18 +3508,22 @@ public final class JavaCore extends Plugin {
 							}
 						}
 						// else source might have been attached by IPackageFragmentRoot#attachSource(...), we keep it
-						if (!needExternalFolderCreation && entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+						if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 							IPath entryPath = entry.getPath();
 							if (ExternalFoldersManager.isExternalFolderPath(entryPath) && externalFoldersManager.getFolder(entryPath) == null) {
-								needExternalFolderCreation = true;
+								externalFoldersManager.addFolder(entryPath, true);
 							}
 						}
 					}
-					if (needExternalFolderCreation)
-						manager.deltaState.addExternalFolderChange(javaProject, null/*act as if all external folders were new*/);
 				}
 			}
-
+			try {
+				externalFoldersManager.createPendingFolders(monitor);
+			}
+			catch(JavaModelException jme) {
+				// Creation of external folder project failed. Log it and continue;
+				Util.log(jme, "Error while processing external folders"); //$NON-NLS-1$
+			}
 			// initialize delta state
 			if (monitor != null)
 				monitor.subTask(Messages.javamodel_initializing_delta_state);
