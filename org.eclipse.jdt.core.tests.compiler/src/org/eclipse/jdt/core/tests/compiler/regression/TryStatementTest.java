@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2008 IBM Corporation and others.
+ * Copyright (c) 2003, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,7 @@ public class TryStatementTest extends AbstractRegressionTest {
 
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
+//	TESTS_NUMBERS = new int[] { 74, 75 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public TryStatementTest(String name) {
@@ -5221,19 +5221,19 @@ public void test058() throws Exception {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\r\n" +
-				"	public static void main(String args[]) {\r\n" +
-				"		try {\r\n" +
-				"			try {\r\n" +
-				"				System.out.print(\"SU\");\r\n" +
-				"			} finally {\r\n" +
-				"				System.out.print(\"CC\");\r\n" +
-				"			}\r\n" +
-				"		} finally {\r\n" +
-				"			System.out.println(\"ESS\");\r\n" +
-				"		}\r\n" +
-				"	}\r\n" +
-				"}\r\n" +
+				"public class X {\n" +
+				"	public static void main(String args[]) {\n" +
+				"		try {\n" +
+				"			try {\n" +
+				"				System.out.print(\"SU\");\n" +
+				"			} finally {\n" +
+				"				System.out.print(\"CC\");\n" +
+				"			}\n" +
+				"		} finally {\n" +
+				"			System.out.println(\"ESS\");\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n" +
 				"",
 			},
 			"SUCCESS");
@@ -5732,6 +5732,237 @@ public void test067() throws Exception {
 				"",
 			},
 			"null");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340485
+public void test068() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+					"    public static void main(String [] args) {\n" +
+					"        doSomething(false);\n" +
+					"    }\n" +
+					"    public static void doSomething (boolean bool) {\n" +
+					"        try {\n" +
+					"            if (bool)\n" +
+					"                throw new GrandSonOfFoo();\n" +
+					"            else \n" +
+					"                throw new GrandDaughterOfFoo();\n" +
+					"        } catch(Foo e) {\n" +
+					"            try { \n" +
+					"                    throw e; \n" +
+					"            } catch (SonOfFoo e1) {\n" +
+					"                 e1.printStackTrace();\n" +
+					"            } catch (DaughterOfFoo e1) {\n" +
+					"                System.out.println(\"caught a daughter of foo\");\n" +
+					"            } catch (Foo f) {}\n" +
+					"        }\n" +
+					"    }\n" +
+					"}\n" +
+					"class Foo extends Exception {}\n" +
+					"class SonOfFoo extends Foo {}\n" +
+					"class GrandSonOfFoo extends SonOfFoo {}\n" +
+					"class DaughterOfFoo extends Foo {}\n" +
+					"class GrandDaughterOfFoo extends DaughterOfFoo {}\n"
+		}, 
+		"caught a daughter of foo");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=340484
+public void test069() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        try {\n" +
+			"            throw new DaughterOfFoo();\n" +
+			"        } catch(Foo e) {\n" +
+			"            try { \n" +
+			"                while (true) {\n" +
+			"                    throw e; \n" +
+			"                }\n" +
+			"            } catch (SonOfFoo e1) {\n" +
+			"                 e1.printStackTrace();\n" +
+			"            } catch (Foo e1) {}\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"class Foo extends Exception {}\n" +
+			"class SonOfFoo extends Foo {}\n" +
+			"class DaughterOfFoo extends Foo {}\n"
+		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
+				"----------\n" + 
+				"1. WARNING in X.java (at line 16)\n" + 
+				"	class Foo extends Exception {}\n" + 
+				"	      ^^^\n" + 
+				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 17)\n" + 
+				"	class SonOfFoo extends Foo {}\n" + 
+				"	      ^^^^^^^^\n" + 
+				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 18)\n" + 
+				"	class DaughterOfFoo extends Foo {}\n" + 
+				"	      ^^^^^^^^^^^^^\n" + 
+				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" :
+				"----------\n" + 
+				"1. ERROR in X.java (at line 10)\n" + 
+				"	} catch (SonOfFoo e1) {\n" + 
+				"	         ^^^^^^^^\n" + 
+				"Unreachable catch block for SonOfFoo. This exception is never thrown from the try statement body\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 16)\n" + 
+				"	class Foo extends Exception {}\n" + 
+				"	      ^^^\n" + 
+				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 17)\n" + 
+				"	class SonOfFoo extends Foo {}\n" + 
+				"	      ^^^^^^^^\n" + 
+				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 18)\n" + 
+				"	class DaughterOfFoo extends Foo {}\n" + 
+				"	      ^^^^^^^^^^^^^\n" + 
+				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n");
+}
+// precise throw computation should also take care of throws clause in 1.7. 1.6- should continue to behave as it always has.
+public void test070() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void foo() throws DaughterOfFoo {\n" +
+			"		try {\n" +
+			"			throw new DaughterOfFoo();\n" +
+			"		} catch (Foo e){\n" + 
+			"			throw e;\n" +
+			"           foo();\n" +
+			"		}\n"+
+			"	}\n"+
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			foo();\n"+
+			"		} catch(Foo e) {}\n" + 
+			"	}\n" + 
+			"}\n"+
+			"class Foo extends Exception {}\n"+
+			"class SonOfFoo extends Foo {}\n"+
+			"class DaughterOfFoo extends Foo {}\n"
+		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ? 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	throw e;\n" + 
+				"	^^^^^^^^\n" + 
+				"Unhandled exception type Foo\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	foo();\n" + 
+				"	^^^^^^\n" + 
+				"Unreachable code\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 16)\n" + 
+				"	class Foo extends Exception {}\n" + 
+				"	      ^^^\n" + 
+				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 17)\n" + 
+				"	class SonOfFoo extends Foo {}\n" + 
+				"	      ^^^^^^^^\n" + 
+				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"5. WARNING in X.java (at line 18)\n" + 
+				"	class DaughterOfFoo extends Foo {}\n" + 
+				"	      ^^^^^^^^^^^^^\n" + 
+				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n":
+					
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	foo();\n" + 
+				"	^^^^^^\n" + 
+				"Unreachable code\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 16)\n" + 
+				"	class Foo extends Exception {}\n" + 
+				"	      ^^^\n" + 
+				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 17)\n" + 
+				"	class SonOfFoo extends Foo {}\n" + 
+				"	      ^^^^^^^^\n" + 
+				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 18)\n" + 
+				"	class DaughterOfFoo extends Foo {}\n" + 
+				"	      ^^^^^^^^^^^^^\n" + 
+				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
+public void test071() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		try {\n" +
+			"		} catch (Exception [][][][][]  e [][][][]) {\n" +
+			"		}\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	} catch (Exception [][][][][]  e [][][][]) {\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"No exception of type Exception[][][][][][][][][] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
+public void test072() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		try {\n" +
+			"		} catch (Exception e []) {\n" +
+			"		}\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	} catch (Exception e []) {\n" + 
+		"	         ^^^^^^^^^^^^^^\n" + 
+		"No exception of type Exception[] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
+public void test073() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		try {\n" +
+			"		} catch (Exception [] e) {\n" +
+			"		}\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	} catch (Exception [] e) {\n" + 
+		"	         ^^^^^^^^^^^^\n" + 
+		"No exception of type Exception[] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return TryStatementTest.class;

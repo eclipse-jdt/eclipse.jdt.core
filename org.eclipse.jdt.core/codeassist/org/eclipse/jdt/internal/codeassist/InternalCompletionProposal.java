@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 IBM Corporation and others.
+ * Copyright (c) 2004, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Andreas Magnusson <andreas.ch.magnusson@gmail.com>- contribution for bug 151500
@@ -12,6 +12,7 @@
 package org.eclipse.jdt.internal.codeassist;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionFlags;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
@@ -1789,5 +1790,33 @@ public class InternalCompletionProposal extends CompletionProposal {
 		buffer.append(this.relevance);
 		buffer.append('}');
 		return buffer.toString();
+	}
+
+	public boolean canUseDiamond(CompletionContext coreContext) {
+		if (this.getKind() != CONSTRUCTOR_INVOCATION) return false;
+		if (coreContext instanceof InternalCompletionContext) {
+			InternalCompletionContext internalCompletionContext = (InternalCompletionContext) coreContext;
+			if (internalCompletionContext.extendedContext == null) return false;
+			char[] name1 = this.declarationPackageName;
+			char[] name2 = this.declarationTypeName;
+			char[] declarationType = CharOperation.concat(name1, name2, '.');  // fully qualified name
+			// even if the type arguments used in the method have been substituted,
+			// extract the original type arguments only, since thats what we want to compare with the class
+			// type variables (Substitution might have happened when the constructor is coming from another
+			// CU and not the current one).
+			char[] sign = (this.originalSignature != null)? this.originalSignature : getSignature();
+			if (!(sign == null || sign.length < 2)) {
+				sign = Signature.removeCapture(sign);
+			}
+			char[][] types= Signature.getParameterTypes(sign);
+			String[] paramTypeNames= new String[types.length];
+			for (int i= 0; i < types.length; i++) {
+				paramTypeNames[i]= new String(Signature.toCharArray(types[i]));
+			}
+			return internalCompletionContext.extendedContext.canUseDiamond(paramTypeNames,declarationType);
+		}
+		else {
+			return false;
+		}
 	}
 }

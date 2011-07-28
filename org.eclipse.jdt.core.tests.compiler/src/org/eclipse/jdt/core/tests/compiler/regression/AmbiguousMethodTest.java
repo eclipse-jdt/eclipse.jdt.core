@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,9 @@ import junit.framework.*;
 
 public class AmbiguousMethodTest extends AbstractComparableTest {
 
+	static {
+//		TESTS_NAMES = new String [] { "test087" };
+	}
 	public AmbiguousMethodTest(String name) {
 		super(name);
 	}
@@ -3269,6 +3272,7 @@ public void test075() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=268837
+// See that this test case exhibits the bug 345947
 public void test076() {
 	this.runNegativeTest(
 		new String[] {
@@ -3320,97 +3324,102 @@ public void test076() {
 			"}"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 15)\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	<U> J<String> b();\n" + 
+		"	              ^^^\n" + 
+		"Name clash: The method b() of type J<E> has the same erasure as b() of type I<E> but does not override it\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 15)\n" + 
 		"	J<Integer> b = ints.a();\n" + 
 		"	               ^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from J<String> to J<Integer>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 16)\n" + 
+		"3. ERROR in X.java (at line 16)\n" + 
 		"	J<Object> c = ints.a();\n" + 
 		"	              ^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from J<String> to J<Object>\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 17)\n" + 
+		"4. WARNING in X.java (at line 17)\n" + 
 		"	J d = ints.a();\n" + 
 		"	^\n" + 
 		"J is a raw type. References to generic type J<E> should be parameterized\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 19)\n" + 
+		"5. ERROR in X.java (at line 19)\n" + 
 		"	I<Integer> f = ints.a();\n" + 
 		"	               ^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from J<String> to I<Integer>\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 20)\n" + 
+		"6. ERROR in X.java (at line 20)\n" + 
 		"	I<Object> g = ints.a();\n" + 
 		"	              ^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from J<String> to I<Object>\n" + 
 		"----------\n" + 
-		"6. WARNING in X.java (at line 21)\n" + 
+		"7. WARNING in X.java (at line 21)\n" + 
 		"	I h = ints.a();\n" + 
 		"	^\n" + 
 		"I is a raw type. References to generic type I<E> should be parameterized\n" + 
 		"----------\n" + 
-		"7. ERROR in X.java (at line 24)\n" + 
+		"8. ERROR in X.java (at line 24)\n" + 
 		"	ints.b();\n" + 
 		"	     ^\n" + 
 		"The method b() is ambiguous for the type J<Integer>\n" + 
 		"----------\n" + 
-		"8. ERROR in X.java (at line 25)\n" + 
+		"9. ERROR in X.java (at line 25)\n" + 
 		"	J<String> a = ints.b();\n" + 
 		"	                   ^\n" + 
 		"The method b() is ambiguous for the type J<Integer>\n" + 
 		"----------\n" + 
-		"9. ERROR in X.java (at line 26)\n" + 
+		"10. ERROR in X.java (at line 26)\n" + 
 		"	J<Integer> b = ints.b();\n" + 
 		"	                    ^\n" + 
 		"The method b() is ambiguous for the type J<Integer>\n" + 
 		"----------\n" + 
-		"10. ERROR in X.java (at line 27)\n" + 
+		"11. ERROR in X.java (at line 27)\n" + 
 		"	J<Object> c = ints.b();\n" + 
 		"	                   ^\n" + 
 		"The method b() is ambiguous for the type J<Integer>\n" + 
 		"----------\n" + 
-		"11. WARNING in X.java (at line 28)\n" + 
+		"12. WARNING in X.java (at line 28)\n" + 
 		"	J d = ints.b();\n" + 
 		"	^\n" + 
 		"J is a raw type. References to generic type J<E> should be parameterized\n" + 
 		"----------\n" + 
-		"12. ERROR in X.java (at line 28)\n" + 
+		"13. ERROR in X.java (at line 28)\n" + 
 		"	J d = ints.b();\n" + 
 		"	           ^\n" + 
 		"The method b() is ambiguous for the type J<Integer>\n" + 
 		"----------\n" + 
-		"13. ERROR in X.java (at line 29)\n" + 
+		"14. ERROR in X.java (at line 29)\n" + 
 		"	I<String> e = ints.b();\n" + 
 		"	                   ^\n" + 
 		"The method b() is ambiguous for the type J<Integer>\n" + 
 		"----------\n" + 
-		"14. ERROR in X.java (at line 30)\n" + 
+		"15. ERROR in X.java (at line 30)\n" + 
 		"	I<Integer> f = ints.b();\n" + 
 		"	                    ^\n" + 
 		"The method b() is ambiguous for the type J<Integer>\n" + 
 		"----------\n" + 
-		"15. ERROR in X.java (at line 31)\n" + 
+		"16. ERROR in X.java (at line 31)\n" + 
 		"	I<Object> g = ints.b();\n" + 
 		"	                   ^\n" + 
 		"The method b() is ambiguous for the type J<Integer>\n" + 
 		"----------\n" + 
-		"16. WARNING in X.java (at line 32)\n" + 
+		"17. WARNING in X.java (at line 32)\n" + 
 		"	I h = ints.b();\n" + 
 		"	^\n" + 
 		"I is a raw type. References to generic type I<E> should be parameterized\n" + 
 		"----------\n" + 
-		"17. ERROR in X.java (at line 32)\n" + 
+		"18. ERROR in X.java (at line 32)\n" + 
 		"	I h = ints.b();\n" + 
 		"	           ^\n" + 
 		"The method b() is ambiguous for the type J<Integer>\n" + 
 		"----------\n" + 
-		"18. WARNING in X.java (at line 39)\n" + 
+		"19. WARNING in X.java (at line 39)\n" + 
 		"	J d = ints.c();\n" + 
 		"	^\n" + 
 		"J is a raw type. References to generic type J<E> should be parameterized\n" + 
 		"----------\n" + 
-		"19. WARNING in X.java (at line 43)\n" + 
+		"20. WARNING in X.java (at line 43)\n" + 
 		"	I h = ints.c();\n" + 
 		"	^\n" + 
 		"I is a raw type. References to generic type I<E> should be parameterized\n" + 
@@ -3479,8 +3488,9 @@ public void test078() {
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=292350
+// See that this test case exhibits the bug 345947
 public void test079() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"interface I<T> {}\n" +
@@ -3499,7 +3509,17 @@ public void test079() {
 			"    void y(Two t) { t.y(); }\n" +
 			"}"
 		},
-		""
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	<T extends A> I<T> x() throws IllegalAccessError;\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method x() of type Two has the same erasure as x() of type One but does not override it\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	I<B> y() throws IllegalAccessError;\n" + 
+		"	^\n" + 
+		"Type safety: The return type I<B> for y() from the type Two needs unchecked conversion to conform to I<A> from the type One\n" + 
+		"----------\n"
 	);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=293384
@@ -3845,5 +3865,26 @@ public void test086() {
 
 		},
 		"In A.set(Object)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321485
+public void test087() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"    public static <T> List<T> with(List<? extends T> p) { return null; } \n" +
+			"    public static <T> Collection<T> with(Collection<T> p) { return null; }\n" +
+			"    static { with(null); }\n" +
+			"} \n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	static { with(null); }\n" + 
+		"	         ^^^^\n" + 
+		"The method with(List<? extends Object>) is ambiguous for the type X\n" + 
+		"----------\n"
+	);
 }
 }

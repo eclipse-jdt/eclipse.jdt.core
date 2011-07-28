@@ -136,6 +136,7 @@ public class CompilerOptions {
 	public static final String OPTION_IncludeNullInfoFromAsserts = "org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts";  //$NON-NLS-1$
 	public static final String OPTION_ReportMethodCanBeStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic";  //$NON-NLS-1$
 	public static final String OPTION_ReportMethodCanBePotentiallyStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic";  //$NON-NLS-1$
+	public static final String OPTION_ReportRedundantSpecificationOfTypeArguments =  "org.eclipse.jdt.core.compiler.problem.redundantSpecificationOfTypeArguments"; //$NON-NLS-1$
 	/**
 	 * Possible values for configurable options
 	 */
@@ -238,6 +239,7 @@ public class CompilerOptions {
 	public static final int UnusedObjectAllocation = IrritantSet.GROUP2 | ASTNode.Bit4;
 	public static final int MethodCanBeStatic = IrritantSet.GROUP2 | ASTNode.Bit5;
 	public static final int MethodCanBePotentiallyStatic = IrritantSet.GROUP2 | ASTNode.Bit6;
+	public static final int RedundantSpecificationOfTypeArguments = IrritantSet.GROUP2 | ASTNode.Bit7;
 
 	// Severity level for handlers
 	/** 
@@ -547,6 +549,8 @@ public class CompilerOptions {
 				return OPTION_ReportMethodCanBeStatic;
 			case MethodCanBePotentiallyStatic :
 				return OPTION_ReportMethodCanBePotentiallyStatic;
+			case RedundantSpecificationOfTypeArguments :
+				return OPTION_ReportRedundantSpecificationOfTypeArguments;
 		}
 		return null;
 	}
@@ -682,6 +686,7 @@ public class CompilerOptions {
 			OPTION_ReportRawTypeReference,
 			OPTION_ReportRedundantNullCheck,
 			OPTION_ReportRedundantSuperinterface,
+			OPTION_ReportRedundantSpecificationOfTypeArguments,
 			OPTION_ReportSpecialParameterHidingField,
 			OPTION_ReportSyntheticAccessEmulation,
 			OPTION_ReportTasks,
@@ -763,6 +768,7 @@ public class CompilerOptions {
 			case UnusedDeclaredThrownException :
 			case DeadCode :
 			case UnusedObjectAllocation :
+			case RedundantSpecificationOfTypeArguments :
 				return "unused"; //$NON-NLS-1$
 			case DiscouragedReference :
 			case ForbiddenReference :
@@ -973,6 +979,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_IncludeNullInfoFromAsserts, this.includeNullInfoFromAsserts ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportMethodCanBeStatic, getSeverityString(MethodCanBeStatic));
 		optionsMap.put(OPTION_ReportMethodCanBePotentiallyStatic, getSeverityString(MethodCanBePotentiallyStatic));
+		optionsMap.put(OPTION_ReportRedundantSpecificationOfTypeArguments, getSeverityString(RedundantSpecificationOfTypeArguments));
 		return optionsMap;
 	}
 
@@ -1402,6 +1409,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedObjectAllocation)) != null) updateSeverity(UnusedObjectAllocation, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodCanBeStatic)) != null) updateSeverity(MethodCanBeStatic, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodCanBePotentiallyStatic)) != null) updateSeverity(MethodCanBePotentiallyStatic, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportRedundantSpecificationOfTypeArguments)) != null) updateSeverity(RedundantSpecificationOfTypeArguments, optionValue);
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -1616,6 +1624,7 @@ public class CompilerOptions {
 		buf.append("\n\t- unused object allocation: ").append(getSeverityString(UnusedObjectAllocation)); //$NON-NLS-1$
 		buf.append("\n\t- method can be static: ").append(getSeverityString(MethodCanBeStatic)); //$NON-NLS-1$
 		buf.append("\n\t- method can be potentially static: ").append(getSeverityString(MethodCanBePotentiallyStatic)); //$NON-NLS-1$
+		buf.append("\n\t- redundant specification of type arguments: ").append(getSeverityString(RedundantSpecificationOfTypeArguments)); //$NON-NLS-1$
 		return buf.toString();
 	}
 	

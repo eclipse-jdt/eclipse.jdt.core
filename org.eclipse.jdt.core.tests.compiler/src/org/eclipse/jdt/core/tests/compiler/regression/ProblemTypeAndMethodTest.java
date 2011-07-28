@@ -3403,12 +3403,12 @@ public void test074() {
 				"6. ERROR in X.java (at line 9)\n" +
 				"	Zork<String> bar1() {}\n" +
 				"	     ^^^^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n" +
 				"7. ERROR in X.java (at line 10)\n" +
 				"	List<Zork> bar2() {}\n" +
 				"	     ^^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n" +
 				"8. ERROR in X.java (at line 10)\n" +
 				"	List<Zork> bar2() {}\n" +
@@ -3423,7 +3423,7 @@ public void test074() {
 				"10. ERROR in X.java (at line 11)\n" +
 				"	void bar3(Zork<String> z) {}\n" +
 				"	               ^^^^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n" +
 				"11. ERROR in X.java (at line 12)\n" +
 				"	void bar4(Zork<String,String> z) {}\n" +
@@ -3433,7 +3433,7 @@ public void test074() {
 				"12. ERROR in X.java (at line 12)\n" +
 				"	void bar4(Zork<String,String> z) {}\n" +
 				"	               ^^^^^^^^^^^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n"
 		: 		"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
@@ -3508,7 +3508,7 @@ public void test075() {
 				"2. ERROR in X.java (at line 3)\n" +
 				"	Zork<?,?> z = (Zork<?, ? extends Number>) o;\n" +
 				"	     ^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 3)\n" +
 				"	Zork<?,?> z = (Zork<?, ? extends Number>) o;\n" +
@@ -3518,7 +3518,7 @@ public void test075() {
 				"4. ERROR in X.java (at line 3)\n" +
 				"	Zork<?,?> z = (Zork<?, ? extends Number>) o;\n" +
 				"	                    ^^^^^^^^^^^^^^^^^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n" +
 				"5. ERROR in X.java (at line 4)\n" +
 				"	String s = (Zork<?, ? extends Number>) o;\n" +
@@ -3533,7 +3533,7 @@ public void test075() {
 				"7. ERROR in X.java (at line 4)\n" +
 				"	String s = (Zork<?, ? extends Number>) o;\n" +
 				"	                 ^^^^^^^^^^^^^^^^^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n"
 		: 		"----------\n" +
 				"1. ERROR in X.java (at line 3)\n" +
@@ -3591,7 +3591,7 @@ public void test076() {
 				"2. ERROR in X.java (at line 3)\n" +
 				"	Zork<?,?> z = (Zork<?, ? super Number>) o;\n" +
 				"	     ^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 3)\n" +
 				"	Zork<?,?> z = (Zork<?, ? super Number>) o;\n" +
@@ -3601,7 +3601,7 @@ public void test076() {
 				"4. ERROR in X.java (at line 3)\n" +
 				"	Zork<?,?> z = (Zork<?, ? super Number>) o;\n" +
 				"	                    ^^^^^^^^^^^^^^^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n" +
 				"5. ERROR in X.java (at line 4)\n" +
 				"	String s = (Zork<?, ? super Number>) o;\n" +
@@ -3616,7 +3616,7 @@ public void test076() {
 				"7. ERROR in X.java (at line 4)\n" +
 				"	String s = (Zork<?, ? super Number>) o;\n" +
 				"	                 ^^^^^^^^^^^^^^^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n"
 		: 		"----------\n" +
 				"1. ERROR in X.java (at line 3)\n" +
@@ -3674,7 +3674,7 @@ public void test077() {
 				"2. ERROR in X.java (at line 3)\n" +
 				"	Zork<?,?> z = (Zork<?, ? super Number[]>) o;\n" +
 				"	     ^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 3)\n" +
 				"	Zork<?,?> z = (Zork<?, ? super Number[]>) o;\n" +
@@ -3684,7 +3684,7 @@ public void test077() {
 				"4. ERROR in X.java (at line 3)\n" +
 				"	Zork<?,?> z = (Zork<?, ? super Number[]>) o;\n" +
 				"	                    ^^^^^^^^^^^^^^^^^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n" +
 				"5. ERROR in X.java (at line 4)\n" +
 				"	String s = (Zork<?, ? extends Number[]>) o;\n" +
@@ -3699,7 +3699,7 @@ public void test077() {
 				"7. ERROR in X.java (at line 4)\n" +
 				"	String s = (Zork<?, ? extends Number[]>) o;\n" +
 				"	                 ^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Syntax error, parameterized types are only available if source level is 1.5\n" +
+				"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 				"----------\n"
 		: 		"----------\n" +
 				"1. ERROR in X.java (at line 3)\n" +

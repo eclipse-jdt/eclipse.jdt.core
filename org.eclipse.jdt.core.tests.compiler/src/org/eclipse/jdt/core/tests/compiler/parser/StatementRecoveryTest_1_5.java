@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -281,7 +281,7 @@ public void test0001() {
 		"  void foo(Collection c) {\n" +
 		"    for (String s : c) \n" +
 		"      {\n" +
-		"        try \n" +
+		"        try\n" +
 		"          {\n" +
 		"            foo();\n" +
 		"          }\n" +

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -160,6 +160,12 @@ public abstract class Annotation extends Expression {
 				break;
 			case TypeIds.T_JavaLangSuppressWarnings :
 				tagBits |= TagBits.AnnotationSuppressWarnings;
+				break;
+			case TypeIds.T_JavaLangSafeVarargs :
+				tagBits |= TagBits.AnnotationSafeVarargs;
+				break;
+			case TypeIds.T_JavaLangInvokeMethodHandlePolymorphicSignature :
+				tagBits |= TagBits.AnnotationPolymorphicSignature;
 				break;
 		}
 		return tagBits;

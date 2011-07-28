@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 328281 - visibility leaks not detected when analyzing unused field in private class
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for 
+ *     						Bug 328281 - visibility leaks not detected when analyzing unused field in private class
+ *     						Bug 300576 - NPE Computing type hierarchy when compliance doesn't match libraries
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -923,6 +925,11 @@ public class ClassScope extends Scope {
 	private boolean connectEnumSuperclass() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		ReferenceBinding rootEnumType = getJavaLangEnum();
+		if ((rootEnumType.tagBits & TagBits.HasMissingType) != 0) {
+			sourceType.tagBits |= TagBits.HierarchyHasProblems; // mark missing supertpye
+			sourceType.superclass = rootEnumType;
+			return false;
+		}
 		boolean foundCycle = detectHierarchyCycle(sourceType, rootEnumType, null);
 		// arity check for well-known Enum<E>
 		TypeVariableBinding[] refTypeVariables = rootEnumType.typeVariables();

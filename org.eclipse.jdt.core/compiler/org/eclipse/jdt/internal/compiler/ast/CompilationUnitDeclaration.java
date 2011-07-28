@@ -218,7 +218,8 @@ public void finalizeProblems() {
 		CategorizedProblem problem = problems[iProblem];
 		int problemID = problem.getID();
 		int irritant = ProblemReporter.getIrritant(problemID);
-		if (problem.isError()) {
+		boolean isError = problem.isError();
+		if (isError) {
 			if (irritant == 0) {
 				// tolerate unused warning tokens when mandatory errors
 				hasMandatoryErrors = true;

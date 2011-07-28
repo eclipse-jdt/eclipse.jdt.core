@@ -1377,29 +1377,6 @@ public void testMethodDeclarationInInterface() throws JavaModelException {
 			elements
 	);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=342054
-public void testMethodParameter() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Resolve/src/test/Test.java",
-		"package test;"+
-		"public class Test {\n" +
-		"	void foo(int x) {\n" +
-		"	}\n" +
-		"}");
-
-	String str = this.workingCopies[0].getSource();
-	int start = str.lastIndexOf("x");
-	int length = "x".length();
-	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-
-	assertElementsEqual(
-			"Unexpected elements",
-			"x [in foo(int) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
-			elements
-		);
-	assertTrue("Not a parameter", ((ILocalVariable)elements[0]).isParameter());
-}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142303
 public void testMethodInAnonymous1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
@@ -2685,5 +2662,28 @@ public void testCodeSelectInHybrid1415Projects() throws CoreException, IOExcepti
 	} finally {
 		removeLibrary(this.currentProject, jarName, srcName);
 	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=342054
+public void testMethodParameter() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Resolve/src/test/Test.java",
+		"package test;"+
+		"public class Test {\n" +
+		"	void foo(int x) {\n" +
+		"	}\n" +
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	int start = str.lastIndexOf("x");
+	int length = "x".length();
+	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"x [in foo(int) [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]]",
+			elements
+		);
+	assertTrue("Not a parameter", ((ILocalVariable)elements[0]).isParameter());
 }
 }

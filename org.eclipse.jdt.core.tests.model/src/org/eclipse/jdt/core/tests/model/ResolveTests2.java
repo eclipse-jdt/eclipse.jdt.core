@@ -20,7 +20,7 @@ import junit.framework.*;
 public class ResolveTests2 extends ModifyingResourceTests {
 
 static {
-//	TESTS_NAMES = new String[] { "testSecondaryTypes" };
+	// TESTS_NAMES = new String[] { "testBug349486" };
 }
 public static Test suite() {
 	return buildModelTestSuite(ResolveTests2.class);
@@ -1102,6 +1102,101 @@ public void testBug249027b() throws Exception {
 		assertElementsEqual(
 			"Unexpected elements",
 			"C1 [in C1.java [in p1 [in src [in P1]]]]",
+			elements
+		);
+	} finally {
+		this.deleteProject("P1");
+	}
+}
+
+public void testBug343693() throws Exception{
+	try {
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{"JCL15_LIB"},
+			 "bin",
+			 "1.7");
+
+		this.createFolder("/P1/src/p1");
+		this.createFile(
+				"/P1/src/p1/X.java",
+				"package p1;\n"+
+				"public class X<T> {\n" +
+					"public X(T Param){}\n"+
+					"public void foo() {\n"+
+					"  new X<>(\"hello\");\n"+
+					"}\n"+
+				"}");
+		
+		waitUntilIndexesReady();
+
+		// do code select
+		ICompilationUnit cu= getCompilationUnit("P1", "src", "p1", "X.java");
+
+		String str = cu.getSource();
+
+		String selection = "X";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+		IJavaElement[] elements = cu.codeSelect(start, length);
+
+		assertElementsEqual(
+			"Unexpected elements",
+			"X(T) [in X [in X.java [in p1 [in src [in P1]]]]]",
+			elements
+		);
+	} finally {
+		this.deleteProject("P1");
+	}
+}
+public void testBug349486() throws Exception{
+	try {
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{"JCL17_LIB"},
+			 "bin",
+			 "1.7");
+
+		this.createFolder("/P1/src/p1");
+		this.createFile("/P1/src/p1/X.java",
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.invoke.MethodType;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) throws Throwable {\n" + 
+				"		Object x;\n" + 
+				"		String s;\n" + 
+				"		int i;\n" + 
+				"		MethodType mt;\n" + 
+				"		MethodHandle mh;\n" + 
+				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" + 
+				"		// mt is (char,char)String\n" + 
+				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" + 
+				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" + 
+				"		s = (String) mh.invokeExact(\"daddy\", 'd', 'n');\n" + 
+				"     }\n" +
+				"}\n");
+		
+		waitUntilIndexesReady();
+
+		// do code select
+		ICompilationUnit cu= getCompilationUnit("P1", "src", "p1", "X.java");
+
+		String str = cu.getSource();
+
+		String selection = "invokeExact";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+		IJavaElement[] elements = cu.codeSelect(start, length);
+
+		assertElementsEqual(
+			"Unexpected elements",
+			"invokeExact(java.lang.Object[]) [in MethodHandle [in MethodHandle.class [in java.lang.invoke [in "+ getExternalPath() + "jclMin1.7.jar]]]]",
 			elements
 		);
 	} finally {

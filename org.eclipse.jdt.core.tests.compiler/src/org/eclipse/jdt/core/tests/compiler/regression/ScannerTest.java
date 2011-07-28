@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,8 +31,8 @@ public class ScannerTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 53 };
-//		TESTS_RANGE = new int[] { 11, -1 };
+//		TESTS_NUMBERS = new int[] { 58 };
+//		TESTS_RANGE = new int[] { 54, -1 };
 	}
 
 	public static Test suite() {
@@ -191,15 +191,11 @@ public class ScannerTest extends AbstractRegressionTest {
 		char[] source = "0x11aa.aap-3333f".toCharArray(); //$NON-NLS-1$
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
-		int counter = 0;
 		try {
-			while (scanner.getNextToken() != ITerminalSymbols.TokenNameEOF) {
-				counter++;
-			}
+			scanner.getNextToken();
 		} catch (InvalidInputException e) {
-			assertTrue(false);
+			assertEquals("Wrong message", PublicScanner.ILLEGAL_HEXA_LITERAL, e.getMessage());
 		}
-		assertEquals("Wrong number of tokens", 5, counter);
 	}
 
 	/*
@@ -1138,6 +1134,160 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertEquals("Wrong token", ITerminalSymbols.TokenNameIdentifier, scanner.getNextToken());
 		} catch (InvalidInputException e) {
 			assertTrue("Should not fail with InvalidInputException", false);
+		}
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=340513
+	 */
+	public void test054() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_6, JavaCore.VERSION_1_6);
+		char[] source =
+				("class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String \ud804\udc09 = \"Brahmi\";\n" + 
+				"		System.out.println(\ud804\udc09);\n" + 
+				"	}\n" + 
+				"}").toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			int token;
+			boolean foundError = false;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				foundError |= token == ITerminalSymbols.TokenNameERROR;
+			}
+			assertTrue("Did not find error token", foundError);
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=340513
+	 */
+	public void test055() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7);
+		char[] source =
+				("class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String \ud804\udc09 = \"Brahmi\";\n" + 
+				"		System.out.println(\ud804\udc09);\n" + 
+				"	}\n" + 
+				"}").toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				assertFalse("found error token", token == ITerminalSymbols.TokenNameERROR);
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=340513
+	 */
+	public void test056() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_6, JavaCore.VERSION_1_6);
+		char[] source =
+				("class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String \u20B9 = \"Rupee symbol\";\n" + 
+				"		System.out.println(\u20B9);\n" + 
+				"	}\n" + 
+				"}").toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			int token;
+			boolean foundError = false;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				foundError |= token == ITerminalSymbols.TokenNameERROR;
+			}
+			assertTrue("Did not find error token", foundError);
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=340513
+	 */
+	public void test057() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7);
+		char[] source =
+				("class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String \u20B9 = \"Rupee symbol\";\n" + 
+				"		System.out.println(\u20B9);\n" + 
+				"	}\n" + 
+				"}").toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				assertFalse("found error token", token == ITerminalSymbols.TokenNameERROR);
+			}
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352014
+	public void test058() {
+		String source =
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		int a\\u1369b;\n" + 
+				"	}\n" + 
+				"}";
+		if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
+			this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"");
+		} else {
+			this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	int a\\u1369b;\n" + 
+				"	     ^^^^^^\n" + 
+				"Syntax error on token \"Invalid Character\", = expected\n" + 
+				"----------\n");
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352553
+	public void test059() {
+		String source =
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		int a\\u200B;\n" + 
+				"	}\n" + 
+				"}";
+		if (this.complianceLevel > ClassFileConstants.JDK1_6) {
+			this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"");
+		} else {
+			this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	int a\\u200B;\n" + 
+				"	     ^^^^^^\n" + 
+				"Syntax error on token \"Invalid Character\", delete this token\n" + 
+				"----------\n");
 		}
 	}
 }

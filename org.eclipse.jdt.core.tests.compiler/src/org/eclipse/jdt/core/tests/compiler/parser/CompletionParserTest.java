@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import junit.framework.Test;
 
 import org.eclipse.jdt.internal.codeassist.complete.InvalidCursorLocation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class CompletionParserTest extends AbstractCompletionTest {
 public CompletionParserTest(String testName) {
@@ -1577,11 +1578,12 @@ public void testEA_1() {
 		"  public EA() {\n" +
 		"  }\n" +
 		"  void foo() {\n" +
-		"    try \n" +
+		"    try\n" +
 		"      {\n" +
 		"        throw new Error();\n" +
 		"      }\n" +
-		"    catch (<CompleteOnException:E>  )       {\n" +
+		"    catch (<CompleteOnException:E>  )\n" +
+		"      {\n" +
 		"      }\n" +
 		"  }\n" +
 		"}\n";
@@ -8683,6 +8685,313 @@ public void testBug310423(){
 		cursorLocation,
 		expectedCompletionNodeToString,
 		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338789
+public void testBug338789(){
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test {\n" +
+		"	public void throwing() throws IZZBException, IZZException {}\n" +
+		"	public void foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (IZZException | IZZ) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"   }" +
+		"}\n" +
+		"class IZZAException extends Exception {\n" +
+		"}\n" +
+		"class IZZBException extends Exception {\n" +
+		"}\n" +
+		"class IZZException extends Exception {\n" +
+		"}\n";
+
+	String testName = "<complete on multi-catch block exception type declaration>";
+	String completeBehind = "IZZException | IZZ";
+	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
+	String completionIdentifier = "IZZ";
+	String expectedReplacedSource = "IZZ";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void throwing() throws IZZBException, IZZException {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    try\n" + 
+		"      {\n" + 
+		"        throwing();\n" + 
+		"      }\n" + 
+		"    catch (IZZException | <CompleteOnException:IZZ>  )\n" + 
+		"      {\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"class IZZAException extends Exception {\n" + 
+		"  IZZAException() {\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"class IZZBException extends Exception {\n" + 
+		"  IZZBException() {\n" + 
+		"  }\n" + 
+		"}\n" + 
+		"class IZZException extends Exception {\n" + 
+		"  IZZException() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	int cursorLocation = str.indexOf("IZZException | IZZ") + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=338789
+// Qualified assist type reference
+public void testBug338789b(){
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test {\n" +
+		"	public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException {}\n" +
+		"	public void foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"      catch (java.lang.IllegalArgumentException | java.lang.I) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"   }" +
+		"}\n";
+
+	String testName = "<complete on multi-catch block exception type declaration qualified>";
+	String completeBehind = "java.lang.IllegalArgumentException | java.lang.I";
+	String expectedCompletionNodeToString = "<CompleteOnException:java.lang.I>";
+	String completionIdentifier = "I";
+	String expectedReplacedSource = "java.lang.I";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    try\n" + 
+		"      {\n" + 
+		"        throwing();\n" + 
+		"      }\n" + 
+		"    catch (java.lang.IllegalArgumentException | <CompleteOnException:java.lang.I>  )\n" + 
+		"      {\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	int cursorLocation = str.indexOf("java.lang.IllegalArgumentException | java.lang.I") + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343637
+// Check that the whole union type ref is part of the completion node parent
+public void testBug343637(){
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test {\n" +
+		"	public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException, java.lang.IOException {}\n" +
+		"	public void foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"	   catch (java.lang.IOException e){}\n" +
+		"      catch (java.lang.IllegalArgumentException | java.lang.I) {\n" +
+		"         bar();\n" +
+		"      }\n" +
+		"   }" +
+		"}\n";
+
+	String testName = "<complete on multi-catch block exception type declaration qualified>";
+	String completeBehind = "java.lang.IllegalArgumentException | java.lang.I";
+	String expectedCompletionNodeToString = "<CompleteOnException:java.lang.I>";
+	String completionIdentifier = "I";
+	String expectedReplacedSource = "java.lang.I";
+	String expectedUnitDisplayString =			
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException, java.lang.IOException {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    try\n" + 
+		"      {\n" + 
+		"        throwing();\n" + 
+		"      }\n" + 
+		"    catch (java.lang.IOException e)\n" + 
+		"      {\n" + 
+		"      }\n" + 
+		"    catch (java.lang.IllegalArgumentException | <CompleteOnException:java.lang.I>  )\n" + 
+		"      {\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	int cursorLocation = str.indexOf("java.lang.IllegalArgumentException | java.lang.I") + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+public void testBug346454(){
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test<T> {\n" +
+		"	public void foo() {\n" +
+		"      Test<String> t = new Test<>()\n" +
+		"   }" +
+		"}\n";
+
+	String testName = "<complete after diamond type>";
+	String completeBehind = "new Test<>(";
+	String expectedCompletionNodeToString = "<CompleteOnAllocationExpression:new Test<>()>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =			
+		"public class Test<T> {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    Test<String> t = <CompleteOnAllocationExpression:new Test<>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+public void testBug346454b(){
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test<T> {\n" +
+		"	public class T2<Z>{}\n" +
+		"	public void foo() {\n" +
+		"      Test<String>.T2<String> t = new Test<>().new T2<>()\n" +
+		"   }" +
+		"}\n";
+
+	String testName = "<complete after diamond type>";
+	String completeBehind = "new Test<>().new T2<>(";
+	String expectedCompletionNodeToString = "<CompleteOnQualifiedAllocationExpression:new Test<>().new T2<>()>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =			
+		"public class Test<T> {\n" + 
+		"  public class T2<Z> {\n" + 
+		"    public T2() {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"    Test<String>.T2<String> t = <CompleteOnQualifiedAllocationExpression:new Test<>().new T2<>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346415
+// To make sure that all catch blocks before the one in which we're invoking assist are avaiable in the ast.
+public void testBug346415(){
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test {\n" +
+		"	public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException, java.lang.IOException {}\n" +
+		"	public void foo() {\n" +
+		"      try {\n" +
+		"         throwing();\n" +
+		"      }\n" +
+		"	   catch (java.lang.IOException e){\n" +
+		"      } catch (java.lang.IllegalArgumentException e){\n" +
+		"	   } catch (/*propose*/) {\n" +
+		"      }\n" +
+		"   }\n" +
+		"}\n";
+
+	String testName = "<complete on third catch block>";
+	String completeBehind = "catch (/*propose*/";
+	String expectedCompletionNodeToString = "<CompleteOnException:>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =			
+			"public class Test {\n" + 
+			"  public Test() {\n" + 
+			"  }\n" + 
+			"  public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException, java.lang.IOException {\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    try\n" + 
+			"      {\n" + 
+			"        throwing();\n" + 
+			"      }\n" + 
+			"    catch (java.lang.IOException e)\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"    catch (java.lang.IllegalArgumentException e)\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"    catch (<CompleteOnException:>  )\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"  }\n" + 
+			"}\n";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
 		expectedUnitDisplayString,
 		completionIdentifier,
 		expectedReplacedSource,

@@ -262,15 +262,14 @@ public void test013() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.ObjectStreamField;\n" +
 			"public class X<T> {\n" +
-			"	private final static ObjectStreamField[] serialPersistentFields = null;\n" +
+			"	private static final long serialPersistentFields = 1L;\n" +
 			"}"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	private final static ObjectStreamField[] serialPersistentFields = null;\n" + 
-		"	                                         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	private static final long serialPersistentFields = 1L;\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The value of the field X<T>.serialPersistentFields is not used\n" + 
 		"----------\n",
 		null,
@@ -285,15 +284,14 @@ public void test014() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.io.ObjectStreamField;\n" +
 			"public class X {\n" +
-			"	private final static ObjectStreamField[] serialPersistentFields = null;\n" +
+			"	private static final long serialPersistentFields = 1L;\n" +
 			"}"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	private final static ObjectStreamField[] serialPersistentFields = null;\n" + 
-		"	                                         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	private static final long serialPersistentFields = 1L;\n" + 
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The value of the field X.serialPersistentFields is not used\n" + 
 		"----------\n",
 		null,

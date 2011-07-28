@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1918,10 +1918,11 @@ public void test0044_Method(){
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnException:Y<Z>.>";
 	String expectedParentNodeToString =
-			"try \n" +
+			"try\n" +
 			"  {\n" +
 			"  }\n" +
-			"catch (<CompleteOnException:Y<Z>.>  )   {\n" +
+			"catch (<CompleteOnException:Y<Z>.>  )\n" +
+			"  {\n" +
 			"  }";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
@@ -1930,10 +1931,11 @@ public void test0044_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    try \n" +
+			"    try\n" +
 			"      {\n" +
 			"      }\n" +
-			"    catch (<CompleteOnException:Y<Z>.>  )       {\n" +
+			"    catch (<CompleteOnException:Y<Z>.>  )\n" +
+			"      {\n" +
 			"      }\n" +
 			"  }\n" +
 			"}\n";
@@ -1996,10 +1998,11 @@ public void test0045_Method(){
 	int cursorLocation = str.indexOf("Y<Z>.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnException:Y<Z>.>";
 	String expectedParentNodeToString =
-			"try \n" +
+			"try\n" +
 			"  {\n" +
 			"  }\n" +
-			"catch (<CompleteOnException:Y<Z>.>  )   {\n" +
+			"catch (<CompleteOnException:Y<Z>.>  )\n" +
+			"  {\n" +
 			"  }";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Y<Z>.";
@@ -2008,10 +2011,11 @@ public void test0045_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    try \n" +
+			"    try\n" +
 			"      {\n" +
 			"      }\n" +
-			"    catch (<CompleteOnException:Y<Z>.>  )       {\n" +
+			"    catch (<CompleteOnException:Y<Z>.>  )\n" +
+			"      {\n" +
 			"      }\n" +
 			"  }\n" +
 			"}\n";
@@ -6342,7 +6346,7 @@ public void test0131_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    Object[] o = Y<<CompleteOnType:Z>>;\n" +
+			"    Object[] o = new Y<<CompleteOnType:Z>>();\n" +
 			"  }\n" +
 			"}\n";
 
@@ -6409,7 +6413,7 @@ public void test0132_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    Object[] o = Y<<CompleteOnType:Z>>;\n" +
+			"    Object[] o = new Y<<CompleteOnType:Z>>();\n" +
 			"  }\n" +
 			"}\n";
 
@@ -6476,7 +6480,7 @@ public void test0133_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    Object[] o = Y<<CompleteOnType:Z>>;\n" +
+			"    Object[] o = new Y<<CompleteOnType:Z>>();\n" +
 			"  }\n" +
 			"}\n";
 
@@ -6543,7 +6547,7 @@ public void test0134_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    Object[] o = Y<<CompleteOnType:Z>>;\n" +
+			"    Object[] o = new Y<<CompleteOnType:Z>>();\n" +
 			"  }\n" +
 			"}\n";
 
@@ -10772,13 +10776,15 @@ public void test0213_Method() {
 	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnException:Top<Object>.IZZ>";
 	String expectedParentNodeToString =
-			"try \n" +
+			"try\n" +
 			"  {\n" +
 			"    throwing();\n" +
 			"  }\n" +
-			"catch (IllegalAccessException e)   {\n" +
+			"catch (IllegalAccessException e)\n" +
+			"  {\n" +
 			"  }\n" +
-			"catch (<CompleteOnException:Top<Object>.IZZ>  )   {\n" +
+			"catch (<CompleteOnException:Top<Object>.IZZ>  )\n" +
+			"  {\n" +
 			"  }";
 	String completionIdentifier = "IZZ";
 	String expectedReplacedSource = "Top<Object>.IZZ";
@@ -10787,13 +10793,15 @@ public void test0213_Method() {
 			"  public X() {\n" +
 			"  }\n" +
 			"  public boolean foo() {\n" +
-			"    try \n" +
+			"    try\n" +
 			"      {\n" +
 			"        throwing();\n" +
 			"      }\n" +
-			"    catch (IllegalAccessException e)       {\n" +
+			"    catch (IllegalAccessException e)\n" +
+			"      {\n" +
 			"      }\n" +
-			"    catch (<CompleteOnException:Top<Object>.IZZ>  )       {\n" +
+			"    catch (<CompleteOnException:Top<Object>.IZZ>  )\n" +
+			"      {\n" +
 			"      }\n" +
 			"  }\n" +
 			"}\n";
@@ -11132,5 +11140,112 @@ public void test0220_Diet() {
 			completionIdentifier,
 			expectedReplacedSource,
 	"diet ast");
+}
+public void testBug351426(){
+	String str =
+		"public class X<T> {\n" +
+		"  void foo() {\n" +
+		"    X<String> x = new X<>();\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "new X<";
+	int cursorLocation = str.indexOf("new X<") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:>";
+	String expectedParentNodeToString = "X<<CompleteOnType:>>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =
+			"public class X<T> {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  void foo() {\n" +
+			"    X<String> x = new X<<CompleteOnType:>>();\n" +
+			"  }\n" +
+			"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void testBug351426b(){
+	String str =
+		"public class X<T> {\n" +
+		"	static class X1<E>{}\n" +
+		"  void foo() {\n" +
+		"    X1<String> x = new X.X1<>();\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "new X.X1<";
+	int cursorLocation = str.indexOf("new X.X1<") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:>";
+	String expectedParentNodeToString = "X.X1<<CompleteOnType:>>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =
+			"public class X<T> {\n" + 
+			"  static class X1<E> {\n" + 
+			"    X1() {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  void foo() {\n" + 
+			"    X1<String> x = new X.X1<<CompleteOnType:>>();\n" + 
+			"  }\n" + 
+			"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void testBug351426c(){
+	String str =
+		"public class X<T> {\n" +
+		"  public X<String> foo() {\n" +
+		"   return new X<>();\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "new X<";
+	int cursorLocation = str.indexOf("new X<") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:>";
+	String expectedParentNodeToString = "X<<CompleteOnType:>>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =
+			"public class X<T> {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  public X<String> foo() {\n" + 
+			"    return new X<<CompleteOnType:>>();\n" + 
+			"  }\n" + 
+			"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
 }
 }

@@ -44,7 +44,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug339250" };
+//		TESTS_NAMES = new String[] { "testBug348379" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -6357,6 +6357,162 @@ public void test0572_if_statement() {
 		"The local variable i may not have been initialized\n" + 
 		"----------\n");
 }
+
+// take care for Java7 changes
+public void test0573_try_catch_unchecked_and_checked_exception() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    Object o = null;\n" +
+			"    try {\n" +
+			"		bar();\n" +
+			"		o = new Object();\n" +
+			"    } catch (IOException e) {\n" +
+			"		o.toString();\n" +
+			"    } catch(RuntimeException e) {\n" +
+			"       o.toString();\n" + // may be null
+			"    }\n" +
+			"  }\n" +
+			"  private Object bar() throws IOException{\n" +
+			"    return new Object();\n" +
+			"  }\n" +
+			"}\n"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	o.toString();\n" + 
+			"	^\n" + 
+			"Null pointer access: The variable o can only be null at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	o.toString();\n" + 
+			"	^\n" + 
+			"Potential null pointer access: The variable o may be null at this location\n" + 
+			"----------\n",
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
+// similar to test0573 using multi catch parameters
+public void test0574_try_multi_catch_unchecked_and_checked_exception() {
+	if (this.complianceLevel >=  ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.IOException;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    Object o = null;\n" +
+				"    try {\n" +
+				"		bar();\n" +
+				"		o = new Object();\n" +
+				"    } catch (IOException | RuntimeException e) {\n" +
+				"		o.toString();\n" +
+				"    }\n" +
+				"  }\n" +
+				"  private Object bar() throws IOException{\n" +
+				"    return new Object();\n" +
+				"  }\n" +
+				"}\n"},
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	o.toString();\n" +
+			"	^\n" +
+			"Potential null pointer access: The variable o may be null at this location\n" +
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+}
+//multi catch variant of test0561_try_catch_unchecked_exception
+public void test0575_try_multi_catch_finally_unchecked_and_checked_exception() {
+	if (this.complianceLevel >=  ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.IOException;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"    Object o = null;\n" +
+				"    try {\n" +
+				"      o = bar();\n" +
+				"    } catch (IOException | RuntimeException e) {\n" +
+				"      o.toString();\n" + // may be null
+				"    } finally {}\n" +
+				"  }\n" +
+				"  private Object bar() throws IOException{\n" +
+				"    return new Object();\n" +
+				"  }\n" +
+				"}\n"},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	o.toString();\n" +
+			"	^\n" +
+			"Potential null pointer access: The variable o may be null at this location\n" +
+			"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+}
+
+// null test for resources inside try with resources statement
+public void test0576_try_with_resources() {
+	if (this.complianceLevel >=  ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.FileInputStream;\n" +
+				"import java.io.IOException;\n" +
+				"import java.io.FileNotFoundException;\n" +
+				"class MyException extends Exception {}\n" +
+				"public class X {\n" +
+				"   static void m(int n) throws IllegalArgumentException, MyException {}\n" +
+				"   void foo(String name, boolean b) throws FileNotFoundException, IOException{\n" +
+				"    FileInputStream fis;\n" +
+				"	 if (b) fis = new FileInputStream(\"\");\n" +
+				"	 else fis = null;\n" +
+				"    try (FileInputStream fis2 = fis; FileInputStream fis3 = fis2; FileInputStream fis4 = null) {\n" +
+				"		fis = new FileInputStream(\"\");\n" +
+				"		fis2.available();\n" +	// may be null since fis may be null
+				"		fis3.close();\n" +
+				"		fis4.available();\n" +	// will always be null
+				"		m(1);\n" +
+				"    } catch (IllegalArgumentException e) {\n" +
+				"      fis.available();\n" + // may be null
+				"    } catch (MyException e) {\n" +
+				"      fis.available();\n" + // cannot be null
+				"    } finally {}\n" +
+				"  }\n" +
+				"}\n"},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	class MyException extends Exception {}\n" + 
+		"	      ^^^^^^^^^^^\n" + 
+		"The serializable class MyException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	fis2.available();\n" + 
+		"	^^^^\n" + 
+		"Potential null pointer access: The variable fis2 may be null at this location\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
+		"	fis3.close();\n" + 
+		"	^^^^\n" + 
+		"Potential null pointer access: The variable fis3 may be null at this location\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 15)\n" + 
+		"	fis4.available();\n" + 
+		"	^^^^\n" + 
+		"Null pointer access: The variable fis4 can only be null at this location\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 18)\n" + 
+		"	fis.available();\n" + 
+		"	^^^\n" + 
+		"Potential null pointer access: The variable fis may be null at this location\n" + 
+		"----------\n",
+		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+}
+
 // null analysis - throw
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
 public void test0595_throw() {
@@ -13847,8 +14003,8 @@ public void testBug333089() {
 		"");
 }
 
-// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
-// original issue
+//Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+//original issue
 public void testBug336428() {
 	this.runConformTest(
 		new String[] {
@@ -13865,9 +14021,9 @@ public void testBug336428() {
 		},
 		"");
 }
-// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
-// hitting the same implementation branch from within the loop
-// information from unknown o1 is not propagated into the loop, analysis currently believes o2 is def null.
+//Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+//hitting the same implementation branch from within the loop
+//information from unknown o1 is not propagated into the loop, analysis currently believes o2 is def null.
 public void _testBug336428a() {
 	this.runConformTest(
 		new String[] {
@@ -13887,8 +14043,8 @@ public void _testBug336428a() {
 		"");
 }
 
-// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
-// in this variant the analysis believes o2 is def unknown and doesn't even consider raising a warning.
+//Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+//in this variant the analysis believes o2 is def unknown and doesn't even consider raising a warning.
 public void _testBug336428b() {
 	this.runNegativeTest(
 		new String[] {
@@ -13911,8 +14067,8 @@ public void _testBug336428b() {
 		"----------\n");
 }
 
-// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
-// in this case considering o1 as unknown is correct
+//Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+//in this case considering o1 as unknown is correct
 public void testBug336428c() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runConformTest(
@@ -13931,8 +14087,8 @@ public void testBug336428c() {
 	}
 }
 
-// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
-// one more if-statement triggers the expected warnings
+//Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+//one more if-statement triggers the expected warnings
 public void testBug336428d() {
 	this.runNegativeTest(
 		new String[] {
@@ -13962,8 +14118,8 @@ public void testBug336428d() {
 		"----------\n");
 }
 
-// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
-// same analysis, but assert instead of if suppresses the warning
+//Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+//same analysis, but assert instead of if suppresses the warning
 public void testBug336428e() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
@@ -14575,6 +14731,170 @@ public void testBug342300b() throws Exception {
 			"	if (escapeChar != null && escapeChar != null) {\n" + 
 			"	                          ^^^^^^^^^^\n" + 
 			"Redundant null check: The variable escapeChar cannot be null at this location\n" + 
+			"----------\n");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+public void testBug348379a() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo() {\n" + 
+				"		String s = null;\n" +
+				"		switch(s) {\n" +
+				"		case \"abcd\":\n" +
+				"			System.out.println(\"abcd\");\n" +
+				"			break;\n" +
+				"		default:\n" +
+				"			System.out.println(\"oops\");\n" +
+				"			break;\n" +
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	switch(s) {\n" + 
+			"	       ^\n" + 
+			"Null pointer access: The variable s can only be null at this location\n" + 
+			"----------\n");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+public void testBug348379b() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String s = \"abcd\";\n" +
+				"		switch(s) {\n" +	// no warning since s is not null
+				"		case \"abcd\":\n" +
+				"			System.out.println(\"abcd\");\n" +
+				"			break;\n" +
+				"		default:\n" +
+				"			System.out.println(\"oops\");\n" +
+				"			break;\n" +
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"abcd");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+public void testBug348379c() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(String s) {\n" + 
+				"		if (s == null) {}\n" +		// tainting s
+				"		switch(s) {\n" +
+				"		case \"abcd\":\n" +
+				"			System.out.println(\"abcd\");\n" +
+				"			break;\n" +
+				"		default:\n" +
+				"			System.out.println(\"oops\");\n" +
+				"			break;\n" +
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	switch(s) {\n" + 
+			"	       ^\n" + 
+			"Potential null pointer access: The variable s may be null at this location\n" + 
+			"----------\n");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+public void testBug348379d() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(String s) {\n" + 
+				"		if (s != null) {}\n" +		// tainting s
+				"		switch(s) {\n" +
+				"		case \"abcd\":\n" +
+				"			System.out.println(\"abcd\");\n" +
+				"			break;\n" +
+				"		default:\n" +
+				"			System.out.println(\"oops\");\n" +
+				"			break;\n" +
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	switch(s) {\n" + 
+			"	       ^\n" + 
+			"Potential null pointer access: The variable s may be null at this location\n" + 
+			"----------\n");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+public void testBug348379e() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(String s) {\n" + 
+				"		if (s == null) {}\n" +		// tainting s
+				"		else\n" +
+				"		switch(s) {\n" +   // no warning because we're inside else
+				"		case \"abcd\":\n" +
+				"			System.out.println(\"abcd\");\n" +
+				"			break;\n" +
+				"		default:\n" +
+				"			System.out.println(\"oops\");\n" +
+				"			break;\n" +
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348379
+public void testBug348379f() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void foo(String s) {\n" + 
+				"		s = null;\n" +
+				"		switch(s) {\n" +
+				"		case \"abcd\":\n" +
+				"			System.out.println(\"abcd\");\n" +
+				"			break;\n" +
+				"		default:\n" +
+				"			switch(s) {\n" +	// do not warn again
+				"				case \"abcd\":\n" +
+				"					System.out.println(\"abcd\");\n" +
+				"					break;\n" +
+				"				default:\n" +
+				"					break;\n" +
+				"			}\n" +
+				"	    }\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	switch(s) {\n" + 
+			"	       ^\n" + 
+			"Null pointer access: The variable s can only be null at this location\n" + 
 			"----------\n");
 	}
 }

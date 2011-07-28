@@ -46,7 +46,8 @@ public CompilationUnitTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	this.testProject = createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5");
+	final String compliance = "1.5"; //$NON-NLS-1$
+	this.testProject = createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString(compliance)}, "bin", compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/X.java",

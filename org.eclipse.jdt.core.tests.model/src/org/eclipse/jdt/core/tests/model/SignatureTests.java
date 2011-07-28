@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -786,6 +786,10 @@ public void testGetTypeErasure10() {
 			Signature.getTypeErasure("Ljava.util.List<-[Ljava.lang.Number;>;")
 	);
 }
+public void testGetTypeErasure11() {
+	String sign = "|Ljava.util.List;:Ljava.lang.Cloneable;";
+	assertTrue(Signature.getTypeErasure(sign) == sign);
+}
 
 /**
  * @see Signature
@@ -1452,7 +1456,24 @@ public void testGetTypeSignatureKindCharArray25() {
 		Signature.CLASS_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("<T:>Ljava.lang.Class;".toCharArray()));
 }
-
+/*
+ * Intersection type signature
+ */
+public void testGetTypeSignatureKindCharArray26() {
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 26",
+		Signature.INTERSECTION_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("|Ljava.lang.Class;:Ljava.io.Serializable;".toCharArray()));
+}
+/*
+ * Intersection type signature
+ */
+public void testGetTypeSignatureKindCharArray27() {
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 27",
+		Signature.INTERSECTION_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("|Ljava.lang.Class;:Ljava.io.Serializable;"));
+}
 public void testGetTypeFragment01() {
 	assertEquals(
 		"C.D.E",
@@ -1487,5 +1508,51 @@ public void testGetPackageFragment04() {
 	assertEquals(
 		"",
 		Signature.getSignatureQualifier("LC<LX;>.D$E;"));
+}
+/*
+ * Intersection type signature
+ */
+public void testGetIntersectionTypeBounds() {
+	assertStringsEqual(
+			"Unexpected intersection type bounds",
+			"Ljava.lang.Class;\n" +
+			"Ljava.io.Serializable;\n",
+			Signature.getIntersectionTypeBounds("|Ljava.lang.Class;:Ljava.io.Serializable;")
+		);
+}
+/*
+ * Intersection type signature
+ */
+public void testGetIntersectionTypeBounds2() {
+	assertStringsEqual(
+			"Unexpected intersection type bounds",
+			"QClass;\n" +
+			"QSerializable;\n",
+			Signature.getIntersectionTypeBounds("|QClass;:QSerializable;")
+		);
+}
+public void testCreateIntersectionTypeSignature() {
+	String signature = Signature.createIntersectionTypeSignature(new String[] {
+		"Ljava.lang.Class;",
+		"Ljava.io.Serializable;"
+	});
+	assertStringsEqual(
+			"Unexpected intersection type bounds",
+			"Ljava.lang.Class;\n" +
+			"Ljava.io.Serializable;\n",
+			Signature.getIntersectionTypeBounds(signature)
+		);
+}
+public void testCreateIntersectionTypeSignature2() {
+	String signature = Signature.createIntersectionTypeSignature(new String[] {
+		"QClass;",
+		"QSerializable;"
+	});
+	assertStringsEqual(
+			"Unexpected intersection type bounds",
+			"QClass;\n" +
+			"QSerializable;\n",
+			Signature.getIntersectionTypeBounds(signature)
+		);
 }
 }

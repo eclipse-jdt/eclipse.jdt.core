@@ -43,6 +43,9 @@ private IRequestor getNoResultRequestor() {
 		}
 	};
 }
+static {
+//	TESTS_NAMES = new String[] {"testDiamond"};
+}
 public static Test suite() {
 	return setupSuite(testClass());
 }
@@ -925,6 +928,26 @@ public void testBug345334() {
 			buildCharArray(new String[] {
 			"return \"SUCCESS\";\n",
 			}),
+			"SUCCESS".toCharArray());
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=343693
+ */
+public void testDiamond() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+		return;
+	}
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+			"class X<T> {",
+			"	T field;",
+			"	public X(T param) {",
+			"		field = param;",
+			"	}",
+			"	public T foo() {",
+			"		return field;",
+			"	}",
+			"};",
+			"new X<>(\"SUCCESS\").foo();\n"}),
 			"SUCCESS".toCharArray());
 }
 }

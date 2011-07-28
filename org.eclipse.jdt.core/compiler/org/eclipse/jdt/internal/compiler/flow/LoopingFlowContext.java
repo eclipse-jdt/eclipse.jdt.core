@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - contribution for Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
@@ -58,8 +58,8 @@ public class LoopingFlowContext extends SwitchFlowContext {
 		}
 		void simulateThrowAfterLoopBack(FlowInfo flowInfo) {
 			this.catchingContext.recordHandlingException(this.caughtException,
-					flowInfo.unconditionalInits(), null, // raised exception, irrelevant here
-					null, /* invocation site, irrelevant here */ true // we have no business altering the needed status.
+					flowInfo.unconditionalInits(), null, // raised exception, irrelevant here,
+					null, null, /* invocation site, irrelevant here */ true // we have no business altering the needed status.
 					);
 		}
 	}
@@ -520,7 +520,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 					}
 				}
-			} else if (this.upstreamNullFlowInfo.isDefinitelyNonNull(local) && !flowInfo.isPotentiallyNull(local) && !flowInfo.isPotentiallyUnknown(local)) {    
+			} else if (this.upstreamNullFlowInfo.isDefinitelyNonNull(local) && !flowInfo.isPotentiallyNull(local) && !flowInfo.isPotentiallyUnknown(local)) {
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=291418
 				flowInfo.markAsDefinitelyNonNull(local);
 				if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {

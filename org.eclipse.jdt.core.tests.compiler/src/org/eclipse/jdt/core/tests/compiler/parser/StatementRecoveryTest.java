@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3619,15 +3619,18 @@ public void test0044() {
 		"  public void doSomething() throws FileNotFoundException, EOFException, SAXException {\n" +
 		"  }\n" +
 		"  public void doSomethingElse() {\n" +
-		"    try \n" +
+		"    try\n" +
 		"      {\n" +
 		"        doSomething();\n" +
 		"      }\n" +
-		"    catch (SAXException exception)       {\n" +
+		"    catch (SAXException exception)\n" +
+		"      {\n" +
 		"      }\n" +
-		"    catch (FileNotFoundException exception)       {\n" +
+		"    catch (FileNotFoundException exception)\n" +
+		"      {\n" +
 		"      }\n" +
-		"    catch ($missing$ $missing$)       {\n" +
+		"    catch ($missing$ $missing$)\n" +
+		"      {\n" +
 		"      }\n" +
 		"  }\n" +
 		"}\n";

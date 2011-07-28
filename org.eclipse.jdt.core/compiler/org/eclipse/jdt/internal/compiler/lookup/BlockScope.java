@@ -838,8 +838,10 @@ public int maxShiftedOffset() {
 	int max = -1;
 	if (this.shiftScopes != null){
 		for (int i = 0, length = this.shiftScopes.length; i < length; i++){
-			int subMaxOffset = this.shiftScopes[i].maxOffset;
-			if (subMaxOffset > max) max = subMaxOffset;
+			if (this.shiftScopes[i] != null) {
+				int subMaxOffset = this.shiftScopes[i].maxOffset;
+				if (subMaxOffset > max) max = subMaxOffset;
+			}
 		}
 	}
 	return max;
