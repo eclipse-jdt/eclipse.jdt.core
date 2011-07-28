@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -15,6 +15,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -30,8 +31,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test1203c", "test1203d" };
-//		TESTS_NUMBERS = new int[] { 1465 };
+//		TESTS_NAMES = new String[] { "test1404" };
+//		TESTS_NUMBERS = new int[] { 593, 701, 746, 848, 953, 985, 1029, 1136, 1227, 1295, 1341 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
@@ -11754,12 +11755,24 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n"
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_7 ?
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	String[] s = foo(null, new String[]{ \"hello\" });\n" +
 			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from String to String[]\n" +
-			"----------\n"
+			"----------\n" :
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	String[] s = foo(null, new String[]{ \"hello\" });\n" + 
+				"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from String to String[]\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 8)\n" + 
+				"	public <F> F foo(F f, F... others) {\n" + 
+				"	                           ^^^^^^\n" + 
+				"Type safety: Potential heap pollution via varargs parameter others\n" + 
+				"----------\n"
 		);
 	}
 
@@ -12422,12 +12435,24 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"   Zork z;\n" +
 				"}",
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_7 ?
 			"----------\n" +
 			"1. ERROR in X.java (at line 15)\n" +
 			"	Zork z;\n" +
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
-			"----------\n");
+			"----------\n" : 
+				"----------\n" + 
+				"1. WARNING in X.java (at line 3)\n" + 
+				"	public static <T> T first(T... args) {\n" + 
+				"	                               ^^^^\n" + 
+				"Type safety: Potential heap pollution via varargs parameter args\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 15)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78467 - variation
 	public void test0412a() {
@@ -12452,17 +12477,34 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"   Zork z;\n" +
 				"}",
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_7 ?
 			"----------\n" +
 			"1. WARNING in X.java (at line 10)\n" +
 			"	List<String> ls = first(); \n" +
 			"	                  ^^^^^^^\n" +
-			"Type safety : A generic array of List<String> is created for a varargs parameter\n" +
+			"Type safety: A generic array of List<String> is created for a varargs parameter\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 16)\n" +
 			"	Zork z;\n" +
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
-			"----------\n");
+			"----------\n" : 
+				"----------\n" + 
+				"1. WARNING in X.java (at line 4)\n" + 
+				"	public static <T> T first(T... args) {\n" + 
+				"	                               ^^^^\n" + 
+				"Type safety: Potential heap pollution via varargs parameter args\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 10)\n" + 
+				"	List<String> ls = first(); \n" + 
+				"	                  ^^^^^^^\n" + 
+				"Type safety: A generic array of List<String> is created for a varargs parameter\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 16)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
 	}
 
 	public void test0413() {
@@ -12692,7 +12734,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	public void test0423() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -12711,12 +12753,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"\n" +
 				"}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
-			"	foo();\n" +
-			"	^^^\n" +
-			"Bound mismatch: The generic method foo() of type X is not applicable for the arguments (). The inferred type X is not a valid substitute for the bounded parameter <U extends X & Runnable>\n" +
-			"----------\n");
+			"");
 	}
 
 	public void test0424() {
@@ -18516,6 +18553,8 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 			"");
 	}
 	public void test0593() {
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -18526,21 +18565,14 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 				"}\n",
             },
     		"----------\n" +
-    		"1. WARNING in X.java (at line 3)\n" +
-    		"	List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" +
-    		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-    		"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" +
-    		"----------\n" +
-    		"2. ERROR in X.java (at line 3)\n" +
+    		"1. ERROR in X.java (at line 3)\n" +
     		"	List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" +
     		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
     		"Type mismatch: cannot convert from List<Class<? extends Object&Serializable&Comparable<?>>> to List<Class<?>>\n" +
-    		"----------\n" +
-    		"3. WARNING in X.java (at line 4)\n" +
-    		"	List<? extends Class<?>> classes2 = Arrays.asList(String.class, Boolean.class);\n" +
-    		"	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-    		"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" +
-    		"----------\n");
+    		"----------\n",
+    		null,
+    		true,
+    		options);
 	}
 	public void test0594() {
 	    this.runNegativeTest(
@@ -22231,6 +22263,8 @@ public void test0700() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303
 public void test0701() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22253,26 +22287,14 @@ public void test0701() {
 			"class Song {}\n",
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 10)\n" +
-		"	List<Counter<?>> list1 = Arrays.asList(songCounter, genreCounter);\n" +
-		"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 11)\n" +
-		"	List<Counter<? extends Object>> list2 = Arrays.asList(songCounter, genreCounter);\n" +
-		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 14)\n" +
-		"	List<Counter<? extends String>> list5 = Arrays.asList(songCounter, genreCounter);\n" +
-		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 14)\n" +
+		"1. ERROR in X.java (at line 14)\n" +
 		"	List<Counter<? extends String>> list5 = Arrays.asList(songCounter, genreCounter);\n" +
 		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from List<Deejay.Counter<? extends Object>> to List<Deejay.Counter<? extends String>>\n" +
-		"----------\n");
+		"----------\n",
+		null,
+		true,
+		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303 - variation
 public void test0702() {
@@ -23714,6 +23736,8 @@ public void test0745() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99922 - variation
 public void test0746() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -23724,16 +23748,14 @@ public void test0746() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
-		"	String s = java.util.Arrays.asList(3, 3.1);\n" +
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
+		"1. ERROR in X.java (at line 3)\n" +
 		"	String s = java.util.Arrays.asList(3, 3.1);\n" +
 		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from List<Number&Comparable<?>> to String\n" +
-		"----------\n");
+		"----------\n",
+		null,
+		true,
+		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99983
 public void test0747() {
@@ -25300,12 +25322,24 @@ public void test0798() {
 			"    }\n" +
 			"}\n",
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
 		"----------\n" +
 		"1. ERROR in X.java (at line 16)\n" +
 		"	System.out.println(max(1, 2.0, new BigDecimal(Math.PI)));\n" +
 		"	                   ^^^\n" +
 		"Bound mismatch: The generic method max(T...) of type X is not applicable for the arguments (Integer, Double, BigDecimal). The inferred type Number&Comparable<?> is not a valid substitute for the bounded parameter <T extends Comparable<? super T>>\n" +
-		"----------\n");
+		"----------\n" : 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	private static <T extends Comparable<? super T>> T max(T... elems)\n" + 
+			"	                                                            ^^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter elems\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 16)\n" + 
+			"	System.out.println(max(1, 2.0, new BigDecimal(Math.PI)));\n" + 
+			"	                   ^^^\n" + 
+			"Bound mismatch: The generic method max(T...) of type X is not applicable for the arguments (Integer, Double, BigDecimal). The inferred type Number&Comparable<?> is not a valid substitute for the bounded parameter <T extends Comparable<? super T>>\n" + 
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=105531
 public void test0799() {
@@ -27181,29 +27215,25 @@ public void test0848() throws Exception {
 				"import java.util.*;\n" + 
 				"\n" + 
 				"public class X<E> {\n" + 
-				"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" + 
+				"	public static <T> List<T> asList(T a) { return null; }\n" +
+				"	Collection<? extends Number> asList= asList(1);\n" + 
 				"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
 				"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" + 
 				"	Zork z;\n" + 
 				"}\n", // =================
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" + 
-			"	                                     ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 5)\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
 			"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked cast from Collection<capture#1-of ? extends Number> to List<Number>\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 6)\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
 			"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked cast from Collection<capture#2-of ? extends Number> to LinkedList<Number>\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 7)\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -28354,11 +28384,6 @@ public void test0881() {
 		"	String s = (String) Foo.foo();\n" +
 		"	           ^^^^^^^^^^^^^^^^^^\n" +
 		"Cannot cast from List<List<U>> to String\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
-		"	String s = (String) Foo.foo();\n" +
-		"	                        ^^^\n" +
-		"Bound mismatch: The generic method foo() of type Foo is not applicable for the arguments (). The inferred type List<List<U>> is not a valid substitute for the bounded parameter <U extends List<U>>\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=121369 - variation
@@ -30851,27 +30876,59 @@ public void test0949() {
 		"	}\n" +
 		"}\n",
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
 		"----------\n" +
 		"1. WARNING in X.java (at line 10)\n" +
 		"	m3(m(3, 3, 3));\n" +
 		"	^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Integer> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Integer> is created for a varargs parameter\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 11)\n" +
 		"	m3(m());\n" +
 		"	^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 12)\n" +
 		"	m3(m(new Object[]{}));\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 13)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"----------\n" : 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	public <T> Iterable<T> m(T... ts) {\n" + 
+			"	                              ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	public <T> void m3(Iterable<T>... ts) {\n" + 
+			"	                                  ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	m3(m(3, 3, 3));\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"Type safety: A generic array of Iterable<Integer> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 11)\n" + 
+			"	m3(m());\n" + 
+			"	^^^^^^^\n" + 
+			"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 12)\n" + 
+			"	m3(m(new Object[]{}));\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 13)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128418 - variation
 public void test0950() {
@@ -30894,27 +30951,59 @@ public void test0950() {
 		"	}\n" +
 		"}\n",
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
 		"----------\n" +
 		"1. WARNING in X.java (at line 10)\n" +
 		"	m3(m(new Integer[]{3, 3, 3}));\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 11)\n" +
 		"	m3(m());\n" +
 		"	^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 12)\n" +
 		"	m3(m(new Object[][]{}));\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 13)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"----------\n" : 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	public <T> Iterable<T> m(T[]... ts) {\n" + 
+			"	                                ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	public <T> void m3(Iterable<T>... ts) {\n" + 
+			"	                                  ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	m3(m(new Integer[]{3, 3, 3}));\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 11)\n" + 
+			"	m3(m());\n" + 
+			"	^^^^^^^\n" + 
+			"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 12)\n" + 
+			"	m3(m(new Object[][]{}));\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 13)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128418 - variation
 public void test0951() {
@@ -30938,12 +31027,29 @@ public void test0951() {
 		"	}\n" +
 		"}\n",
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
 		"----------\n" +
 		"1. ERROR in X.java (at line 14)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"----------\n" :
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	public <T> Iterable<T> m(T[]... ts) {\n" + 
+			"	                                ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	public <T> void m3(Iterable<T>... ts) {\n" + 
+			"	                                  ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 14)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128418 - variation
 public void test0952() {
@@ -30962,11 +31068,12 @@ public void test0952() {
 		"	}\n" +
 		"}\n",
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
 		"----------\n" +
 		"1. WARNING in X.java (at line 8)\n" +
 		"	m3(m(null));\n" +
 		"	^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Iterable<Object> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 8)\n" +
 		"	m3(m(null));\n" +
@@ -30977,10 +31084,37 @@ public void test0952() {
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"----------\n" : 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	public <T> Iterable<T> m(T... ts) {\n" + 
+			"	                              ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	public <T> void m3(Iterable<T>... ts) {\n" + 
+			"	                                  ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
+			"	m3(m(null));\n" + 
+			"	^^^^^^^^^^^\n" + 
+			"Type safety: A generic array of Iterable<Object> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 8)\n" + 
+			"	m3(m(null));\n" + 
+			"	   ^^^^^^^\n" + 
+			"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs method m(Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 9)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106325
 public void test0953() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) return; 
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -30999,7 +31133,7 @@ public void test0953() {
 		"1. WARNING in X.java (at line 7)\n" +
 		"	List<WeakReference<Integer>> list= Arrays.asList(ref);\n" +
 		"	                                   ^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of WeakReference<Integer> is created for a varargs parameter\n" +
+		"Type safety: A generic array of WeakReference<Integer> is created for a varargs parameter\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 8)\n" +
 		"	Zork z;\n" +
@@ -31280,17 +31414,12 @@ public void test0960() {
 		"	^\n" + 
 		"X is a raw type. References to generic type X<A> should be parameterized\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	X x = newInstance();\n" + 
-		"	      ^^^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method newInstance() of type X<A> is not applicable for the arguments (). The inferred type Comparable<Comparable<B>> is not a valid substitute for the bounded parameter <B extends Comparable<B>>\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 8)\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
 		"	return new X[] { x };\n" + 
 		"	       ^^^^^^^^^^^^^\n" + 
 		"Type safety: The expression of type X[] needs unchecked conversion to conform to X<String>[]\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 10)\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -32118,6 +32247,8 @@ public void test0984() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141330
 public void test0985() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 			new String[] {
 					"X.java", // =================
@@ -32129,16 +32260,14 @@ public void test0985() {
 					"}\n", // =================
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	List<Class<Object>>  lco = Arrays.asList(String.class, Integer.class, Long.class);\n" +
-			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
+			"1. ERROR in X.java (at line 4)\n" +
 			"	List<Class<Object>>  lco = Arrays.asList(String.class, Integer.class, Long.class);\n" +
 			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from List<Class<? extends Object&Serializable&Comparable<?>>> to List<Class<Object>>\n" +
-			"----------\n");
+			"----------\n",
+			null,
+			true,
+			options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=91709
 public void test0986() {
@@ -32211,22 +32340,32 @@ public void test0986() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=140643
 public void test0987() {
 	String expectedOutput = new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_6
-	?	"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	public ISheetViewer getViewer() { return null; }	\n" +
-		"	       ^^^^^^^^^^^^\n" +
-		"The return type is incompatible with EditPart.getViewer()\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 11)\n" +
-		"	public ISheetViewer getViewer() { return null; }	\n" +
-		"	                    ^^^^^^^^^^^\n" +
-		"The method getViewer() of type AbstractLinkView<M> must override a superclass method\n" +
+    ?	"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
+		"	               ^^^^^^^^^^^^^^^^\n" + 
+		"The return types are incompatible for the inherited methods EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	public ISheetViewer getViewer() { return null; }	\n" + 
+		"	       ^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with EditPart.getViewer()\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	public ISheetViewer getViewer() { return null; }	\n" + 
+		"	                    ^^^^^^^^^^^\n" + 
+		"The method getViewer() of type AbstractLinkView<M> must override a superclass method\n" + 
 		"----------\n"
-	:	"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	public ISheetViewer getViewer() { return null; }	\n" +
-		"	       ^^^^^^^^^^^^\n" +
-		"The return type is incompatible with EditPart.getViewer()\n" +
+    :		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
+		"	               ^^^^^^^^^^^^^^^^\n" + 
+		"The return types are incompatible for the inherited methods EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	public ISheetViewer getViewer() { return null; }	\n" + 
+		"	       ^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with EditPart.getViewer()\n" + 
 		"----------\n";
 	this.runNegativeTest(
 			new String[] {
@@ -32311,11 +32450,16 @@ public void test0988() {
 				"	public ISheetViewer getViewer();\n" +
 				"}", // =================
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	public SheetViewer getViewer() { return null; }	\n" +
-			"	       ^^^^^^^^^^^\n" +
-			"The return type is incompatible with AbstractEditPart.getViewer()\n" +
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
+			"	               ^^^^^^^^^^^^^^^^\n" + 
+			"The return types are incompatible for the inherited methods EditPart.getViewer(), ILinkViewElement.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	public SheetViewer getViewer() { return null; }	\n" + 
+			"	       ^^^^^^^^^^^\n" + 
+			"The return type is incompatible with AbstractEditPart.getViewer()\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142653
@@ -32650,6 +32794,7 @@ public void test0999() {
 			"	}\n" +
 			"}", // =================
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
 		"----------\n" + 
 		"1. WARNING in X.java (at line 9)\n" + 
 		"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
@@ -32674,8 +32819,39 @@ public void test0999() {
 		"5. WARNING in X.java (at line 18)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety : A generic array of Iterator<Integer> is created for a varargs parameter\n" + 
-		"----------\n");
+		"Type safety: A generic array of Iterator<Integer> is created for a varargs parameter\n" + 
+		"----------\n" :
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	public static final <T,E extends T> Iterator<T> chain(Iterator<E>... it) {\n" + 
+			"	                                                                     ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter it\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
+			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation chain(Iterator[]) of the generic method chain(Iterator<E>...) of type X\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
+			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Iterator needs unchecked conversion to conform to Iterator<Number>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
+			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<Number>[]\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 14)\n" + 
+			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
+			"	                         ^^^^^\n" + 
+			"The method chain(Iterator<E>...) in the type X is not applicable for the arguments (Iterator<Integer>, Iterator<Float>)\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 18)\n" + 
+			"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
+			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: A generic array of Iterator<Integer> is created for a varargs parameter\n" + 
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=144879
 public void test1000() {
@@ -32703,6 +32879,7 @@ public void test1000() {
 			"	}\n" +
 			"}", // =================
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
 		"----------\n" + 
 		"1. WARNING in X.java (at line 9)\n" + 
 		"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
@@ -32722,7 +32899,7 @@ public void test1000() {
 		"4. WARNING in X.java (at line 14)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety : A generic array of Iterator<? extends Number&Comparable<?>> is created for a varargs parameter\n" + 
+		"Type safety: A generic array of Iterator<? extends Number&Comparable<?>> is created for a varargs parameter\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 14)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
@@ -32732,13 +32909,54 @@ public void test1000() {
 		"6. WARNING in X.java (at line 18)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety : A generic array of Iterator<? extends Integer> is created for a varargs parameter\n" + 
+		"Type safety: A generic array of Iterator<? extends Integer> is created for a varargs parameter\n" + 
 		"----------\n" + 
 		"7. ERROR in X.java (at line 18)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Iterator<Integer> to Iterator<Number>\n" + 
-		"----------\n");
+		"----------\n" :
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	public static final <T> Iterator<T> chain(Iterator<? extends T>... it) {\n" + 
+			"	                                                                   ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter it\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
+			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation chain(Iterator[]) of the generic method chain(Iterator<? extends T>...) of type X\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
+			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Iterator needs unchecked conversion to conform to Iterator<Number>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
+			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<? extends Number>[]\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 14)\n" + 
+			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
+			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: A generic array of Iterator<? extends Number&Comparable<?>> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 14)\n" + 
+			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
+			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Iterator<Number&Comparable<?>> to Iterator<Number>\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 18)\n" + 
+			"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
+			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: A generic array of Iterator<? extends Integer> is created for a varargs parameter\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 18)\n" + 
+			"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
+			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Iterator<Integer> to Iterator<Number>\n" + 
+			"----------\n");
 }
 public void test1001() {
 	this.runConformTest(
@@ -33716,6 +33934,7 @@ public void test1027() {
 		// test directory preparation
 		new String[] { /* test files */
 			"X.java",
+			this.complianceLevel < ClassFileConstants.JDK1_7 ?
 			"import java.util.LinkedHashSet;\n" +
 			"import java.util.Set;\n" +
 			"\n" +
@@ -33736,7 +33955,29 @@ public void test1027() {
 			"        return set;\n" +
 			"    }\n" +
 			"}\n" +
-			"\n", // =================
+			"\n" : 
+				"import java.util.LinkedHashSet;\n" +
+				"import java.util.Set;\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    public class A {};\n" +
+				"    public class B extends A {};\n" +
+				"\n" +
+				"    public static void main(String[] args) {\n" +
+				"        X g = new X();\n" +
+				"        Set<A> set = g.newSet(g.new B());\n" +
+				"    }\n" +
+				"    @SuppressWarnings(\"unchecked\")\n" +
+				"    public <T, V extends T> Set<T> newSet(V... objects) {\n" +
+				"        Set<T> set = new LinkedHashSet<T>();\n" +
+				"        for (T t : objects) {\n" +
+				"            set.add(t);\n" +
+				"        }\n" +
+				"        return set;\n" +
+				"    }\n" +
+				"}\n" +
+				"\n", // =================, // =================
 		},
 		// javac options
 		JavacTestOptions.JavacHasABug.JavacBugFixed_7 /* javac test options */);
@@ -33771,6 +34012,8 @@ public void test1028() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=156016
 public void test1029() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -33788,16 +34031,14 @@ public void test1029() {
 			"}", // =================
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 6)\n" +
-		"	return Arrays.asList(a, b);\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of T is created for a varargs parameter\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 10)\n" +
+		"1. ERROR in X.java (at line 10)\n" +
 		"	List<Number> name = makeNumberList(5, 5D);\n" +
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from List<Number&Comparable<?>> to List<Number>\n" +
-		"----------\n");
+		"----------\n",
+		null,
+		true,
+		options);
 }
 public void test1030() {
 	this.runConformTest(
@@ -34114,16 +34355,6 @@ public void test1035() {
 		"	static <M extends String> Comparator<M> baz() {\n" + 
 		"	                  ^^^^^^\n" + 
 		"The type parameter M should not be bounded by the final type String. Final types cannot be further extended\n" + 
-		"----------\n" + 
-		"2. ERROR in ComparableComparator.java (at line 25)\n" + 
-		"	static Comparator BAR = ComparableComparator.bar();//0\n" + 
-		"	                                             ^^^\n" + 
-		"Bound mismatch: The generic method bar() of type ComparableComparator<T> is not applicable for the arguments (). The inferred type Comparable<Comparable<M>> is not a valid substitute for the bounded parameter <M extends Comparable<M>>\n" + 
-		"----------\n" + 
-		"3. ERROR in ComparableComparator.java (at line 27)\n" + 
-		"	static Object BAR2 = ComparableComparator.bar();//1a\n" + 
-		"	                                          ^^^\n" + 
-		"Bound mismatch: The generic method bar() of type ComparableComparator<T> is not applicable for the arguments (). The inferred type Comparable<Comparable<M>> is not a valid substitute for the bounded parameter <M extends Comparable<M>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158548
@@ -37197,7 +37428,13 @@ public void test1099() {
 			"}\n"
 		},
 		// compiler results
-		"" /* expected compiler log */,
+		this.complianceLevel < ClassFileConstants.JDK1_7 ? "" :
+				"----------\n" + 
+				"1. WARNING in X.java (at line 21)\n" + 
+				"	public <U, V extends U> List<U> newList(V... values) {\n" + 
+				"	                                             ^^^^^^\n" + 
+				"Type safety: Potential heap pollution via varargs parameter values\n" + 
+				"----------\n",
 		// runtime results
 		"SUCCESS" /* expected output string */,
 		"" /* expected error string */,
@@ -38581,6 +38818,8 @@ public void test1135() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=154029
 public void test1136() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -38600,26 +38839,19 @@ public void test1136() {
 			"class C<T> extends A<T> implements I {}\n", // =================
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	List<Object>  l1 = Arrays.asList(1, \"X\");\n" +
-		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Object&Comparable<?>&Serializable is created for a varargs parameter\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
+		"1. ERROR in X.java (at line 4)\n" +
 		"	List<Object>  l1 = Arrays.asList(1, \"X\");\n" +
 		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from List<Object&Comparable<?>&Serializable> to List<Object>\n" +
 		"----------\n" +
-		"3. WARNING in X.java (at line 8)\n" +
-		"	List<Object>  l2 = Arrays.asList(b, c);\n" +
-		"	                   ^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of A<String>&I is created for a varargs parameter\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 8)\n" +
+		"2. ERROR in X.java (at line 8)\n" +
 		"	List<Object>  l2 = Arrays.asList(b, c);\n" +
 		"	                   ^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from List<A<String>&I> to List<Object>\n" +
-		"----------\n");
+		"----------\n",
+		null,
+		true,
+		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=154267
 public void test1137() {
@@ -38898,6 +39130,7 @@ public void test1146() {
 			"	}	\n" +
 			"}\n", // =================
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
 		"	int i = asList(a, b, rest);\n" +
@@ -38913,7 +39146,33 @@ public void test1146() {
 		"	return compound(asList(a, b, rest));\n" +
 		"	       ^^^^^^^^\n" +
 		"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" +
-		"----------\n");
+		"----------\n":
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	Comparator<? super T>... rest) {\n" + 
+			"	                         ^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter rest\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	int i = asList(a, b, rest);\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<Comparator<?>> to int\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	int j = asList2(a, b);\n" + 
+			"	        ^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<Comparator<? extends Object>> to int\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	return compound(asList(a, b, rest));\n" + 
+			"	       ^^^^^^^^\n" + 
+			"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 14)\n" + 
+			"	public static <E> List<E> asList(E a, E b, E... rest) {\n" + 
+			"	                                                ^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter rest\n" + 
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945 - variation
 public void test1147() {
@@ -38980,6 +39239,7 @@ public void test1148() {
 			"	}\n" +
 			"}\n", // =================
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
 		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
 		"	int i = asList(a, b, rest);\n" +
@@ -39010,7 +39270,48 @@ public void test1148() {
 		"	return compound(c);\n" +
 		"	       ^^^^^^^^\n" +
 		"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" +
-		"----------\n");
+		"----------\n":
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	public static <T> Comparator<T> compound(Comparator<? super T> a, Comparator<? super T> b, Comparator<? super T>... rest) {\n" + 
+			"	                                                                                                                    ^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter rest\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	int i = asList(a, b, rest);\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<Comparator<?>> to int\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	int j = compound(asList(a, b, rest));\n" + 
+			"	        ^^^^^^^^\n" + 
+			"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	compound(asList(a, b, rest));\n" + 
+			"	^^^^^^^^\n" + 
+			"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 7)\n" + 
+			"	if (true) return compound(asList(a, b, rest));\n" + 
+			"	                 ^^^^^^^^\n" + 
+			"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 10)\n" + 
+			"	compound(c);\n" + 
+			"	^^^^^^^^\n" + 
+			"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 11)\n" + 
+			"	return compound(c);\n" + 
+			"	       ^^^^^^^^\n" + 
+			"The method compound(Iterable<? extends Comparator<? super U>>) in the type X is not applicable for the arguments (List<Comparator<?>>)\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 16)\n" + 
+			"	public static <E> List<E> asList(E a, E b, E... rest) {\n" + 
+			"	                                                ^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter rest\n" + 
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=198051
 public void test1149() {
@@ -41265,11 +41566,16 @@ public void test1210() {
 			"    }\n" +
 			"}\n", // =================
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	Object[] o  = throwE(objs);\n" +
-		"	              ^^^^^^\n" +
-		"Bound mismatch: The generic method throwE(Object...) of type X is not applicable for the arguments (Object[]). The inferred type Object[] is not a valid substitute for the bounded parameter <E extends Exception>\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Object[] o  = throwE(objs);\n" + 
+		"	              ^^^^^^\n" + 
+		"Bound mismatch: The generic method throwE(Object...) of type X is not applicable for the arguments (Object[]). The inferred type Object[]&Exception is not a valid substitute for the bounded parameter <E extends Exception>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	Object[] o  = throwE(objs);\n" + 
+		"	              ^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object[]&Exception to Object[]\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=208030
@@ -41874,6 +42180,7 @@ public void test1226() {
 		"----------\n");
 }
 public void test1227() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -41889,7 +42196,7 @@ public void test1227() {
 		"1. WARNING in X.java (at line 4)\n" +
 		"	Arrays.asList(String.class, Integer.class);\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety : A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 6)\n" +
 		"	Zork z;\n" +
@@ -44021,6 +44328,8 @@ public void test1294() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303 - variation
 public void test1295() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -44040,26 +44349,14 @@ public void test1295() {
 					"class Song {}\n", // =================
 			},
 			"----------\n" +
-			"1. WARNING in X.java (at line 7)\n" +
-			"	java.util.List<Counter<?>> list1 = java.util.Arrays.asList(songCounter, genreCounter);\n" +
-			"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 8)\n" +
-			"	java.util.List<Counter<? extends Object>> list2 = java.util.Arrays.asList(songCounter, genreCounter);\n" +
-			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 11)\n" +
-			"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\n" +
-			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety : A generic array of Deejay.Counter<? extends Object> is created for a varargs parameter\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 11)\n" +
+			"1. ERROR in X.java (at line 11)\n" +
 			"	java.util.List<Counter<? extends String>> list5 = java.util.Arrays.asList(songCounter, genreCounter);\n" +
 			"	                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from List<Deejay.Counter<? extends Object>> to List<Deejay.Counter<? extends String>>\n" +
-			"----------\n");
+			"----------\n",
+			null,
+			true,
+			options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220111 - variation
 public void test1296() {
@@ -44823,26 +45120,31 @@ public void test1317() {
 					"        }\n" +
 					"}\n", // =================
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	<T extends N<T>> T foo3(String name, T value) {}\n" +
-			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"This method must return a result of type T\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 15)\n" +
-			"	new X().foo(\"HI\", null); // correctly report error\n" +
-			"	        ^^^\n" +
-			"The method foo(String, String) is ambiguous for the type X\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 18)\n" +
-			"	Thread t1 = foo3(\"HI\", null);\n" +
-			"	            ^^^^\n" +
-			"The method foo3(String, null) is undefined for the type Test\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 19)\n" +
-			"	Thread t2 = (Thread)foo3(\"HI\", null);\n" +
-			"	                    ^^^^\n" +
-			"The method foo3(String, null) is undefined for the type Test\n" +
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	<T extends N<T>> T foo3(String name, T value) {}\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"This method must return a result of type T\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
+			"	new X().foo(\"HI\", null); // correctly report error\n" + 
+			"	        ^^^\n" + 
+			"The method foo(String, String) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 16)\n" + 
+			"	new X().foo2(\"HI\", null); // miss ambiguous error\n" + 
+			"	        ^^^^\n" + 
+			"The method foo2(String, String) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 18)\n" + 
+			"	Thread t1 = foo3(\"HI\", null);\n" + 
+			"	            ^^^^\n" + 
+			"The method foo3(String, null) is undefined for the type Test\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 19)\n" + 
+			"	Thread t2 = (Thread)foo3(\"HI\", null);\n" + 
+			"	                    ^^^^\n" + 
+			"The method foo3(String, null) is undefined for the type Test\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928 - variation
@@ -44864,17 +45166,12 @@ public void test1318() {
 					"}\n", // =================
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	new X().foo2(\"HI\", null);\n" +
-			"	        ^^^^\n" +
-			"Bound mismatch: The generic method foo2(String, T) of type X is not applicable for the arguments (String, null). The inferred type N<N<T>> is not a valid substitute for the bounded parameter <T extends N<T>>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
+			"1. ERROR in X.java (at line 9)\n" +
 			"	new X().<N<?>>foo2(\"HI\", null);\n" +
 			"	              ^^^^\n" +
 			"Bound mismatch: The generic method foo2(String, T) of type X is not applicable for the arguments (String, null). The inferred type N<?> is not a valid substitute for the bounded parameter <T extends N<T>>\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
+			"2. ERROR in X.java (at line 10)\n" +
 			"	new X().<N<? extends N<?>>>foo2(\"HI\", null);\n" +
 			"	                           ^^^^\n" +
 			"Bound mismatch: The generic method foo2(String, T) of type X is not applicable for the arguments (String, null). The inferred type N<? extends N<?>> is not a valid substitute for the bounded parameter <T extends N<T>>\n" +
@@ -44882,7 +45179,7 @@ public void test1318() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928 - variation
 public void test1319() {
-	this.runNegativeTest(
+	this.runConformTest(
 			new String[] {
 					"X.java", // =================
 					"import java.util.List;\n" +
@@ -44896,16 +45193,11 @@ public void test1319() {
 					"        }\n" +
 					"}\n", // =================
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	new X().foo2(\"HI\", null, null, null);\n" +
-			"	        ^^^^\n" +
-			"Bound mismatch: The generic method foo2(String, U, T, W) of type X is not applicable for the arguments (String, null, null, null). The inferred type List<List<W>> is not a valid substitute for the bounded parameter <T extends List<U>>\n" +
-			"----------\n");
+			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928 - variation
 public void test1320() {
-	this.runNegativeTest(
+	this.runConformTest(
 			new String[] {
 					"X.java", // =================
 					"import java.util.List;\n" +
@@ -44919,16 +45211,11 @@ public void test1320() {
 					"        }\n" +
 					"}\n", // =================
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	new X().foo2(\"HI\", null, null, null);\n" +
-			"	        ^^^^\n" +
-			"Bound mismatch: The generic method foo2(String, U, T, W) of type X is not applicable for the arguments (String, null, null, null). The inferred type List<List<W>> is not a valid substitute for the bounded parameter <T extends List<U>>\n" +
-			"----------\n");
+			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=229928 - variation
 public void test1321() {
-	this.runNegativeTest(
+	this.runConformTest(
 			new String[] {
 					"X.java", // =================
 					"import java.util.List;\n" +
@@ -44942,12 +45229,7 @@ public void test1321() {
 					"        }\n" +
 					"}\n", // =================
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	new X().foo2(\"HI\", null, null, null);\n" +
-			"	        ^^^^\n" +
-			"Bound mismatch: The generic method foo2(String, U, T, W) of type X is not applicable for the arguments (String, null, null, null). The inferred type List<List<T>> is not a valid substitute for the bounded parameter <W extends List<U>>\n" +
-			"----------\n");
+			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=231094
 public void test1322() {
@@ -45619,6 +45901,8 @@ public void test1340() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=235837
 public void test1341() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
@@ -45637,12 +45921,10 @@ public void test1341() {
 			"	foo((Collection<Number>) Arrays.asList(i, d));\n" +
 			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Cannot cast from List<Number&Comparable<?>> to Collection<Number>\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 6)\n" +
-			"	foo((Collection<Number>) Arrays.asList(i, d));\n" +
-			"	                         ^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety : A generic array of Number&Comparable<?> is created for a varargs parameter\n" +
-			"----------\n");
+			"----------\n",
+			null,
+			true,
+			options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=235921 - variation
 public void test1342() throws Exception {
@@ -46895,7 +47177,7 @@ public void test1379() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=174447
 public void test1380() {
-	this.runNegativeTest(
+	this.runConformTest(
 			new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" + 
@@ -46906,12 +47188,7 @@ public void test1380() {
 				"    }\n" + 
 				"}\n",//-----------------------------------------------------------------------
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	f();\n" + 
-			"	^\n" + 
-			"Bound mismatch: The generic method f() of type X is not applicable for the arguments (). The inferred type Enum<Enum<E>> is not a valid substitute for the bounded parameter <E extends Enum<E>>\n" + 
-			"----------\n");
+			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=247953
 public void test1381()  throws Exception {
@@ -47920,8 +48197,8 @@ public void test1403()  throws Exception {
 		"Syntax error, insert \")\" to complete Expression\n" + 
 		"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=242159
-public void _test1404()  throws Exception {
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=242159
+public void test1404()  throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -47938,20 +48215,10 @@ public void _test1404()  throws Exception {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	bar(); // 0 rejected\n" + 
-		"	^^^\n" + 
-		"Bound mismatch: The generic method bar() of type X<A> is not applicable for the arguments (). The inferred type Comparable<Comparable<B>> is not a valid substitute for the bounded parameter <B extends Comparable<B>>\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 8)\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
 		"	X raw = bar(); // 1 accepted\n" + 
 		"	^\n" + 
 		"X is a raw type. References to generic type X<A> should be parameterized\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
-		"	X<?> wild = bar(); // 2 rejected\n" + 
-		"	            ^^^\n" + 
-		"Bound mismatch: The generic method bar() of type X<A> is not applicable for the arguments (). The inferred type Comparable<Comparable<B>> is not a valid substitute for the bounded parameter <B extends Comparable<B>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=240807

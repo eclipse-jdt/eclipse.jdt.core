@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -244,6 +244,10 @@ protected void consumeCastExpressionWithQualifiedGenericsArray() {
 		this.patternLocator.match(castExpression.type, this.nodeSet);
 	}
 }
+protected void consumeCatchFormalParameter() {
+	super.consumeCatchFormalParameter();
+	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
+}
 
 protected void consumeClassHeaderExtends() {
 	this.patternLocator.setFlavors(PatternLocator.SUPERTYPE_REF_FLAVOR);
@@ -317,11 +321,6 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 
 protected void consumeFormalParameter(boolean isVarArgs) {
 	super.consumeFormalParameter(isVarArgs);
-	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
-}
-
-protected void consumeCatchFormalParameter(boolean isVarArgs) {
-	super.consumeCatchFormalParameter(isVarArgs);
 	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
 }
 
@@ -519,7 +518,14 @@ protected void consumeStatementCatch() {
 	if ((this.patternFineGrain & IJavaSearchConstants.CATCH_TYPE_REFERENCE) != 0) {
 		// when no fine grain flag is set, type reference match is evaluated in getTypeReference(int) method
 		LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr-1];
-		this.patternLocator.match(localDeclaration.type, this.nodeSet);
+		if (localDeclaration.type instanceof UnionTypeReference) {
+			TypeReference[] refs = ((UnionTypeReference)localDeclaration.type).typeReferences;
+			for (int i = 0, len  = refs.length; i < len; i++) {
+				this.patternLocator.match(refs[i], this.nodeSet);
+			}
+		} else {
+			this.patternLocator.match(localDeclaration.type, this.nodeSet);
+		}
 	}
 }
 

@@ -9798,6 +9798,29 @@ public void test297() {
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 	customOptions.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
+	
+	String expectedErrors = 
+		"----------\n" + 
+		"1. ERROR in A.java (at line 15)\n" + 
+		"	return i == i;\n" + 
+		"	       ^^^^^^\n" + 
+		"Comparing identical expressions\n" + 
+		"----------\n";
+
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		expectedErrors =
+			"----------\n" + 
+			"1. ERROR in A.java (at line 10)\n" + 
+			"	public final Object build(Class<? super Object>... objects) {\n" + 
+			"	                                                   ^^^^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter objects\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 15)\n" + 
+			"	return i == i;\n" + 
+			"	       ^^^^^^\n" + 
+			"Comparing identical expressions\n" + 
+			"----------\n";
+	}
 	String testFiles [] = new String[] {
 			"A.java",
 			"public class A {\n" + 
@@ -9820,12 +9843,7 @@ public void test297() {
 	};
 	runNegativeTest(
 			testFiles,
-			"----------\n" + 
-			"1. ERROR in A.java (at line 15)\n" + 
-			"	return i == i;\n" + 
-			"	       ^^^^^^\n" + 
-			"Comparing identical expressions\n" + 
-			"----------\n",
+			expectedErrors,
 			null,
 			true,
 			customOptions);

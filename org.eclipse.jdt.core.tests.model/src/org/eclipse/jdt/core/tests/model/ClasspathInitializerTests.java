@@ -1641,7 +1641,7 @@ public void testBug346002() throws Exception {
 	propertyValue.append("</userlibrary>\r\n");
 	preferences.put(propertyName, propertyValue.toString());
 	preferences.flush();
-	System.out.println("This test will throw an expected error. Ignore.");
+
 	try {
 		simulateExitRestart();
 

@@ -45,6 +45,22 @@ public void runComplianceParserTest(
 		this.runNegativeTest(testFiles, expected15ProblemLog);
 	}
 }
+public void runComplianceParserTest(
+		String[] testFiles,
+		String expected13ProblemLog,
+		String expected14ProblemLog,
+		String expected15ProblemLog,
+		String expected17ProblemLog){
+		if(this.complianceLevel == ClassFileConstants.JDK1_3) {
+			this.runNegativeTest(testFiles, expected13ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_4) {
+			this.runNegativeTest(testFiles, expected14ProblemLog);
+		} else if(this.complianceLevel < ClassFileConstants.JDK1_7) {
+			this.runNegativeTest(testFiles, expected15ProblemLog);
+		} else {
+			this.runNegativeTest(testFiles, expected17ProblemLog);
+		}
+	}
 public void test0001() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -58,7 +74,7 @@ public void test0001() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	import static aaa.BBB.*;\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, static imports are only available if source level is 1.5\n" +
+		"Syntax error, static imports are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 1)\n" +
 		"	import static aaa.BBB.*;\n" +
@@ -96,7 +112,7 @@ public void test0002() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	import static aaa.BBB.CCC;\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, static imports are only available if source level is 1.5\n" +
+		"Syntax error, static imports are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 1)\n" +
 		"	import static aaa.BBB.CCC;\n" +
@@ -164,7 +180,7 @@ public void test0004() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	for(String o: c) {\n" +
 		"	    ^^^^^^^^^^^\n" +
-		"Syntax error, \'for each\' statements are only available if source level is 1.5\n" +
+		"Syntax error, \'for each\' statements are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	for(String o: c) {\n" +
@@ -203,7 +219,7 @@ public void test0005() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	void foo(Z ... arg){\n" +
 		"	         ^^^^^^^^^\n" +
-		"Syntax error, varargs are only available if source level is 1.5\n" +
+		"Syntax error, varargs are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 2)\n" +
 		"	void foo(Z ... arg){\n" +
@@ -240,7 +256,7 @@ public void test0006() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public class X <T1 extends String, T2> extends Y {\n" +
 		"	                ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5\n" +
+		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 1)\n" +
 		"	public class X <T1 extends String, T2> extends Y {\n" +
@@ -282,7 +298,7 @@ public void test0007() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public interface X <T1 extends String, T2> extends Y {\n" +
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5\n" +
+		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 1)\n" +
 		"	public interface X <T1 extends String, T2> extends Y {\n" +
@@ -326,7 +342,7 @@ public void test0008() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	public <T1 extends String, T2> int foo(){\n" +
 		"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5\n" +
+		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -365,7 +381,7 @@ public void test0009() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	public <T1 extends String, T2> X(){\n" +
 		"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5\n" +
+		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
 		"----------\n";
 
 	String expected15ProblemLog =
@@ -405,7 +421,7 @@ public void test0010() {
 		"2. ERROR in X.java (at line 2)\n" +
 		"	Z<Y1, Y2> var;\n" +
 		"	  ^^^^^^\n" +
-		"Syntax error, parameterized types are only available if source level is 1.5\n" +
+		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 2)\n" +
 		"	Z<Y1, Y2> var;\n" +
@@ -460,7 +476,7 @@ public void test0011() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	<Y1, Y2>this(null);\n" +
 		"	 ^^^^^^\n" +
-		"Syntax error, parameterized types are only available if source level is 1.5\n" +
+		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	<Y1, Y2>this(null);\n" +
@@ -550,7 +566,7 @@ public void test0013() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	import static aaa.*\n" +
 		"	^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, static imports are only available if source level is 1.5\n" +
+		"Syntax error, static imports are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 1)\n" +
 		"	import static aaa.*\n" +
@@ -635,7 +651,7 @@ public void test0015() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	for(String o: c) {\n" +
 		"	    ^^^^^^^^^^^\n" +
-		"Syntax error, \'for each\' statements are only available if source level is 1.5\n" +
+		"Syntax error, \'for each\' statements are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	#\n" +
@@ -675,7 +691,7 @@ public void test0016() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	void foo(Z ... arg){\n" +
 		"	         ^^^^^^^^^\n" +
-		"Syntax error, varargs are only available if source level is 1.5\n" +
+		"Syntax error, varargs are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 2)\n" +
 		"	void foo(Z ... arg){\n" +
@@ -723,7 +739,7 @@ public void test0017() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public class X <T1 extends String, T2> extends Y {\n" +
 		"	                ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5\n" +
+		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 1)\n" +
 		"	public class X <T1 extends String, T2> extends Y {\n" +
@@ -778,7 +794,7 @@ public void test0018() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	public <T1 extends String, T2> int foo(){\n" +
 		"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5\n" +
+		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	#\n" +
@@ -827,7 +843,7 @@ public void test0019() {
 		"2. ERROR in X.java (at line 2)\n" +
 		"	Z<Y1, Y2> var;\n" +
 		"	  ^^^^^^\n" +
-		"Syntax error, parameterized types are only available if source level is 1.5\n" +
+		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 2)\n" +
 		"	Z<Y1, Y2> var;\n" +
@@ -984,7 +1000,7 @@ public void test0022() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	import static aaa.*.*;\n" +
 		"	^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, static imports are only available if source level is 1.5\n" +
+		"Syntax error, static imports are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 1)\n" +
 		"	import static aaa.*.*;\n" +
@@ -1397,7 +1413,7 @@ public void test0031() {
 		"2. ERROR in X.java (at line 2)\n" +
 		"	void foo(int ... aaa bbb){\n" +
 		"	         ^^^^^^^^^^^\n" +
-		"Syntax error, varargs are only available if source level is 1.5\n" +
+		"Syntax error, varargs are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 2)\n" +
 		"	void foo(int ... aaa bbb){\n" +
@@ -1628,7 +1644,7 @@ public void test0036() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	public <T1 extends String, T2> foo(){\n" +
 		"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5\n" +
+		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 2)\n" +
 		"	public <T1 extends String, T2> foo(){\n" +
@@ -2020,7 +2036,7 @@ public void test0044() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public <T> X(T t){\n" + 
 		"	        ^\n" + 
-		"Syntax error, type parameters are only available if source level is 1.5\n" + 
+		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 5)\n" + 
 		"	}\n" + 
@@ -2030,12 +2046,12 @@ public void test0044() {
 		"3. ERROR in X.java (at line 9)\n" + 
 		"	<String>super(\"SUCCESS\");\n" + 
 		"	 ^^^^^^\n" + 
-		"Syntax error, type parameters are only available if source level is 1.5\n" + 
+		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 9)\n" + 
 		"	<String>super(\"SUCCESS\");\n" + 
 		"	 ^^^^^^\n" + 
-		"Syntax error, parameterized types are only available if source level is 1.5\n" + 
+		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" + 
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -2106,7 +2122,7 @@ public void test0046() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public @interface X {\n" +
 		"	                  ^\n" +
-		"Syntax error, annotation declarations are only available if source level is 1.5\n" +
+		"Syntax error, annotation declarations are only available if source level is 1.5 or greater\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -2137,13 +2153,13 @@ public void test0047() {
 		"1. ERROR in A.java (at line 1)\n" +
 		"	public @interface A {}\n" +
 		"	                  ^\n" +
-		"Syntax error, annotation declarations are only available if source level is 1.5\n" +
+		"Syntax error, annotation declarations are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
 		"	@A public class X {\n" +
 		"	^^\n" +
-		"Syntax error, annotations are only available if source level is 1.5\n" +
+		"Syntax error, annotations are only available if source level is 1.5 or greater\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -2171,7 +2187,7 @@ public void test0048() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	void foo(X ... arg[]){\n" +
 		"	         ^^^^^^^^^\n" +
-		"Syntax error, varargs are only available if source level is 1.5\n" +
+		"Syntax error, varargs are only available if source level is 1.5 or greater\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -2208,7 +2224,7 @@ public void test0049() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	@interface MyAnn {\n" +
 		"	           ^^^^^\n" +
-		"Syntax error, annotation declarations are only available if source level is 1.5\n" +
+		"Syntax error, annotation declarations are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 6)\n" +
 		"	public @MyAnn(\"\",\"\") class Test {		\n" +
@@ -2266,7 +2282,7 @@ public void test0050() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	void foo(List<String>... args) {}\n" +
 		"	         ^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, varargs are only available if source level is 1.5\n" +
+		"Syntax error, varargs are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 2)\n" +
 		"	void foo(List<String>... args) {}\n" +
@@ -2276,7 +2292,7 @@ public void test0050() {
 		"3. ERROR in X.java (at line 2)\n" +
 		"	void foo(List<String>... args) {}\n" +
 		"	              ^^^^^^\n" +
-		"Syntax error, parameterized types are only available if source level is 1.5\n" +
+		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -2288,12 +2304,25 @@ public void test0050() {
 		"	         ^^^^\n" +
 		"List cannot be resolved to a type\n" +
 		"----------\n";
+	String expected17ProblemLog = 		
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	void foo(List<String>... args) {}\n" + 
+		"	         ^^^^\n" + 
+		"List cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 2)\n" + 
+		"	void foo(List<String>... args) {}\n" + 
+		"	                         ^^^^\n" + 
+		"Type safety: Potential heap pollution via varargs parameter args\n" + 
+		"----------\n";
 
 	runComplianceParserTest(
 		testFiles,
 		expected13ProblemLog,
 		expected14ProblemLog,
-		expected15ProblemLog
+		expected15ProblemLog,
+		expected17ProblemLog
 	);
 }
 public void test0051() {
@@ -2309,7 +2338,7 @@ public void test0051() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	void foo(java.util.List2<String>... args) {}\n" +
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error, varargs are only available if source level is 1.5\n" +
+		"Syntax error, varargs are only available if source level is 1.5 or greater\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 2)\n" +
 		"	void foo(java.util.List2<String>... args) {}\n" +
@@ -2319,7 +2348,7 @@ public void test0051() {
 		"3. ERROR in X.java (at line 2)\n" +
 		"	void foo(java.util.List2<String>... args) {}\n" +
 		"	                         ^^^^^^\n" +
-		"Syntax error, parameterized types are only available if source level is 1.5\n" +
+		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -2429,6 +2458,160 @@ public void test0053() {
 		expected13ProblemLog,
 		expected14ProblemLog,
 		expected15ProblemLog
+	);
+}
+public void test0054() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		try (int i = 0) {};\n" +
+		"	}\n" +
+		"}\n"
+	};
+
+	String expected13ProblemLog =
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (int i = 0) {};\n" + 
+		"	     ^^^^^^^^^\n" + 
+		"Resource specification not allowed here for source level below 1.7\n" + 
+		"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+
+	String expected15ProblemLog =
+		expected14ProblemLog;
+
+	String expected17ProblemLog = 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (int i = 0) {};\n" + 
+		"	     ^^^\n" + 
+		"The resource type int does not implement java.lang.AutoCloseable\n" + 
+		"----------\n";
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog,
+		expected17ProblemLog
+	);
+}
+// test that use of multi-catch is flagged accordingly
+public void test0055() {
+	if(this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		return;
+	}
+	String[] testFiles = new String[] {
+		"X.java",
+		"import java.io.*;\n" +
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		try {\n" + 
+		"			System.out.println();\n" + 
+		"			Reader r = new FileReader(args[0]);\n" + 
+		"			r.read();\n" + 
+		"		} catch(IOException | RuntimeException e) {\n" + 
+		"			e.printStackTrace();\n" + 
+		"		}\n" + 
+		"	}\n" +
+		"}\n"
+	};
+
+	String expected13ProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	} catch(IOException | RuntimeException e) {\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Multi-catch parameters are not allowed for source level below 1.7\n" + 
+			"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+
+	String expected15ProblemLog =
+		expected14ProblemLog;
+
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog
+	);
+}
+// rethrow should not be precisely computed in 1.6- 
+public void test0056() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" + 
+		"		try {\n" + 
+		"			throw new DaughterOfFoo();\n"+
+		"		} catch(Foo e) {\n" + 
+		"			try {\n" +
+		"				throw e;\n" +
+		"			} catch (SonOfFoo e1) {\n" +
+		"			 	e1.printStackTrace();\n" +
+		"			} catch (Foo e1) {}\n" +
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"+
+		"class Foo extends Exception {}\n"+
+		"class SonOfFoo extends Foo {}\n"+
+		"class DaughterOfFoo extends Foo {}\n"
+	};
+
+	String expected13ProblemLog =
+			"----------\n" + 
+			"1. WARNING in X.java (at line 14)\n" + 
+			"	class Foo extends Exception {}\n" + 
+			"	      ^^^\n" + 
+			"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 15)\n" + 
+			"	class SonOfFoo extends Foo {}\n" + 
+			"	      ^^^^^^^^\n" + 
+			"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 16)\n" + 
+			"	class DaughterOfFoo extends Foo {}\n" + 
+			"	      ^^^^^^^^^^^^^\n" + 
+			"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n";
+	String expected14ProblemLog =
+		expected13ProblemLog;
+
+	String expected15ProblemLog =
+		expected14ProblemLog;
+
+	String expected17ProblemLog = 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	} catch (SonOfFoo e1) {\n" + 
+			"	         ^^^^^^^^\n" + 
+			"Unreachable catch block for SonOfFoo. This exception is never thrown from the try statement body\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	class Foo extends Exception {}\n" + 
+			"	      ^^^\n" + 
+			"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 15)\n" + 
+			"	class SonOfFoo extends Foo {}\n" + 
+			"	      ^^^^^^^^\n" + 
+			"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 16)\n" + 
+			"	class DaughterOfFoo extends Foo {}\n" + 
+			"	      ^^^^^^^^^^^^^\n" + 
+			"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n";
+	runComplianceParserTest(
+		testFiles,
+		expected13ProblemLog,
+		expected14ProblemLog,
+		expected15ProblemLog,
+		expected17ProblemLog
 	);
 }
 }

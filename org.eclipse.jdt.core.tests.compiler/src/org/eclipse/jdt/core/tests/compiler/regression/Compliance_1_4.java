@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2754,12 +2754,12 @@ public void test085() {
 			"1. ERROR in A.java (at line 1)\n" +
 			"	import static j.l.S.*;\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Syntax error, static imports are only available if source level is 1.5\n" +
+			"Syntax error, static imports are only available if source level is 1.5 or greater\n" +
 			"----------\n" +
 			"2. ERROR in A.java (at line 2)\n" +
 			"	import static j.l.S.in;\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Syntax error, static imports are only available if source level is 1.5\n" +
+			"Syntax error, static imports are only available if source level is 1.5 or greater\n" +
 			"----------\n" +
 			"3. ERROR in A.java (at line 2)\n" +
 			"	import static j.l.S.in;\n" +
@@ -2793,7 +2793,7 @@ public void test086() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	import static p.S;\n" +
 			"	^^^^^^^^^^^^^^^^^^\n" +
-			"Syntax error, static imports are only available if source level is 1.5\n" +
+			"Syntax error, static imports are only available if source level is 1.5 or greater\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
 			"	System.out.print(full+\" \"+p.S.success);\n" +
@@ -2823,7 +2823,7 @@ public void test087() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	import static S;\n" +
 			"	^^^^^^^^^^^^^^^^\n" +
-			"Syntax error, static imports are only available if source level is 1.5\n" +
+			"Syntax error, static imports are only available if source level is 1.5 or greater\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	import static S;\n" +
@@ -2927,7 +2927,7 @@ public void test089() {
 		"1. ERROR in X.java (at line 2)\r\n" +
 		"	@interface I1 {}\r\n" +
 		"	           ^^\n" +
-		"Syntax error, annotation declarations are only available if source level is 1.5\n" +
+		"Syntax error, annotation declarations are only available if source level is 1.5 or greater\n" +
 		"----------\n");
 }
 //78104

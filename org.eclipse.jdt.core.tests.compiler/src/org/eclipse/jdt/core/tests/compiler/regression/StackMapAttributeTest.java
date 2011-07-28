@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2010 IBM Corporation and others.
+ * Copyright (c) 2006, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,7 +34,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 47 };
+//		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
@@ -2285,42 +2285,42 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.io.StringReader;\r\n" +
-				"\r\n" +
-				"public class X {\r\n" +
-				"	public void loadVariablesAndContainers() {\r\n" +
-				"		// backward compatibility, consider persistent property	\r\n" +
-				"		String qName = \"1\";\r\n" +
-				"		String xmlString = \"2\";\r\n" +
-				"		\r\n" +
-				"		try {\r\n" +
-				"			if (xmlString != null){\r\n" +
-				"				StringReader reader = new StringReader(xmlString);\r\n" +
-				"				Object o;\r\n" +
-				"				try {\r\n" +
-				"					StringBuffer buffer = null;\r\n" +
-				"					o = new Object();\r\n" +
-				"				} catch(RuntimeException e) {\r\n" +
-				"					return;\r\n" +
-				"				} catch(Exception e){\r\n" +
-				"					return;\r\n" +
-				"				} finally {\r\n" +
-				"					reader.close();\r\n" +
-				"				}\r\n" +
-				"				System.out.println(reader);\r\n" +
-				"			}\r\n" +
-				"		} catch(Exception e){\r\n" +
-				"			// problem loading xml file: nothing we can do\r\n" +
-				"		} finally {\r\n" +
-				"			if (xmlString != null){\r\n" +
-				"				System.out.println(xmlString);\r\n" +
-				"			}\r\n" +
-				"		}\r\n" +
-				"	}\r\n" +
-				"\r\n" +
-				"	public static void main(String[] args) {\r\n" +
+				"import java.io.StringReader;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public void loadVariablesAndContainers() {\n" +
+				"		// backward compatibility, consider persistent property	\n" +
+				"		String qName = \"1\";\n" +
+				"		String xmlString = \"2\";\n" +
+				"		\n" +
+				"		try {\n" +
+				"			if (xmlString != null){\n" +
+				"				StringReader reader = new StringReader(xmlString);\n" +
+				"				Object o;\n" +
+				"				try {\n" +
+				"					StringBuffer buffer = null;\n" +
+				"					o = new Object();\n" +
+				"				} catch(RuntimeException e) {\n" +
+				"					return;\n" +
+				"				} catch(Exception e){\n" +
+				"					return;\n" +
+				"				} finally {\n" +
+				"					reader.close();\n" +
+				"				}\n" +
+				"				System.out.println(reader);\n" +
+				"			}\n" +
+				"		} catch(Exception e){\n" +
+				"			// problem loading xml file: nothing we can do\n" +
+				"		} finally {\n" +
+				"			if (xmlString != null){\n" +
+				"				System.out.println(xmlString);\n" +
+				"			}\n" +
+				"		}\n" +
+				"	}\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
 				"		System.out.println(\"SUCCESS\");\n" +
-				"	}\r\n" +
+				"	}\n" +
 				"}"
 		},
 		"SUCCESS");
@@ -6492,24 +6492,24 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\r\n" + 
-				"	class E1 extends RuntimeException {\r\n" + 
-				"		private static final long serialVersionUID = 1L;\r\n" + 
-				"	}\r\n" + 
-				"	static Object bar() {\r\n" + 
-				"		return new Object() {\r\n" + 
-				"			public void foo() {\r\n" + 
-				"				if (condition())\r\n" + 
-				"					throw new E1();\r\n" + 
-				"			}\r\n" + 
-				"		};\r\n" + 
-				"	}\r\n" + 
-				"	static boolean condition() {\r\n" + 
-				"		return false;\r\n" + 
-				"	}\r\n" + 
-				"	public static void main(String[] args) {\r\n" + 
-				"	}\r\n" + 
-				"}\r\n" + 
+				"public class X {\n" + 
+				"	class E1 extends RuntimeException {\n" + 
+				"		private static final long serialVersionUID = 1L;\n" + 
+				"	}\n" + 
+				"	static Object bar() {\n" + 
+				"		return new Object() {\n" + 
+				"			public void foo() {\n" + 
+				"				if (condition())\n" + 
+				"					throw new E1();\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"	static boolean condition() {\n" + 
+				"		return false;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	}\n" + 
+				"}\n" + 
 				"",
 			},
 			"----------\n" + 
@@ -6547,5 +6547,235 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"	              ^^^^^^\n" + 
 			"No enclosing instance of the type X is accessible in scope\n" + 
 			"----------\n");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=351653
+	public void test048() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String[] p) {\n" +
+				"        int i;\n" +
+				"        try {\n" +
+				"          if (p == null || p == null)\n" +
+				"            return;\n" +
+				"          i = 0;\n" +
+				"        } finally {\n" +
+				"            i = 0;\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=351653
+	public void test049() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.IOException;\n" + 
+				"import java.io.InputStream;\n" + 
+				"\n" + 
+				"public class X implements Runnable {\n" + 
+				"\n" + 
+				"	private boolean contentEquals(final String src, final String tar)\n" + 
+				"			throws IOException {\n" + 
+				"		if (src == null && tar == null) {\n" + 
+				"			return true;\n" + 
+				"		}\n" + 
+				"		if (!isFile(src) || !isFile(tar))\n" + 
+				"			throw new IOException(\"cannot compare non-files\");\n" + 
+				"		if (size(src) != size(tar))\n" + 
+				"			return false;\n" + 
+				"		final byte[] baSrc = new byte[8192];\n" + 
+				"		final byte[] baTar = new byte[baSrc.length];\n" + 
+				"		int lrSrc;\n" + 
+				"		int lrTar;\n" + 
+				"		InputStream isSrc = null;\n" + 
+				"		InputStream isTar = null;\n" + 
+				"		try {\n" + 
+				"			isSrc = newInputStream(src);\n" + 
+				"			if (isSrc == null)\n" + 
+				"				return false;\n" + 
+				"			isTar = newInputStream(tar);\n" + 
+				"			if (isTar == null)\n" + 
+				"				return false;\n" + 
+				"			do {\n" + 
+				"				lrSrc = isSrc.read(baSrc);\n" + 
+				"				lrTar = isTar.read(baTar);\n" + 
+				"				if (lrSrc != lrTar)\n" + 
+				"					return false;\n" + 
+				"				for (int i = 0; i < lrSrc; i++)\n" + 
+				"					if (baSrc[i] != baTar[i])\n" + 
+				"						return false;\n" + 
+				"			} while ((lrSrc >= 0) && (lrSrc == lrTar));\n" + 
+				"		} finally {\n" + 
+				"			try {\n" + 
+				"				close(isSrc);\n" + 
+				"			} finally {\n" + 
+				"				close(isTar);\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		return true;\n" + 
+				"	}\n" + 
+				"	private void close(final InputStream isSrc) {\n" + 
+				"	}\n" + 
+				"	private boolean isFile(final String src) {\n" + 
+				"		return false;\n" + 
+				"	}\n" + 
+				"	public void run() {\n" + 
+				"		try {\n" + 
+				"			System.out.println(contentEquals(null, null));\n" + 
+				"		} catch (final IOException e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" +
+				"	static InputStream newInputStream(String path) {\n" +
+				"		return null;\n" +
+				"	}\n" + 
+				"	static int size(String path) {\n" +
+				"		return 0;\n" +
+				"	}\n" + 
+				"	public static void main(final String[] args) {\n" + 
+				"		new X().run();\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"true");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352145
+	public void test050() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.File;\n" + 
+				"import java.io.FileFilter;\n" + 
+				"import java.io.FileNotFoundException;\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	public static final List<File> copyDir(List<File> lf,\n" + 
+				"			final boolean overwrite, final boolean recursive,\n" + 
+				"			final boolean returnSrc, final File src, final File tar,\n" + 
+				"			final FileFilter filter) throws IOException {\n" + 
+				"		if (!src.isDirectory())\n" + 
+				"			throw new FileNotFoundException(\"not a directory: \" + src);\n" + 
+				"		if (!tar.isDirectory())\n" + 
+				"			throw new FileNotFoundException(\"not a directory: \" + tar);\n" + 
+				"		final File[] fa = src.listFiles();\n" + 
+				"		if (fa == null)\n" + 
+				"			throw new FileNotFoundException(\"directory not accessible: \" + src);\n" + 
+				"		if (lf == null)\n" + 
+				"			lf = new ArrayList<File>(fa.length);\n" + 
+				"		for (final File f : fa) {\n" + 
+				"			final File right = new File(tar, f.getName());\n" + 
+				"			if (f.isDirectory()) {\n" + 
+				"				if (recursive && filter.accept(f)) {\n" + 
+				"					if (!right.exists())\n" + 
+				"						right.mkdir();\n" + 
+				"					copyDir(lf, overwrite, recursive, returnSrc, f, right,\n" + 
+				"							filter);\n" + 
+				"				}\n" + 
+				"			} else {\n" + 
+				"				if (overwrite || (!right.exists() && filter.accept(f))) {\n" + 
+				"					lf.add(returnSrc ? f : right);\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		return lf;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(final String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}"
+			},
+			"SUCCESS");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352145
+	public void test051() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.File;\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	public static final List<File> copyDir(int j, List<File> lf,\n" + 
+				"			final boolean returnSrc, final File[] fa) throws IOException {\n" + 
+				"		if (lf == null)\n" + 
+				"			lf = null;\n" + 
+				"		for (int i = 0, max = fa.length; i < max; i++) {\n" + 
+				"			final File f = fa[i];\n" + 
+				"			final File right = new File(f.getName());\n" + 
+				"			if (f.isDirectory()) {\n" + 
+				"			} else {\n" + 
+				"				lf.add(returnSrc ? f : right);\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		return lf;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(final String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}"
+			},
+			"SUCCESS");
+	}
+	public void test052() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	X(int i) {}\n" +
+				"	void foo() {}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X(args.length == 2 ? 1 : 2).foo();\n" +
+				"		System.out.println(\"SUCCESS\");\n" +
+				"	}\n" +
+				"}",
+			},
+			"SUCCESS");
+	}
+	// 352665
+	public void test053() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
+		customOptions.put(JavaCore.COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, JavaCore.IGNORE);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	static {\n" + 
+				"		for(int i = 0; i < 10; i++){\n" + 
+				"			A a = new A();\n" + 
+				"			a.foo();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	private class A {\n" + 
+				"		private A() {\n" + 
+				"		}\n" + 
+				"		void foo() {}\n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	A a = new A();\n" + 
+			"	      ^^^^^^^\n" + 
+			"No enclosing instance of type X is accessible. Must qualify the allocation with an enclosing instance of type X (e.g. x.new A() where x is an instance of X).\n" + 
+			"----------\n",
+			null,
+			true,
+			customOptions);
 	}
 }

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -54,6 +54,11 @@ public interface TagBits {
 
 	long IsArgument = ASTNode.Bit11; // local
 	long ClearPrivateModifier = ASTNode.Bit10; // constructor binding
+	
+	// for java 7
+	long IsEffectivelyFinal = ASTNode.Bit12; // local
+	long MultiCatchParameter = ASTNode.Bit13; // local
+	long IsResource = ASTNode.Bit14; // local
 
 	// test bits to see if parts of binary types are faulted
 	long AreFieldsSorted = ASTNode.Bit13;
@@ -119,10 +124,23 @@ public interface TagBits {
 	long AnnotationInherited = ASTNode.Bit49L;
 	long AnnotationOverride = ASTNode.Bit50L;
 	long AnnotationSuppressWarnings = ASTNode.Bit51L;
-	long AllStandardAnnotationsMask = AnnotationTargetMASK | AnnotationRetentionMASK | AnnotationDeprecated | AnnotationDocumented | AnnotationInherited |  AnnotationOverride | AnnotationSuppressWarnings;
+	/** @since 3.7 - java 7 safe vargs invocation */
+	long AnnotationSafeVarargs = ASTNode.Bit52L;
+	/** @since 3.7 - java 7 MethodHandle.invokeExact(..)/invokeGeneric(..)*/
+	long AnnotationPolymorphicSignature = ASTNode.Bit53L;
 
-	long DefaultValueResolved = ASTNode.Bit52L;
+	long AllStandardAnnotationsMask = AnnotationTargetMASK
+				| AnnotationRetentionMASK
+				| AnnotationDeprecated
+				| AnnotationDocumented
+				| AnnotationInherited
+				| AnnotationOverride
+				| AnnotationSuppressWarnings
+				| AnnotationSafeVarargs
+				| AnnotationPolymorphicSignature;
+
+	long DefaultValueResolved = ASTNode.Bit54L;
 
 	// set when type contains non-private constructor(s)
-	long HasNonPrivateConstructor = ASTNode.Bit53L;
+	long HasNonPrivateConstructor = ASTNode.Bit55L;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -307,6 +307,84 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 
 	}
 
+	/** @deprecated using deprecated code */
+	public void testArrayInitializer2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        goo(new int[] { 1, 2, 3, },\n");
+		buf.append("        new int[] { 1, 2, 3, },\n");
+		buf.append("        new int[] { 1, 2, 3 });\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List statements= block.statements();
+		assertTrue("Number of statements not 1", statements.size() == 1);
+		ExpressionStatement statement= (ExpressionStatement) statements.get(0);
+		MethodInvocation invocation= (MethodInvocation) statement.getExpression();
+		List args= invocation.arguments();
+
+		{	// remove first and last initializer expression
+			ArrayCreation arrayCreation= (ArrayCreation) args.get(0);
+			ArrayInitializer initializer= arrayCreation.getInitializer();
+
+			List expressions= initializer.expressions();
+			assertTrue("Number of initializer expressions not 3", expressions.size() == 3);
+
+			rewrite.remove((ASTNode) expressions.get(0), null);
+			rewrite.remove((ASTNode) expressions.get(2), null);
+		}
+		{	// insert at second and last position
+			ArrayCreation arrayCreation= (ArrayCreation) args.get(1);
+			ArrayInitializer initializer= arrayCreation.getInitializer();
+
+			List expressions= initializer.expressions();
+			assertTrue("Number of initializer expressions not 3", expressions.size() == 3);
+
+			NumberLiteral literal2= ast.newNumberLiteral("11");
+			rewrite.getListRewrite(initializer, ArrayInitializer.EXPRESSIONS_PROPERTY).insertLast(literal2, null);
+
+		}
+		{	// replace first and last initializer expression
+			ArrayCreation arrayCreation= (ArrayCreation) args.get(2);
+			ArrayInitializer initializer= arrayCreation.getInitializer();
+
+			List expressions= initializer.expressions();
+			assertTrue("Number of initializer expressions not 3", expressions.size() == 3);
+
+			NumberLiteral literal1= ast.newNumberLiteral("10");
+			NumberLiteral literal2= ast.newNumberLiteral("11");
+
+			rewrite.replace((ASTNode) expressions.get(0), literal1, null);
+			rewrite.replace((ASTNode) expressions.get(2), literal2, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        goo(new int[] { 2, },\n");
+		buf.append("        new int[] { 1, 2, 3, 11, },\n");
+		buf.append("        new int[] { 10, 2, 11 });\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+
+	}
 
 	/** @deprecated using deprecated code */
 	public void testAssignment() throws Exception {

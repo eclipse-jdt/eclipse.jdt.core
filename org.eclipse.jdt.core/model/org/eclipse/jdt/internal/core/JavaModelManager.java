@@ -4556,7 +4556,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					IType type = unit.getType(typeName);
 					types.put(typeName, type); // replace stored path with type itself
 				} else {
-					types.remove(typeName);
+					names.remove();
 				}
 			}
 		}

@@ -48,7 +48,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 351, 352 };
+//		TESTS_NUMBERS = new int[] { 353 };
 //		TESTS_RANGE = new int[] { 325, -1 };
 //		TESTS_NAMES = new String[] {"test0204"};
 	}
@@ -11232,7 +11232,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=334119
 	 * Ensures that dollar in a type name is not confused as the starting of member type
 	 */
-	public void test0349() throws JavaModelException {
+	public void test0348a() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/p/X$Y.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			"package p;\n" +
@@ -11317,4 +11317,36 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = methodDeclaration.getReturnType2().resolveBinding();
 		assertEquals("Wrong fully qualified name", "test0352.I1[]", typeBinding.getQualifiedName());
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348956
+	public void test0353() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"    void m(List<?> list) {\n" +
+				"        list = new ArrayList<String>();\n" +
+				"        list = new ArrayList<List<? extends String>>();\n" +
+				"    }\n" +
+				"}";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		ASTNode node2 = getASTNode(unit, 0, 0);
+		assertEquals("Not a Method declaration", ASTNode.METHOD_DECLARATION, node2.getNodeType());
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node2;
+        List statements = methodDeclaration.getBody().statements();
+        assertEquals("Wrong size", 2, statements.size());
+        ITypeBinding assignmentType = ((ExpressionStatement) (Statement) statements.get(0)).getExpression().resolveTypeBinding();
+        ITypeBinding rhsType = ((Assignment)((ExpressionStatement)((Statement) statements.get(0))).getExpression()).getRightHandSide().resolveTypeBinding();
+        assertFalse("Assignement compatible", rhsType.isAssignmentCompatible(assignmentType));
+        assignmentType = ((ExpressionStatement) (Statement) statements.get(1)).getExpression().resolveTypeBinding();
+        rhsType = ((Assignment)((ExpressionStatement)((Statement) statements.get(1))).getExpression()).getRightHandSide().resolveTypeBinding();
+        assertFalse("Assignement compatible", rhsType.isAssignmentCompatible(assignmentType));
+	}
+
 }

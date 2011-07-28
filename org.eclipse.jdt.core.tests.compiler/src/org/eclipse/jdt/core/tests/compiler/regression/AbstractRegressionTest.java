@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 335093 - [compiler][null] minimal hook for future null annotation support
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 

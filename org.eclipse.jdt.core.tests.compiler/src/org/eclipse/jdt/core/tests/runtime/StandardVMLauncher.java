@@ -100,9 +100,14 @@ public String[] getCommandLine() {
 	}
 
 	long vmVersion = Util.getMajorMinorVMVersion();
-	if (vmVersion != -1  && vmVersion >= ClassFileConstants.JDK1_6) {
-		commandLine.addElement("-XX:-FailOverToOldVerifier");
-		commandLine.addElement("-Xverify:all");
+	if (vmVersion != -1) {
+		if (vmVersion >= ClassFileConstants.JDK1_6) {
+			commandLine.addElement("-XX:-FailOverToOldVerifier");
+			commandLine.addElement("-Xverify:all");
+		}
+		if (vmVersion >= ClassFileConstants.JDK1_7) {
+			commandLine.addElement("-XX:+UnlockExperimentalVMOptions");
+		}
 	}
 
 	// debug mode

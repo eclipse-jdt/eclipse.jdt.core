@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -702,7 +702,13 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugsTests("testBug324189c"));
 	suite.addTest(new JavaSearchBugsTests("testBug324189d"));
 	suite.addTest(new JavaSearchBugsTests("testBug324189e"));
+	suite.addTest(new JavaSearchBugsTests("testBug336322a"));
+	suite.addTest(new JavaSearchBugsTests("testBug336322b"));
+	suite.addTest(new JavaSearchBugsTests("testBug336322c"));
 	suite.addTest(new JavaSearchBugsTests("testBug339891"));
+	suite.addTest(new JavaSearchBugsTests("testBug341462"));
+	suite.addTest(new JavaSearchBugsTests("testBug350885"));
+	suite.addTest(new JavaSearchBugsTests("testBug349683"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -13458,6 +13464,79 @@ public void testBug324189e() throws CoreException {
 	assertSearchResults("src/b324189/A.java void b324189.A.run() [run] EXACT_MATCH");
 }
 /**
+ * @bug 336322: [1.7][search]CCE while searching for a type reference in multiple catch parameters
+ * @test Search for type references in a multiple catch parameters
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=336322"
+ */
+public void testBug336322a() throws CoreException{
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.7");
+		createFile("/P/Test.java", 
+				"public class Test {\n"+
+				"public void foo(Object o) {\n"+
+				"  try {\n"+
+				"   }\n"+ 
+				" catch(Exception|RuntimeException exc) {\n" +
+				"   }\n"+
+				"}\n"+
+				"}\n");
+		int mask = IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		search("RuntimeException", IJavaSearchConstants.TYPE, IJavaSearchConstants.REFERENCES, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [RuntimeException] EXACT_MATCH", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+// search for type in multiple catch parameters in catch clauses 
+public void testBug336322b() throws CoreException{
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.7");
+		createFile("/P/Test.java", 
+				"public class Test {\n"+
+				"public void foo(Object o) {\n"+
+				"  try {\n"+
+				"   }\n"+ 
+				" catch(Exception|RuntimeException exc) {\n" +
+				"   }\n"+
+				"}\n"+
+				"}\n");
+		int mask = IJavaSearchScope.SOURCES ;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		search("RuntimeException", IJavaSearchConstants.TYPE, CATCH_TYPE_REFERENCE, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [RuntimeException] EXACT_MATCH", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+// search for the multi-catch variable should return the variable 
+public void testBug336322c() throws CoreException{
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.7");
+		createFile("/P/Test.java", 
+				"public class Test {\n"+
+				"public void foo(Object o) {\n"+
+				"  try {\n"+
+				"   }\n"+ 
+				" catch(Exception|RuntimeException exc) {\n" +
+				"       exc.printStackTrace();\n"+
+				"   }\n"+
+				"}\n"+
+				"}\n");
+		int mask = IJavaSearchScope.SOURCES ;
+		IType type = project.findType("Test");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
+		ILocalVariable variable = selectLocalVariable(type.getCompilationUnit(), "exc");
+		search(variable, READ_ACCESSES, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [exc] EXACT_MATCH", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+/**
  * @bug 339891: NPE when searching for method (with '*' wildcard character)
  * @test Search for Worker.run() should not return results like TestWorker
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=339891"
@@ -13484,4 +13563,113 @@ public void testBug339891() throws CoreException {
 		deleteProject("P");
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=341462
+public void testBug341462() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.7");
+		createFile("/P/X.java", 
+				"public class X<T> {\n" +
+				"        T field1;\n" +
+				"        public X(T param) {\n" +
+				"            field1 = param;\n" +
+				"        }\n" +
+				"        public static void testFunction(String param){\n" +
+				"            System.out.println(1);\n" +
+				"        }\n" +
+				"        public static void testFunction(Object Param) {\n" +
+				"            System.out.println(2);\n" +
+				"        }\n" +
+				"        public T getField() {\n" +
+				"            return field1;\n" +
+				"        }\n" +
+				"        public static void main(String[] args) {\n" +
+				"            X.testFunction(new X<>(\"hello\").getField());\n" +
+				"...         X.testFunction(new X<>(new Object()).getField());\n" +
+				"        }\n" +
+				"}\n");
+		waitUntilIndexesReady();
+		IType type = project.findType("X");
+		IMethod method = type.getMethod("testFunction", new String[] { "QString;" });
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{project}, IJavaSearchScope.SOURCES);
+		search(method, REFERENCES, ERASURE_RULE, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "X.java void X.main(String[]) [testFunction(new X<>(\"hello\").getField())] EXACT_MATCH", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug350885() throws CoreException {
+	boolean autoBuild = getWorkspace().isAutoBuilding();
+	IWorkspaceDescription preferences = getWorkspace().getDescription();
+	try {
+		// ensure that the workspace auto-build is ON
+		preferences.setAutoBuilding(true);
+		getWorkspace().setDescription(preferences);
+		
+		IJavaProject project = createJavaProject("P");
+		createFile("/P/X.java",
+			"class Parent {" +
+			" public void foo() {} \n"+
+			"}\n"+
+			"class Child extends Parent{\n"+
+			" public void foo() {}\n"+
+			"}\n"+
+			"}\n");
+		waitUntilIndexesReady();
+		
+		// search
+		IType type = getCompilationUnit("/P/X.java").getType("Child");
+		IMethod method = type.getMethods()[0];
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{project}, IJavaSearchScope.SOURCES);
+		search(method, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+		assertSearchResults("X.java void Child.foo() [foo] EXACT_MATCH");
+	}
+	finally {
+		// put back initial setup
+		preferences.setAutoBuilding(autoBuild);
+		getWorkspace().setDescription(preferences);
+		
+		// delete the created project
+		deleteProject("P");
+	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=349683
+public void testBug349683() throws CoreException {
+	try
+	{
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "", "1.7");
+		createFile("/P/X.java",
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.invoke.MethodType;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) throws Throwable {\n" + 
+				"		Object x;\n" + 
+				"		String s;\n" + 
+				"		int i;\n" + 
+				"		MethodType mt;\n" + 
+				"		MethodHandle mh;\n" + 
+				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" + 
+				"		// mt is (char,char)String\n" + 
+				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" + 
+				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" + 
+				"		s = (String) mh.invokeExact(\"daddy\", 'd', 'n');\n" + 
+				"     }\n" +
+				"}\n");
+		waitUntilIndexesReady();
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{project}, IJavaSearchScope.SOURCES | IJavaSearchScope.SYSTEM_LIBRARIES | IJavaSearchScope.APPLICATION_LIBRARIES);
+		search("invokeExact", METHOD, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+		IMethod method = (IMethod)this.resultCollector.match.getElement();
+		this.resultCollector = new TestCollector();
+		this.resultCollector.showAccuracy(true);
+		search(method, REFERENCES, ERASURE_RULE, scope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "X.java void X.main(String[]) [invokeExact(\"daddy\", \'d\', \'n\')] EXACT_MATCH", this.resultCollector);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
 }

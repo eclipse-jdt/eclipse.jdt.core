@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -71,15 +72,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		IJavaProject proj= createJavaProject("P", new String[] {"src"}, "bin");
-		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
-		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
-		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, DefaultCodeFormatterConstants.TRUE);
-		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, DefaultCodeFormatterConstants.TRUE);
-		proj.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		proj.setOption(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-		proj.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		IJavaProject proj= createProject("P", JavaCore.VERSION_1_5);
 
 		this.project1 = proj;
 		this.sourceFolder = getPackageFragmentRoot("P", "src");
@@ -87,26 +80,42 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		waitUntilIndexesReady();
 	}
 
+	protected IJavaProject createProject(String projectName, String complianceVersion) throws CoreException {
+		IJavaProject proj = createJavaProject(projectName, new String[] {"src"}, "bin");
+		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
+		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
+		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_CASES, DefaultCodeFormatterConstants.TRUE);
+		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH, DefaultCodeFormatterConstants.TRUE);
+		proj.setOption(JavaCore.COMPILER_COMPLIANCE, complianceVersion);
+		proj.setOption(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+		proj.setOption(JavaCore.COMPILER_SOURCE, complianceVersion);
+		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, complianceVersion);
+		return proj;
+	}
 	protected void tearDown() throws Exception {
 		deleteProject("P");
 		super.tearDown();
 	}
 
 	protected CompilationUnit createAST(ICompilationUnit cu) {
-		ASTParser parser= ASTParser.newParser(AST_INTERNAL_JLS2);
-		parser.setSource(cu);
-		parser.setResolveBindings(false);
-		return (CompilationUnit) parser.createAST(null);
+		return createAST(AST_INTERNAL_JLS2, cu, false);
 	}
 
 	protected CompilationUnit createAST3(ICompilationUnit cu) {
-		return createAST3(cu, false);
+		return createAST(AST.JLS3, cu, false);
 	}
 	
 	protected CompilationUnit createAST3(ICompilationUnit cu, boolean statementsRecovery) {
-		ASTParser parser= ASTParser.newParser(AST.JLS3);
+		return createAST(AST.JLS3, cu, statementsRecovery);
+	}
+	protected CompilationUnit createAST(int JLSLevel, ICompilationUnit cu, boolean statementsRecovery) {
+		return createAST(JLSLevel, cu, false, statementsRecovery);
+	}
+
+	protected CompilationUnit createAST(int JLSLevel, ICompilationUnit cu, boolean resolveBindings, boolean statementsRecovery) {
+		ASTParser parser= ASTParser.newParser(JLSLevel);
 		parser.setSource(cu);
-		parser.setResolveBindings(false);
+		parser.setResolveBindings(resolveBindings);
 		parser.setStatementsRecovery(statementsRecovery);
 		return (CompilationUnit) parser.createAST(null);
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,12 +64,14 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			this.deleteProject("Converter"); //$NON-NLS-1$
 			this.deleteProject("Converter15"); //$NON-NLS-1$
 			this.deleteProject("Converter16"); //$NON-NLS-1$
+			this.deleteProject("Converter17"); //$NON-NLS-1$
 		} else {
 			TEST_SUITES.remove(getClass());
 			if (TEST_SUITES.size() == 0) {
 				this.deleteProject("Converter"); //$NON-NLS-1$
 				this.deleteProject("Converter15"); //$NON-NLS-1$
 				this.deleteProject("Converter16"); //$NON-NLS-1$
+				this.deleteProject("Converter17"); //$NON-NLS-1$
 			}
 		}
 
@@ -86,14 +88,20 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 					new IPath[] {getConverterJCLPath(compliance), getConverterJCLSourcePath(compliance), getConverterJCLRootSourcePath()},
 					null);
 			}
-		} else {
-			if (JavaCore.getClasspathVariable("CONVERTER_JCL_LIB") == null) {
-				setupExternalJCL("converterJclMin");
+		} else if ("1.7".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("CONVERTER_JCL17_LIB") == null) {
+				setupExternalJCL("converterJclMin1.7");
 				JavaCore.setClasspathVariables(
-					new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"},
-					new IPath[] {getConverterJCLPath(), getConverterJCLSourcePath(), getConverterJCLRootSourcePath()},
+					new String[] {"CONVERTER_JCL17_LIB", "CONVERTER_JCL17_SRC", "CONVERTER_JCL17_SRCROOT"},
+					new IPath[] {getConverterJCLPath("1.7"), getConverterJCLSourcePath("1.7"), getConverterJCLRootSourcePath()},
 					null);
 			}
+		} else if (JavaCore.getClasspathVariable("CONVERTER_JCL_LIB") == null) {
+			setupExternalJCL("converterJclMin");
+			JavaCore.setClasspathVariables(
+				new String[] {"CONVERTER_JCL_LIB", "CONVERTER_JCL_SRC", "CONVERTER_JCL_SRCROOT"},
+				new IPath[] {getConverterJCLPath(), getConverterJCLSourcePath(), getConverterJCLRootSourcePath()},
+				null);
 		}
 	}
 
@@ -107,6 +115,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			setUpJavaProject("Converter"); //$NON-NLS-1$
 			setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
 			setUpJavaProject("Converter16", "1.6"); //$NON-NLS-1$ //$NON-NLS-2$
+			setUpJavaProject("Converter17", "1.7"); //$NON-NLS-1$ //$NON-NLS-2$
 			waitUntilIndexesReady(); // needed to find secondary types
 			PROJECT_SETUP = true;
 		}
@@ -424,6 +433,39 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		}
 
 		parser = ASTParser.newParser(AST.JLS3);
+		parser.setSource(unit);
+		parser.setResolveBindings(resolveBindings);
+		parser.setBindingsRecovery(bindingRecovery);
+
+		// Parse compilation unit
+		ASTNode result = parser.createAST(null);
+
+		// Verify we get a compilation unit node and that binding are correct
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		if (resolveBindings && compilationUnit.getProblems().length == 0) {
+			compilationUnit.accept(new NullBindingVerifier());
+		}
+		return result;
+	}
+
+	public ASTNode runJLS4Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2) {
+		return runJLS4Conversion(unit, resolveBindings, checkJLS2, false);
+	}
+
+	public ASTNode runJLS4Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2, boolean bindingRecovery) {
+
+		// Create parser
+		ASTParser parser;
+		if (checkJLS2) {
+			parser = ASTParser.newParser(astInternalJLS2());
+			parser.setSource(unit);
+			parser.setResolveBindings(resolveBindings);
+			parser.setBindingsRecovery(bindingRecovery);
+			parser.createAST(null);
+		}
+
+		parser = ASTParser.newParser(AST.JLS4);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		parser.setBindingsRecovery(bindingRecovery);

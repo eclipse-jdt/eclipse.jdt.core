@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2011 IBM Corporation and others.
+ * Copyright (c) 2004, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1652,38 +1652,6 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		});
 	}
 
-	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=342054
-	 */
-	public void testLocalVariable7() throws JavaModelException {
-		ASTNode node = buildAST(
-			"public class X {\n" +
-			"	public void foo() {\n" +
-			"		try {\n" + 
-			"		} catch (Exception e) {\n" +
-			"		}\n" +
-			"	}\n" +
-			"}"
-		);
-		node.accept(new ASTVisitor() {
-			public boolean visit(SingleVariableDeclaration variableDeclaration) {
-				final IVariableBinding binding = variableDeclaration.resolveBinding();
-				final IJavaElement javaElement = binding.getJavaElement();
-				assertNotNull("No java element", javaElement);
-				final int type = javaElement.getElementType();
-				assertEquals("Wrong type", IJavaElement.LOCAL_VARIABLE, type);
-				ILocalVariable variable = (ILocalVariable) javaElement;
-				final ITypeRoot typeRoot = variable.getTypeRoot();
-				assertNotNull("Not type root", typeRoot);
-				assertTrue("Invalid", typeRoot.exists());
-				assertNotNull("No declaring element", variable.getDeclaringMember());
-				int flags = variable.getFlags();
-				assertFalse("wrong modifier for " + variable.getElementName(), Flags.isFinal(flags));
-				assertFalse("wrong value for isParameter" + variable.getElementName(), variable.isParameter());
-				return true;
-			}
-		});
-	}
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a member type is correct.
 	 */

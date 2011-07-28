@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -88,6 +88,14 @@ public interface TypeIds {
 	final int T_JavaIoException = 58;
 	
 	final int T_JavaUtilCollection = 59;
+	
+	// java 7
+	final int T_JavaLangSafeVarargs = 60;
+	
+	final int T_JavaLangInvokeMethodHandlePolymorphicSignature = 61;
+
+	// java 7 java.lang.AutoCloseable
+	final int T_JavaLangAutoCloseable = 62;
 
 	final int NoId = Integer.MAX_VALUE;
 

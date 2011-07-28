@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
@@ -1606,7 +1606,6 @@ public class Scribe implements IJavaDocTagConstants {
 			addInsertEdit(this.scanner.getCurrentTokenStartPosition(), " "); //$NON-NLS-1$
 		}
 		this.pendingSpace = false;
-		this.needSpace = false;
 		this.column += length;
 		this.needSpace = true;
 	}

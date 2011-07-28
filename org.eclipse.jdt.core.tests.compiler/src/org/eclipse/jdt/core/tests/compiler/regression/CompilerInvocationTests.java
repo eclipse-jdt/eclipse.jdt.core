@@ -13,6 +13,8 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,7 +46,7 @@ public CompilerInvocationTests(String name) {
   	// Only the highest compliance level is run; add the VM argument
   	// -Dcompliance=1.4 (for example) to lower it if needed
   	static {
-//    	TESTS_NAMES = new String[] { "test001" };
+//    	TESTS_NAMES = new String[] { "test003_task_tags_options" };
 //    	TESTS_NUMBERS = new int[] { 1 };
 //    	TESTS_RANGE = new int[] { 1, -1 };
 //  	TESTS_RANGE = new int[] { 1, 2049 };
@@ -354,6 +356,10 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ArrayConstantsOnlyInArrayInitializers", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ArrayReferenceRequired", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("AssignmentHasNoEffect", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("AssignmentToMultiCatchParameter", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("AssignmentToResource", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("AutoManagedResourceNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("BinaryLiteralNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("BodyForAbstractMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("BodyForNativeMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("BoundCannotBeArray", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -373,12 +379,15 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("CannotExtendEnum", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("CannotHideAnInstanceMethodWithAStaticMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("CannotImportPackage", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
+		expectedProblemAttributes.put("CannotInferElidedTypes", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("CannotInvokeSuperConstructorInEnum", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("CannotOverrideAStaticMethodWithAnInstanceMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("CannotReadSource", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("CannotReturnInInitializer", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("CannotThrowNull", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("CannotThrowType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("CannotUseDiamondWithAnonymousClasses", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("CannotUseDiamondWithExplicitTypeArguments", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("CannotUseSuperInCodeSnippet", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ClassExtendFinalClass", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("CodeCannotBeReached", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -389,6 +398,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ConstructorVarargsArgumentNeedCast", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("CorruptedSignature", new ProblemAttributes(CategorizedProblem.CAT_BUILDPATH));
 		expectedProblemAttributes.put("DeadCode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("DiamondNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DirectInvocationOfAbstractMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DisallowedTargetForAnnotation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DiscouragedReference", new ProblemAttributes(CategorizedProblem.CAT_RESTRICTION));
@@ -401,6 +411,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("DuplicateField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DuplicateFinalLocalInitialization", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("DuplicateImport", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
+		expectedProblemAttributes.put("DuplicateInheritedMethods", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DuplicateLabel", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("DuplicateMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DuplicateMethodErasure", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -413,8 +424,8 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("DuplicateParameterizedMethods", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DuplicateSuperInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DuplicateTargetInTargetAnnotation", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
-		expectedProblemAttributes.put("DuplicateTypes", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DuplicateTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("DuplicateTypes", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("EmptyControlFlowStatement", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("EnclosingInstanceInConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("EndOfSource", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -443,9 +454,9 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("FieldTypeNotVisible", DEPRECATED);
 		expectedProblemAttributes.put("FinalBoundForTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("FinalFieldAssignment", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
-		expectedProblemAttributes.put("FinallyMustCompleteNormally", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("FinalMethodCannotBeOverridden", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("FinalOuterLocalAssignment", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("FinallyMustCompleteNormally", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ForbiddenReference", new ProblemAttributes(CategorizedProblem.CAT_RESTRICTION));
 		expectedProblemAttributes.put("GenericConstructorTypeArgumentMismatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("GenericMethodTypeArgumentMismatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -463,6 +474,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalExtendedDimensions", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalExtendedDimensionsForVarArgs", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalGenericArray", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("IllegalHexaLiteral", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalInstanceofParameterizedType", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("IllegalInstanceofTypeParameter", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("IllegalModifierCombinationFinalAbstractForClass", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -493,6 +505,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalQualifiedParameterizedTypeAllocation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalStaticModifierForMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalTypeVariableSuperReference", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("IllegalUnderscorePosition", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalUsageOfQualifiedTypeReference", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalVararg", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -517,6 +530,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IncorrectArityForParameterizedType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IncorrectEnclosingInstanceReference", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IncorrectSwitchType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("IncorrectSwitchType17", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IndirectAccessToStaticField", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("IndirectAccessToStaticMethod", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("IndirectAccessToStaticType", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
@@ -537,6 +551,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InterfaceNotVisible", DEPRECATED);
 		expectedProblemAttributes.put("InternalTypeNameProvided", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidAnnotationMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("InvalidBinary", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidBreak", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidCatchBlockSequence", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidCharacterConstant", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -566,6 +581,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InvalidTypeVariableExceptionType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidUnaryExpression", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidUnicodeEscape", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("InvalidUnionTypeReferenceSequence", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidUsageOfAnnotationDeclarations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidUsageOfAnnotations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidUsageOfEnumDeclarations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -631,9 +647,9 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("JavadocNotVisibleField", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocNotVisibleMethod", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocNotVisibleType", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
+		expectedProblemAttributes.put("JavadocParameterMismatch", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocParameterizedConstructorArgumentTypeMismatch", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocParameterizedMethodArgumentTypeMismatch", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
-		expectedProblemAttributes.put("JavadocParameterMismatch", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocTypeArgumentsForRawGenericConstructor", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocTypeArgumentsForRawGenericMethod", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocUndefinedConstructor", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
@@ -647,16 +663,16 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("JavadocUsingDeprecatedField", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedMethod", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedType", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
-		expectedProblemAttributes.put("LocalVariableCannotBeNull", DEPRECATED);
 		expectedProblemAttributes.put("LocalVariableCanOnlyBeNull", DEPRECATED);
+		expectedProblemAttributes.put("LocalVariableCannotBeNull", DEPRECATED);
 		expectedProblemAttributes.put("LocalVariableHidingField", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
 		expectedProblemAttributes.put("LocalVariableHidingLocalVariable", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
 		expectedProblemAttributes.put("LocalVariableIsNeverUsed", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("LocalVariableMayBeNull", DEPRECATED);
 		expectedProblemAttributes.put("MaskedCatch", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MethodButWithConstructorName", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
-		expectedProblemAttributes.put("MethodCanBeStatic", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("MethodCanBePotentiallyStatic", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
+		expectedProblemAttributes.put("MethodCanBeStatic", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("MethodMissingDeprecatedAnnotation", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("MethodMustOverride", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MethodMustOverrideOrImplement", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -678,6 +694,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MissingTypeInConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MissingTypeInMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MissingValueForAnnotationMember", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("MultiCatchNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("MustDefineEitherDimensionExpressionsOrInitializer", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("MustSpecifyPackage", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("NativeMethodsCannotBeStrictfp", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -724,9 +741,9 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("PackageCollidesWithType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("PackageIsNotExpectedPackage", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ParameterAssignment", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
+		expectedProblemAttributes.put("ParameterMismatch", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ParameterizedConstructorArgumentTypeMismatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ParameterizedMethodArgumentTypeMismatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
-		expectedProblemAttributes.put("ParameterMismatch", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ParsingError", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ParsingErrorDeleteToken", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ParsingErrorDeleteTokens", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -744,7 +761,9 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ParsingErrorOnKeywordNoSuggestion", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ParsingErrorReplaceTokens", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ParsingErrorUnexpectedEOF", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("PolymorphicMethodNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("PossibleAccidentalBooleanAssignment", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("PotentialHeapPollutionFromVararg", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
 		expectedProblemAttributes.put("PotentialNullLocalVariableReference", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("PublicClassMustMatchFileName", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("RawMemberTypeCannotBeParameterized", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -752,24 +771,31 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("RecursiveConstructorInvocation", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("RedefinedArgument", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("RedefinedLocal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("RedundantSpecificationOfTypeArguments", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("RedundantLocalVariableNullAssignment", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("RedundantNullCheckOnNonNullLocalVariable", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("RedundantNullCheckOnNullLocalVariable", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("RedundantSuperinterface", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("ReferenceToForwardField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ReferenceToForwardTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("ResourceHasToImplementAutoCloseable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ReturnTypeAmbiguous", DEPRECATED);
 		expectedProblemAttributes.put("ReturnTypeCannotBeVoidArray", DEPRECATED);
 		expectedProblemAttributes.put("ReturnTypeInheritedNameHidesEnclosingName", DEPRECATED);
 		expectedProblemAttributes.put("ReturnTypeInternalNameProvided", DEPRECATED);
 		expectedProblemAttributes.put("ReturnTypeNotFound", DEPRECATED);
 		expectedProblemAttributes.put("ReturnTypeNotVisible", DEPRECATED);
+		expectedProblemAttributes.put("SafeVarargsOnFixedArityMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("SafeVarargsOnNonFinalInstanceMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ShouldReturnValue", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("StaticInheritedMethodConflicts", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("StaticMemberOfParameterizedType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("StaticMethodRequested", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("StringConstantIsExceedingUtf8Limit", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("SuperInterfaceMustBeAnInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("SuperInterfacesCollide", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("SuperTypeUsingWildcard", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("SuperclassAmbiguous", DEPRECATED);
 		expectedProblemAttributes.put("SuperclassInheritedNameHidesEnclosingName", DEPRECATED);
 		expectedProblemAttributes.put("SuperclassInternalNameProvided", DEPRECATED);
@@ -777,9 +803,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("SuperclassNotFound", DEPRECATED);
 		expectedProblemAttributes.put("SuperclassNotVisible", DEPRECATED);
 		expectedProblemAttributes.put("SuperfluousSemicolon", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
-		expectedProblemAttributes.put("SuperInterfaceMustBeAnInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
-		expectedProblemAttributes.put("SuperInterfacesCollide", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
-		expectedProblemAttributes.put("SuperTypeUsingWildcard", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("SwitchOnStringsNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("Task", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ThisInStaticContext", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ThisSuperDuringConstructorInvocation", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -813,12 +837,14 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UndefinedName", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("UndefinedType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("UndefinedTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("UnderscoresInLiteralsNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("UndocumentedEmptyBlock", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("UnexpectedStaticModifierForField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("UnexpectedStaticModifierForMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("UnhandledException", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("UnhandledExceptionInDefaultConstructor", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("UnhandledExceptionInImplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("UnhandledExceptionOnAutoClose", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("UnhandledWarningToken", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UninitializedBlankFinalField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("UninitializedLocalVariable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -827,7 +853,6 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UnnecessaryCast", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnnecessaryElse", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnnecessaryInstanceof", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
-		expectedProblemAttributes.put("UnnecessaryOperator", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnnecessaryNLSTag", new ProblemAttributes(CategorizedProblem.CAT_NLS));
 		expectedProblemAttributes.put("UnqualifiedFieldAccess", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("UnreachableCatch", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -871,6 +896,13 @@ public void test011_problem_categories() {
 		StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
+		Arrays.sort(fields, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				Field field1 = (Field) o1;
+				Field field2 = (Field) o2;
+				return field1.getName().compareTo(field2.getName());
+			}
+		});
 		boolean watchInternalCategory = false, printHeader = true;
 		for (int i = 0, length = fields.length; i < length; i++) {
 			Field field = fields[i];
@@ -991,6 +1023,10 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ArrayConstantsOnlyInArrayInitializers", SKIP);
 		expectedProblemAttributes.put("ArrayReferenceRequired", SKIP);
 		expectedProblemAttributes.put("AssignmentHasNoEffect", new ProblemAttributes(JavaCore.COMPILER_PB_NO_EFFECT_ASSIGNMENT));
+		expectedProblemAttributes.put("AssignmentToMultiCatchParameter", SKIP);
+		expectedProblemAttributes.put("AssignmentToResource", SKIP);
+		expectedProblemAttributes.put("AutoManagedResourceNotBelow17", SKIP);
+		expectedProblemAttributes.put("BinaryLiteralNotBelow17", SKIP);
 		expectedProblemAttributes.put("BodyForAbstractMethod", SKIP);
 		expectedProblemAttributes.put("BodyForNativeMethod", SKIP);
 		expectedProblemAttributes.put("BoundCannotBeArray", SKIP);
@@ -1010,12 +1046,15 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("CannotExtendEnum", SKIP);
 		expectedProblemAttributes.put("CannotHideAnInstanceMethodWithAStaticMethod", SKIP);
 		expectedProblemAttributes.put("CannotImportPackage", SKIP);
+		expectedProblemAttributes.put("CannotInferElidedTypes", SKIP);
 		expectedProblemAttributes.put("CannotInvokeSuperConstructorInEnum", SKIP);
 		expectedProblemAttributes.put("CannotOverrideAStaticMethodWithAnInstanceMethod", SKIP);
 		expectedProblemAttributes.put("CannotReadSource", SKIP);
 		expectedProblemAttributes.put("CannotReturnInInitializer", SKIP);
 		expectedProblemAttributes.put("CannotThrowNull", SKIP);
 		expectedProblemAttributes.put("CannotThrowType", SKIP);
+		expectedProblemAttributes.put("CannotUseDiamondWithAnonymousClasses", SKIP);
+		expectedProblemAttributes.put("CannotUseDiamondWithExplicitTypeArguments", SKIP);
 		expectedProblemAttributes.put("CannotUseSuperInCodeSnippet", SKIP);
 		expectedProblemAttributes.put("ClassExtendFinalClass", SKIP);
 		expectedProblemAttributes.put("CodeCannotBeReached", SKIP);
@@ -1026,6 +1065,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ConstructorVarargsArgumentNeedCast", new ProblemAttributes(JavaCore.COMPILER_PB_VARARGS_ARGUMENT_NEED_CAST));
 		expectedProblemAttributes.put("CorruptedSignature", SKIP);
 		expectedProblemAttributes.put("DeadCode", new ProblemAttributes(JavaCore.COMPILER_PB_DEAD_CODE));
+		expectedProblemAttributes.put("DiamondNotBelow17", SKIP);
 		expectedProblemAttributes.put("DirectInvocationOfAbstractMethod", SKIP);
 		expectedProblemAttributes.put("DisallowedTargetForAnnotation", SKIP);
 		expectedProblemAttributes.put("DiscouragedReference", new ProblemAttributes(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE));
@@ -1038,6 +1078,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("DuplicateField", SKIP);
 		expectedProblemAttributes.put("DuplicateFinalLocalInitialization", SKIP);
 		expectedProblemAttributes.put("DuplicateImport", SKIP);
+		expectedProblemAttributes.put("DuplicateInheritedMethods", SKIP);
 		expectedProblemAttributes.put("DuplicateLabel", SKIP);
 		expectedProblemAttributes.put("DuplicateMethod", SKIP);
 		expectedProblemAttributes.put("DuplicateMethodErasure", SKIP);
@@ -1050,8 +1091,8 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("DuplicateParameterizedMethods", SKIP);
 		expectedProblemAttributes.put("DuplicateSuperInterface", SKIP);
 		expectedProblemAttributes.put("DuplicateTargetInTargetAnnotation", SKIP);
-		expectedProblemAttributes.put("DuplicateTypes", SKIP);
 		expectedProblemAttributes.put("DuplicateTypeVariable", SKIP);
+		expectedProblemAttributes.put("DuplicateTypes", SKIP);
 		expectedProblemAttributes.put("EmptyControlFlowStatement", new ProblemAttributes(JavaCore.COMPILER_PB_EMPTY_STATEMENT));
 		expectedProblemAttributes.put("EnclosingInstanceInConstructorCall", SKIP);
 		expectedProblemAttributes.put("EndOfSource", SKIP);
@@ -1080,9 +1121,9 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("FieldTypeNotVisible", SKIP);
 		expectedProblemAttributes.put("FinalBoundForTypeVariable", new ProblemAttributes(JavaCore.COMPILER_PB_FINAL_PARAMETER_BOUND));
 		expectedProblemAttributes.put("FinalFieldAssignment", SKIP);
-		expectedProblemAttributes.put("FinallyMustCompleteNormally", new ProblemAttributes(JavaCore.COMPILER_PB_FINALLY_BLOCK_NOT_COMPLETING));
 		expectedProblemAttributes.put("FinalMethodCannotBeOverridden", SKIP);
 		expectedProblemAttributes.put("FinalOuterLocalAssignment", SKIP);
+		expectedProblemAttributes.put("FinallyMustCompleteNormally", new ProblemAttributes(JavaCore.COMPILER_PB_FINALLY_BLOCK_NOT_COMPLETING));
 		expectedProblemAttributes.put("ForbiddenReference", new ProblemAttributes(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
 		expectedProblemAttributes.put("GenericConstructorTypeArgumentMismatch", SKIP);
 		expectedProblemAttributes.put("GenericMethodTypeArgumentMismatch", SKIP);
@@ -1100,6 +1141,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalExtendedDimensions", SKIP);
 		expectedProblemAttributes.put("IllegalExtendedDimensionsForVarArgs", SKIP);
 		expectedProblemAttributes.put("IllegalGenericArray", SKIP);
+		expectedProblemAttributes.put("IllegalHexaLiteral", SKIP);
 		expectedProblemAttributes.put("IllegalInstanceofParameterizedType", SKIP);
 		expectedProblemAttributes.put("IllegalInstanceofTypeParameter", SKIP);
 		expectedProblemAttributes.put("IllegalModifierCombinationFinalAbstractForClass", SKIP);
@@ -1130,6 +1172,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalQualifiedParameterizedTypeAllocation", SKIP);
 		expectedProblemAttributes.put("IllegalStaticModifierForMemberType", SKIP);
 		expectedProblemAttributes.put("IllegalTypeVariableSuperReference", SKIP);
+		expectedProblemAttributes.put("IllegalUnderscorePosition", SKIP);
 		expectedProblemAttributes.put("IllegalUsageOfQualifiedTypeReference", SKIP);
 		expectedProblemAttributes.put("IllegalVararg", SKIP);
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForField", SKIP);
@@ -1154,6 +1197,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IncorrectArityForParameterizedType", SKIP);
 		expectedProblemAttributes.put("IncorrectEnclosingInstanceReference", SKIP);
 		expectedProblemAttributes.put("IncorrectSwitchType", SKIP);
+		expectedProblemAttributes.put("IncorrectSwitchType17", SKIP);
 		expectedProblemAttributes.put("IndirectAccessToStaticField", new ProblemAttributes(JavaCore.COMPILER_PB_INDIRECT_STATIC_ACCESS));
 		expectedProblemAttributes.put("IndirectAccessToStaticMethod", new ProblemAttributes(JavaCore.COMPILER_PB_INDIRECT_STATIC_ACCESS));
 		expectedProblemAttributes.put("IndirectAccessToStaticType", new ProblemAttributes(JavaCore.COMPILER_PB_INDIRECT_STATIC_ACCESS));
@@ -1174,6 +1218,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InterfaceNotVisible", SKIP);
 		expectedProblemAttributes.put("InternalTypeNameProvided", SKIP);
 		expectedProblemAttributes.put("InvalidAnnotationMemberType", SKIP);
+		expectedProblemAttributes.put("InvalidBinary", SKIP);
 		expectedProblemAttributes.put("InvalidBreak", SKIP);
 		expectedProblemAttributes.put("InvalidCatchBlockSequence", SKIP);
 		expectedProblemAttributes.put("InvalidCharacterConstant", SKIP);
@@ -1203,6 +1248,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InvalidTypeVariableExceptionType", SKIP);
 		expectedProblemAttributes.put("InvalidUnaryExpression", SKIP);
 		expectedProblemAttributes.put("InvalidUnicodeEscape", SKIP);
+		expectedProblemAttributes.put("InvalidUnionTypeReferenceSequence", SKIP);
 		expectedProblemAttributes.put("InvalidUsageOfAnnotationDeclarations", SKIP);
 		expectedProblemAttributes.put("InvalidUsageOfAnnotations", SKIP);
 		expectedProblemAttributes.put("InvalidUsageOfEnumDeclarations", SKIP);
@@ -1268,9 +1314,9 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("JavadocNotVisibleField", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocNotVisibleMethod", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocNotVisibleType", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
+		expectedProblemAttributes.put("JavadocParameterMismatch", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocParameterizedConstructorArgumentTypeMismatch", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocParameterizedMethodArgumentTypeMismatch", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
-		expectedProblemAttributes.put("JavadocParameterMismatch", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocTypeArgumentsForRawGenericConstructor", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocTypeArgumentsForRawGenericMethod", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocUndefinedConstructor", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
@@ -1284,16 +1330,16 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("JavadocUsingDeprecatedField", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedMethod", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedType", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
-		expectedProblemAttributes.put("LocalVariableCannotBeNull", SKIP);
 		expectedProblemAttributes.put("LocalVariableCanOnlyBeNull", SKIP);
+		expectedProblemAttributes.put("LocalVariableCannotBeNull", SKIP);
 		expectedProblemAttributes.put("LocalVariableHidingField", new ProblemAttributes(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING));
 		expectedProblemAttributes.put("LocalVariableHidingLocalVariable", new ProblemAttributes(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING));
 		expectedProblemAttributes.put("LocalVariableIsNeverUsed", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_LOCAL));
 		expectedProblemAttributes.put("LocalVariableMayBeNull", SKIP);
 		expectedProblemAttributes.put("MaskedCatch", new ProblemAttributes(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
 		expectedProblemAttributes.put("MethodButWithConstructorName", new ProblemAttributes(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME));
-		expectedProblemAttributes.put("MethodCanBeStatic", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_STATIC_ON_METHOD));
 		expectedProblemAttributes.put("MethodCanBePotentiallyStatic", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIALLY_MISSING_STATIC_ON_METHOD));
+		expectedProblemAttributes.put("MethodCanBeStatic", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_STATIC_ON_METHOD));
 		expectedProblemAttributes.put("MethodMissingDeprecatedAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_DEPRECATED_ANNOTATION));
 		expectedProblemAttributes.put("MethodMustOverride", SKIP);
 		expectedProblemAttributes.put("MethodMustOverrideOrImplement", SKIP);
@@ -1307,7 +1353,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MissingEnclosingInstanceForConstructorCall", SKIP);
 		expectedProblemAttributes.put("MissingEnumConstantCase", new ProblemAttributes(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH));
 		expectedProblemAttributes.put("MissingOverrideAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION));
-		expectedProblemAttributes.put("MissingOverrideAnnotationForInterfaceMethodImplementation", SKIP);
+		expectedProblemAttributes.put("MissingOverrideAnnotationForInterfaceMethodImplementation", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION));
 		expectedProblemAttributes.put("MissingReturnType", SKIP);
 		expectedProblemAttributes.put("MissingSemiColon", SKIP);
 		expectedProblemAttributes.put("MissingSerialVersion", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION));
@@ -1315,6 +1361,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MissingTypeInConstructor", SKIP);
 		expectedProblemAttributes.put("MissingTypeInMethod", SKIP);
 		expectedProblemAttributes.put("MissingValueForAnnotationMember", SKIP);
+		expectedProblemAttributes.put("MultiCatchNotBelow17", SKIP);
 		expectedProblemAttributes.put("MustDefineEitherDimensionExpressionsOrInitializer", SKIP);
 		expectedProblemAttributes.put("MustSpecifyPackage", SKIP);
 		expectedProblemAttributes.put("NativeMethodsCannotBeStrictfp", SKIP);
@@ -1361,9 +1408,9 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("PackageCollidesWithType", SKIP);
 		expectedProblemAttributes.put("PackageIsNotExpectedPackage", SKIP);
 		expectedProblemAttributes.put("ParameterAssignment", new ProblemAttributes(JavaCore.COMPILER_PB_PARAMETER_ASSIGNMENT));
+		expectedProblemAttributes.put("ParameterMismatch", SKIP);
 		expectedProblemAttributes.put("ParameterizedConstructorArgumentTypeMismatch", SKIP);
 		expectedProblemAttributes.put("ParameterizedMethodArgumentTypeMismatch", SKIP);
-		expectedProblemAttributes.put("ParameterMismatch", SKIP);
 		expectedProblemAttributes.put("ParsingError", SKIP);
 		expectedProblemAttributes.put("ParsingErrorDeleteToken", SKIP);
 		expectedProblemAttributes.put("ParsingErrorDeleteTokens", SKIP);
@@ -1381,7 +1428,9 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ParsingErrorOnKeywordNoSuggestion", SKIP);
 		expectedProblemAttributes.put("ParsingErrorReplaceTokens", SKIP);
 		expectedProblemAttributes.put("ParsingErrorUnexpectedEOF", SKIP);
+		expectedProblemAttributes.put("PolymorphicMethodNotBelow17", SKIP);
 		expectedProblemAttributes.put("PossibleAccidentalBooleanAssignment", new ProblemAttributes(JavaCore.COMPILER_PB_POSSIBLE_ACCIDENTAL_BOOLEAN_ASSIGNMENT));
+		expectedProblemAttributes.put("PotentialHeapPollutionFromVararg", new ProblemAttributes(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION));
 		expectedProblemAttributes.put("PotentialNullLocalVariableReference", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE));
 		expectedProblemAttributes.put("PublicClassMustMatchFileName", SKIP);
 		expectedProblemAttributes.put("RawMemberTypeCannotBeParameterized", SKIP);
@@ -1389,34 +1438,39 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("RecursiveConstructorInvocation", SKIP);
 		expectedProblemAttributes.put("RedefinedArgument", SKIP);
 		expectedProblemAttributes.put("RedefinedLocal", SKIP);
+		expectedProblemAttributes.put("RedundantSpecificationOfTypeArguments", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_TYPE_ARGUMENTS));
 		expectedProblemAttributes.put("RedundantLocalVariableNullAssignment", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
 		expectedProblemAttributes.put("RedundantNullCheckOnNonNullLocalVariable", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
 		expectedProblemAttributes.put("RedundantNullCheckOnNullLocalVariable", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
 		expectedProblemAttributes.put("RedundantSuperinterface", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_SUPERINTERFACE));
 		expectedProblemAttributes.put("ReferenceToForwardField", SKIP);
 		expectedProblemAttributes.put("ReferenceToForwardTypeVariable", SKIP);
+		expectedProblemAttributes.put("ResourceHasToImplementAutoCloseable", SKIP);
 		expectedProblemAttributes.put("ReturnTypeAmbiguous", SKIP);
 		expectedProblemAttributes.put("ReturnTypeCannotBeVoidArray", SKIP);
 		expectedProblemAttributes.put("ReturnTypeInheritedNameHidesEnclosingName", SKIP);
 		expectedProblemAttributes.put("ReturnTypeInternalNameProvided", SKIP);
 		expectedProblemAttributes.put("ReturnTypeNotFound", SKIP);
 		expectedProblemAttributes.put("ReturnTypeNotVisible", SKIP);
+		expectedProblemAttributes.put("SafeVarargsOnFixedArityMethod", SKIP);
+		expectedProblemAttributes.put("SafeVarargsOnNonFinalInstanceMethod", SKIP);
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_HASHCODE_METHOD));
 		expectedProblemAttributes.put("ShouldReturnValue", SKIP);
 		expectedProblemAttributes.put("StaticInheritedMethodConflicts", SKIP);
 		expectedProblemAttributes.put("StaticMemberOfParameterizedType", SKIP);
 		expectedProblemAttributes.put("StaticMethodRequested", SKIP);
 		expectedProblemAttributes.put("StringConstantIsExceedingUtf8Limit", SKIP);
-		expectedProblemAttributes.put("SuperclassAmbiguous", SKIP);
+		expectedProblemAttributes.put("SuperInterfaceMustBeAnInterface", SKIP);
+		expectedProblemAttributes.put("SuperInterfacesCollide", SKIP);
+		expectedProblemAttributes.put("SuperTypeUsingWildcard", SKIP);
+		expectedProblemAttributes.put("SuperclassAmbiguous", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_HASHCODE_METHOD));
 		expectedProblemAttributes.put("SuperclassInheritedNameHidesEnclosingName", SKIP);
 		expectedProblemAttributes.put("SuperclassInternalNameProvided", SKIP);
 		expectedProblemAttributes.put("SuperclassMustBeAClass", SKIP);
 		expectedProblemAttributes.put("SuperclassNotFound", SKIP);
 		expectedProblemAttributes.put("SuperclassNotVisible", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_SUPERINTERFACE));
 		expectedProblemAttributes.put("SuperfluousSemicolon", new ProblemAttributes(JavaCore.COMPILER_PB_EMPTY_STATEMENT));
-		expectedProblemAttributes.put("SuperInterfaceMustBeAnInterface", SKIP);
-		expectedProblemAttributes.put("SuperInterfacesCollide", SKIP);
-		expectedProblemAttributes.put("SuperTypeUsingWildcard", SKIP);
+		expectedProblemAttributes.put("SwitchOnStringsNotBelow17", SKIP);
 		expectedProblemAttributes.put("Task", SKIP);
 		expectedProblemAttributes.put("ThisInStaticContext", SKIP);
 		expectedProblemAttributes.put("ThisSuperDuringConstructorInvocation", SKIP);
@@ -1450,12 +1504,14 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UndefinedName", SKIP);
 		expectedProblemAttributes.put("UndefinedType", SKIP);
 		expectedProblemAttributes.put("UndefinedTypeVariable", SKIP);
+		expectedProblemAttributes.put("UnderscoresInLiteralsNotBelow17", SKIP);
 		expectedProblemAttributes.put("UndocumentedEmptyBlock", new ProblemAttributes(JavaCore.COMPILER_PB_UNDOCUMENTED_EMPTY_BLOCK));
 		expectedProblemAttributes.put("UnexpectedStaticModifierForField", SKIP);
 		expectedProblemAttributes.put("UnexpectedStaticModifierForMethod", SKIP);
 		expectedProblemAttributes.put("UnhandledException", SKIP);
 		expectedProblemAttributes.put("UnhandledExceptionInDefaultConstructor", SKIP);
 		expectedProblemAttributes.put("UnhandledExceptionInImplicitConstructorCall", SKIP);
+		expectedProblemAttributes.put("UnhandledExceptionOnAutoClose", SKIP);
 		expectedProblemAttributes.put("UnhandledWarningToken", new ProblemAttributes(JavaCore.COMPILER_PB_UNHANDLED_WARNING_TOKEN));
 		expectedProblemAttributes.put("UninitializedBlankFinalField", SKIP);
 		expectedProblemAttributes.put("UninitializedLocalVariable", SKIP);
@@ -1516,6 +1572,13 @@ public void test012_compiler_problems_tuning() {
 		fields = IProblem.class.getFields();
 		StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
+		Arrays.sort(fields, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				Field field1 = (Field) o1;
+				Field field2 = (Field) o2;
+				return field1.getName().compareTo(field2.getName());
+			}
+		});
 		for (int i = 0, length = fields.length; i < length; i++) {
 			Field field = fields[i];
 			if (field.getType() == Integer.TYPE) {

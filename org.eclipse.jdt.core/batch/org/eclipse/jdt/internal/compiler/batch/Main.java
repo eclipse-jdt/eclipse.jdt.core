@@ -3300,7 +3300,7 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			break;
 		case 'e' :
 			if (token.equals("enumSwitch") //$NON-NLS-1$
-					|| token.equals("incomplete-switch") /*backward compatible*/) { //$NON-NLS-1$
+					|| token.equals("incomplete-switch")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, severity, isEnabling);
 				return;
 			} else if (token.equals("emptyBlock")) {//$NON-NLS-1$
@@ -3552,9 +3552,11 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				setSeverity(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, severity, isEnabling);
 				setSeverity(CompilerOptions.OPTION_ReportUnusedLabel, severity, isEnabling);
 				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, severity, isEnabling);
 				return;
 			} else if (token.equals("unusedTypeArgs")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, severity, isEnabling);
 				return;
 			} else if (token.equals("unavoidableGenericProblems")) { //$NON-NLS-1$
 				this.options.put(

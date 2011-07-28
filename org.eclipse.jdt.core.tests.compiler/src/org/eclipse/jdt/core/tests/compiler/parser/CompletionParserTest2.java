@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -11068,13 +11068,15 @@ public void test0167_Method() {
 	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
 	String expectedParentNodeToString =
-			"try \n" +
+			"try\n" +
 			"  {\n" +
 			"    throwing();\n" +
 			"  }\n" +
-			"catch (IllegalAccessException e)   {\n" +
+			"catch (IllegalAccessException e)\n" +
+			"  {\n" +
 			"  }\n" +
-			"catch (<CompleteOnException:IZZ>  )   {\n" +
+			"catch (<CompleteOnException:IZZ>  )\n" +
+			"  {\n"+
 			"  }";
 	String completionIdentifier = "IZZ";
 	String expectedReplacedSource = "IZZ";
@@ -11083,13 +11085,15 @@ public void test0167_Method() {
 			"  public X() {\n" +
 			"  }\n" +
 			"  public boolean foo() {\n" +
-			"    try \n" +
+			"    try\n" +
 			"      {\n" +
 			"        throwing();\n" +
 			"      }\n" +
-			"    catch (IllegalAccessException e)       {\n" +
+			"    catch (IllegalAccessException e)\n" +
+			"      {\n" +
 			"      }\n" +
-			"    catch (<CompleteOnException:IZZ>  )       {\n" +
+			"    catch (<CompleteOnException:IZZ>  )\n" +
+			"      {\n" +
 			"      }\n" +
 			"  }\n" +
 			"}\n";
@@ -11164,13 +11168,15 @@ public void test0168_Method() {
 	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
 	String expectedParentNodeToString =
-			"try \n" +
+			"try\n" +
 			"  {\n" +
 			"    throwing();\n" +
 			"  }\n" +
-			"catch (IllegalAccessException e)   {\n" +
+			"catch (IllegalAccessException e)\n" +
+			"  {\n" +
 			"  }\n" +
-			"catch (<CompleteOnException:IZZ>  )   {\n" +
+			"catch (<CompleteOnException:IZZ>  )\n" +
+			"  {\n"+
 			"  }";
 	String completionIdentifier = "IZZ";
 	String expectedReplacedSource = "IZZ";
@@ -11179,13 +11185,15 @@ public void test0168_Method() {
 			"  public X() {\n" +
 			"  }\n" +
 			"  public boolean foo() {\n" +
-			"    try \n" +
+			"    try\n" +
 			"      {\n" +
 			"        throwing();\n" +
 			"      }\n" +
-			"    catch (IllegalAccessException e)       {\n" +
+			"    catch (IllegalAccessException e)\n" +
+			"      {\n" +
 			"      }\n" +
-			"    catch (<CompleteOnException:IZZ>  )       {\n" +
+			"    catch (<CompleteOnException:IZZ>  )\n" +
+			"      {\n" +
 			"      }\n" +
 			"  }\n" +
 			"}\n";
@@ -11424,11 +11432,12 @@ public void test0171_Method() {
 	int cursorLocation = str.lastIndexOf("IZZ") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnException:IZZ>";
 	String expectedParentNodeToString =
-			"try \n" +
+			"try\n" +
 			"  {\n" +
 			"    throwing();\n" +
 			"  }\n" +
-			"catch (<CompleteOnException:IZZ>  )   {\n" +
+			"catch (<CompleteOnException:IZZ>  )\n" +
+			"  {\n"+
 			"  }"
 	;
 	String completionIdentifier = "IZZ";
@@ -11438,11 +11447,12 @@ public void test0171_Method() {
 			"  public X() {\n" +
 			"  }\n" +
 			"  public boolean foo() {\n" +
-			"    try \n" +
+			"    try\n" +
 			"      {\n" +
 			"        throwing();\n" +
 			"      }\n" +
-			"    catch (<CompleteOnException:IZZ>  )       {\n" +
+			"    catch (<CompleteOnException:IZZ>  )\n" +
+			"      {\n"+
 			"      }\n" +
 			"  }\n" +
 			"}\n";

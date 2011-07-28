@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,7 +45,8 @@ public SortCompilationUnitElementsTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	final String compliance = "1.5"; //$NON-NLS-1$
+	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString(compliance)}, "bin", compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	this.createFolder("/P/src/p"); //$NON-NLS-1$
 }
 /** @deprecated */

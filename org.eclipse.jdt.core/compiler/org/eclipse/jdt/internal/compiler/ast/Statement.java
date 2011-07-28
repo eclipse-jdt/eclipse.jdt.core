@@ -102,7 +102,6 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 		for (int i = 0; i < varArgIndex; i++) {
 			arguments[i].generateCode(currentScope, codeStream, true);
 		}
-
 		ArrayBinding varArgsType = (ArrayBinding) params[varArgIndex]; // parameterType has to be an array type
 		ArrayBinding codeGenVarArgsType = (ArrayBinding) binding.parameters[varArgIndex].erasure();
 		int elementsTypeID = varArgsType.elementsType().id;

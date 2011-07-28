@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 282152 - [1.5][compiler] Generics code rejected by Eclipse but accepted by javac
@@ -28,7 +28,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test322531j" };
+//		TESTS_NAMES = new String[] { "test347426" };
 //		TESTS_NAMES = new String[] { "test1464" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
@@ -1740,26 +1740,402 @@ public void test338011b() {
 		compilerOptions15,
 		null);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=334493 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=339478
+// To verify that diamond construct is not allowed in source level 1.6 or below
+public void test339478a() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X<String> x = new X<>();\n" + 
+			"		x.testFunction(\"SUCCESS\");\n" + 
+			"	}\n" +
+			"	public void testFunction(T param){\n" +
+			"		System.out.println(param);\n" +
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<String> x = new X<>();\n" + 
+		"	                  ^\n" + 
+		"\'<>\' operator is not allowed for source level below 1.7\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=339478
+// To verify that diamond construct is not allowed in source level 1.6 or below
+public void test339478b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		X<> x1 = null;\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<> x1 = null;\n" + 
+		"	^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478c() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" +
+			"public class X implements Map<> {\n" +
+			"    static Map<> foo (Map<> x) { \n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public class X implements Map<> {\n" + 
+		"	                          ^^^\n" + 
+		"Incorrect number of arguments for type Map<K,V>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	static Map<> foo (Map<> x) { \n" + 
+		"	       ^^^\n" + 
+		"Incorrect number of arguments for type Map<K,V>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	static Map<> foo (Map<> x) { \n" + 
+		"	                  ^^^\n" + 
+		"Incorrect number of arguments for type Map<K,V>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478d() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" +
+			"public class X  {\n" +
+			"    static Map<> foo () { \n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	static Map<> foo () { \n" + 
+		"	       ^^^\n" + 
+		"Incorrect number of arguments for type Map<K,V>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478e() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    class Y<K> {\n" +
+			"    }\n" +
+			"    public static void main(String [] args) {\n" +
+			"        X<String>.Y<> [] y = null; \n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	X<String>.Y<> [] y = null; \n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Incorrect number of arguments for type X<String>.Y; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478f() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    class Y<K> {\n" +
+			"    }\n" +
+			"    public static void main(String [] args) {\n" +
+			"        X<String>.Y<>  y = null; \n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	X<String>.Y<>  y = null; \n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Incorrect number of arguments for type X<String>.Y; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478g() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    public void foo(Object x) {\n" +
+			"        if (x instanceof X<>) {    \n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	if (x instanceof X<>) {    \n" + 
+		"	                 ^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478h() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    public void foo(Object x) throws X.Y<>.LException {\n" +
+			"    }\n" +
+			"    static class Y<T> {\n" +
+			"    static class LException extends Throwable {}\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public void foo(Object x) throws X.Y<>.LException {\n" + 
+		"	                                 ^^^\n" + 
+		"Incorrect number of arguments for type X.Y; it cannot be parameterized with arguments <>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	static class LException extends Throwable {}\n" + 
+		"	             ^^^^^^^^^^\n" + 
+		"The serializable class LException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}
+public void test339478i() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T>  {\n" +
+			"    public void foo () {\n" +
+			"        Object o = new X<> [10];\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Object o = new X<> [10];\n" + 
+		"	               ^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478j() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		X<>[] x1 = null;\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<>[] x1 = null;\n" + 
+		"	^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478k() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	X<>[] x1 = null;\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	X<>[] x1 = null;\n" + 
+		"	^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478l() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		X<> x1 = null;\n" + 
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<> x1 = null;\n" + 
+		"	^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478m() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	X<> f1 = null;\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	X<> f1 = null;\n" + 
+		"	^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478n() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	public void foo(X<> args) {\n" + 
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public void foo(X<> args) {\n" + 
+		"	                ^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+public void test339478o() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X<>(){\n" +
+			"			void newMethod(){\n" +
+			"			}\n" +
+			"		}.testFunction(\"SUCCESS\");\n" + 
+			"	}\n" +
+			"	public void testFunction(T param){\n" +
+			"		System.out.println(param);\n" +
+			"	}\n" + 
+			"}",
+		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	new X<>(){\n" + 
+		"	    ^\n" + 
+		"\'<>\' operator is not allowed for source level below 1.7\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	new X<>(){\n" + 
+		"	    ^\n" + 
+		"\'<>\' cannot be used with anonymous classes\n" + 
+		"----------\n":
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	new X<>(){\n" + 
+			"	    ^\n" + 
+			"\'<>\' cannot be used with anonymous classes\n" + 
+			"----------\n");
+}
+public void test339478p() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X Test = new X<>(){\n" +
+			"			void newMethod(){\n" +
+			"			}\n" +
+			"		}.testFunction(\"SUCCESS\");\n" + 
+			"	}\n" +
+			"	public void testFunction(T param){\n" +
+			"		System.out.println(param);\n" +
+			"	}\n" + 
+			"}",
+		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	X Test = new X<>(){\n" + 
+		"	^\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	X Test = new X<>(){\n" + 
+		"	             ^\n" + 
+		"\'<>\' operator is not allowed for source level below 1.7\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	X Test = new X<>(){\n" + 
+		"	             ^\n" + 
+		"\'<>\' cannot be used with anonymous classes\n" + 
+		"----------\n" : 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	X Test = new X<>(){\n" + 
+			"	^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	X Test = new X<>(){\n" + 
+			"	             ^\n" + 
+			"\'<>\' cannot be used with anonymous classes\n" + 
+			"----------\n");
+}
+public void test339478q() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X Test = new X<>();\n" +
+			"	}\n" +
+			"}",
+		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X Test = new X<>();\n" + 
+		"	             ^\n" + 
+		"\'<>\' operator is not allowed for source level below 1.7\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	X Test = new X<>();\n" + 
+		"	             ^\n" + 
+		"The type X is not generic; it cannot be parameterized with arguments <>\n" + 
+		"----------\n":
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X Test = new X<>();\n" + 
+		"	             ^\n" + 
+		"The type X is not generic; it cannot be parameterized with arguments <>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334493 
 public void test334493() {
- this.runNegativeTest(
-     new String[] {
-         "X.java",
-         "interface Super<P> {}\n" +
-         "class Y<C> implements Super<Integer>{}\n" +
-         "interface II extends Super<Double>{}\n" +
-         "class S<A> extends Y<Byte> {}\n" +
-         "interface T<B> extends II{}\n" +
-         "public class X {\n" +
-         "    public static void main(String argv[]) {\n" +
-         "        S<Integer> s = null;\n" +
-         "        T<Integer> t = null;\n" +
-         "        t = (T) s;          //casting to raw type, no error\n" +
-         "        System.out.println(t);\n" +
-         "    }\n" +
-         "}\n"
-     },
-     this.complianceLevel < ClassFileConstants.JDK1_7 ?
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Super<P> {}\n" +
+			"class Y<C> implements Super<Integer>{}\n" +
+			"interface II extends Super<Double>{}\n" +
+			"class S<A> extends Y<Byte> {}\n" +
+			"interface T<B> extends II{}\n" +
+			"public class X {\n" +
+			"    public static void main(String argv[]) {\n" +
+			"        S<Integer> s = null;\n" +
+			"        T<Integer> t = null;\n" +
+			"        t = (T) s;          //casting to raw type, no error\n" +
+			"        System.out.println(t);\n" +
+			"    }\n" +
+			"}\n"
+		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
 		"----------\n" + 
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	t = (T) s;          //casting to raw type, no error\n" + 
@@ -1771,7 +2147,7 @@ public void test334493() {
 		"	    ^^^^^\n" + 
 		"Type safety: The expression of type T needs unchecked conversion to conform to T<Integer>\n" + 
 		"----------\n" : 
-				"----------\n" + 
+			"----------\n" + 
 				"1. WARNING in X.java (at line 10)\n" + 
 				"	t = (T) s;          //casting to raw type, no error\n" + 
 				"	    ^^^^^\n" + 
@@ -1782,5 +2158,311 @@ public void test334493() {
 				"	     ^\n" + 
 				"T is a raw type. References to generic type T<B> should be parameterized\n" + 
 				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334313
+public void test334313() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"abstract class C<T>  {\n" +
+				"	public abstract Object foo(T x);\n" +
+				"   public Integer foo(String x){ return 1; }\n" +
+				"}\n" +
+				"public class X extends C<String> {\n" +
+				"    zork z;\n" +
+				"}\n"			
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	zork z;\n" + 
+				"	^^^^\n" + 
+				"zork cannot be resolved to a type\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334313
+public void test334313b() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"abstract class C<T>  {\n" +
+				"	public abstract Integer foo(T x);\n" +
+				"   public Object foo(String x){ return 1; }\n" +
+				"}\n" +
+				"public class X extends C<String> {\n" +
+				"}\n"			
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	public class X extends C<String> {\n" + 
+				"	             ^\n" + 
+				"The type X must implement the inherited abstract method C<String>.foo(String) to override C<String>.foo(String)\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334313
+public void test334313c() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"abstract class B<T> {\n" +
+				"	public abstract Object foo(T x);\n" +
+				"}\n" +
+				"abstract class C<T> extends B<T> {\n" +
+				"    public Integer foo(String x){ return 1; }\n" +
+				"}\n" +
+				"public class X extends C<String> {\n" +
+				"    zork z;\n" +
+				"}\n"			
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	zork z;\n" + 
+				"	^^^^\n" + 
+				"zork cannot be resolved to a type\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334313
+public void test334313d() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"abstract class B<T> {\n" +
+				"	public abstract Integer foo(T x);\n" +
+				"}\n" +
+				"abstract class C<T> extends B<T> {\n" +
+				"    public Object foo(String x){ return 1; }\n" +
+				"}\n" +
+				"public class X extends C<String> {\n" +
+				"}\n"			
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	public class X extends C<String> {\n" + 
+				"	             ^\n" + 
+				"The type X must implement the inherited abstract method B<String>.foo(String) to override C<String>.foo(String)\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334313
+public void test334313e() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"abstract class C<T>  {\n" +
+				"	public abstract Object foo(T x);\n" +
+				"   public static Integer foo(String x){ return 1; }\n" +
+				"}\n" +
+				"public class X extends C<String> {\n" +
+				"}\n"			
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	public class X extends C<String> {\n" + 
+				"	             ^\n" + 
+				"The static method foo(String) conflicts with the abstract method in C<String>\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347145
+public void test347145() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class A {}\n" +
+				"class B<V> extends A {} \n" +
+				"class F<T extends A, Y extends B<T>> {\n" +
+				"	static <U extends A , V extends B<U>> F<U,V> g() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    F<? extends B, ? extends B<? extends B>> f011 = F.g();\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	F<? extends B, ? extends B<? extends B>> f011 = F.g();\n" + 
+			"	            ^\n" + 
+			"B is a raw type. References to generic type B<V> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	F<? extends B, ? extends B<? extends B>> f011 = F.g();\n" + 
+			"	                                     ^\n" + 
+			"B is a raw type. References to generic type B<V> should be parameterized\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347426
+public void test347426() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    class A<T extends B<?>> {  }\n" +
+				"    class B<T extends A<?>> {\n" +
+				"        D<? extends B<T>> x;\n" +
+				"    }\n" +
+				"    class D<T extends B<?>> {}\n" +
+				"    <E extends B<?>> X(E x, D<B<A<?>>> d) {\n" +
+				"        if (x.x == d) {\n" +
+				"            return;\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347426
+public void test347426b() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" +
+				"    class A<T extends X<?>> {\n" +
+				"        B<? extends A<T>> x;\n" +
+				"    }\n" +
+				"    class B<T extends A<?>> {}\n" +
+				"    boolean b = ((A<?>)null).x == ((B<A<X<?>>>)null);   \n" +
+				"}\n"
+			},
+			"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347426
+public void test347426c() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" +
+				"    class A<T extends X<? extends String>> {\n" +
+				"        B<? extends A<T>> x;\n" +
+				"    }\n" +
+				"    class B<T extends A<?>> {}\n" +
+				"    boolean b = ((A<? extends X<?>>)null).x == ((B<A<X<? extends String>>>)null);       \n" +
+				"}\n"
+			},
+			"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=283353
+public void test283353() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    EntityKey entityKey = null;\n" +
+				"    new EntityCondenser().condense(entityKey);  \n" +
+				"  }\n" +
+				"  public static class EntityCondenser {\n" +
+				"    <I, E extends EntityType<I, E, K>, K extends EntityKey<I>> void condense(K entityKey) {\n" +
+				"    }\n" +
+				"  }\n" +
+				"  public class EntityKey<I> {}\n" +
+				"  public interface EntityType<\n" +
+				"    I,\n" +
+				"    E extends EntityType<I, E, K>,\n" +
+				"    K extends EntityKey<I>> {\n" +
+				"  }\n" +
+				"}\n"
+			},
+			"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347600
+public void test347600() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class A {}\n" +
+				"class B<V> extends A {} \n" +
+				"class D extends B<E> {}\n" +
+				"class E extends B<D> {}\n" +
+				"public class X<T, Y extends B<U>, U extends B<Y>> {    \n" +
+				"    public static <T1, Y1 extends B<U1>, U1 extends B<Y1>> X<T1, Y1, U1> getX() {\n" +
+				"        return null;\n" +
+				"    }\n" +
+				"    X<B, ? extends D, ? extends E> f = getX();   \n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	X<B, ? extends D, ? extends E> f = getX();   \n" + 
+			"	  ^\n" + 
+			"B is a raw type. References to generic type B<V> should be parameterized\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=347746
+public void test347746() {
+	 this.runNegativeTest(
+	     new String[] {
+	         "X.java",
+	         "public class X {\n" +
+	   		 "    class A<T extends B<?>> {}\n" +
+	   		 "    class B<T extends A<?>> extends D {}\n" +
+	   		 "    class C<T extends D> {}\n" +
+	   		 "    class D {}\n" +
+	   		 "    class E<T extends C<? extends B<?>>> {}\n" +
+	   		 "    <U extends C<V>, V extends B<W>, W extends A<V>> W foo(E<U> e) {\n" +
+	   		 "        return goo(e);\n" +
+	   		 "    }\n" +
+	   		 "    <P extends C<Q>, Q extends B<R>, R extends A<Q>> R goo(E<P> e) {\n" +
+	   		 "        return null;\n" +
+	   		 "    }\n" +
+	   		 "}\n"
+	     },
+	     "");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348493
+// To verify that diamond construct is not allowed in source level 1.6 or below
+public void test348493() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	class X2<Z> {}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X<String>.X2<> x = new X<String>().new X2<>();\n" + 
+			"	}\n" +
+			"	public void testFunction(T param){\n" +
+			"		System.out.println(param);\n" +
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	X<String>.X2<> x = new X<String>().new X2<>();\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"Incorrect number of arguments for type X<String>.X2; it cannot be parameterized with arguments <>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	X<String>.X2<> x = new X<String>().new X2<>();\n" + 
+		"	                                       ^^\n" + 
+		"\'<>\' operator is not allowed for source level below 1.7\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348493
+// To verify that diamond construct is not allowed in source level 1.6 or below
+public void test348493a() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		X<> x = new X<>();\n" + 
+			"	}\n" +
+			"	public void testFunction(T param){\n" +
+			"		System.out.println(param);\n" +
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	X<> x = new X<>();\n" + 
+		"	^\n" + 
+		"Incorrect number of arguments for type X<T>; it cannot be parameterized with arguments <>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	X<> x = new X<>();\n" + 
+		"	            ^\n" + 
+		"\'<>\' operator is not allowed for source level below 1.7\n" + 
+		"----------\n");
 }
 }

@@ -42,7 +42,7 @@ public ConstantTest(String name) {
 static {
 //	TESTS_PREFIX = "testBug95521";
 //	TESTS_NAMES = new String[] { "testBug83127a" };
-//	TESTS_NUMBERS = new int[] { 14, 15, 16 };
+//	TESTS_NUMBERS = new int[] { 21 };
 //	TESTS_RANGE = new int[] { 23, -1 };
 }
 public static Test suite() {
@@ -326,6 +326,10 @@ public void test008() {
 		"SUCCESS");
 }
 
+/*
+ * null is not a constant
+ * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26138
+ */
 /*
  * null is not a constant
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26138
@@ -1414,6 +1418,102 @@ private void verifyConstantEqualsAndHashcode(
 		assertFalse("Have same values", ((Constant) o).hasSameValue((Constant) o2));
 		assertFalse("Have same values", ((Constant) o).hasSameValue((Constant) o4));
 	}
+}
+//test corner values (max, min, -1) for longs
+public void test021() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0x0L); // OK\n" +
+			"		System.out.println(0x8000000000000000L); // OK\n" +
+			"		System.out.println(0x8000000000000000l); // OK\n" +
+			"		System.out.println(01000000000000000000000L); // OK\n" +
+			"		System.out.println(01000000000000000000000l); // OK\n" +
+			"		System.out.println(-9223372036854775808L); // OK\n" +
+			"		System.out.println(-9223372036854775808l); // OK\n" +
+			"		System.out.println(0x7fffffffffffffffL); // OK\n" +
+			"		System.out.println(0x7fffffffffffffffl); // OK\n" +
+			"		System.out.println(0777777777777777777777L); // OK\n" +
+			"		System.out.println(0777777777777777777777l); // OK\n" +
+			"		System.out.println(9223372036854775807L); // OK\n" +
+			"		System.out.println(9223372036854775807l); // OK\n" +
+			"		System.out.println(0xffffffffffffffffL); // OK\n" +
+			"		System.out.println(0x0000000000000ffffffffffffffffL); // OK\n" +
+			"		System.out.println(0xffffffffffffffffl); // OK\n" +
+			"		System.out.println(01777777777777777777777L); // OK\n" +
+			"		System.out.println(01777777777777777777777l); // OK\n" +
+			"		System.out.println(-0x1L); // OK\n" +
+			"		System.out.println(-0x1l); // OK\n" +
+			"		System.out.println(0677777777777777777777L);\n" +
+			"		System.out.println(0677777777777777777777l);\n" +
+			"		System.out.println(0x0000000000000L); // OK\n" +
+			"		System.out.println(0L); // OK\n" +
+			"	}\n" +
+			"}",
+		},
+		"0\n" + 
+		"-9223372036854775808\n" + 
+		"-9223372036854775808\n" + 
+		"-9223372036854775808\n" + 
+		"-9223372036854775808\n" + 
+		"-9223372036854775808\n" + 
+		"-9223372036854775808\n" + 
+		"9223372036854775807\n" + 
+		"9223372036854775807\n" + 
+		"9223372036854775807\n" + 
+		"9223372036854775807\n" + 
+		"9223372036854775807\n" + 
+		"9223372036854775807\n" + 
+		"-1\n" + 
+		"-1\n" + 
+		"-1\n" + 
+		"-1\n" + 
+		"-1\n" + 
+		"-1\n" + 
+		"-1\n" + 
+		"8070450532247928831\n" + 
+		"8070450532247928831\n" +
+		"0\n" +
+		"0");
+}
+//test corner values (max, min, -1) for ints
+public void test022() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0x0); // OK\n" +
+			"		System.out.println(0x80000000); // OK\n" +
+			"		System.out.println(020000000000); // OK\n" +
+			"		System.out.println(-2147483648); // OK\n" +
+			"		System.out.println(0x7fffffff); // OK\n" +
+			"		System.out.println(017777777777); // OK\n" +
+			"		System.out.println(2147483647); // OK\n" +
+			"		System.out.println(0xffffffff); // OK\n" +
+			"		System.out.println(0x0000000000000ffffffff); // OK\n" +
+			"		System.out.println(037777777777); // OK\n" +
+			"		System.out.println(-0x1); // OK\n" +
+			"		System.out.println(0xDADACAFE);\n" + 
+			"		System.out.println(0x0000000000000); // OK\n" +
+			"	}\n" +
+			"}",
+		},
+		"0\n" + 
+		"-2147483648\n" + 
+		"-2147483648\n" + 
+		"-2147483648\n" + 
+		"2147483647\n" + 
+		"2147483647\n" + 
+		"2147483647\n" + 
+		"-1\n" + 
+		"-1\n" + 
+		"-1\n" + 
+		"-1\n" +
+		"-623195394\n" +
+		"0");
 }
 public static Class testClass() {
 	return ConstantTest.class;

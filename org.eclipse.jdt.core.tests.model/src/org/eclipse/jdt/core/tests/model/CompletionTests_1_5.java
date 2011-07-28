@@ -13915,4 +13915,375 @@ public void testBug343865b() throws JavaModelException {
 		"xxyy1[FIELD_REF]{xxyy1, Ltestxxx.TestType2;, Ljava.lang.String;, xxyy1, null, " + (R_NAME_FIRST_PREFIX + R_EXPECTED_TYPE + R_RESOLVED + R_EXACT_EXPECTED_TYPE) + "}",
 		requestor.getResults());
 }
+public void testBug351426() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/X.java",
+		"package test;\n" +
+		"public class X<T> {\n" +
+		"	public void foo() {\n" +
+		"		X<String> x = new X<>();" +
+		"   }\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new X<";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	
+	assertResults(
+			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>;}\n" +
+			"expectedTypesKeys={Ltest/X<Ljava/lang/String;>;}",
+			requestor.getContext());
+	assertResults(
+			"X<T>[TYPE_REF]{, test, Ltest.X<TT;>;, null, null, replace[77, 77], token[77, 77], " + relevance + "}",
+			requestor.getResults());
+}
+public void testBug351426b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/X.java",
+		"package test;\n" +
+		"public class X<T> {\n" +
+		"	X(T t){}\n" +
+		"	public void foo() {\n" +
+		"		X<String> x = new X<>(\"\");" +
+		"   }\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new X<";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	
+	assertResults(
+			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>;}\n" +
+			"expectedTypesKeys={Ltest/X<Ljava/lang/String;>;}",
+			requestor.getContext());
+	assertResults(
+			"X<T>[TYPE_REF]{, test, Ltest.X<TT;>;, null, null, replace[87, 87], token[87, 87], " + relevance + "}",
+			requestor.getResults());
+}
+// qualified allocation
+public void testBug351426c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/X.java",
+		"package test;\n" +
+		"public class X<T> {\n" +
+		"	X(T t){}\n" +
+		"	class X1<E> {}\n" +
+		"	public void foo() {\n" +
+		"		X<String>.X1<String> x = new X<String>(\"\").new X1<>();" +
+		"   }\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new X1<";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	
+	assertResults(
+			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>.X1<Ljava.lang.String;>;}\n" +
+			"expectedTypesKeys={Ltest/X<Ljava/lang/String;>.X1<Ljava/lang/String;>;}",
+			requestor.getContext());
+	assertResults(
+			"X<java.lang.String>.X1[TYPE_REF]{, test, Ltest.X<Ljava.lang.String;>.X1;, null, null, replace[133, 133], token[133, 133], " + relevance + "}",
+			requestor.getResults());
+}
+// qualified allocation
+public void testBug351426d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/X.java",
+		"package test;\n" +
+		"public class X<T> {\n" +
+		"	X(T t){}\n" +
+		"	class X1<E> {\n" +
+		"		class X11<F>{}\n" +
+		"	}\n" +
+		"	public void foo() {\n" +
+		"		X<String>.X1<Object>.X11<String> x = new X<String>(\"\").new X1<Object>().new X11<>();" +
+		"   }\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new X11<";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	
+	assertResults(
+			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>.X1<Ljava.lang.Object;>.X11<Ljava.lang.String;>;}\n" +
+			"expectedTypesKeys={Ltest/X<Ljava/lang/String;>.X1<Ljava/lang/Object;>.X11<Ljava/lang/String;>;}",
+			requestor.getContext());
+	assertResults(
+			"X<java.lang.String>.X1<java.lang.Object>.X11[TYPE_REF]{, test, Ltest.X<Ljava.lang.String;>.X1<Ljava.lang.Object;>.X11;, null, null, replace[182, 182], token[182, 182], " + relevance + "}",
+			requestor.getResults());
+}
+// qualified allocation
+public void testBug351426e() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/X.java",
+		"package test;\n" +
+		"public class X<T> {\n" +
+		"	X(T t){}\n" +
+		"	static class X1<E> {\n" +
+		"	}\n" +
+		"	public static void foo() {\n" +
+		"		X1<String> x = new X.X1<>();" +
+		"   }\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new X.X1<";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	
+	assertResults(
+			"expectedTypesSignatures={Ltest.X$X1<Ljava.lang.String;>;}\n" +
+			"expectedTypesKeys={Ltest/X<>.X1<Ljava/lang/String;>;}",
+			requestor.getContext());
+	assertResults(
+			"X.X1<E>[TYPE_REF]{, test, Ltest.X$X1<TE;>;, null, null, replace[123, 123], token[123, 123], " + relevance + "}",
+			requestor.getResults());
+}
+// returning allocated object
+public void testBug351426f() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/X.java",
+		"package test;\n" +
+		"public class X<T> {\n" +
+		"	X(T t){}\n" +
+		"	public X<String> foo() {\n" +
+		"		return new X<>(\"\");" +
+		"   }\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new X<";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	
+	assertResults(
+			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>;}\n" +
+			"expectedTypesKeys={Ltest/X<Ljava/lang/String;>;}",
+			requestor.getContext());
+	assertResults(
+			"X<T>[TYPE_REF]{, test, Ltest.X<TT;>;, null, null, replace[85, 85], token[85, 85], " + relevance + "}",
+			requestor.getResults());
+}
+// returning allocated object, qualified case
+public void testBug351426g() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/X.java",
+		"package test;\n" +
+		"public class X<T> {\n" +
+		"	X(T t){}\n" +
+		"	class X1<E>{}\n" +
+		"	public X1<String> foo() {\n" +
+		"		return new X<String>(\"\").new X1<>();" +
+		"   }\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new X1<";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	
+	assertResults(
+			"expectedTypesSignatures={Ltest.X<TT;>.X1<Ljava.lang.String;>;}\n" +
+			"expectedTypesKeys={Ltest/X<Ltest/X;:TT;>.X1<Ljava/lang/String;>;}",
+			requestor.getContext());
+	assertResults(
+			"X<java.lang.String>.X1[TYPE_REF]{, test, Ltest.X<Ljava.lang.String;>.X1;, null, null, replace[120, 120], token[120, 120], " + relevance + "}",
+			requestor.getResults());
+}
+// returning allocated object, qualified case
+public void testBug351426h() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/X.java",
+		"package test;\n" +
+		"public class X<T> {\n" +
+		"	X(T t){}\n" +
+		"	static class X1<E>{}\n" +
+		"	public X.X1<String> foo() {\n" +
+		"		return new X.X1<>();" +
+		"   }\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new X.X1<";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	
+	assertResults(
+			"expectedTypesSignatures={Ltest.X$X1<Ljava.lang.String;>;}\n" +
+			"expectedTypesKeys={Ltest/X<>.X1<Ljava/lang/String;>;}",
+			requestor.getContext());
+	assertResults(
+			"X.X1<E>[TYPE_REF]{, test, Ltest.X$X1<TE;>;, null, null, replace[113, 113], token[113, 113], " + relevance + "}",
+			requestor.getResults());
+}
+// fields
+public void testBug351426i() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/X.java",
+		"package test;\n" +
+		"public class X<T> {\n" +
+		"	X<String> x = new X<>();" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new X<";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	
+	assertResults(
+			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>;}\n" +
+			"expectedTypesKeys={Ltest/X<Ljava/lang/String;>;}",
+			requestor.getContext());
+	assertResults(
+			"X<T>[TYPE_REF]{, test, Ltest.X<TT;>;, null, null, replace[55, 55], token[55, 55], " + relevance + "}",
+			requestor.getResults());
+}
+// fields, qualified allocation
+public void testBug351426j() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/X.java",
+			"package test;\n" +
+			"public class X<T> {\n" +
+			"	X(T t){}\n" +
+			"	static class X1<E> {\n" +
+			"	}\n" +
+			"	public static void foo() {\n" +
+			"		X1<String> x = new X.X1<>();" +
+			"   }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new X.X1<";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	
+	assertResults(
+			"expectedTypesSignatures={Ltest.X$X1<Ljava.lang.String;>;}\n" +
+			"expectedTypesKeys={Ltest/X<>.X1<Ljava/lang/String;>;}",
+			requestor.getContext());
+	assertResults(
+			"X.X1<E>[TYPE_REF]{, test, Ltest.X$X1<TE;>;, null, null, replace[123, 123], token[123, 123], " + relevance + "}",
+			requestor.getResults());
+}
+// more than one type arg, completing on second arg
+public void testBug351426k() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/X.java",
+			"package test;\n" +
+			"public class X<T,U> {\n" +
+			"	X(T t){}\n" +
+			"	public void foo() {\n" +
+			"		X<String, String> x = new X<String, >(\"\");" +
+			"   }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new X<String, ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	
+	assertResults(
+			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;Ljava.lang.String;>;}\n" +
+			"expectedTypesKeys={Ltest/X<Ljava/lang/String;Ljava/lang/String;>;}",
+			requestor.getContext());
+	assertResults(
+			"X<T,U>[TYPE_REF]{, test, Ltest.X<TT;TU;>;, null, null, replace[105, 105], token[105, 105], " + relevance + "}",
+			requestor.getResults());
+}
+// different CU's
+public void testBug351426l() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/X.java",
+			"package test;\n" +
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		X1<String> x1 = new X1<>(\"\");" +
+			"   }\n" +
+			"}\n");
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/X1.java",
+			"package test;\n" +
+			"public class X1<T> {\n" +
+			"	X1(T t){}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new X1<";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	
+	assertResults(
+			"expectedTypesSignatures={Ltest.X1<Ljava.lang.String;>;}\n" +
+			"expectedTypesKeys={Ltest/X1<Ljava/lang/String;>;}",
+			requestor.getContext());
+	assertResults(
+			"X1<T>[TYPE_REF]{, test, Ltest.X1<TT;>;, null, null, replace[77, 77], token[77, 77], " + relevance + "}",
+			requestor.getResults());
+}
 }
