@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2010 IBM Corporation and others.
+ * Copyright (c) 2003, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1868,6 +1868,511 @@ public void test050() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n"
 	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+public void test051() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" + 
+			"		boolean y = (boolean) x;\n" + 
+			"		System.out.println(y);\n" + 
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return Boolean.TRUE;\n" + 
+			"	}\n" + 
+			"}";
+	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	boolean y = (boolean) x;\n" + 
+				"	            ^^^^^^^^^^^\n" + 
+				"Cannot cast from Object to boolean\n" + 
+				"----------\n"
+			);
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"true"
+			);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+public void test052() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" + 
+			"		byte y = (byte) x;\n" + 
+			"		System.out.println(y);\n" + 
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return new Byte((byte)1);\n" + 
+			"	}\n" + 
+			"}";
+	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	byte y = (byte) x;\n" + 
+				"	         ^^^^^^^^\n" + 
+				"Cannot cast from Object to byte\n" + 
+				"----------\n"
+			);
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"1"
+			);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+public void test053() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" + 
+			"		char y = (char) x;\n" + 
+			"		System.out.println(y);\n" + 
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return new Character('d');\n" + 
+			"	}\n" + 
+			"}";
+	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	char y = (char) x;\n" + 
+				"	         ^^^^^^^^\n" + 
+				"Cannot cast from Object to char\n" + 
+				"----------\n"
+			);
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"d"
+			);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+// Also confirm that a check cast and unboxing conversion are generated.
+public void test054() throws Exception {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" + 
+			"		int y = (int) x;\n" + 
+			"		System.out.println(y);\n" + 
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return new Integer(1);\n" + 
+			"	}\n" + 
+			"}";
+	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	int y = (int) x;\n" + 
+				"	        ^^^^^^^\n" + 
+				"Cannot cast from Object to int\n" + 
+				"----------\n"
+			);
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"1"
+			);
+		String expectedOutput = 
+				"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+				"  // Stack: 2, Locals: 3\n" + 
+				"  public static void main(java.lang.String[] args);\n" + 
+				"     0  invokestatic X.foo() : java.lang.Object [16]\n" + 
+				"     3  astore_1 [x]\n" + 
+				"     4  aload_1 [x]\n" + 
+				"     5  checkcast java.lang.Integer [20]\n" + 
+				"     8  invokevirtual java.lang.Integer.intValue() : int [22]\n" + 
+				"    11  istore_2 [y]\n" + 
+				"    12  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
+				"    15  iload_2 [y]\n" + 
+				"    16  invokevirtual java.io.PrintStream.println(int) : void [32]\n" + 
+				"    19  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 3]\n" + 
+				"        [pc: 4, line: 4]\n" + 
+				"        [pc: 12, line: 5]\n" + 
+				"        [pc: 19, line: 6]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 20] local: args index: 0 type: java.lang.String[]\n" + 
+				"        [pc: 4, pc: 20] local: x index: 1 type: java.lang.Object\n" + 
+				"        [pc: 12, pc: 20] local: y index: 2 type: int\n" + 
+				"  \n";
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+public void test055() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" + 
+			"		long y = (long) x;\n" + 
+			"		System.out.println(y);\n" + 
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return new Long(Long.MAX_VALUE);\n" + 
+			"	}\n" + 
+			"}";
+	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	long y = (long) x;\n" + 
+				"	         ^^^^^^^^\n" + 
+				"Cannot cast from Object to long\n" + 
+				"----------\n"
+			);
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"9223372036854775807"
+			);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+public void test056() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" + 
+			"		short y = (short) x;\n" + 
+			"		System.out.println(y);\n" + 
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return new Short((short) 1);\n" + 
+			"	}\n" + 
+			"}";
+	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	short y = (short) x;\n" + 
+				"	          ^^^^^^^^^\n" + 
+				"Cannot cast from Object to short\n" + 
+				"----------\n"
+			);
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"1"
+			);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+public void test057() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" + 
+			"		double y = (double) x;\n" + 
+			"		System.out.println(y);\n" + 
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return new Double(1.0);\n" + 
+			"	}\n" + 
+			"}";
+	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	double y = (double) x;\n" + 
+				"	           ^^^^^^^^^^\n" + 
+				"Cannot cast from Object to double\n" + 
+				"----------\n"
+			);
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"1.0"
+			);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+public void test058() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" + 
+			"		float y = (float) x;\n" + 
+			"		System.out.println(y);\n" + 
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return new Float(1.0f);\n" + 
+			"	}\n" + 
+			"}";
+	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	float y = (float) x;\n" + 
+				"	          ^^^^^^^^^\n" + 
+				"Cannot cast from Object to float\n" + 
+				"----------\n"
+			);
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"1.0"
+			);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+public void test059() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" +
+			"		try {\n" + 
+			"			int y = (int) x;\n" +
+			"		} catch (ClassCastException e) {\n" +
+			"			System.out.println(\"SUCCESS\");\n" +
+			"			return;\n" +
+			"		}\n" + 
+			"		System.out.println(\"FAIL\");\n" + 
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return new Float(1.0f);\n" + 
+			"	}\n" + 
+			"}";
+	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	int y = (int) x;\n" + 
+				"	        ^^^^^^^\n" + 
+				"Cannot cast from Object to int\n" + 
+				"----------\n"
+			);
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"SUCCESS"
+			);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+public void test059b() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" + 
+			"		try {\n" + 
+			"			int y = (int) x;\n" +
+			"		} catch (ClassCastException e) {\n" +
+			"			System.out.println(\"SUCCESS\");\n" +
+			"			return;\n" +
+			"		}\n" + 
+			"		System.out.println(\"FAIL\");\n" +
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return Boolean.TRUE;\n" + 
+			"	}\n" + 
+			"}";
+	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	int y = (int) x;\n" + 
+				"	        ^^^^^^^\n" + 
+				"Cannot cast from Object to int\n" + 
+				"----------\n"
+			);
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"SUCCESS"
+			);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+public void test059c() {
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" + 
+			"		try {\n" + 
+			"			char y = (char) x;\n" +
+			"		} catch (ClassCastException e) {\n" +
+			"			System.out.println(\"SUCCESS\");\n" +
+			"			return;\n" +
+			"		}\n" + 
+			"		System.out.println(\"FAIL\");\n" +
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return Boolean.TRUE;\n" + 
+			"	}\n" + 
+			"}";
+	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	char y = (char) x;\n" + 
+				"	         ^^^^^^^^\n" + 
+				"Cannot cast from Object to char\n" + 
+				"----------\n"
+			);
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					source
+				},
+				"SUCCESS"
+			);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+public void test060() {
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" + 
+			"		Boolean y = (Boolean) x;\n" + 
+			"		System.out.println(y);\n" + 
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return Boolean.TRUE;\n" + 
+			"	}\n" + 
+			"}";
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				source
+			},
+			"true"
+		);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
+public void test061() {
+	String source =
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Object x = foo();\n" + 
+			"		try {\n" + 
+			"			Float y = (Float) x;\n" +
+			"		} catch (ClassCastException e) {\n" +
+			"			System.out.println(\"SUCCESS\");\n" +
+			"			return;\n" +
+			"		}\n" + 
+			"		System.out.println(\"FAIL\");\n" +
+			"	}\n" + 
+			"	public static Object foo() {\n" + 
+			"		return Boolean.TRUE;\n" + 
+			"	}\n" + 
+			"}";
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				source
+			},
+			"SUCCESS"
+		);
 }
 public static Class testClass() {
 	return CastTest.class;

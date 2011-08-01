@@ -167,6 +167,14 @@ public interface TypeIds {
 	final int Null2Null = T_null + (T_null << 4);
 	final int Null2String = T_null + (T_JavaLangString << 4);
 	final int Object2Object = T_JavaLangObject + (T_JavaLangObject << 4);
+	final int Object2byte = T_JavaLangObject + (T_byte << 4);
+	final int Object2short = T_JavaLangObject + (T_short << 4);
+	final int Object2char = T_JavaLangObject + (T_char << 4);
+	final int Object2int = T_JavaLangObject + (T_int << 4);
+	final int Object2long = T_JavaLangObject + (T_long << 4);
+	final int Object2float = T_JavaLangObject + (T_float << 4);
+	final int Object2double = T_JavaLangObject + (T_double << 4);
+	final int Object2boolean = T_JavaLangObject + (T_boolean << 4);
 	final int BOXING = 0x200;
 	final int UNBOXING = 0x400;
 }
