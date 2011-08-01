@@ -243,6 +243,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 	// identity conversion cannot be performed upfront, due to side-effects
 	// like constant propagation
 	boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
+	boolean use17specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_7;
 	if (castType.isBaseType()) {
 		if (expressionType.isBaseType()) {
 			if (expressionType == castType) {
@@ -265,6 +266,9 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 				return true;
 
 			}
+		} else if (use17specifics && expressionType.id == TypeIds.T_JavaLangObject){
+			// cast from Object to base type allowed from 1.7, see JLS $5.5
+			return true;
 		} else if (use15specifics
 							&& scope.environment().computeBoxingType(expressionType).isCompatibleWith(castType)) { // unboxing - only widening match is allowed
 			tagAsUnnecessaryCast(scope, castType);
@@ -596,7 +600,11 @@ public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding 
 		case T_byte :
 		case T_short :
 		case T_char :
-			this.implicitConversion |= (TypeIds.T_int << 4) + compileTimeTypeID;
+			if (compileTimeTypeID == TypeIds.T_JavaLangObject) {
+				this.implicitConversion |= (runtimeTypeID << 4) + compileTimeTypeID;
+			} else {
+				this.implicitConversion |= (TypeIds.T_int << 4) + compileTimeTypeID;
+			}
 			break;
 		case T_JavaLangString :
 		case T_float :
