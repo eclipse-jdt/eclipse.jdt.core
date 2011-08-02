@@ -515,7 +515,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 		}
 	
 		buildFileForCompliance(prefix + (++i) + ".rsc", newRhs.length, tokens);//$NON-NLS-1$
-		buildFileForReadableName(READABLE_NAMES_FILE+".props", newLhs, newNonTerminalIndex, newName, tokens);//$NON-NLS-1$
+		buildFileForReadableName(READABLE_NAMES_FILE+".properties", newLhs, newNonTerminalIndex, newName, tokens);//$NON-NLS-1$
 	
 		buildFilesForRecoveryTemplates(
 				prefix + (++i) + ".rsc", //$NON-NLS-1$
