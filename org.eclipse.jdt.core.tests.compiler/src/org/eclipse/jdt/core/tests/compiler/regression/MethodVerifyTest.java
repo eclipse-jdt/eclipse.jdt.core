@@ -12328,4 +12328,112 @@ public void test346029f() throws Exception {
 		"The method f(String) is ambiguous for the type B<String>\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353089
+public void test353089() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"interface A {\n" +
+			"int get(List<String> l);\n" +
+			"}\n" +
+			"interface B  {\n" +
+			"int get(List<Integer> l);\n" +
+			"}\n" +
+			"interface C  extends A, B { \n" +
+			"int get(List l);      // name clash error here\n" +
+            "}\n" +
+			"public class X {\n" +
+            "    public static void main(String [] args) {\n" +
+			"        System.out.println(\"Built OK\");\n" +
+            "    }\n" +
+			"}"
+		},
+		"Built OK");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353089
+public void test353089b() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"interface I {\n" +
+			"    void a(List<String> i, List<String> j);\n" +
+			"    void b(List<String> i, List<String> j);\n" +
+			"    void c(List i, List<String> j);\n" +
+			"}\n" +
+			"interface X extends I {\n" +
+			"    public void a(List<String> i, List j);\n" +
+			"    public void b(List i, List j);\n" +
+			"    public void c(List i, List j);\n" +
+			"    public void d(Zork z);\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	void c(List i, List<String> j);\n" + 
+		"	       ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	public void a(List<String> i, List j);\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method a(List<String>, List) of type X has the same erasure as a(List<String>, List<String>) of type I but does not override it\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
+		"	public void a(List<String> i, List j);\n" + 
+		"	                              ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 9)\n" + 
+		"	public void b(List i, List j);\n" + 
+		"	              ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 9)\n" + 
+		"	public void b(List i, List j);\n" + 
+		"	                      ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 10)\n" + 
+		"	public void c(List i, List j);\n" + 
+		"	              ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 10)\n" + 
+		"	public void c(List i, List j);\n" + 
+		"	                      ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 11)\n" + 
+		"	public void d(Zork z);\n" + 
+		"	              ^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353089
+public void test353089c() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"interface IFtest {\n" +
+			"    public void doTest(Integer i, List<String> pList, List<String> pList2);\n" +
+			"}\n" +
+			"interface Impl extends IFtest {\n" +
+			"    public void doTest(Integer i, List<String> iList, List iList2);\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	public void doTest(Integer i, List<String> iList, List iList2);\n" + 
+		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method doTest(Integer, List<String>, List) of type Impl has the same erasure as doTest(Integer, List<String>, List<String>) of type IFtest but does not override it\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	public void doTest(Integer i, List<String> iList, List iList2);\n" + 
+		"	                                                  ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n");
+}
 }
