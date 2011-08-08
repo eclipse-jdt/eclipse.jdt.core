@@ -51,6 +51,16 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		assertStringsEqual("Unexpected type arguments", expected, typeArguments);
 	}
 
+	protected void assertBindingKeyDeclaringTypesEqual(String expected, String key) {
+		BindingKey bindingKey = new BindingKey(key);
+		BindingKey declaringTypeBindingKey = bindingKey.getDeclaringType();
+		if (expected == null) {
+			assertNull("Unexpected declaring type",declaringTypeBindingKey);
+		} else {
+			String signature = declaringTypeBindingKey.toSignature();
+			assertEquals("Unexpected declaring type", expected, signature);
+		}
+	}
 	/*
 	 * Package.
 	 */
@@ -659,6 +669,123 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		assertBindingKeySignatureEquals(
 			"TT;",
 			"LEclipseTest$InvokerIF;.invoke<T::LEclipseTest$ArgIF;Y:Ljava/lang/Object;>(TT;)TT;|Ljava/lang/RuntimeException;|Ljava/lang/IndexOutOfBoundsException;:TT;"
+		);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
+	 * getDeclaringType should return the correct type for a method
+	 */
+	public void test059() {
+		assertBindingKeyDeclaringTypesEqual(
+			"Ljava.util.ArrayList<Ljava.lang.String;>;",
+			"Ljava/util/ArrayList<Ljava/lang/String;>;.()V"
+		);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
+	 * getDeclaringType should return null for a type
+	 */
+	public void test060() {
+		assertBindingKeyDeclaringTypesEqual(
+			null,
+			"Ljava/util/ArrayList<Ljava/lang/String;>;"
+		);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
+	 * getDeclaringType should return the correct type for 
+	 * methods of a secondary type
+	 */
+	public void test061() {
+		assertBindingKeyDeclaringTypesEqual(
+			"Lpkg.Secondary<Ljava.lang.String;>;",
+			"Lpkg/A~Secondary<Ljava/lang/String;>;.()V"
+		);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
+	 * getDeclaringType should return null for a secondary type
+	 */
+	public void test062() {
+		assertBindingKeyDeclaringTypesEqual(
+			null,
+			"Lpkg/A~Secondary<Ljava/lang/String;>;"
+		);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
+	 * getDeclaringType should return the correct type for 
+	 * methods of a secondary's inner type
+	 */
+	public void test063() {
+		assertBindingKeyDeclaringTypesEqual(
+			"Lpkg.Secondary<Ljava.lang.String;>.Inner<Ljava.lang.String;>;",
+			"Lpkg/A~Secondary<Ljava/lang/String;>.Inner<Ljava/lang/String;>;.(Lpkg/Secondary;)V"
+		);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
+	 * getDeclaringType should return the correct type for 
+	 * for a secondary's inner type
+	 */
+	public void test064() {
+		assertBindingKeyDeclaringTypesEqual(
+			"Lpkg.Secondary<Ljava.lang.String;>;",
+			"Lpkg/A~Secondary<Ljava/lang/String;>.Inner<Ljava/lang/String;>;"
+		);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
+	 * getDeclaringType should return the correct type for 
+	 * methods of an inner type
+	 */
+	public void test065() {
+		assertBindingKeyDeclaringTypesEqual(
+			"Lpkg.A$Inner<Ljava.lang.String;>;",
+			"Lpkg/A$Inner<Ljava/lang/String;>;.(Lpkg/A;)V"
+		);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
+	 * getDeclaringType should return the correct type for an inner type
+	 */
+	public void test066() {
+		assertBindingKeyDeclaringTypesEqual(
+			"Lpkg.A;",
+			"Lpkg/A$Inner<Ljava/lang/String;>;"
+		);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
+	 * getDeclaringType should return the correct type for 
+	 * methods of an inner type's inner type
+	 */
+	public void test067() {
+		assertBindingKeyDeclaringTypesEqual(
+			"Lpkg.A$Inner1<Ljava.lang.String;>.Inner2<Ljava.lang.String;>;",
+			"Lpkg/A$Inner1<Ljava/lang/String;>.Inner2<Ljava/lang/String;>;.(Lpkg/A$Inner1;)V"
+		);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
+	 * getDeclaringType should return the correct type for
+	 * an inner type's inner type
+	 */
+	public void test068() {
+		assertBindingKeyDeclaringTypesEqual(
+			"Lpkg.A$Inner1<Ljava.lang.String;>;",
+			"Lpkg/A$Inner1<Ljava/lang/String;>.Inner2<Ljava/lang/String;>;"
+		);
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
+	 * getDeclaringType should return null for a local variable
+	 */
+	public void test069() {
+		assertBindingKeyDeclaringTypesEqual(
+			null,
+			"Lpkg/A;.foo()V#c"
 		);
 	}
 }
