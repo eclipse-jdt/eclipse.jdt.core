@@ -1731,7 +1731,7 @@ public void test012b(){
         "      unusedLocal        + unread local variable\n" + 
         "      unusedPrivate      + unused private member declaration\n" + 
         "      unusedThrown         unused declared thrown exception\n" + 
-        "      unusedTypeArgs     + unused type arguments for method\n" + 
+        "      unusedTypeArgs     + unused type arguments for method and constructor\n" + 
         "      uselessTypeCheck     unnecessary cast/instanceof operation\n" + 
         "      varargsCast        + varargs argument need explicit cast\n" + 
         "      warningToken       + unsupported or unnecessary @SuppressWarnings\n" + 
@@ -9035,6 +9035,35 @@ public void test229_warn_options() {
 		"	                         ^^^^^^^^^^^\n" +
 		"The declared exception IOException is not actually thrown by the method foo() from type X\n" +
 		"----------\n" +
+		"1 problem (1 warning)",
+		true);
+}
+//-warn option - regression tests
+public void test230_warn_options() {
+	// same source as 190, skip check defaults
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"public class X<T>{\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  public X(T t){}\n" +
+			"  void foo() {\n" +
+			"      X<String> x = new X<String>();\n" +
+			"	   X<Number> x1 = new X<Number>(1);\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unusedTypeArgs -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+		"	X<String> x = new X<String>();\n" + 
+		"	                  ^\n" + 
+		"Redundant specification of type arguments <String>\n" + 
+		"----------\n" + 
 		"1 problem (1 warning)",
 		true);
 }
