@@ -42,19 +42,48 @@
 	</td>
   </tr>
 </table>
+<a name="v_C04"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java development tools core</h1>
+Eclipse SDK 3.8.0 - %date% - 3.8.0 M1
+<br>Project org.eclipse.jdt.core v_C04
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C04">cvs</a>).
+<h2>What's new in this drop</h2>
+<ul>
+<li>Added a new API in BindingKey to return it's declaring type(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165">351165</a> for details):
+<pre>
+/**
+ * Returns the binding key of the declaring type of the element represented by this binding key. If the binding key
+ * does not represent a member or if the member doesn't have a declaring type, returns <code>null</code>.
+ * 
+ * <p>
+ * Note that only binding keys for references to methods and fields
+ * are fully supported. The binding keys for declarations will not have type parameters.
+ * 
+ * @return the type binding key or <code>null</code>
+ * @since 3.7.1
+ */
+public BindingKey getDeclaringType();
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165">351165</a>
+[1.7] API to get the type arguments of the declaring type for constructor invocations
+
 <a name="v_C03"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.8.0 - August 3, 2011 - 3.8.0 M1
+Eclipse SDK 3.8.0 - August 3, 2011
 <br>Project org.eclipse.jdt.core v_C03
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C03">cvs</a>).
 <h2>What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=353553">353553</a>
-Rename readableNames.properties to avoid translation
-<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=353553">353553</a>
 Rename readableNames.properties to avoid translation
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085">353085</a>
 [1.7] Cannot cast from Object to boolean

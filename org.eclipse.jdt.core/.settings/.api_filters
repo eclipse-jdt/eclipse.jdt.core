@@ -286,6 +286,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="model/org/eclipse/jdt/core/BindingKey.java" type="org.eclipse.jdt.core.BindingKey">
+        <filter comment="new APIs added for Java7 support post 3.7.0" id="1142947843">
+            <message_arguments>
+                <message_argument value="3.7.1"/>
+                <message_argument value="getDeclaringType()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="model/org/eclipse/jdt/core/CompletionProposal.java" type="org.eclipse.jdt.core.CompletionProposal">
         <filter comment="new APIs added for Java7 support post 3.7.0" id="1142947843">
             <message_arguments>
