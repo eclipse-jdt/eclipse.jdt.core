@@ -310,6 +310,69 @@ public void test007() {
 }
 // reject user definition for #values()
 public void test008() {
+	String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	void dup() {} \n" + 
+			"	     ^^^^^\n" + 
+			"Duplicate method dup() in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	void values() {} \n" + 
+			"	     ^^^^^^^^\n" + 
+			"The enum X already defines the method values() implicitly\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	void dup() {} \n" + 
+			"	     ^^^^^\n" + 
+			"Duplicate method dup() in type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 10)\n" + 
+			"	void values() {} \n" + 
+			"	     ^^^^^^^^\n" + 
+			"The enum X already defines the method values() implicitly\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 11)\n" + 
+			"	Missing dup() {} \n" + 
+			"	^^^^^^^\n" + 
+			"Missing cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 11)\n" + 
+			"	Missing dup() {} \n" + 
+			"	        ^^^^^\n" + 
+			"Duplicate method dup() in type X\n" + 
+			"----------\n":
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	void dup() {} \n" +
+				"	     ^^^^^\n" +
+				"Duplicate method dup() in type X\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	void values() {} \n" +
+				"	     ^^^^^^^^\n" +
+				"The enum X already defines the method values() implicitly\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 9)\n" +
+				"	void dup() {} \n" +
+				"	     ^^^^^\n" +
+				"Duplicate method dup() in type X\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 10)\n" +
+				"	void values() {} \n" +
+				"	     ^^^^^^^^\n" +
+				"The enum X already defines the method values() implicitly\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 11)\n" +
+				"	Missing dup() {} \n" +
+				"	^^^^^^^\n" +
+				"Missing cannot be resolved to a type\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 11)\n" +
+				"	Missing dup() {} \n" +
+				"	        ^^^^^\n" +
+				"Duplicate method dup() in type X\n" +
+				"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -332,37 +395,7 @@ public void test008() {
 			"	\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	void dup() {} \n" +
-		"	     ^^^^^\n" +
-		"Duplicate method dup() in type X\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
-		"	void values() {} \n" +
-		"	     ^^^^^^^^\n" +
-		"The enum X already defines the method values() implicitly\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 9)\n" +
-		"	void dup() {} \n" +
-		"	     ^^^^^\n" +
-		"Duplicate method dup() in type X\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 10)\n" +
-		"	void values() {} \n" +
-		"	     ^^^^^^^^\n" +
-		"The enum X already defines the method values() implicitly\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 11)\n" +
-		"	Missing dup() {} \n" +
-		"	^^^^^^^\n" +
-		"Missing cannot be resolved to a type\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 11)\n" +
-		"	Missing dup() {} \n" +
-		"	        ^^^^^\n" +
-		"Duplicate method dup() in type X\n" +
-		"----------\n");
+		expectedCompilerLog);
 }
 // switch on enum
 public void test009() {
