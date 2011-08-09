@@ -4504,7 +4504,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					break;
 				case Opcodes.OPC_aload_0:
 					VerificationTypeInfo locals0 = frame.locals[0];
-					if (locals0.tag != VerificationTypeInfo.ITEM_UNINITIALIZED_THIS) {
+					if (locals0 == null || locals0.tag != VerificationTypeInfo.ITEM_UNINITIALIZED_THIS) {
 						// special case to handle uninitialized object
 						locals0 = retrieveLocal(currentPC, 0);
 					}
