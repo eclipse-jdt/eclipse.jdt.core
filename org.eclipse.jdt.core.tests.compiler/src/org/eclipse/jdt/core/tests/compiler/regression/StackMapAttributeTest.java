@@ -6778,4 +6778,28 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			true,
 			customOptions);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=354052
+	public void test054() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"public static void foo() {\n" +
+			    "     X z;\n" +
+			    "     while ((z = getObject()) != null) {\n" +
+			    "         z.bar();\n" +
+			    "     }\n" +
+			    "	  System.out.println(\"SUCCESS\");\n" +
+			    " }\n" +
+			    " public void bar() {}\n" +
+			    " public static X getObject() {\n" +
+			    "     return null;\n" +
+			    " }\n" +
+				"   public static void main(String[] args) {\n"+
+				"       new X().foo();\n"+
+				"   }\n"+
+				"}",
+			},
+			"SUCCESS");
+	}
 }
