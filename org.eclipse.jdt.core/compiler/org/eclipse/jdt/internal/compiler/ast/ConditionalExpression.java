@@ -11,6 +11,7 @@
  *     						bug 133125 - [compiler][null] need to report the null status of expressions and analyze them simultaneously
  *     						bug 292478 - Report potentially null across variable assignment
  * 							bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
+ * 							bug 354554 - [null] conditional with redundant condition yields weak error message
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -156,6 +157,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			this.nullStatus = ifTrueNullStatus;
 			return;
 		}
+		if (trueBranchInfo.reachMode() != FlowInfo.REACHABLE) {
+			this.nullStatus = ifFalseNullStatus;
+			return;
+		}
+		if (falseBranchInfo.reachMode() != FlowInfo.REACHABLE) {
+			this.nullStatus = ifTrueNullStatus;
+			return;
+		}
+
 		// is there a chance of null (or non-null)? -> potentially null etc.
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
 		int status = 0;

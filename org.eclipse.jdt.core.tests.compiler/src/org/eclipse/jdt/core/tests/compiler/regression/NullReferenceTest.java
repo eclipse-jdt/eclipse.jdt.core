@@ -17,6 +17,7 @@
  *     						bug 338303 - Warning about Redundant assignment conflicts with definite assignment
  *     						bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
  * 							bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
+ * 							bug 354554 - [null] conditional with redundant condition yields weak error message
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -14897,5 +14898,50 @@ public void testBug348379f() throws Exception {
 			"Null pointer access: The variable s can only be null at this location\n" + 
 			"----------\n");
 	}
+}
+// Bug 354554 - [null] conditional with redundant condition yields weak error message
+public void testBug354554() {
+	this.runNegativeTest(
+		new String[] {
+			"Bug354554.java",
+			"public class Bug354554{\n" +
+			"    void foo() {\n" +
+			"        Object u = new Object();\n" +
+			"        Object r = (u == null ? u : null);\n" + // condition is always false - should not spoil subsequent null-analysis
+			"        System.out.println(r.toString());\n" +  // should strongly complain: r is definitely null
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Bug354554.java (at line 4)\n" + 
+		"	Object r = (u == null ? u : null);\n" + 
+		"	            ^\n" + 
+		"Null comparison always yields false: The variable u cannot be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in Bug354554.java (at line 5)\n" + 
+		"	System.out.println(r.toString());\n" + 
+		"	                   ^\n" + 
+		"Null pointer access: The variable r can only be null at this location\n" + 
+		"----------\n");
+}
+//Bug 354554 - [null] conditional with redundant condition yields weak error message
+public void testBug354554b() {
+	this.runNegativeTest(
+		new String[] {
+			"Bug354554.java",
+			"public class Bug354554{\n" +
+			"    void foo() {\n" +
+			"        Object u = new Object();\n" +
+			"        Object r = (u != null ? u : null);\n" + // condition is always true - should not spoil subsequent null-analysis
+			"        System.out.println(r.toString());\n" +  // don't complain: r is definitely non-null
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Bug354554.java (at line 4)\n" + 
+		"	Object r = (u != null ? u : null);\n" + 
+		"	            ^\n" + 
+		"Redundant null check: The variable u cannot be null at this location\n" + 
+		"----------\n");
 }
 }
