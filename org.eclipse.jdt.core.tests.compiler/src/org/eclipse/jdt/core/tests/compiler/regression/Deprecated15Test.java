@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for Bug 354536 - compiling package-info.java still depends on the order of compilation units
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -218,6 +219,50 @@ public void test004() {
 		"	System.out.println(E01.y);\n" +
 		"	                       ^\n" +
 		"The field E01.y is deprecated\n" +
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// Bug 354536 - compiling package-info.java still depends on the order of compilation units
+public void test005() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		true,
+		new String[] {
+			"p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"    public static class Inner {" +
+			"        public void foo() {}\n" +
+			"    }\n" +
+			"}\n",
+			"p1/package-info.java",
+			"@java.lang.Deprecated\n" +
+			"package p1;\n",
+			"p2/C.java",
+			"package p2;\n" +
+			"public class C {\n" +
+			"    void bar(p1.X.Inner a) {\n" +
+			"        a.foo();\n" +
+			"    }\n" +
+			"}\n",
+		},
+		null, customOptions,
+		"----------\n" +
+		"1. ERROR in p2\\C.java (at line 3)\n" + 
+		"	void bar(p1.X.Inner a) {\n" + 
+		"	            ^\n" + 
+		"The type X is deprecated\n" + 
+		"----------\n" + 
+		"2. ERROR in p2\\C.java (at line 3)\n" + 
+		"	void bar(p1.X.Inner a) {\n" + 
+		"	              ^^^^^\n" + 
+		"The type X.Inner is deprecated\n" + 
+		"----------\n" + 
+		"3. ERROR in p2\\C.java (at line 4)\n" + 
+		"	a.foo();\n" + 
+		"	  ^^^^^\n" + 
+		"The method foo() from the type X.Inner is deprecated\n" + 
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
