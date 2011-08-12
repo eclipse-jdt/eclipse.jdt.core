@@ -4758,6 +4758,18 @@ public void recoveryExitFromVariable() {
 		if(oldElement != this.currentElement) {
 			popElement(K_LOCAL_INITIALIZER_DELIMITER);
 		}
+	} else if(this.currentElement != null && this.currentElement instanceof RecoveredField) {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
+		// To make sure the array initializer is popped when the focus is shifted to the parent
+		// in case we're restarting recovery inside an array initializer
+		RecoveredElement oldElement = this.currentElement;
+		super.recoveryExitFromVariable();	
+		if(oldElement != this.currentElement) {	
+			if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_ARRAY_INITIALIZER) {	
+				popElement(K_ARRAY_INITIALIZER);	
+				popElement(K_FIELD_INITIALIZER_DELIMITER);	
+			} 	
+		}
 	} else {
 		super.recoveryExitFromVariable();
 	}
@@ -4977,5 +4989,14 @@ private boolean stackHasInstanceOfExpression(Object[] stackToSearch, int startIn
 		indexInstanceOf--;
 	}
 	return false;
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
+protected boolean isInsideArrayInitializer(){
+	int i = this.elementPtr;
+	if (i > -1 && this.elementKindStack[i] == K_ARRAY_INITIALIZER) {
+		return true;
+	}
+	return false;	
 }
 }

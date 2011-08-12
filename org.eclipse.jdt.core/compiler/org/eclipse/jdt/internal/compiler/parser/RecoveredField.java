@@ -76,7 +76,9 @@ public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 	if (this.alreadyCompletedFieldInitialization || !(statement instanceof Expression)) {
 		return super.add(statement, bracketBalanceValue);
 	} else {
-		this.alreadyCompletedFieldInitialization = true;
+		if (statement.sourceEnd > 0)
+				this.alreadyCompletedFieldInitialization = true;
+		// else we may still be inside the initialization, having parsed only a part of it yet
 		this.fieldDeclaration.initialization = (Expression)statement;
 		this.fieldDeclaration.declarationSourceEnd = statement.sourceEnd;
 		this.fieldDeclaration.declarationEnd = statement.sourceEnd;

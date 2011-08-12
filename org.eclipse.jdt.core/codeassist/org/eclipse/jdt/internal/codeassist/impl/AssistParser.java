@@ -1655,6 +1655,11 @@ protected boolean resumeAfterRecovery() {
 			){
 			prepareForBlockStatements();
 			goForBlockStatementsOrCatchHeader();
+		} else if((isInsideArrayInitializer()) &&
+				isIndirectlyInsideFieldInitialization() &&
+				this.assistNode == null){
+			prepareForBlockStatements();
+			goForBlockStatementsopt();
 		} else {
 			prepareForHeaders();
 			goForHeaders();
@@ -1675,6 +1680,11 @@ protected boolean resumeAfterRecovery() {
 		return true;
 	}
 	// does not know how to restart
+	return false;
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
+// To be implemented in children viz. CompletionParser that are aware of array initializers
+protected boolean isInsideArrayInitializer() {
 	return false;
 }
 public abstract void setAssistIdentifier(char[] assistIdent);
