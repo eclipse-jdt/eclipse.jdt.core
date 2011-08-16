@@ -3337,6 +3337,49 @@ public void test054a() {
 		"Object.Integer cannot be resolved to a type\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353535 (verify error with try with resources)
+public void _test055() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.ByteArrayInputStream;\n" +
+			"import java.io.InputStream;\n" +
+			"public class X {\n" +
+			"public static void main(String[] args) throws Exception {\n" +
+			"  int b;\n" +
+			"  try (final InputStream in = new ByteArrayInputStream(new byte[] { 42 })) {\n" +
+			"    b = in.read();\n" +
+			"  }\n" +
+			"  System.out.println(\"Done\");\n" +
+			"}\n" +
+			"}\n",
+		},
+		"Done");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=353535 (verify error with try with resources)
+public void _test055a() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) throws Throwable {\n" +
+			"        int tmp;\n" +
+			"        try (A a = null) {\n" +
+			"            try (A b = null) {\n" +
+			"                tmp = 0;\n" +
+			"            }\n" +
+			"        }\n" +
+			"        System.out.println(\"Done\");\n" +
+			"    }\n" +
+			"}\n" +
+			"class A implements AutoCloseable {\n" +
+			"    @Override\n" +
+			"    public void close() {\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"Done");
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }
