@@ -629,7 +629,6 @@ class ASTConverter {
 				classInstanceCreation.arguments().add(convert(arguments[i]));
 			}
 		}
-		removeTrailingCommentFromExpressionEndingWithAParen(classInstanceCreation);
 		return classInstanceCreation;
 	}
 
@@ -2025,7 +2024,6 @@ class ASTConverter {
 			expr = methodInvocation;
 		}
 		expr.setSourceRange(sourceStart, expression.sourceEnd - sourceStart + 1);
-		removeTrailingCommentFromExpressionEndingWithAParen(expr);
 		return expr;
 	}
 
@@ -2296,7 +2294,6 @@ class ASTConverter {
 			if (this.resolveBindings) {
 				recordNodes(classInstanceCreation, allocation);
 			}
-			removeTrailingCommentFromExpressionEndingWithAParen(classInstanceCreation);
 			return classInstanceCreation;
 		}
 	}
@@ -3899,33 +3896,6 @@ class ASTConverter {
 					case TerminalTokens.TokenNameMINUS :
 						startPosition = this.scanner.startPosition;
 						break;
-				}
-			}
-		} catch(InvalidInputException e) {
-			// ignore
-		}
-	}
-
-	/**
-	 * Remove potential trailing comment by settings the source end on the closing parenthesis
-	 */
-	protected void removeTrailingCommentFromExpressionEndingWithAParen(ASTNode node) {
-		int start = node.getStartPosition();
-		this.scanner.resetTo(start, start + node.getLength());
-		int token;
-		int parenCounter = 0;
-		try {
-			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
-				switch(token) {
-					case TerminalTokens.TokenNameLPAREN :
-						parenCounter++;
-						break;
-					case TerminalTokens.TokenNameRPAREN :
-						parenCounter--;
-						if (parenCounter == 0) {
-							int end = this.scanner.currentPosition - 1;
-							node.setSourceRange(start, end - start + 1);
-						}
 				}
 			}
 		} catch(InvalidInputException e) {
