@@ -1207,7 +1207,56 @@ public MethodBinding[] methods() {
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
 						if (compliance16 && method.returnType != null && method2.returnType != null) {
 							if (method.returnType.erasure() != method2.returnType.erasure()) {
-								severity = ProblemSeverities.Warning;
+								// check to see if the erasure of either method is equal to the other
+								// if not, then change severity to WARNING
+								TypeBinding[] params1 = method.parameters;
+								TypeBinding[] params2 = method2.parameters;
+								int pLength = params1.length;
+								TypeVariableBinding[] vars = method.typeVariables;
+								TypeVariableBinding[] vars2 = method2.typeVariables;
+								boolean equalTypeVars = vars == vars2;
+								MethodBinding subMethod = method2;
+								if (!equalTypeVars) {
+									MethodBinding temp = method.computeSubstitutedMethod(method2, this.scope.environment());
+									if (temp != null) {
+										equalTypeVars = true;
+										subMethod = temp;
+									}
+								}
+								boolean equalParams = method.areParametersEqual(subMethod);
+								if (equalParams && equalTypeVars) {
+									// duplicates regardless of return types
+								} else if (vars != Binding.NO_TYPE_VARIABLES && vars2 != Binding.NO_TYPE_VARIABLES) {
+									// both have type arguments. Erasure of signature of one cannot be equal to signature of other
+									severity = ProblemSeverities.Warning;
+								} else if (pLength > 0) {
+									int index = pLength;
+									// is erasure of signature of m2 same as signature of m1?
+									for (; --index >= 0;) {
+										if (params1[index] != params2[index].erasure())
+											break;
+										if (params1[index] == params2[index]) {
+											TypeBinding type = params1[index].leafComponentType();
+											if (type instanceof SourceTypeBinding && type.typeVariables() != Binding.NO_TYPE_VARIABLES) {
+												index = pLength; // handle comparing identical source types like X<T>... its erasure is itself BUT we need to answer false
+												break;
+											}
+										}
+									}
+									if (index >= 0 && index < pLength) {
+										// is erasure of signature of m1 same as signature of m2?
+										for (index = pLength; --index >= 0;)
+											if (params1[index].erasure() != params2[index])
+												break;
+										
+									}
+									if (index >= 0) {
+										// erasure of neither is equal to signature of other
+										severity = ProblemSeverities.Warning;
+									}
+								} else if (pLength != 0){
+									severity = ProblemSeverities.Warning;
+								} // pLength = 0 automatically makes erasure of arguments one equal to arguments of other.
 							}
 							// else return types also equal. All conditions satisfied
 							// to give error in 1.6 compliance as well.

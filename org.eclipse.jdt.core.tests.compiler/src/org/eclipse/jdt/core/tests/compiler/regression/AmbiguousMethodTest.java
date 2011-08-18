@@ -2052,29 +2052,6 @@ public void test026() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162026
 // variant
 public void test027() {
-	String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-			"----------\n" + 
-			"1. WARNING in J.java (at line 2)\n" + 
-			"	<T extends Number> T foo(final Number p);\n" + 
-			"	                     ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate method foo(Number) in type J\n" + 
-			"----------\n" + 
-			"2. WARNING in J.java (at line 3)\n" + 
-			"	Float foo(final Number p);\n" + 
-			"	      ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate method foo(Number) in type J\n" + 
-			"----------\n":
-				"----------\n" +
-				"1. ERROR in J.java (at line 2)\n" +
-				"	<T extends Number> T foo(final Number p);\n" +
-				"	                     ^^^^^^^^^^^^^^^^^^^\n" +
-				"Duplicate method foo(Number) in type J\n" +
-				"----------\n" +
-				"2. ERROR in J.java (at line 3)\n" +
-				"	Float foo(final Number p);\n" +
-				"	      ^^^^^^^^^^^^^^^^^^^\n" +
-				"Duplicate method foo(Number) in type J\n" +
-				"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"J.java",
@@ -2083,7 +2060,17 @@ public void test027() {
 			"  Float foo(final Number p);\n" +
 			"}",
 		},
-		expectedCompilerLog);
+		"----------\n" +
+		"1. ERROR in J.java (at line 2)\n" +
+		"	<T extends Number> T foo(final Number p);\n" +
+		"	                     ^^^^^^^^^^^^^^^^^^^\n" +
+		"Duplicate method foo(Number) in type J\n" +
+		"----------\n" +
+		"2. ERROR in J.java (at line 3)\n" +
+		"	Float foo(final Number p);\n" +
+		"	      ^^^^^^^^^^^^^^^^^^^\n" +
+		"Duplicate method foo(Number) in type J\n" +
+		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=162065
 public void test028() {
@@ -4168,6 +4155,76 @@ public void test087() {
 		"	static { with(null); }\n" + 
 		"	         ^^^^\n" + 
 		"The method with(List<? extends Object>) is ambiguous for the type X\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=354579
+public void test088a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    int foo () { return 0; } \n" +
+			"    double foo() { return 0.0; }\n" +
+			"} \n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	int foo () { return 0; } \n" + 
+		"	    ^^^^^^\n" + 
+		"Duplicate method foo() in type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	double foo() { return 0.0; }\n" + 
+		"	       ^^^^^\n" + 
+		"Duplicate method foo() in type X\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=354579
+public void test088b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public interface X {\n" +
+			"    int foo (); \n" +
+			"    double foo();\n" +
+			"} \n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	int foo (); \n" + 
+		"	    ^^^^^^\n" + 
+		"Duplicate method foo() in type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	double foo();\n" + 
+		"	       ^^^^^\n" + 
+		"Duplicate method foo() in type X\n" + 
+		"----------\n"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=354579
+public void test089() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"    int m2(List<Integer> a) {return 0;} \n" +
+			"    double m2(List<Integer> b) {return 0.0;}\n" +
+			"} \n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	int m2(List<Integer> a) {return 0;} \n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method m2(List<Integer>) in type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	double m2(List<Integer> b) {return 0.0;}\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Duplicate method m2(List<Integer>) in type X\n" + 
 		"----------\n"
 	);
 }
