@@ -3836,12 +3836,12 @@ X.java:3: name clash: <N>foo() and <S>foo() have the same erasure
 	public void test050b() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
 				"----------\n" + 
-				"1. WARNING in X.java (at line 3)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
 				"	Y foo(Object o) {  return null; } // duplicate\n" + 
 				"	  ^^^^^^^^^^^^^\n" + 
 				"Duplicate method foo(Object) in type X.C1\n" + 
 				"----------\n" + 
-				"2. WARNING in X.java (at line 4)\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
 				"	Z foo(Object o) {  return null; } // duplicate\n" + 
 				"	  ^^^^^^^^^^^^^\n" + 
 				"Duplicate method foo(Object) in type X.C1\n" + 
@@ -3866,12 +3866,12 @@ X.java:3: name clash: <N>foo() and <S>foo() have the same erasure
 				"	     ^^^^^^^^^^^^^\n" + 
 				"Duplicate method foo(Object) in type X.C3\n" + 
 				"----------\n" + 
-				"7. WARNING in X.java (at line 15)\n" + 
+				"7. ERROR in X.java (at line 15)\n" + 
 				"	Y foo(Object o) {  return null; } // duplicate\n" + 
 				"	  ^^^^^^^^^^^^^\n" + 
 				"Duplicate method foo(Object) in type X.C4\n" + 
 				"----------\n" + 
-				"8. WARNING in X.java (at line 16)\n" + 
+				"8. ERROR in X.java (at line 16)\n" + 
 				"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" + 
 				"	                ^^^^^^^^^^^^^\n" + 
 				"Duplicate method foo(Object) in type X.C4\n" + 
@@ -4421,49 +4421,6 @@ X.java:5: name clash: <N#1>b(A<String>) and <N#2>b(A<Number>) have the same eras
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050k() {
-		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	<N extends B> void a(A<Number> s) {}\n" + 
-				"	                   ^^^^^^^^^^^^^^\n" + 
-				"Duplicate method a(A<Number>) in type X\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	<N extends B> B a(A<Number> n) { return null; }\n" + 
-				"	                ^^^^^^^^^^^^^^\n" + 
-				"Duplicate method a(A<Number>) in type X\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 4)\n" + 
-				"	<N extends B> Object b(A<Number> s) { return null; }\n" + 
-				"	                     ^^^^^^^^^^^^^^\n" + 
-				"Duplicate method b(A<Number>) in type X\n" + 
-				"----------\n" + 
-				"4. WARNING in X.java (at line 5)\n" + 
-				"	<N extends B> B b(A<Number> n) { return null; }\n" + 
-				"	                ^^^^^^^^^^^^^^\n" + 
-				"Duplicate method b(A<Number>) in type X\n" + 
-				"----------\n":
-					"----------\n" +
-					"1. ERROR in X.java (at line 2)\n" +
-					"	<N extends B> void a(A<Number> s) {}\n" +
-					"	                   ^^^^^^^^^^^^^^\n" +
-					"Duplicate method a(A<Number>) in type X\n" +
-					"----------\n" +
-					"2. ERROR in X.java (at line 3)\n" +
-					"	<N extends B> B a(A<Number> n) { return null; }\n" +
-					"	                ^^^^^^^^^^^^^^\n" +
-					"Duplicate method a(A<Number>) in type X\n" +
-					"----------\n" +
-					"3. ERROR in X.java (at line 4)\n" +
-					"	<N extends B> Object b(A<Number> s) { return null; }\n" +
-					"	                     ^^^^^^^^^^^^^^\n" +
-					"Duplicate method b(A<Number>) in type X\n" +
-					"----------\n" +
-					"4. ERROR in X.java (at line 5)\n" +
-					"	<N extends B> B b(A<Number> n) { return null; }\n" +
-					"	                ^^^^^^^^^^^^^^\n" +
-					"Duplicate method b(A<Number>) in type X\n" +
-					"----------\n";
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4476,7 +4433,27 @@ X.java:5: name clash: <N#1>b(A<String>) and <N#2>b(A<Number>) have the same eras
 				"class A<T> {}\n" +
 				"class B {}\n"
 			},
-			expectedCompilerLog
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	<N extends B> void a(A<Number> s) {}\n" +
+			"	                   ^^^^^^^^^^^^^^\n" +
+			"Duplicate method a(A<Number>) in type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	<N extends B> B a(A<Number> n) { return null; }\n" +
+			"	                ^^^^^^^^^^^^^^\n" +
+			"Duplicate method a(A<Number>) in type X\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	<N extends B> Object b(A<Number> s) { return null; }\n" +
+			"	                     ^^^^^^^^^^^^^^\n" +
+			"Duplicate method b(A<Number>) in type X\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 5)\n" +
+			"	<N extends B> B b(A<Number> n) { return null; }\n" +
+			"	                ^^^^^^^^^^^^^^\n" +
+			"Duplicate method b(A<Number>) in type X\n" +
+			"----------\n"
 		);
 /* javac 7
 X.java:3: <N>a(A<Number>) is already defined in X
@@ -4494,59 +4471,6 @@ X.java:5: <N>b(A<Number>) is already defined in X
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050l() {
-		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	void a(A<Number> s) {}\n" + 
-				"	     ^^^^^^^^^^^^^^\n" + 
-				"Duplicate method a(A<Number>) in type X\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	B a(A<Number> n) { return null; }\n" + 
-				"	  ^^^^^^^^^^^^^^\n" + 
-				"Duplicate method a(A<Number>) in type X\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 4)\n" + 
-				"	Object b(A<Number> s) {}\n" + 
-				"	       ^^^^^^^^^^^^^^\n" + 
-				"Duplicate method b(A<Number>) in type X\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 4)\n" + 
-				"	Object b(A<Number> s) {}\n" + 
-				"	       ^^^^^^^^^^^^^^\n" + 
-				"This method must return a result of type Object\n" + 
-				"----------\n" + 
-				"5. WARNING in X.java (at line 5)\n" + 
-				"	B b(A<Number> n) { return null; }\n" + 
-				"	  ^^^^^^^^^^^^^^\n" + 
-				"Duplicate method b(A<Number>) in type X\n" + 
-				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 2)\n" + 
-					"	void a(A<Number> s) {}\n" + 
-					"	     ^^^^^^^^^^^^^^\n" + 
-					"Duplicate method a(A<Number>) in type X\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 3)\n" + 
-					"	B a(A<Number> n) { return null; }\n" + 
-					"	  ^^^^^^^^^^^^^^\n" + 
-					"Duplicate method a(A<Number>) in type X\n" + 
-					"----------\n" + 
-					"3. ERROR in X.java (at line 4)\n" + 
-					"	Object b(A<Number> s) {}\n" + 
-					"	       ^^^^^^^^^^^^^^\n" + 
-					"Duplicate method b(A<Number>) in type X\n" + 
-					"----------\n" + 
-					"4. ERROR in X.java (at line 4)\n" + 
-					"	Object b(A<Number> s) {}\n" + 
-					"	       ^^^^^^^^^^^^^^\n" + 
-					"This method must return a result of type Object\n" + 
-					"----------\n" + 
-					"5. ERROR in X.java (at line 5)\n" + 
-					"	B b(A<Number> n) { return null; }\n" + 
-					"	  ^^^^^^^^^^^^^^\n" + 
-					"Duplicate method b(A<Number>) in type X\n" + 
-					"----------\n";
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4559,7 +4483,32 @@ X.java:5: <N>b(A<Number>) is already defined in X
 				"class A<T> {}\n" +
 				"class B {}\n"
 			},
-			expectedCompilerLog
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	void a(A<Number> s) {}\n" + 
+			"	     ^^^^^^^^^^^^^^\n" + 
+			"Duplicate method a(A<Number>) in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	B a(A<Number> n) { return null; }\n" + 
+			"	  ^^^^^^^^^^^^^^\n" + 
+			"Duplicate method a(A<Number>) in type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	Object b(A<Number> s) {}\n" + 
+			"	       ^^^^^^^^^^^^^^\n" + 
+			"Duplicate method b(A<Number>) in type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 4)\n" + 
+			"	Object b(A<Number> s) {}\n" + 
+			"	       ^^^^^^^^^^^^^^\n" + 
+			"This method must return a result of type Object\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 5)\n" + 
+			"	B b(A<Number> n) { return null; }\n" + 
+			"	  ^^^^^^^^^^^^^^\n" + 
+			"Duplicate method b(A<Number>) in type X\n" + 
+			"----------\n"
 		);
 /* javac 7
 X.java:3: a(A<Number>) is already defined in X
@@ -4787,29 +4736,6 @@ X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
 
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
 	public void test054() {
-		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	void a(Object x) {}\n" + 
-				"	     ^^^^^^^^^^^\n" + 
-				"Method a(Object) has the same erasure a(Object) as another method in type X\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	<T> T a(T x) {  return null; }\n" + 
-				"	      ^^^^^^\n" + 
-				"Method a(T) has the same erasure a(Object) as another method in type X\n" + 
-				"----------\n":
-					"----------\n" +
-					"1. ERROR in X.java (at line 2)\n" +
-					"	void a(Object x) {}\n" +
-					"	     ^^^^^^^^^^^\n" +
-					"Method a(Object) has the same erasure a(Object) as another method in type X\n" +
-					"----------\n" +
-					"2. ERROR in X.java (at line 3)\n" +
-					"	<T> T a(T x) {  return null; }\n" +
-					"	      ^^^^^^\n" +
-					"Method a(T) has the same erasure a(Object) as another method in type X\n" +
-					"----------\n";
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4818,7 +4744,17 @@ X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
 				"	<T> T a(T x) {  return null; }\n" +
 				"}\n"
 			},
-			expectedCompilerLog
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	void a(Object x) {}\n" +
+			"	     ^^^^^^^^^^^\n" +
+			"Method a(Object) has the same erasure a(Object) as another method in type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	<T> T a(T x) {  return null; }\n" +
+			"	      ^^^^^^\n" +
+			"Method a(T) has the same erasure a(Object) as another method in type X\n" +
+			"----------\n"
 		);
 /* javac 7
 X.java:3: a(Object) is already defined in X
@@ -4851,12 +4787,12 @@ X.java:3: a(Object) is already defined in X
 				"	                ^^^^^^^\n" + 
 				"Method aa(T) has the same erasure aa(X) as another method in type X\n" + 
 				"----------\n" + 
-				"5. WARNING in X.java (at line 6)\n" + 
+				"5. ERROR in X.java (at line 6)\n" + 
 				"	String a(X x) {  return null; }\n" + 
 				"	       ^^^^^^\n" + 
 				"Method a(X) has the same erasure a(X) as another method in type X\n" + 
 				"----------\n" + 
-				"6. WARNING in X.java (at line 7)\n" + 
+				"6. ERROR in X.java (at line 7)\n" + 
 				"	<T extends X> T a(T x) {  return null; }\n" + 
 				"	                ^^^^^^\n" + 
 				"Method a(T) has the same erasure a(X) as another method in type X\n" + 
@@ -5002,29 +4938,6 @@ X.java:3: name clash: <S>foo(X<T>) and foo(X<T>) have the same erasure
 	}
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
 	public void test054c() {
-		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	<T1 extends X<T1>> void dupT() {}\n" + 
-				"	                        ^^^^^^\n" + 
-				"Duplicate method dupT() in type X<T>\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	<T2 extends X<T2>> Object dupT() {return null;}\n" + 
-				"	                          ^^^^^^\n" + 
-				"Duplicate method dupT() in type X<T>\n" + 
-				"----------\n":
-					"----------\n" +
-					"1. ERROR in X.java (at line 2)\n" +
-					"	<T1 extends X<T1>> void dupT() {}\n" +
-					"	                        ^^^^^^\n" +
-					"Duplicate method dupT() in type X<T>\n" +
-					"----------\n" +
-					"2. ERROR in X.java (at line 3)\n" +
-					"	<T2 extends X<T2>> Object dupT() {return null;}\n" +
-					"	                          ^^^^^^\n" +
-					"Duplicate method dupT() in type X<T>\n" +
-					"----------\n";
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5033,7 +4946,17 @@ X.java:3: name clash: <S>foo(X<T>) and foo(X<T>) have the same erasure
 				"		<T2 extends X<T2>> Object dupT() {return null;}\n" +
 				"}\n"
 			},
-			expectedCompilerLog
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	<T1 extends X<T1>> void dupT() {}\n" +
+			"	                        ^^^^^^\n" +
+			"Duplicate method dupT() in type X<T>\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	<T2 extends X<T2>> Object dupT() {return null;}\n" +
+			"	                          ^^^^^^\n" +
+			"Duplicate method dupT() in type X<T>\n" +
+			"----------\n"
 		);
 /* javac 7
 X.java:3: <T1>dupT() is already defined in X
@@ -7348,12 +7271,12 @@ public void test101() {
 			"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Method getX(List<String>) has the same erasure getX(List<E>) as another method in type X\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 11)\n" + 
+			"3. ERROR in X.java (at line 11)\n" + 
 			"	Integer getX(List<Integer> l) {\n" + 
 			"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Duplicate method getX(List<Integer>) in type Y\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 14)\n" + 
+			"4. ERROR in X.java (at line 14)\n" + 
 			"	String getX(List<Integer> l) {\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Duplicate method getX(List<Integer>) in type Y\n" + 

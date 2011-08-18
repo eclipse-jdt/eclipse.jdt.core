@@ -7301,54 +7301,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"Added bridge method + Added bridge method");
-		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in SubTypes.java (at line 5)\n" + 
-				"	@Override public X foo() { return new X(); }\n" + 
-				"	                   ^^^^^\n" + 
-				"Duplicate method foo() in type B\n" + 
-				"----------\n" + 
-				"2. ERROR in SubTypes.java (at line 5)\n" + 
-				"	@Override public X foo() { return new X(); }\n" + 
-				"	                   ^^^^^\n" + 
-				"Name clash: The method foo() of type B has the same erasure as foo() of type X but does not override it\n" + 
-				"----------\n" + 
-				"3. ERROR in SubTypes.java (at line 5)\n" + 
-				"	@Override public X foo() { return new X(); }\n" + 
-				"	                   ^^^^^\n" + 
-				"Name clash: The method foo() of type B has the same erasure as foo() of type X but does not override it\n" + 
-				"----------\n" + 
-				"4. ERROR in SubTypes.java (at line 5)\n" + 
-				"	@Override public X foo() { return new X(); }\n" + 
-				"	                   ^^^^^\n" + 
-				"The method foo() of type B must override or implement a supertype method\n" + 
-				"----------\n" + 
-				"5. WARNING in SubTypes.java (at line 6)\n" + 
-				"	@Override public B foo() { return this; }\n" + 
-				"	                   ^^^^^\n" + 
-				"Duplicate method foo() in type B\n" + 
-				"----------\n" + 
-				"6. ERROR in SubTypes.java (at line 9)\n" + 
-				"	@Override public X foo() { return new X(); }\n" + 
-				"	                 ^\n" + 
-				"The return type is incompatible with A.foo()\n" + 
-				"----------\n":
-					"----------\n" +
-					"1. ERROR in SubTypes.java (at line 5)\n" +
-					"	@Override public X foo() { return new X(); }\n" +
-					"	                   ^^^^^\n" +
-					"Duplicate method foo() in type B\n" +
-					"----------\n" +
-					"2. ERROR in SubTypes.java (at line 6)\n" +
-					"	@Override public B foo() { return this; }\n" +
-					"	                   ^^^^^\n" +
-					"Duplicate method foo() in type B\n" +
-					"----------\n" +
-					"3. ERROR in SubTypes.java (at line 9)\n" +
-					"	@Override public X foo() { return new X(); }\n" +
-					"	                 ^\n" +
-					"The return type is incompatible with A.foo()\n" +
-					"----------\n";
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7370,7 +7322,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    @Override public X foo() { return new X(); }\n" +
 				"}\n"
 			},
-			expectedCompilerLog);
+			"----------\n" + 
+			"1. ERROR in SubTypes.java (at line 5)\n" + 
+			"	@Override public X foo() { return new X(); }\n" + 
+			"	                   ^^^^^\n" + 
+			"Duplicate method foo() in type B\n" + 
+			"----------\n" + 
+			"2. ERROR in SubTypes.java (at line 6)\n" + 
+			"	@Override public B foo() { return this; }\n" + 
+			"	                   ^^^^^\n" + 
+			"Duplicate method foo() in type B\n" + 
+			"----------\n" + 
+			"3. ERROR in SubTypes.java (at line 9)\n" + 
+			"	@Override public X foo() { return new X(); }\n" + 
+			"	                 ^\n" + 
+			"The return type is incompatible with A.foo()\n" + 
+			"----------\n");
 	}
 	// generic method of raw type
 	public void test0244() {
