@@ -18,7 +18,7 @@ import junit.framework.Test;
 public class TryWithResourcesStatementTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test053" };
+//	TESTS_NAMES = new String[] { "test055", "test055a" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -3338,7 +3338,7 @@ public void test054a() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353535 (verify error with try with resources)
-public void _test055() {
+public void test055() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -3357,7 +3357,7 @@ public void _test055() {
 		"Done");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353535 (verify error with try with resources)
-public void _test055a() {
+public void test055a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
