@@ -65,6 +65,7 @@ public class TryStatement extends SubRoutineStatement {
 	// for local variables table attributes
 	int mergedInitStateIndex = -1;
 	int preTryInitStateIndex = -1;
+	int[] postResourcesInitStateIndexes;
 	int naturalExitMergeInitStateIndex = -1;
 	int[] catchExitInitStateIndexes;
 	private LocalVariableBinding primaryExceptionVariable;
@@ -96,6 +97,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (this.returnAddressVariable != null) { // TODO (philippe) if subroutine is escaping, unused
 		this.returnAddressVariable.useFlag = LocalVariableBinding.USED;
 	}
+	int resourcesLength = this.resources.length;
+	if (resourcesLength > 0) {
+		this.postResourcesInitStateIndexes = new int[resourcesLength];
+	}
+
+
 	if (this.subRoutineStartLabel == null) {
 		// no finally block -- this is a simplified copy of the else part
 		// process the try block in a context handling the local exceptions.
@@ -114,8 +121,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// only try blocks initialize that member - may consider creating a
 		// separate class if needed
 
-		for (int i = 0, max = this.resources.length; i < max; i++) {
+		for (int i = 0; i < resourcesLength; i++) {
 			flowInfo = this.resources[i].analyseCode(currentScope, handlingContext, flowInfo.copy());
+			this.postResourcesInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(flowInfo);
 			this.resources[i].binding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
 			TypeBinding type = this.resources[i].binding.type;
 			if (type != null && type.isValidBinding()) {
@@ -239,8 +247,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// only try blocks initialize that member - may consider creating a
 		// separate class if needed
 
-		for (int i = 0, max = this.resources.length; i < max; i++) {
+		for (int i = 0; i < resourcesLength; i++) {
 			flowInfo = this.resources[i].analyseCode(currentScope, handlingContext, flowInfo.copy());
+			this.postResourcesInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(flowInfo);
 			this.resources[i].binding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
 			TypeBinding type = this.resources[i].binding.type;
 			if (type != null && type.isValidBinding()) {
@@ -462,7 +471,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			codeStream.store(this.caughtThrowableVariable, false /* value not required */);
 			codeStream.addVariable(this.caughtThrowableVariable);
 			for (int i = 0; i <= resourceCount; i++) {
-				this.resourceExceptionLabels[i] = new ExceptionLabel(codeStream, this.scope.getJavaLangThrowable());
+				// put null for the exception type to treat them as any exception handlers (equivalent to a try/finally)
+				this.resourceExceptionLabels[i] = new ExceptionLabel(codeStream, null);
 				this.resourceExceptionLabels[i].placeStart();
 				if (i < resourceCount) {
 					this.resources[i].generateCode(this.scope, codeStream); // Initialize resources ...
@@ -481,13 +491,20 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 					if (i > 0) {
 						int invokeCloseStartPc = codeStream.position; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343785
 						codeStream.load(localVariable);
-				    	codeStream.ifnull(exitLabel);
-				    	codeStream.load(localVariable);
-				    	codeStream.invokeAutoCloseableClose(localVariable.type);
-				    	codeStream.recordPositionsFrom(invokeCloseStartPc, this.tryBlock.sourceEnd);	
-				    }
+						codeStream.ifnull(exitLabel);
+						codeStream.load(localVariable);
+						codeStream.invokeAutoCloseableClose(localVariable.type);
+						codeStream.recordPositionsFrom(invokeCloseStartPc, this.tryBlock.sourceEnd);
+					}
 					codeStream.goto_(exitLabel); // skip over the catch block.
 				}
+
+				if (i > 0) {
+					// i is off by one
+					codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.postResourcesInitStateIndexes[i - 1]);
+					codeStream.addDefinitelyAssignedVariables(currentScope, this.postResourcesInitStateIndexes[i - 1]);
+				}
+
 				codeStream.pushExceptionOnStack(this.scope.getJavaLangThrowable());
 				this.resourceExceptionLabels[i].place();
 				if (i == resourceCount) { 
