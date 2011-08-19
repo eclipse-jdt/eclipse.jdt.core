@@ -128,7 +128,9 @@ public class JavadocContents {
 		}
 		
 		if (range != null) {
-			if (range == UNKNOWN_FORMAT) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, child));
+			if (range == UNKNOWN_FORMAT) {
+				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, child));
+			}
 			return String.valueOf(CharOperation.subarray(this.content, range[0], range[1]));
 		}
 		return null;
@@ -377,21 +379,24 @@ public class JavadocContents {
 		IType declaringType = this.type;
 		if (declaringType.isMember()) {
 			int depth = 0;
-			// might need to remove a part of the signature corresponding to the synthetic argument
-			if (!Flags.isStatic(declaringType.getFlags())) {
+			// might need to remove a part of the signature corresponding to the synthetic argument (only for constructor)
+			if (method.isConstructor() && !Flags.isStatic(declaringType.getFlags())) {
 				depth++;
 			}
 			if (depth != 0) {
 				// depth is 1
 				int indexOfOpeningParen = anchor.indexOf('(');
-				if (indexOfOpeningParen == -1) return null;
+				if (indexOfOpeningParen == -1) {
+					// should not happen as this is a method signature
+					return null;
+				}
 				int index = indexOfOpeningParen;
 				indexOfOpeningParen++;
 				int indexOfComma = anchor.indexOf(',', index);
 				if (indexOfComma != -1) {
 					index = indexOfComma + 2;
+					anchor = anchor.substring(0, indexOfOpeningParen) + anchor.substring(index);
 				}
-				anchor = anchor.substring(0, indexOfOpeningParen) + anchor.substring(index);
 			}
 		}
 		return anchor + JavadocConstants.ANCHOR_PREFIX_END;
