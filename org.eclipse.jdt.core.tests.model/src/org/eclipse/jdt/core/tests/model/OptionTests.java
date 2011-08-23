@@ -7,11 +7,17 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for Bug 346010 - [model] strange initialization dependency in OptionTests
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import junit.framework.Test;
 
@@ -43,6 +49,7 @@ public OptionTests(String name) {
 	super(name);
 }
 static {
+//	TESTS_NAMES = new String[] {    "testBug346010" };
 //		TESTS_NUMBERS = new int[] { 125360 };
 //		TESTS_RANGE = new int[] { 4, -1 };
 }
@@ -757,6 +764,61 @@ public void testBug324987_Project02() throws CoreException {
 		deleteProject("P");
 	}
 }
+/**
+ * @bug 346010 - [model] strange initialization dependency in OptionTests
+ * @test Verify that unfortunate order of map entries doesn't spoil intended semantics.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=346010"
+ * @deprecated As using deprecated constants
+ */
+public void testBug346010() throws CoreException {
+	class ForcedOrderMap extends Hashtable {
+		private static final long serialVersionUID = 8012963985718522218L;
+		Map original;
+		Map.Entry additionalEntry;
+		/* Force (additionalKey,additionalValue) to be served after all entries of original. */
+		public ForcedOrderMap(Map original, String additionalKey, String additionalValue) {
+			this.original = original;
+			// convert additionalKey->additionalValue to a Map.Entry without inserting into original:
+			Hashtable tmp = new Hashtable();
+			tmp.put(additionalKey, additionalValue);
+			this.additionalEntry = (Map.Entry) tmp.entrySet().iterator().next();
+		}
+		public Set entrySet() {
+			return new HashSet() {
+				private static final long serialVersionUID = 1L;
+				public Iterator iterator() {
+					List orderedEntries;
+					orderedEntries = new ArrayList(ForcedOrderMap.this.original.entrySet());
+					orderedEntries.add(ForcedOrderMap.this.additionalEntry);
+					return orderedEntries.iterator();
+				}
+			};
+		}
+		public synchronized boolean containsKey(Object key) {
+			return this.original.containsKey(key) || key.equals(this.additionalEntry.getKey());
+		}
+	}
+	try {
+		// Set the obsolete option using the IJavaProject API
+		JavaProject project = (JavaProject) createJavaProject("P");
+		final String obsoleteOption = DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER;
+		Map testOptions = project.getOptions(true);
+		Map orderedOptions = new ForcedOrderMap(testOptions, obsoleteOption, JavaCore.DO_NOT_INSERT);
+		project.setOptions(orderedOptions);
+		// Verify that obsolete preference is not stored
+		assertNull(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				project.getEclipsePreferences().get(obsoleteOption, null));
+		// Verify that project obsolete option is well retrieved
+		assertEquals(
+				"Unexpected value for formatter deprecated option 'org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_member'", 
+				JavaCore.INSERT,
+				project.getOption(obsoleteOption, true));
+	} finally {
+		deleteProject("P");
+	}
+}
+
 /**
  * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
  * @test Verify that a deprecated option is well preserved when read through
