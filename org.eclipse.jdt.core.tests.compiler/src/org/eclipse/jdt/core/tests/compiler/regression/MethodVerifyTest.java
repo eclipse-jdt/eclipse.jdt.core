@@ -6437,6 +6437,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	@Override void instanceCase2(Collection c) {}\n" +
 				"}"
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_7 ?
 			"----------\n" +
 			"1. WARNING in Parent.java (at line 3)\n" +
 			"	static void staticCase1(Collection c) {}\n" +
@@ -6462,7 +6463,38 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"	@Override void instanceCase2(Collection c) {}\n" +
 			"	                             ^^^^^^^^^^\n" +
 			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
-			"----------\n"
+			"----------\n":
+				"----------\n" + 
+				"1. WARNING in Parent.java (at line 3)\n" + 
+				"	static void staticCase1(Collection c) {}\n" + 
+				"	                        ^^^^^^^^^^\n" + 
+				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+				"----------\n" + 
+				"2. WARNING in Parent.java (at line 5)\n" + 
+				"	void instanceCase1(Collection c) {}\n" + 
+				"	                   ^^^^^^^^^^\n" + 
+				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+				"----------\n" + 
+				"3. ERROR in Parent.java (at line 9)\n" + 
+				"	static void staticCase1(Collection<String> c) {}\n" + 
+				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Name clash: The method staticCase1(Collection<String>) of type Child has the same erasure as staticCase1(Collection) of type Parent but does not hide it\n" + 
+				"----------\n" + 
+				"4. WARNING in Parent.java (at line 10)\n" + 
+				"	static void staticCase2(Collection c) {}\n" + 
+				"	                        ^^^^^^^^^^\n" + 
+				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+				"----------\n" + 
+				"5. ERROR in Parent.java (at line 11)\n" + 
+				"	void instanceCase1(Collection<String> c) {}\n" + 
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Name clash: The method instanceCase1(Collection<String>) of type Child has the same erasure as instanceCase1(Collection) of type Parent but does not override it\n" + 
+				"----------\n" + 
+				"6. WARNING in Parent.java (at line 12)\n" + 
+				"	@Override void instanceCase2(Collection c) {}\n" + 
+				"	                             ^^^^^^^^^^\n" + 
+				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+				"----------\n"
 			// @Override is an error for instanceCase1
 			// name clash: instanceCase1(Collection<String>) in Child and instanceCase1(Collection) in Parent have the same erasure, yet neither overrides the other
 		);
@@ -9246,40 +9278,80 @@ public void test149() {
 			"class X {}\n" +
 			"class Y<T> {}"
 		},
-		"----------\n" +
-		"1. ERROR in B.java (at line 2)\n" +
-		"	static void a(X x) {}\n" +
-		"	            ^^^^^^\n" +
-		"This static method cannot hide the instance method from A\n" +
-		"----------\n" +
-		"2. ERROR in B.java (at line 3)\n" +
-		"	static void b(Y<String> y) {}\n" +
-		"	            ^^^^^^^^^^^^^^\n" +
-		"Name clash: The method b(Y<String>) of type B has the same erasure as b(Y<Integer>) of type A but does not override it\n" +
-		"----------\n" +
-		"----------\n" +
-		"1. ERROR in B2.java (at line 2)\n" +
-		"	static void b(Y<Integer> y) {}\n" +
-		"	            ^^^^^^^^^^^^^^^\n" +
-		"This static method cannot hide the instance method from A\n" +
-		"----------\n" +
-		"----------\n" +
-		"1. ERROR in C.java (at line 3)\n" +
-		"	void b(Y<String> y) {}\n" +
-		"	     ^^^^^^^^^^^^^^\n" +
-		"Name clash: The method b(Y<String>) of type C has the same erasure as b(Y<Integer>) of type A but does not override it\n" +
-		"----------\n" +
-		"2. ERROR in C.java (at line 4)\n" +
-		"	void c(X x) {}\n" +
-		"	     ^^^^^^\n" +
-		"This instance method cannot override the static method from A\n" +
-		"----------\n" +
-		"----------\n" +
-		"1. ERROR in C2.java (at line 3)\n" +
-		"	void d(Y<Integer> y) {}\n" +
-		"	     ^^^^^^^^^^^^^^^\n" +
-		"This instance method cannot override the static method from A\n" +
-		"----------\n"
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
+		"----------\n" + 
+		"1. ERROR in B.java (at line 2)\n" + 
+		"	static void a(X x) {}\n" + 
+		"	            ^^^^^^\n" + 
+		"This static method cannot hide the instance method from A\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in B2.java (at line 2)\n" + 
+		"	static void b(Y<Integer> y) {}\n" + 
+		"	            ^^^^^^^^^^^^^^^\n" + 
+		"This static method cannot hide the instance method from A\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in C.java (at line 3)\n" + 
+		"	void b(Y<String> y) {}\n" + 
+		"	     ^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method b(Y<String>) of type C has the same erasure as b(Y<Integer>) of type A but does not override it\n" + 
+		"----------\n" + 
+		"2. ERROR in C.java (at line 4)\n" + 
+		"	void c(X x) {}\n" + 
+		"	     ^^^^^^\n" + 
+		"This instance method cannot override the static method from A\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in C2.java (at line 3)\n" + 
+		"	void d(Y<Integer> y) {}\n" + 
+		"	     ^^^^^^^^^^^^^^^\n" + 
+		"This instance method cannot override the static method from A\n" + 
+		"----------\n" :
+			"----------\n" + 
+			"1. ERROR in B.java (at line 2)\n" + 
+			"	static void a(X x) {}\n" + 
+			"	            ^^^^^^\n" + 
+			"This static method cannot hide the instance method from A\n" + 
+			"----------\n" + 
+			"2. ERROR in B.java (at line 3)\n" + 
+			"	static void b(Y<String> y) {}\n" + 
+			"	            ^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method b(Y<String>) of type B has the same erasure as b(Y<Integer>) of type A but does not hide it\n" + 
+			"----------\n" + 
+			"3. ERROR in B.java (at line 5)\n" + 
+			"	static void d(Y<String> y) {}\n" + 
+			"	            ^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method d(Y<String>) of type B has the same erasure as d(Y<Integer>) of type A but does not hide it\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in B2.java (at line 2)\n" + 
+			"	static void b(Y<Integer> y) {}\n" + 
+			"	            ^^^^^^^^^^^^^^^\n" + 
+			"This static method cannot hide the instance method from A\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in C.java (at line 3)\n" + 
+			"	void b(Y<String> y) {}\n" + 
+			"	     ^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method b(Y<String>) of type C has the same erasure as b(Y<Integer>) of type A but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in C.java (at line 4)\n" + 
+			"	void c(X x) {}\n" + 
+			"	     ^^^^^^\n" + 
+			"This instance method cannot override the static method from A\n" + 
+			"----------\n" + 
+			"3. ERROR in C.java (at line 5)\n" + 
+			"	void d(Y<String> y) {}\n" + 
+			"	     ^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method d(Y<String>) of type C has the same erasure as d(Y<Integer>) of type A but does not hide it\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in C2.java (at line 3)\n" + 
+			"	void d(Y<Integer> y) {}\n" + 
+			"	     ^^^^^^^^^^^^^^^\n" + 
+			"This instance method cannot override the static method from A\n" + 
+			"----------\n"
 	);
 }
 public void test150() {
@@ -13419,5 +13491,25 @@ public void testBug317719h() throws Exception {
 			"}\n"
 		},
 		output);
+}
+public void test345949a() throws Exception {
+	if (new CompilerOptions(getCompilerOptions()).sourceLevel < ClassFileConstants.JDK1_7) return;
+	this.runNegativeTest(
+		new String[] {
+			"Sub.java",
+			"class A<T> {}\n" +
+			"class Super {\n" +
+			"    public static void foo(A<Number> p) {}\n" +
+			"}\n" +
+			"public class Sub extends Super {\n" +
+			"	 public static void foo(A<Integer> p) {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Sub.java (at line 6)\n" + 
+		"	public static void foo(A<Integer> p) {}\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^\n" + 
+		"Name clash: The method foo(A<Integer>) of type Sub has the same erasure as foo(A<Number>) of type Super but does not hide it\n" + 
+		"----------\n");
 }
 }

@@ -5115,6 +5115,27 @@ public void methodNameClash(MethodBinding currentMethod, MethodBinding inherited
 		currentMethod.sourceEnd());
 }
 
+public void methodNameClashHidden(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	this.handle(
+		IProblem.MethodNameClashHidden,
+		new String[] {
+			new String(currentMethod.selector),
+			typesAsString(currentMethod, currentMethod.parameters, false),
+			new String(currentMethod.declaringClass.readableName()),
+			typesAsString(inheritedMethod, inheritedMethod.parameters, false),
+			new String(inheritedMethod.declaringClass.readableName()),
+		 },
+		new String[] {
+			new String(currentMethod.selector),
+			typesAsString(currentMethod, currentMethod.parameters, true),
+			new String(currentMethod.declaringClass.shortReadableName()),
+			typesAsString(inheritedMethod, inheritedMethod.parameters, true),
+			new String(inheritedMethod.declaringClass.shortReadableName()),
+		 },
+		currentMethod.sourceStart(),
+		currentMethod.sourceEnd());
+}
+
 public void methodNeedBody(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.MethodRequiresBody,

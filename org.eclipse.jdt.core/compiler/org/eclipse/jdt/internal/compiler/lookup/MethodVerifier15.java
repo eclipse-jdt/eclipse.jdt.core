@@ -230,7 +230,13 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 	//		class A implements I<Integer> { public void test(Integer i) {} }
 	//		class B extends A { public void test(Comparable i) {} }
 
-	if (inheritedMethod.isStatic()) return;
+	if (inheritedMethod.isStatic() || currentMethod.isStatic()) {
+		MethodBinding original = inheritedMethod.original(); // can be the same as inherited
+		if (this.type.scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_7 && currentMethod.areParameterErasuresEqual(original)) {
+			problemReporter(currentMethod).methodNameClashHidden(currentMethod, inheritedMethod.declaringClass.isRawType() ? inheritedMethod : original);
+		}
+		return; // no chance of bridge method's clashing
+	}
 
 	if (!detectNameClash(currentMethod, inheritedMethod, false)) { // check up the hierarchy for skipped inherited methods
 		TypeBinding[] currentParams = currentMethod.parameters;

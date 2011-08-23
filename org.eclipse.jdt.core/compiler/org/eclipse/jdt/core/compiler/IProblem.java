@@ -1151,6 +1151,8 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.7.1 */
 	int DuplicateInheritedMethods = MethodRelated + 583;
+	/** @since 3.8 */
+	int MethodNameClashHidden = MethodRelated + 584;
 	
 	/**
 	 * 1.5 Syntax errors (when source level < 1.5)

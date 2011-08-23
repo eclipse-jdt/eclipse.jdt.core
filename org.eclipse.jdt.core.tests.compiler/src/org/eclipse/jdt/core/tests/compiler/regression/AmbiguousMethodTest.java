@@ -1568,6 +1568,8 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	public void test018() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
+			return;
 	this.runConformTest(
 		new String[] {
 			"Y.java",
@@ -1593,6 +1595,9 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 	// in fact, <W extends String> Y<W> make(Class<W> clazz) is the most
 	// specific method according to JLS 15.12.2.5
 	public void test019() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
+		return;
+
 	this.runConformTest(
 		new String[] {
 			"Y.java",
@@ -1619,6 +1624,8 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=147647
 	public void test020() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
+		return;
 	this.runConformTest(
 		new String[] {
 			"Y.java",
@@ -2680,6 +2687,8 @@ public void _test055() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=184190
 public void test056() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
+		return;
 	this.runConformTest(
 		new String[] {
 			"X.java",
