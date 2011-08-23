@@ -10,6 +10,7 @@
  *     Theodora Yeung (tyeung@bea.com) - ensure that JarPackageFragmentRoot make it into cache
  *                                                           before its contents
  *                                                           (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=102422)
+ *     Stephan Herrmann - Contribution for Bug 346010 - [model] strange initialization dependency in OptionTests
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -4788,10 +4789,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * @param optionValue The value of the option. If <code>null</code>, then
 	 * 	the option will be removed from the preferences instead.
 	 * @param eclipsePreferences The eclipse preferences to be updated
+	 * @param otherOptions more options being stored, used to avoid conflict between deprecated option and its compatible
 	 * @return <code>true</code> if the preferences have been changed,
 	 * 	<code>false</code> otherwise.
 	 */
-	public boolean storePreference(String optionName, String optionValue, IEclipsePreferences eclipsePreferences) {
+	public boolean storePreference(String optionName, String optionValue, IEclipsePreferences eclipsePreferences, Map otherOptions) {
 		int optionLevel = this.getOptionLevel(optionName);
 		if (optionLevel == UNKNOWN_OPTION) return false; // unrecognized option
 		
@@ -4809,6 +4811,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				eclipsePreferences.remove(optionName); // get rid off old preference
 				String[] compatibleOptions = (String[]) this.deprecatedOptions.get(optionName);
 				for (int co=0, length=compatibleOptions.length; co < length; co++) {
+					if (otherOptions != null && otherOptions.containsKey(compatibleOptions[co]))
+						continue; // don't overwrite explicit value of otherOptions at compatibleOptions[co]
 					if (optionValue == null) {
 						eclipsePreferences.remove(compatibleOptions[co]);
 					} else {
@@ -4862,7 +4866,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					if (defaultValue != null && defaultValue.equals(value)) {
 						value = null;
 					}
-					storePreference(key, value, instancePreferences);
+					storePreference(key, value, instancePreferences, newOptions);
 				}
 				try {
 					// persist options
