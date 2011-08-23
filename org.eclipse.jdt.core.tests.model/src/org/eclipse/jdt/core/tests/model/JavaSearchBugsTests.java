@@ -13672,4 +13672,44 @@ public void testBug349683() throws CoreException {
 	}
 }
 
+// Ensure that results for jar are reported after the source projects
+public void testBug345807() throws CoreException {
+	try {
+		// Create a project depending on the jar
+		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"/P1/01b345807.jar"}, "");		
+		createJar(new String[] {
+			"inlib/P345807Test.java",
+			"package inlib;\n" +
+			"public class P345807Test {\n" +
+			"}"
+		}, p1.getProject().getLocation().append("01b345807.jar").toOSString());
+		refresh(p1);
+		
+		// Create another project with the same class name
+		createJavaProject("Project2", new String[] {""}, new String[] {}, "");
+		createFile("/Project2/P345807Test.java",
+				"public class P345807Test {\n" + 
+				"}\n");
+		
+		waitUntilIndexesReady();
+		SearchTests.SearchTypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine().searchAllTypeNames(
+				null,
+				SearchPattern.R_EXACT_MATCH, // case insensitive
+				"P345807Test".toCharArray(),
+				SearchPattern.R_EXACT_MATCH, // case insensitive
+				TYPE,
+				SearchEngine.createWorkspaceScope(),
+				requestor,
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+				null
+			);
+		assertEquals("Results not in proper order", "P345807Test\ninlib.P345807Test", requestor.unsortedString());
+	} catch (IOException e) {
+		assertTrue(false); // report a failure
+	} finally {
+		deleteProject("P1");
+		deleteProject("Project2");
+	}
+}
 }

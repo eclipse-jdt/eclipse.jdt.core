@@ -7,9 +7,11 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Nikolay Botev - Bug 348507
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
+import java.util.LinkedHashSet;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -180,7 +182,8 @@ private static IJavaElement[] getFocusedElementsAndTypes(SearchPattern pattern, 
 private void initializeIndexLocations() {
 	IPath[] projectsAndJars = this.searchScope.enclosingProjectsAndJars();
 	IndexManager manager = JavaModelManager.getIndexManager();
-	SimpleSet locations = new SimpleSet();
+	// use a linked set to preserve the order during search: see bug 348507
+	LinkedHashSet locations = new LinkedHashSet();
 	IJavaElement focus = MatchLocator.projectOrJarFocus(this.pattern);
 	if (focus == null) {
 		for (int i = 0; i < projectsAndJars.length; i++) {
@@ -263,12 +266,8 @@ private void initializeIndexLocations() {
 		}
 	}
 
-	this.indexLocations = new IPath[locations.elementSize];
-	Object[] values = locations.values;
-	int count = 0;
-	for (int i = values.length; --i >= 0;)
-		if (values[i] != null)
-			this.indexLocations[count++] = (IPath) values[i];
+	locations.remove(null); // Ensure no nulls
+	this.indexLocations = (IPath[]) locations.toArray(new IPath[locations.size()]);
 }
 
 public IPath[] getIndexLocations() {

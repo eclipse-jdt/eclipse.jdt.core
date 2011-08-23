@@ -97,6 +97,19 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			}
 			return buffer.toString();
 		}
+		public String unsortedString() {
+			int length = this.results.size();
+			String[] strings = new String[length];
+			this.results.toArray(strings);
+			StringBuffer buffer = new StringBuffer(100);
+			for (int i = 0; i < length; i++){
+				buffer.append(strings[i]);
+				if (i != length-1) {
+					buffer.append('\n');
+				}
+			}
+			return buffer.toString();
+		}
 		public int size() {
 			return this.results.size();
 		}
