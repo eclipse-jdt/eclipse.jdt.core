@@ -764,4 +764,27 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		}
 		assertTrue("No method found", found);
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=353640
+	 */
+	public void test0020() throws JavaModelException {
+		String contents =
+			"public class DiamondTest<T> {\n" + 
+			"	public <U> DiamondTest(T t) {}\n" + 
+			"	public static void main ( String[] args ) {\n" + 
+			"		DiamondTest<String> d = new <Integer> DiamondTest<>();\n" + 
+			"	}\n" + 
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter17/src/DiamondTest.java", true/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(this.workingCopy, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 1, "Explicit type arguments cannot be used with \'<>\' in an allocation expression");
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) getASTNode(unit, 0, 1, 0);
+		ClassInstanceCreation creation = (ClassInstanceCreation) ((VariableDeclarationFragment) statement.fragments().get(0)).getInitializer();
+		ITypeBinding binding = creation.resolveTypeBinding();
+		IMethodBinding[] methods = binding.getDeclaredMethods();
+		assertEquals("Wrong size", 2, methods.length);
+	}
 }
