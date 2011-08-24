@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1122,8 +1122,18 @@ class CompilationUnitResolver extends Compiler {
 				// build and record parsed units
 				this.parseThreshold = 0; // will request a full parse
 				beginToCompile(new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] { sourceUnit });
-				// process all units (some more could be injected in the loop by the lookup environment)
-				unit = this.unitsToProcess[0];
+				// find the right unit from what was injected via accept(ICompilationUnit,..):
+				for (int i=0, max = this.totalUnits; i < max; i++) {
+					CompilationUnitDeclaration currentCompilationUnitDeclaration = this.unitsToProcess[i];
+					if (currentCompilationUnitDeclaration != null
+							&& currentCompilationUnitDeclaration.compilationResult.compilationUnit == sourceUnit) {
+						unit = currentCompilationUnitDeclaration;
+						break;
+					}
+				}
+				if (unit == null) {
+					unit = this.unitsToProcess[0]; // fall back to old behavior
+				}
 			} else {
 				// initial type binding creation
 				this.lookupEnvironment.buildTypeBindings(unit, null /*no access restriction*/);
