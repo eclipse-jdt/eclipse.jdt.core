@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -783,7 +783,13 @@ private void readHeaderInfo(FileInputStream stream) throws IOException {
 	this.sizeOfLastChunk = this.streamBuffer[this.bufferIndex++] & 0xFF;
 	this.documentReferenceSize = this.streamBuffer[this.bufferIndex++] & 0xFF;
 	this.separator = (char) (this.streamBuffer[this.bufferIndex++] & 0xFF);
-
+	long fileLength = this.indexFile.length();
+	if (this.numberOfChunks > fileLength ) {
+		// not an accurate check, but good enough https://bugs.eclipse.org/bugs/show_bug.cgi?id=350612
+		if (DEBUG)
+			System.out.println("Index file is corrupted " + this.indexFile); //$NON-NLS-1$
+		throw new IOException("Index file is corrupted " + this.indexFile); //$NON-NLS-1$
+	}
 	this.chunkOffsets = new int[this.numberOfChunks];
 	for (int i = 0; i < this.numberOfChunks; i++)
 		this.chunkOffsets[i] = readStreamInt(stream);
@@ -793,6 +799,12 @@ private void readHeaderInfo(FileInputStream stream) throws IOException {
 	int size = readStreamInt(stream);
 	this.categoryOffsets = new HashtableOfIntValues(size);
 	this.categoryEnds = new HashtableOfIntValues(size);
+	if (size > fileLength) {
+		//  not an accurate check, but good enough  https://bugs.eclipse.org/bugs/show_bug.cgi?id=350612
+		if (DEBUG)
+			System.out.println("Index file is corrupted " + this.indexFile); //$NON-NLS-1$
+		throw new IOException("Index file is corrupted " + this.indexFile); //$NON-NLS-1$
+	}
 	char[] previousCategory = null;
 	int offset = -1;
 	for (int i = 0; i < size; i++) {
