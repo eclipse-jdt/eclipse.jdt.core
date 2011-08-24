@@ -47,9 +47,9 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 349 };
+//		TESTS_NUMBERS = new int[] { 350 };
 //		TESTS_RANGE = new int[] { 325, -1 };
-//		TESTS_NAMES = new String[] {"test0204"};
+//		TESTS_NAMES = new String[] {"testBug348024"};
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverter15JLS4Test.class);
@@ -11285,5 +11285,19 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) getASTNode(unit, 0, 0, 0);
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) ((VariableDeclarationFragment) statement.fragments().get(0)).getInitializer();
 		assertTrue("Should be malformed", isMalformed(classInstanceCreation.getType()));
+	}
+	/*
+	 * 3.7 maintenance - Fixed bug 348024: Empty AST for class with static inner class in a package with package-info.java
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=348024
+	 */
+	public void testBug348024() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "testBug348024", "TestClass.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runJLS4Conversion(sourceUnit, true, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		assertProblemsSize(compilationUnit, 0);
+		List types = compilationUnit.types();
+		assertEquals("Wrong number of types", 1, types.size());
+		assertEquals("Wrong number of body declarations", 3, ((TypeDeclaration) types.get(0)).bodyDeclarations().size());
 	}
 }
