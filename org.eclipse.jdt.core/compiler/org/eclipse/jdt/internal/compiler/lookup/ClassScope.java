@@ -10,6 +10,7 @@
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for 
  *     						Bug 328281 - visibility leaks not detected when analyzing unused field in private class
  *     						Bug 300576 - NPE Computing type hierarchy when compliance doesn't match libraries
+ *     						Bug 354536 - compiling package-info.java still depends on the order of compilation units
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -423,8 +424,6 @@ public class ClassScope extends Scope {
 				else
 					modifiers |= ClassFileConstants.AccStatic;
 			}
-			if (enclosingType.isViewedAsDeprecated() && !sourceType.isDeprecated())
-				modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
 				problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
