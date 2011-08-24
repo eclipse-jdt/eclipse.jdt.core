@@ -709,6 +709,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugsTests("testBug341462"));
 	suite.addTest(new JavaSearchBugsTests("testBug350885"));
 	suite.addTest(new JavaSearchBugsTests("testBug349683"));
+	suite.addTest(new JavaSearchBugsTests("testBug345807"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
