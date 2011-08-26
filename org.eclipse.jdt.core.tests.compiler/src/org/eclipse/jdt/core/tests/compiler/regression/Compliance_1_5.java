@@ -56,7 +56,7 @@ static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		TESTS_NAMES = new String[] { "Bug58069" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	TESTS_NUMBERS = new int[] { 104 };
+//	TESTS_NUMBERS = new int[] { 88 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		TESTS_RANGE = new int[] { 85, -1 };
 }
@@ -2965,7 +2965,10 @@ public void test088() {
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
 		"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" +
 		"----------\n";
-	if (isJRELevel(AbstractCompilerTest.F_1_6|AbstractCompilerTest.F_1_7)) {
+	String javaVersion = System.getProperty("java.version");
+	if (isJRELevel(AbstractCompilerTest.F_1_6|AbstractCompilerTest.F_1_7)
+			|| (AbstractCompilerTest.getPossibleComplianceLevels() == AbstractCompilerTest.F_1_5
+				&& javaVersion.indexOf("1.5") == -1)) {
 		errorMessage =
 			"----------\n" +
 			"1. WARNING in p\\X.java (at line 4)\n" +
