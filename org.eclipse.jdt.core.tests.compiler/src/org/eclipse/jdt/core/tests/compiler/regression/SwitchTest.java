@@ -30,6 +30,7 @@ public class SwitchTest extends AbstractRegressionTest {
 
 static {
 //	TESTS_NUMBERS = new int[] { 22 };
+//	TESTS_NAMES = new String[] { "testFor356002", "testFor356002_2", "testFor356002_3" };
 }
 public SwitchTest(String name) {
 	super(name);
@@ -2027,6 +2028,109 @@ public void testNestedSwitches() {
 										 "Friday is a workday\n" +
 										 "Saturday is a holiday\n" +
 										 "DONE");
+	}
+}
+public void testFor356002() {
+	String errorMsg = 		
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	switch (foo()) {\n" + 
+			"	        ^^^^^\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
+			"----------\n";
+	
+	String [] sourceFiles = 
+		new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	private static String foo() {\n" + 
+		"		return \"\";\n" + 
+		"	}\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		switch (foo()) {\n" + 
+		"			default: {\n" + 
+		"				int j = 0;\n" + 
+		"				if (j <= 0)\n" + 
+		"					System.out.println(\"DONE\");\n" +
+		"			}\n" + 
+		"			return;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}",
+	};
+	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
+		this.runNegativeTest(sourceFiles, errorMsg);
+	} else {
+		this.runConformTest(sourceFiles, "DONE");
+	}
+}
+public void testFor356002_2() {
+	String errorMsg = 		
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	switch (\"\") {\n" + 
+			"	        ^^\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
+			"----------\n";
+	
+	String [] sourceFiles = 
+		new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		switch (\"\") {\n" + 
+		"			default: {\n" + 
+		"				int j = 0;\n" + 
+		"				if (j <= 0)\n" + 
+		"					System.out.println(\"DONE\");\n" +
+		"			}\n" + 
+		"			return;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}",
+	};
+	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
+		this.runNegativeTest(sourceFiles, errorMsg);
+	} else {
+		this.runConformTest(sourceFiles, "DONE");
+	}
+}
+public void testFor356002_3() {
+	String errorMsg =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	switch (foo()) {\n" + 
+			"	        ^^^^^\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum constants are permitted\n" + 
+			"----------\n";
+	
+	String [] sourceFiles =
+		new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	private static String foo() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"	public static void main(String[] args) {\n" +
+		"		try {\n" +
+		"			switch (foo()) {\n" + 
+		"				default: {\n" + 
+		"					int j = 0;\n" + 
+		"					if (j <= 0)\n" + 
+		"						;\n" +
+		"				}\n" + 
+		"				return;\n" + 
+		"			}\n" + 
+		"		} catch(NullPointerException e) {\n" +
+		"			System.out.println(\"DONE\");\n" +
+		"		}\n" +
+		"	}\n" + 
+		"}",
+	};
+	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
+		this.runNegativeTest(sourceFiles, errorMsg);
+	} else {
+		this.runConformTest(sourceFiles, "DONE");
 	}
 }
 public static Class testClass() {
