@@ -214,7 +214,7 @@ public class Clinit extends AbstractMethodDeclaration {
 									SyntheticMethodBinding syntheticMethod = declaringType.binding.addSyntheticMethodForEnumInitialization(begin, i);
 									codeStream.invoke(Opcodes.OPC_invokestatic, syntheticMethod, null /* default declaringClass */);
 									begin = i;
-									count = 0;
+									count = 1;
 								}
 							}
 						}
