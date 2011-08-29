@@ -175,7 +175,6 @@ public class SwitchStatement extends Statement {
 			}
 
 			final boolean hasCases = this.caseCount != 0;
-			final boolean valueRequired = this.expression.constant == Constant.NotAConstant || hasCases;
 
 			StringSwitchCase [] stringCases = new StringSwitchCase[this.caseCount]; // may have to shrink later if multiple strings hash to same code.
 			BranchLabel[] sourceCaseLabels = new BranchLabel[this.caseCount];
@@ -242,7 +241,7 @@ public class SwitchStatement extends Statement {
 					codeStream.ifne(stringCases[i].label);
 				}
 				codeStream.goto_(defaultBranchLabel);
-			} else if (valueRequired) {
+			} else {
 				codeStream.pop();
 			}
 
@@ -474,6 +473,15 @@ public class SwitchStatement extends Statement {
 					expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
 				}
 			}
+			if (isStringSwitch) {
+				// the secret variable should be created before iterating over the switch's statements that could
+				// create more locals. This must be done to prevent overlapping of locals
+				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=356002
+				this.dispatchStringCopy  = new LocalVariableBinding(SecretStringVariableName, upperScope.getJavaLangString(), ClassFileConstants.AccDefault, false);
+				upperScope.addLocalVariable(this.dispatchStringCopy);
+				this.dispatchStringCopy.setConstant(Constant.NotAConstant);
+				this.dispatchStringCopy.useFlag = LocalVariableBinding.USED;
+			}
 			if (this.statements != null) {
 				this.scope = new BlockScope(upperScope);
 				int length;
@@ -521,12 +529,6 @@ public class SwitchStatement extends Statement {
 				if ((this.bits & UndocumentedEmptyBlock) != 0) {
 					upperScope.problemReporter().undocumentedEmptyBlock(this.blockStart, this.sourceEnd);
 				}
-			}
-			if (isStringSwitch) {
-				this.dispatchStringCopy  = new LocalVariableBinding(SecretStringVariableName, upperScope.getJavaLangString(), ClassFileConstants.AccDefault, false);
-				upperScope.addLocalVariable(this.dispatchStringCopy);
-				this.dispatchStringCopy.setConstant(Constant.NotAConstant);
-				this.dispatchStringCopy.useFlag = LocalVariableBinding.USED;
 			}
 			// for enum switch, check if all constants are accounted for (if no default)
 			if (isEnumSwitch && this.defaultCase == null
