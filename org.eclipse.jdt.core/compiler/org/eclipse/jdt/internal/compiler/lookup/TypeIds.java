@@ -97,6 +97,11 @@ public interface TypeIds {
 	// java 7 java.lang.AutoCloseable
 	final int T_JavaLangAutoCloseable = 62;
 
+	// new in 3.8
+	final int T_JavaxAnnotationPostConstruct = 63;
+
+	final int T_JavaxAnnotationPreDestroy = 64;
+
 	final int NoId = Integer.MAX_VALUE;
 
 	public static final int IMPLICIT_CONVERSION_MASK = 0xFF;

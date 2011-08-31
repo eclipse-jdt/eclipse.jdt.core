@@ -32,6 +32,9 @@ public class AnnotationBinding {
 public static AnnotationBinding[] addStandardAnnotations(AnnotationBinding[] recordedAnnotations, long annotationTagBits, LookupEnvironment env) {
 	// NOTE: expect annotations to be requested just once so there is no need to store the standard annotations
 	// and all of the standard annotations created by this method are fully resolved since the sender is expected to use them immediately
+	if ((annotationTagBits & TagBits.AllStandardAnnotationsMask) == 0) {
+		return recordedAnnotations;
+	}
 	int count = 0;
 	if ((annotationTagBits & TagBits.AnnotationTargetMASK) != 0)
 		count++;
@@ -51,8 +54,11 @@ public static AnnotationBinding[] addStandardAnnotations(AnnotationBinding[] rec
 		count++;
 	if ((annotationTagBits & TagBits.AnnotationSafeVarargs) != 0)
 		count++;
-	if (count == 0)
-		return recordedAnnotations;
+	if ((annotationTagBits & TagBits.AnnotationPostConstruct) != 0)
+		count++;
+	if ((annotationTagBits & TagBits.AnnotationPreDestroy) != 0)
+		count++;
+	// count must be different from 0
 
 	int index = recordedAnnotations.length;
 	AnnotationBinding[] result = new AnnotationBinding[index + count];
@@ -75,6 +81,10 @@ public static AnnotationBinding[] addStandardAnnotations(AnnotationBinding[] rec
 		result[index++] = buildMarkerAnnotationForMemberType(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_$_POLYMORPHICSIGNATURE, env);
 	if ((annotationTagBits & TagBits.AnnotationSafeVarargs) != 0)
 		result[index++] = buildMarkerAnnotation(TypeConstants.JAVA_LANG_SAFEVARARGS, env);
+	if ((annotationTagBits & TagBits.AnnotationPostConstruct) != 0)
+		result[index++] = buildMarkerAnnotation(TypeConstants.JAVAX_ANNOTATION_POSTCONSTRUCT, env);
+	if ((annotationTagBits & TagBits.AnnotationPreDestroy) != 0)
+		result[index++] = buildMarkerAnnotation(TypeConstants.JAVAX_ANNOTATION_PREDESTROY, env);
 	return result;
 }
 

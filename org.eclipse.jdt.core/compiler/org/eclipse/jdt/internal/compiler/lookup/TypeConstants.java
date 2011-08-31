@@ -14,6 +14,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 public interface TypeConstants {
 
 	char[] JAVA = "java".toCharArray(); //$NON-NLS-1$
+	char[] JAVAX = "javax".toCharArray(); //$NON-NLS-1$
 	char[] LANG = "lang".toCharArray(); //$NON-NLS-1$
 	char[] IO = "io".toCharArray(); //$NON-NLS-1$
 	char[] UTIL = "util".toCharArray(); //$NON-NLS-1$
@@ -129,7 +130,7 @@ public interface TypeConstants {
 	char[][] JAVA_IO_OBJECTINPUTSTREAM = new char[][] { JAVA, IO, "ObjectInputStream".toCharArray()}; //$NON-NLS-1$
 	// javax.rmi.CORBA.Stub
 	char[][] JAVAX_RMI_CORBA_STUB = new char[][] {
-			"javax".toCharArray(), //$NON-NLS-1$
+			JAVAX,
 			"rmi".toCharArray(), //$NON-NLS-1$
 			"CORBA".toCharArray(), //$NON-NLS-1$
 			"Stub".toCharArray(), //$NON-NLS-1$
@@ -173,6 +174,18 @@ public interface TypeConstants {
 	char[] SYNTHETIC_ACCESS_METHOD_PREFIX =  "access$".toCharArray(); //$NON-NLS-1$
 	char[] SYNTHETIC_ENUM_CONSTANT_INITIALIZATION_METHOD_PREFIX =  " enum constant initialization$".toCharArray(); //$NON-NLS-1$
 	char[] SYNTHETIC_STATIC_FACTORY =  "<factory>".toCharArray(); //$NON-NLS-1$
+	char[][] JAVAX_ANNOTATION_POSTCONSTRUCT =
+			new char[][] {
+				JAVAX,
+				ANNOTATION,
+				"PostConstruct".toCharArray() //$NON-NLS-1$
+			};
+	char[][] JAVAX_ANNOTATION_PREDESTROY =
+			new char[][] {
+				JAVAX,
+				ANNOTATION,
+				"PreDestroy".toCharArray() //$NON-NLS-1$
+			};
 
 	// synthetic package-info name
 	public static final char[] PACKAGE_INFO_NAME = "package-info".toCharArray(); //$NON-NLS-1$

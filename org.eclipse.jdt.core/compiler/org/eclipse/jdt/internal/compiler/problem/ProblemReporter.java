@@ -7596,6 +7596,10 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 			&& CharOperation.equals(method.selector, TypeConstants.WRITEREPLACE)) {
 		return;
 	}
+	if ((method.tagBits & (TagBits.AnnotationPostConstruct | TagBits.AnnotationPreDestroy)) != 0) {
+		// PostConstruct and PreDestroy method are ignored
+		return;
+	}
 	this.handle(
 			IProblem.UnusedPrivateMethod,
 		new String[] {

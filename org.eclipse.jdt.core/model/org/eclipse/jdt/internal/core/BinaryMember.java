@@ -87,6 +87,12 @@ protected IAnnotation[] getStandardAnnotations(long tagBits) {
 	if ((tagBits & TagBits.AnnotationSafeVarargs) != 0) {
 		annotations.add(getAnnotation(TypeConstants.JAVA_LANG_SAFEVARARGS));
 	}
+	if ((tagBits & TagBits.AnnotationPostConstruct) != 0) {
+		annotations.add(getAnnotation(TypeConstants.JAVAX_ANNOTATION_POSTCONSTRUCT));
+	}
+	if ((tagBits & TagBits.AnnotationPreDestroy) != 0) {
+		annotations.add(getAnnotation(TypeConstants.JAVAX_ANNOTATION_PREDESTROY));
+	}
 	// note that JAVA_LANG_SUPPRESSWARNINGS and JAVA_LANG_OVERRIDE cannot appear in binaries
 	return (IAnnotation[]) annotations.toArray(new IAnnotation[annotations.size()]);
 }

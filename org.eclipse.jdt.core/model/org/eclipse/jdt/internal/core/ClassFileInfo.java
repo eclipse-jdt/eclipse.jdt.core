@@ -108,6 +108,12 @@ private void generateStandardAnnotationsInfos(JavaElement javaElement, char[] pa
 	if ((tagBits & TagBits.AnnotationSafeVarargs) != 0) {
 		generateStandardAnnotation(javaElement, TypeConstants.JAVA_LANG_SAFEVARARGS, Annotation.NO_MEMBER_VALUE_PAIRS, newElements);
 	}
+	if ((tagBits & TagBits.AnnotationPostConstruct) != 0) {
+		generateStandardAnnotation(javaElement, TypeConstants.JAVAX_ANNOTATION_POSTCONSTRUCT, Annotation.NO_MEMBER_VALUE_PAIRS, newElements);
+	}
+	if ((tagBits & TagBits.AnnotationPreDestroy) != 0) {
+		generateStandardAnnotation(javaElement, TypeConstants.JAVAX_ANNOTATION_PREDESTROY, Annotation.NO_MEMBER_VALUE_PAIRS, newElements);
+	}
 	// note that JAVA_LANG_SUPPRESSWARNINGS and JAVA_LANG_OVERRIDE cannot appear in binaries
 }
 

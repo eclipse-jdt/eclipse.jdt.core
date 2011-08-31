@@ -146,6 +146,18 @@ private boolean checkStandardAnnotations(long annotationTagBits, TypeReferencePa
 			return true;
 		}
 	}
+	if ((annotationTagBits & TagBits.AnnotationPostConstruct) != 0) {
+		char[][] compoundName = TypeConstants.JAVAX_ANNOTATION_POSTCONSTRUCT;
+		if (checkAnnotationTypeReference(CharOperation.concatWith(compoundName, '.'), pattern)) {
+			return true;
+		}
+	}
+	if ((annotationTagBits & TagBits.AnnotationPreDestroy) != 0) {
+		char[][] compoundName = TypeConstants.JAVAX_ANNOTATION_PREDESTROY;
+		if (checkAnnotationTypeReference(CharOperation.concatWith(compoundName, '.'), pattern)) {
+			return true;
+		}
+	}
 	return false;
 }
 private boolean checkTypeName(char[] simpleName, char[] qualification, char[] fullyQualifiedTypeName, boolean isCaseSensitive, boolean isCamelCase) {
