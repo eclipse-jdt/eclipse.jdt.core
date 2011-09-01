@@ -300,7 +300,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			Class nodeClass = null;
 			try {
 				nodeClass = ASTNode.nodeClassForType(nodeType);
-			} catch (RuntimeException e) {
+			} catch (IllegalArgumentException e) {
 				// oops - guess that's not valid
 			}
 			if (nodeClass != null) {
@@ -342,7 +342,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 					assertTrue(hi == nodeType - 1);
 				}
 				hi = nodeType;
-			} catch (RuntimeException e) {
+			} catch (IllegalArgumentException e) {
 				// oops - guess that's not valid
 			}
 		}
