@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -72,32 +72,32 @@ public final class NodeInfoStore {
 	 * @return Returns a place holder node.
 	 */
 	public final ASTNode newPlaceholderNode(int nodeType) {
-	    try {
-		    ASTNode node= this.ast.createInstance(nodeType);
-		    switch (node.getNodeType()) {
+		try {
+			ASTNode node= this.ast.createInstance(nodeType);
+			switch (node.getNodeType()) {
 				case ASTNode.FIELD_DECLARATION:
-				    ((FieldDeclaration) node).fragments().add(this.ast.newVariableDeclarationFragment());
-				    break;
+					((FieldDeclaration) node).fragments().add(this.ast.newVariableDeclarationFragment());
+					break;
 				case ASTNode.MODIFIER:
-				    ((Modifier) node).setKeyword(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
+					((Modifier) node).setKeyword(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
 					break;
 				case ASTNode.TRY_STATEMENT :
 					((TryStatement) node).setFinally(this.ast.newBlock()); // have to set at least a finally block to be legal code
 					break;
 				case ASTNode.VARIABLE_DECLARATION_EXPRESSION :
-				    ((VariableDeclarationExpression) node).fragments().add(this.ast.newVariableDeclarationFragment());
-			    	break;
+					((VariableDeclarationExpression) node).fragments().add(this.ast.newVariableDeclarationFragment());
+					break;
 				case ASTNode.VARIABLE_DECLARATION_STATEMENT :
-				    ((VariableDeclarationStatement) node).fragments().add(this.ast.newVariableDeclarationFragment());
-		    		break;
+					((VariableDeclarationStatement) node).fragments().add(this.ast.newVariableDeclarationFragment());
+					break;
 				case ASTNode.PARAMETERIZED_TYPE :
-				    ((ParameterizedType) node).typeArguments().add(this.ast.newWildcardType());
-		    		break;
+					((ParameterizedType) node).typeArguments().add(this.ast.newWildcardType());
+					break;
 			}
-		    return node;
-	    } catch (IllegalArgumentException e) {
-	        return null;
-	    }
+			return node;
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
  	}
 
 
