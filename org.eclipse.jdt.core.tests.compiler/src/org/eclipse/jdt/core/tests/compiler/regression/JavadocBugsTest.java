@@ -3410,14 +3410,14 @@ public void testBug76324() {
 				"/**\n" +
 				" * Subclasses perform GUI-related work in a dedicated thread. For instructions\n" +
 				" * on using this class, see\n" +
-				" * {@link <a  href=\"http://java.sun.com/docs/books/tutorial/uiswing/misc/threads.html\"> Swing tutorial </a>}\n" +
+				" * {@link <a  href=\"http://download.oracle.com/javase/tutorial/uiswing/misc/index.html\"> Swing tutorial </a>}\n" +
 				" * \n" +
 				" * @see <a\n" +
 				" *      href=\"http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html\">\n" +
 				" *      EDU.oswego.cs.dl.util.concurrent </a>\n" +
 				" * @see <a\n" +
-				" *      href=\"http://java.sun.com/j2se/1.5.0/docs/api/java/util/concurrent/package-summary.html\">\n" +
-				" *      JDK 5.0 </a>\n" +
+				" *      href=\"http://download.oracle.com/javase/6/docs/api/java/util/concurrent/package-summary.html\">\n" +
+				" *      JDK 6.0 </a>\n" +
 				" * @author {@link <a href=\"http://gee.cs.oswego.edu/dl\">Doug Lea</a>}\n" +
 				" * @author {@link <a href=\"http://home.pacbell.net/jfai\">J?rgen Failenschmid</a>}\n" +
 				"  *\n" +

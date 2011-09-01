@@ -1078,7 +1078,7 @@ public void test035() {
 			"E.java",
 			"	/**\n" +
 				"	 * @see \"Valid normal string\"\n" +
-				"	 * @see <a href=\"http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/javadoc.html\">Valid URL link reference</a>\n" +
+				"	 * @see <a href=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Valid URL link reference</a>\n" +
 				"	 * @see Object\n" +
 				"	 * @see #TEST\n" +
 				"	 * @see E\n" +

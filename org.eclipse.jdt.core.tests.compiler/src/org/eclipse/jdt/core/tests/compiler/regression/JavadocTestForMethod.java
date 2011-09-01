@@ -1951,9 +1951,9 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	/**\n"
 					+ "	 * Valid URL references \n"
 					+ "	 *\n"
-					+ "	 * @see <a href=\"http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/javadoc.html\">Valid URL link reference</a>\n"
-					+ "	 * @see <A HREF = \"http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/javadoc.html\">Valid URL link reference</A>\n"
-					+ "	 * @see <a hReF = \"http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/javadoc.html\">Valid URL link reference</A>\n"
+					+ "	 * @see <a href=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Valid URL link reference</a>\n"
+					+ "	 * @see <A HREF = \"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Valid URL link reference</A>\n"
+					+ "	 * @see <a hReF = \"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Valid URL link reference</A>\n"
 					+ "	 */\n"
 					+ "	public void s_foo() {\n"
 					+ "	}\n"
@@ -1965,32 +1965,32 @@ public class JavadocTestForMethod extends JavadocTest {
 			new String[] {
 				"X.java",
 				"public class X {\n"
-					+ "	/**\n"
-					+ "	 * Invalid URL references \n"
-					+ "	 *\n"
-					+ "	 * @see <a xref=\"http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/javadoc.html\">Invalid URL link reference</a>\n"
-					+ "	 * @see <b href=\"http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/javadoc.html\">Invalid URL link reference</a>\n"
-					+ "	 * @see <a href=\"http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/javadoc.html\">Invalid URL link reference</b>\n"
-					+ "	 */\n"
-					+ "	public void s_foo() {\n"
-					+ "	}\n"
-					+ "}\n" },
-			"----------\n"
-				+ "1. ERROR in X.java (at line 5)\n"
-				+ "	* @see <a xref=\"http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/javadoc.html\">Invalid URL link reference</a>\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 6)\n"
-				+ "	* @see <b href=\"http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/javadoc.html\">Invalid URL link reference</a>\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	* @see <a href=\"http://java.sun.com/j2se/1.4.2/docs/tooldocs/windows/javadoc.html\">Invalid URL link reference</b>\n"
-				+ "	                                                                                                             ^^^^\n"
-				+ "Javadoc: Malformed link reference\n"
-				+ "----------\n",
+				+ "	/**\n"
+				+ "	 * Invalid URL references \n"
+				+ "	 *\n"
+				+ "	 * @see <a xref=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Invalid URL link reference</a>\n"
+				+ "	 * @see <b href=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Invalid URL link reference</a>\n"
+				+ "	 * @see <a href=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Invalid URL link reference</b>\n"
+				+ "	 */\n"
+				+ "	public void s_foo() {\n"
+				+ "	}\n"
+				+ "}\n" },
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	* @see <a xref=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Invalid URL link reference</a>\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	* @see <b href=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Invalid URL link reference</a>\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	* @see <a href=\"http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html\">Invalid URL link reference</b>\n" + 
+				"	                                                                                                                         ^^^^\n" + 
+				"Javadoc: Malformed link reference\n" + 
+				"----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 

@@ -135,8 +135,8 @@ public class SwitchStatement extends Statement {
 	 * Switch on String code generation
 	 * This assumes that hashCode() specification for java.lang.String is API
 	 * and is stable.
-	 * @see "http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html"
-	 * @see "http://download.oracle.com/docs/cd/E17409_01/javase/6/docs/api/java/lang/String.html"
+	 *
+	 * @see "http://download.oracle.com/javase/6/docs/api/java/lang/String.html"
 	 *
 	 * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
 	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6731,7 +6731,7 @@ public void testBug309835_wksp2_01() {
 		"	/**\n" + 
 		"     * Given a jar file, get the names of any AnnotationProcessorFactory\n" + 
 		"     * implementations it offers.  The information is based on the Sun\n" + 
-		"     * <a href=\"http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider\">\n" + 
+		"     * <a href=\"http://download.oracle.com/javase/6/docs/technotes/guides/jar/jar.html#Service%20Provider\">\n" + 
 		"     * Jar Service Provider spec</a>: the jar file contains a META-INF/services\n" + 
 		"     */\n" + 
 		"	public void foo() {\n" + 
@@ -6743,7 +6743,7 @@ public void testBug309835_wksp2_01() {
 		"	/**\n" + 
 		"	 * Given a jar file, get the names of any AnnotationProcessorFactory\n" + 
 		"	 * implementations it offers. The information is based on the Sun <a href=\n" + 
-		"	 * \"http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider\"\n" + 
+		"	 * \"http://download.oracle.com/javase/6/docs/technotes/guides/jar/jar.html#Service%20Provider\"\n" + 
 		"	 * > Jar Service Provider spec</a>: the jar file contains a\n" + 
 		"	 * META-INF/services\n" + 
 		"	 */\n" + 
