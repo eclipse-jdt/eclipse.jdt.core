@@ -341,7 +341,7 @@ public void acceptLocalField(FieldBinding fieldBinding) {
 	}
 }
 public void acceptLocalMethod(MethodBinding methodBinding) {
-	IJavaElement res = findLocalElement(methodBinding.sourceStart());
+	IJavaElement res = findLocalElement(methodBinding.original().sourceStart());
 	if(res != null) {
 		if(res.getElementType() == IJavaElement.METHOD) {
 			IMethod method = (IMethod) res;

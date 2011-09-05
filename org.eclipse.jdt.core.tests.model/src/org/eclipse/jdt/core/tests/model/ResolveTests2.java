@@ -1203,4 +1203,48 @@ public void testBug349486() throws Exception{
 		this.deleteProject("P1");
 	}
 }
+public void testBug356325() throws Exception{
+	try {
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{"JCL15_LIB"},
+			 "bin",
+			 "1.5");
+
+		this.createFolder("/P1/src/p");
+		this.createFile("/P1/src/p/C.java",
+				"package p;" + 
+				"\n" + 
+				"public class C {\n" + 
+				"	public void m() {\n" +
+				"		class Inner<T> {\n" +
+				"			Inner() {\n"+
+				"       }\n"+
+				"		Inner<String> i = new Inner<String>();\n"+
+				"	}\n" +
+				"}\n");
+		
+		waitUntilIndexesReady();
+
+		// do code select
+		ICompilationUnit cu= getCompilationUnit("P1", "src", "p", "C.java");
+
+		String str = cu.getSource();
+
+		String selection = "Inner";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+		IJavaElement[] elements = cu.codeSelect(start, length);
+
+		assertElementsEqual(
+			"Unexpected elements",
+			"Inner() [in Inner [in m() [in C [in C.java [in p [in src [in P1]]]]]]]",
+			elements
+		);
+	} finally {
+		this.deleteProject("P1");
+	}
+}
 }
