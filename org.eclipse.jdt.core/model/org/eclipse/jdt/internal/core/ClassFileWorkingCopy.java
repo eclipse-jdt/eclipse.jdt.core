@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for Bug 337935 - Test failures when run as an IDE (org.eclipse.sdk.ide)
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -81,21 +82,18 @@ public IResource resource(PackageFragmentRoot root) {
 protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
 
 	// create buffer
-	IBuffer buffer = this.owner.createBuffer(this);
-	if (buffer == null) return null;
+	IBuffer buffer = BufferManager.createBuffer(this);
 
 	// set the buffer source
-	if (buffer.getCharacters() == null) {
-		IBuffer classFileBuffer = this.classFile.getBuffer();
-		if (classFileBuffer != null) {
-			buffer.setContents(classFileBuffer.getCharacters());
-		} else {
-			// Disassemble
-			IClassFileReader reader = ToolFactory.createDefaultClassFileReader(this.classFile, IClassFileReader.ALL);
-			Disassembler disassembler = new Disassembler();
-			String contents = disassembler.disassemble(reader, Util.getLineSeparator("", getJavaProject()), ClassFileBytesDisassembler.WORKING_COPY); //$NON-NLS-1$
-			buffer.setContents(contents);
-		}
+	IBuffer classFileBuffer = this.classFile.getBuffer();
+	if (classFileBuffer != null) {
+		buffer.setContents(classFileBuffer.getCharacters());
+	} else {
+		// Disassemble
+		IClassFileReader reader = ToolFactory.createDefaultClassFileReader(this.classFile, IClassFileReader.ALL);
+		Disassembler disassembler = new Disassembler();
+		String contents = disassembler.disassemble(reader, Util.getLineSeparator("", getJavaProject()), ClassFileBytesDisassembler.WORKING_COPY); //$NON-NLS-1$
+		buffer.setContents(contents);
 	}
 
 	// add buffer to buffer cache

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -202,8 +202,9 @@ public void testContents() throws CoreException {
 
 /**
  * Test creating a working copy on a class file with a customized buffer.
+ * As of https://bugs.eclipse.org/337935 this test is no longer valid.
  */
-public void testOnClassFile() throws JavaModelException, IOException {
+public void _testOnClassFile() throws JavaModelException, IOException {
 	// ensure the external JCL is copied
 	setupExternalJCL("jclMin");
 
