@@ -31,7 +31,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 58 };
+//		TESTS_NUMBERS = new int[] { 60 };
 //		TESTS_RANGE = new int[] { 54, -1 };
 	}
 
@@ -1289,5 +1289,21 @@ public class ScannerTest extends AbstractRegressionTest {
 				"Syntax error on token \"Invalid Character\", delete this token\n" + 
 				"----------\n");
 		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352553
+	public void test060() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static final String ERROR = \"\\u000Ⅻ\";\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public static final String ERROR = \"\\u000Ⅻ\";\n" + 
+			"	                                    ^^^^^^\n" + 
+			"Invalid unicode\n" + 
+			"----------\n");
 	}
 }

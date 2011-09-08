@@ -1354,9 +1354,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			idx++;
 			while (this.source[idx] == 'u')
 				idx++;
-			if (!(((c1 = ScannerHelper.getNumericValue(this.source[idx++])) > 15 || c1 < 0)
-					|| ((c2 = ScannerHelper.getNumericValue(this.source[idx++])) > 15 || c2 < 0)
-					|| ((c3 = ScannerHelper.getNumericValue(this.source[idx++])) > 15 || c3 < 0) || ((c4 = ScannerHelper.getNumericValue(this.source[idx++])) > 15 || c4 < 0))) {
+			if (!(((c1 = ScannerHelper.getHexadecimalValue(this.source[idx++])) > 15 || c1 < 0)
+					|| ((c2 = ScannerHelper.getHexadecimalValue(this.source[idx++])) > 15 || c2 < 0)
+					|| ((c3 = ScannerHelper.getHexadecimalValue(this.source[idx++])) > 15 || c3 < 0)
+					|| ((c4 = ScannerHelper.getHexadecimalValue(this.source[idx++])) > 15 || c4 < 0))) {
 				c = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 			}
 		}
@@ -1473,9 +1474,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.index++;
 			while (this.source[this.index] == 'u')
 				this.index++;
-			if (!(((c1 = ScannerHelper.getNumericValue(this.source[this.index++])) > 15 || c1 < 0)
-					|| ((c2 = ScannerHelper.getNumericValue(this.source[this.index++])) > 15 || c2 < 0)
-					|| ((c3 = ScannerHelper.getNumericValue(this.source[this.index++])) > 15 || c3 < 0) || ((c4 = ScannerHelper.getNumericValue(this.source[this.index++])) > 15 || c4 < 0))) {
+			if (!(((c1 = ScannerHelper.getHexadecimalValue(this.source[this.index++])) > 15 || c1 < 0)
+					|| ((c2 = ScannerHelper.getHexadecimalValue(this.source[this.index++])) > 15 || c2 < 0)
+					|| ((c3 = ScannerHelper.getHexadecimalValue(this.source[this.index++])) > 15 || c3 < 0)
+					|| ((c4 = ScannerHelper.getHexadecimalValue(this.source[this.index++])) > 15 || c4 < 0))) {
 				c = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
 			} else {
 				// TODO (frederic) currently reset to previous position, perhaps signal a syntax error would be more appropriate

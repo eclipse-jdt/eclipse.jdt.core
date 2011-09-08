@@ -531,13 +531,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							}
 						}
 
-						if ((c1 = ScannerHelper.getNumericValue(source[pos++])) > 15
+						if ((c1 = ScannerHelper.getHexadecimalValue(source[pos++])) > 15
 							|| c1 < 0
-							|| (c2 = ScannerHelper.getNumericValue(source[pos++])) > 15
+							|| (c2 = ScannerHelper.getHexadecimalValue(source[pos++])) > 15
 							|| c2 < 0
-							|| (c3 = ScannerHelper.getNumericValue(source[pos++])) > 15
+							|| (c3 = ScannerHelper.getHexadecimalValue(source[pos++])) > 15
 							|| c3 < 0
-							|| (c4 = ScannerHelper.getNumericValue(source[pos++])) > 15
+							|| (c4 = ScannerHelper.getHexadecimalValue(source[pos++])) > 15
 							|| c4 < 0) {
 							return false;
 						} else {
