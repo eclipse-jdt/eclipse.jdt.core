@@ -9722,6 +9722,8 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, bo
 	boolean oldMethodRecoveryActivated = this.methodRecoveryActivated;
 	if(this.options.performMethodsFullRecovery) {
 		this.methodRecoveryActivated = true;
+		// we should not relocate bodyStart if there is a block within the statements
+		this.ignoreNextOpeningBrace = true;
 	}
 
 	initialize();
@@ -9971,6 +9973,8 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 
 	boolean oldMethodRecoveryActivated = this.methodRecoveryActivated;
 	if(this.options.performMethodsFullRecovery) {
+		// we should not relocate bodyStart if there is a block within the statements
+		this.ignoreNextOpeningBrace = true;
 		this.methodRecoveryActivated = true;
 		this.rParenPos = md.sourceEnd;
 	}

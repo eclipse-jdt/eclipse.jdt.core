@@ -122,7 +122,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 721, -1 };
-//		TESTS_NUMBERS =  new int[] { 721, 722, 723, 724, 725 };
+//		TESTS_NUMBERS =  new int[] { 723, 724 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST4_2.class);
@@ -10640,5 +10640,48 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 			}
 		}
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=347396
+	 */
+	public void test0723() {
+		ASTParser parser = ASTParser.newParser(AST.JLS4);
+		parser.setKind (ASTParser.K_STATEMENTS);
+		String src = "int j;\nfor {};\nj=1000;";
+		char[] source = src.toCharArray();
+		parser.setStatementsRecovery(true);
+		parser.setSource(source);
+		ASTNode result = parser.createAST (null);
+		assertNotNull("no result", result);
+		assertEquals("Wrong type", ASTNode.BLOCK, result.getNodeType());
+		Block block = (Block) result;
+		List statements = block.statements();
+		assertNotNull("No statements", statements);
+		assertEquals("Wrong size", 3, statements.size());
+		assertFalse(isRecovered((ASTNode) statements.get(0)));
+		assertFalse(isRecovered((ASTNode) statements.get(1)));
+		assertFalse(isRecovered((ASTNode) statements.get(2)));
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=347396
+	 */
+	public void test0724() {
+		ASTParser parser = ASTParser.newParser(AST.JLS4);
+		parser.setKind (ASTParser.K_COMPILATION_UNIT);
+		String src = "public class X { void foo() {int j;\nfor {};\nj=1000;}}";
+		char[] source = src.toCharArray();
+		parser.setStatementsRecovery(true);
+		parser.setSource(source);
+		ASTNode result = parser.createAST (null);
+		assertNotNull("no result", result);
+		assertEquals("Wrong type", ASTNode.COMPILATION_UNIT, result.getNodeType());
+		Block block = ((MethodDeclaration) getASTNode((CompilationUnit) result, 0, 0)).getBody();
+		List statements = block.statements();
+		assertNotNull("No statements", statements);
+		assertEquals("Wrong size", 3, statements.size());
+		assertFalse(isRecovered((ASTNode) statements.get(0)));
+		assertFalse(isRecovered((ASTNode) statements.get(1)));
+		assertFalse(isRecovered((ASTNode) statements.get(2)));
 	}
 }
