@@ -2092,6 +2092,24 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		assertTrue(x.getDimensions() == 5);
 		assertTrue(x.getElementType().isPrimitiveType());
+		final ArrayType x3 = this.ast.newArrayType(x, 2);
+		assertTrue(x3.getDimensions() == 7);
+		
+		try {
+			this.ast.newArrayType(null, 2);
+		} catch(IllegalArgumentException e) {
+			// ignore - expected
+		}
+		try {
+			this.ast.newArrayType(x, 0);
+		} catch(IllegalArgumentException e) {
+			// ignore - expected
+		}
+		try {
+			this.ast.newArrayType(x, 100000);
+		} catch(IllegalArgumentException e) {
+			// ignore - expected
+		}
 	}
 
 	/** @deprecated using deprecated code */
