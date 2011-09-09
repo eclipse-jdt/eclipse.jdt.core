@@ -1246,4 +1246,20 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		// Return created options map
 		return optionsMap;
 	}
+
+	protected String getExternalPath() {
+		String path = "";
+		try {
+			path = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile().getParentFile().getCanonicalPath();
+			if (path.charAt(path.length()-1) != File.separatorChar)
+				path += File.separatorChar;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return path;
+	}
+
+	protected String getExternalResourcePath(String relativePath) {
+		return getExternalPath() + relativePath;
+	}
 }

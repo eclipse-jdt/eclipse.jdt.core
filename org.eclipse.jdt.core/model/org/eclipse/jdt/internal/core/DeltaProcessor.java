@@ -953,6 +953,7 @@ public class DeltaProcessor {
 				// project does not exist -> ignore
 				continue;
 			}
+			boolean hasChainedJar = false;
 			for (int j = 0; j < entries.length; j++){
 				if (entries[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 					IPath entryPath = entries[j].getPath();
@@ -1022,7 +1023,7 @@ public class DeltaProcessor {
 								System.out.println("- External JAR ADDED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
 							elementAdded(root, null, null);
-							javaProject.resetResolvedClasspath(); // in case it contains a chained jar
+							hasChainedJar |= !this.manager.isNonChainingJar(entryPath);
 							this.state.addClasspathValidation(javaProject); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=185733
 							hasDelta = true;
 						} else if (status == EXTERNAL_JAR_CHANGED) {
@@ -1031,7 +1032,7 @@ public class DeltaProcessor {
 								System.out.println("- External JAR CHANGED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
 							contentChanged(root);
-							javaProject.resetResolvedClasspath(); // in case it contains a chained jar
+							hasChainedJar |= !this.manager.isNonChainingJar(entryPath);
 							hasDelta = true;
 						} else if (status == EXTERNAL_JAR_REMOVED) {
 							PackageFragmentRoot root = (PackageFragmentRoot) javaProject.getPackageFragmentRoot(entryPath.toString());
@@ -1039,12 +1040,16 @@ public class DeltaProcessor {
 								System.out.println("- External JAR REMOVED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
 							elementRemoved(root, null, null);
-							javaProject.resetResolvedClasspath(); // in case it contains a chained jar
+							hasChainedJar |= !this.manager.isNonChainingJar(entryPath);
 							this.state.addClasspathValidation(javaProject); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=185733
 							hasDelta = true;
 						}
 					}
 				}
+			}
+			
+			if (hasChainedJar) {
+				javaProject.resetResolvedClasspath();
 			}
 		}
 		// ensure the external file cache is reset so that if a .jar file is deleted but no longer on the classpath, it won't appear as changed next time it is added
