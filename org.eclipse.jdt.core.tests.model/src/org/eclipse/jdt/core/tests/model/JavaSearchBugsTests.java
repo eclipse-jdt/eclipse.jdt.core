@@ -710,6 +710,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugsTests("testBug350885"));
 	suite.addTest(new JavaSearchBugsTests("testBug349683"));
 	suite.addTest(new JavaSearchBugsTests("testBug345807"));
+	suite.addTest(new JavaSearchBugsTests("testBug355605"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -13711,6 +13712,46 @@ public void testBug345807() throws CoreException {
 	} finally {
 		deleteProject("P1");
 		deleteProject("Project2");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=355605
+public void testBug355605() throws CoreException {
+	try {
+	IJavaProject project = createJavaProject("P");
+
+		String fileContent = 				
+			"public class X { \n" 
+			+ "class R {\n"
+			+ "   class S {\n" 
+			+ "   	void setInfo(String x) {\n"
+			+ "   	}\n" 
+			+ "   }\n"
+			+ "   class T {\n"
+			+ "   }\n"
+			+ "	T t = new T()  {\n" 
+			+ "		S s = new S() {\n"
+			+ "           void myMethod() {\n"
+			+ "               setInfo(\"a\");\n" 
+			+ "           }\n"
+			+ "      };// S ends\n"
+			+ "   };\n" 
+			+ "}\n" 
+			+ "}\n" ;
+		createFile("/P/X.java", fileContent);
+		
+		waitUntilIndexesReady();
+		this.resultCollector = new TestCollector();
+		this.resultCollector.showAccuracy(true);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{project}, IJavaSearchScope.SOURCES);
+		search("setInfo", METHOD, IMPLEMENTORS, EXACT_RULE, scope, this.resultCollector);
+		IMethod method = (IMethod) ((SearchMatch)((TestCollector)this.resultCollector).matches.get(0)).getElement();
+		this.resultCollector = new TestCollector();
+		IJavaSearchScope hierarchyScope = SearchEngine.createHierarchyScope((IType)method.getParent());
+		search(method, IMPLEMENTORS, ERASURE_RULE, hierarchyScope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "X.java void X$R.t:<anonymous>#1.s:<anonymous>#1.myMethod() [myMethod]", this.resultCollector);
+		
+	} finally {
+		deleteProject("P");
 	}
 }
 }
