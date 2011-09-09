@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Terry Parker <tparker@google.com> - DeltaProcessor exhibits O(N^2) behavior, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=354332
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
