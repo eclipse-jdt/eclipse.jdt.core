@@ -13717,7 +13717,7 @@ public void testBug345807() throws CoreException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=355605
 public void testBug355605() throws CoreException {
 	try {
-	IJavaProject project = createJavaProject("P");
+	createJavaProject("P");
 
 		String fileContent = 				
 			"public class X { \n" 
@@ -13742,13 +13742,11 @@ public void testBug355605() throws CoreException {
 		waitUntilIndexesReady();
 		this.resultCollector = new TestCollector();
 		this.resultCollector.showAccuracy(true);
-		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{project}, IJavaSearchScope.SOURCES);
-		search("setInfo", METHOD, IMPLEMENTORS, EXACT_RULE, scope, this.resultCollector);
-		IMethod method = (IMethod) ((SearchMatch)((TestCollector)this.resultCollector).matches.get(0)).getElement();
-		this.resultCollector = new TestCollector();
+		ICompilationUnit unit = getCompilationUnit("/P/X.java");
+		IMethod method = selectMethod(unit, "myMethod", 1);
 		IJavaSearchScope hierarchyScope = SearchEngine.createHierarchyScope((IType)method.getParent());
-		search(method, IMPLEMENTORS, ERASURE_RULE, hierarchyScope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", "X.java void X$R.t:<anonymous>#1.s:<anonymous>#1.myMethod() [myMethod]", this.resultCollector);
+		search(method, IMPLEMENTORS, EXACT_RULE, hierarchyScope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "X.java void X$R.t:<anonymous>#1.s:<anonymous>#1.myMethod() [myMethod] EXACT_MATCH", this.resultCollector);
 		
 	} finally {
 		deleteProject("P");
