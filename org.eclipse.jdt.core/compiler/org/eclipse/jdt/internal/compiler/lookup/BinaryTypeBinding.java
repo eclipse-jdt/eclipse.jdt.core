@@ -178,7 +178,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 		// attempt to find the enclosing type if it exists in the cache (otherwise - resolve it when requested)
 		this.enclosingType = environment.getTypeFromConstantPoolName(enclosingTypeName, 0, -1, true, null /* could not be missing */); // pretend parameterized to avoid raw
 		this.tagBits |= TagBits.MemberTypeMask;   // must be a member type not a top-level or local type
-		this.tagBits |= 	TagBits.HasUnresolvedEnclosingType;
+		this.tagBits |= TagBits.HasUnresolvedEnclosingType;
 		if (enclosingType().isStrictfp())
 			this.modifiers |= ClassFileConstants.AccStrictfp;
 		if (enclosingType().isDeprecated())
@@ -283,10 +283,11 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			int size = memberTypeStructures.length;
 			if (size > 0) {
 				this.memberTypes = new ReferenceBinding[size];
-				for (int i = 0; i < size; i++)
+				for (int i = 0; i < size; i++) {
 					// attempt to find each member type if it exists in the cache (otherwise - resolve it when requested)
 					this.memberTypes[i] = this.environment.getTypeFromConstantPoolName(memberTypeStructures[i].getName(), 0, -1, false, null /* could not be missing */);
-				this.tagBits |= 	TagBits.HasUnresolvedMemberTypes;
+				}
+				this.tagBits |= TagBits.HasUnresolvedMemberTypes;
 			}
 		}
 
