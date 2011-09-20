@@ -1384,7 +1384,7 @@ class DefaultBindingResolver extends BindingResolver {
 			org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(pkg);
 			if (node instanceof ImportReference) {
 				ImportReference importReference = (ImportReference) node;
-				Binding binding = this.scope.getTypeOrPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
+				Binding binding = this.scope.getOnlyPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
 				if ((binding != null) && (binding.isValidBinding())) {
 					if (binding instanceof ReferenceBinding) {
 						// this only happens if a type name has the same name as its package

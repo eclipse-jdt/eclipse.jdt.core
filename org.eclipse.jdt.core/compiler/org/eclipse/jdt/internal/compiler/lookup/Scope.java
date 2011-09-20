@@ -2389,6 +2389,40 @@ public abstract class Scope {
 		return new ProblemReferenceBinding(compoundName, null /* no closest match since search for pkg*/, ProblemReasons.NotFound);
 	}
 
+	/* Answer the package from the compoundName or null if it begins with a type.
+	* Intended to be used while resolving a package name only.
+	* 
+	* Internal use only
+	*/
+	public final Binding getOnlyPackage(char[][] compoundName) {
+ 		compilationUnitScope().recordQualifiedReference(compoundName);
+		Binding binding = getTypeOrPackage(compoundName[0], Binding.PACKAGE, true);
+		if (binding == null || !binding.isValidBinding()) {
+			char[][] qName = new char[][] { compoundName[0] };
+			return new ProblemReferenceBinding(qName, null /* no closest match since search for pkg*/, ProblemReasons.NotFound);
+		}
+		if (!(binding instanceof PackageBinding)) {
+			return null; // compoundName does not start with a package
+		}
+
+		int currentIndex = 1, length = compoundName.length;
+		PackageBinding packageBinding = (PackageBinding) binding;
+		while (currentIndex < length) {
+			binding = packageBinding.getPackage(compoundName[currentIndex++]);
+			if (binding == null) {
+				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), null /* no closest match since search for pkg*/, ProblemReasons.NotFound);
+			}
+			if (!binding.isValidBinding()) {
+				return new ProblemReferenceBinding(
+					CharOperation.subarray(compoundName, 0, currentIndex),
+					binding instanceof ReferenceBinding ? (ReferenceBinding)((ReferenceBinding)binding).closestMatch() : null,
+					binding.problemId());
+			}
+			packageBinding = (PackageBinding) binding;
+		}
+		return packageBinding;
+	}
+
 	/* Answer the type binding that corresponds the given name, starting the lookup in the receiver.
 	* The name provided is a simple source name (e.g., "Object" , "Point", ...)
 	*/

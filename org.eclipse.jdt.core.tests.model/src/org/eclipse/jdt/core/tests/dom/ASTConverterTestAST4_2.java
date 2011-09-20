@@ -122,7 +122,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
 //		TESTS_RANGE = new int[] { 721, -1 };
-//		TESTS_NUMBERS =  new int[] { 723, 724 };
+//		TESTS_NUMBERS =  new int[] { 725 };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST4_2.class);
@@ -10683,5 +10683,48 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 		assertFalse(isRecovered((ASTNode) statements.get(0)));
 		assertFalse(isRecovered((ASTNode) statements.get(1)));
 		assertFalse(isRecovered((ASTNode) statements.get(2)));
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=357471
+	 */
+	public void test0725() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"package one.two;\n" +
+				"public class one {}";
+			workingCopy = getWorkingCopy("/Converter/src/one/two/one.java", true/*resolve*/);
+			CompilationUnit unit = (CompilationUnit) buildAST(
+				AST.JLS3,
+				contents,
+				workingCopy,
+				true,
+				true,
+				true);
+			PackageDeclaration packageDeclaration = unit.getPackage();
+			IPackageBinding packageBinding = packageDeclaration.resolveBinding();
+			assertNotNull("No binding", packageBinding);
+			assertEquals("Wrong name", "one.two", packageBinding.getName());
+			Name packageName = packageDeclaration.getName();
+			IBinding binding = packageName.resolveBinding();
+			assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind());
+			packageBinding = (IPackageBinding) binding;
+			assertEquals("Wrong name", "one.two", packageBinding.getName());
+			packageName = ((QualifiedName) packageName).getQualifier();
+			binding = packageName.resolveBinding();
+			assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind());
+			packageBinding = (IPackageBinding) binding;
+			assertEquals("Wrong name", "one", packageBinding.getName());
+			packageName = packageDeclaration.getName();
+			packageName = ((QualifiedName) packageName).getName();
+			binding = packageName.resolveBinding();
+			assertEquals("Wrong type", IBinding.PACKAGE, binding.getKind());
+			packageBinding = (IPackageBinding) binding;
+			assertEquals("Wrong name", "one.two", packageBinding.getName());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
 	}
 }
