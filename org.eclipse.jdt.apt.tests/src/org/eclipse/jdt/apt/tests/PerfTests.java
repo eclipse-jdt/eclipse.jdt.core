@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2011 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,12 +59,10 @@ public class PerfTests extends BuilderTests
 		IPath path = root.getLocation();
 		File destRoot = path.toFile();
 		
-		URL platformURL = Platform.getBundle("org.eclipse.jdt.apt.tests").getEntry("/");  //$NON-NLS-1$//$NON-NLS-2$
+		URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.binaries").getEntry("/");  //$NON-NLS-1$//$NON-NLS-2$
 		File f = new File(FileLocator.toFileURL(platformURL).getFile());
 		f = new File(f, "perf-test-project.zip"); //$NON-NLS-1$
 
-		
-		//InputStream in = PerfTests.class.getClassLoader().getResourceAsStream("perf-test-project.zip");
 		InputStream in = new FileInputStream(f);
 		ZipInputStream zipIn = new ZipInputStream(in);
 		try {
