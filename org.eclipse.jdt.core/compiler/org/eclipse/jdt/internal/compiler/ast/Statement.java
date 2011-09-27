@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 335093 - [compiler][null] minimal hook for future null annotation support
+ *     Stephan Herrmann - Contributions for 
+ *     							bug 335093 - [compiler][null] minimal hook for future null annotation support
+ *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -70,18 +72,22 @@ public void branchChainTo(BranchLabel label) {
 
 // Report an error if necessary (if even more unreachable than previously reported
 // complaintLevel = 0 if was reachable up until now, 1 if fake reachable (deadcode), 2 if fatal unreachable (error)
-public int complainIfUnreachable(FlowInfo flowInfo, BlockScope scope, int previousComplaintLevel) {
+public int complainIfUnreachable(FlowInfo flowInfo, FlowContext flowContext, BlockScope scope, int previousComplaintLevel, boolean endOfBlock) {
 	if ((flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0) {
 		if ((flowInfo.reachMode() & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 			this.bits &= ~ASTNode.IsReachable;
 		if (flowInfo == FlowInfo.DEAD_END) {
 			if (previousComplaintLevel < COMPLAINED_UNREACHABLE) {
 				scope.problemReporter().unreachableCode(this);
+				if (endOfBlock)
+					scope.checkUnclosedCloseables(flowInfo, flowContext, null);
 			}
 			return COMPLAINED_UNREACHABLE;
 		} else {
 			if (previousComplaintLevel < COMPLAINED_FAKE_REACHABLE) {
 				scope.problemReporter().fakeReachable(this);
+				if (endOfBlock)
+					scope.checkUnclosedCloseables(flowInfo, flowContext, null);
 			}
 			return COMPLAINED_FAKE_REACHABLE;
 		}

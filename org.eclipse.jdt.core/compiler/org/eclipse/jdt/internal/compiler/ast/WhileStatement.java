@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *     Stephan Herrmann - Contributions for 
+ *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -113,7 +115,7 @@ public class WhileStatement extends Statement {
 				currentScope.methodScope().recordInitializationStates(
 					condInfo.initsWhenTrue());
 
-			if (this.action.complainIfUnreachable(actionInfo, currentScope, initialComplaintLevel) < Statement.COMPLAINED_UNREACHABLE) {
+			if (this.action.complainIfUnreachable(actionInfo, flowContext, currentScope, initialComplaintLevel, true) < Statement.COMPLAINED_UNREACHABLE) {
 				actionInfo = this.action.analyseCode(currentScope, loopingContext, actionInfo);
 			}
 

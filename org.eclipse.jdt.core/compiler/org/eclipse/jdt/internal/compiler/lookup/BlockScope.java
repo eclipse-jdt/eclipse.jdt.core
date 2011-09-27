@@ -7,13 +7,19 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -956,5 +962,146 @@ public void resetEnclosingMethodStaticFlag() {
 			break;
 		}
 	}
+}
+
+private List trackingVariables; // can be null if no resources are tracked
+/**
+ * Register a tracking variable and compute its id.
+ */
+public int registerTrackingVariable(FakedTrackingVariable fakedTrackingVariable) {
+	if (this.trackingVariables == null)
+		this.trackingVariables = new ArrayList(3);
+	this.trackingVariables.add(fakedTrackingVariable);
+	MethodScope outerMethodScope = outerMostMethodScope();
+	return outerMethodScope.analysisIndex + (outerMethodScope.trackVarCount++);
+	
+}
+/** When no longer interested in this tracking variable remove it. */
+public void removeTrackingVar(FakedTrackingVariable trackingVariable) {
+	if (this.trackingVariables != null)
+		if (this.trackingVariables.remove(trackingVariable))
+			return;
+	if (this.parent instanceof BlockScope)
+		((BlockScope)this.parent).removeTrackingVar(trackingVariable);
+}
+/**
+ * At the end of a block check the closing-status of all tracked closeables that are declared in this block.
+ * Also invoked when entering unreachable code.
+ */
+public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, ASTNode location) {
+	if (this.trackingVariables == null) {
+		// at a method return we also consider enclosing scopes
+		if (location != null && this.parent instanceof BlockScope)
+			((BlockScope) this.parent).checkUnclosedCloseables(flowInfo, flowContext, location);
+		return;
+	}
+	if (location != null && flowInfo.reachMode() != 0) return;
+	for (int i=0; i<this.trackingVariables.size(); i++) {
+		FakedTrackingVariable trackingVar = (FakedTrackingVariable) this.trackingVariables.get(i);
+		if (location != null && trackingVar.originalBinding != null && flowInfo.isDefinitelyNull(trackingVar.originalBinding))
+			continue; // reporting against a specific location, resource is null at this flow, don't complain
+		int status = getNullStatusAggressively(trackingVar.binding, flowInfo);
+		if (status == FlowInfo.NULL) {
+			// definitely unclosed: highest priority
+			reportResourceLeak(trackingVar, location, status);
+			if (location == null) {
+				// definitely done with this trackingVar, remove it
+				this.trackingVariables.remove(trackingVar);
+				i--; // ... but don't disturb the enclosing loop.
+			}
+			continue;
+		}
+		if (location == null) // at end of block and not definitely unclosed
+		{
+			// problems at specific locations: medium priority
+			if (trackingVar.reportRecordedErrors(this)) // ... report previously recorded errors
+				continue;
+		} 
+		if (status == FlowInfo.POTENTIALLY_NULL) {
+			// potentially unclosed: lower priority
+			reportResourceLeak(trackingVar, location, status);
+		} else if (status == FlowInfo.NON_NULL) {
+			// properly closed but not managed by t-w-r: lowest priority 
+			if (environment().globalOptions.complianceLevel >= ClassFileConstants.JDK1_7)
+				trackingVar.reportExplicitClosing(problemReporter());
+		}
+	}
+}
+private void reportResourceLeak(FakedTrackingVariable trackingVar, ASTNode location, int nullStatus) {
+	if (location != null)
+		trackingVar.recordErrorLocation(location, nullStatus);
+	else
+		trackingVar.reportError(problemReporter(), null, nullStatus);
+}
+
+/** 
+ * If one branch of an if-else closes any AutoCloseable resource, and if the same
+ * resource is known to be null on the other branch mark it as closed, too,
+ * so that merging both branches indicates that the resource is always closed.
+ * Example:
+ *	FileReader fr1 = null;
+ *	try {\n" +
+ *      fr1 = new FileReader(someFile);" + 
+ *		fr1.read(buf);\n" + 
+ *	} finally {\n" + 
+ *		if (fr1 != null)\n" +
+ *           try {\n" +
+ *               fr1.close();\n" +
+ *           } catch (IOException e) {
+ *              // do nothing 
+ *           }
+ *      // after this if statement fr1 is definitely not leaked 
+ *	}
+ */
+public void correlateTrackingVarsIfElse(FlowInfo thenFlowInfo, FlowInfo elseFlowInfo) {
+	if (this.trackingVariables != null) {
+		for (int i=0; i<this.trackingVariables.size(); i++) {
+			FakedTrackingVariable trackingVar = (FakedTrackingVariable) this.trackingVariables.get(i);
+			if (   thenFlowInfo.isDefinitelyNonNull(trackingVar.binding)			// closed in then branch
+				&& elseFlowInfo.isDefinitelyNull(trackingVar.originalBinding))		// null in else branch
+			{
+				elseFlowInfo.markAsDefinitelyNonNull(trackingVar.binding);			// -> always closed
+			}
+			else if (   elseFlowInfo.isDefinitelyNonNull(trackingVar.binding)		// closed in else branch
+					 && thenFlowInfo.isDefinitelyNull(trackingVar.originalBinding))	// null in then branch
+			{
+				thenFlowInfo.markAsDefinitelyNonNull(trackingVar.binding);			// -> always closed
+			}
+		}
+	}
+	if (this.parent instanceof BlockScope)
+		((BlockScope) this.parent).correlateTrackingVarsIfElse(thenFlowInfo, elseFlowInfo);
+}
+
+/**
+ * Get the null status looking even into unreachable flows
+ * @param local
+ * @param flowInfo
+ * @return one of the constants FlowInfo.{NULL,POTENTIALLY_NULL,POTENTIALLY_NON_NULL,NON_NULL}.
+ */
+private int getNullStatusAggressively(LocalVariableBinding local, FlowInfo flowInfo) {
+	int reachMode = flowInfo.reachMode();
+	int status = 0;
+	try {
+		// unreachable flowInfo is too shy in reporting null-issues, temporarily forget reachability:
+		if (reachMode != FlowInfo.REACHABLE)
+			flowInfo.tagBits &= ~FlowInfo.UNREACHABLE;
+		status = flowInfo.nullStatus(local);
+	} finally {
+		// reset
+		flowInfo.tagBits |= reachMode;
+	}
+	// at this point some combinations are not useful so flatten to a single bit:
+	if ((status & FlowInfo.NULL) != 0) {
+		if ((status & (FlowInfo.NON_NULL | FlowInfo.POTENTIALLY_NON_NULL)) != 0)
+			return FlowInfo.POTENTIALLY_NULL; 	// null + doubt = pot null
+		return FlowInfo.NULL;
+	} else if ((status & FlowInfo.NON_NULL) != 0) {
+		if ((status & FlowInfo.POTENTIALLY_NULL) != 0)
+			return FlowInfo.POTENTIALLY_NULL;	// non-null + doubt = pot null
+		return FlowInfo.NON_NULL;
+	} else if ((status & FlowInfo.POTENTIALLY_NULL) != 0)
+		return FlowInfo.POTENTIALLY_NULL;
+	return status;
 }
 }

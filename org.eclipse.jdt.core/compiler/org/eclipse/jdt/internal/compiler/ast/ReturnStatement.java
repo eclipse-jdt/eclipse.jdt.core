@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *     Stephan Herrmann - Contributions for 
+ *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -39,6 +41,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
 		if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
 			this.expression.checkNPE(currentScope, flowContext, flowInfo);
+		}
+		FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression);
+		if (trackingVariable != null) {
+			if (currentScope.methodScope() != trackingVariable.methodScope)
+				trackingVariable.markClosedInNestedMethod();
+			// don't report issues concerning this local, since by returning
+			// the method passes the responsibility to the caller:
+			currentScope.removeTrackingVar(trackingVariable);
 		}
 	}
 	this.initStateIndex =
@@ -104,6 +114,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this.expression.bits |= ASTNode.IsReturnedValue;
 		}
 	}
+	currentScope.checkUnclosedCloseables(flowInfo, null/*ignore exception exits from flowContext*/, this);
 	return FlowInfo.DEAD_END;
 }
 

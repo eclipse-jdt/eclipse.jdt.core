@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for Bug 343713 - [compiler] bogus line number in constructor of inner class in 1.5 compliance
+ *     Stephan Herrmann - Contributions for 
+ *     							bug 343713 - [compiler] bogus line number in constructor of inner class in 1.5 compliance
+ *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -151,7 +153,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			int complaintLevel = (nonStaticFieldInfoReachMode & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 			for (int i = 0, count = this.statements.length; i < count; i++) {
 				Statement stat = this.statements[i];
-				if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel)) < Statement.COMPLAINED_UNREACHABLE) {
+				if ((complaintLevel = stat.complainIfUnreachable(flowInfo, constructorContext, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 					flowInfo = stat.analyseCode(this.scope, constructorContext, flowInfo);
 				}
 			}

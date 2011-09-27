@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 236385
+ *     Stephan Herrmann - Contributions for
+ *     							bug 236385 - [compiler] Warn for potential programming problem if an object is created but not used
+ *      						bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2359,6 +2361,52 @@ public void testBug338234d() {
 		"	^\n" + 
 		"The local variable i may not have been initialized\n" + 
 		"----------\n");
+}
+// Bug 349326 - [1.7] new warning for missing try-with-resources
+// variant < 1.7 using Closeable: not closed
+public void testCloseable1() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.File;\n" + 
+				"import java.io.FileReader;\n" + 
+				"import java.io.IOException;\n" + 
+				"public class X {\n" +
+				"    void foo() throws IOException {\n" +
+				"        File file = new File(\"somefile\");\n" + 
+				"        FileReader fileReader = new FileReader(file); // not closed\n" + 
+				"        char[] in = new char[50];\n" + 
+				"        fileReader.read(in);\n" + 
+				"    }\n" + 
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	FileReader fileReader = new FileReader(file); // not closed\n" + 
+			"	           ^^^^^^^^^^\n" + 
+			"Resource leak: 'fileReader' is never closed\n" + 
+			"----------\n");	
+}
+// Bug 349326 - [1.7] new warning for missing try-with-resources
+// variant < 1.7 using Closeable: resource is closed, cannot suggest try-with-resources < 1.7
+public void testCloseable2() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.File;\n" + 
+				"import java.io.FileReader;\n" + 
+				"import java.io.IOException;\n" + 
+				"public class X {\n" +
+				"    void foo() throws IOException {\n" +
+				"        File file = new File(\"somefile\");\n" + 
+				"        FileReader fileReader = new FileReader(file); // not closed\n" + 
+				"        char[] in = new char[50];\n" + 
+				"        fileReader.read(in);\n" +
+				"        fileReader.close();\n" + 
+				"    }\n" + 
+				"}\n"
+			}, 
+			"");	
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;

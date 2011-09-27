@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -41,7 +42,11 @@ abstract public class ReferenceBinding extends TypeBinding {
 
 	private SimpleLookupTable compatibleCache;
 
-	public static final ReferenceBinding LUB_GENERIC = new ReferenceBinding() { /* used for lub computation */};
+	int typeBits; // additional bits characterizing this type
+
+	public static final ReferenceBinding LUB_GENERIC = new ReferenceBinding() { /* used for lub computation */
+		public boolean hasTypeBit(int bit) { return false; }
+	};
 
 	private static final Comparator FIELD_COMPARATOR = new Comparator() {
 		public int compare(Object o1, Object o2) {
@@ -392,6 +397,10 @@ public void computeId() {
 					case 'i' :
 						if (CharOperation.equals(packageName, TypeConstants.IO)) {
 							switch (typeName[0]) {
+								case 'C' :
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_IO_CLOSEABLE[2]))
+										this.typeBits |= TypeIds.BitCloseable; // don't assign id, only typeBit (for analysis of resource leaks) 
+									return;
 								case 'E' :
 									if (CharOperation.equals(typeName, TypeConstants.JAVA_IO_EXTERNALIZABLE[2]))
 										this.id = TypeIds.T_JavaIoExternalizable;
@@ -438,8 +447,10 @@ public void computeId() {
 				case 'A' :
 					switch(typeName.length) {
 						case 13 :
-							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_AUTOCLOSEABLE[2]))
+							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_AUTOCLOSEABLE[2])) {
 								this.id = TypeIds.T_JavaLangAutoCloseable;
+								this.typeBits |= TypeIds.BitAutoCloseable; 
+							}
 							return;
 						case 14:
 							if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_ASSERTIONERROR[2]))
@@ -937,6 +948,8 @@ public boolean hasMemberTypes() {
 public final boolean hasRestrictedAccess() {
 	return (this.modifiers & ExtraCompilerModifiers.AccRestrictedAccess) != 0;
 }
+/** Answer an additional bit characterizing this type, like {@link TypeIds#BitAutoCloseable}. */
+abstract public boolean hasTypeBit(int bit);
 
 /** Answer true if the receiver implements anInterface or is identical to anInterface.
 * If searchHierarchy is true, then also search the receiver's superclasses.

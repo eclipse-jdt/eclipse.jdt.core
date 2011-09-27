@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 328281 - visibility leaks not detected when analyzing unused field in private class
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *     							bug 328281 - visibility leaks not detected when analyzing unused field in private class
+ *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1061,6 +1063,11 @@ public SyntheticMethodBinding getSyntheticBridgeMethod(MethodBinding inheritedMe
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(inheritedMethodToBridge);
 	if (accessors == null) return null;
 	return accessors[1];
+}
+
+public boolean hasTypeBit(int bit) {
+	// source types initialize type bits during connectSuperclass/interfaces()
+	return (this.typeBits & bit) != 0;
 }
 
 /**
