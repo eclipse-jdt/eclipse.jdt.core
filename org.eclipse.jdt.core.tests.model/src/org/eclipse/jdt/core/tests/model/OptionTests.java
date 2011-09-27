@@ -633,7 +633,7 @@ public void testBug125360() throws CoreException, BackingStoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=131707"
  */
 public void testBug131707() throws CoreException {
-	IEclipsePreferences defaultPreferences = DefaultScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+	IEclipsePreferences defaultPreferences = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
 	try {
 		defaultPreferences.put("org.eclipse.jdt.core.classpathVariable.MY_DEFAULT_LIB", "c:\\temp\\lib.jar");
 		simulateExitRestart();

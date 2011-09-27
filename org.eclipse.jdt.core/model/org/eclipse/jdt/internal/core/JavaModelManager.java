@@ -1529,7 +1529,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		public void removed(IEclipsePreferences.NodeChangeEvent event) {
 			if (event.getChild() == JavaModelManager.this.preferencesLookup[PREF_INSTANCE]) {
-				JavaModelManager.this.preferencesLookup[PREF_INSTANCE] = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+				JavaModelManager.this.preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
 				JavaModelManager.this.preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(new EclipsePreferencesListener());
 			}
 		}
@@ -1540,7 +1540,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		public void removed(IEclipsePreferences.NodeChangeEvent event) {
 			if (event.getChild() == JavaModelManager.this.preferencesLookup[PREF_DEFAULT]) {
-				JavaModelManager.this.preferencesLookup[PREF_DEFAULT] = DefaultScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+				JavaModelManager.this.preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
 			}
 		}
 	};
@@ -3002,8 +3002,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void initializePreferences() {
 
 		// Create lookups
-		this.preferencesLookup[PREF_INSTANCE] = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
-		this.preferencesLookup[PREF_DEFAULT] = DefaultScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+		this.preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
+		this.preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
 
 		// Listen to instance preferences node removal from parent in order to refresh stored one
 		this.instanceNodeListener = new IEclipsePreferences.INodeChangeListener() {
@@ -3012,7 +3012,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 			public void removed(IEclipsePreferences.NodeChangeEvent event) {
 				if (event.getChild() == JavaModelManager.this.preferencesLookup[PREF_INSTANCE]) {
-					JavaModelManager.this.preferencesLookup[PREF_INSTANCE] = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+					JavaModelManager.this.preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
 					JavaModelManager.this.preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(new EclipsePreferencesListener());
 				}
 			}
@@ -3027,7 +3027,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 			public void removed(IEclipsePreferences.NodeChangeEvent event) {
 				if (event.getChild() == JavaModelManager.this.preferencesLookup[PREF_DEFAULT]) {
-					JavaModelManager.this.preferencesLookup[PREF_DEFAULT] = DefaultScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+					JavaModelManager.this.preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
 				}
 			}
 		};
@@ -4895,7 +4895,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					JavaModelManager.this.optionsCache = null;
 				}
 			};
-			InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID).addPreferenceChangeListener(this.propertyListener);
+			new InstanceScope().getNode(JavaCore.PLUGIN_ID).addPreferenceChangeListener(this.propertyListener);
 			
 			// listen for encoding changes (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=255501 )
 			this.resourcesPropertyListener = new IEclipsePreferences.IPreferenceChangeListener() {
@@ -4906,7 +4906,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				}
 			};
 			String resourcesPluginId = ResourcesPlugin.getPlugin().getBundle().getSymbolicName();
-			InstanceScope.INSTANCE.getNode(resourcesPluginId).addPreferenceChangeListener(this.resourcesPropertyListener);
+			new InstanceScope().getNode(resourcesPluginId).addPreferenceChangeListener(this.resourcesPropertyListener);
 
 			// Listen to content-type changes
 			 Platform.getContentTypeManager().addContentTypeChangeListener(this);
@@ -4978,7 +4978,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public void shutdown () {
-		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+		IEclipsePreferences preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
 		try {
 			preferences.flush();
 		} catch (BackingStoreException e) {
@@ -5004,7 +5004,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		this.preferencesLookup[PREF_INSTANCE].removePreferenceChangeListener(this.instancePreferencesListener);
 		this.preferencesLookup[PREF_INSTANCE] = null;
 		String resourcesPluginId = ResourcesPlugin.getPlugin().getBundle().getSymbolicName();
-		InstanceScope.INSTANCE.getNode(resourcesPluginId).removePreferenceChangeListener(this.resourcesPropertyListener);
+		new InstanceScope().getNode(resourcesPluginId).removePreferenceChangeListener(this.resourcesPropertyListener);
 
 		// wait for the initialization job to finish
 		try {

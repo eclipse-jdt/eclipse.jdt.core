@@ -525,7 +525,7 @@ public void test232816b() throws Exception {
 		initializer.requestClasspathContainerUpdate(containerPath.append(libraryName), null, containerSuggestion);
 
 		// Modify user library
-		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+		IEclipsePreferences preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
 		String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"SomeUserLibrary";
 		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
 		//String jarFullPath = getWorkspaceRoot().getLocation().append(jarFile.getFullPath()).toString();
@@ -6196,7 +6196,7 @@ public void testBug276373() throws Exception {
 		UserLibraryClasspathContainer containerSuggestion = new UserLibraryClasspathContainer(libraryName);
 		initializer.requestClasspathContainerUpdate(containerPath.append(libraryName), null, containerSuggestion);
 
-		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+		IEclipsePreferences preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
 		String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"TestUserLibrary";
 		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
 		propertyValue.append(" path=\"" + libJar.getAbsolutePath());

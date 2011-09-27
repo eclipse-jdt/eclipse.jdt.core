@@ -8561,7 +8561,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		String compiler_compliance = null;
 		try {
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0344", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+			preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
 			pb_assert = preferences.get(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, "");
 			compiler_source = preferences.get(JavaCore.COMPILER_SOURCE, "");
 			compiler_compliance = preferences.get(JavaCore.COMPILER_COMPLIANCE, "");

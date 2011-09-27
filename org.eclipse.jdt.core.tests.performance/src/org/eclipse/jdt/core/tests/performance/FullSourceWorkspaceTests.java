@@ -609,7 +609,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
 
 		// Modify resources workspace preferences to avoid disturbing tests while running them
-		IEclipsePreferences resourcesPreferences = InstanceScope.INSTANCE.getNode(ResourcesPlugin.PI_RESOURCES);
+		IEclipsePreferences resourcesPreferences = new InstanceScope().getNode(ResourcesPlugin.PI_RESOURCES);
 		resourcesPreferences.put(ResourcesPlugin.PREF_AUTO_REFRESH, "false");
 		workspace.getDescription().setSnapshotInterval(Long.MAX_VALUE);
 		workspace.getDescription().setAutoBuilding(false);

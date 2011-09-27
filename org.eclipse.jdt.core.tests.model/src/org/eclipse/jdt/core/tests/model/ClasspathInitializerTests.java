@@ -1569,7 +1569,7 @@ public void testUserLibraryInitializer1() throws Exception {
 		IFile srcFile = createFile("/p61872/swtsrc.zip", "");
 
 		// Modify user library
-		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+		IEclipsePreferences preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
 		String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"SWT";
 		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
 		String jarFullPath = getWorkspaceRoot().getLocation().append(jarFile.getFullPath()).toString();
@@ -1625,7 +1625,7 @@ public void testBug346002() throws Exception {
 
 	String libPath = "C:/test/test.jar";
 
-	IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+	IEclipsePreferences preferences = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
 	String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+ "TEST";
 
 	StringBuffer propertyValue = new StringBuffer(

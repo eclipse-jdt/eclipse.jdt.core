@@ -910,7 +910,7 @@ public class Util {
 			}
 	
 			// line delimiter in workspace preference
-			scopeContext= new IScopeContext[] { InstanceScope.INSTANCE };
+			scopeContext= new IScopeContext[] { new InstanceScope() };
 			lineSeparator = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
 			if (lineSeparator != null)
 				return lineSeparator;
