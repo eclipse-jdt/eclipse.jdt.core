@@ -410,7 +410,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 */
 	private void setJDTProcessAnnotationsSetting(boolean enable) {
 		IScopeContext context = (null != fJProj) ?
-				new ProjectScope(fJProj.getProject()) : InstanceScope.INSTANCE;
+				new ProjectScope(fJProj.getProject()) : new InstanceScope();
 		IEclipsePreferences node = context.getNode(JavaCore.PLUGIN_ID);
 		final String value = enable ? AptPreferenceConstants.ENABLED : AptPreferenceConstants.DISABLED;
 		node.put(AptPreferenceConstants.APT_PROCESSANNOTATIONS, value);

@@ -86,7 +86,7 @@ public class AptConfig {
     		throw new IllegalArgumentException();
     	}
 		IScopeContext context = (null != jproj) ? 
-				new ProjectScope(jproj.getProject()) : InstanceScope.INSTANCE;
+				new ProjectScope(jproj.getProject()) : new InstanceScope();
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID + "/" +  //$NON-NLS-1$
 				AptPreferenceConstants.APT_PROCESSOROPTIONS);
 		String nonNullVal = val == null ? AptPreferenceConstants.APT_NULLVALUE : val;
@@ -109,7 +109,7 @@ public class AptConfig {
     		throw new IllegalArgumentException();
     	}
     	IScopeContext context = (null != jproj) ? 
-				new ProjectScope(jproj.getProject()) : InstanceScope.INSTANCE;
+				new ProjectScope(jproj.getProject()) : new InstanceScope();
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID + "/" +  //$NON-NLS-1$
 				AptPreferenceConstants.APT_PROCESSOROPTIONS);
 		node.remove(key);
@@ -416,7 +416,7 @@ public class AptConfig {
      */
     public static void setProcessorOptions(Map<String, String> options, IJavaProject jproj) {
 		IScopeContext context = (null != jproj) ? 
-				new ProjectScope(jproj.getProject()) : InstanceScope.INSTANCE;
+				new ProjectScope(jproj.getProject()) : new InstanceScope();
 
     	// TODO: this call is needed only for backwards compatibility with
 	    // settings files previous to 2005.11.13.  At some point it should be
@@ -494,10 +494,10 @@ public class AptConfig {
 		IScopeContext[] contexts;
 		if (jproj != null) {
 			contexts = new IScopeContext[] { 
-					new ProjectScope(jproj.getProject()), InstanceScope.INSTANCE };
+					new ProjectScope(jproj.getProject()), new InstanceScope() };
 		}
 		else {
-			contexts = new IScopeContext[] { InstanceScope.INSTANCE };
+			contexts = new IScopeContext[] { new InstanceScope() };
 		}
 		for (IScopeContext context : contexts) {
 			IEclipsePreferences prefs = context.getNode(AptPlugin.PLUGIN_ID);
@@ -687,7 +687,7 @@ public class AptConfig {
      */
     public static void dispose() {
     	try {
-    		InstanceScope.INSTANCE.getNode(AptPlugin.PLUGIN_ID).flush();
+    		new InstanceScope().getNode(AptPlugin.PLUGIN_ID).flush();
     	}
     	catch (BackingStoreException e) {
     		// log failure and continue
@@ -774,10 +774,10 @@ public class AptConfig {
 		IScopeContext[] contexts;
 		if (jproj != null) {
 			contexts = new IScopeContext[] { 
-					new ProjectScope(jproj.getProject()), InstanceScope.INSTANCE, DefaultScope.INSTANCE };
+					new ProjectScope(jproj.getProject()), new InstanceScope(), new DefaultScope() };
 		}
 		else {
-			contexts = new IScopeContext[] { InstanceScope.INSTANCE, DefaultScope.INSTANCE };
+			contexts = new IScopeContext[] { new InstanceScope(), new DefaultScope() };
 		}
 		return service.getBoolean(
 				AptPlugin.PLUGIN_ID, 
@@ -857,10 +857,10 @@ public class AptConfig {
 		IScopeContext[] contexts;
 		if (jproj != null) {
 			contexts = new IScopeContext[] { 
-					new ProjectScope(jproj.getProject()), InstanceScope.INSTANCE, DefaultScope.INSTANCE };
+					new ProjectScope(jproj.getProject()), new InstanceScope(), new DefaultScope() };
 		}
 		else {
-			contexts = new IScopeContext[] { InstanceScope.INSTANCE, DefaultScope.INSTANCE };
+			contexts = new IScopeContext[] { new InstanceScope(), new DefaultScope() };
 		}
 		String pluginId = null;
 		if (AptPreferenceConstants.APT_PROCESSANNOTATIONS.equals(optionName)) {
@@ -893,7 +893,7 @@ public class AptConfig {
 	
 	private static void setBoolean(IJavaProject jproject, String optionName, boolean value) {
 		IScopeContext context = (null != jproject) ? 
-				new ProjectScope(jproject.getProject()) : InstanceScope.INSTANCE;
+				new ProjectScope(jproject.getProject()) : new InstanceScope();
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
 		// get old val as a String, so it can be null if setting doesn't exist yet
 		String oldValue = node.get(optionName, null);
@@ -907,7 +907,7 @@ public class AptConfig {
 	
 	private static void setString(IJavaProject jproject, String optionName, String value) {
 		IScopeContext context = (null != jproject) ? 
-				new ProjectScope(jproject.getProject()) : InstanceScope.INSTANCE;
+				new ProjectScope(jproject.getProject()) : new InstanceScope();
 		IEclipsePreferences node;
 		if (AptPreferenceConstants.APT_PROCESSANNOTATIONS.equals(optionName)) {
 			node = context.getNode(JavaCore.PLUGIN_ID);

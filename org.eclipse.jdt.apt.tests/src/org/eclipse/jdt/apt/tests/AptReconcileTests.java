@@ -483,7 +483,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 		// disable auto-build.  We don't want build-time type-generation interfering with
 		// our reconcile tests.
 		String key = ResourcesPlugin.PREF_AUTO_BUILDING;
-		InstanceScope.INSTANCE.getNode(ResourcesPlugin.PI_RESOURCES).putBoolean(key, false);
+		new InstanceScope().getNode(ResourcesPlugin.PI_RESOURCES).putBoolean(key, false);
 
 		this._problemRequestor = new ProblemRequestor();
 

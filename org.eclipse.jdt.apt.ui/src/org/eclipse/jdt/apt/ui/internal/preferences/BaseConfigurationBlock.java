@@ -219,14 +219,14 @@ public abstract class BaseConfigurationBlock {
 		if (fProject != null) {
 			fLookupOrder= new IScopeContext[] {
 				new ProjectScope(fProject),
-				InstanceScope.INSTANCE,
-				DefaultScope.INSTANCE
+				new InstanceScope(),
+				new DefaultScope()
 			};
 			fAptProject = AptPlugin.getAptProject(JavaCore.create(fProject));
 		} else {
 			fLookupOrder= new IScopeContext[] {
-				InstanceScope.INSTANCE,
-				DefaultScope.INSTANCE
+				new InstanceScope(),
+				new DefaultScope()
 			};
 			fAptProject = null;
 		}
@@ -646,12 +646,12 @@ public abstract class BaseConfigurationBlock {
 		IScopeContext[] lookupOrder; // not same as fLookupOrder!  Starts one layer deeper.
 		if (fProject != null) {
 			lookupOrder= new IScopeContext[] {
-				InstanceScope.INSTANCE,
-				DefaultScope.INSTANCE
+				new InstanceScope(),
+				new DefaultScope()
 			};
 		} else {
 			lookupOrder= new IScopeContext[] {
-				DefaultScope.INSTANCE
+				new DefaultScope()
 			};
 		}
 
