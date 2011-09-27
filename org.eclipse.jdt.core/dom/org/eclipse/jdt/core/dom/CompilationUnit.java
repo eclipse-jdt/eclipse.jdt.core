@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -867,7 +867,7 @@ public class CompilationUnit extends ASTNode {
 
 	/**
 	 * Enables the recording of changes to this compilation
-	 * unit and its descendents. The compilation unit must have
+	 * unit and its descendants. The compilation unit must have
 	 * been created by <code>ASTParser</code> and still be in
 	 * its original state. Once recording is on,
 	 * arbitrary changes to the subtree rooted at this compilation
