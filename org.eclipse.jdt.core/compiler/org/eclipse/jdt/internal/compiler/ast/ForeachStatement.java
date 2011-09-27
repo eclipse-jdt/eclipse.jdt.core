@@ -7,7 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -100,7 +99,7 @@ public class ForeachStatement extends Statement {
 		if (!(this.action == null || (this.action.isEmptyBlock()
 				&& currentScope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_3))) {
 
-			if (this.action.complainIfUnreachable(actionInfo, flowContext, this.scope, initialComplaintLevel, true) < Statement.COMPLAINED_UNREACHABLE) {
+			if (this.action.complainIfUnreachable(actionInfo, this.scope, initialComplaintLevel) < Statement.COMPLAINED_UNREACHABLE) {
 				actionInfo = this.action.analyseCode(this.scope, loopingContext, actionInfo).unconditionalCopy();
 			}
 

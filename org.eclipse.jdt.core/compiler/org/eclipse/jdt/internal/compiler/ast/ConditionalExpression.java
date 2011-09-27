@@ -12,7 +12,6 @@
  *     						bug 292478 - Report potentially null across variable assignment
  * 							bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
  * 							bug 354554 - [null] conditional with redundant condition yields weak error message
- *     						bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -66,7 +65,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				trueFlowInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 			}
 			if (!isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement) {
-				this.valueIfTrue.complainIfUnreachable(trueFlowInfo, flowContext, currentScope, initialComplaintLevel, false);
+				this.valueIfTrue.complainIfUnreachable(trueFlowInfo, currentScope, initialComplaintLevel);
 			}
 		}
 		this.trueInitStateIndex = currentScope.methodScope().recordInitializationStates(trueFlowInfo);
@@ -79,7 +78,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				falseFlowInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 			}
 			if (!isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement) {
-				this.valueIfFalse.complainIfUnreachable(falseFlowInfo, flowContext, currentScope, initialComplaintLevel, true);
+				this.valueIfFalse.complainIfUnreachable(falseFlowInfo, currentScope, initialComplaintLevel);
 			}
 		}
 		this.falseInitStateIndex = currentScope.methodScope().recordInitializationStates(falseFlowInfo);

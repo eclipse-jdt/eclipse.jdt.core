@@ -7,9 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
- *     							bug 185682 - Increment/decrement operators mark local variables as read
- *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -17,7 +15,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
-import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -37,8 +34,6 @@ public class LocalVariableBinding extends VariableBinding {
 
 	public int[] initializationPCs;
 	public int initializationCount = 0;
-
-	public FakedTrackingVariable closeTracker; // track closing of instances of type AutoCloseable, maybe null
 
 	// for synthetic local variables
 	// if declaration slot is not positionned, the variable will not be listed in attribute

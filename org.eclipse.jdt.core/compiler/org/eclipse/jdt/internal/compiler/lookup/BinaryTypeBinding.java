@@ -7,7 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -973,12 +972,6 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
 	variable.resolve();
 	return variable;
 }
-public boolean hasTypeBit(int bit) {
-	// ensure hierarchy is resolved, which will propagate bits down to us
-	superclass();
-	superInterfaces();
-	return (this.typeBits & bit) != 0;
-}
 private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBinding[] existingVariables, SignatureWrapper wrapper, char[][][] missingTypeNames) {
 	// ParameterSignature = Identifier ':' TypeSignature
 	//   or Identifier ':' TypeSignature(optional) InterfaceBound(s)
@@ -1147,14 +1140,8 @@ public ReferenceBinding superclass() {
 	// finish resolving the type
 	this.superclass = (ReferenceBinding) resolveType(this.superclass, this.environment, true /* raw conversion */);
 	this.tagBits &= ~TagBits.HasUnresolvedSuperclass;
-	if (this.superclass.problemId() == ProblemReasons.NotFound) {
+	if (this.superclass.problemId() == ProblemReasons.NotFound)
 		this.tagBits |= TagBits.HierarchyHasProblems; // propagate type inconsistency
-	} else {
-		// make super-type resolving recursive for propagating typeBits downwards
-		this.superclass.superclass();
-		this.superclass.superInterfaces();
-	}
-	this.typeBits |= this.superclass.typeBits;
 	return this.superclass;
 }
 // NOTE: superInterfaces of binary types are resolved when needed
@@ -1164,14 +1151,8 @@ public ReferenceBinding[] superInterfaces() {
 
 	for (int i = this.superInterfaces.length; --i >= 0;) {
 		this.superInterfaces[i] = (ReferenceBinding) resolveType(this.superInterfaces[i], this.environment, true /* raw conversion */);
-		if (this.superInterfaces[i].problemId() == ProblemReasons.NotFound) {
+		if (this.superInterfaces[i].problemId() == ProblemReasons.NotFound)
 			this.tagBits |= TagBits.HierarchyHasProblems; // propagate type inconsistency
-		} else {
-			// make super-type resolving recursive for propagating typeBits downwards
-			this.superInterfaces[i].superclass();
-			this.superInterfaces[i].superInterfaces();
-		}
-		this.typeBits |= this.superInterfaces[i].typeBits;
 	}
 	this.tagBits &= ~TagBits.HasUnresolvedSuperinterfaces;
 	return this.superInterfaces;

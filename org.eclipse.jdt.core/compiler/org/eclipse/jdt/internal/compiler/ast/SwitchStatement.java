@@ -7,9 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contributions for 
- *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
- *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -101,7 +99,7 @@ public class SwitchStatement extends Statement {
 					} else {
 						fallThroughState = FALLTHROUGH; // reset below if needed
 					}
-					if ((complaintLevel = statement.complainIfUnreachable(caseInits, flowContext, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
+					if ((complaintLevel = statement.complainIfUnreachable(caseInits, this.scope, complaintLevel)) < Statement.COMPLAINED_UNREACHABLE) {
 						caseInits = statement.analyseCode(this.scope, switchContext, caseInits);
 						if (caseInits == FlowInfo.DEAD_END) {
 							fallThroughState = ESCAPING;

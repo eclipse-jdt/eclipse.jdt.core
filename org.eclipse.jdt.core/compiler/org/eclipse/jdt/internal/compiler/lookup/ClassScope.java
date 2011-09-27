@@ -11,7 +11,6 @@
  *     						Bug 328281 - visibility leaks not detected when analyzing unused field in private class
  *     						Bug 300576 - NPE Computing type hierarchy when compliance doesn't match libraries
  *     						Bug 354536 - compiling package-info.java still depends on the order of compilation units
- *     						Bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -909,7 +908,6 @@ public class ClassScope extends Scope {
 			} else {
 				// only want to reach here when no errors are reported
 				sourceType.superclass = superclass;
-				sourceType.typeBits |= superclass.typeBits;
 				return true;
 			}
 		}
@@ -1025,7 +1023,6 @@ public class ClassScope extends Scope {
 				noProblems &= superInterfaceRef.resolvedType.isValidBinding();
 			}
 			// only want to reach here when no errors are reported
-			sourceType.typeBits |= superInterface.typeBits;
 			interfaceBindings[count++] = superInterface;
 		}
 		// hold onto all correctly resolved superinterfaces

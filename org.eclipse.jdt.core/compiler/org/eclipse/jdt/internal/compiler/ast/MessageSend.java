@@ -8,9 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Nick Teryaev - fix for bug (https://bugs.eclipse.org/bugs/show_bug.cgi?id=40752)
- *     Stephan Herrmann - Contributions for
- *     	 						bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
- *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -40,7 +38,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
@@ -63,18 +60,6 @@ public class MessageSend extends Expression implements InvocationSite {
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	boolean nonStatic = !this.binding.isStatic();
 	flowInfo = this.receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
-	// recording the closing of AutoCloseable resources:
-	if (CharOperation.equals(TypeConstants.CLOSE, this.selector)) 
-	{
-		FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.receiver);
-		if (trackingVariable != null) { // null happens if receiver is not a local variable or not an AutoCloseable
-			if (trackingVariable.methodScope == currentScope.methodScope()) {
-				trackingVariable.markClose(flowInfo, flowContext);
-			} else {
-				trackingVariable.markClosedInNestedMethod();
-			}
-		}
-	}
 	if (nonStatic) {
 		this.receiver.checkNPE(currentScope, flowContext, flowInfo);
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
@@ -95,8 +80,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if ((this.arguments[i].implicitConversion & TypeIds.UNBOXING) != 0) {
 				this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);
 			}
-			// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
-			flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo);
 			flowInfo = this.arguments[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 		}
 	}

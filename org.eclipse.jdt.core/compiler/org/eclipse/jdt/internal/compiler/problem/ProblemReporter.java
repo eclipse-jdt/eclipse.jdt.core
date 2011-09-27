@@ -11,7 +11,6 @@
  *     Stephan Herrmann  - Contributions for 
  *     						bug 236385 - 
  *     						bug 338303 - Warning about Redundant assignment conflicts with definite assignment
- *     						bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -52,7 +51,6 @@ import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.EqualExpression;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
-import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
@@ -428,15 +426,6 @@ public static int getIrritant(int problemID) {
 			
 		case IProblem.MethodCanBePotentiallyStatic:
 			return CompilerOptions.MethodCanBePotentiallyStatic;
-
-		case IProblem.UnclosedCloseable:
-		case IProblem.UnclosedCloseableAtExit:
-			return CompilerOptions.UnclosedCloseable;
-		case IProblem.PotentiallyUnclosedCloseable:
-		case IProblem.PotentiallyUnclosedCloseableAtExit:
-			return CompilerOptions.PotentiallyUnclosedCloseable;
-		case IProblem.ExplicitlyClosedAutoCloseable:
-			return CompilerOptions.ExplicitlyClosedAutoCloseable;
 				
 		case IProblem.RedundantSpecificationOfTypeArguments:
 			return CompilerOptions.RedundantSpecificationOfTypeArguments;
@@ -472,7 +461,6 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.ParameterAssignment :
 			case CompilerOptions.MethodCanBeStatic :
 			case CompilerOptions.MethodCanBePotentiallyStatic :
-			case CompilerOptions.ExplicitlyClosedAutoCloseable :
 				return CategorizedProblem.CAT_CODE_STYLE;
 
 			case CompilerOptions.MaskedCatchBlock :
@@ -494,8 +482,6 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.ShouldImplementHashcode :
 			case CompilerOptions.DeadCode :
 			case CompilerOptions.UnusedObjectAllocation :
-			case CompilerOptions.UnclosedCloseable :
-			case CompilerOptions.PotentiallyUnclosedCloseable :
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			
 			case CompilerOptions.OverriddenPackageDefaultMethod :
@@ -7944,50 +7930,5 @@ public void redundantSpecificationOfTypeArguments(ASTNode location, TypeBinding[
 			sourceStart,
 			location.sourceEnd);
     }
-}
-public void potentiallyUnclosedCloseable(FakedTrackingVariable trackVar, ASTNode location) {
-	String[] args = { String.valueOf(trackVar.name) };
-	if (location == null) {
-		this.handle(
-			IProblem.PotentiallyUnclosedCloseable,
-			args,
-			args,
-			trackVar.sourceStart,
-			trackVar.sourceEnd);
-	} else {
-		this.handle(
-			IProblem.PotentiallyUnclosedCloseableAtExit,
-			args,
-			args,
-			location.sourceStart,
-			location.sourceEnd);
-	}
-}
-public void unclosedCloseable(FakedTrackingVariable trackVar, ASTNode location) {
-	String[] args = { String.valueOf(trackVar.name) };
-	if (location == null) {
-		this.handle(
-			IProblem.UnclosedCloseable,
-			args,
-			args,
-			trackVar.sourceStart,
-			trackVar.sourceEnd);
-	} else {
-		this.handle(
-			IProblem.UnclosedCloseableAtExit,
-			args,
-			args,
-			location.sourceStart,
-			location.sourceEnd);
-	}
-}
-public void explicitlyClosedAutoCloseable(FakedTrackingVariable trackVar) {
-	String[] args = { String.valueOf(trackVar.name) };
-	this.handle(
-		IProblem.ExplicitlyClosedAutoCloseable,
-		args,
-		args,
-		trackVar.sourceStart,
-		trackVar.sourceEnd);	
 }
 }

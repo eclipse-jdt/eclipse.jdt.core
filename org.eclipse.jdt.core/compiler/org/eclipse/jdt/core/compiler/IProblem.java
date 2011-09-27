@@ -116,12 +116,7 @@
  *		Benjamin Muskalla - added the following constants
  *									MissingSynchronizedModifierInInheritedMethod
  *		Stephan Herrmann  - added the following constants
- *									UnusedObjectAllocation
- *									PotentiallyUnclosedCloseable
- *									PotentiallyUnclosedCloseableAtExit
- *									UnclosedCloseable
- *									UnclosedCloseableAtExit
- *									ExplicitlyClosedAutoCloseable
+ *									UnusedObjectAllocation									
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -1399,16 +1394,6 @@ void setSourceStart(int sourceStart);
 	int DiamondNotBelow17 =  TypeRelated + 883;
 	/** @since 3.7.1 */
 	int RedundantSpecificationOfTypeArguments = TypeRelated + 884;
-	/** @since 3.8 */
-	int PotentiallyUnclosedCloseable = Internal + 885;
-	/** @since 3.8 */
-	int PotentiallyUnclosedCloseableAtExit = Internal + 886;
-	/** @since 3.8 */
-	int UnclosedCloseable = Internal + 887;
-	/** @since 3.8 */
-	int UnclosedCloseableAtExit = Internal + 888;
-	/** @since 3.8 */
-	int ExplicitlyClosedAutoCloseable = Internal + 889;
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */

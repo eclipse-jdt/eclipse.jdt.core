@@ -12,7 +12,6 @@
  * 							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  * 							bug 292478 - Report potentially null across variable assignment
  *     						bug 335093 - [compiler][null] minimal hook for future null annotation support
- *     						bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -48,16 +47,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	flowInfo = ((Reference) this.lhs)
 		.analyseAssignment(currentScope, flowContext, flowInfo, this, false)
 		.unconditionalInits();
-	if (local != null) {
-		LocalVariableBinding previousTrackerBinding = null;
-		if (local.closeTracker != null) {
-			// Assigning to a variable already holding an AutoCloseable, has it been closed before?
-			previousTrackerBinding = local.closeTracker.binding;
-			if (!flowInfo.isDefinitelyNull(local)) // only if previous value may be non-null
-				local.closeTracker.recordErrorLocation(this, flowInfo.nullStatus(previousTrackerBinding));
-		}
-		FakedTrackingVariable.handleResourceAssignment(flowInfo, this, this.expression, local, previousTrackerBinding);
-	}
 	int nullStatus = this.expression.nullStatus(flowInfo);
 	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
 		if (nullStatus == FlowInfo.NULL) {

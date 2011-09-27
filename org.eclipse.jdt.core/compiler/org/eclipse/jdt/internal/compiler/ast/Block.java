@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -33,12 +32,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	int complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
 	for (int i = 0, max = this.statements.length; i < max; i++) {
 		Statement stat = this.statements[i];
-		if ((complaintLevel = stat.complainIfUnreachable(flowInfo, flowContext, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
+		if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel)) < Statement.COMPLAINED_UNREACHABLE) {
 			flowInfo = stat.analyseCode(this.scope, flowContext, flowInfo);
 		}
 	}
-	if (this.explicitDeclarations > 0) // if block has its own scope analyze tracking vars now:
-		this.scope.checkUnclosedCloseables(flowInfo, flowContext, null);
 	return flowInfo;
 }
 /**
