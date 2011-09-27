@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -3260,6 +3261,57 @@ public void test053() {
 			"			y.close();\n" +
 			"			System.out.println();\n" +
 			"		} catch (RuntimeException e) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements Managed {\n" +
+			"	 public Y() throws CloneNotSupportedException {}\n" +
+			"    public void close () throws ClassNotFoundException, java.io.IOException {\n" +
+			"    }\n" +
+			"}\n" +
+			"interface Managed extends AutoCloseable {}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	try (Y y = new Y()) { \n" + 
+		"	       ^\n" + 
+		"Unhandled exception type ClassNotFoundException thrown by automatic close() invocation on y\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	try (Y y = new Y()) { \n" + 
+		"	       ^\n" + 
+		"Unhandled exception type IOException thrown by automatic close() invocation on y\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	try (Y y = new Y()) { \n" + 
+		"	           ^^^^^^^\n" + 
+		"Unhandled exception type CloneNotSupportedException\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	y.close();\n" + 
+		"	^^^^^^^^^\n" + 
+		"Unhandled exception type ClassNotFoundException\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 4)\n" + 
+		"	y.close();\n" + 
+		"	^^^^^^^^^\n" + 
+		"Unhandled exception type IOException\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348705
+// Variant of the above, witness for https://bugs.eclipse.org/358827#c6
+public void test053a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void method1(){\n" +
+			"		try (Y y = new Y()) { \n" +
+			"			y.close();\n" +
+			"			System.out.println();\n" +
+			"		} catch (RuntimeException e) {\n" +
+			"       } finally {\n" +
+			"           System.out.println();\n" +
 			"		}\n" +
 			"	}\n" +
 			"}\n" +

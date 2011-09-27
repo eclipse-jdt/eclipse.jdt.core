@@ -18,6 +18,7 @@
  *     						bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
  * 							bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
  * 							bug 354554 - [null] conditional with redundant condition yields weak error message
+ * 							bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -45,7 +46,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug348379" };
+//		TESTS_NAMES = new String[] { "test358827" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -14943,5 +14944,32 @@ public void testBug354554b() {
 		"	            ^\n" + 
 		"Redundant null check: The variable u cannot be null at this location\n" + 
 		"----------\n");
+}
+// Bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
+public void test358827() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+				new String[] {
+					"Bug358827.java",
+					"import java.io.FileReader;\n" +
+					"public class Bug358827 {\n" +
+					"	Object foo2() throws Exception {\n" + 
+					"		String o = null;\n" + 
+					"		try (FileReader rf = new FileReader(\"file\")){\n" + 
+					"			o = o.toUpperCase();\n" + 
+					"		} finally {\n" + 
+					"			o = \"OK\";\n" + 
+					"		}\n" + 
+					"		return o;\n" + 
+					"	}\n" + 
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in Bug358827.java (at line 6)\n" + 
+				"	o = o.toUpperCase();\n" + 
+				"	    ^\n" + 
+				"Null pointer access: The variable o can only be null at this location\n" + 
+				"----------\n");
+	}
 }
 }
