@@ -711,6 +711,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchBugsTests("testBug349683"));
 	suite.addTest(new JavaSearchBugsTests("testBug345807"));
 	suite.addTest(new JavaSearchBugsTests("testBug355605"));
+	suite.addTest(new JavaSearchBugsTests("testBug241834"));
 	return suite;
 }
 class TestCollector extends JavaSearchResultCollector {
@@ -13750,6 +13751,32 @@ public void testBug355605() throws CoreException {
 		
 	} finally {
 		deleteProject("P");
+	}
+}
+/**
+ * @bug 241834: [search] ClassCastException during move class refactoring
+ * @test that search for declarations of referenced types doesn't cause CCE
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=241834"
+ */
+public void testBug241834() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		project.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
+		createFolder("/P/pkg");
+		createFile("/P/pkg/Foo.java",
+				"package pkg;\n"+
+				"/**\n" +
+				"  * {@link missing.Foo}\n" +
+				"  */\n" +
+				"public class Foo {\n" +
+				"}\n");
+		waitUntilIndexesReady();
+		IType type = getCompilationUnit("/P/pkg/Foo.java").getType("Foo");
+		searchDeclarationsOfReferencedTypes(type, this.resultCollector);
+		assertSearchResults("");
+	} finally {
+		deleteProject("P");
+		
 	}
 }
 }

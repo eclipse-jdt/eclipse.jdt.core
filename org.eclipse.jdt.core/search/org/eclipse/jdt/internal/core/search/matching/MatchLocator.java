@@ -1351,7 +1351,7 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 }
 //*/
 protected IType lookupType(ReferenceBinding typeBinding) {
-	if (typeBinding == null) return null;
+	if (typeBinding == null || !typeBinding.isValidBinding()) return null;
 
 	char[] packageName = typeBinding.qualifiedPackageName();
 	IPackageFragment[] pkgs = this.nameLookup.findPackageFragments(
