@@ -13439,7 +13439,7 @@ public void testBug317719h() throws Exception {
 	String output = this.complianceLevel == ClassFileConstants.JDK1_6 ?
 			"----------\n" + 
 			"1. WARNING in Test.java (at line 3)\n" + 
-			"	public class Test<Key, Value> extends LinkedHashMap<Key, Collection<Value>> {\n" + 
+			"	public class Test<Key, Value> extends HashMap<Key, Collection<Value>> {\n" + 
 			"	             ^^^^\n" + 
 			"The serializable class Test does not declare a static final serialVersionUID field of type long\n" + 
 			"----------\n" + 
@@ -13451,7 +13451,7 @@ public void testBug317719h() throws Exception {
 			"3. WARNING in Test.java (at line 5)\n" + 
 			"	public Collection<Value> get(Key k) { return null; }\n" + 
 			"	                         ^^^^^^^^^^\n" + 
-			"Name clash: The method get(Key) of type Test<Key,Value> has the same erasure as get(Object) of type LinkedHashMap<K,V> but does not override it\n" + 
+			"Name clash: The method get(Key) of type Test<Key,Value> has the same erasure as get(Object) of type HashMap<K,V> but does not override it\n" + 
 			"----------\n" + 
 			"4. ERROR in Test.java (at line 6)\n" + 
 			"	Zork z;\n" + 
@@ -13460,7 +13460,7 @@ public void testBug317719h() throws Exception {
 			"----------\n":
 				"----------\n" + 
 				"1. WARNING in Test.java (at line 3)\n" + 
-				"	public class Test<Key, Value> extends LinkedHashMap<Key, Collection<Value>> {\n" + 
+				"	public class Test<Key, Value> extends HashMap<Key, Collection<Value>> {\n" + 
 				"	             ^^^^\n" + 
 				"The serializable class Test does not declare a static final serialVersionUID field of type long\n" + 
 				"----------\n" + 
@@ -13472,7 +13472,7 @@ public void testBug317719h() throws Exception {
 				"3. ERROR in Test.java (at line 5)\n" + 
 				"	public Collection<Value> get(Key k) { return null; }\n" + 
 				"	                         ^^^^^^^^^^\n" + 
-				"Name clash: The method get(Key) of type Test<Key,Value> has the same erasure as get(Object) of type LinkedHashMap<K,V> but does not override it\n" + 
+				"Name clash: The method get(Key) of type Test<Key,Value> has the same erasure as get(Object) of type HashMap<K,V> but does not override it\n" + 
 				"----------\n" + 
 				"4. ERROR in Test.java (at line 6)\n" + 
 				"	Zork z;\n" + 
@@ -13483,8 +13483,8 @@ public void testBug317719h() throws Exception {
 		new String[] {
 			"Test.java",
 			"import java.util.Collection;\n" +
-			"import java.util.LinkedHashMap;\n" +
-			"public class Test<Key, Value> extends LinkedHashMap<Key, Collection<Value>> {\n" +
+			"import java.util.HashMap;\n" +
+			"public class Test<Key, Value> extends HashMap<Key, Collection<Value>> {\n" +
 			"    public Collection<Value> put(Key k, Value v) { return null; }\n" +
 			"	 public Collection<Value> get(Key k) { return null; }\n" +
 			"	 Zork z;\n" +
