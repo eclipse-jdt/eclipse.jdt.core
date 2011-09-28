@@ -7076,4 +7076,39 @@ public void test124b() {
 		compilerOptions /* custom options */
 	);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=354502
+// Anonymous class instantiation of a non-static member type, method can't be static
+public void test354502() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X {\n" +
+				"   public abstract class Abstract{}\n" +
+				"   public static abstract class Abstract2{}\n" +
+				"	private void method1() {\n" + 	// don't warn
+				"		new Abstract() {};\n" +
+				"	}\n" +
+				"	private void method2() {\n" + 	// warn
+				"		new Abstract2() {};\n" +
+				"	}\n" +
+				"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	private void method2() {\n" + 
+		"	             ^^^^^^^^^\n" + 
+		"The method method2() from the type X can be declared as static\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
 }
