@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann - Contribution for
+ *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *     							bug 359362 - FUP of bug 349326: Resource leak on non-Closeable resource
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -55,7 +57,7 @@ public class WildcardBinding extends ReferenceBinding {
 		if (bound instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) bound).addWrapper(this, environment);
 		this.tagBits |=  TagBits.HasUnresolvedTypeVariables; // cleared in resolve()
-		this.typeBits = -1;
+		this.typeBits = TypeIds.BitUninitialized;
 	}
 
 	public int kind() {
@@ -423,14 +425,15 @@ public class WildcardBinding extends ReferenceBinding {
 	}
 
 	public boolean hasTypeBit(int bit) {
-		if (this.typeBits == -1) {
+		if (this.typeBits == TypeIds.BitUninitialized) {
 			// initialize from upper bounds
 			this.typeBits = 0;
-			if (this.superclass != null)
+			if (this.superclass != null && this.superclass.hasTypeBit(~TypeIds.BitUninitialized))
 				this.typeBits |= this.superclass.typeBits;
 			if (this.superInterfaces != null)
 				for (int i = 0, l = this.superInterfaces.length; i < l; i++)
-					this.typeBits |= this.superInterfaces[i].typeBits;
+					if (this.superInterfaces[i].hasTypeBit(~TypeIds.BitUninitialized))
+						this.typeBits |= this.superInterfaces[i].typeBits;
 		}
 		return (this.typeBits & bit) != 0;
 	}

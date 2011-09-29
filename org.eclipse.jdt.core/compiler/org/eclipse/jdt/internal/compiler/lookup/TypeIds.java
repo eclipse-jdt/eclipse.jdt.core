@@ -7,7 +7,9 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann - Contributions for
+ *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *     							bug 359362 - FUP of bug 349326: Resource leak on non-Closeable resource
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -184,6 +186,11 @@ public interface TypeIds {
 	final int BOXING = 0x200;
 	final int UNBOXING = 0x400;
 
+	/**
+	 * Marks a type whose type bits have not yet been initialized.
+	 * @see ReferenceBinding#hasTypeBit(int)
+	 */
+	final int BitUninitialized = 0x8000000;
 	/** 
 	 * Marks all sub-types of java.lang.AutoCloseable.
 	 * @see ReferenceBinding#hasTypeBit(int)
