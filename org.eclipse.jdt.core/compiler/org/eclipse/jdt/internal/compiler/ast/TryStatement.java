@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 332637 - Dead Code detection removing code that isn't dead
+ *     Stephan Herrmann - Contributions for
+ *     							bug 332637 - Dead Code detection removing code that isn't dead
+ *     							bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -258,7 +260,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				if (closeMethod != null && closeMethod.returnType.id == TypeIds.T_void) {
 					ReferenceBinding[] thrownExceptions = closeMethod.thrownExceptions;
 					for (int j = 0, length = thrownExceptions.length; j < length; j++) {
-						handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[j], flowInfo, currentScope);
+						handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[i], flowInfo, currentScope, true);
 					}
 				}
 			}
