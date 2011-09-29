@@ -758,7 +758,7 @@ public void test023() {
 		"1. ERROR in X.java (at line 6)\n" +
 		"	} catch(AX e) {\n" +
 		"	        ^^\n" +
-		"Unreachable catch block for AX. Only more specific exceptions are thrown and handled by previous catch block(s).\n" +
+		"Unreachable catch block for AX. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 10)\n" +
 		"	class AX extends Exception {}\n" +

@@ -6877,7 +6877,7 @@ public void test174_warn_options() {
 		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
 		"	} catch (E1 e1) {\n" +
 		"	         ^^\n" +
-		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" +
+		"Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
 		"----------\n" +
 		"3 problems (3 warnings)",
 		true);
@@ -6945,7 +6945,7 @@ public void test175_warn_options() {
 		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
 		"	} catch (E1 e1) {\n" +
 		"	         ^^\n" +
-		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" +
+		"Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
 		"----------\n" +
 		"4 problems (4 warnings)",
 		true);
@@ -7080,7 +7080,7 @@ public void test178_warn_options() {
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
 		"	} catch (E1 e1) {\n" +
 		"	         ^^\n" +
-		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" +
+		"Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
 		"----------\n" +
 		"1 problem (1 warning)",
 		true);
@@ -7180,7 +7180,7 @@ public void test180_warn_options() {
 		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
 		"	} catch (E1 e1) {\n" +
 		"	         ^^\n" +
-		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" +
+		"Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
 		"----------\n" +
 		"3 problems (3 warnings)",
 		true);
@@ -7235,7 +7235,7 @@ public void test181_warn_options() {
 		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
 		"	} catch (E1 e1) {\n" +
 		"	         ^^\n" +
-		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" +
+		"Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
 		"----------\n" +
 		"3 problems (3 warnings)",
 		true);
@@ -7345,7 +7345,7 @@ public void test183_warn_options() {
 		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
 		"	} catch (E1 e1) {\n" +
 		"	         ^^\n" +
-		"Unreachable catch block for E1. Only more specific exceptions are thrown and handled by previous catch block(s).\n" +
+		"Unreachable catch block for E1. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
 		"----------\n" +
 		"3 problems (3 warnings)",
 		true);
