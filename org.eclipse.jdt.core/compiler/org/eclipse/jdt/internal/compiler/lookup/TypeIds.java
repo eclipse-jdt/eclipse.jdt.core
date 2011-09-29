@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -182,4 +183,15 @@ public interface TypeIds {
 	final int Object2boolean = T_JavaLangObject + (T_boolean << 4);
 	final int BOXING = 0x200;
 	final int UNBOXING = 0x400;
+
+	/** 
+	 * Marks all sub-types of java.lang.AutoCloseable.
+	 * @see ReferenceBinding#hasTypeBit(int)
+	 */
+	final int BitAutoCloseable = 1;
+	/** 
+	 * Marks all sub-types of java.io.Closeable.
+	 * @see ReferenceBinding#hasTypeBit(int)
+	 */
+	final int BitCloseable = 2;
 }

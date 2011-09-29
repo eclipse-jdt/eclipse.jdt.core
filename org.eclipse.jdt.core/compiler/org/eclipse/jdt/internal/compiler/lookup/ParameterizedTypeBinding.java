@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -627,6 +628,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 	public boolean hasMemberTypes() {
 	    return this.type.hasMemberTypes();
+	}
+
+	public boolean hasTypeBit(int bit) {
+		TypeBinding erasure = erasure();
+		if (erasure instanceof ReferenceBinding)
+			return ((ReferenceBinding) erasure).hasTypeBit(bit);
+		return false;
 	}
 
 	/**

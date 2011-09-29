@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *     							bug 332637 - Dead Code detection removing code that isn't dead
  *     							bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
+ *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -126,8 +127,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		for (int i = 0; i < resourcesLength; i++) {
 			flowInfo = this.resources[i].analyseCode(currentScope, handlingContext, flowInfo.copy());
 			this.postResourcesInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(flowInfo);
-			this.resources[i].binding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
-			TypeBinding type = this.resources[i].binding.type;
+			LocalVariableBinding resourceBinding = this.resources[i].binding;
+			resourceBinding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
+			if (resourceBinding.closeTracker != null) {
+				// this was false alarm, we don't need to track the resource
+				this.tryBlock.scope.removeTrackingVar(resourceBinding.closeTracker);
+				resourceBinding.closeTracker = null;
+			}
+			TypeBinding type = resourceBinding.type;
 			if (type != null && type.isValidBinding()) {
 				ReferenceBinding binding = (ReferenceBinding) type;
 				MethodBinding closeMethod = binding.getExactMethod(ConstantPool.Close, new TypeBinding [0], this.scope.compilationUnitScope()); // scope needs to be tighter
@@ -252,8 +259,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		for (int i = 0; i < resourcesLength; i++) {
 			flowInfo = this.resources[i].analyseCode(currentScope, handlingContext, flowInfo.copy());
 			this.postResourcesInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(flowInfo);
-			this.resources[i].binding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
-			TypeBinding type = this.resources[i].binding.type;
+			LocalVariableBinding resourceBinding = this.resources[i].binding;
+			resourceBinding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
+			if (resourceBinding.closeTracker != null) {
+				// this was false alarm, we don't need to track the resource
+				this.tryBlock.scope.removeTrackingVar(resourceBinding.closeTracker);
+				resourceBinding.closeTracker = null;
+			} 
+			TypeBinding type = resourceBinding.type;
 			if (type != null && type.isValidBinding()) {
 				ReferenceBinding binding = (ReferenceBinding) type;
 				MethodBinding closeMethod = binding.getExactMethod(ConstantPool.Close, new TypeBinding [0], this.scope.compilationUnitScope()); // scope needs to be tighter

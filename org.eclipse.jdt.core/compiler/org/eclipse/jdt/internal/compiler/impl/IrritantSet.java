@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.impl;
@@ -57,6 +58,7 @@ public class IrritantSet {
 	public static final IrritantSet UNUSED = new IrritantSet(CompilerOptions.UnusedLocalVariable);
 	public static final IrritantSet UNCHECKED = new IrritantSet(CompilerOptions.UncheckedTypeOperation);
 	public static final IrritantSet UNQUALIFIED_FIELD_ACCESS = new IrritantSet(CompilerOptions.UnqualifiedFieldAccess);
+	public static final IrritantSet RESOURCE = new IrritantSet(CompilerOptions.UnclosedCloseable);
 
 	public static final IrritantSet JAVADOC = new IrritantSet(CompilerOptions.InvalidJavadoc);
 	public static final IrritantSet COMPILER_DEFAULT_ERRORS = new IrritantSet(0); // no optional error by default	
@@ -99,7 +101,8 @@ public class IrritantSet {
 			// group-2 warnings enabled by default
 			.set(
 				CompilerOptions.DeadCode
-				|CompilerOptions.Tasks);
+				|CompilerOptions.Tasks
+				|CompilerOptions.UnclosedCloseable);
 			
 		ALL.setAll();
 		HIDING
@@ -124,6 +127,9 @@ public class IrritantSet {
 			.set(CompilerOptions.RedundantSpecificationOfTypeArguments);
 		STATIC_METHOD
 		    .set(CompilerOptions.MethodCanBePotentiallyStatic);
+		RESOURCE
+			.set(CompilerOptions.PotentiallyUnclosedCloseable)
+			.set(CompilerOptions.ExplicitlyClosedAutoCloseable);
 		String suppressRawWhenUnchecked = System.getProperty("suppressRawWhenUnchecked"); //$NON-NLS-1$
 		if (suppressRawWhenUnchecked != null && "true".equalsIgnoreCase(suppressRawWhenUnchecked)) { //$NON-NLS-1$
 			UNCHECKED.set(CompilerOptions.RawTypeReference);

@@ -7,7 +7,9 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *     Stephan Herrmann - Contributions for
+ *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -77,6 +79,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		// process arguments
 		if (this.arguments != null) {
 			for (int i = 0, count = this.arguments.length; i < count; i++) {
+				// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
+				flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo);
 				flowInfo = this.arguments[i].analyseCode(currentScope, flowContext, flowInfo);
 				if ((this.arguments[i].implicitConversion & TypeIds.UNBOXING) != 0) {
 					this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);

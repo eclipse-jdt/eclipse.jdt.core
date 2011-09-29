@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 282152 - [1.5][compiler] Generics code rejected by Eclipse but accepted by javac
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *     							bug 282152 - [1.5][compiler] Generics code rejected by Eclipse but accepted by javac
+ *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -42,6 +44,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
 		this.tagBits |= TagBits.HasTypeVariable;
 		this.environment = environment;
+		this.typeBits = -1;
 	}
 
 	/**
@@ -305,6 +308,19 @@ public class TypeVariableBinding extends ReferenceBinding {
 		   			return false;
 
 		return true;
+	}
+
+	public boolean hasTypeBit(int bit) {
+		if (this.typeBits == -1) {
+			// initialize from bounds
+			this.typeBits = 0;
+			if (this.superclass != null)
+				this.typeBits |= this.superclass.typeBits;
+			if (this.superInterfaces != null)
+				for (int i = 0, l = this.superInterfaces.length; i < l; i++)
+					this.typeBits |= this.superInterfaces[i].typeBits;
+		}
+		return (this.typeBits & bit) != 0;
 	}
 
 	/**

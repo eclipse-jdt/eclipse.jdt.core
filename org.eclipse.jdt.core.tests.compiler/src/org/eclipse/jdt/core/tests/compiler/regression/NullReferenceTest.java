@@ -19,6 +19,7 @@
  * 							bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
  * 							bug 354554 - [null] conditional with redundant condition yields weak error message
  * 							bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
+ * 							bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -6030,12 +6031,17 @@ public void test0562_try_catch_unchecked_exception() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	o.toString();\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
+			"----------\n" +
+			"1. WARNING in X.java (at line 6)\n" +
+			"	o = new LineNumberReader(new FileReader(\"dummy\"));\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Resource leak: \'o\' is never closed\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	o.toString();\n" +
+			"	^\n" +
+			"Potential null pointer access: The variable o may be null at this location\n" +
+			"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 

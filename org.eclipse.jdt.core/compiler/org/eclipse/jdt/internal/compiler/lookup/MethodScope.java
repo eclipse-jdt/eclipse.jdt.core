@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -48,6 +49,9 @@ public class MethodScope extends BlockScope {
 
 	// inner-emulation
 	public SyntheticArgumentBinding[] extraSyntheticArguments;
+
+	// count number of tracking variables, see FakedTrackingVariable
+	int trackVarCount = 0;
 
 public MethodScope(ClassScope parent, ReferenceContext context, boolean isStatic) {
 	super(METHOD_SCOPE, parent);

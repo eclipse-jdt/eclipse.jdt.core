@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -38,6 +39,12 @@ public TypeBinding closestMatch() {
  */
 public ReferenceBinding closestReferenceMatch() {
 	return this.closestMatch;
+}
+
+public boolean hasTypeBit(int bit) {
+	if (this.closestMatch != null)
+		return this.closestMatch.hasTypeBit(bit);
+	return false;
 }
 
 /* API
