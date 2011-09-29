@@ -101,7 +101,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				int complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 				for (int i = 0, count = this.statements.length; i < count; i++) {
 					Statement stat = this.statements[i];
-					if ((complaintLevel = stat.complainIfUnreachable(flowInfo, methodContext, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
+					if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 						flowInfo = stat.analyseCode(this.scope, methodContext, flowInfo);
 					}
 				}
@@ -135,7 +135,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				}
 					
 			}
-			this.scope.checkUnclosedCloseables(flowInfo, methodContext, null/*don't report against a specific location*/);
+			this.scope.checkUnclosedCloseables(flowInfo, null/*don't report against a specific location*/);
 		} catch (AbortMethod e) {
 			this.ignoreFurtherInvestigation = true;
 		}

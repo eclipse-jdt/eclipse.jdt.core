@@ -30,12 +30,12 @@ public class EmptyStatement extends Statement {
 	}
 
 	// Report an error if necessary
-	public int complainIfUnreachable(FlowInfo flowInfo, FlowContext flowContext, BlockScope scope, int complaintLevel, boolean endOfBlock) {
+	public int complainIfUnreachable(FlowInfo flowInfo, BlockScope scope, int complaintLevel, boolean endOfBlock) {
 		// before 1.4, empty statements are tolerated anywhere
 		if (scope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_4) {
 			return complaintLevel;
 		}
-		return super.complainIfUnreachable(flowInfo, flowContext, scope, complaintLevel, endOfBlock);
+		return super.complainIfUnreachable(flowInfo, scope, complaintLevel, endOfBlock);
 	}
 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream){

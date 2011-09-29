@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *     							bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *     							bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -4941,6 +4942,45 @@ public void test056zzz() {
 		null,
 		true,
 		options);
+}
+// Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
+public void test056throw1() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.FileReader;\n" +
+			"public class X {\n" +
+			"    void foo2(boolean a, boolean b, boolean c) throws Exception {\n" +
+			"        FileReader reader = new FileReader(\"file\");\n" +
+			"        if(a)\n" +
+			"            throw new Exception();    //warning 1\n" +
+			"        else if (b)\n" +
+			"            reader.close();\n" +
+			"        else if(c)\n" +
+			"            throw new Exception();    //warning 2\n" +
+			"        reader.close();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" +
+		"	throw new Exception();    //warning 1\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Resource leak: \'reader\' is not closed at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	throw new Exception();    //warning 2\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Resource leak: \'reader\' is not closed at this location\n" +
+		"----------\n",
+		null,
+		true,
+		options);	
 }
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;

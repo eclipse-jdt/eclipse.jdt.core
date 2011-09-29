@@ -101,7 +101,7 @@ public class SwitchStatement extends Statement {
 					} else {
 						fallThroughState = FALLTHROUGH; // reset below if needed
 					}
-					if ((complaintLevel = statement.complainIfUnreachable(caseInits, flowContext, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
+					if ((complaintLevel = statement.complainIfUnreachable(caseInits, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 						caseInits = statement.analyseCode(this.scope, switchContext, caseInits);
 						if (caseInits == FlowInfo.DEAD_END) {
 							fallThroughState = ESCAPING;

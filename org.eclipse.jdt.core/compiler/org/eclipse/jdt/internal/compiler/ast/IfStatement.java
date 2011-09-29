@@ -91,7 +91,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this.thenInitStateIndex = currentScope.methodScope().recordInitializationStates(thenFlowInfo);
 		if (isConditionOptimizedFalse || ((this.bits & ASTNode.IsThenStatementUnreachable) != 0)) {
 			if (!isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement) {
-				this.thenStatement.complainIfUnreachable(thenFlowInfo, flowContext, currentScope, initialComplaintLevel, false);
+				this.thenStatement.complainIfUnreachable(thenFlowInfo, currentScope, initialComplaintLevel, false);
 			} else {
 				// its a known coding pattern which should be tolerated by dead code analysis
 				// according to isKnowDeadCodePattern()
@@ -117,7 +117,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this.elseInitStateIndex = currentScope.methodScope().recordInitializationStates(elseFlowInfo);
 		if (isConditionOptimizedTrue || ((this.bits & ASTNode.IsElseStatementUnreachable) != 0)) {
 			if (!isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement) {
-				this.elseStatement.complainIfUnreachable(elseFlowInfo, flowContext, currentScope, initialComplaintLevel, false);
+				this.elseStatement.complainIfUnreachable(elseFlowInfo, currentScope, initialComplaintLevel, false);
 			} else {
 				// its a known coding pattern which should be tolerated by dead code analysis
 				// according to isKnowDeadCodePattern()

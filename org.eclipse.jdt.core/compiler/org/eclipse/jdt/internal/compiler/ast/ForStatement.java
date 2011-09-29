@@ -140,7 +140,7 @@ public class ForStatement extends Statement {
 						actionInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 					}
 				}
-			if (this.action.complainIfUnreachable(actionInfo, flowContext, this.scope, initialComplaintLevel, true) < Statement.COMPLAINED_UNREACHABLE) {
+			if (this.action.complainIfUnreachable(actionInfo, this.scope, initialComplaintLevel, true) < Statement.COMPLAINED_UNREACHABLE) {
 				actionInfo = this.action.analyseCode(this.scope, loopingContext, actionInfo).unconditionalInits();
 			}
 

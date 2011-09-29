@@ -115,7 +115,7 @@ public class WhileStatement extends Statement {
 				currentScope.methodScope().recordInitializationStates(
 					condInfo.initsWhenTrue());
 
-			if (this.action.complainIfUnreachable(actionInfo, flowContext, currentScope, initialComplaintLevel, true) < Statement.COMPLAINED_UNREACHABLE) {
+			if (this.action.complainIfUnreachable(actionInfo, currentScope, initialComplaintLevel, true) < Statement.COMPLAINED_UNREACHABLE) {
 				actionInfo = this.action.analyseCode(currentScope, loopingContext, actionInfo);
 			}
 

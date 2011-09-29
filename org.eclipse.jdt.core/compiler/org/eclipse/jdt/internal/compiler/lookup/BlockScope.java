@@ -18,7 +18,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -988,11 +987,11 @@ public void removeTrackingVar(FakedTrackingVariable trackingVariable) {
  * At the end of a block check the closing-status of all tracked closeables that are declared in this block.
  * Also invoked when entering unreachable code.
  */
-public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, ASTNode location) {
+public void checkUnclosedCloseables(FlowInfo flowInfo, ASTNode location) {
 	if (this.trackingVariables == null) {
 		// at a method return we also consider enclosing scopes
 		if (location != null && this.parent instanceof BlockScope)
-			((BlockScope) this.parent).checkUnclosedCloseables(flowInfo, flowContext, location);
+			((BlockScope) this.parent).checkUnclosedCloseables(flowInfo, location);
 		return;
 	}
 	if (location != null && flowInfo.reachMode() != 0) return;

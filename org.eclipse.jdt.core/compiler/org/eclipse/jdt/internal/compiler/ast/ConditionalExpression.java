@@ -66,7 +66,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				trueFlowInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 			}
 			if (!isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement) {
-				this.valueIfTrue.complainIfUnreachable(trueFlowInfo, flowContext, currentScope, initialComplaintLevel, false);
+				this.valueIfTrue.complainIfUnreachable(trueFlowInfo, currentScope, initialComplaintLevel, false);
 			}
 		}
 		this.trueInitStateIndex = currentScope.methodScope().recordInitializationStates(trueFlowInfo);
@@ -79,7 +79,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				falseFlowInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 			}
 			if (!isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement) {
-				this.valueIfFalse.complainIfUnreachable(falseFlowInfo, flowContext, currentScope, initialComplaintLevel, true);
+				this.valueIfFalse.complainIfUnreachable(falseFlowInfo, currentScope, initialComplaintLevel, true);
 			}
 		}
 		this.falseInitStateIndex = currentScope.methodScope().recordInitializationStates(falseFlowInfo);
