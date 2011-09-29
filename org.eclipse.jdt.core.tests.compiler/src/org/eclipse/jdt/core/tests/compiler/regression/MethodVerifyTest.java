@@ -11238,7 +11238,6 @@ public void test199() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=285088
 public void test200() {
-	Map options = getCompilerOptions();
 	String errorMessage =
 				"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
