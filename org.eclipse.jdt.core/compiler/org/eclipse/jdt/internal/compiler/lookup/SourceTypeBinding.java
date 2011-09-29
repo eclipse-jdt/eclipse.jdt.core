@@ -1240,8 +1240,16 @@ public MethodBinding[] methods() {
 									int index = pLength;
 									// is erasure of signature of m2 same as signature of m1?
 									for (; --index >= 0;) {
-										if (params1[index] != params2[index].erasure())
-											break;
+										if (params1[index] != params2[index].erasure()) {
+											// If one of them is a raw type
+											if (params1[index] instanceof RawTypeBinding) {
+												if (params2[index].erasure() != ((RawTypeBinding)params1[index]).actualType()) {
+													break;
+												}
+											} else  {
+												break;
+											}
+										}
 										if (params1[index] == params2[index]) {
 											TypeBinding type = params1[index].leafComponentType();
 											if (type instanceof SourceTypeBinding && type.typeVariables() != Binding.NO_TYPE_VARIABLES) {
@@ -1253,8 +1261,16 @@ public MethodBinding[] methods() {
 									if (index >= 0 && index < pLength) {
 										// is erasure of signature of m1 same as signature of m2?
 										for (index = pLength; --index >= 0;)
-											if (params1[index].erasure() != params2[index])
-												break;
+											if (params1[index].erasure() != params2[index]) {
+												// If one of them is a raw type
+												if (params2[index] instanceof RawTypeBinding) {
+													if (params1[index].erasure() != ((RawTypeBinding)params2[index]).actualType()) {
+														break;
+													}
+												} else  {
+													break;
+												}
+											}
 										
 									}
 									if (index >= 0) {
