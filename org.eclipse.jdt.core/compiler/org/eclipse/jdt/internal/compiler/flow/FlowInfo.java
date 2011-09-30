@@ -405,12 +405,28 @@ public static UnconditionalFlowInfo mergedOptimizedBranches(
 public static UnconditionalFlowInfo mergedOptimizedBranchesIfElse(
 		FlowInfo initsWhenTrue, boolean isOptimizedTrue,
 		FlowInfo initsWhenFalse, boolean isOptimizedFalse,
-		boolean allowFakeDeadBranch, FlowInfo flowInfo, IfStatement ifStatement) {
+		boolean allowFakeDeadBranch, FlowInfo flowInfo, IfStatement ifStatement,
+		boolean reportDeadCodeInKnownPattern) {
 	UnconditionalFlowInfo mergedInfo;
 	if (isOptimizedTrue){
 		if (initsWhenTrue == FlowInfo.DEAD_END && allowFakeDeadBranch) {
-			mergedInfo = initsWhenFalse.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD).
-				unconditionalInits();
+			if (!reportDeadCodeInKnownPattern) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=256796
+				// do not report code even after if-else as dead as a consequence of analysis done in known dead code pattern
+				// when the CompilerOptions$reportDeadCodeInTrivialIfStatement option is disabled
+				if (ifStatement.elseStatement == null) {
+					mergedInfo = flowInfo.unconditionalInits();
+				} else {
+					mergedInfo = initsWhenFalse.unconditionalInits();
+					if (initsWhenFalse != FlowInfo.DEAD_END) {
+						// let the definitely true status of known dead code pattern not affect the reachability
+						mergedInfo.setReachMode(flowInfo.reachMode());
+					}
+				}
+			} else {
+				mergedInfo = initsWhenFalse.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD).
+					unconditionalInits();
+			}
 		}
 		else {
 			mergedInfo =
@@ -421,8 +437,23 @@ public static UnconditionalFlowInfo mergedOptimizedBranchesIfElse(
 	}
 	else if (isOptimizedFalse) {
 		if (initsWhenFalse == FlowInfo.DEAD_END && allowFakeDeadBranch) {
-			mergedInfo = initsWhenTrue.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD).
-				unconditionalInits();
+			if (!reportDeadCodeInKnownPattern) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=256796
+				// do not report code even after if-else as dead as a consequence of analysis done in known dead code pattern
+				// when the CompilerOptions$reportDeadCodeInTrivialIfStatement option is disabled
+				if (ifStatement.thenStatement == null) {
+					mergedInfo = flowInfo.unconditionalInits();
+				} else {
+					mergedInfo = initsWhenTrue.unconditionalInits();
+					if (initsWhenTrue != FlowInfo.DEAD_END) {
+						// let the definitely false status of known dead code pattern not affect the reachability
+						mergedInfo.setReachMode(flowInfo.reachMode());
+					}
+				}
+			} else {
+				mergedInfo = initsWhenTrue.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD).
+					unconditionalInits();
+			}
 		}
 		else {
 			mergedInfo =

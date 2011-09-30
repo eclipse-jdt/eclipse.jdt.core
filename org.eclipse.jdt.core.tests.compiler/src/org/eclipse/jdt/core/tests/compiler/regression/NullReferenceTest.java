@@ -14978,4 +14978,150 @@ public void test358827() {
 				"----------\n");
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=256796
+public void testBug256796() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.WARNING);
+	compilerOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+			new String[] {
+				"Bug.java",
+				"public class Bug {\n" +
+				"	private static final boolean TRUE = true;\n" +
+				"   private static final boolean FALSE = false;\n" +
+				"	void foo() throws Exception {\n" + 
+				"		if (TRUE) return;\n" +
+				"		else System.out.println(\"\");\n" +
+				"		System.out.println(\"\");\n" + 		// not dead code
+				"		if (TRUE) throw new Exception();\n" +
+				"		else System.out.println(\"\");\n" +
+				"		System.out.println(\"\");\n" + 		// not dead code
+				"		if (TRUE) return;\n" +
+				"		System.out.println(\"\");\n" + 		// not dead code
+				"		if (FALSE) System.out.println(\"\");\n" +
+				"		else return;\n" +
+				"		System.out.println(\"\");\n" + 		// not dead code
+				"		if (FALSE) return;\n" +
+				"		System.out.println(\"\");\n" + 		// not dead code
+				"		if (false) return;\n" +				// dead code
+				"		System.out.println(\"\");\n" + 		
+				"		if (true) return;\n" +
+				"		System.out.println(\"\");\n" + 		// dead code
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in Bug.java (at line 18)\n" + 
+			"	if (false) return;\n" + 
+			"	           ^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"2. WARNING in Bug.java (at line 21)\n" + 
+			"	System.out.println(\"\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n",
+			null,
+			true,
+			compilerOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=256796
+public void testBug256796a() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.WARNING);
+	compilerOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+			new String[] {
+				"Bug.java",
+				"public class Bug {\n" +
+				"	private static final boolean TRUE = true;\n" +
+				"   private static final boolean FALSE = false;\n" +
+				"	void foo() throws Exception {\n" + 
+				"		if (TRUE) return;\n" +
+				"		else System.out.println(\"\");\n" +
+				"		System.out.println(\"\");\n" + 		// dead code
+				"	}\n" +
+				"   void foo2() {\n" +
+				"		if (TRUE) return;\n" +
+				"		System.out.println(\"\");\n" + 		// dead code
+				"	}\n" +
+				"	void foo3() throws Exception {\n" + 
+				"		if (TRUE) throw new Exception();\n" +
+				"		else System.out.println(\"\");\n" + // dead code
+				"		System.out.println(\"\");\n" + 		// dead code
+				"	}\n" + 
+				"	void foo4() throws Exception {\n" + 
+				"		if (FALSE) System.out.println(\"\");\n" +
+				"		else return;\n" +
+				"		System.out.println(\"\");\n" + 		// dead code
+				"	}\n" + 
+				"	void foo5() throws Exception {\n" + 
+				"		if (FALSE) return;\n" +				// dead code
+				"		System.out.println(\"\");\n" + 		
+				"	}\n" +
+				"	void foo6() throws Exception {\n" + 
+				"		if (false) return;\n" +				// dead code
+				"		System.out.println(\"\");\n" + 		
+				"		if (true) return;\n" +
+				"		System.out.println(\"\");\n" + 		// dead code
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in Bug.java (at line 6)\n" + 
+			"	else System.out.println(\"\");\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"2. WARNING in Bug.java (at line 7)\n" + 
+			"	System.out.println(\"\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"3. WARNING in Bug.java (at line 11)\n" + 
+			"	System.out.println(\"\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"4. WARNING in Bug.java (at line 15)\n" + 
+			"	else System.out.println(\"\");\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"5. WARNING in Bug.java (at line 16)\n" + 
+			"	System.out.println(\"\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"6. WARNING in Bug.java (at line 19)\n" + 
+			"	if (FALSE) System.out.println(\"\");\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"7. WARNING in Bug.java (at line 21)\n" + 
+			"	System.out.println(\"\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"8. WARNING in Bug.java (at line 24)\n" + 
+			"	if (FALSE) return;\n" + 
+			"	           ^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"9. WARNING in Bug.java (at line 28)\n" + 
+			"	if (false) return;\n" + 
+			"	           ^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"10. WARNING in Bug.java (at line 31)\n" + 
+			"	System.out.println(\"\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n",
+			null,
+			true,
+			compilerOptions);
+}
 }

@@ -86,11 +86,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// No need if the whole if-else construct itself lies in unreachable code
 		this.bits |= ASTNode.IsElseStatementUnreachable;
 	}
+	boolean reportDeadCodeForKnownPattern = !isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement;
 	if (this.thenStatement != null) {
 		// Save info for code gen
 		this.thenInitStateIndex = currentScope.methodScope().recordInitializationStates(thenFlowInfo);
 		if (isConditionOptimizedFalse || ((this.bits & ASTNode.IsThenStatementUnreachable) != 0)) {
-			if (!isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement) {
+			if (reportDeadCodeForKnownPattern) {
 				this.thenStatement.complainIfUnreachable(thenFlowInfo, currentScope, initialComplaintLevel, false);
 			} else {
 				// its a known coding pattern which should be tolerated by dead code analysis
@@ -116,7 +117,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// Save info for code gen
 		this.elseInitStateIndex = currentScope.methodScope().recordInitializationStates(elseFlowInfo);
 		if (isConditionOptimizedTrue || ((this.bits & ASTNode.IsElseStatementUnreachable) != 0)) {
-			if (!isKnowDeadCodePattern(this.condition) || currentScope.compilerOptions().reportDeadCodeInTrivialIfStatement) {
+			if (reportDeadCodeForKnownPattern) {
 				this.elseStatement.complainIfUnreachable(elseFlowInfo, currentScope, initialComplaintLevel, false);
 			} else {
 				// its a known coding pattern which should be tolerated by dead code analysis
@@ -136,7 +137,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		isConditionOptimizedFalse,
 		true /*if(true){ return; }  fake-reachable(); */,
 		flowInfo,
-		this);
+		this,
+		reportDeadCodeForKnownPattern);
 	this.mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 	return mergedInfo;
 }
