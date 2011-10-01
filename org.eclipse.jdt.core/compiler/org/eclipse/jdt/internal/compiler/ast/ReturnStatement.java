@@ -114,7 +114,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this.expression.bits |= ASTNode.IsReturnedValue;
 		}
 	}
-	currentScope.checkUnclosedCloseables(flowInfo, this);
+	currentScope.checkUnclosedCloseables(flowInfo, this, currentScope);
 	return FlowInfo.DEAD_END;
 }
 

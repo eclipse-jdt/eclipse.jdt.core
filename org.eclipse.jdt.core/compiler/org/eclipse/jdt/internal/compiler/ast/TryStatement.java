@@ -11,6 +11,7 @@
  *     							bug 332637 - Dead Code detection removing code that isn't dead
  *     							bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *     							bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -238,6 +239,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (subInfo == FlowInfo.DEAD_END) {
 			this.bits |= ASTNode.IsSubRoutineEscaping;
 			this.scope.problemReporter().finallyMustCompleteNormally(this.finallyBlock);
+		} else {
+			// for resource analysis we need the finallyInfo in these nested scopes:
+			FlowInfo finallyInfo = subInfo.copy();
+			this.tryBlock.scope.finallyInfo = finallyInfo;
+			if (this.catchBlocks != null) {
+				for (int i = 0; i < this.catchBlocks.length; i++)
+					this.catchBlocks[i].scope.finallyInfo = finallyInfo;
+			}
 		}
 		this.subRoutineInits = subInfo;
 		// process the try block in a context handling the local exceptions.

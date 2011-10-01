@@ -135,7 +135,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				}
 					
 			}
-			this.scope.checkUnclosedCloseables(flowInfo, null/*don't report against a specific location*/);
+			this.scope.checkUnclosedCloseables(flowInfo, null/*don't report against a specific location*/, null);
 		} catch (AbortMethod e) {
 			this.ignoreFurtherInvestigation = true;
 		}

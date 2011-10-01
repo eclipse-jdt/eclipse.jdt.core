@@ -167,7 +167,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		this.globalClosingState |= CLOSE_SEEN;
 //TODO(stephan): this might be useful, but I could not find a test case for it: 
 //		if (flowContext.initsOnFinally != null)
-//			flowContext.initsOnFinally.markAsDefinitelyNonNull(this.binding);		
+//			flowContext.initsOnFinally.markAsDefinitelyNonNull(this.binding);
 	}
 
 	/** Mark that this resource is closed from a nested method (inside a local class). */

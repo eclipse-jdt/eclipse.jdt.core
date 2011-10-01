@@ -23,7 +23,7 @@ import junit.framework.Test;
 public class TryWithResourcesStatementTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test056zz"};
+//	TESTS_NAMES = new String[] { "test056throw"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -4944,6 +4944,7 @@ public void test056zzz() {
 		options);
 }
 // Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
+// explicit throw is a true method exit here
 public void test056throw1() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -4977,6 +4978,199 @@ public void test056throw1() {
 		"	throw new Exception();    //warning 2\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Resource leak: \'reader\' is not closed at this location\n" +
+		"----------\n",
+		null,
+		true,
+		options);	
+}
+// Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
+// close() within finally provides protection for throw
+public void test056throw2() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.FileReader;\n" +
+			"public class X {\n" +
+			"    void foo1() throws Exception {\n" + 
+			"        FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" + 
+			"        try {\n" + 
+			"            reader.read();\n" + 
+			"            return;\n" + 
+			"        } catch (Exception e) {\n" + 
+			"            throw new Exception();\n" + 
+			"        } finally {\n" + 
+			"            reader.close();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    void foo2() throws Exception {\n" + 
+			"        FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" + 
+			"        try {\n" + 
+			"            reader.read();\n" + 
+			"            throw new Exception(); // should not warn here\n" + 
+			"        } catch (Exception e) {\n" + 
+			"            throw new Exception();\n" + 
+			"        } finally {\n" + 
+			"            reader.close();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    void foo3() throws Exception {\n" + 
+			"        FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" + 
+			"        try {\n" + 
+			"            reader.read();\n" + 
+			"            throw new Exception();\n" + 
+			"        } finally {\n" + 
+			"            reader.close();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
+		"	           ^^^^^^\n" +
+		"Resource \'reader\' should be managed by try-with-resource\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 16)\n" +
+		"	FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
+		"	           ^^^^^^\n" +
+		"Resource \'reader\' should be managed by try-with-resource\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 28)\n" +
+		"	FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
+		"	           ^^^^^^\n" +
+		"Resource \'reader\' should be managed by try-with-resource\n" +
+		"----------\n",
+		null,
+		true,
+		options);	
+}
+// Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
+// close() nested within finally provides protection for throw
+public void test056throw3() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.FileReader;\n" +
+			"public class X {\n" +
+			"    void foo2x() throws Exception {\n" + 
+			"        FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" + 
+			"        try {\n" + 
+			"            reader.read();\n" + 
+			"            throw new Exception(); // should not warn here\n" + 
+			"        } catch (Exception e) {\n" + 
+			"            throw new Exception();\n" + 
+			"        } finally {\n" +
+			"            if (reader != null)\n" +
+			"                 try {\n" + 
+			"                     reader.close();\n" +
+			"                 } catch (java.io.IOException io) {}\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" + 
+		"	           ^^^^^^\n" + 
+		"Resource \'reader\' should be managed by try-with-resource\n" + 
+		"----------\n",
+		null,
+		true,
+		options);	
+}
+// Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
+// additional boolean should shed doubt on whether we reach the close() call
+public void test056throw4() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.FileReader;\n" +
+			"public class X {\n" +
+			"    void foo2x(boolean b) throws Exception {\n" + 
+			"        FileReader reader = new FileReader(\"file\");\n" + 
+			"        try {\n" + 
+			"            reader.read();\n" + 
+			"            throw new Exception(); // should warn here\n" + 
+			"        } catch (Exception e) {\n" + 
+			"            throw new Exception(); // should warn here\n" + 
+			"        } finally {\n" +
+			"            if (reader != null && b)\n" + // this condition is too strong to protect reader
+			"                 try {\n" + 
+			"                     reader.close();\n" +
+			"                 } catch (java.io.IOException io) {}\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	throw new Exception(); // should warn here\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Potential resource leak: \'reader\' may not be closed at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	throw new Exception(); // should warn here\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Potential resource leak: \'reader\' may not be closed at this location\n" +
+		"----------\n",
+		null,
+		true,
+		options);	
+}
+// Bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
+// similar to test056throw3() but indirectly calling close(), so doubts remain.
+public void test056throw5() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.FileReader;\n" +
+			"public class X {\n" +
+			"    void foo2x() throws Exception {\n" +
+			"        FileReader reader = new FileReader(\"file\");\n" +
+			"        try {\n" +
+			"            reader.read();\n" +
+			"            throw new Exception(); // should warn 'may not' here\n" +
+			"        } catch (Exception e) {\n" +
+			"            throw new Exception(); // should warn 'may not' here\n" +
+			"        } finally {\n" +
+			"            doClose(reader);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    void doClose(FileReader r) { try { r.close(); } catch (java.io.IOException ex) {}}\n" + 
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	throw new Exception(); // should warn \'may not\' here\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Potential resource leak: \'reader\' may not be closed at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	throw new Exception(); // should warn \'may not\' here\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Potential resource leak: \'reader\' may not be closed at this location\n" +
 		"----------\n",
 		null,
 		true,

@@ -36,7 +36,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	this.exception.checkNPE(currentScope, flowContext, flowInfo);
 	// need to check that exception thrown is actually caught somewhere
 	flowContext.checkExceptionHandlers(this.exceptionType, this, flowInfo, currentScope);
-	currentScope.checkUnclosedCloseables(flowInfo, this);
+	currentScope.checkUnclosedCloseables(flowInfo, this, currentScope);
 	return FlowInfo.DEAD_END;
 }
 

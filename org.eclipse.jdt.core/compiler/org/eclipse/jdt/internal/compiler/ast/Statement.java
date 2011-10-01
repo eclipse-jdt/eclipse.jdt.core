@@ -80,14 +80,14 @@ public int complainIfUnreachable(FlowInfo flowInfo, BlockScope scope, int previo
 			if (previousComplaintLevel < COMPLAINED_UNREACHABLE) {
 				scope.problemReporter().unreachableCode(this);
 				if (endOfBlock)
-					scope.checkUnclosedCloseables(flowInfo, null);
+					scope.checkUnclosedCloseables(flowInfo, null, null);
 			}
 			return COMPLAINED_UNREACHABLE;
 		} else {
 			if (previousComplaintLevel < COMPLAINED_FAKE_REACHABLE) {
 				scope.problemReporter().fakeReachable(this);
 				if (endOfBlock)
-					scope.checkUnclosedCloseables(flowInfo, null);
+					scope.checkUnclosedCloseables(flowInfo, null, null);
 			}
 			return COMPLAINED_FAKE_REACHABLE;
 		}
