@@ -354,12 +354,7 @@ private String getVerifyTestsCode() {
 		"					} catch (IOException e1) {\n" +
 		"						// ignore\n" +
 		"					}\n" +
-		"				} finally {\n" +
-		"                   try {\n" +
-		"					    in.close();\n" +
-		"					    out.close();\n" +
-		"                   } catch (IOException ioex) {}\n" +
-		"               }\n" +
+		"				}\n" +
 		"			}\n" +
 		"		};\n" +
 		"		thread.start();\n" +
