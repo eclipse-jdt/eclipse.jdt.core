@@ -1661,6 +1661,7 @@ public void test012b(){
         "    -warn:<warnings separated by ,>    enable exactly the listed warnings\n" + 
         "    -warn:+<warnings separated by ,>   enable additional warnings\n" + 
         "    -warn:-<warnings separated by ,>   disable specific warnings\n" + 
+        "      all                  enable all warnings\n" + 
         "      allDeadCode          dead code including trivial if(DEBUG) check\n" + 
         "      allDeprecation       deprecation including inside deprecated code\n" + 
         "      allJavadoc           invalid or missing javadoc\n" + 
@@ -8515,48 +8516,6 @@ public void test213_warn_options() {
 		"1 problem (1 warning)",
 		true);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
-// variant
-public void test214_warn_options() {
-	// same source as 153, skip default checks
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:null,-unused -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"usage of \'-\' for \'-unused\' is illegal there\n",
-		true);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=210518
-// variant
-public void test215_warn_options() {
-	// same source as 153, skip default checks
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"	public static void foo() {\n" +
-			"     String s = null;\n" +
-			"     s.toString();\n" +
-			"     String u;\n" +
-			"   }\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -warn:null,+unused -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"usage of \'+\' for \'+unused\' is illegal there\n",
-		true);
-}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
 // variant - check impact of javadoc upon other warnings
 public void _test216a_warn_options() {
@@ -11400,24 +11359,6 @@ public void test294(){
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
 		"invalid error token: \'discouraged2\'. Ignoring this error token and compiling\n",
-		true);
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
-public void test295(){
-	this.runNegativeTest(
-		new String[] {
-			"src/X.java",
-			"public class X {\n" +
-			"}",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
-		+ " -cp \"" + LIB_DIR + "\""
-		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-		+ " -1.5 -g -preserveAllLocals"
-		+ " -proceedOnError -referenceInfo -err:raw,+discouraged"
-		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
-		"",
-		"usage of \'+\' for \'+discouraged\' is illegal there\n",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=280784
