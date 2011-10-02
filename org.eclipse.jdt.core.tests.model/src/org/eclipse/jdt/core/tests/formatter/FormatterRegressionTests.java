@@ -62,7 +62,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	Map formatterOptions;
 
 	static {
-//		TESTS_NUMBERS = new int[] { 776, 777, 778, 779,780,781 };
+//		TESTS_NUMBERS = new int[] { 783 };
 //		TESTS_RANGE = new int[] { 734, -1 };
 	}
 	public static Test suite() {
@@ -12858,6 +12858,24 @@ public void test782() throws Exception {
 		"}\n" + 
 		"\n" + 
 		"class MyE extends Exception {\n" + 
+		"}"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=359646
+public void test783() throws Exception {
+	this.formatterPrefs = null;
+	String source =
+		"public class X {public static void main(String[] args) {\n" + 
+		"  	long x = 0x8000000000000000L;\n" + 
+		"  	System.out.println(x);\n" + 
+		"  }\n" + 
+		"}";
+	formatSource(source,
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		long x = 0x8000000000000000L;\n" + 
+		"		System.out.println(x);\n" + 
+		"	}\n" + 
 		"}"
 	);
 }
