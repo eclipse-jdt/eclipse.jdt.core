@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3027,6 +3027,27 @@ public void testWorkingCopyCommit() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
+		deleteProject("P");
+	}
+}
+public void testChangeExternalJar() throws CoreException {
+	String jarName = "externalLib.jar";
+	try {
+		createExternalFile(jarName, "");
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath(jarName)}, "");
+		refreshExternalArchives(p);
+
+		startDeltas();
+		touch(getExternalFile(jarName));
+		refresh(p);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" +
+			"	"+ getExternalPath() + "externalLib.jar[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
+	} finally {
+		stopDeltas();
+		deleteExternalResource(jarName);
 		deleteProject("P");
 	}
 }

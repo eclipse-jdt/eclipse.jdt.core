@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -186,6 +186,7 @@ public final class Messages extends NLS {
 	public static String cache_invalidLoadFactor;
 	public static String savedState_jobName;
 	public static String refreshing_external_folders;
+	public static String updating_external_archives_jobName;
 	public static String convention_unit_nullName;
 	public static String convention_unit_notJavaName;
 	public static String convention_classFile_nullName;
