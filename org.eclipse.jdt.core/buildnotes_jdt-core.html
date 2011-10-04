@@ -130,7 +130,7 @@ Eclipse SDK 3.8.0 - September 9, 2011
 
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=354332">354332</a>
-DeltaProcessor exhibits O(N&and;2) behavior
+DeltaProcessor exhibits O(N^2) behavior
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=355605">355605</a>
 NPE in HierarchyResolver
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=347396">347396</a>
@@ -308,7 +308,7 @@ Eclipse SDK 3.8.0 - July 27, 2011
 <li>Added a new API in CompletionProposal to tell whether it diamond operator can be used (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444">351444</a> for details):
 <pre>
 /** 
- * Returns whether it is safe to use the '<>' (diamond) operator in place of explicitly specifying
+ * Returns whether it is safe to use the '&lt;&gt;' (diamond) operator in place of explicitly specifying
  * type arguments for this proposal. 
  * 
  * This is only relevant for source level 1.7 or greater.
@@ -327,7 +327,7 @@ usage of type arguments when diamond operator can be used instead. (see details 
 	/**
 	 * Compiler option ID: Reporting redundant specification of type arguments in class instance creation expressions.
 	 * When enabled, the compiler will issue an error or a warning if type arguments are used in a class instance creation,
-	 * when the '<>' operator can be used instead.
+	 * when the '&lt;&gt;' operator can be used instead.
 	 *
 	 * This option only has an effect if the compiler compliance is 1.7 or greater.
 	 * 
