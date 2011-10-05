@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -140,6 +140,18 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 						constantPoolOffsets[i] = readOffset;
 						readOffset += IConstantPoolConstant.CONSTANT_NameAndType_SIZE;
 						break;
+					case IConstantPoolConstant.CONSTANT_MethodHandle :
+						constantPoolOffsets[i] = readOffset;
+						readOffset += IConstantPoolConstant.CONSTANT_MethodHandle_SIZE;
+						break;
+					case IConstantPoolConstant.CONSTANT_MethodType :
+						constantPoolOffsets[i] = readOffset;
+						readOffset += IConstantPoolConstant.CONSTANT_MethodType_SIZE;
+						break;
+					case IConstantPoolConstant.CONSTANT_InvokeDynamic :
+						constantPoolOffsets[i] = readOffset;
+						readOffset += IConstantPoolConstant.CONSTANT_InvokeDynamic_SIZE;
+						break;
 					default:
 						throw new ClassFormatException(ClassFormatException.INVALID_TAG_CONSTANT);
 				}
@@ -261,6 +273,8 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 							this.attributes[attributesIndex++] = new RuntimeVisibleAnnotationsAttribute(classFileBytes, this.constantPool, readOffset);
 						} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS)) {
 							this.attributes[attributesIndex++] = new RuntimeInvisibleAnnotationsAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.BOOTSTRAP_METHODS)) {
+							this.attributes[attributesIndex++] = new BootstrapMethodsAttribute(classFileBytes, this.constantPool, readOffset);
 						} else {
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						}

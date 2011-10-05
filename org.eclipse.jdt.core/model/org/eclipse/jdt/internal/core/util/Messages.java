@@ -259,6 +259,9 @@ public final class Messages extends NLS {
 	public static String disassembler_inner_accessflags;
 	public static String disassembler_genericattributeheader;
 	public static String disassembler_signatureattributeheader;
+	public static String disassembler_bootstrapmethodattributesheader;
+	public static String disassembler_bootstrapmethodentry;
+	public static String disassembler_bootstrapmethodentry_argument;
 	public static String disassembler_indentation;
 	public static String disassembler_constantpoolindex;
 	public static String disassembler_space;
@@ -278,6 +281,9 @@ public final class Messages extends NLS {
 	public static String disassembler_constantpool_methodref;
 	public static String disassembler_constantpool_name_and_type;
 	public static String disassembler_constantpool_utf8;
+	public static String disassembler_constantpool_methodhandle;
+	public static String disassembler_constantpool_methodtype;
+	public static String disassembler_constantpool_invokedynamic;
 	public static String disassembler_annotationdefaultheader;
 	public static String disassembler_annotationdefaultvalue;
 	public static String disassembler_annotationenumvalue;
@@ -348,6 +354,16 @@ public final class Messages extends NLS {
 	public static String disassembler_frame_same_frame;
 	public static String disassembler_frame_same_locals_1_stack_item;
 	public static String code_assist_internal_error;
+	
+	public static String disassembler_method_type_ref_getfield;
+	public static String disassembler_method_type_ref_putfield;
+	public static String disassembler_method_type_ref_getstatic;
+	public static String disassembler_method_type_ref_putstatic;
+	public static String disassembler_method_type_ref_invokestatic;
+	public static String disassembler_method_type_ref_invokevirtual;
+	public static String disassembler_method_type_ref_invokespecial;
+	public static String disassembler_method_type_ref_invokeinterface;
+	public static String disassembler_method_type_ref_newinvokespecial;
 
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

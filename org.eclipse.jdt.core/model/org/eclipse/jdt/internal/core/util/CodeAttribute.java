@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1049,14 +1049,13 @@ public class CodeAttribute extends ClassFileAttribute implements ICodeAttribute 
 				case IOpcodeMnemonics.INVOKEDYNAMIC :
 					index = u2At(this.classFileBytes, 1, pc);
 					constantPoolEntry = this.constantPool.decodeEntry(index);
-					if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_NameAndType) {
+					if (constantPoolEntry.getKind() != IConstantPoolConstant.CONSTANT_InvokeDynamic) {
 						throw new ClassFormatException(ClassFormatException.INVALID_CONSTANT_POOL_ENTRY);
 					}
 					visitor._invokedynamic(
 							pc - this.codeOffset,
 							index,
-							this.constantPool.decodeEntry(constantPoolEntry.getNameAndTypeInfoNameIndex()),
-							this.constantPool.decodeEntry(constantPoolEntry.getNameAndTypeInfoDescriptorIndex()));
+							constantPoolEntry);
 					pc += 5;
 					break;
 				case IOpcodeMnemonics.NEW :

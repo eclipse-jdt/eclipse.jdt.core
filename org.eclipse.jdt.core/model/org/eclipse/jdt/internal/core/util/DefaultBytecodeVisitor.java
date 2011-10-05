@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.util.IBytecodeVisitor;
 import org.eclipse.jdt.core.util.ICodeAttribute;
 import org.eclipse.jdt.core.util.IConstantPoolConstant;
 import org.eclipse.jdt.core.util.IConstantPoolEntry;
+import org.eclipse.jdt.core.util.IConstantPoolEntry2;
 import org.eclipse.jdt.core.util.ILocalVariableAttribute;
 import org.eclipse.jdt.core.util.ILocalVariableTableEntry;
 import org.eclipse.jdt.core.util.OpcodeStringValues;
@@ -1491,7 +1492,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeNewLine();
 	}
 	/**
-	 * @see IBytecodeVisitor#_invokedynamic(int, int, IConstantPoolEntry, IConstantPoolEntry)
+	 * @see IBytecodeVisitor#_invokedynamic(int, int, IConstantPoolEntry)
 	 */
 	public void _invokedynamic(
 		int pc,
@@ -1510,6 +1511,30 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 				true,
 				isCompact())
 		}));
+		writeNewLine();
+	}
+	/**
+	 * @see IBytecodeVisitor#_invokedynamic(int, int, IConstantPoolEntry)
+	 */
+	public void _invokedynamic(
+		int pc,
+		int index,
+		IConstantPoolEntry invokeDynamicEntry) {
+
+		dumpPcNumber(pc);
+		IConstantPoolEntry2 entry = (IConstantPoolEntry2) invokeDynamicEntry;
+		this.buffer.append(Messages.bind(Messages.classformat_invokedynamic,
+			new String[] {
+				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKEDYNAMIC],
+				Integer.toString(index),
+				Integer.toString(entry.getBootstrapMethodAttributeIndex()),
+				Util.toString(
+					null,
+					entry.getMethodName(),
+					entry.getMethodDescriptor(),
+					true,
+					isCompact())
+			}));
 		writeNewLine();
 	}
 	/**

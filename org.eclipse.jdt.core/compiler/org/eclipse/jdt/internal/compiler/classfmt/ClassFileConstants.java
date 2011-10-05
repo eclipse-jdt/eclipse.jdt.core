@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,6 +58,9 @@ public interface ClassFileConstants {
 	int MethodRefTag = 10;
 	int InterfaceMethodRefTag = 11;
 	int NameAndTypeTag = 12;
+	int MethodHandleTag = 15;
+	int MethodTypeTag = 16;
+	int InvokeDynamicTag = 18;
 
 	int ConstantMethodRefFixedSize = 5;
 	int ConstantClassFixedSize = 3;
@@ -70,6 +73,9 @@ public interface ClassFileConstants {
 	int ConstantStringFixedSize = 3;
 	int ConstantUtf8FixedSize = 3;
 	int ConstantNameAndTypeFixedSize = 5;
+	int ConstantMethodHandleFixedSize = 4;
+	int ConstantMethodTypeFixedSize = 3;
+	int ConstantInvokeDynamicFixedSize = 5;
 
 	int MAJOR_VERSION_1_1 = 45;
 	int MAJOR_VERSION_1_2 = 46;
