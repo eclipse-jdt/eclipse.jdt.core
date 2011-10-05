@@ -33,7 +33,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "testBug95521";
-//		TESTS_NAMES = new String[] { "testBug83127a" };
+//		TESTS_NAMES = new String[] { "testBug359495" };
 //		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
@@ -6801,5 +6801,208 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"}",
 			},
 			"SUCCESS");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=359495
+	public void testBug359495a() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"import java.util.concurrent.locks.Lock;\n" +
+					"import java.util.Arrays;\n" +
+					"import java.util.concurrent.locks.ReentrantLock;\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		final Lock lock = new ReentrantLock();\n" +
+					"		final List<String> strings = Arrays.asList(args);\n" +
+					"		lock.lock();\n" +
+					"		try{\n" +
+					"			for (final String string:strings){\n" +
+					"				return;\n" +
+					"			}\n" +
+					"			return;\n" +
+					"		} finally {\n" +
+					"			lock.unlock();\n" +
+					"		}" +
+					"	}\n" +
+					"}",
+				},
+				"");
+
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);
+
+			String expectedOutput =
+					"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+					"  // Stack: 2, Locals: 6\n" + 
+					"  public static void main(java.lang.String[] args);\n" + 
+					"     0  new java.util.concurrent.locks.ReentrantLock [16]\n" + 
+					"     3  dup\n" + 
+					"     4  invokespecial java.util.concurrent.locks.ReentrantLock() [18]\n" + 
+					"     7  astore_1 [lock]\n" + 
+					"     8  aload_0 [args]\n" + 
+					"     9  invokestatic java.util.Arrays.asList(java.lang.Object[]) : java.util.List [19]\n" + 
+					"    12  astore_2 [strings]\n" + 
+					"    13  aload_1 [lock]\n" + 
+					"    14  invokeinterface java.util.concurrent.locks.Lock.lock() : void [25] [nargs: 1]\n" + 
+					"    19  aload_2 [strings]\n" + 
+					"    20  invokeinterface java.util.List.iterator() : java.util.Iterator [30] [nargs: 1]\n" + 
+					"    25  astore 4\n" + 
+					"    27  aload 4\n" + 
+					"    29  invokeinterface java.util.Iterator.hasNext() : boolean [36] [nargs: 1]\n" + 
+					"    34  ifeq 55\n" + 
+					"    37  aload 4\n" + 
+					"    39  invokeinterface java.util.Iterator.next() : java.lang.Object [42] [nargs: 1]\n" + 
+					"    44  checkcast java.lang.String [46]\n" + 
+					"    47  astore_3 [string]\n" + 
+					"    48  aload_1 [lock]\n" + 
+					"    49  invokeinterface java.util.concurrent.locks.Lock.unlock() : void [48] [nargs: 1]\n" + 
+					"    54  return\n" + 
+					"    55  aload_1 [lock]\n" + 
+					"    56  invokeinterface java.util.concurrent.locks.Lock.unlock() : void [48] [nargs: 1]\n" + 
+					"    61  return\n" + 
+					"    62  astore 5\n" + 
+					"    64  aload_1 [lock]\n" + 
+					"    65  invokeinterface java.util.concurrent.locks.Lock.unlock() : void [48] [nargs: 1]\n" + 
+					"    70  aload 5\n" + 
+					"    72  athrow\n" + 
+					"      Exception Table:\n" + 
+					"        [pc: 19, pc: 48] -> 62 when : any\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 7]\n" + 
+					"        [pc: 8, line: 8]\n" + 
+					"        [pc: 13, line: 9]\n" + 
+					"        [pc: 19, line: 11]\n" + 
+					"        [pc: 48, line: 16]\n" + 
+					"        [pc: 54, line: 12]\n" + 
+					"        [pc: 55, line: 16]\n" + 
+					"        [pc: 61, line: 14]\n" + 
+					"        [pc: 62, line: 15]\n" + 
+					"        [pc: 64, line: 16]\n" + 
+					"        [pc: 70, line: 17]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 73] local: args index: 0 type: java.lang.String[]\n" + 
+					"        [pc: 8, pc: 73] local: lock index: 1 type: java.util.concurrent.locks.Lock\n" + 
+					"        [pc: 13, pc: 73] local: strings index: 2 type: java.util.List\n" + 
+					"        [pc: 48, pc: 55] local: string index: 3 type: java.lang.String\n" + 
+					"      Local variable type table:\n" + 
+					"        [pc: 13, pc: 73] local: strings index: 2 type: java.util.List<java.lang.String>\n" + 
+					"      Stack map table: number of frames 2\n" + 
+					"        [pc: 55, append: {java.util.concurrent.locks.Lock, java.util.List}]\n" + 
+					"        [pc: 62, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" ;
+
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=359495
+	public void testBug359495b() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"import java.util.Iterator;\n" +
+					"import java.util.concurrent.locks.Lock;\n" +
+					"import java.util.Arrays;\n" +
+					"import java.util.concurrent.locks.ReentrantLock;\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		final Lock lock = new ReentrantLock();\n" +
+					"		final List<String> strings = Arrays.asList(args);\n" +
+					"		lock.lock();\n" +
+					"		try{\n" +
+					"			for (Iterator i = strings.iterator(); i.hasNext();){\n" +
+					"				return;\n" +
+					"			}\n" +
+					"			return;\n" +
+					"		} finally {\n" +
+					"			lock.unlock();\n" +
+					"		}" +
+					"	}\n" +
+					"}",
+				},
+				"");
+
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);
+
+			String expectedOutput =
+					"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+					"  // Stack: 2, Locals: 5\n" + 
+					"  public static void main(java.lang.String[] args);\n" + 
+					"     0  new java.util.concurrent.locks.ReentrantLock [16]\n" + 
+					"     3  dup\n" + 
+					"     4  invokespecial java.util.concurrent.locks.ReentrantLock() [18]\n" + 
+					"     7  astore_1 [lock]\n" + 
+					"     8  aload_0 [args]\n" + 
+					"     9  invokestatic java.util.Arrays.asList(java.lang.Object[]) : java.util.List [19]\n" + 
+					"    12  astore_2 [strings]\n" + 
+					"    13  aload_1 [lock]\n" + 
+					"    14  invokeinterface java.util.concurrent.locks.Lock.lock() : void [25] [nargs: 1]\n" + 
+					"    19  aload_2 [strings]\n" + 
+					"    20  invokeinterface java.util.List.iterator() : java.util.Iterator [30] [nargs: 1]\n" + 
+					"    25  astore_3 [i]\n" + 
+					"    26  aload_3 [i]\n" + 
+					"    27  invokeinterface java.util.Iterator.hasNext() : boolean [36] [nargs: 1]\n" + 
+					"    32  ifeq 42\n" + 
+					"    35  aload_1 [lock]\n" + 
+					"    36  invokeinterface java.util.concurrent.locks.Lock.unlock() : void [42] [nargs: 1]\n" + 
+					"    41  return\n" + 
+					"    42  aload_1 [lock]\n" + 
+					"    43  invokeinterface java.util.concurrent.locks.Lock.unlock() : void [42] [nargs: 1]\n" + 
+					"    48  return\n" + 
+					"    49  astore 4\n" + 
+					"    51  aload_1 [lock]\n" + 
+					"    52  invokeinterface java.util.concurrent.locks.Lock.unlock() : void [42] [nargs: 1]\n" + 
+					"    57  aload 4\n" + 
+					"    59  athrow\n" + 
+					"      Exception Table:\n" + 
+					"        [pc: 19, pc: 35] -> 49 when : any\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 8]\n" + 
+					"        [pc: 8, line: 9]\n" + 
+					"        [pc: 13, line: 10]\n" + 
+					"        [pc: 19, line: 12]\n" + 
+					"        [pc: 35, line: 17]\n" + 
+					"        [pc: 41, line: 13]\n" + 
+					"        [pc: 42, line: 17]\n" + 
+					"        [pc: 48, line: 15]\n" + 
+					"        [pc: 49, line: 16]\n" + 
+					"        [pc: 51, line: 17]\n" + 
+					"        [pc: 57, line: 18]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 60] local: args index: 0 type: java.lang.String[]\n" + 
+					"        [pc: 8, pc: 60] local: lock index: 1 type: java.util.concurrent.locks.Lock\n" + 
+					"        [pc: 13, pc: 60] local: strings index: 2 type: java.util.List\n" + 
+					"        [pc: 26, pc: 42] local: i index: 3 type: java.util.Iterator\n" + 
+					"      Local variable type table:\n" + 
+					"        [pc: 13, pc: 60] local: strings index: 2 type: java.util.List<java.lang.String>\n" + 
+					"      Stack map table: number of frames 2\n" + 
+					"        [pc: 42, append: {java.util.concurrent.locks.Lock, java.util.List}]\n" + 
+					"        [pc: 49, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n";
+
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
 	}
 }
