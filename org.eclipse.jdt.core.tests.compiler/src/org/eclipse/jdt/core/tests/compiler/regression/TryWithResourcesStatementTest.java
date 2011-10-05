@@ -493,7 +493,7 @@ public void test014() {
 		"3. WARNING in X.java (at line 5)\n" + 
 		"	Y why = new Y();\n" + 
 		"	  ^^^\n" + 
-		"Resource leak: \"why\" is never closed\n" + 
+		"Resource leak: 'why' is never closed\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 5)\n" + 
 		"	Y why = new Y();\n" + 
@@ -571,7 +571,7 @@ public void test016() {
 		"3. WARNING in X.java (at line 5)\n" + 
 		"	Y why = new Y();\n" + 
 		"	  ^^^\n" + 
-		"Resource leak: \"why\" is never closed\n" + 
+		"Resource leak: 'why' is never closed\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 5)\n" + 
 		"	Y why = new Y();\n" + 
@@ -3475,7 +3475,7 @@ public void test056() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	FileReader fileReader = new FileReader(file);\n" + 
 		"	           ^^^^^^^^^^\n" + 
-		"Resource leak: \"fileReader\" is never closed\n" +
+		"Resource leak: 'fileReader' is never closed\n" +
 		"----------\n",
 		null,
 		true,
@@ -3515,7 +3515,7 @@ public void test056a() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	FileReader fileReader = new FileReader(file);\n" + 
 		"	           ^^^^^^^^^^\n" + 
-		"Resource \"fileReader\" should be managed by try-with-resource\n" + 
+		"Resource 'fileReader' should be managed by try-with-resource\n" + 
 		"----------\n",
 		null,
 		true,
@@ -3635,12 +3635,12 @@ public void test056d() {
 		"1. WARNING in X.java (at line 10)\n" + 
 		"	FileReader fileReader2 = new FileReader(file);\n" + 
 		"	           ^^^^^^^^^^^\n" + 
-		"Potential resource leak: \"fileReader2\" may not be closed\n" +
+		"Potential resource leak: 'fileReader2' may not be closed\n" +
 		"----------\n" + 
 		"2. ERROR in X.java (at line 14)\n" + 
 		"	return;\n" + 
 		"	^^^^^^^\n" + 
-		"Resource leak: \"fileReader1\" is not closed at this location\n" + 
+		"Resource leak: 'fileReader1' is not closed at this location\n" + 
 		"----------\n",
 		null,
 		true,
@@ -3698,7 +3698,7 @@ public void test056d_suppress() {
 		"2. ERROR in X.java (at line 14)\n" + 
 		"	return; // not suppressed\n" + 
 		"	^^^^^^^\n" + 
-		"Resource leak: \"fileReader1\" is not closed at this location\n" + 
+		"Resource leak: 'fileReader1' is not closed at this location\n" + 
 		"----------\n",
 		null,
 		true,
@@ -3736,7 +3736,7 @@ public void test056e() {
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	FileReader reader = getReader(\"somefile\");\n" + 
 		"	           ^^^^^^\n" + 
-		"Resource leak: \"reader\" is never closed\n" + 
+		"Resource leak: 'reader' is never closed\n" + 
 		"----------\n",
 		null,
 		true,
@@ -3776,7 +3776,7 @@ public void test056f() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	FileReader fileReader = null;\n" + 
 		"	           ^^^^^^^^^^\n" + 
-		"Resource \"fileReader\" should be managed by try-with-resource\n" + 
+		"Resource 'fileReader' should be managed by try-with-resource\n" + 
 		"----------\n",
 		null,
 		true,
@@ -3815,7 +3815,7 @@ public void test056g() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	fileReader = new FileReader(file);\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Resource leak: \"fileReader\" is not closed at this location\n" + 
+		"Resource leak: 'fileReader' is not closed at this location\n" + 
 		"----------\n",
 		null,
 		true,
@@ -3854,7 +3854,7 @@ public void test056g2() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	fileReader = null;\n" + 
 		"	^^^^^^^^^^^^^^^^^\n" + 
-		"Resource leak: \"fileReader\" is not closed at this location\n" + 
+		"Resource leak: 'fileReader' is not closed at this location\n" + 
 		"----------\n",
 		null,
 		true,
@@ -3895,12 +3895,12 @@ public void test056h() {
 		"1. WARNING in X.java (at line 7)\n" + 
 		"	final FileReader fileReader = new FileReader(file);\n" + 
 		"	                 ^^^^^^^^^^\n" + 
-		"Potential resource leak: \"fileReader\" may not be closed\n" + 
+		"Potential resource leak: 'fileReader' may not be closed\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 14)\n" + 
 		"	FileReader localReader = new FileReader(file);\n" + 
 		"	           ^^^^^^^^^^^\n" + 
-		"Resource leak: \"localReader\" is never closed\n" + 
+		"Resource leak: 'localReader' is never closed\n" + 
 		"----------\n",
 		null,
 		true,
@@ -3946,12 +3946,12 @@ public void test056i() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	FileReader fileReader = new FileReader(file); // err: not closed\n" + 
 		"	           ^^^^^^^^^^\n" + 
-		"Resource leak: \"fileReader\" is never closed\n" + 
+		"Resource leak: 'fileReader' is never closed\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 16)\n" + 
 		"	FileReader fileReader = new FileReader(file); // warn: not closed on all paths\n" + 
 		"	           ^^^^^^^^^^\n" + 
-		"Potential resource leak: \"fileReader\" may not be closed\n" + 
+		"Potential resource leak: 'fileReader' may not be closed\n" + 
 		"----------\n",
 		null,
 		true,
@@ -3998,7 +3998,7 @@ public void test056i2() {
 		"1. ERROR in X.java (at line 18)\n" + 
 		"	FileReader fileReader = new FileReader(file); // warn: not closed on all paths\n" + 
 		"	           ^^^^^^^^^^\n" + 
-		"Potential resource leak: \"fileReader\" may not be closed\n" + 
+		"Potential resource leak: 'fileReader' may not be closed\n" + 
 		"----------\n",
 		null,
 		true,
@@ -4032,7 +4032,7 @@ public void test056j() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	FileReader fileReader = new FileReader(file);\n" + 
 		"	           ^^^^^^^^^^\n" + 
-		"Potential resource leak: \"fileReader\" may not be closed\n" + 
+		"Potential resource leak: 'fileReader' may not be closed\n" + 
 		"----------\n",
 		null,
 		true,
@@ -4068,7 +4068,7 @@ public void test056jconditional() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	FileReader fileReader = new FileReader(file);\n" + 
 		"	           ^^^^^^^^^^\n" + 
-		"Potential resource leak: \"fileReader\" may not be closed\n" + 
+		"Potential resource leak: 'fileReader' may not be closed\n" + 
 		"----------\n",
 		null,
 		true,
@@ -4132,32 +4132,32 @@ public void test056k() {
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	FileReader ra1 = null, ra2 = null;\n" + 
 		"	           ^^^\n" + 
-		"Resource \"ra1\" should be managed by try-with-resource\n" + 
+		"Resource 'ra1' should be managed by try-with-resource\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 15)\n" + 
 		"	ra2 = new FileReader(file);\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Resource leak: \"ra2\" is never closed\n" + 
+		"Resource leak: 'ra2' is never closed\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 16)\n" + 
 		"	FileReader ra3 = new FileReader(file);\n" + 
 		"	           ^^^\n" + 
-		"Resource \"ra3\" should be managed by try-with-resource\n" +
+		"Resource 'ra3' should be managed by try-with-resource\n" +
 		"----------\n" + 
 		"4. ERROR in X.java (at line 25)\n" + 
 		"	FileReader rb1 = null, rb2 = null;\n" + 
 		"	           ^^^\n" + 
-		"Resource \"rb1\" should be managed by try-with-resource\n" + 
+		"Resource 'rb1' should be managed by try-with-resource\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 28)\n" + 
 		"	rb2 = new FileReader(file);\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Resource leak: \"rb2\" is never closed\n" + 
+		"Resource leak: 'rb2' is never closed\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 29)\n" + 
 		"	FileReader rb3 = new FileReader(file);\n" + 
 		"	           ^^^\n" + 
-		"Resource \"rb3\" should be managed by try-with-resource\n" + 
+		"Resource 'rb3' should be managed by try-with-resource\n" + 
 		"----------\n",
 		null,
 		true,
@@ -4205,17 +4205,17 @@ public void test056l() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	FileReader fileReader = getReader();\n" + 
 		"	           ^^^^^^^^^^\n" + 
-		"Resource \"fileReader\" should be managed by try-with-resource\n" + 
+		"Resource 'fileReader' should be managed by try-with-resource\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 11)\n" + 
 		"	FileReader r3 = getReader();\n" + 
 		"	           ^^\n" + 
-		"Resource \"r3\" should be managed by try-with-resource\n" +
+		"Resource 'r3' should be managed by try-with-resource\n" +
 		"----------\n" + 
 		"3. ERROR in X.java (at line 24)\n" + 
 		"	FileReader r2 = new FileReader(new File(\"inexist\")); // only potential problem: ctor X below might close r2\n" + 
 		"	           ^^\n" + 
-		"Potential resource leak: \"r2\" may not be closed\n" + 
+		"Potential resource leak: 'r2' may not be closed\n" + 
 		"----------\n",
 		null,
 		true,
@@ -4381,7 +4381,7 @@ public void test056p() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	T fileReader = newReader(file);\n" + 
 		"	  ^^^^^^^^^^\n" + 
-		"Resource leak: \"fileReader\" is never closed\n" +
+		"Resource leak: 'fileReader' is never closed\n" +
 		"----------\n",
 		null,
 		true,
@@ -4419,7 +4419,7 @@ public void test056q() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	FileReader fileReader = new FileReader(file);\n" + 
 		"	           ^^^^^^^^^^\n" + 
-		"Resource leak: \"fileReader\" is never closed\n" + 
+		"Resource leak: 'fileReader' is never closed\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 10)\n" + 
 		"	if (2*2 == 4)\n" + 
@@ -4603,17 +4603,17 @@ public void test056u() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	FileReader reader2 = new FileReader(\"file2\");\n" + 
 		"	           ^^^^^^^\n" + 
-		"Resource leak: \"reader2\" is never closed\n" + 
+		"Resource leak: 'reader2' is never closed\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 13)\n" + 
 		"	reader2 = reader1; // warning 1 regarding original reader1\n" + 
 		"	^^^^^^^^^^^^^^^^^\n" + 
-		"Resource leak: \"reader1\" is not closed at this location\n" + 
+		"Resource leak: 'reader1' is not closed at this location\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 14)\n" + 
 		"	reader2 = reader1; // warning 2 regarding original reader1\n" + 
 		"	^^^^^^^^^^^^^^^^^\n" + 
-		"Resource leak: \"reader1\" is not closed at this location\n" + 
+		"Resource leak: 'reader1' is not closed at this location\n" + 
 		"----------\n",
 		null,
 		true,
@@ -4683,17 +4683,17 @@ public void test056v() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	FileReader reader = new FileReader(\"file\");\n" + 
 		"	           ^^^^^^\n" + 
-		"Resource leak: \"reader\" is never closed\n" + 
+		"Resource leak: 'reader' is never closed\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 19)\n" + 
 		"	FileReader reader111 = new FileReader(\"file2\");\n" + 
 		"	           ^^^^^^^^^\n" + 
-		"Resource \"reader111\" should be managed by try-with-resource\n" + 
+		"Resource 'reader111' should be managed by try-with-resource\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 42)\n" + 
 		"	return;\n" + 
 		"	^^^^^^^\n" + 
-		"Resource leak: \"reader2\" is not closed at this location\n" + 
+		"Resource leak: 'reader2' is not closed at this location\n" + 
 		"----------\n",
 		null,
 		true,
@@ -4733,7 +4733,7 @@ public void test056w() {
 		"1. ERROR in X.java (at line 15)\n" + 
 		"	return false;\n" + 
 		"	^^^^^^^^^^^^^\n" + 
-		"Resource leak: \"reader\" is not closed at this location\n" + 
+		"Resource leak: 'reader' is not closed at this location\n" + 
 		"----------\n",
 		null,
 		true,
@@ -4769,12 +4769,12 @@ public void test056x() {
 		"1. ERROR in X.java (at line 8)\n" +
 		"	return; // warning\n" +
 		"	^^^^^^^\n" +
-		"Resource leak: \"reader\" is not closed at this location\n" +
+		"Resource leak: 'reader' is not closed at this location\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 12)\n" +
 		"	FileReader reader = new FileReader(\"file\"); // warn here\n" +
 		"	           ^^^^^^\n" +
-		"Resource leak: \"reader\" is never closed\n" +
+		"Resource leak: 'reader' is never closed\n" +
 		"----------\n",
 		null,
 		true,
@@ -4821,12 +4821,12 @@ public void test056y() {
 		"1. WARNING in X.java (at line 4)\n" + 
 		"	final FileReader reader31 = new FileReader(\"file\");\n" + 
 		"	                 ^^^^^^^^\n" + 
-		"Potential resource leak: \"reader31\" may not be closed\n" + 
+		"Potential resource leak: 'reader31' may not be closed\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 17)\n" + 
 		"	final FileReader reader23 = new FileReader(\"file\");\n" + 
 		"	                 ^^^^^^^^\n" + 
-		"Potential resource leak: \"reader23\" may not be closed\n" + 
+		"Potential resource leak: 'reader23' may not be closed\n" + 
 		"----------\n",
 		null,
 		true,
@@ -4862,7 +4862,7 @@ public void test056z() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	FileReader reader17a = new FileReader(\"file\");\n" + 
 		"	           ^^^^^^^^^\n" + 
-		"Potential resource leak: \"reader17a\" may not be closed\n" + 
+		"Potential resource leak: 'reader17a' may not be closed\n" + 
 		"----------\n",
 		null,
 		true,
@@ -4900,7 +4900,7 @@ public void test056zz() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	FileReader reader16 = new FileReader(\"file\");\n" + 
 		"	           ^^^^^^^^\n" + 
-		"Resource \"reader16\" should be managed by try-with-resource\n" + 
+		"Resource 'reader16' should be managed by try-with-resource\n" + 
 		"----------\n",
 		null,
 		true,
@@ -4937,7 +4937,7 @@ public void test056zzz() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	FileReader reader16 = new FileReader(\"file\");\n" + 
 		"	           ^^^^^^^^\n" + 
-		"Resource leak: \"reader16\" is never closed\n" + 
+		"Resource leak: 'reader16' is never closed\n" + 
 		"----------\n",
 		null,
 		true,
@@ -4972,12 +4972,12 @@ public void test056throw1() {
 		"1. ERROR in X.java (at line 6)\n" +
 		"	throw new Exception();    //warning 1\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \"reader\" is not closed at this location\n" +
+		"Resource leak: 'reader' is not closed at this location\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 10)\n" +
 		"	throw new Exception();    //warning 2\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Resource leak: \"reader\" is not closed at this location\n" +
+		"Resource leak: 'reader' is not closed at this location\n" +
 		"----------\n",
 		null,
 		true,
@@ -5035,17 +5035,17 @@ public void test056throw2() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
 		"	           ^^^^^^\n" +
-		"Resource \"reader\" should be managed by try-with-resource\n" +
+		"Resource 'reader' should be managed by try-with-resource\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 16)\n" +
 		"	FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
 		"	           ^^^^^^\n" +
-		"Resource \"reader\" should be managed by try-with-resource\n" +
+		"Resource 'reader' should be managed by try-with-resource\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 28)\n" +
 		"	FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" +
 		"	           ^^^^^^\n" +
-		"Resource \"reader\" should be managed by try-with-resource\n" +
+		"Resource 'reader' should be managed by try-with-resource\n" +
 		"----------\n",
 		null,
 		true,
@@ -5084,7 +5084,7 @@ public void test056throw3() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	FileReader reader = new FileReader(\"file\"); // propose t-w-r\n" + 
 		"	           ^^^^^^\n" + 
-		"Resource \"reader\" should be managed by try-with-resource\n" + 
+		"Resource 'reader' should be managed by try-with-resource\n" + 
 		"----------\n",
 		null,
 		true,
@@ -5123,12 +5123,12 @@ public void test056throw4() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	throw new Exception(); // should warn here\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \"reader\" may not be closed at this location\n" +
+		"Potential resource leak: 'reader' may not be closed at this location\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 9)\n" +
 		"	throw new Exception(); // should warn here\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \"reader\" may not be closed at this location\n" +
+		"Potential resource leak: 'reader' may not be closed at this location\n" +
 		"----------\n",
 		null,
 		true,
@@ -5165,12 +5165,12 @@ public void test056throw5() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	throw new Exception(); // should warn \'may not\' here\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \"reader\" may not be closed at this location\n" +
+		"Potential resource leak: 'reader' may not be closed at this location\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 9)\n" +
 		"	throw new Exception(); // should warn \'may not\' here\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \"reader\" may not be closed at this location\n" +
+		"Potential resource leak: 'reader' may not be closed at this location\n" +
 		"----------\n",
 		null,
 		true,

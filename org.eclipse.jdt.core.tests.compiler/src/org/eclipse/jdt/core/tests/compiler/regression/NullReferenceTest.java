@@ -6035,7 +6035,7 @@ public void test0562_try_catch_unchecked_exception() {
 			"1. WARNING in X.java (at line 6)\n" +
 			"	o = new LineNumberReader(new FileReader(\"dummy\"));\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Resource leak: \"o\" is never closed\n" +
+			"Resource leak: 'o' is never closed\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 8)\n" +
 			"	o.toString();\n" +

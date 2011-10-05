@@ -2384,7 +2384,7 @@ public void testCloseable1() {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	FileReader fileReader = new FileReader(file); // not closed\n" + 
 			"	           ^^^^^^^^^^\n" + 
-			"Resource leak: \"fileReader\" is never closed\n" + 
+			"Resource leak: 'fileReader' is never closed\n" + 
 			"----------\n");	
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
