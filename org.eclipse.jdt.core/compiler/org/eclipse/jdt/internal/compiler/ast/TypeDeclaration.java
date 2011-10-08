@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -625,7 +626,11 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			this.scope.problemReporter().unusedPrivateType(this);
 		}
 	}
-	InitializationFlowContext initializerContext = new InitializationFlowContext(null, this, flowInfo, flowContext, this.initializerScope);
+	// for local classes we use the flowContext as our parent, but never use an initialization context for this purpose
+	// see Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
+	FlowContext parentContext = (flowContext instanceof InitializationFlowContext) ? null : flowContext;
+	InitializationFlowContext initializerContext = new InitializationFlowContext(parentContext, this, flowInfo, flowContext, this.initializerScope);
+	// no static initializer in local classes, thus no need to set parent:
 	InitializationFlowContext staticInitializerContext = new InitializationFlowContext(null, this, flowInfo, flowContext, this.staticInitializerScope);
 	FlowInfo nonStaticFieldInfo = flowInfo.unconditionalFieldLessCopy();
 	FlowInfo staticFieldInfo = flowInfo.unconditionalFieldLessCopy();
@@ -684,8 +689,9 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			if (method.ignoreFurtherInvestigation)
 				continue;
 			if (method.isInitializationMethod()) {
+				// pass down the appropriate initializerContext:
 				if (method.isStatic()) { // <clinit>
-					method.analyseCode(
+					((Clinit)method).analyseCode(
 						this.scope,
 						staticInitializerContext,
 						staticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo));
@@ -693,7 +699,8 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 					((ConstructorDeclaration)method).analyseCode(this.scope, initializerContext, constructorInfo.copy(), flowInfo.reachMode());
 				}
 			} else { // regular method
-				method.analyseCode(this.scope, null, flowInfo.copy());
+				// pass down the parentContext (NOT an initializer context, see above):
+				((MethodDeclaration)method).analyseCode(this.scope, parentContext, flowInfo.copy());
 			}
 		}
 	}

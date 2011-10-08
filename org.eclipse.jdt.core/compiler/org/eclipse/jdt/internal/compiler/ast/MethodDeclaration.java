@@ -16,8 +16,8 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
@@ -44,7 +44,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		super(compilationResult);
 	}
 
-	public void analyseCode(ClassScope classScope, InitializationFlowContext initializationContext, FlowInfo flowInfo) {
+	public void analyseCode(ClassScope classScope, FlowContext flowContext, FlowInfo flowInfo) {
 		// starting of the code analysis for methods
 		if (this.ignoreFurtherInvestigation)
 			return;
@@ -72,7 +72,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 
 			ExceptionHandlingFlowContext methodContext =
 				new ExceptionHandlingFlowContext(
-					initializationContext,
+					flowContext,
 					this,
 					this.binding.thrownExceptions,
 					null,
