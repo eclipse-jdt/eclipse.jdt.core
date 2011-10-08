@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - TypeConverters don't set enclosingType - https://bugs.eclipse.org/bugs/show_bug.cgi?id=320841
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *     								Bug 320841 - TypeConverters don't set enclosingType
+ *     								Bug 353474 - type converters should include more annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -28,6 +30,7 @@ import org.eclipse.jdt.core.IAnnotatable;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -373,6 +376,7 @@ public class SourceTypeConverter extends TypeConverter {
 		char[][] argumentNames = methodInfo.getArgumentNames();
 		int argumentCount = argumentTypeSignatures == null ? 0 : argumentTypeSignatures.length;
 		if (argumentCount > 0) {
+			ILocalVariable[] parameters = methodHandle.getParameters();
 			long position = ((long) start << 32) + end;
 			method.arguments = new Argument[argumentCount];
 			for (int i = 0; i < argumentCount; i++) {
@@ -387,6 +391,11 @@ public class SourceTypeConverter extends TypeConverter {
 						typeReference,
 						ClassFileConstants.AccDefault);
 				// do not care whether was final or not
+				// convert 1.5 specific constructs only if compliance is 1.5 or above
+				if (this.has1_5Compliance) {
+					/* convert annotations */
+					method.arguments[i].annotations = convertAnnotations(parameters[i]);
+				}
 			}
 		}
 

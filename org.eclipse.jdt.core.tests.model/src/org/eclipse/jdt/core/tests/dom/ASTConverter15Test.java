@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for Bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+ *     Stephan Herrmann - Contributions for 
+ *     							Bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+ *     							Bug 353474 - type converters should include more annotations
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
@@ -50,7 +52,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	static {
 //		TESTS_NUMBERS = new int[] { 353 };
 //		TESTS_RANGE = new int[] { 325, -1 };
-//		TESTS_NAMES = new String[] {"test0204"};
+//		TESTS_NAMES = new String[] {"testBug353474"};
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverter15Test.class);
@@ -11347,6 +11349,101 @@ public class ASTConverter15Test extends ConverterTestSetup {
         assignmentType = ((ExpressionStatement) (Statement) statements.get(1)).getExpression().resolveTypeBinding();
         rhsType = ((Assignment)((ExpressionStatement)((Statement) statements.get(1))).getExpression()).getRightHandSide().resolveTypeBinding();
         assertFalse("Assignement compatible", rhsType.isAssignmentCompatible(assignmentType));
+	}
+	// Bug 353474 - type converters should include more annotations
+	public void testBug353474() throws CoreException {
+		
+		this.createFolder("/Converter15/src/testBug353474/annot");
+		String contents =	
+			"package testBug353474.annot;\n" +
+			"import static java.lang.annotation.ElementType.*;\n" + 
+			"import java.lang.annotation.*;\n" + 
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({METHOD,PARAMETER,LOCAL_VARIABLE})\n" + 
+			"public @interface Nullable {\n" + 
+			"}\n";
+		getWorkingCopy("/Converter15/src/testBug353474/annot/Nullable.java", contents, true/*resolve*/);
+
+		this.createFolder("/Converter15/src/testBug353474/p1");
+		contents =	
+			"package testBug353474.p1;\n" +
+			"import testBug353474.annot.*;\n" +
+			"public class C1 {\n" +
+			"	 public @Nullable String foo(@Nullable Object arg) {\n" +
+			"		return \"\";\n" +
+			"	 }\n" +
+			"}\n";
+		getWorkingCopy("/Converter15/src/testBug353474/p1/C1.java", contents, true/*resolve*/);
+
+		this.workingCopy = getWorkingCopy("/Converter15/src/testBug353474/p1/C2.java", true/*resolve*/);
+		contents =
+			"package testBug353474.p1;\n" +
+			"public class C2 {\n" +
+			"	 public String bar(C1 c1) {\n" +
+			"        return c1.foo(null);\n" +
+			"    }\n" +
+			"}\n";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				true);
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		TypeDeclaration c2 = (TypeDeclaration) compilationUnit.types().get(0);
+		MethodDeclaration bar = (MethodDeclaration) c2.bodyDeclarations().get(0);
+		ReturnStatement returnStat = (ReturnStatement) bar.getBody().statements().get(0);
+		MethodInvocation fooCall = (MethodInvocation) returnStat.getExpression();
+		IMethodBinding resolvedFoo = fooCall.resolveMethodBinding();
+		IAnnotationBinding[] parameterAnnotations0 = resolvedFoo.getParameterAnnotations(0);
+		assertNotNull("Parameter annotation should not be null", parameterAnnotations0);
+		assertEquals("Should have exactly one annotation", 1, parameterAnnotations0.length);
+		assertEquals("Unexpected annotation name", "Nullable", parameterAnnotations0[0].getName());
+		
+		IAnnotationBinding[] returnAnnotations = resolvedFoo.getAnnotations();
+		assertNotNull("Return annotation should not be null", returnAnnotations);
+		assertEquals("Should have exactly one return annotation", 1, returnAnnotations.length);
+		assertEquals("Unexpected annotation name", "Nullable", returnAnnotations[0].getName());
+		deleteFolder("/Converter15/src/testBug353474");
+	}
+	// Bug 353474 - type converters should include more annotations
+	// secondary type comes from binary
+	public void testBug353474a() throws CoreException {
+		String jarLocation = getWorkspacePath()+"Converter15/bins/bug353474.jar";
+		IJavaProject jp = createJavaProject("Bug353464a", new String[]{"src"}, new String[]{"CONVERTER_JCL15_LIB", jarLocation}, "bin", "1.5");
+		try {
+			this.workingCopy = getWorkingCopy("/Bug353464a/src/testBug353474/p1/C2.java", true/*resolve*/);
+			String contents =
+				"package testBug353474.p1;\n" +
+				"public class C2 {\n" +
+				"	 public String bar(C1a c1) {\n" +
+				"        return c1.foo(null);\n" +
+				"    }\n" +
+				"}\n";
+			ASTNode node = buildAST(
+					contents,
+					this.workingCopy,
+					true);
+			assertNotNull("No node", node);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			TypeDeclaration c2 = (TypeDeclaration) compilationUnit.types().get(0);
+			MethodDeclaration bar = (MethodDeclaration) c2.bodyDeclarations().get(0);
+			ReturnStatement returnStat = (ReturnStatement) bar.getBody().statements().get(0);
+			MethodInvocation fooCall = (MethodInvocation) returnStat.getExpression();
+			IMethodBinding resolvedFoo = fooCall.resolveMethodBinding();
+			IAnnotationBinding[] parameterAnnotations0 = resolvedFoo.getParameterAnnotations(0);
+			assertNotNull("Parameter annotation should not be null", parameterAnnotations0);
+			assertEquals("Should have exactly one annotation", 1, parameterAnnotations0.length);
+			assertEquals("Unexpected annotation name", "Nullable", parameterAnnotations0[0].getName());
+			
+			IAnnotationBinding[] returnAnnotations = resolvedFoo.getAnnotations();
+			assertNotNull("Return annotation should not be null", returnAnnotations);
+			assertEquals("Should have exactly one return annotation", 1, returnAnnotations.length);
+			assertEquals("Unexpected annotation name", "Nullable", returnAnnotations[0].getName());
+		} finally {
+			deleteProject(jp);
+		}
 	}
 
 }
