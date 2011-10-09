@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for 
  *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *     							bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -37,6 +38,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	// lookup the label, this should answer the returnContext
 
+	MethodScope methodScope = currentScope.methodScope();
+	AbstractMethodDeclaration referenceMethod = methodScope.referenceMethod();
 	if (this.expression != null) {
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
 		if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
@@ -44,7 +47,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression);
 		if (trackingVariable != null) {
-			if (currentScope.methodScope() != trackingVariable.methodScope)
+			if (methodScope != trackingVariable.methodScope)
 				trackingVariable.markClosedInNestedMethod();
 			// don't report issues concerning this local, since by returning
 			// the method passes the responsibility to the caller:
@@ -52,7 +55,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 	}
 	this.initStateIndex =
-		currentScope.methodScope().recordInitializationStates(flowInfo);
+		methodScope.recordInitializationStates(flowInfo);
 	// compute the return sequence (running the finally blocks)
 	FlowContext traversedContext = flowContext;
 	int subCount = 0;
@@ -89,13 +92,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					}
 					saveValueNeeded = true;
 					this.initStateIndex =
-						currentScope.methodScope().recordInitializationStates(flowInfo);
+						methodScope.recordInitializationStates(flowInfo);
 				}
 			}
 		} else if (traversedContext instanceof InitializationFlowContext) {
 				currentScope.problemReporter().cannotReturnInInitializer(this);
 				return FlowInfo.DEAD_END;
 		}
+		if (traversedContext.associatedNode == referenceMethod)
+			break; // don't traverse beyond the enclosing method (see https://bugs.eclipse.org/360328).
 	} while ((traversedContext = traversedContext.parent) != null);
 
 	// resize subroutines
