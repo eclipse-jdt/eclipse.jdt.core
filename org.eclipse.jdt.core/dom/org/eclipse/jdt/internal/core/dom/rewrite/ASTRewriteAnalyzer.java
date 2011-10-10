@@ -881,10 +881,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						insertedPrefix = getLineDelimiter() + this.formatter.createIndentString(indent) + insertedPrefix.trim() + ' ';
 					}
 					doTextInsert(offset, insertedPrefix, editGroup);
-					String lineInPrefix= getCurrentLine(prefix, prefix.length());
-					if (prefix.length() != lineInPrefix.length()) {
+					int lineStart= getCurrentLineStart(prefix, prefix.length());
+					if (lineStart != 0) {
 						// prefix contains a new line: update the indent to the one used in the prefix
-						indent= this.formatter.computeIndentUnits(lineInPrefix);
+						indent= this.formatter.computeIndentUnits(prefix.substring(lineStart));
 					}
 					doTextInsert(offset, replacingNode, indent, true, editGroup);
 					doTextInsert(offset, strings[1], editGroup);
@@ -1316,7 +1316,12 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 				currPos= offset;
 			} else {
-				String destIndentString=  this.formatter.getIndentString(getCurrentLine(formatted, offset));
+				// If in the first line, there are cases (eg: catch clause) where the line will not be prefixed with 
+				// proper indentation - see https://bugs.eclipse.org/bugs/show_bug.cgi?id=350285
+				int lineOffset = getCurrentLineStart(formatted, offset);
+				String destIndentString = (lineOffset == 0)
+						? this.formatter.createIndentString(initialIndentLevel)
+						: this.formatter.getIndentString(formatted.substring(lineOffset, offset));
 				if (data instanceof CopyPlaceholderData) { // replace with a copy/move target
 					CopySourceInfo copySource= ((CopyPlaceholderData) data).copySource;
 					int srcIndentLevel= getIndent(copySource.getNode().getStartPosition());
@@ -1349,17 +1354,16 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return offset < formatted.length() && !IndentManipulation.isLineDelimiterChar(formatted.charAt(offset));
 	}
 
-	private String getCurrentLine(String str, int pos) {
+	private int getCurrentLineStart(String str, int pos) {
 		for (int i= pos - 1; i>= 0; i--) {
 			char ch= str.charAt(i);
 			if (IndentManipulation.isLineDelimiterChar(ch)) {
-				return str.substring(i + 1, pos);
+				return i+1;
 			}
 		}
-		return str.substring(0, pos);
+		return 0;
 	}
-
-
+	
 	private void rewriteModifiers(ASTNode parent, StructuralPropertyDescriptor property, int offset) {
 		RewriteEvent event= getEvent(parent, property);
 		if (event == null || event.getChangeKind() != RewriteEvent.REPLACED) {

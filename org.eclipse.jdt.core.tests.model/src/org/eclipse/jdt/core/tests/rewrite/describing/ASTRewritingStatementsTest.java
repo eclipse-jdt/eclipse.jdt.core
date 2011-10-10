@@ -15,6 +15,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
@@ -5694,7 +5695,157 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
+	
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350285
+	// Test that converting a multi catch into a normal catch using complete block copy doesn't change indentation
+	public void testTryStatementWithMultiCatch1() throws Exception {
+		createProject("P_17", JavaCore.VERSION_1_7);
+		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
+		try {
+			IPackageFragment pack1= currentSourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        try {\n");
+			buf.append("            System.out.println(\"foo\");\n");
+			buf.append("        } catch (IllegalArgumentException | NullPointerException exe) {\n");
+			buf.append("            System.out.println(exe);\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
+			CompilationUnit astRoot= createAST(AST.JLS4, cu, false);
+			AST ast= astRoot.getAST();
+			ASTRewrite rewrite= ASTRewrite.create(ast);
+
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 1", blockStatements.size() == 1);
+			{ // convert multicatch to normal catch blocks
+				TryStatement tryStatement= (TryStatement) blockStatements.get(0);
+				List catchClauses= tryStatement.catchClauses();
+				assertTrue("Number of catch clauses not 1", catchClauses.size() == 1);
+				CatchClause catchClause = (CatchClause) catchClauses.get(0);
+				
+				SingleVariableDeclaration singleVariableDeclaration= catchClause.getException();
+				UnionType unionType = (UnionType) singleVariableDeclaration.getType();
+				List types = unionType.types();
+				assertTrue("Number of union types", types.size() == 2);
+				for (int i= types.size() - 1; i >= 0; i--) {
+					Type type2= (Type)types.get(i);
+					CatchClause newCatchClause= ast.newCatchClause();
+					SingleVariableDeclaration newSingleVariableDeclaration= ast.newSingleVariableDeclaration();
+					newSingleVariableDeclaration.setType((Type) rewrite.createCopyTarget(type2));
+					newSingleVariableDeclaration.setName((SimpleName) rewrite.createCopyTarget(singleVariableDeclaration.getName()));
+					newCatchClause.setException(newSingleVariableDeclaration);
+					newCatchClause.setBody((Block) rewrite.createCopyTarget(catchClause.getBody()));
+					rewrite.getListRewrite(tryStatement, TryStatement.CATCH_CLAUSES_PROPERTY).insertAfter(newCatchClause, catchClause, null);
+				}
+				rewrite.remove(catchClause, null);
+			}
+			String preview= evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        try {\n");
+			buf.append("            System.out.println(\"foo\");\n");
+			buf.append("        } catch (IllegalArgumentException exe) {\n");
+			buf.append("            System.out.println(exe);\n");
+			buf.append("        } catch (NullPointerException exe) {\n");
+			buf.append("            System.out.println(exe);\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			deleteProject("P_17");
+		}
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350285
+	// similar to testTryStatementWithMultiCatch1() but has a different brace position
+	public void testTryStatementWithMultiCatch2() throws Exception {
+		IJavaProject project = createProject("P_17", JavaCore.VERSION_1_7);
+		project.setOption(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK, DefaultCodeFormatterConstants.NEXT_LINE);
+		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
+		try {
+			IPackageFragment pack1= currentSourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        try {\n");
+			buf.append("            System.out.println(\"foo\");\n");
+			buf.append("        } catch (IllegalArgumentException | NullPointerException exe)\n");
+			buf.append("        {\n");
+			buf.append("            System.out.println(exe);\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+
+			CompilationUnit astRoot= createAST(AST.JLS4, cu, false);
+			AST ast= astRoot.getAST();
+			ASTRewrite rewrite= ASTRewrite.create(ast);
+
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 1", blockStatements.size() == 1);
+			{ // convert multicatch to normal catch blocks
+				TryStatement tryStatement= (TryStatement) blockStatements.get(0);
+				List catchClauses= tryStatement.catchClauses();
+				assertTrue("Number of catch clauses not 1", catchClauses.size() == 1);
+				CatchClause catchClause = (CatchClause) catchClauses.get(0);
+				
+				SingleVariableDeclaration singleVariableDeclaration= catchClause.getException();
+				UnionType unionType = (UnionType) singleVariableDeclaration.getType();
+				List types = unionType.types();
+				assertTrue("Number of union types", types.size() == 2);
+				for (int i= types.size() - 1; i >= 0; i--) {
+					Type type2= (Type)types.get(i);
+					CatchClause newCatchClause= ast.newCatchClause();
+					SingleVariableDeclaration newSingleVariableDeclaration= ast.newSingleVariableDeclaration();
+					newSingleVariableDeclaration.setType((Type) rewrite.createCopyTarget(type2));
+					newSingleVariableDeclaration.setName((SimpleName) rewrite.createCopyTarget(singleVariableDeclaration.getName()));
+					newCatchClause.setException(newSingleVariableDeclaration);
+					newCatchClause.setBody((Block) rewrite.createCopyTarget(catchClause.getBody()));
+					rewrite.getListRewrite(tryStatement, TryStatement.CATCH_CLAUSES_PROPERTY).insertAfter(newCatchClause, catchClause, null);
+				}
+				rewrite.remove(catchClause, null);
+			}
+			String preview= evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        try {\n");
+			buf.append("            System.out.println(\"foo\");\n");
+			buf.append("        } catch (IllegalArgumentException exe)\n");
+			buf.append("        {\n");
+			buf.append("            System.out.println(exe);\n");
+			buf.append("        } catch (NullPointerException exe)\n");
+			buf.append("        {\n");
+			buf.append("            System.out.println(exe);\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			deleteProject("P_17");
+		}
+	}
 }
 
 
