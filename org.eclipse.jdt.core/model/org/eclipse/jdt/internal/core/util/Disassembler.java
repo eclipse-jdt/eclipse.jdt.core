@@ -741,7 +741,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		final int classNameLength = className.length;
 		final int accessFlags = classFileReader.getAccessFlags();
 		final boolean isEnum = (accessFlags & IModifierConstants.ACC_ENUM) != 0;
-
+	
 		StringBuffer buffer = new StringBuffer();
 		ISourceAttribute sourceAttribute = classFileReader.getSourceFileAttribute();
 		IClassFileAttribute classFileAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.SIGNATURE);
@@ -788,7 +788,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		}
 		final int lastDotIndexInClassName = CharOperation.lastIndexOf('.', className);
-
+	
 		if (checkMode(mode, WORKING_COPY) && lastDotIndexInClassName != -1) {
 			// we print a package declaration
 			buffer.append("package ");//$NON-NLS-1$
@@ -796,13 +796,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(';');
 			writeNewLine(buffer, lineSeparator, 0);
 		}
-
+	
 		IInnerClassesAttribute innerClassesAttribute = classFileReader.getInnerClassesAttribute();
 		IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
-
+	
 		IClassFileAttribute bootstrapMethods = Util.getAttribute(classFileReader, IAttributeNamesConstants.BOOTSTRAP_METHODS);
-
+	
 		if (checkMode(mode, DETAILED)) {
 			// disassemble compact version of annotations
 			if (runtimeInvisibleAnnotationsAttribute != null) {
@@ -840,7 +840,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				}
 			}
 		}
-
+	
 		final boolean isAnnotation = (accessFlags & IModifierConstants.ACC_ANNOTATION) != 0;
 		boolean isInterface = false;
 		if (isEnum) {
@@ -854,7 +854,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append("interface "); //$NON-NLS-1$
 			isInterface = true;
 		}
-
+	
 		if (checkMode(mode, WORKING_COPY)) {
 			// we print the simple class name
 			final int start = lastDotIndexInClassName + 1;
@@ -866,7 +866,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		} else {
 			buffer.append(className);
 		}
-
+	
 		char[] superclassName = classFileReader.getSuperclassName();
 		if (superclassName != null) {
 			CharOperation.replace(superclassName, '/', '.');
@@ -906,6 +906,31 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			IClassFileAttribute[] attributes = classFileReader.getAttributes();
 			int length = attributes.length;
 			IEnclosingMethodAttribute enclosingMethodAttribute = getEnclosingMethodAttribute(classFileReader);
+			int remainingAttributesLength = length;
+			if (innerClassesAttribute != null) {
+				remainingAttributesLength--;
+			}
+			if (enclosingMethodAttribute != null) {
+				remainingAttributesLength--;
+			}
+			if (sourceAttribute != null) {
+				remainingAttributesLength--;
+			}
+			if (signatureAttribute != null) {
+				remainingAttributesLength--;
+			}
+			if (bootstrapMethods != null) {
+				remainingAttributesLength--;
+			}
+			if (innerClassesAttribute != null
+					|| enclosingMethodAttribute != null
+					|| bootstrapMethods != null
+					|| remainingAttributesLength != 0) {
+				// this test is to ensure we don't insert more than one line separator
+				if (buffer.lastIndexOf(lineSeparator) != buffer.length() - lineSeparator.length()) {
+					writeNewLine(buffer, lineSeparator, 0);
+				}
+			}
 			if (innerClassesAttribute != null) {
 				disassemble(innerClassesAttribute, buffer, lineSeparator, 1);
 			}
