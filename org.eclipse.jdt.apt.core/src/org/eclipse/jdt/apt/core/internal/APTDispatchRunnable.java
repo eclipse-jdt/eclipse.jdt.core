@@ -121,7 +121,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	
 	static {
 		String setting = System.getProperty(SPLIT_FILES_PROPERTY);
-		SPLIT_FILES = setting == null || setting.equalsIgnoreCase("true"); //$NON-NLS-1$
+		SPLIT_FILES = setting != null && setting.equalsIgnoreCase("true"); //$NON-NLS-1$
 	}
 	
 	public static Set<AnnotationProcessorFactory> runAPTDuringBuild(
