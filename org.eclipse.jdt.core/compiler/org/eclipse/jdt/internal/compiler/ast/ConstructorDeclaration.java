@@ -418,6 +418,7 @@ public boolean isRecursive(ArrayList visited) {
 
 	ConstructorDeclaration targetConstructor =
 		((ConstructorDeclaration)this.scope.referenceType().declarationOf(this.constructorCall.binding.original()));
+	if (targetConstructor == null) return false; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=358762
 	if (this == targetConstructor) return true; // direct case
 
 	if (visited == null) { // lazy allocation
