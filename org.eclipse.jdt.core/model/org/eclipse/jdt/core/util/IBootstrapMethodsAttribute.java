@@ -23,7 +23,7 @@ public interface IBootstrapMethodsAttribute extends IClassFileAttribute {
 	 * Answer back the number of bootstrap methods of this entry as specified in
 	 * the JVM specifications.
 	 *
-	 * @return the local variable table length of this entry as specified in
+	 * @return the number of bootstrap methods of this entry as specified in
 	 * the JVM specifications
 	 */
 	int getBootstrapMethodsLength();
