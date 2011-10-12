@@ -50,9 +50,152 @@ Eclipse SDK 3.8.0 - %date% - 3.8.0 M3
 <br>Project org.eclipse.jdt.core v_C16
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C16">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>Added a new API IBootstrapMethodsEntry to describe the bootstrap method table entry(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359943">359943</a> for details):
+<pre>
+/**
+ * Description of a bootstrap method table entry as specified in the JVM specifications.
+ *
+ * This interface may be implemented by clients.
+ *
+ * @since 3.8
+ */
+public interface IBootstrapMethodsEntry;
+</pre>
+</li>
 
+<li>Added a new API IBootstrapMethodsAttribute to describe the bootstrap method attribute(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359943">359943</a> for details):
+<pre>
+/**
+ * Description of a bootstrap methods attribute as described in the JVM specifications.
+ *
+ * This interface may be implemented by clients.
+ *
+ * @since 3.8
+ */
+public interface IBootstrapMethodsAttribute
+</pre>
+</li>
+
+<li>Added a new API in IBootstrapMethodsAttribute to obtain the number of bootstrap methods of this entry(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359943">359943</a> for details):
+<pre>
+/**
+ * Answer back the number of bootstrap methods of this entry as specified in
+ * the JVM specifications.
+ *
+ * @return the number of bootstrap methods of this entry as specified in
+ * the JVM specifications
+ */
+int getBootstrapMethodsLength();
+</pre>
+</li>
+
+<li>Added a new API in IBootstrapMethodsAttribute to obtain the bootstrap methods table of this entry(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359943">359943</a> for details):
+<pre>
+/**
+ * Answer back the bootstrap methods table of this entry as specified in
+ * the JVM specifications. Answer an empty array if none.
+ *
+ * @return the bootstrap methods table of this entry as specified in
+ * the JVM specifications. Answer an empty array if none
+ */
+IBootstrapMethodsEntry[] getBootstrapMethods();
+</pre>
+</li>
+
+<li>Added IConstantPoolEntry2 to describe the new constant pool entry from Java 7 onwards(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359943">359943</a> for details):
+<pre>
+/**
+ * Description of the new constant pool entry as described in the JVM specifications
+ * added for Java 7 support.
+ * Its contents is initialized according to its kind.
+ *
+ * This interface may be implemented by clients.
+ *
+ * @since 3.8
+ */
+public interface IConstantPoolEntry2
+</pre>
+</li>
+
+<li>Added new API in IConstantPoolEntry2 to return the descriptor index for MethodType entry(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359943">359943</a> for details):
+<pre>
+/**
+ * Returns the descriptor index. This value is set only when decoding a MethodType entry.
+ * The value is unspecified otherwise. The corresponding UTF8 value can be retrieved by using
+ * {@link #getMethodDescriptor()}.
+ *
+ * @return the descriptor index. This value is set only when decoding a MethodType entry.
+ * @see IConstantPoolConstant#CONSTANT_MethodType
+ */
+int getDescriptorIndex();
+</pre>
+</li>
+
+<li>Added new API in IConstantPoolEntry2 to return the reference kind for MethodHandle entry(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359943">359943</a> for details):
+<pre>
+/**
+ * Returns the reference kind. This value is set only when decoding a MethodHandle entry.
+ * The value is unspecified otherwise.
+ *
+ * @return the reference kind. This value is set only when decoding a MethodHandle entry.
+ * @see IConstantPoolConstant#CONSTANT_MethodHandle
+ */
+int getReferenceKind();
+</pre>
+</li>
+
+<li>Added new API in IConstantPoolEntry2 to return the reference index for MethodHandle entry(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359943">359943</a> for details):
+<pre>
+/**
+ * Returns the reference index. This value is set only when decoding a MethodHandle entry.
+ * The value is unspecified otherwise.
+ *
+ * @return the reference kind. This value is set only when decoding a MethodHandle entry.
+ * @see IConstantPoolConstant#CONSTANT_MethodHandle
+ */
+int getReferenceIndex();
+</pre>
+</li>
+
+<li>Added new API in IConstantPoolEntry2 to return the bootstrap method attribute index(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359943">359943</a> for details):
+<pre>
+/**
+ * Returns the bootstrap method attribute index. This value is set only when decoding a InvokeDynamic entry.
+ * The value is unspecified otherwise.
+ *
+ * @return the reference kind. This value is set only when decoding a MethodHandle entry.
+ * @see IConstantPoolConstant#CONSTANT_InvokeDynamic
+ */
+int getBootstrapMethodAttributeIndex();
+</pre>
+</li>
+
+<li>Added new API in IByteCodeVisitor(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359943">359943</a> for details):
+<pre>
+	/**
+	 * @since 3.8
+	 */
+	void _invokedynamic(
+			int pc,
+			int index,
+			IConstantPoolEntry invokeDynamic);
+</pre>
+<p>
+This has been added in place of the deprecated API
+<pre>
+	void _invokedynamic(
+			int pc,
+			int index,
+			IConstantPoolEntry nameEntry,
+			IConstantPoolEntry descriptorEntry);
+</pre>
+</li>
+</ul>
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=360644">360644</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359943">359943</a>
+invokedynamic in generated class file is not correctly recognized by the eclipse compiler
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=360644">360644</a>
 Scope.isDefinedInSameUnit(ReferenceBinding) fails for a ParameterizedTypeBinding
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=358762">358762</a>
 NPE in JDT compiler
