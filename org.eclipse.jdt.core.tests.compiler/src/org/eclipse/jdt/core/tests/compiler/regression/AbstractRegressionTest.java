@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,8 +32,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
@@ -2753,5 +2756,17 @@ protected void runNegativeTest(
 			}
 			printJavacResultsSummary();
 		}
+	}
+	/**
+	 * Returns the OS path to the directory that contains this plugin.
+	 */
+	protected String getCompilerTestsPluginDirectoryPath() {
+		try {
+			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.compiler").getEntry("/");
+			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
