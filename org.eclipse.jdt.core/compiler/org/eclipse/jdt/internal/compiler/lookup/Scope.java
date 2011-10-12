@@ -3043,7 +3043,7 @@ public abstract class Scope {
 		// test that the enclosingType is not part of the compilation unit
 		SourceTypeBinding[] topLevelTypes = ((CompilationUnitScope) unitScope).topLevelTypes;
 		for (int i = topLevelTypes.length; --i >= 0;)
-			if (topLevelTypes[i] == enclosingType)
+			if (topLevelTypes[i] == enclosingType.original())
 				return true;
 		return false;
 	}
