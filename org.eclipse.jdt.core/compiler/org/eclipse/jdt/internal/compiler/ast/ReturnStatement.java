@@ -39,7 +39,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	// lookup the label, this should answer the returnContext
 
 	MethodScope methodScope = currentScope.methodScope();
-	AbstractMethodDeclaration referenceMethod = methodScope.referenceMethod();
 	if (this.expression != null) {
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
 		if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
@@ -99,9 +98,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				currentScope.problemReporter().cannotReturnInInitializer(this);
 				return FlowInfo.DEAD_END;
 		}
-		if (traversedContext.associatedNode == referenceMethod)
-			break; // don't traverse beyond the enclosing method (see https://bugs.eclipse.org/360328).
-	} while ((traversedContext = traversedContext.parent) != null);
+	} while ((traversedContext = traversedContext.getLocalParent()) != null);
 
 	// resize subroutines
 	if ((this.subroutines != null) && (subCount != this.subroutines.length)) {

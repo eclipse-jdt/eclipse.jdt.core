@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,14 +31,14 @@ public LabelFlowContext(FlowContext parent, ASTNode associatedNode, char[] label
 
 void checkLabelValidity(BlockScope scope) {
 	// check if label was already defined above
-	FlowContext current = this.parent;
+	FlowContext current = this.getLocalParent();
 	while (current != null) {
 		char[] currentLabelName;
 		if (((currentLabelName = current.labelName()) != null)
 			&& CharOperation.equals(currentLabelName, this.labelName)) {
 			scope.problemReporter().alreadyDefinedLabel(this.labelName, this.associatedNode);
 		}
-		current = current.parent;
+		current = current.getLocalParent();
 	}
 }
 

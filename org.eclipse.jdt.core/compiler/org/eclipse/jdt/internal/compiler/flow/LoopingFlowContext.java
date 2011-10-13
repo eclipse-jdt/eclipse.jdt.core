@@ -112,10 +112,10 @@ public void complainOnDeferredFinalChecks(BlockScope scope, FlowInfo flowInfo) {
 		// any reference reported at this level is removed from the parent context where it
 		// could also be reported again
 		if (complained) {
-			FlowContext context = this.parent;
+			FlowContext context = this.getLocalParent();
 			while (context != null) {
 				context.removeFinalAssignmentIfAny(this.finalAssignments[i]);
-				context = context.parent;
+				context = context.getLocalParent();
 			}
 		}
 	}
@@ -396,6 +396,7 @@ public void recordContinueFrom(FlowContext innerFlowContext, FlowInfo flowInfo) 
 		FlowContext inner = innerFlowContext;
 		while (inner != this && !(inner instanceof LoopingFlowContext)) {
 			inner = inner.parent;
+			// we know that inner is reachable from this without crossing a type boundary 
 		}
 		if (inner == this) {
 			this.upstreamNullFlowInfo.

@@ -70,12 +70,12 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 		// any reference reported at this level is removed from the parent context
 		// where it could also be reported again
 		if (complained) {
-			FlowContext currentContext = this.parent;
+			FlowContext currentContext = this.getLocalParent();
 			while (currentContext != null) {
 				//if (currentContext.isSubRoutine()) {
 				currentContext.removeFinalAssignmentIfAny(this.finalAssignments[i]);
 				//}
-				currentContext = currentContext.parent;
+				currentContext = currentContext.getLocalParent();
 			}
 		}
 	}

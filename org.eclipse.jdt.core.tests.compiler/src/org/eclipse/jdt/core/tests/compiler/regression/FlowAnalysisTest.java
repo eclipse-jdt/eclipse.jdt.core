@@ -2437,7 +2437,58 @@ public void testLocalClassInInitializer1() {
 				"    }\n" +
 				"}\n"
 			}, 
-			"");	
+			"");
+}
+// Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
+// break/continue illegally inside anonymous class inside loop (loop is out of scope for break/continue)
+public void testLocalClassInInitializer2() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    void f () {\n" +
+				"        while (true) {\n" +
+				"            class Inner1 {\n" +
+				"                { if (true) break; }\n" +
+				"            }\n" +
+				"            new Inner1();\n" +
+				"        }\n" +
+				"    } \n" +
+				"    void g () {\n" +
+				"        outer: for (int i=1;true;i++) {\n" +
+				"            class Inner2 {\n" +
+				"                int j = 3;\n" +
+				"                void foo () {\n" +
+				"                  if (2 == j) continue outer;\n" +
+				"                  else continue;\n" +
+				"                }\n" +
+				"            }\n" +
+				"            new Inner2().foo();\n" +
+				"        }\n" +
+				"    } \n" +
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	{ if (true) break; }\n" + 
+			"	            ^^^^^^\n" + 
+			"break cannot be used outside of a loop or a switch\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 11)\n" + 
+			"	outer: for (int i=1;true;i++) {\n" + 
+			"	^^^^^\n" + 
+			"The label outer is never explicitly referenced\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 15)\n" + 
+			"	if (2 == j) continue outer;\n" + 
+			"	            ^^^^^^^^^^^^^^^\n" + 
+			"The label outer is missing\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 16)\n" + 
+			"	else continue;\n" + 
+			"	     ^^^^^^^^^\n" + 
+			"continue cannot be used outside of a loop\n" + 
+			"----------\n");
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;
