@@ -1362,7 +1362,7 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_POTENTIALLY_MISSING_STATIC_ON_METHOD = PLUGIN_ID + ".compiler.problem.reportMethodCanBePotentiallyStatic"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting a resource that is not closed properly.
-	 * <p>When enabled, that compiler will issue an error or a warning if
+	 * <p>When enabled, the compiler will issue an error or a warning if
 	 *    a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7) 
 	 *    or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
 	 *    flow analysis shows that the method <code>close()</code> is not invoked locally on that value.
@@ -1377,7 +1377,7 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_UNCLOSED_CLOSEABLE = PLUGIN_ID + ".compiler.problem.unclosedCloseable"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting a resource that may not be closed properly.
-	 * <p>When enabled, that compiler will issue an error or a warning if
+	 * <p>When enabled, the compiler will issue an error or a warning if
 	 *    a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7) 
 	 *    or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
 	 *    flow analysis shows that the method <code>close()</code> is 
@@ -1393,7 +1393,7 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE = PLUGIN_ID + ".compiler.problem.potentiallyUnclosedCloseable"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting a resource that is not managed by try-with-resources.
-	 * <p>When enabled, that compiler will issue an error or a warning if a local variable 
+	 * <p>When enabled, the compiler will issue an error or a warning if a local variable 
 	 * 	  holds a value of type <code>java.lang.AutoCloseable</code>, and if the method
 	 *    <code>close()</code> is explicitly invoked on that resource, but the resource is
 	 *    not managed by a try-with-resources block.

@@ -42,11 +42,24 @@
 	</td>
   </tr>
 </table>
+<a name="v_C17"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java development tools core</h1>
+Eclipse SDK 3.8.0 - %date% - 3.8.0 M3
+<br>Project org.eclipse.jdt.core v_C17
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C17">cvs</a>).
+<h2>What's new in this drop</h2>
+
+<h3>Problem Reports Fixed</h3>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359727">359727</a>
+[1.7][doc] Update doc for new resource leak warnings
+
 <a name="v_C16"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.8.0 - October 18, 2011 - 3.8.0 M3
+Eclipse SDK 3.8.0 - October 18, 2011
 <br>Project org.eclipse.jdt.core v_C16
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C16">cvs</a>).
 <h2>What's new in this drop</h2>
@@ -201,6 +214,8 @@ invokedynamic in generated class file is not correctly recognized by the eclipse
 Scope.isDefinedInSameUnit(ReferenceBinding) fails for a ParameterizedTypeBinding
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=358762">358762</a>
 NPE in JDT compiler
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=360328">360328</a>
+[compiler][null] detect null problems in nested code (local class inside a loop)
 
 <a name="v_C15"></a>
 <hr><h1>
@@ -216,8 +231,6 @@ Eclipse SDK 3.8.0 - October 11, 2011
 ASTRewrite destroys formatting on CatchClause#setBody(copyTarget)
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=353474">353474</a>
 type converters should include more annotations
-<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=360328">360328</a>
-[compiler][null] detect null problems in nested code (local class inside a loop)
 
 <a name="v_C14"></a>
 <hr><h1>
@@ -242,6 +255,75 @@ Eclipse SDK 3.8.0 - October 3, 2011
 <br>Project org.eclipse.jdt.core v_C13
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C13">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE to raise a warning or error
+  when a resource of type Closeable or AutoCloseable is not closed locally.  
+(see details in bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=349326">349326</a>):
+<pre>
+	/**
+	 * Compiler option ID: Reporting a resource that is not closed properly.
+	 *
+	 * When enabled, the compiler will issue an error or a warning if
+	 * a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7) 
+	 * or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
+	 * flow analysis shows that the method <code>close()</code> is not invoked locally on that value.
+	 * 
+	 * Option id: <code>"org.eclipse.jdt.core.compiler.problem.reportUnclosedCloseable"</code>
+	 * Possible values: <code>{ "error", "warning", "ignore" }</code>
+	 * Default: <code>"warning"</code>
+	 *
+	 * @since 3.8
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_UNCLOSED_CLOSEABLE = PLUGIN_ID + ".compiler.problem.unclosedCloseable"; //$NON-NLS-1$
+</pre>
+</li>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE to raise a warning or error
+  when a resource of type Closeable or AutoCloseable is not definitely closed locally.
+(see details in bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=349326">349326</a>):
+<pre>
+	/**
+	 * Compiler option ID: Reporting a resource that may not be closed properly.
+	 * 
+	 * When enabled, the compiler will issue an error or a warning if
+	 * a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7) 
+	 * or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
+	 * flow analysis shows that the method <code>close()</code> is 
+	 * not invoked locally on that value for all execution paths.
+	 * 
+	 * Option id: <code>"org.eclipse.jdt.core.compiler.problem.reportPotentiallyUnclosedCloseable"</code>
+	 * Possible values: <code>{ "error", "warning", "ignore" }</code>
+	 * Default: <code>"ignore"</code>
+	 * 
+	 * @since 3.8
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE = PLUGIN_ID + ".compiler.problem.potentiallyUnclosedCloseable"; //$NON-NLS-1$
+</pre>
+</li>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE to raise a warning or error
+  when a resource of type AutoCloseable is closed explicitly rather than using a try-with-resources block.
+(see details in bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=349326">349326</a>):
+<pre>
+	/**
+	 * Compiler option ID: Reporting a resource that is not managed by try-with-resources.
+	 * 
+	 * When enabled, the compiler will issue an error or a warning if a local variable 
+	 * holds a value of type <code>java.lang.AutoCloseable</code>, and if the method
+	 * <code>close()</code> is explicitly invoked on that resource, but the resource is
+	 * not managed by a try-with-resources block.
+	 * 
+	 * Option id: <code>"org.eclipse.jdt.core.compiler.problem.reportPotentiallyUnclosedCloseable"</code>
+	 * Possible values: <code>{ "error", "warning", "ignore" }</code>
+	 * Default: <code>"ignore"</code>
+	 * 
+	 * @since 3.8
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE = PLUGIN_ID + ".compiler.problem.explicitlyClosedAutoCloseable"; //$NON-NLS-1$
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=359495">359495</a>
