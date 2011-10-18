@@ -463,6 +463,9 @@ public class SwitchStatement extends Statement {
 							break checkType;
 					} else if (expressionType.isEnum()) {
 						isEnumSwitch = true;
+						if (upperScope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_5) {
+							upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=360317
+						}
 						break checkType;
 					} else if (upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT)) {
 						this.expression.computeConversion(upperScope, TypeBinding.INT, expressionType);

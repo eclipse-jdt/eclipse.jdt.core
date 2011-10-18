@@ -37,7 +37,7 @@ public JavaProjectTests(String name) {
 	super(name);
 }
 static {
-//	TESTS_NAMES = new String[] { "testAddExternalLibFolder6" };
+//	TESTS_NAMES = new String[] { "testBug360164" };
 }
 public static Test suite() {
 	TestSuite suite = (TestSuite) buildModelTestSuite(JavaProjectTests.class);
@@ -2387,6 +2387,104 @@ public void testBug183923() throws CoreException, IOException {
 		assertEquals("Unexpected JavaModelException", "JavaProjectTestsInvalidProject does not exist", jme.getMessage());
 	} finally {
 		deleteProject("JavaProjectTestsInvalidProject");
+	}
+}
+// Bug 360164 - Compile error in XSDImpl
+// test that we can tolerate if a 1.4 project refers to an enum inside a library.
+public void testBug360164() throws IOException, CoreException {
+	String libPath = getWorkspacePath()+"JavaProjectTests/bin/bug360164.jar";
+	try {
+		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", libPath}, "bin", JavaCore.VERSION_1_4);
+		IFile file = createFile("/P/src/X.java", 
+				"import p360164.Provider;\n" +
+				"import p360164.MyEnum;\n" +
+				"public class X {\n" +
+				"    int foo(Provider p) {\n" +
+				"        MyEnum e = p.getE();\n" +
+				"        switch (e.getValue()) {\n" +
+				"        case MyEnum.ONE_COMPAT: return 1;\n" +
+				"        case MyEnum.TWO_COMPAT: return 2;\n" +
+				"        }\n" +
+				"        return 0;\n" +
+				"    }\n" +
+				"}"
+		);	
+		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(file);
+		ProblemRequestor problemRequestor = new ProblemRequestor();
+		WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
+		unit.getWorkingCopy(owner, null);
+		assertProblems("Unexpected problems", 
+				"----------\n" + 
+				"----------\n", 
+				problemRequestor);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+// Bug 360164 - Compile error in XSDImpl
+// test that we still report the missing superclass when resolving non-local methods
+public void testBug360164a() throws IOException, CoreException {
+	String libPath = getWorkspacePath()+"JavaProjectTests/bin/bug360164.jar";
+	try {
+		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", libPath}, "bin", JavaCore.VERSION_1_4);
+		IFile file = createFile("/P/src/X.java", 
+				"import p360164.Provider;\n" +
+				"import p360164.MyEnum;\n" +
+				"public class X {\n" +
+				"    String foo(Provider p) {\n" +
+				"        MyEnum e = p.getE();\n" +
+				"        return e.toString();\n" +
+				"    }\n" +
+				"}"
+		);	
+		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(file);
+		ProblemRequestor problemRequestor = new ProblemRequestor();
+		WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
+		unit.getWorkingCopy(owner, null);
+		assertProblems("Unexpected problems", 
+				"----------\n" + 
+				"1. ERROR in /P/src/X.java\n" + 
+				"The type java.lang.Enum cannot be resolved. It is indirectly referenced from required .class files\n" + 
+				"----------\n", 
+				problemRequestor);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+// Bug 360317 - [compiler] report switch over enum in 1.4- mode
+public void testBug360317() throws IOException, CoreException {
+	// use the setup from testBug360164():
+	String libPath = getWorkspacePath()+"JavaProjectTests/bin/bug360164.jar";
+	try {
+		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", libPath}, "bin", JavaCore.VERSION_1_4);
+		String sourceX = "import p360164.Provider;\n" +
+						 "import p360164.MyEnum;\n" +
+						 "public class X {\n" +
+						 "    int foo(Provider p) {\n" +
+						 "        MyEnum e = p.getE();\n" +
+						 "        switch (e) {\n" +
+						 "        case ONE: return 1;\n" +
+						 "        case TWO: return 2;\n" +
+						 "        }\n" +
+						 "        return 0;\n" +
+						 "    }\n" +
+						 "}";
+		IFile file = createFile("/P/src/X.java", sourceX);	
+		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(file);
+		ProblemRequestor problemRequestor = new ProblemRequestor();
+		problemRequestor.initialize(sourceX.toCharArray());
+		WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
+		unit.getWorkingCopy(owner, null);
+		assertProblems("Unexpected problems", 
+				"----------\n" +
+				"1. ERROR in /P/src/X.java (at line 6)\n" +
+				"	switch (e) {\n" +
+				"	        ^\n" +
+				"Cannot switch on an enum value for source level below 1.5. Only convertible int values are permitted\n" +
+				"----------\n",
+				problemRequestor);
+	} finally {
+		this.deleteProject("P");
 	}
 }
 }

@@ -74,6 +74,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private ArrayList missingTypes;
 	Set typesBeingConnected;
 	public boolean isProcessingAnnotations = false;
+	public boolean mayTolerateMissingType = false;
 
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;

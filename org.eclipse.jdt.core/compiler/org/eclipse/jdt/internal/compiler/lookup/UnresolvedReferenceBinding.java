@@ -55,7 +55,7 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 		}
 		if (targetType == null || targetType == this) { // could not resolve any better, error was already reported against it
 			// report the missing class file first - only if not resolving a previously missing type
-			if ((this.tagBits & TagBits.HasMissingType) == 0) {
+			if ((this.tagBits & TagBits.HasMissingType) == 0 && !environment.mayTolerateMissingType) {
 				environment.problemReporter.isClassPathCorrect(
 					this.compoundName,
 					environment.unitBeingCompleted,

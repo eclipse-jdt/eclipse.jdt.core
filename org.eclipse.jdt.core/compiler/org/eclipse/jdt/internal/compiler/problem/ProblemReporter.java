@@ -2863,12 +2863,21 @@ public void incorrectSwitchType(Expression expression, TypeBinding testType) {
 					expression.sourceStart,
 					expression.sourceEnd);
 		} else {
-			this.handle(
-				IProblem.IncorrectSwitchType,
-				new String[] {new String(testType.readableName())},
-				new String[] {new String(testType.shortReadableName())},
-				expression.sourceStart,
-				expression.sourceEnd);
+			if (this.options.sourceLevel < ClassFileConstants.JDK1_5 && testType.isEnum()) {
+				this.handle(
+						IProblem.SwitchOnEnumNotBelow15,
+						new String[] {new String(testType.readableName())},
+						new String[] {new String(testType.shortReadableName())},
+						expression.sourceStart,
+						expression.sourceEnd);
+			} else {
+				this.handle(
+						IProblem.IncorrectSwitchType,
+						new String[] {new String(testType.readableName())},
+						new String[] {new String(testType.shortReadableName())},
+						expression.sourceStart,
+						expression.sourceEnd);
+			}
 		}
 	} else {
 		this.handle(

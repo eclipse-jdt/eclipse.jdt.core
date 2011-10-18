@@ -975,8 +975,14 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
 }
 public boolean hasTypeBit(int bit) {
 	// ensure hierarchy is resolved, which will propagate bits down to us
-	superclass();
-	superInterfaces();
+	boolean wasToleratingMissingTypeProcessingAnnotations = this.environment.mayTolerateMissingType;
+	this.environment.mayTolerateMissingType = true;
+	try {
+		superclass();
+		superInterfaces();
+	} finally {
+		this.environment.mayTolerateMissingType = wasToleratingMissingTypeProcessingAnnotations;
+	}
 	return (this.typeBits & bit) != 0;
 }
 private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBinding[] existingVariables, SignatureWrapper wrapper, char[][][] missingTypeNames) {

@@ -1409,6 +1409,8 @@ void setSourceStart(int sourceStart);
 	int UnclosedCloseableAtExit = Internal + 888;
 	/** @since 3.8 */
 	int ExplicitlyClosedAutoCloseable = Internal + 889;
+	/** @since 3.8 */
+	int SwitchOnEnumNotBelow15 = TypeRelated + 890;	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=360317
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */
