@@ -2484,10 +2484,10 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in p1\\A.java (at line 7)\n" + 
-			"	int v2 = b.fooC;\n" + 
+			"1. ERROR in p1\\A.java (at line 6)\n" + 
+			"	int v1 = b.fooB;\n" + 
 			"	           ^^^^\n" + 
-			"fooC cannot be resolved or is not a field\n" + 
+			"fooB cannot be resolved or is not a field\n" + 
 			"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=256375
@@ -2720,5 +2720,175 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318401
+	public void test081() {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import static p1.Bar.B;\n" +
+				"import p3.Foo.*;\n" +
+				"public class Test {\n" +
+				"	public static void main(String [] args){\n" +
+				"		new Test().beginTest();" +
+				"	}\n" +
+				"	public void beginTest(){\n" +
+				"		System.out.print(\"1 + 1 =  \");\n" +
+				"		if(alwaysTrue()) System.out.println(\"2\");\n" +
+				"		else System.out.println(\"3\"); " +
+				"	}\n" +
+				"	public boolean alwaysTrue(){\n" +
+				"		String myB   =        B.class.getCanonicalName();;\n" +		// refers to p1.Bar.B (class)
+				"		String realB = p1.Bar.B.class.getCanonicalName();;\n" +     // refers to p1.Bar.B (class)
+				"		B();\n" +				// refers to p1.Bar.B() (method)
+				"		return myB.equals(realB);\n" +
+				"	}\n" +
+				"}\n",
+				"p1/Bar.java",
+				"package p1;\n" +
+				"public class Bar{\n" +
+				"	public static class B{}\n" +
+				"	final public static String B = new String(\"random\");\n" +
+				"	public static void B(){}\n" +
+				"}\n",
+				"p3/Foo.java",
+				"package p3;\n" +
+				"public class Foo {\n" +
+				"	public class B{\n" +
+				"		public int a;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"1 + 1 =  2");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318401
+	public void test082() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/Bar.java",
+				"package p1;\n" +
+				"public class Bar{\n" +
+				"	public static class B{}\n" +
+				"	final public static String B = new String(\"random\");\n" +
+				"	public static void B(){}\n" +
+				"}\n",
+				"p3/Foo.java",
+				"package p3;\n" +
+				"public class Foo {\n" +
+				"	public class B{\n" +
+				"		public int a;\n" +
+				"	}\n" +
+				"}\n",
+				"p2/Test.java",
+				"package p2;\n" +
+				"import static p1.Bar.B;\n" +
+				"import p3.Foo.*;\n" +
+				"public class Test {\n" +
+				"	public static void main(String [] args){\n" +
+				"		new Test().beginTest();" +
+				"	}\n" +
+				"	public void beginTest(){\n" +
+				"		System.out.print(\"1 + 1 =  \");\n" +
+				"		if(alwaysTrue()) System.out.println(\"2\");\n" +
+				"		else System.out.println(\"3\"); " +
+				"	}\n" +
+				"	public boolean alwaysTrue(){\n" +
+				"		B b = null;\n" +		// refers to p1.Bar.B (class)
+				"		String realB = B;\n" +  // refers to p1.Bar.B (field)
+				"		B();\n" +				// refers to p1.Bar.B() (method)
+				"		int abc = b.a;\n;" +	// static import for Bar.B overshadows on demand import Foo.B
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p2\\Test.java (at line 15)\n" + 
+			"	int abc = b.a;\n" + 
+			"	            ^\n" + 
+			"a cannot be resolved or is not a field\n" + 
+			"----------\n");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318401
+	public void test083() {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import static p1.Bar.B;\n" +
+				"import p3.Foo.*;\n" +
+				"public class Test {\n" +
+				"	public static void main(String [] args){\n" +
+				"		new Test().test2();" +
+				"	}\n" +
+				"	public void test2(){\n" +
+				"		System.out.println(B.toString());\n" +		// Field obscures class B
+				"		System.out.println(p1.Bar.B.toString());\n" +  // Field obscures the class B
+				"		System.out.println(B.class.getCanonicalName().toString());\n" +	// the class B
+				"		System.out.println(p1.Bar.B.class.getCanonicalName().toString());" +	// class B
+				"	}\n" +
+				"}\n",
+				"p1/Bar.java",
+				"package p1;\n" +
+				"public class Bar{\n" +
+				"	public static class B{}\n" +
+				"	final public static String B = new String(\"random\");\n" +
+				"	public static void B(){}\n" +
+				"}\n",
+				"p3/Foo.java",
+				"package p3;\n" +
+				"public class Foo {\n" +
+				"	public class B{\n" +
+				"		public int a;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"random\n" + 
+			"random\n" + 
+			"p1.Bar.B\n" + 
+			"p1.Bar.B");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318401
+	// Check if we're able to find the correct static member type being imported,
+	// even though the import originally resolved to the static field of the same name,
+	// coming from the supertype
+	public void test084() {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import static p1.Bar.B;\n" +
+				"import p3.Foo.*;\n" +
+				"public class Test {\n" +
+				"	public static void main(String [] args){\n" +
+				"		new Test().test2();" +
+				"	}\n" +
+				"	public void test2(){\n" +
+				"		System.out.println(B.class.getCanonicalName().toString());\n" +	// the class B
+				"		System.out.println(p1.Bar.B.class.getCanonicalName().toString());" +	// class B
+				"	}\n" +
+				"}\n",
+				"p1/Bar.java",
+				"package p1;\n" +
+				"public class Bar extends SuperBar{\n" +
+				"	public static class B{}\n" +
+				"	public static void B(){}\n" +
+				"}\n",
+				"p1/SuperBar.java",
+				"package p1;\n" +
+				"public class SuperBar {\n" +
+				"	final public static String B = new String(\"random\");\n" +
+				"}\n",
+				"p3/Foo.java",
+				"package p3;\n" +
+				"public class Foo {\n" +
+				"	public class B{\n" +
+				"		public int a;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"p1.Bar.B\n" + 
+			"p1.Bar.B");
+	}
+
 }
 
