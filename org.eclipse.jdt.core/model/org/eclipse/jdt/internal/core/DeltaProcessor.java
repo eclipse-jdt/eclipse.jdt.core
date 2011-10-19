@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Terry Parker <tparker@google.com> - DeltaProcessor exhibits O(N^2) behavior, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=354332
+ *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -954,7 +955,7 @@ public class DeltaProcessor {
 				// project does not exist -> ignore
 				continue;
 			}
-			boolean hasChainedJar = false;
+			boolean deltaContainsModifiedJar = false;
 			for (int j = 0; j < entries.length; j++){
 				if (entries[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 					IPath entryPath = entries[j].getPath();
@@ -1024,7 +1025,7 @@ public class DeltaProcessor {
 								System.out.println("- External JAR ADDED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
 							elementAdded(root, null, null);
-							hasChainedJar |= !this.manager.isNonChainingJar(entryPath);
+							deltaContainsModifiedJar = true;
 							this.state.addClasspathValidation(javaProject); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=185733
 							hasDelta = true;
 						} else if (status == EXTERNAL_JAR_CHANGED) {
@@ -1033,7 +1034,7 @@ public class DeltaProcessor {
 								System.out.println("- External JAR CHANGED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
 							contentChanged(root);
-							hasChainedJar |= !this.manager.isNonChainingJar(entryPath);
+							deltaContainsModifiedJar = true;
 							hasDelta = true;
 						} else if (status == EXTERNAL_JAR_REMOVED) {
 							PackageFragmentRoot root = (PackageFragmentRoot) javaProject.getPackageFragmentRoot(entryPath.toString());
@@ -1041,7 +1042,7 @@ public class DeltaProcessor {
 								System.out.println("- External JAR REMOVED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
 							elementRemoved(root, null, null);
-							hasChainedJar |= !this.manager.isNonChainingJar(entryPath);
+							deltaContainsModifiedJar = true;
 							this.state.addClasspathValidation(javaProject); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=185733
 							hasDelta = true;
 						}
@@ -1049,7 +1050,7 @@ public class DeltaProcessor {
 				}
 			}
 			
-			if (hasChainedJar) {
+			if (deltaContainsModifiedJar) {
 				javaProject.resetResolvedClasspath();
 			}
 		}

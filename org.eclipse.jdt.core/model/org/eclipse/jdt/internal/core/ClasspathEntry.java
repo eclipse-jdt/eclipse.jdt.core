@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -1827,6 +1828,9 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * @return a java model status describing the problem related to this classpath entry if any, a status object with code <code>IStatus.OK</code> if the entry is fine
 	 */
 	public static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment, boolean referredByContainer){
+		if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+			JavaModelManager.getJavaModelManager().removeFromInvalidArchiveCache(entry.getPath());
+		}
 		IJavaModelStatus status = validateClasspathEntry(project, entry, null, checkSourceAttachment, referredByContainer);
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171136 and https://bugs.eclipse.org/bugs/show_bug.cgi?id=300136
 		// Ignore class path errors from optional entries.

@@ -11,6 +11,7 @@
  *                                                           before its contents
  *                                                           (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=102422)
  *     Stephan Herrmann - Contribution for Bug 346010 - [model] strange initialization dependency in OptionTests
+ *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -3084,6 +3085,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	
 	public boolean isInvalidArchive(IPath path) {
 		return this.invalidArchives != null && this.invalidArchives.contains(path);
+	}
+
+	public void removeFromInvalidArchiveCache(IPath path) {
+		if (this.invalidArchives != null) {
+			this.invalidArchives.remove(path);
+		}
 	}
 
 	public void setClasspathBeingResolved(IJavaProject project, boolean classpathIsResolved) {

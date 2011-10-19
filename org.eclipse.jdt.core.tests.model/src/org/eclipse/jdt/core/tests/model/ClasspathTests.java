@@ -249,6 +249,7 @@ public static Test suite() {
 	suite.addTest(new ClasspathTests("testInvalidClasspath2"));
 	suite.addTest(new ClasspathTests("testInvalidExternalClassFolder"));
 	suite.addTest(new ClasspathTests("testInvalidExternalJar"));
+	suite.addTest(new ClasspathTests("testTransitionFromInvalidToValidJar"));
 	suite.addTest(new ClasspathTests("testInvalidInternalJar1"));
 	suite.addTest(new ClasspathTests("testInvalidInternalJar2"));
 	suite.addTest(new ClasspathTests("testInvalidSourceFolder"));
@@ -334,6 +335,7 @@ public static Test suite() {
 	suite.addTest(new ClasspathTests("testBug321170"));
 	suite.addTest(new ClasspathTests("testBug229042"));
 	suite.addTest(new ClasspathTests("testBug274737"));
+	suite.addTest(new ClasspathTests("testBug357425"));
 	return suite;
 }
 public void setUpSuite() throws Exception {
@@ -4201,6 +4203,41 @@ public void testInvalidExternalJar() throws CoreException {
 	}
 }
 /*
+ * Ensures that validateClasspathEntry() sees a transition from an invalid/missing jar to a valid jar.
+ */
+public void testTransitionFromInvalidToValidJar() throws CoreException, IOException {
+	String transitioningJarName = "transitioningJar.jar";
+	String transitioningJar = getExternalPath() + transitioningJarName;
+	String nonExistingJar = getExternalPath() + "nonExisting.jar";
+	IClasspathEntry transitioningEntry = JavaCore.newLibraryEntry(new Path(transitioningJar), null, null);
+	IClasspathEntry nonExistingEntry = JavaCore.newLibraryEntry(new Path(nonExistingJar), null, null);
+
+	try {
+		IJavaProject proj = createJavaProject("P", new String[] {}, new String[] {transitioningJar, nonExistingJar}, "bin");
+		
+		IJavaModelStatus status1 = ClasspathEntry.validateClasspathEntry(proj, transitioningEntry, false, false);
+		IJavaModelStatus status2 = ClasspathEntry.validateClasspathEntry(proj, nonExistingEntry, false, false);
+		assertFalse("Non-existing jar should be invalid", status1.isOK());
+		assertFalse("Non-existing jar should be invalid", status2.isOK());
+
+		Util.createJar(	
+			new String[0],
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n"
+			},
+			transitioningJar,
+			JavaCore.VERSION_1_4);
+		status1 = ClasspathEntry.validateClasspathEntry(proj, transitioningEntry, false, false);
+		status2 = ClasspathEntry.validateClasspathEntry(proj, nonExistingEntry, false, false);
+		assertTrue("Existing jar should be valid", status1.isOK());
+		assertFalse("Non-existing jar should be invalid", status2.isOK());
+	} finally {
+		deleteExternalResource(transitioningJarName);
+		deleteProject("P");
+	}
+}
+/*
  * Ensures that a non existing internal jar cannot be put on the classpath.
  */
 public void testInvalidInternalJar1() throws CoreException {
@@ -7187,6 +7224,48 @@ public void testBug338006() throws Exception {
 
 	} finally {
 		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that the correct delta is reported when changing the Class-Path: clause 
+ * of an external jar from not containing a chained jar to containing a chained jar.
+ * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425)
+ */
+public void testBug357425() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P");
+		addExternalLibrary(p, getExternalResourcePath("lib357425_a.jar"), new String[0], 
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n"
+			},
+			JavaCore.VERSION_1_4);
+		refreshExternalArchives(p);		
+
+		startDeltas();
+		org.eclipse.jdt.core.tests.util.Util.createJar(new String[0],
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" +
+				"Class-Path: lib357425_b.jar\n",
+			},
+			getExternalResourcePath("lib357425_a.jar"),
+			JavaCore.VERSION_1_4);
+		createExternalFile("lib357425_b.jar", "");
+
+		refreshExternalArchives(p);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	"+ getExternalPath() + "lib357425_a.jar[*]: {CONTENT | REORDERED | ARCHIVE CONTENT CHANGED}\n" + 
+			"	"+ getExternalPath() + "lib357425_b.jar[+]: {}"
+				);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+		deleteExternalResource("lib357425_a.jar");
+		deleteExternalResource("lib357425_b.jar");
 	}
 }
 
