@@ -3761,7 +3761,7 @@ public void test113() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	static int bar;\n" +
 		"	           ^^^\n" +
-		"The field bar cannot be declared static; static fields can only be declared in static or top level types\n" +
+		"The field bar cannot be declared static in a non-static inner type, unless initialized with a constant expression\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99428 and https://bugs.eclipse.org/bugs/show_bug.cgi?id=99655

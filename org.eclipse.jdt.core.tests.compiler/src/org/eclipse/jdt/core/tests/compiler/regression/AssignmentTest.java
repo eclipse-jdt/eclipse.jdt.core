@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1221,7 +1221,7 @@ public void test050() {
 		"1. ERROR in p\\X.java (at line 4)\n" +
 		"	public static String s;\n" +
 		"	                     ^\n" +
-		"The field s cannot be declared static; static fields can only be declared in static or top level types\n" +
+		"The field s cannot be declared static in a non-static inner type, unless initialized with a constant expression\n" +
 		"----------\n" +
 		"2. ERROR in p\\X.java (at line 6)\n" +
 		"	X.XX.s = s;    }\n" +

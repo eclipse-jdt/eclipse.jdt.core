@@ -1119,7 +1119,7 @@ public void test020() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	static final String notAConstant = null;\n" +
 		"	                    ^^^^^^^^^^^^\n" +
-		"The field notAConstant cannot be declared static; static fields can only be declared in static or top level types\n" +
+		"The field notAConstant cannot be declared static in a non-static inner type, unless initialized with a constant expression\n" +
 		"----------\n");
 }
 public void testAllConstants() {
