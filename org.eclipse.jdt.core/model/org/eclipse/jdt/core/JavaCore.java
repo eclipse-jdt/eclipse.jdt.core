@@ -1888,7 +1888,7 @@ public final class JavaCore extends Plugin {
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"error"</code></dd>
 	 * </dl>
-	 * @since 3.8
+	 * @since 3.6.4
 	 */
 	public static final String CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE = PLUGIN_ID + ".classpath.outputOverlappingAnotherSource";  //$NON-NLS-1$
 	/**
