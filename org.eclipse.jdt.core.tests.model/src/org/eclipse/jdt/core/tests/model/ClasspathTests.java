@@ -334,6 +334,7 @@ public static Test suite() {
 	suite.addTest(new ClasspathTests("testBug321170"));
 	suite.addTest(new ClasspathTests("testBug229042"));
 	suite.addTest(new ClasspathTests("testBug274737"));
+	suite.addTest(new ClasspathTests("testBug287164"));
 	return suite;
 }
 public void setUpSuite() throws Exception {
@@ -2020,6 +2021,7 @@ public void testClasspathValidation21() throws CoreException {
 public void testClasspathValidation22() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		proj.setOption(JavaCore.CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE, JavaCore.ERROR);
 		IClasspathEntry[] originalCP = proj.getRawClasspath();
 
 		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+2];
@@ -2045,6 +2047,7 @@ public void testClasspathValidation22() throws CoreException {
 public void testClasspathValidation23() throws CoreException {
 	try {
 		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		proj.setOption(JavaCore.CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE, JavaCore.IGNORE);
 		IClasspathEntry[] originalCP = proj.getRawClasspath();
 
 		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+2];
@@ -7189,5 +7192,70 @@ public void testBug338006() throws Exception {
 		deleteProject("P");
 	}
 }
+/**
+ * @bug287164: Report build path error if source folder has other source folder as output folder
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=287164"
+ */
+public void testBug287164() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P", new String[] {}, "");
+		
+		// Test that with the option set to IGNORE, the Java model status returns OK
+		proj.setOption(JavaCore.CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE, JavaCore.IGNORE);
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
 
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+2];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), new IPath[0], new Path("/P/src2"));
+		newCP[originalCP.length+1] = JavaCore.newSourceEntry(new Path("/P/src2"), new IPath[0], new Path("/P/src"));
+
+		createFolder("/P/src");
+		createFolder("/P/src2");
+
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		assertTrue(status.isOK());
+		assertStatus(
+			"OK",
+			status);
+		
+		proj.setRawClasspath(newCP, null);
+		assertMarkers("Unexpected markers", "", proj);
+		
+		// Test that with the option set to WARNING, status.isOK() returns true
+		proj.setOption(JavaCore.CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE, JavaCore.WARNING);
+
+		status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		assertTrue(status.isOK());
+		assertStatus(
+			"Source folder \'src\' in project \'P\' cannot output to distinct source folder \'src2\'",
+			status);
+
+		assertMarkers("Unexpected markers", 
+				"Source folder \'src\' in project \'P\' cannot output to distinct source folder \'src2\'", proj);
+		
+		// Test that with the option set to WARNING and the presence of a more severe error scenario, the error status
+		// is returned
+		IClasspathEntry[] newCP2 = new IClasspathEntry[newCP.length+1];
+		System.arraycopy(newCP, 0, newCP2, 0, newCP.length-1);
+		newCP2[newCP.length] = JavaCore.newLibraryEntry(new Path("/P/lib2"), null, null);
+		newCP2[newCP.length-1] = JavaCore.newSourceEntry(new Path("/P/src2"), new IPath[0], new Path("/P/lib2"));
+
+		status = JavaConventions.validateClasspath(proj, newCP2, proj.getOutputLocation());
+		assertFalse(status.isOK());
+		assertStatus(
+			"Source folder \'src2\' in project 'P' cannot output to library \'lib2\'",
+			status);
+		
+		proj.setOption(JavaCore.CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE, JavaCore.ERROR);
+
+		status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+		assertStatus(
+			"Source folder \'src\' in project \'P\' cannot output to distinct source folder \'src2\'",
+			status);
+		
+	} finally {
+		this.deleteProject("P");
+	}
+}
 }
