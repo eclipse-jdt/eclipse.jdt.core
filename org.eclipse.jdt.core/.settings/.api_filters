@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<component id="org.eclipse.jdt.core" version="2">
+<?xml version="1.0" encoding="UTF-8"?><component id="org.eclipse.jdt.core" version="2">
     <resource path="META-INF/MANIFEST.MF">
         <filter comment="Adding Java 7 support for 3.6.2+" id="924844039">
             <message_arguments>
@@ -395,12 +394,26 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="model/org/eclipse/jdt/core/IJavaModelMarker.java" type="org.eclipse.jdt.core.IJavaModelMarker">
+        <filter id="1210056707">
+            <message_arguments>
+                <message_argument value="3.6.4"/>
+                <message_argument value="OUTPUT_OVERLAPPING_SOURCE"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="model/org/eclipse/jdt/core/IJavaModelStatusConstants.java" type="org.eclipse.jdt.core.IJavaModelStatusConstants">
         <filter comment="Add Java 7 support on top of 3.6.2+" id="1209008130">
             <message_arguments>
                 <message_argument value="3.7"/>
                 <message_argument value="3.6"/>
                 <message_argument value="CANNOT_RETRIEVE_ATTACHED_JAVADOC_TIMEOUT"/>
+            </message_arguments>
+        </filter>
+        <filter id="1210056707">
+            <message_arguments>
+                <message_argument value="3.6.4"/>
+                <message_argument value="OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE"/>
             </message_arguments>
         </filter>
     </resource>
@@ -504,6 +517,12 @@
                 <message_argument value="3.7"/>
                 <message_argument value="3.6"/>
                 <message_argument value="COMPILER_PB_UNAVOIDABLE_GENERIC_TYPE_PROBLEMS"/>
+            </message_arguments>
+        </filter>
+        <filter id="1142947843">
+            <message_arguments>
+                <message_argument value="3.6.4"/>
+                <message_argument value="CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE"/>
             </message_arguments>
         </filter>
         <filter comment="Add Java 7 support on top of 3.6.2+" id="1142947843">

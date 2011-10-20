@@ -120,7 +120,7 @@ public interface IJavaModelMarker {
 	 * Used only on buildpath problem markers. The value of this attribute is 
 	 * either "true" or "false".
 	 * 
-	 * @since 3.8
+	 * @since 3.6.4
 	 */
 	String OUTPUT_OVERLAPPING_SOURCE = "outputOverlappingSource"; //$NON-NLS-1$
 }
