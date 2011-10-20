@@ -41,11 +41,52 @@
 	</td>
   </tr>
 </table>
+<a name="v_B79_R36x_J7"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java development tools core</h1>
+Eclipse SDK 3.6.50 - October 20, 2011 - 3.6.50
+<br>Project org.eclipse.jdt.core v_B79_R36x_J7
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B79_R36x_J7">cvs</a>).
+<h2>What's new in this drop</h2>
+<ul>
+<li>Added a new API OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=287164">287164</a> for details):
+<pre>
+/**
+ * Status constant indicating that the default or specific output folder is overlapping
+ * with another source location.
+ * @since 3.8 
+ */
+public static final int OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE = 1013;
+</pre>
+</li>
+
+<li>Added a new option CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE to report an output location overlapping another source location(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=287164">287164</a> for details):
+<pre>
+/**
+ * Core option ID: Reporting an output location overlapping another source location.
+ * Indicate the severity of the problem reported when a source entry's output location overlaps another
+ * source entry.
+ * 
+ * Option id:"org.eclipse.jdt.core.classpath.outputOverlappingAnotherSource"
+ * Possible values:{ "error", "warning", "ignore" }
+ * Default:"error"
+ * 
+ * @since 3.8
+ */
+public static final String CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE = PLUGIN_ID + ".classpath.outputOverlappingAnotherSource";
+</pre>
+</li>
+</ul>
+<h3>Problem Reports Fixed</h3>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=287164">287164</a>
+Report build path error if source folder has other source folder as output folder
+
 <a name="v_B78_R36x_J7"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.6.50 - October 11, 2011 - 3.6.50
+Eclipse SDK 3.6.50 - October 11, 2011
 <br>Project org.eclipse.jdt.core v_B78_R36x_J7
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_B78_R36x_J7">cvs</a>).
 <h2>What's new in this drop</h2>
