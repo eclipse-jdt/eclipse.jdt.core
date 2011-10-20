@@ -1157,8 +1157,14 @@ public ReferenceBinding superclass() {
 		this.tagBits |= TagBits.HierarchyHasProblems; // propagate type inconsistency
 	} else {
 		// make super-type resolving recursive for propagating typeBits downwards
-		this.superclass.superclass();
-		this.superclass.superInterfaces();
+		boolean wasToleratingMissingTypeProcessingAnnotations = this.environment.mayTolerateMissingType;
+		this.environment.mayTolerateMissingType = true; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=360164
+		try {
+			this.superclass.superclass();
+			this.superclass.superInterfaces();
+		} finally {
+			this.environment.mayTolerateMissingType = wasToleratingMissingTypeProcessingAnnotations;
+		}
 	}
 	this.typeBits |= this.superclass.typeBits;
 	return this.superclass;
@@ -1174,8 +1180,14 @@ public ReferenceBinding[] superInterfaces() {
 			this.tagBits |= TagBits.HierarchyHasProblems; // propagate type inconsistency
 		} else {
 			// make super-type resolving recursive for propagating typeBits downwards
-			this.superInterfaces[i].superclass();
-			this.superInterfaces[i].superInterfaces();
+			boolean wasToleratingMissingTypeProcessingAnnotations = this.environment.mayTolerateMissingType;
+			this.environment.mayTolerateMissingType = true; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=360164
+			try {
+				this.superInterfaces[i].superclass();
+				this.superInterfaces[i].superInterfaces();
+			} finally {
+				this.environment.mayTolerateMissingType = wasToleratingMissingTypeProcessingAnnotations;
+			}	
 		}
 		this.typeBits |= this.superInterfaces[i].typeBits;
 	}

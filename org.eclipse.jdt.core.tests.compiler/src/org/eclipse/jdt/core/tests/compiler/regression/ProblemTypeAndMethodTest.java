@@ -7111,4 +7111,81 @@ public void test354502() {
 		compilerOptions /* custom options */
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=360164
+public void test360164() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	this.runConformTest(
+			new String[] {
+					"p/B.java", 
+					"package p;\n" +
+					"\n" +
+					"public abstract class B<K,V> {\n" +
+					"	 protected abstract V foo(K element);\n" +
+					"}\n",
+					"p/C.java", 
+					"package p;\n" +
+					"public class C {\n" +
+					"}\n",
+					"p/D.java", 
+					"package p;\n" +
+					"public class D extends E {\n" +
+					"}\n",
+					"p/E.java", 
+					"package p;\n" +
+					"public abstract class E implements I {\n" +
+					"}\n",
+					"p/I.java", 
+					"package p;\n" +
+					"public interface I {\n" +
+					"}\n",
+					"p/X.java", 
+					"package p;\n" +
+					"public class X {\n" +
+					"	private final class A extends B<C,D>{\n" +
+					"		@Override\n" +
+					"		protected D foo(C c) {\n" +
+					"			return null;\n" +
+					"		}\n" +
+					"   }\n" +
+					"}\n",
+			},
+			"");
+
+	// delete binary file I (i.e. simulate removing it from classpath for subsequent compile)
+	Util.delete(new File(OUTPUT_DIR, "p" + File.separator + "I.class"));
+
+	runNegativeTest(
+		// test directory preparation
+		false /* do not flush output directory */,
+		new String[] { /* test files */
+				"p/X.java", 
+				"package p;\n" +
+				"public class X {\n" +
+				"	private final class A extends B<C,D>{\n" +
+				"		@Override\n" +
+				"		protected D foo(C c) {\n" +
+				"            Zork z;\n" +
+				"			return null;\n" +
+				"		}\n" +
+				"   }\n" +
+				"}\n",
+		},
+		// compiler options
+		null /* no class libraries */,
+		null /* no custom options */,
+		// compiler results 
+		"----------\n" + 
+		"1. WARNING in p\\X.java (at line 3)\n" + 
+		"	private final class A extends B<C,D>{\n" + 
+		"	                    ^\n" + 
+		"The type X.A is never used locally\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\X.java (at line 6)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n",
+		// javac options
+		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
+}
 }
