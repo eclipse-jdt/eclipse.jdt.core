@@ -10,8 +10,10 @@
  *     Tom Tromey - Contribution for bug 125961
  *     Tom Tromey - Contribution for bug 159641
  *     Benjamin Muskalla - Contribution for bug 239066
- *     Stephan Herrmann  - Contribution for bug 236385
- *     Stephan Herrmann  - Contribution for bug 295551
+ *     Stephan Herrmann  - Contributions for 
+ *     							bug 236385 - [compiler] Warn for potential programming problem if an object is created but not used
+ *     							bug 295551 - Add option to automatically promote all warnings to errors
+ *     							bug 359721 - [options] add command line option for new warning token "resource"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -3431,6 +3433,11 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				return;
 			} else if (/*token.equals("intfRedundant") ||*/ token.equals("redundantSuperinterface")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportRedundantSuperinterface, severity, isEnabling);
+				return;
+			} else if (token.equals("resource")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportUnclosedCloseable, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, severity, isEnabling);
 				return;
 			}
 			break;

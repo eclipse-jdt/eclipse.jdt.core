@@ -13,6 +13,7 @@
  *     							bug 295551 - Add option to automatically promote all warnings to errors
  *     							bug 185682 - Increment/decrement operators mark local variables as read
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *     							bug 359721 - [options] add command line option for new warning token "resource"
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1705,6 +1706,7 @@ public void test012b(){
         "      paramAssign          assignment to a parameter\n" + 
         "      pkgDefaultMethod   + attempt to override package-default method\n" + 
         "      raw                + usage of raw type\n" + 
+        "      resource           + (pot.) unsafe usage of resource of type Closeable\n" + 
         "      semicolon            unnecessary semicolon, empty statement\n" + 
         "      serial             + missing serialVersionUID\n" + 
         "      specialParamHiding   constructor or setter parameter hiding a field\n" + 
@@ -12239,6 +12241,55 @@ public void testReportingUnavoidableGenericProblems2() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"3 problems (1 error, 2 warnings)",
+		true);
+}
+//-warn option - regression tests
+public void test0308_warn_options() {
+	// check the option introduced in bug 359721
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.FileReader;\n" +
+			"public class X {\n" +
+			"  void foo() throws java.io.IOException {\n" +
+			"      FileReader r = new FileReader(\"f1\");\n" +
+			"      char[] cs = new char[1024];\n" +
+			"	   r.read(cs);\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:-resource -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+//-warn option - regression tests
+public void test0309_warn_options() {
+	// check the option introduced in bug 359721
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.FileReader;\n" +
+			"public class X {\n" +
+			"  void foo(boolean b) throws java.io.IOException {\n" +
+			"      FileReader r = new FileReader(\"f1\");\n" +
+			"      char[] cs = new char[1024];\n" +
+			"	   r.read(cs);\n" +
+			"      if (b) r.close();\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:+resource -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
+		"	FileReader r = new FileReader(\"f1\");\n" + 
+		"	           ^\n" + 
+		"Potential resource leak: \'r\' may not be closed\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)",
 		true);
 }
 }
