@@ -312,8 +312,7 @@
     <resource path="model/org/eclipse/jdt/core/IJavaModelMarker.java" type="org.eclipse.jdt.core.IJavaModelMarker">
         <filter comment="new APIs added for bug 287164 post 3.7.0" id="1209008130">
             <message_arguments>
-                <message_argument value="3.8"/>
-                <message_argument value="3.7"/>
+                <message_argument value="3.6.4"/>
                 <message_argument value="OUTPUT_OVERLAPPING_SOURCE"/>
             </message_arguments>
         </filter>
@@ -321,8 +320,7 @@
     <resource path="model/org/eclipse/jdt/core/IJavaModelStatusConstants.java" type="org.eclipse.jdt.core.IJavaModelStatusConstants">
         <filter comment="new APIs added for bug 287164 post 3.7.0" id="1209008130">
             <message_arguments>
-                <message_argument value="3.8"/>
-                <message_argument value="3.7"/>
+                <message_argument value="3.6.4"/>
                 <message_argument value="OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE"/>
             </message_arguments>
         </filter>
@@ -330,8 +328,7 @@
     <resource path="model/org/eclipse/jdt/core/JavaCore.java" type="org.eclipse.jdt.core.JavaCore">
         <filter comment="new APIs added for bug 287164 post 3.7.0" id="1141899266">
             <message_arguments>
-                <message_argument value="3.8"/>
-                <message_argument value="3.7"/>
+                <message_argument value="3.6.4"/>
                 <message_argument value="CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE"/>
             </message_arguments>
         </filter>

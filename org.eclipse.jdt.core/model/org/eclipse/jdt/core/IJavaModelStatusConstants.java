@@ -349,7 +349,7 @@ public interface IJavaModelStatusConstants {
 	/**
 	 * <p>Status constant indicating that the default or specific output folder is overlapping
 	 * with another source location. </p>
-	 * @since 3.8 
+	 * @since 3.6.4
 	 */
 	public static final int OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE = 1013;
 }
