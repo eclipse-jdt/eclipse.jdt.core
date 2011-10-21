@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -339,4 +339,11 @@ public interface IJavaModelStatusConstants {
 	 * @since 3.4
 	 */
 	public static final int BAD_TEXT_EDIT_LOCATION = 1011;
+	
+	/**
+	 * <p>Status constant indicating that the default or specific output folder is overlapping
+	 * with another source location. </p>
+	 * @since 3.6.4
+	 */
+	public static final int OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE = 1013;
 }
