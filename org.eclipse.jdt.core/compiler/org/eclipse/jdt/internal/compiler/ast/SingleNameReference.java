@@ -350,6 +350,14 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 				}
 				return;
 			}
+			// 26903, need extra cast to store null in array local var
+			if (localBinding.type.isArrayType()
+				&& (assignment.expression.resolvedType == TypeBinding.NULL	// arrayLoc = null
+					|| ((assignment.expression instanceof CastExpression)	// arrayLoc = (type[])null
+						&& (((CastExpression)assignment.expression).innermostCastedExpression().resolvedType == TypeBinding.NULL)))){
+				codeStream.checkcast(localBinding.type);
+			}
+
 			// normal local assignment (since cannot store in outer local which are final locations)
 			codeStream.store(localBinding, valueRequired);
 			if ((this.bits & ASTNode.FirstAssignmentToLocal) != 0) { // for local variable debug attributes

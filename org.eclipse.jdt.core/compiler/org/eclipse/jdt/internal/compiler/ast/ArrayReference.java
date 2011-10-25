@@ -53,6 +53,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 public void generateAssignment(BlockScope currentScope, CodeStream codeStream, Assignment assignment, boolean valueRequired) {
 	int pc = codeStream.position;
 	this.receiver.generateCode(currentScope, codeStream, true);
+	if (this.receiver instanceof CastExpression	// ((type[])null)[0]
+			&& ((CastExpression)this.receiver).innermostCastedExpression().resolvedType == TypeBinding.NULL){
+		codeStream.checkcast(this.receiver.resolvedType);
+	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 	this.position.generateCode(currentScope, codeStream, true);
 	assignment.expression.generateCode(currentScope, codeStream, true);
@@ -68,6 +72,10 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	int pc = codeStream.position;
 	this.receiver.generateCode(currentScope, codeStream, true);
+	if (this.receiver instanceof CastExpression	// ((type[])null)[0]
+			&& ((CastExpression)this.receiver).innermostCastedExpression().resolvedType == TypeBinding.NULL){
+		codeStream.checkcast(this.receiver.resolvedType);
+	}
 	this.position.generateCode(currentScope, codeStream, true);
 	codeStream.arrayAt(this.resolvedType.id);
 	// Generating code for the potential runtime type checking
@@ -91,6 +99,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 
 public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired) {
 	this.receiver.generateCode(currentScope, codeStream, true);
+	if (this.receiver instanceof CastExpression	// ((type[])null)[0]
+			&& ((CastExpression)this.receiver).innermostCastedExpression().resolvedType == TypeBinding.NULL){
+		codeStream.checkcast(this.receiver.resolvedType);
+	}
 	this.position.generateCode(currentScope, codeStream, true);
 	codeStream.dup2();
 	codeStream.arrayAt(this.resolvedType.id);
@@ -120,6 +132,10 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 
 public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 	this.receiver.generateCode(currentScope, codeStream, true);
+	if (this.receiver instanceof CastExpression	// ((type[])null)[0]
+			&& ((CastExpression)this.receiver).innermostCastedExpression().resolvedType == TypeBinding.NULL){
+		codeStream.checkcast(this.receiver.resolvedType);
+	}
 	this.position.generateCode(currentScope, codeStream, true);
 	codeStream.dup2();
 	codeStream.arrayAt(this.resolvedType.id);
@@ -155,6 +171,10 @@ public StringBuffer printExpression(int indent, StringBuffer output) {
 
 public TypeBinding resolveType(BlockScope scope) {
 	this.constant = Constant.NotAConstant;
+	if (this.receiver instanceof CastExpression	// no cast check for ((type[])null)[0]
+			&& ((CastExpression)this.receiver).innermostCastedExpression() instanceof NullLiteral) {
+		this.receiver.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
+	}
 	TypeBinding arrayType = this.receiver.resolveType(scope);
 	if (arrayType != null) {
 		this.receiver.computeConversion(scope, arrayType, arrayType);
