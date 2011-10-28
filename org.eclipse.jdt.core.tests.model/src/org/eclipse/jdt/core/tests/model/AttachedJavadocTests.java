@@ -85,6 +85,8 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		suite.addTest(new AttachedJavadocTests("testBug334652_2"));
 		suite.addTest(new AttachedJavadocTests("testBug334652_3"));
 		suite.addTest(new AttachedJavadocTests("testBug334652_4"));
+		suite.addTest(new AttachedJavadocTests("testBug354766"));
+		suite.addTest(new AttachedJavadocTests("testBug354766_2"));
 		return suite;
 	}
 
@@ -960,6 +962,84 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 					"<DL>\r\n" + 
 					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" + 
 					"</DL>\r\n", javadoc);
+		} finally {
+			this.project.setRawClasspath(entries, null);
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=354766
+	public void testBug354766() throws CoreException, IOException {
+		IClasspathEntry[] entries = this.project.getRawClasspath();
+
+		try {
+			IClasspathAttribute attribute =
+					JavaCore.newClasspathAttribute(
+							IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME,
+							"jar:platform:/resource/AttachedJavadocProject/bug354766_doc.zip!/");
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug354766.jar"), null, null, null, new IClasspathAttribute[] { attribute}, false);
+			this.project.setRawClasspath(new IClasspathEntry[]{newEntry}, null);
+			this.project.getResolvedClasspath(false);
+
+			IPackageFragmentRoot jarRoot = this.project.getPackageFragmentRoot(getFile("/AttachedJavadocProject/bug354766.jar"));
+			final IType type = jarRoot.getPackageFragment("com.test").getClassFile("PublicAbstractClass$InnerFinalException.class").getType();
+			IMethod method = type.getMethod("foo", new String[0]);
+			assertNotNull(method);
+			assertTrue("Does not exist", method.exists());
+
+			String javadoc = method.getAttachedJavadoc(null);
+			assertNotNull(javadoc);
+			assertEquals(
+					"Wrong contents",
+					"<H3>\r\n" + 
+					"foo</H3>\r\n" + 
+					"<PRE>\r\n" + 
+					"public void <B>foo</B>()</PRE>\r\n" + 
+					"<DL>\r\n" + 
+					"<DD>Test method\r\n" + 
+					"<P>\r\n" + 
+					"<DD><DL>\r\n" + 
+					"</DL>\r\n" + 
+					"</DD>\r\n" + 
+					"</DL>\r\n",
+					javadoc);
+		} finally {
+			this.project.setRawClasspath(entries, null);
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=354766
+	public void testBug354766_2() throws CoreException, IOException {
+		IClasspathEntry[] entries = this.project.getRawClasspath();
+	
+		try {
+			IClasspathAttribute attribute =
+					JavaCore.newClasspathAttribute(
+							IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME,
+							"jar:platform:/resource/AttachedJavadocProject/bug354766_doc.zip!/");
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug354766.jar"), null, null, null, new IClasspathAttribute[] { attribute}, false);
+			this.project.setRawClasspath(new IClasspathEntry[]{newEntry}, null);
+			this.project.getResolvedClasspath(false);
+	
+			IPackageFragmentRoot jarRoot = this.project.getPackageFragmentRoot(getFile("/AttachedJavadocProject/bug354766.jar"));
+			final IType type = jarRoot.getPackageFragment("com.test").getClassFile("PublicAbstractClass$InnerFinalException.class").getType();
+			IMethod method = type.getMethod("InnerFinalException", new String[] { "Lcom.test.PublicAbstractClass;"});
+			assertNotNull(method);
+			assertTrue("Does not exist", method.exists());
+	
+			String javadoc = method.getAttachedJavadoc(null);
+			assertNotNull(javadoc);
+			assertEquals(
+					"Wrong contents",
+					"<H3>\r\n" + 
+					"PublicAbstractClass.InnerFinalException</H3>\r\n" + 
+					"<PRE>\r\n" + 
+					"public <B>PublicAbstractClass.InnerFinalException</B>()</PRE>\r\n" + 
+					"<DL>\r\n" + 
+					"<DD>javadoc for InnerFinalException()\r\n" + 
+					"<P>\r\n" + 
+					"</DL>\r\n" + 
+					"\r\n" + 
+					"<!-- ============ METHOD DETAIL ========== -->\r\n" + 
+					"\r\n",
+					javadoc);
 		} finally {
 			this.project.setRawClasspath(entries, null);
 		}
