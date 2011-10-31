@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425,
+ *     									   Fup of 357425: ensure all reported regressions are witnessed by tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=361922
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -4211,12 +4213,14 @@ public void testInvalidExternalJar() throws CoreException {
 public void testTransitionFromInvalidToValidJar() throws CoreException, IOException {
 	String transitioningJarName = "transitioningJar.jar";
 	String transitioningJar = getExternalPath() + transitioningJarName;
-	String nonExistingJar = getExternalPath() + "nonExisting.jar";
+	String invalidJar = getExternalPath() + "invalidJar.jar";
 	IClasspathEntry transitioningEntry = JavaCore.newLibraryEntry(new Path(transitioningJar), null, null);
-	IClasspathEntry nonExistingEntry = JavaCore.newLibraryEntry(new Path(nonExistingJar), null, null);
+	IClasspathEntry nonExistingEntry = JavaCore.newLibraryEntry(new Path(invalidJar), null, null);
 
 	try {
-		IJavaProject proj = createJavaProject("P", new String[] {}, new String[] {transitioningJar, nonExistingJar}, "bin");
+		Util.createFile(transitioningJar, "");
+		Util.createFile(invalidJar, "");
+		IJavaProject proj = createJavaProject("P", new String[] {}, new String[] {transitioningJar, invalidJar}, "bin");
 		
 		IJavaModelStatus status1 = ClasspathEntry.validateClasspathEntry(proj, transitioningEntry, false, false);
 		IJavaModelStatus status2 = ClasspathEntry.validateClasspathEntry(proj, nonExistingEntry, false, false);
