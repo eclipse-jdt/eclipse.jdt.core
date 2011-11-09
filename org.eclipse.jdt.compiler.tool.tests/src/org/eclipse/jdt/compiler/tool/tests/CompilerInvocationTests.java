@@ -502,7 +502,9 @@ public void test007_options_consumption() throws IOException {
 		remaining = remainingAsList.iterator();
 		assertTrue("does not support -d option", javacStandardJavaFileManager.handleOption("-d", remaining));
 		assertEquals("unexpected consumption rate", "remainder", remaining.next());
+		javacStandardJavaFileManager.close();
 	}
+	ecjStandardJavaFileManager.close();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=226918
 // options consumption - check consumption rate on supported zero-args options
@@ -525,6 +527,7 @@ public void test008_options_consumption() throws IOException {
 			assertEquals("unexpected consumption rate", REMAINDER, remaining.next());
 		}
 	}
+	ecjStandardJavaFileManager.close();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=226918
 // options consumption - check consumption rate on supported one-arg options
@@ -540,6 +543,7 @@ public void test009_options_consumption() throws IOException {
 			assertEquals("unexpected consumption rate", REMAINDER, remaining.next());
 		}
 	}
+	ecjStandardJavaFileManager.close();
 }
 // tests #10-11 show that ecj throws a RuntimeException when encountering a wrong
 // encoding in its parameters, while the default compiler swallows it silently

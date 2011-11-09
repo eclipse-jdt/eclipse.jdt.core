@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -604,7 +605,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		assertTrue("delete failed", inputFile.delete());
 	}
 
-	public void testCompilerOneClassWithEclipseCompiler4() {
+	public void testCompilerOneClassWithEclipseCompiler4() throws IOException {
 		JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
 		if (systemCompiler == null) {
 			System.out.println("No system java compiler available");
@@ -653,6 +654,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		}
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
+		manager.close();
 	}
 
 	public void testCompilerOneClassWithEclipseCompiler5() {
@@ -869,6 +871,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				builder.append(name.substring(lastIndexOf + 1));
 			}
 			assertEquals("Wrong contents", "X.java", String.valueOf(builder));
+			fileManager.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -934,15 +937,17 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager.list(sourceLoc, "", fileTypes, true);
 	
 			Iterator<? extends JavaFileObject> it = compilationUnits.iterator();
-			StringBuilder builder = new StringBuilder();
+			List<String> names = new ArrayList<String>();
 			while (it.hasNext()) {
 				JavaFileObject next = it.next();
 				String name = next.getName();
 				name = name.replace('\\', '/');
 				int lastIndexOf = name.lastIndexOf('/');
-				builder.append(name.substring(lastIndexOf + 1));
+				names.add(name.substring(lastIndexOf + 1));
 			}
-			assertEquals("Wrong contents", "X2.javaX.java", String.valueOf(builder));
+			Collections.sort(names);
+			assertEquals("Wrong contents", "[X.java, X2.java]", names.toString());
+			fileManager.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

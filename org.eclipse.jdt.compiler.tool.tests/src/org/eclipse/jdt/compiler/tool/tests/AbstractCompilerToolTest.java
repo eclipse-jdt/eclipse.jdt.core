@@ -12,6 +12,7 @@
 package org.eclipse.jdt.compiler.tool.tests;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,16 +99,24 @@ public class AbstractCompilerToolTest extends BatchCompilerTest {
 		if (manager == null) {
 			manager = COMPILER.getStandardFileManager(null, null, null); // will pick defaults up
 		}
-		List<File> files = new ArrayList<File>();
-		String[] fileNames = arguments.fileNames;
-		for (int i = 0, l = fileNames.length; i < l; i++) {
-			if (fileNames[i].startsWith(OUTPUT_DIR)) {
-				files.add(new File(fileNames[i]));
-			} else {
-				files.add(new File(OUTPUT_DIR + File.separator + fileNames[i]));
+		try {
+			List<File> files = new ArrayList<File>();
+			String[] fileNames = arguments.fileNames;
+			for (int i = 0, l = fileNames.length; i < l; i++) {
+				if (fileNames[i].startsWith(OUTPUT_DIR)) {
+					files.add(new File(fileNames[i]));
+				} else {
+					files.add(new File(OUTPUT_DIR + File.separator + fileNames[i]));
+				}
 			}
-		}
-		CompilationTask task = COMPILER.getTask(out, arguments.standardJavaFileManager /* carry the null over */, new CompilerInvocationDiagnosticListener(err), arguments.options, null, manager.getJavaFileObjectsFromFiles(files));
-		return task.call();
+			CompilationTask task = COMPILER.getTask(out, arguments.standardJavaFileManager /* carry the null over */, new CompilerInvocationDiagnosticListener(err), arguments.options, null, manager.getJavaFileObjectsFromFiles(files));
+			return task.call();
+		} finally {
+			try {
+				manager.close();
+			} catch (IOException e) {
+				// nop
+			}
+		}		
 	}
 }
