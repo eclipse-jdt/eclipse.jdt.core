@@ -2374,6 +2374,54 @@ public void test061() {
 			"SUCCESS"
 		);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=359284
+// Verify that checkcast is emitted for a cast expression.
+public void test061b() throws Exception {
+	String source =
+		"public class X {\n" +
+	    "public X() {\n" +
+	    "    Object[] x = (Object[])null;\n" +
+	    "}\n" +
+	    "}\n";
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				source
+			},
+			""
+		);
+	String expectedOutput = 
+			"public class X {\n" + 
+			"  \n" + 
+			"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 1, Locals: 2\n" + 
+			"  public X();\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  invokespecial java.lang.Object() [8]\n" + 
+			"     4  aconst_null\n" + 
+			"     5  checkcast java.lang.Object[] [10]\n" + 
+			"     8  astore_1 [x]\n" + 
+			"     9  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 2]\n" + 
+			"        [pc: 4, line: 3]\n" + 
+			"        [pc: 9, line: 4]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+			"        [pc: 9, pc: 10] local: x index: 1 type: java.lang.Object[]\n" +
+			"}";
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
 public static Class testClass() {
 	return CastTest.class;
 }

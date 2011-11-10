@@ -352,9 +352,8 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 			}
 			// 26903, need extra cast to store null in array local var
 			if (localBinding.type.isArrayType()
-				&& (assignment.expression.resolvedType == TypeBinding.NULL	// arrayLoc = null
-					|| ((assignment.expression instanceof CastExpression)	// arrayLoc = (type[])null
-						&& (((CastExpression)assignment.expression).innermostCastedExpression().resolvedType == TypeBinding.NULL)))){
+				&& ((assignment.expression instanceof CastExpression)	// arrayLoc = (type[])null
+						&& (((CastExpression)assignment.expression).innermostCastedExpression().resolvedType == TypeBinding.NULL))){
 				codeStream.checkcast(localBinding.type);
 			}
 
