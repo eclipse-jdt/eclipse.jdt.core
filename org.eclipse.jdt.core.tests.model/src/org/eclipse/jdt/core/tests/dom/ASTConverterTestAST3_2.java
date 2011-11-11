@@ -10613,4 +10613,22 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("wrong tag name", "@literal", element.getTagName());
 		checkSourceRange((TextElement) element.fragments().get(0), " stars**** ", source);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361938
+	public void test0722() throws JavaModelException {
+		String source = "public class X {\n" +
+						"  X(){\n" +
+						"    try {\n" +
+						"    }\n" +
+						"  finally {\n" +
+						"    }\n" +
+						"  }\n" +
+						"}\n";
+		
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setSource(source.toCharArray());
+		CompilationUnit resultCompilationUnit = (CompilationUnit) parser.createAST(null);
+		Object o = resultCompilationUnit.types().get(0);
+		assertEquals(o.toString(), source);
+	}
 }
