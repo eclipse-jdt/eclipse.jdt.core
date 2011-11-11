@@ -10629,7 +10629,6 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setSource(source.toCharArray());
 		CompilationUnit resultCompilationUnit = (CompilationUnit) parser.createAST(null);
 		Object o = resultCompilationUnit.types().get(0);
-		System.out.println(o.toString());
 		assertEquals(o.toString(), source);
 	}
 }
