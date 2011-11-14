@@ -2889,6 +2889,193 @@ public class StaticImportTest extends AbstractComparableTest {
 			"p1.Bar.B\n" + 
 			"p1.Bar.B");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361327
+	// To verify that all static members are imported with a single static import statement
+	public void test085() {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"import static p1.Bar.B;\n" +
+				"import static p3.Foo.B;\n" +
+				"public class Test {\n" +
+				"	public static void main(String [] args){\n" +
+				"		new Test().test2();" +
+				"	}\n" +
+				"	public void test2(){\n" +
+				"		System.out.println(B.class.getCanonicalName().toString());\n" +
+				"		System.out.println(p1.Bar.B.class.getCanonicalName().toString());" +
+				"	}\n" +
+				"}\n",
+				"p1/Bar.java",
+				"package p1;\n" +
+				"public class Bar{\n" +
+				"	public static class B{}\n" +
+				"	public static String B = new String(\"random\");\n" +
+				"}\n",
+				"p3/Foo.java",
+				"package p3;\n" +
+				"public class Foo {\n" +
+				"	public static class B{\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	import static p3.Foo.B;\n" + 
+			"	              ^^^^^^^^\n" + 
+			"The import p3.Foo.B collides with another import statement\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361327
+	// To verify that all static members are imported with a single static import statement,
+	// even from a supertype
+	public void test085a() {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"import static p1.Bar.B;\n" +
+				"import static p3.Foo.B;\n" +
+				"public class Test {\n" +
+				"	public static void main(String [] args){\n" +
+				"		new Test().test2();" +
+				"	}\n" +
+				"	public void test2(){\n" +
+				"		System.out.println(B.class.getCanonicalName().toString());\n" +
+				"		System.out.println(p1.Bar.B.class.getCanonicalName().toString());" +
+				"	}\n" +
+				"}\n",
+				"p1/Bar.java",
+				"package p1;\n" +
+				"public class Bar extends SuperBar{\n" +
+				"	public static void B(){}\n" +
+				"}\n",
+				"p1/SuperBar.java",
+				"package p1;\n" +
+				"public class SuperBar {\n" +
+				"	public static class B{}\n" +
+				"	final public static String B = new String(\"random\");\n" +
+				"}\n",
+				"p3/Foo.java",
+				"package p3;\n" +
+				"public class Foo {\n" +
+				"	public static class B{\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	import static p3.Foo.B;\n" + 
+			"	              ^^^^^^^^\n" + 
+			"The import p3.Foo.B collides with another import statement\n" + 
+			"----------\n");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361327
+	// To verify that all static members are imported with a single static import statement
+	// this tests checks collision with single type import
+	public void test085b() {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"import static p1.Bar.B;\n" +
+				"import p3.Foo.B;\n" +
+				"public class Test {\n" +
+				"	public static void main(String [] args){\n" +
+				"		new Test().test2();" +
+				"	}\n" +
+				"	public void test2(){\n" +
+				"		System.out.println(B.class.getCanonicalName().toString());\n" +
+				"		System.out.println(p1.Bar.B.class.getCanonicalName().toString());" +
+				"	}\n" +
+				"}\n",
+				"p1/Bar.java",
+				"package p1;\n" +
+				"public class Bar{\n" +
+				"	public static class B{}\n" +
+				"	public static String B = new String(\"random\");\n" +
+				"}\n",
+				"p3/Foo.java",
+				"package p3;\n" +
+				"public class Foo {\n" +
+				"	public class B{\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 2)\n" + 
+			"	import p3.Foo.B;\n" + 
+			"	       ^^^^^^^^\n" + 
+			"The import p3.Foo.B collides with another import statement\n" + 
+			"----------\n");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361327
+	// To verify that all static members are imported with a single static import statement
+	// this tests checks collision with top level type
+	public void test085c() {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"import static p1.Bar.B;\n" +
+				"public class Test {\n" +
+				"	public static void main(String [] args){\n" +
+				"		new Test().test2();" +
+				"	}\n" +
+				"	public void test2(){\n" +
+				"		System.out.println(B.class.getCanonicalName().toString());\n" +
+				"		System.out.println(p1.Bar.B.class.getCanonicalName().toString());" +
+				"	}\n" +
+				"}\n" +
+				"class B{\n" +
+				"}\n",
+				"p1/Bar.java",
+				"package p1;\n" +
+				"public class Bar{\n" +
+				"	public static class B{}\n" +
+				"	public static String B = new String(\"random\");\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 1)\n" + 
+			"	import static p1.Bar.B;\n" + 
+			"	              ^^^^^^^^\n" + 
+			"The import p1.Bar.B conflicts with a type defined in the same file\n" + 
+			"----------\n");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361327
+	// Test obscuring rules defined in JLS 7.5.3
+	public void test086() {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import static p1.Bar.B;\n" +
+				"import static p3.Foo.*;\n" +
+				"public class Test {\n" +
+				"	public static void main(String [] args){\n" +
+				"		new Test().test2();" +
+				"	}\n" +
+				"	public void test2(){\n" +
+				"       B();\n" + // should be p1.Bar.B() and not p3.Foo.B()
+				"		System.out.println(B.toString());\n" + // should be p1.Bar.B
+				"	}\n" +
+				"}\n",
+				"p1/Bar.java",
+				"package p1;\n" +
+				"public class Bar{\n" +
+				"	public static void B(){ System.out.println(\"Bar's method B\");}\n" +
+				"	public static String B = new String(\"Bar's field B\");\n" +
+				"}\n",
+				"p3/Foo.java",
+				"package p3;\n" +
+				"public class Foo {\n" +
+				"	public static void B(){ System.out.println(\"Foo's method B\");}\n" +
+				"	public static String B = new String(\"Foo's field B\");\n" +
+				"}\n"
+			},
+			"Bar\'s method B\n" + 
+			"Bar\'s field B");
+	}
 
 }
 

@@ -25,6 +25,7 @@ public class CompilationUnitScope extends Scope {
 	public char[][] currentPackageName;
 	public PackageBinding fPackage;
 	public ImportBinding[] imports;
+	public int importPtr;
 	public HashtableOfObject typeOrPackageCache; // used in Scope.getTypeOrPackage()
 
 	public SourceTypeBinding[] topLevelTypes;
@@ -37,6 +38,8 @@ public class CompilationUnitScope extends Scope {
 
 	HashtableOfType constantPoolNameUsage;
 	private int captureID = 1;
+	
+	private ImportBinding[] tempImports;	// to keep a record of resolved imports while traversing all in faultInImports()
 	
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
 	super(COMPILATION_UNIT_SCOPE, null);
@@ -328,10 +331,10 @@ void faultInImports() {
 			break;
 		}
 	}
-	ImportBinding[] resolvedImports = new ImportBinding[numberOfImports];
-	resolvedImports[0] = getDefaultImports()[0];
-	int index = 1;
-
+	this.tempImports = new ImportBinding[numberOfImports];
+	this.tempImports[0] = getDefaultImports()[0];
+	this.importPtr = 1;
+	
 	// keep static imports with normal imports until there is a reason to split them up
 	// on demand imports continue to be packages & types. need to check on demand type imports for fields/methods
 	// single imports change from being just types to types or fields
@@ -340,8 +343,8 @@ void faultInImports() {
 		char[][] compoundName = importReference.tokens;
 
 		// skip duplicates or imports of the current package
-		for (int j = 0; j < index; j++) {
-			ImportBinding resolved = resolvedImports[j];
+		for (int j = 0; j < this.importPtr; j++) {
+			ImportBinding resolved = this.tempImports[j];
 			if (resolved.onDemand == ((importReference.bits & ASTNode.OnDemand) != 0) && resolved.isStatic() == importReference.isStatic()) {
 				if (CharOperation.equals(compoundName, resolved.compoundName)) {
 					problemReporter().unusedImport(importReference); // since skipped, must be reported now
@@ -364,7 +367,7 @@ void faultInImports() {
 				problemReporter().cannotImportPackage(importReference);
 				continue nextImport;
 			}
-			resolvedImports[index++] = new ImportBinding(compoundName, true, importBinding, importReference);
+			recordImportBinding(new ImportBinding(compoundName, true, importBinding, importReference));
 		} else {
 			Binding importBinding = findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, importReference.isStatic());
 			if (!importBinding.isValidBinding()) {
@@ -379,81 +382,28 @@ void faultInImports() {
 				problemReporter().cannotImportPackage(importReference);
 				continue nextImport;
 			}
-			ReferenceBinding conflictingType = null;
-			if (importBinding instanceof MethodBinding) {
-				conflictingType = (ReferenceBinding) getType(compoundName, compoundName.length);
-				if (!conflictingType.isValidBinding() || (importReference.isStatic() && !conflictingType.isStatic()))
-					conflictingType = null;
-			}
-			// collisions between an imported static field & a type should be checked according to spec... but currently not by javac
-			if (importBinding instanceof ReferenceBinding || conflictingType != null) {
-				ReferenceBinding referenceBinding = conflictingType == null ? (ReferenceBinding) importBinding : conflictingType;
-				ReferenceBinding typeToCheck = referenceBinding.problemId() == ProblemReasons.Ambiguous
-					? ((ProblemReferenceBinding) referenceBinding).closestMatch
-					: referenceBinding;
-				if (importReference.isTypeUseDeprecated(typeToCheck, this))
-					problemReporter().deprecatedType(typeToCheck, importReference);
-
-				ReferenceBinding existingType = typesBySimpleNames.get(compoundName[compoundName.length - 1]);
-				if (existingType != null) {
-					// duplicate test above should have caught this case, but make sure
-					if (existingType == referenceBinding) {
-						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=302865
-						// Check all resolved imports to see if this import qualifies as a duplicate
-						for (int j = 0; j < index; j++) {
-							ImportBinding resolved = resolvedImports[j];
-							if (resolved instanceof ImportConflictBinding) {
-								ImportConflictBinding importConflictBinding = (ImportConflictBinding) resolved;
-								if (importConflictBinding.conflictingTypeBinding == referenceBinding) {
-									if (!importReference.isStatic()) {
-										// resolved is implicitly static
-										problemReporter().duplicateImport(importReference);
-										resolvedImports[index++] = new ImportBinding(compoundName, false, importBinding, importReference);
-									}
-								}
-							} else if (resolved.resolvedImport == referenceBinding) {
-								if (importReference.isStatic() != resolved.isStatic()) {
-									problemReporter().duplicateImport(importReference);
-									resolvedImports[index++] = new ImportBinding(compoundName, false, importBinding, importReference);
-								}
-							}
-						}
-						continue nextImport;
-					}
-					// either the type collides with a top level type or another imported type
-					for (int j = 0, length = this.topLevelTypes.length; j < length; j++) {
-						if (CharOperation.equals(this.topLevelTypes[j].sourceName, existingType.sourceName)) {
-							problemReporter().conflictingImport(importReference);
-							continue nextImport;
-						}
-					}
-					problemReporter().duplicateImport(importReference);
-					continue nextImport;
-				}
-				typesBySimpleNames.put(compoundName[compoundName.length - 1], referenceBinding);
-			} else if (importBinding instanceof FieldBinding) {
-				for (int j = 0; j < index; j++) {
-					ImportBinding resolved = resolvedImports[j];
-					// find other static fields with the same name
-					if (resolved.isStatic() && resolved.resolvedImport instanceof FieldBinding && importBinding != resolved.resolvedImport) {
-						if (CharOperation.equals(compoundName[compoundName.length - 1], resolved.compoundName[resolved.compoundName.length - 1])) {
-							problemReporter().duplicateImport(importReference);
-							continue nextImport;
-						}
-					}
+			// all the code here which checks for valid bindings have been moved to the method 
+			// checkAndRecordImportBinding() since bug 361327
+			if(checkAndRecordImportBinding(importBinding, typesBySimpleNames, importReference, compoundName) == -1)
+				continue nextImport;
+			if (importReference.isStatic()) {
+				// look for more static bindings being imported by single static import(bug 361327).
+				// findSingleImport() finds fields first, followed by method and then type
+				// So if a type is found, no fields and methods are available anyway
+				// similarly when method is found, type may be available but no field available for sure
+				if (importBinding.kind() == Binding.FIELD) {
+					checkMoreStaticBindings(compoundName, typesBySimpleNames, Binding.TYPE | Binding.METHOD, importReference);		
+				} else if (importBinding.kind() == Binding.METHOD) {
+					checkMoreStaticBindings(compoundName, typesBySimpleNames, Binding.TYPE, importReference);
 				}
 			}
-			resolvedImports[index++] = conflictingType == null
-				? new ImportBinding(compoundName, false, importBinding, importReference)
-				: new ImportConflictBinding(compoundName, importBinding, conflictingType, importReference);
 		}
 	}
 
 	// shrink resolvedImports... only happens if an error was reported
-	if (resolvedImports.length > index)
-		System.arraycopy(resolvedImports, 0, resolvedImports = new ImportBinding[index], 0, index);
-	this.imports = resolvedImports;
-
+	if (this.tempImports.length > this.importPtr)
+		System.arraycopy(this.tempImports, 0, this.tempImports = new ImportBinding[this.importPtr], 0, this.importPtr);
+	this.imports = this.tempImports;
 	int length = this.imports.length;
 	this.typeOrPackageCache = new HashtableOfObject(length);
 	for (int i = 0; i < length; i++) {
@@ -839,5 +789,130 @@ private ReferenceBinding typeToRecord(TypeBinding type) {
 public void verifyMethods(MethodVerifier verifier) {
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
 		this.topLevelTypes[i].verifyMethods(verifier);
+}
+private void recordImportBinding(ImportBinding bindingToAdd) {
+	if (this.tempImports.length == this.importPtr) {
+		System.arraycopy(this.tempImports, 0, (this.tempImports = new ImportBinding[this.importPtr + 1]), 0, this.importPtr);
+	}
+	this.tempImports[this.importPtr++] = bindingToAdd;
+}
+/**
+ * Checks additional bindings (methods or types) imported from a single static import. 
+ * Method is tried first, followed by type. If found, records them.
+ * If in the process, import is flagged as duplicate, -1 is returned.
+ * @param compoundName
+ * @param typesBySimpleNames
+ * @param mask
+ * @param importReference
+ */
+private void checkMoreStaticBindings(
+		char[][] compoundName, 
+		HashtableOfType typesBySimpleNames, 
+		int mask,
+		ImportReference importReference) {
+	Binding importBinding = findSingleStaticImport(compoundName, mask);
+	if (!importBinding.isValidBinding()) {
+		// only continue if the same kind's ambiguous binding is returned
+		// may have found an ambiguous type when looking for field or method. Don't continue in that case
+		if (importBinding.problemId() == ProblemReasons.Ambiguous) {
+			// keep it unless a duplicate can be found below
+			checkAndRecordImportBinding(importBinding, typesBySimpleNames, importReference, compoundName);
+		}
+	} else {
+		checkAndRecordImportBinding(importBinding, typesBySimpleNames, importReference, compoundName);
+	}
+	if (((mask & Binding.METHOD) != 0) && (importBinding.kind() == Binding.METHOD)) {
+		// found method
+		// type is left to be looked for
+		// reset METHOD bit to enable lookup for only type
+		mask &= ~Binding.METHOD;
+		// now search for a type binding
+		checkMoreStaticBindings(compoundName, typesBySimpleNames, mask, importReference);
+	}
+}
+/**
+ * Checks for duplicates. If all ok, records the importBinding
+ * returns -1 when this import is flagged as duplicate.
+ * @param importBinding
+ * @param typesBySimpleNames
+ * @param importReference
+ * @param compoundName
+ * @return -1 when this import is flagged as duplicate, importPtr otherwise.
+ */
+private int checkAndRecordImportBinding(
+		Binding importBinding, 
+		HashtableOfType typesBySimpleNames, 
+		ImportReference importReference,
+		char[][] compoundName) {
+	ReferenceBinding conflictingType = null;
+	if (importBinding instanceof MethodBinding) {
+		conflictingType = (ReferenceBinding) getType(compoundName, compoundName.length);
+		if (!conflictingType.isValidBinding() || (importReference.isStatic() && !conflictingType.isStatic()))
+			conflictingType = null;
+	}
+	// collisions between an imported static field & a type should be checked according to spec... but currently not by javac
+	if (importBinding instanceof ReferenceBinding || conflictingType != null) {
+		ReferenceBinding referenceBinding = conflictingType == null ? (ReferenceBinding) importBinding : conflictingType;
+		ReferenceBinding typeToCheck = referenceBinding.problemId() == ProblemReasons.Ambiguous
+			? ((ProblemReferenceBinding) referenceBinding).closestMatch
+			: referenceBinding;
+		if (importReference.isTypeUseDeprecated(typeToCheck, this))
+			problemReporter().deprecatedType(typeToCheck, importReference);
+
+		ReferenceBinding existingType = typesBySimpleNames.get(compoundName[compoundName.length - 1]);
+		if (existingType != null) {
+			// duplicate test above should have caught this case, but make sure
+			if (existingType == referenceBinding) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=302865
+				// Check all resolved imports to see if this import qualifies as a duplicate
+				for (int j = 0; j < this.importPtr; j++) {
+					ImportBinding resolved = this.tempImports[j];
+					if (resolved instanceof ImportConflictBinding) {
+						ImportConflictBinding importConflictBinding = (ImportConflictBinding) resolved;
+						if (importConflictBinding.conflictingTypeBinding == referenceBinding) {
+							if (!importReference.isStatic()) {
+								// resolved is implicitly static
+								problemReporter().duplicateImport(importReference);
+								recordImportBinding(new ImportBinding(compoundName, false, importBinding, importReference));
+							}
+						}
+					} else if (resolved.resolvedImport == referenceBinding) {
+						if (importReference.isStatic() != resolved.isStatic()) {
+							problemReporter().duplicateImport(importReference);
+							recordImportBinding(new ImportBinding(compoundName, false, importBinding, importReference));
+						}
+					}
+				}
+				return -1;
+			}
+			// either the type collides with a top level type or another imported type
+			for (int j = 0, length = this.topLevelTypes.length; j < length; j++) {
+				if (CharOperation.equals(this.topLevelTypes[j].sourceName, existingType.sourceName)) {
+					problemReporter().conflictingImport(importReference);
+					return -1;
+				}
+			}
+			problemReporter().duplicateImport(importReference);
+			return -1;
+		}
+		typesBySimpleNames.put(compoundName[compoundName.length - 1], referenceBinding);
+	} else if (importBinding instanceof FieldBinding) {
+		for (int j = 0; j < this.importPtr; j++) {
+			ImportBinding resolved = this.tempImports[j];
+			// find other static fields with the same name
+			if (resolved.isStatic() && resolved.resolvedImport instanceof FieldBinding && importBinding != resolved.resolvedImport) {
+				if (CharOperation.equals(compoundName[compoundName.length - 1], resolved.compoundName[resolved.compoundName.length - 1])) {
+					problemReporter().duplicateImport(importReference);
+					return -1;
+				}
+			}
+		}
+	}
+	if (conflictingType == null) {
+		recordImportBinding(new ImportBinding(compoundName, false, importBinding, importReference));
+	} else {
+		recordImportBinding(new ImportConflictBinding(compoundName, importBinding, conflictingType, importReference));
+	}
+	return this.importPtr;
 }
 }
