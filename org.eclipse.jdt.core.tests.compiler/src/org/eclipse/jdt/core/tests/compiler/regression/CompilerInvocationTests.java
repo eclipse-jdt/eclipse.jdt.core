@@ -895,6 +895,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UsingDeprecatedField", new ProblemAttributes(CategorizedProblem.CAT_DEPRECATION));
 		expectedProblemAttributes.put("UsingDeprecatedMethod", new ProblemAttributes(CategorizedProblem.CAT_DEPRECATION));
 		expectedProblemAttributes.put("UsingDeprecatedType", new ProblemAttributes(CategorizedProblem.CAT_DEPRECATION));
+		expectedProblemAttributes.put("VarargsElementTypeNotVisible", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("VarargsConflict", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("VariableTypeCannotBeVoid", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("VariableTypeCannotBeVoidArray", DEPRECATED);
@@ -1570,6 +1571,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UsingDeprecatedMethod", new ProblemAttributes(JavaCore.COMPILER_PB_DEPRECATION));
 		expectedProblemAttributes.put("UsingDeprecatedType", new ProblemAttributes(JavaCore.COMPILER_PB_DEPRECATION));
 		expectedProblemAttributes.put("VarargsConflict", SKIP);
+		expectedProblemAttributes.put("VarargsElementTypeNotVisible", SKIP);
 		expectedProblemAttributes.put("VariableTypeCannotBeVoid", SKIP);
 		expectedProblemAttributes.put("VariableTypeCannotBeVoidArray", SKIP);
 		expectedProblemAttributes.put("VoidMethodReturnsValue", SKIP);

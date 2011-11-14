@@ -571,7 +571,16 @@ public abstract class Scope {
 			}
 		}
 
-		if (parameterCompatibilityLevel(method, arguments) > NOT_COMPATIBLE) {
+		int compatibilityLevel;
+		if ((compatibilityLevel = parameterCompatibilityLevel(method, arguments)) > NOT_COMPATIBLE) {
+			if (compatibilityLevel == VARARGS_COMPATIBLE) {
+				TypeBinding varargsElementType = method.parameters[method.parameters.length - 1].leafComponentType();
+				if (varargsElementType instanceof ReferenceBinding) {
+					if (!((ReferenceBinding) varargsElementType).canBeSeenBy(getCurrentPackage())) {
+						return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.VarargsElementTypeNotVisible);
+					}
+				}
+			}
 			if ((method.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
 				// generate polymorphic method
 				return this.environment().createPolymorphicMethod(method, arguments);

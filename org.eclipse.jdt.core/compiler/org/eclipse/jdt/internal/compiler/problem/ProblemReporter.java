@@ -3726,6 +3726,29 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 				(int) (messageSend.nameSourcePosition >>> 32),
 				(int) messageSend.nameSourcePosition);
 			return;
+		case ProblemReasons.VarargsElementTypeNotVisible: // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346042
+			problemMethod = (ProblemMethodBinding) method;
+			if (problemMethod.closestMatch != null) {
+			    shownMethod = problemMethod.closestMatch.original();
+		    }
+			TypeBinding varargsElementType = shownMethod.parameters[shownMethod.parameters.length - 1].leafComponentType();
+			this.handle(
+				IProblem.VarargsElementTypeNotVisible,
+				new String[] {
+				        new String(shownMethod.selector),
+				        typesAsString(shownMethod, false),
+				        new String(shownMethod.declaringClass.readableName()),
+				        new String(varargsElementType.readableName())
+				},
+				new String[] {
+				        new String(shownMethod.selector),
+				        typesAsString(shownMethod, true),
+				        new String(shownMethod.declaringClass.shortReadableName()),
+				        new String(varargsElementType.shortReadableName())
+				},
+				(int) (messageSend.nameSourcePosition >>> 32),
+				(int) messageSend.nameSourcePosition);
+			return;
 		case ProblemReasons.NoError : // 0
 		default :
 			needImplementation(messageSend); // want to fail to see why we were here...

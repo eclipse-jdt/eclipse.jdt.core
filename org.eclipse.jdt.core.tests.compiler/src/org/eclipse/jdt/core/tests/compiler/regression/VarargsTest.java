@@ -2756,4 +2756,34 @@ public class VarargsTest extends AbstractComparableTest {
 			"Type safety: A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
 			"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346042
+	public void test069() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+		this.runNegativeTest(
+			new String[] {
+				"p1/B.java",
+				"package p1;\n" +
+				"class A {\n" +
+				"}\n" +
+				"public class B extends A {\n" +
+				" public void foo(A... args) {\n" +
+				" }\n" +
+				"}\n",
+				"p2/C.java",
+				"package p2;\n" +
+				"import p1.B;\n" +
+				"public class C {\n" +
+				"\n" +
+				" public static final void main(String[] args) {\n" +
+				"   (new B()).foo(new B(), new B());\n" +
+				" }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\C.java (at line 6)\n" + 
+			"	(new B()).foo(new B(), new B());\n" + 
+			"	          ^^^\n" + 
+			"The method foo(A...) of type B is not applicable as the formal varargs element type A is not accessible here\n" + 
+			"----------\n");
+	}
 }
