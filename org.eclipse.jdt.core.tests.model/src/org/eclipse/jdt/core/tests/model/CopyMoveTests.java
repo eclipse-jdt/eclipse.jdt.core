@@ -253,12 +253,15 @@ public void movePositive(IJavaElement element, IJavaElement container, IJavaElem
 public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, IJavaElement[] siblings, String[] names, boolean force) throws JavaModelException {
 	movePositive(elements, destinations, siblings, names, force, null);
 }
+public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, IJavaElement[] siblings, String[] names, boolean force, IProgressMonitor monitor) throws JavaModelException {
+	movePositive(elements, destinations, siblings, names, force, true, null);
+}
 /**
  * Moves the elements to the containers with optional renaming
  * and forcing. The operation should succeed, so any exceptions
  * encountered are thrown.
  */
-public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, IJavaElement[] siblings, String[] names, boolean force, IProgressMonitor monitor) throws JavaModelException {
+public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, IJavaElement[] siblings, String[] names, boolean force, boolean checkDelta, IProgressMonitor monitor) throws JavaModelException {
 	// if forcing, ensure that a name collision exists
 	int i;
 	if (force) {
@@ -275,7 +278,7 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 	}
 
 	try {
-		startDeltas();
+		if(checkDelta)	startDeltas();
 
 		// move
 		getJavaModel().move(elements, destinations, siblings, names, force, monitor);
@@ -341,24 +344,26 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 					}
 				}
 			}
-			IJavaElementDelta destDelta = null;
-			if (isMainType(element, destinations[i]) && names != null && names[i] != null) { //moved/renamed main type to same cu
-				destDelta = this.deltaListener.getDeltaFor(moved.getParent());
-				assertTrue("Renamed compilation unit as result of main type not added", destDelta != null && destDelta.getKind() == IJavaElementDelta.ADDED);
-				assertTrue("flag should be F_MOVED_FROM", (destDelta.getFlags() & IJavaElementDelta.F_MOVED_FROM) > 0);
-				assertTrue("moved from handle should be original", destDelta.getMovedFromElement().equals(element.getParent()));
-			} else {
-				destDelta = this.deltaListener.getDeltaFor(destinations[i], true);
-				assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
-				IJavaElementDelta[] deltas = destDelta.getAddedChildren();
-				assertTrue("Added children not correct for element copy", deltas[i].getElement().equals(moved));
-				assertTrue("should be K_ADDED", deltas[i].getKind() == IJavaElementDelta.ADDED);
-				IJavaElementDelta sourceDelta= this.deltaListener.getDeltaFor(element, false);
-				assertTrue("should be K_REMOVED", sourceDelta.getKind() == IJavaElementDelta.REMOVED);
+			if(checkDelta) {
+				IJavaElementDelta destDelta = null;
+				if (isMainType(element, destinations[i]) && names != null && names[i] != null) { //moved/renamed main type to same cu
+					destDelta = this.deltaListener.getDeltaFor(moved.getParent());
+					assertTrue("Renamed compilation unit as result of main type not added", destDelta != null && destDelta.getKind() == IJavaElementDelta.ADDED);
+					assertTrue("flag should be F_MOVED_FROM", (destDelta.getFlags() & IJavaElementDelta.F_MOVED_FROM) > 0);
+					assertTrue("moved from handle should be original", destDelta.getMovedFromElement().equals(element.getParent()));
+				} else {
+					destDelta = this.deltaListener.getDeltaFor(destinations[i], true);
+					assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
+					IJavaElementDelta[] deltas = destDelta.getAddedChildren();
+					assertTrue("Added children not correct for element copy", deltas[i].getElement().equals(moved));
+					assertTrue("should be K_ADDED", deltas[i].getKind() == IJavaElementDelta.ADDED);
+					IJavaElementDelta sourceDelta= this.deltaListener.getDeltaFor(element, false);
+					assertTrue("should be K_REMOVED", sourceDelta.getKind() == IJavaElementDelta.REMOVED);
+				}
 			}
 		}
 	} finally {
-		stopDeltas();
+		if(checkDelta)	stopDeltas();
 	}
 }
 }

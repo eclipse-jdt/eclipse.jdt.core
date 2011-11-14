@@ -357,7 +357,12 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			}
 
 			// register the correct change deltas
-			prepareDeltas(source, destCU, isMove());
+			boolean overWrite = this.force && destFile.exists();
+			if (overWrite)
+				getDeltaFor(dest.getJavaProject()).changed(destCU, IJavaElementDelta.F_CONTENT);
+			else
+				prepareDeltas(source, destCU, isMove());
+			
 			if (newCUName != null) {
 				//the main type has been renamed
 				String oldName = Util.getNameWithoutJavaLikeExtension(source.getElementName());
