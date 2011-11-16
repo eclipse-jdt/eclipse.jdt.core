@@ -161,10 +161,11 @@ protected boolean isBoxingCompatible(TypeBinding expressionType, TypeBinding tar
 	if (scope.isBoxingCompatibleWith(expressionType, targetType))
 		return true;
 
-	return expressionType.isBaseType()  // narrowing then boxing ?
+	return expressionType.isBaseType()  // narrowing then boxing ? Only allowed for some target types see 362279
 		&& !targetType.isBaseType()
 		&& !targetType.isTypeVariable()
 		&& scope.compilerOptions().sourceLevel >= org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_5 // autoboxing
+		&& (targetType.id == TypeIds.T_JavaLangByte || targetType.id == TypeIds.T_JavaLangShort || targetType.id == TypeIds.T_JavaLangCharacter)
 		&& expression.isConstantValueOfTypeAssignableToType(expressionType, scope.environment().computeBoxingType(targetType));
 }
 

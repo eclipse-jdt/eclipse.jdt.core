@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -1928,6 +1929,88 @@ public void test067() {
 		true,
 		options
 	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=362279
+public void test068() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X  {\n" +
+			"	Integer f = 'a'; // Field declaration.\n" +
+			"	public Integer main() {\n" +
+			"		Integer i = 'a'; // local declaration with initialization.\n" +
+			"		i = 'a'; // assignment\n" +
+			"                Integer [] ia = new Integer [] { 'a' }; // array initializer.\n" +
+			"		return 'a'; // return statement.\n" +
+			"		switch (i) {\n" +
+			"		case 'a' :   // case statement\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		this.complianceLevel < ClassFileConstants.JDK1_5 ? 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	Integer f = \'a\'; // Field declaration.\n" + 
+		"	            ^^^\n" + 
+		"Type mismatch: cannot convert from char to Integer\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	Integer i = \'a\'; // local declaration with initialization.\n" + 
+		"	            ^^^\n" + 
+		"Type mismatch: cannot convert from char to Integer\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	i = \'a\'; // assignment\n" + 
+		"	    ^^^\n" + 
+		"Type mismatch: cannot convert from char to Integer\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	Integer [] ia = new Integer [] { \'a\' }; // array initializer.\n" + 
+		"	                                 ^^^\n" + 
+		"Type mismatch: cannot convert from char to Integer\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 7)\n" + 
+		"	return \'a\'; // return statement.\n" + 
+		"	       ^^^\n" + 
+		"Type mismatch: cannot convert from char to Integer\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 8)\n" + 
+		"	switch (i) {\n" + 
+		"	        ^\n" + 
+		"Cannot switch on a value of type Integer. Only convertible int values or enum variables are permitted\n" + 
+		"----------\n" : 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Integer f = \'a\'; // Field declaration.\n" + 
+			"	            ^^^\n" + 
+			"Type mismatch: cannot convert from char to Integer\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	Integer i = \'a\'; // local declaration with initialization.\n" + 
+			"	            ^^^\n" + 
+			"Type mismatch: cannot convert from char to Integer\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	i = \'a\'; // assignment\n" + 
+			"	    ^^^\n" + 
+			"Type mismatch: cannot convert from char to Integer\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	Integer [] ia = new Integer [] { \'a\' }; // array initializer.\n" + 
+			"	                                 ^^^\n" + 
+			"Type mismatch: cannot convert from char to Integer\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 7)\n" + 
+			"	return \'a\'; // return statement.\n" + 
+			"	       ^^^\n" + 
+			"Type mismatch: cannot convert from char to Integer\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 9)\n" + 
+			"	case \'a\' :   // case statement\n" + 
+			"	     ^^^\n" + 
+			"Type mismatch: cannot convert from char to Integer\n" + 
+			"----------\n");
 }
 public static Class testClass() {
 	return AssignmentTest.class;
