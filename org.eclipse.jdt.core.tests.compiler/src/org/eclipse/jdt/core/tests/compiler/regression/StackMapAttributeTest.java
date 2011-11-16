@@ -7005,4 +7005,88 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				assertEquals("Wrong contents", expectedOutput, actualOutput);
 			}
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=362591
+	public void test055() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		testError(3, 4, \"d\");\n" + 
+					"	}\n" + 
+					"	public static void testError(Number n0, Number n1, String refValue) {\n" + 
+					"		Number result = refValue.equals(\"ttt\") ? n0 : (n1 == null ? null : n1.intValue());\n" + 
+					"		System.out.println(String.valueOf(result));\n" + 
+					"	}\n" + 
+					"}",
+				},
+				"4");
+
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);
+
+			String expectedOutput =
+				"  // Method descriptor #27 (Ljava/lang/Number;Ljava/lang/Number;Ljava/lang/String;)V\n" + 
+				"  // Stack: 2, Locals: 4\n" + 
+				"  public static void testError(java.lang.Number n0, java.lang.Number n1, java.lang.String refValue);\n" + 
+				"     0  aload_2 [refValue]\n" + 
+				"     1  ldc <String \"ttt\"> [30]\n" + 
+				"     3  invokevirtual java.lang.String.equals(java.lang.Object) : boolean [32]\n" + 
+				"     6  ifeq 13\n" + 
+				"     9  aload_0 [n0]\n" + 
+				"    10  goto 28\n" + 
+				"    13  aload_1 [n1]\n" + 
+				"    14  ifnonnull 21\n" + 
+				"    17  aconst_null\n" + 
+				"    18  goto 28\n" + 
+				"    21  aload_1 [n1]\n" + 
+				"    22  invokevirtual java.lang.Number.intValue() : int [38]\n" + 
+				"    25  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [16]\n" + 
+				"    28  astore_3 [result]\n" + 
+				"    29  getstatic java.lang.System.out : java.io.PrintStream [44]\n" + 
+				"    32  aload_3 [result]\n" + 
+				"    33  invokestatic java.lang.String.valueOf(java.lang.Object) : java.lang.String [50]\n" + 
+				"    36  invokevirtual java.io.PrintStream.println(java.lang.String) : void [53]\n" + 
+				"    39  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 6]\n" + 
+				"        [pc: 29, line: 7]\n" + 
+				"        [pc: 39, line: 8]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 40] local: n0 index: 0 type: java.lang.Number\n" + 
+				"        [pc: 0, pc: 40] local: n1 index: 1 type: java.lang.Number\n" + 
+				"        [pc: 0, pc: 40] local: refValue index: 2 type: java.lang.String\n" + 
+				"        [pc: 29, pc: 40] local: result index: 3 type: java.lang.Number\n" + 
+				"      Stack map table: number of frames 3\n" + 
+				"        [pc: 13, same]\n" + 
+				"        [pc: 21, same]\n" + 
+				"        [pc: 28, same_locals_1_stack_item, stack: {java.lang.Number}]\n";
+
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
+	}
+	
+	public void test055a() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public static void main(String[] args) {\n" +
+					"        Object o = args != null ? args : (args == null ? null : args.length);\n" +
+					"    }\n" +
+					"}\n",
+				},
+				"");
+	}
 }
