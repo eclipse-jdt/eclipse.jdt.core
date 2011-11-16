@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
@@ -471,7 +472,8 @@ void checkMethods() {
 			for (int i = 0; i < length; i++) {
 				MethodBinding inheritedMethod = inherited[i];
 				if (inheritedMethod.isPublic() && !inheritedMethod.declaringClass.isPublic())
-					this.type.addSyntheticBridgeMethod(inheritedMethod.original());
+					if (!CharOperation.equals(inheritedMethod.declaringClass.qualifiedPackageName(), CharOperation.NO_CHAR)) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343060
+						this.type.addSyntheticBridgeMethod(inheritedMethod.original());
 			}
 		}
 
@@ -527,7 +529,8 @@ void checkMethods() {
 			if (matchMethod == null && current != null && this.type.isPublic()) { // current == null case handled already.
 				MethodBinding inheritedMethod = inherited[i];
 				if (inheritedMethod.isPublic() && !inheritedMethod.declaringClass.isPublic()) {
-					this.type.addSyntheticBridgeMethod(inheritedMethod.original());
+					if (!CharOperation.equals(inheritedMethod.declaringClass.qualifiedPackageName(), CharOperation.NO_CHAR)) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343060
+						this.type.addSyntheticBridgeMethod(inheritedMethod.original());
 				}
 			}
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660, if current type is exposed,
