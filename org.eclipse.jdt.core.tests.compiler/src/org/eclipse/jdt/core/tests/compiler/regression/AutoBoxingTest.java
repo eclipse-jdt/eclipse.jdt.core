@@ -2911,7 +2911,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85491
 	public void test101() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -2924,8 +2924,22 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n",
 			},
-			"222"
-		);
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	new X().foo(1);\n" + 
+			"	        ^^^\n" + 
+			"The method foo(Object[]) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	new X().foo(new Integer(1));\n" + 
+			"	        ^^^\n" + 
+			"The method foo(Object[]) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	new X().foo(1, new Integer(1));\n" + 
+			"	        ^^^\n" + 
+			"The method foo(Object[]) is ambiguous for the type X\n" + 
+			"----------\n");
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
