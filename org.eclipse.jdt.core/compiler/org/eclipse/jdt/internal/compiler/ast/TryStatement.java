@@ -69,6 +69,7 @@ public class TryStatement extends SubRoutineStatement {
 	// for local variables table attributes
 	int mergedInitStateIndex = -1;
 	int preTryInitStateIndex = -1;
+	int postTryInitStateIndex = -1;
 	int[] postResourcesInitStateIndexes;
 	int naturalExitMergeInitStateIndex = -1;
 	int[] catchExitInitStateIndexes;
@@ -155,7 +156,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if ((tryInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 				this.bits |= ASTNode.IsTryBlockExiting;
 		}
-
+		if (resourcesLength > 0) { 
+			this.postTryInitStateIndex = currentScope.methodScope().recordInitializationStates(tryInfo);
+		}
 		// check unreachable catch blocks
 		handlingContext.complainIfUnusedExceptionHandlers(this.scope, this);
 
@@ -295,7 +298,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if ((tryInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 				this.bits |= ASTNode.IsTryBlockExiting;
 		}
-
+		if (resourcesLength > 0) {
+			this.postTryInitStateIndex = currentScope.methodScope().recordInitializationStates(tryInfo);
+		}
 		// check unreachable catch blocks
 		handlingContext.complainIfUnusedExceptionHandlers(this.scope, this);
 
@@ -514,6 +519,13 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 					// inline resource closure
 					if (i > 0) {
 						int invokeCloseStartPc = codeStream.position; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343785
+						if (this.postTryInitStateIndex != -1) {
+							/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=361053, we are just past a synthetic instance of try-catch-finally.
+							   Our initialization type state is the same as it was at the end of the just concluded try (catch rethrows)
+							*/
+							codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+							codeStream.addDefinitelyAssignedVariables(currentScope, this.postTryInitStateIndex);
+						}
 						codeStream.load(localVariable);
 						codeStream.ifnull(exitLabel);
 						codeStream.load(localVariable);
