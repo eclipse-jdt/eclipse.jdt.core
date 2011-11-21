@@ -3078,6 +3078,7 @@ public abstract class Scope {
 	/* Answer true if the scope is nested inside a given method declaration
 	*/
 	public final boolean isDefinedInMethod(MethodBinding method) {
+		method = method.original(); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350738
 		Scope scope = this;
 		do {
 			if (scope instanceof MethodScope) {

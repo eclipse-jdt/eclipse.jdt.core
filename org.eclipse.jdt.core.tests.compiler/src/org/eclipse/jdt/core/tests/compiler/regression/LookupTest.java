@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3457,6 +3457,36 @@ public void test105() {
 		"	private int x;\n" + 
 		"	            ^\n" + 
 		"The value of the field A.C.x is not used\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350738
+public void test106() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"X.java",//------------------------------
+			"import java.util.List;\n" +
+			"import java.util.Set;\n" +
+			"public class X {\n" +
+			"	private static List<Object> foo1(Set<Object> set) {\n" +
+			"	    return foo1(set);\n" +
+			"	}\n" +
+			"	private static <T> List<T> foo3(Set<T> set) {\n" +
+			"	    return foo3(set);\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	private static List<Object> foo1(Set<Object> set) {\n" + 
+		"	                            ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The method foo1(Set<Object>) from the type X is never used locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	private static <T> List<T> foo3(Set<T> set) {\n" + 
+		"	                           ^^^^^^^^^^^^^^^^\n" + 
+		"The method foo3(Set<T>) from the type X is never used locally\n" + 
 		"----------\n");
 }
 public static Class testClass() {	return LookupTest.class;
