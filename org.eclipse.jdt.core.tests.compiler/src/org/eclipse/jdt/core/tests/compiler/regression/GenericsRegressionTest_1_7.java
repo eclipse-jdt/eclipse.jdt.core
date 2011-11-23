@@ -2302,6 +2302,28 @@ public void test0060a() {
 		false,
 		customOptions);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=361441
+public void test0061() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.net.URI;" +
+			"import java.nio.file.FileSystems;" +
+			"import java.util.Collections;\n" +
+			"public class X {\n" +
+			"	 public static void foo() {\n" +
+			"    	URI uri = URI.create(\"http://www.eclipse.org\");\n" +
+			"		FileSystems.<String, Object>newFileSystem(uri, Collections.emptyMap());\n" +
+			"	 }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	FileSystems.<String, Object>newFileSystem(uri, Collections.emptyMap());\n" + 
+		"	                            ^^^^^^^^^^^^^\n" + 
+		"The method newFileSystem(URI, Map<String,?>) in the type FileSystems is not applicable for the arguments (URI, Map<Object,Object>)\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
 }
