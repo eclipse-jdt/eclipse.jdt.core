@@ -585,7 +585,7 @@ public abstract class Scope {
 			if (compatibilityLevel == VARARGS_COMPATIBLE) {
 				TypeBinding varargsElementType = method.parameters[method.parameters.length - 1].leafComponentType();
 				if (varargsElementType instanceof ReferenceBinding) {
-					if (!((ReferenceBinding) varargsElementType).canBeSeenBy(getCurrentPackage())) {
+					if (!((ReferenceBinding) varargsElementType).canBeSeenBy(this)) {
 						return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.VarargsElementTypeNotVisible);
 					}
 				}

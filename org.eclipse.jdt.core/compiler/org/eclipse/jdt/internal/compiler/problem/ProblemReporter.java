@@ -3240,6 +3240,27 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 				sourceStart,
 				sourceEnd);
 			return;
+		case ProblemReasons.VarargsElementTypeNotVisible :
+			problemConstructor = (ProblemMethodBinding) targetConstructor;
+			shownConstructor = problemConstructor.closestMatch;
+			TypeBinding varargsElementType = shownConstructor.parameters[shownConstructor.parameters.length - 1].leafComponentType();
+			this.handle(
+				IProblem.VarargsElementTypeNotVisibleForConstructor,
+				new String[] {
+						new String(shownConstructor.declaringClass.sourceName()),
+						typesAsString(shownConstructor, false),
+						new String(shownConstructor.declaringClass.readableName()),
+						new String(varargsElementType.readableName())
+				},
+				new String[] {
+						new String(shownConstructor.declaringClass.sourceName()),
+						typesAsString(shownConstructor, true),
+						new String(shownConstructor.declaringClass.shortReadableName()),
+						new String(varargsElementType.shortReadableName())
+				},
+				sourceStart,
+				sourceEnd);
+			return;
 		case ProblemReasons.NoError : // 0
 		default :
 			needImplementation(statement); // want to fail to see why we were here...

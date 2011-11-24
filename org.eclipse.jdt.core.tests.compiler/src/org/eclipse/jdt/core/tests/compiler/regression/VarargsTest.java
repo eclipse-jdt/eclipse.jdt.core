@@ -2911,7 +2911,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"	  ^\n" +
 			"The method b(boolean, Object[]) is ambiguous for the type X\n" +
 			"----------\n");
-}
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346039
 	public void test071() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runConformTest(
@@ -2934,5 +2934,80 @@ public class VarargsTest extends AbstractComparableTest {
 				"interface IClass extends IType{}\n"
 			},
 			"1");
-}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=364672
+	public void test072() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	private class Z {}\n" + 
+				"	public void foo() {\n" + 
+				"			Z[] zs = null;\n" + 
+				"			Y.bar(zs, new Z());\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {}\n" + 
+				"}",
+				"Y.java",
+				"public class Y {\n" + 
+				"	public native static <T> void bar(T[] t, T t1, T... t2);\n" + 
+				"}"
+			},
+			"");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=364672
+	public void test073() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static final String CONSTANT = \"\";\n" + 
+				"	private static class A {\n" + 
+				"		A(String s, String s2, String s3, A... a) {}\n" + 
+				"	}\n" + 
+				"	private static class B extends A {\n" + 
+				"		B(String s, String s2) {\n" + 
+				"			super(s, s2, CONSTANT);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	private static void foo(Object o, A ... a) {\n" + 
+				"	}\n" + 
+				"	private static B bar() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Object o = null;\n" + 
+				"		foo(o, bar(), bar());\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=364672
+	public void test074() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"p1/B.java",
+				"package p1;\n" +
+				"class A {}\n" +
+				"public class B extends A {\n" +
+				" public B(A... args) {}\n" +
+				" public B() {}\n" +
+				"}\n",
+				"p2/C.java",
+				"package p2;\n" +
+				"import p1.B;\n" +
+				"public class C {\n" +
+				"	public static final void main(String[] args) {\n" +
+				"		new B(new B(), new B());\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\C.java (at line 5)\n" + 
+			"	new B(new B(), new B());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The constructor B(A...) of type B is not applicable as the formal varargs element type A is not accessible here\n" + 
+			"----------\n");
+	}
 }

@@ -1344,6 +1344,8 @@ void setSourceStart(int sourceStart);
 	int PotentialHeapPollutionFromVararg = MethodRelated + 806;
 	/** @since 3.8 */
 	int VarargsElementTypeNotVisible = MethodRelated + 807;
+	/** @since 3.8 */
+	int VarargsElementTypeNotVisibleForConstructor = ConstructorRelated + 808;
 	/**
 	 * Javadoc Generic
 	 */
