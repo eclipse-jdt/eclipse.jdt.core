@@ -2,7 +2,7 @@
     <resource path="META-INF/MANIFEST.MF">
         <filter comment="new APIs added for bug 287164" id="924844039">
             <message_arguments>
-                <message_argument value="3.7.2"/>
+                <message_argument value="3.7.3"/>
                 <message_argument value="3.7.1"/>
             </message_arguments>
         </filter>
