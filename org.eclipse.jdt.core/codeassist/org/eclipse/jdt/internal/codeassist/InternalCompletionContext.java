@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,8 +24,12 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadoc;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 
 
 /**
@@ -65,6 +69,7 @@ public class InternalCompletionContext extends CompletionContext {
 			LookupEnvironment lookupEnvironment,
 			Scope scope,
 			ASTNode astNode,
+			ASTNode astNodeParent,
 			WorkingCopyOwner owner,
 			CompletionParser parser) {
 		this.isExtended = true;
@@ -76,6 +81,7 @@ public class InternalCompletionContext extends CompletionContext {
 					lookupEnvironment,
 					scope,
 					astNode,
+					astNodeParent,
 					owner,
 					parser);
 	}
@@ -367,5 +373,88 @@ public class InternalCompletionContext extends CompletionContext {
 	 */
 	public boolean isInJavadocText() {
 		return (this.javadoc & CompletionOnJavadoc.TEXT) != 0;
+	}
+	
+	/**
+	 * Return the completion node associated with the current completion.
+	 *
+	 * @return completion AST node, or null if the extendedContext is null.
+	 * @exception UnsupportedOperationException if the context is not an extended context
+	 *
+	 * @see #isExtended()
+	 */
+	public ASTNode getCompletionNode() {
+		if (!this.isExtended) throw new UnsupportedOperationException("Operation only supported in extended context"); //$NON-NLS-1$
+	
+		if (this.extendedContext == null) return null;
+	
+		return this.extendedContext.getCompletionNode();
+	}
+	
+	/**
+	 * Return the parent AST node of the completion node associated with the current completion.
+	 *
+	 * @return completion parent AST node, or null if the extendedContext is null.
+	 * @exception UnsupportedOperationException if the context is not an extended context
+	 *
+	 * @see #isExtended()
+	 */
+	public ASTNode getCompletionNodeParent() {
+		if (!this.isExtended) throw new UnsupportedOperationException("Operation only supported in extended context"); //$NON-NLS-1$
+	
+		if (this.extendedContext == null) return null;
+	
+		return this.extendedContext.getCompletionNodeParent();
+	}
+	
+	/**
+	 * Return the bindings of all visible local variables in the current completion context.
+	 *
+	 * @return bindings of all visible local variables, or null if the extendedContext is null. Returned bindings are instances of
+	 * {@link LocalVariableBinding}
+	 * @exception UnsupportedOperationException if the context is not an extended context
+	 *
+	 * @see #isExtended()
+	 */
+	public ObjectVector getVisibleLocalVariables() {
+		if (!this.isExtended) throw new UnsupportedOperationException("Operation only supported in extended context"); //$NON-NLS-1$
+	
+		if (this.extendedContext == null) return null;
+	
+		return this.extendedContext.getVisibleLocalVariables();
+	}
+	
+	/**
+	 * Return the bindings of all visible fields in the current completion context.
+	 *
+	 * @return bindings of all visible fields, or null if the extendedContext is null. Returned bindings are instances of
+	 * {@link FieldBinding}
+	 * @exception UnsupportedOperationException if the context is not an extended context
+	 *
+	 * @see #isExtended()
+	 */
+	public ObjectVector getVisibleFields() {
+		if (!this.isExtended) throw new UnsupportedOperationException("Operation only supported in extended context"); //$NON-NLS-1$
+	
+		if (this.extendedContext == null) return null;
+	
+		return this.extendedContext.getVisibleFields();
+	}
+	
+	/**
+	 * Return the bindings of all visible methods in the current completion context.
+	 *
+	 * @return bindings of all visible methods, or null if the extendedContext is null. Returned bindings are instances of
+	 * {@link MethodBinding}
+	 * @exception UnsupportedOperationException if the context is not an extended context
+	 *
+	 * @see #isExtended()
+	 */
+	public ObjectVector getVisibleMethods() {
+		if (!this.isExtended) throw new UnsupportedOperationException("Operation only supported in extended context"); //$NON-NLS-1$
+	
+		if (this.extendedContext == null) return null;
+	
+		return this.extendedContext.getVisibleMethods();
 	}
 }

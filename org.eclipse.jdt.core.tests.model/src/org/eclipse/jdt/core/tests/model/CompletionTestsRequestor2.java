@@ -20,6 +20,9 @@ import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.codeassist.InternalCompletionContext;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.JavaElement;
 
 public class CompletionTestsRequestor2 extends CompletionRequestor {
@@ -604,5 +607,55 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			return this.proposals[proposalNo].canUseDiamond(this.context);
 		}
 		return false;
+	}
+	
+	public String getCompletionNode() {
+		if (this.context instanceof InternalCompletionContext) {
+			InternalCompletionContext internalCompletionContext = (InternalCompletionContext) this.context;
+			ASTNode astNode = internalCompletionContext.getCompletionNode();
+			if (astNode != null) return astNode.toString();
+			
+		}
+		return null;
+	}
+	
+	public String getCompletionNodeParent() {
+		if (this.context instanceof InternalCompletionContext) {
+			InternalCompletionContext internalCompletionContext = (InternalCompletionContext) this.context;
+			ASTNode astNode = internalCompletionContext.getCompletionNodeParent();
+			if (astNode != null) return astNode.toString();
+			
+		}
+		return null;
+	}
+	
+	public String getVisibleLocalVariables() {
+		if (this.context instanceof InternalCompletionContext) {
+			InternalCompletionContext internalCompletionContext = (InternalCompletionContext) this.context;
+			ObjectVector locals = internalCompletionContext.getVisibleLocalVariables();
+			if (locals != null) return locals.toString();
+			
+		}
+		return null;
+	}
+	
+	public String getVisibleFields() {
+		if (this.context instanceof InternalCompletionContext) {
+			InternalCompletionContext internalCompletionContext = (InternalCompletionContext) this.context;
+			ObjectVector fields = internalCompletionContext.getVisibleFields();
+			if (fields != null) return fields.toString();
+			
+		}
+		return null;
+	}
+	
+	public String getVisibleMethods() {
+		if (this.context instanceof InternalCompletionContext) {
+			InternalCompletionContext internalCompletionContext = (InternalCompletionContext) this.context;
+			ObjectVector methods = internalCompletionContext.getVisibleMethods();
+			if (methods != null) return methods.toString();
+			
+		}
+		return null;
 	}
 }

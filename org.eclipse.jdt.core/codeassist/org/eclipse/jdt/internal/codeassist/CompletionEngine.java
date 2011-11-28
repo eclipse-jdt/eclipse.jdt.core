@@ -1502,6 +1502,7 @@ public final class CompletionEngine
 					this.lookupEnvironment,
 					scope,
 					astNode,
+					astNodeParent,
 					this.owner,
 					this.parser);
 		}

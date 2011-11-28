@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -45,6 +46,10 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 public class CompletionTests2 extends ModifyingResourceTests implements RelevanceConstants {
+	
+	static {
+//		TESTS_NAMES = new String[]{"testBug340945"};
+	}
 
 	public static class CompletionContainerInitializer implements ContainerInitializer.ITestInitializer {
 
@@ -5590,5 +5595,261 @@ public void testBug317264d() throws CoreException {
 	} finally {
 		deleteProject(project);
 	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
+public void testBug340945() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Try.java",
+			"package test;\n" +
+			"public class Try extends Thread{\n" +
+			"	int inty = 1;\n" +
+			"	void foo() {\n" +
+			"		int i = 1;\n" +
+			"		Object o = new Object() {\n" +
+			"			void running() {\n" +
+			"				int j = 1;\n" +
+			"				int k = " +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.setRequireExtendedContext(true);
+	requestor.allowAllRequiredProposals();
+	requestor.setComputeVisibleElements(true);
+//	requestor.setAssignableType("I");
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "int k =";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"<CompleteOnName:>",
+			requestor.getCompletionNode());
+	assertResults(
+			"int k = <CompleteOnName:>;",
+			requestor.getCompletionNodeParent());
+	assertResults(
+			"int j[pos: unused][id:2]\n" +
+			"int i[pos: unused][id:0]\n" +
+			"java.lang.Object o[pos: unused][id:1]\n",
+			requestor.getVisibleLocalVariables());
+	assertResults(
+			"int inty\n",
+			requestor.getVisibleFields());
+	assertResults(
+			"void running() \n" +
+			"public final void wait(long, int) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
+			"public final void wait(long) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
+			"public final void wait() throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
+			"public java.lang.String toString() \n" +
+			"public final void notifyAll() throws java.lang.IllegalMonitorStateException\n" +
+			"public final void notify() throws java.lang.IllegalMonitorStateException\n" +
+			"public int hashCode() \n" +
+			"public final java.lang.Class getClass() \n" + 
+			"protected void finalize() throws java.lang.Throwable\n" +
+			"public boolean equals(java.lang.Object) \n" +
+			"protected java.lang.Object clone() throws java.lang.CloneNotSupportedException\n" +
+			"void foo() \n",
+			requestor.getVisibleMethods());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
+public void testBug340945a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Try.java",
+			"package test;\n" +
+			"public class Try extends Thread{\n" +
+			"	int int1 = 1;\n" +
+			"	int int2 = 2;\n" +
+			"	int int3 = " +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.setRequireExtendedContext(true);
+	requestor.allowAllRequiredProposals();
+	requestor.setComputeVisibleElements(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "int int3 =";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"<CompleteOnName:>",
+			requestor.getCompletionNode());
+	assertResults(
+			"int int3 = <CompleteOnName:>;",
+			requestor.getCompletionNodeParent());
+	assertResults(
+			"",
+			requestor.getVisibleLocalVariables());
+	assertResults(
+			"int int2\n" +
+			"int int1\n",
+			requestor.getVisibleFields());
+	assertResults(
+			"public final void wait(long, int) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
+			"public final void wait(long) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
+			"public final void wait() throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
+			"public java.lang.String toString() \n" +
+			"public final void notifyAll() throws java.lang.IllegalMonitorStateException\n" +
+			"public final void notify() throws java.lang.IllegalMonitorStateException\n" +
+			"public int hashCode() \n" +
+			"public final java.lang.Class getClass() \n" + 
+			"protected void finalize() throws java.lang.Throwable\n" +
+			"public boolean equals(java.lang.Object) \n" +
+			"protected java.lang.Object clone() throws java.lang.CloneNotSupportedException\n",
+			requestor.getVisibleMethods());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
+public void testBug340945b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Try.java",
+			"package test;\n" +
+			"public class Try extends Thread{\n" +
+			"Object field;\n" +
+			"void foo() {\n" +
+			"	int int1 = 1;\n" +
+			"	int int2 = 2;\n" +
+			"	int int3 = " +
+			"}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.setRequireExtendedContext(true);
+	requestor.allowAllRequiredProposals();
+	requestor.setComputeVisibleElements(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "int int3 =";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"<CompleteOnName:>",
+			requestor.getCompletionNode());
+	assertResults(
+			"int int3 = <CompleteOnName:>;",
+			requestor.getCompletionNodeParent());
+	assertResults(
+			"int int1[pos: unused][id:0]\n" +
+			"int int2[pos: unused][id:1]\n",
+			requestor.getVisibleLocalVariables());
+	assertResults(
+			"java.lang.Object field\n",
+			requestor.getVisibleFields());
+	assertResults(
+			"void foo() \n" +
+			"public final void wait(long, int) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
+			"public final void wait(long) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
+			"public final void wait() throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
+			"public java.lang.String toString() \n" +
+			"public final void notifyAll() throws java.lang.IllegalMonitorStateException\n" +
+			"public final void notify() throws java.lang.IllegalMonitorStateException\n" +
+			"public int hashCode() \n" +
+			"public final java.lang.Class getClass() \n" + 
+			"protected void finalize() throws java.lang.Throwable\n" +
+			"public boolean equals(java.lang.Object) \n" +
+			"protected java.lang.Object clone() throws java.lang.CloneNotSupportedException\n",			
+			requestor.getVisibleMethods());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
+public void testBug340945c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Try.java",
+			"package test;\n" +
+			"public class Try extends Thread{\n" +
+			"Object field;\n" +
+			"void foo() {\n" +
+			"	int int1 = 1;\n" +
+			"	int int2 = 2;\n" +
+			"	Object o1 = new Object();\n" +
+			"   o1." +
+			"}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.setRequireExtendedContext(true);
+	requestor.allowAllRequiredProposals();
+	requestor.setComputeVisibleElements(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "o1.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"<CompleteOnName:o1.>",
+			requestor.getCompletionNode());
+	assertNull(
+			"should be null",
+			requestor.getCompletionNodeParent());
+	assertResults(
+			"int int1[pos: unused][id:0]\n" +
+			"int int2[pos: unused][id:1]\n" +
+			"java.lang.Object o1[pos: unused][id:2]\n",
+			requestor.getVisibleLocalVariables());
+	assertResults(
+			"java.lang.Object field\n",
+			requestor.getVisibleFields());
+	assertResults(
+			"void foo() \n" +
+			"public final void wait(long, int) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
+			"public final void wait(long) throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
+			"public final void wait() throws java.lang.IllegalMonitorStateException, java.lang.InterruptedException\n" +
+			"public java.lang.String toString() \n" +
+			"public final void notifyAll() throws java.lang.IllegalMonitorStateException\n" +
+			"public final void notify() throws java.lang.IllegalMonitorStateException\n" +
+			"public int hashCode() \n" +
+			"public final java.lang.Class getClass() \n" + 
+			"protected void finalize() throws java.lang.Throwable\n" +
+			"public boolean equals(java.lang.Object) \n" +
+			"protected java.lang.Object clone() throws java.lang.CloneNotSupportedException\n",			
+			requestor.getVisibleMethods());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
+public void testBug340945d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Try.java",
+			"package test;\n" +
+			"public class Try extends Thread{\n" +
+			"Object field;\n" +
+			"static void foo() {\n" +	// field should not be visible here
+			"	int int1 = 1;\n" +
+			"	int int2 = 2;\n" +
+			"	Object o1 = new Object();\n" +
+			"   o1." +
+			"}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.setRequireExtendedContext(true);
+	requestor.allowAllRequiredProposals();
+	requestor.setComputeVisibleElements(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "o1.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"<CompleteOnName:o1.>",
+			requestor.getCompletionNode());
+	assertNull(
+			"should be null",
+			requestor.getCompletionNodeParent());
+	assertResults(
+			"int int1[pos: unused][id:0]\n" +
+			"int int2[pos: unused][id:1]\n" +
+			"java.lang.Object o1[pos: unused][id:2]\n",
+			requestor.getVisibleLocalVariables());
+	assertResults(
+			"",
+			requestor.getVisibleFields());
+	assertResults(
+			"static void foo() \n",			
+			requestor.getVisibleMethods());
 }
 }
