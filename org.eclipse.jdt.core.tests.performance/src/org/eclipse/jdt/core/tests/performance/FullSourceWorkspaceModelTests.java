@@ -347,7 +347,11 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
 	}
 	assertEquals(message, expected, actual);
 }
-
+private void touchFiles(File[] files) {
+	for(int index=0; index < files.length; index++) {
+		files[index].setLastModified(System.currentTimeMillis());
+	}
+}
 /*
  * Creates a simple Java project with no source folder and only rt.jar on its classpath.
  */
@@ -1369,6 +1373,59 @@ public void testReopenSingleProject() throws CoreException {
 	runGc();
 	if (PRINT) {
 		System.out.println((System.currentTimeMillis()-startTime)+"ms");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=354332
+public void testRefreshExternalArchives() throws Exception {
+	int jarCount = 100;
+	File[] files = new File[jarCount];
+	IJavaModel model = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot());
+	IClasspathEntry[] oldClasspath = BIG_PROJECT.getRawClasspath();
+	try {
+		IClasspathEntry[] classpath = new IClasspathEntry[jarCount];
+		for (int index = 0; index < jarCount; index++) {
+			String filePath = getExternalResourcePath("lib"+ index +".jar");
+			org.eclipse.jdt.core.tests.util.Util.createJar(new String[0],
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n",
+				},
+				filePath,
+				JavaCore.VERSION_1_4);
+			classpath[index] = JavaCore.newLibraryEntry(new Path(filePath), null, null);
+			files[index]  = new File(filePath);
+		}
+		BIG_PROJECT.setRawClasspath(classpath, null);
+		
+		// warm up
+		int max = 20;
+		int warmup = WARMUP_COUNT / 10;
+		for (int i = 0; i < warmup; i++) {
+			for (int j = 0; j < max; j++) {
+				touchFiles(files);
+				model.refreshExternalArchives(new IJavaElement[] {BIG_PROJECT}, null);
+			}
+		}
+
+		// measure performance
+		for (int i = 0; i < MEASURES_COUNT; i++) {
+			runGc();
+			startMeasuring();
+			for (int j = 0; j < max; j++) {
+				touchFiles(files);
+				model.refreshExternalArchives(new IJavaElement[] {BIG_PROJECT}, null);
+			}
+			stopMeasuring();
+		}
+
+		commitMeasurements();
+		assertPerformance();		
+		
+	} finally {
+		BIG_PROJECT.setRawClasspath(oldClasspath, null);
+		for(int index=0; index < files.length; index++) {
+			files[index].delete();
+		}
 	}
 }
 

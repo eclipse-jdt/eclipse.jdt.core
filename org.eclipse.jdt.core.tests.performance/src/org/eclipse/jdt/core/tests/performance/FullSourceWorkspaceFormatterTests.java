@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,7 +65,7 @@ protected void setUp() throws Exception {
 	// Read big file
 	System.out.print("	- Read big file source...");
 	long start = System.currentTimeMillis();
-	FORMAT_TYPE_SOURCE = Util.fileContent(getPluginDirectoryPath()+File.separator+"GenericTypeTest.java");
+	FORMAT_TYPE_SOURCE = Util.fileContent(getPluginBinariesDirectoryPath()+File.separator+"GenericTypeTest.java");
 	System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 }
 

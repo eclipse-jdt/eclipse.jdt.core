@@ -405,9 +405,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	/*
 	 * Returns the OS path to the directory that contains this plugin.
 	 */
-	static String getPluginDirectoryPath() {
+	static String getPluginBinariesDirectoryPath() {
 		try {
-			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.performance").getEntry("/");
+			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.binaries").getEntry("/");
 			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -621,7 +621,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		long start = System.currentTimeMillis();
 		int dirLength = directories.length;
 		if (dirLength < 62) {
-			String fullSourceZipPath = getPluginDirectoryPath() + File.separator + "full-source-R3_0.zip";
+			String fullSourceZipPath = getPluginBinariesDirectoryPath() + File.separator + "full-source-R3_0.zip";
 			System.out.println("Unzipping "+fullSourceZipPath);
 			System.out.print("	in "+targetWorkspacePath+"...");
 			Util.unzip(fullSourceZipPath, targetWorkspacePath);
@@ -1245,5 +1245,21 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 		// Return created options map
 		return optionsMap;
+	}
+
+	protected String getExternalPath() {
+		String path = "";
+		try {
+			path = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile().getParentFile().getCanonicalPath();
+			if (path.charAt(path.length()-1) != File.separatorChar)
+				path += File.separatorChar;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return path;
+	}
+
+	protected String getExternalResourcePath(String relativePath) {
+		return getExternalPath() + relativePath;
 	}
 }
