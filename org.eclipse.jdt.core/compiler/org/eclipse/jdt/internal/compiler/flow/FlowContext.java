@@ -4,10 +4,12 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
+ *     Stephan Herrmann - Contributions for
+ *     							bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -52,6 +54,10 @@ public class FlowContext implements TypeConstants {
 		// any null related operation happening within the try block
 
 	public int tagBits;
+
+	// array to store the expected type from the potential error location (for display in error messages):
+	public TypeBinding[] expectedTypes = null;
+
 	public static final int DEFER_NULL_DIAGNOSTIC = 0x1;
 	public static final int PREEMPT_NULL_DIAGNOSTIC = 0x2;
 	/**
@@ -66,6 +72,8 @@ public static final int CAN_ONLY_NULL = 0x0001;
 public static final int CAN_ONLY_NON_NULL = 0x0002;
 //check against non null, with definite values -- comparisons
 public static final int MAY_NULL = 0x0003;
+//check binding a value to a @NonNull variable 
+public final static int ASSIGN_TO_NONNULL = 0x0080;
 // check against null, with potential values -- NPE guard
 public static final int CHECK_MASK = 0x00FF;
 public static final int IN_COMPARISON_NULL = 0x0100;
@@ -548,6 +556,21 @@ public void recordContinueFrom(FlowContext innerFlowContext, FlowInfo flowInfo) 
 	// default implementation: do nothing
 }
 
+protected void recordExpectedType(TypeBinding expectedType, int nullCount) {
+	if (nullCount == 0) {
+		this.expectedTypes = new TypeBinding[5];
+	} else if (this.expectedTypes == null) {
+		int size = 5;
+		while (size <= nullCount) size *= 2;
+		this.expectedTypes = new TypeBinding[size];
+	}
+	else if (nullCount == this.expectedTypes.length) {
+		System.arraycopy(this.expectedTypes, 0,
+			this.expectedTypes = new TypeBinding[nullCount * 2], 0, nullCount);
+	}
+	this.expectedTypes[nullCount] = expectedType;
+}
+
 protected boolean recordFinalAssignment(VariableBinding variable, Reference finalReference) {
 	return true; // keep going
 }
@@ -745,5 +768,32 @@ public String toString() {
 		buffer.append('\t');
 	buffer.append(individualToString()).append('\n');
 	return buffer.toString();
+}
+
+/**
+ * Record that a nullity mismatch was detected against an annotated type reference.
+ * @param currentScope scope for error reporting
+ * @param expression the expression violating the specification
+ * @param nullStatus the null status of expression at the current location
+ * @param expectedType the declared type of the spec'ed variable, for error reporting.
+ */
+public void recordNullityMismatch(BlockScope currentScope, Expression expression, int nullStatus, TypeBinding expectedType) {
+	if (expression.localVariableBinding() != null) { // flowContext cannot yet handle non-localvar expressions (e.g., fields)
+		// find the inner-most flowContext that might need deferred handling:
+		FlowContext currentContext = this;
+		while (currentContext != null) {
+			// some flow contexts implement deferred checking, should we participate in that?
+			if (currentContext.internalRecordNullityMismatch(expression, nullStatus, expectedType, ASSIGN_TO_NONNULL))
+				return;
+			currentContext = currentContext.parent;
+		}
+	}
+	// no reason to defer, so report now:
+	char[][] annotationName = currentScope.environment().getNonNullAnnotationName();
+	currentScope.problemReporter().nullityMismatch(expression, expectedType, nullStatus, annotationName);
+}
+protected boolean internalRecordNullityMismatch(Expression expression, int nullStatus, TypeBinding expectedType, int checkType) {
+	// nop, to be overridden in subclasses
+	return false; // not recorded
 }
 }

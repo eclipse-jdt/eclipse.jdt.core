@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann - Contributions for
+ *								bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -16,9 +18,11 @@ import java.util.ArrayList;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /*
 Not all fields defined by this type are initialized when it is created.
@@ -383,6 +387,8 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		}
 		if (this.environment.globalOptions.storeAnnotations)
 			setAnnotations(createAnnotations(binaryType.getAnnotations(), this.environment, missingTypeNames));
+
+		scanTypeForNullAnnotation(binaryType);
 	} finally {
 		// protect against incorrect use of the needFieldsAndMethods flag, see 48459
 		if (this.fields == null)
@@ -589,6 +595,9 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 	// fixup the declaring element of the type variable
 	for (int i = 0, length = typeVars.length; i < length; i++)
 		typeVars[i].declaringElement = result;
+
+	scanMethodForNullAnnotation(method, result);
+
 	return result;
 }
 
@@ -1142,6 +1151,105 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	}
 	return this.storedAnnotations;
 }
+void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBinding) {
+	if (!this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
+		return;
+	char[][] nullableAnnotationName = this.environment.getNullableAnnotationName();
+	char[][] nonNullAnnotationName = this.environment.getNonNullAnnotationName();
+	if (nullableAnnotationName == null || nonNullAnnotationName == null)
+		return; // not well-configured to use null annotations
+
+	// return:
+	IBinaryAnnotation[] annotations = method.getAnnotations();
+	if (annotations != null) {
+		for (int i = 0; i < annotations.length; i++) {
+			char[] annotationTypeName = annotations[i].getTypeName();
+			if (annotationTypeName[0] != Util.C_RESOLVED)
+				continue;
+			char[][] typeName = CharOperation.splitOn('/', annotationTypeName, 1, annotationTypeName.length-1); // cut of leading 'L' and trailing ';'
+			if (CharOperation.equals(typeName, nonNullAnnotationName)) {
+				methodBinding.tagBits |= TagBits.AnnotationNonNull;
+				break;
+			}
+			if (CharOperation.equals(typeName, nullableAnnotationName)) {
+				methodBinding.tagBits |= TagBits.AnnotationNullable;
+				break;
+			}
+		}
+	}
+
+	// parameters:
+	TypeBinding[] parameters = methodBinding.parameters;
+	int numVisibleParams = parameters.length;
+	int numParamAnnotations = method.getNumParameterAnnotations();
+	if (numParamAnnotations > 0) {
+		int startIndex = numParamAnnotations - numVisibleParams;
+		for (int j = 0; j < numVisibleParams; j++) {
+			IBinaryAnnotation[] paramAnnotations = method.getParameterAnnotations(j+startIndex);
+			if (paramAnnotations != null) {
+				for (int i = 0; i < paramAnnotations.length; i++) {
+					char[] annotationTypeName = paramAnnotations[i].getTypeName();
+					if (annotationTypeName[0] != Util.C_RESOLVED)
+						continue;
+					char[][] typeName = CharOperation.splitOn('/', annotationTypeName, 1, annotationTypeName.length-1); // cut of leading 'L' and trailing ';'
+					if (CharOperation.equals(typeName, nonNullAnnotationName)) {
+						if (methodBinding.parameterNonNullness == null)
+							methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
+						methodBinding.parameterNonNullness[j] = Boolean.TRUE;
+						break;
+					} else if (CharOperation.equals(typeName, nullableAnnotationName)) {
+						if (methodBinding.parameterNonNullness == null)
+							methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
+						methodBinding.parameterNonNullness[j] = Boolean.FALSE;
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+void scanTypeForNullAnnotation(IBinaryType binaryType) {
+	if (!this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
+		return;
+	char[][] nonNullByDefaultAnnotationName = this.environment.getNonNullByDefaultAnnotationName();
+	if (nonNullByDefaultAnnotationName == null)
+		return; // not well-configured to use null annotations
+
+	IBinaryAnnotation[] annotations = binaryType.getAnnotations();
+	if (annotations != null) {
+		long annotationBit = 0L;
+		TypeBinding defaultNullness = null;
+		for (int i = 0; i < annotations.length; i++) {
+			char[] annotationTypeName = annotations[i].getTypeName();
+			if (annotationTypeName[0] != Util.C_RESOLVED)
+				continue;
+			char[][] typeName = CharOperation.splitOn('/', annotationTypeName, 1, annotationTypeName.length-1); // cut of leading 'L' and trailing ';'
+			if (CharOperation.equals(typeName, nonNullByDefaultAnnotationName)) {
+				IBinaryElementValuePair[] elementValuePairs = annotations[i].getElementValuePairs();
+				if (elementValuePairs != null && elementValuePairs.length == 1) {
+					Object value = elementValuePairs[0].getValue();
+					if (value instanceof BooleanConstant
+						&& !((BooleanConstant)value).booleanValue())
+					{
+						// parameter is 'false': this means we cancel defaults from outer scopes:
+						annotationBit = TagBits.AnnotationNullUnspecifiedByDefault;
+						defaultNullness = ReferenceBinding.NULL_UNSPECIFIED;
+						break;
+					}
+				}
+				annotationBit = TagBits.AnnotationNonNullByDefault;
+				defaultNullness = this.environment.getNullAnnotationBinding(TagBits.AnnotationNonNull, false/*resolve*/);
+				break;
+			}
+		}
+		if (annotationBit != 0L) {
+			this.tagBits |= annotationBit;
+			if (CharOperation.equals(this.sourceName(), TypeConstants.PACKAGE_INFO_NAME))
+				this.getPackage().nullnessDefaultAnnotation = defaultNullness;
+		}
+	}
+}
+
 /* Answer the receiver's superclass... null if the receiver is Object or an interface.
 *
 * NOTE: superclass of a binary type is resolved when needed

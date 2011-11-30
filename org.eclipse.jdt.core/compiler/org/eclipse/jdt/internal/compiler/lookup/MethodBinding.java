@@ -4,9 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -33,6 +34,9 @@ public class MethodBinding extends Binding {
 	public TypeVariableBinding[] typeVariables = Binding.NO_TYPE_VARIABLES;
 	char[] signature;
 	public long tagBits;
+
+	/** Store nullness information from annotation (incl. applicable default). */
+	public Boolean[] parameterNonNullness;  // TRUE means @NonNull declared, FALSE means @Nullable declared, null means nothing declared
 
 protected MethodBinding() {
 	// for creating problem or synthetic method
@@ -437,6 +441,41 @@ public char[] computeUniqueKey(boolean isLeaf) {
 */
 public final char[] constantPoolName() {
 	return this.selector;
+}
+
+/**
+ * After method verifier has finished, fill in missing nullness values from the applicable default.
+ * @param annotationBinding the null annotation specified to be the default at the current code location.
+ */
+protected void fillInDefaultNonNullness(TypeBinding annotationBinding) {
+	if (this.parameterNonNullness == null)
+		this.parameterNonNullness = new Boolean[this.parameters.length];
+	AbstractMethodDeclaration sourceMethod = sourceMethod();
+	for (int i = 0; i < this.parameterNonNullness.length; i++) {
+		if (this.parameters[i].isBaseType())
+			continue;
+		boolean added = false;
+		if (this.parameterNonNullness[i] == null) {
+			added = true;
+			this.parameterNonNullness[i] = Boolean.TRUE;
+			if (sourceMethod != null)
+				sourceMethod.addParameterNonNullAnnotation(i, (ReferenceBinding)annotationBinding);
+		} else if (this.parameterNonNullness[i].booleanValue()) {
+			sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, i);
+		}
+		if (added)
+			this.tagBits |= TagBits.HasParameterAnnotations;
+	}
+	if (   this.returnType != null
+		&& !this.returnType.isBaseType()
+		&& (this.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
+	{
+		this.tagBits |= TagBits.AnnotationNonNull;
+		if (sourceMethod != null)
+			sourceMethod.addNullnessAnnotation((ReferenceBinding)annotationBinding);
+	} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
+		sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, -1/*signifies method return*/);
+	}
 }
 
 public MethodBinding findOriginalInheritedMethod(MethodBinding inheritedMethod) {

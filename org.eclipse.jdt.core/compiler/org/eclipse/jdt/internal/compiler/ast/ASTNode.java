@@ -9,7 +9,9 @@
  *     IBM Corporation - initial API and implementation
  *     Matt McCutchen - partial fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995
  *     Karen Moore - fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=207411
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for 
+ *     							bug 185682 - Increment/decrement operators mark local variables as read
+ *     							bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -253,6 +255,11 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	// this is only used for method invocation as the expression inside an expression statement
 	public static final int InsideExpressionStatement = Bit5;
+
+	// for annotation reference, signal if annotation was created from a default:
+	public static final int IsSynthetic = ASTNode.Bit7;
+	// for name reference within a memberValuePair of an annotation:
+	public static final int IsMemberValueReference = ASTNode.Bit15;
 
 	public ASTNode() {
 
@@ -601,7 +608,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					local.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
-						local.setAnnotations(annotations);
+						local.setAnnotations(annotations, scope);
 					}
 					break;
 				default :

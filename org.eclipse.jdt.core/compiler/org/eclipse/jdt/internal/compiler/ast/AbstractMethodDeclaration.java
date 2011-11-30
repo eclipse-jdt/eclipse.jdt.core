@@ -7,11 +7,15 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -64,6 +68,61 @@ public abstract class AbstractMethodDeclaration
 				throw new AbortType(this.compilationResult, problem);
 			default :
 				throw new AbortMethod(this.compilationResult, problem);
+		}
+	}
+
+	/**
+	 * Materialize a null annotation that has been added from the current default,
+	 * in order to ensure that this annotation will be generated into the .class file, too.
+	 */
+	public void addNullnessAnnotation(ReferenceBinding annotationBinding) {
+		this.annotations = addAnnotation(this, this.annotations, annotationBinding);
+	}
+
+	/**
+	 * Materialize a null parameter annotation that has been added from the current default,
+	 * in order to ensure that this annotation will be generated into the .class file, too.
+	 */
+	public void addParameterNonNullAnnotation(int i, ReferenceBinding annotationBinding) {
+		Argument argument = this.arguments[i];
+		if (argument.type != null) // null happens for constructors of anonymous classes
+			argument.annotations = addAnnotation(argument.type, argument.annotations, annotationBinding);
+	}
+
+	private Annotation[] addAnnotation(ASTNode location, Annotation[] oldAnnotations, ReferenceBinding annotationBinding) {
+		long pos = ((long)location.sourceStart<<32) + location.sourceEnd;
+		long[] poss = new long[annotationBinding.compoundName.length];
+		Arrays.fill(poss, pos);
+		MarkerAnnotation annotation = new MarkerAnnotation(new QualifiedTypeReference(annotationBinding.compoundName, poss), location.sourceStart);
+		annotation.declarationSourceEnd = location.sourceEnd;
+		annotation.resolvedType = annotationBinding;
+		annotation.bits = IsSynthetic;
+		if (oldAnnotations == null) {
+			oldAnnotations = new Annotation[] {annotation};
+		} else {
+			int len = oldAnnotations.length;
+			System.arraycopy(oldAnnotations, 0, oldAnnotations=new Annotation[len+1], 1, len);
+			oldAnnotations[0] = annotation;
+		}
+		return oldAnnotations;
+	}
+
+	/**
+	 * When a method is accessed via SourceTypeBinding.resolveTypesFor(MethodBinding)
+	 * we create the argument binding and resolve annotations in order to compute null annotation tagbits.
+	 */
+	public void createArgumentBindings() {
+		if (this.arguments != null && this.binding != null) {
+			for (int i = 0, length = this.arguments.length; i < length; i++) {
+				Argument argument = this.arguments[i];
+				argument.createBinding(this.scope, this.binding.parameters[i]);
+				// createBinding() has resolved annotations, now transfer nullness info from the argument to the method:
+				if ((argument.binding.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) != 0) {
+					if (this.binding.parameterNonNullness == null)
+						this.binding.parameterNonNullness = new Boolean[this.arguments.length];
+					this.binding.parameterNonNullness[i] = Boolean.valueOf((argument.binding.tagBits & TagBits.AnnotationNonNull) != 0);
+				}
+			}
 		}
 	}
 
@@ -139,6 +198,28 @@ public abstract class AbstractMethodDeclaration
 						}
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * Feed null information from argument annotations into the analysis and mark arguments as assigned.
+	 */
+	void analyseArguments(FlowInfo flowInfo) {
+		if (this.arguments != null) {
+			for (int i = 0, count = this.arguments.length; i < count; i++) {
+				if (this.binding.parameterNonNullness != null) {
+					// leverage null-info from parameter annotations:
+					Boolean nonNullNess = this.binding.parameterNonNullness[i];
+					if (nonNullNess != null) {
+						if (nonNullNess.booleanValue())
+							flowInfo.markAsDefinitelyNonNull(this.arguments[i].binding);
+						else
+							flowInfo.markPotentiallyNullBit(this.arguments[i].binding);
+					}
+				}
+				// tag parameters as being set:
+				flowInfo.markAsDefinitelyAssigned(this.arguments[i].binding);
 			}
 		}
 	}
@@ -415,6 +496,7 @@ public abstract class AbstractMethodDeclaration
 			bindThrownExceptions();
 			resolveJavadoc();
 			resolveAnnotations(this.scope, this.annotations, this.binding);
+			validateAnnotations();
 			resolveStatements();
 			// check @Deprecated annotation presence
 			if (this.binding != null
@@ -477,5 +559,18 @@ public abstract class AbstractMethodDeclaration
 
 	public TypeParameter[] typeParameters() {
 	    return null;
+	}
+
+	void validateAnnotations() {
+		// null annotations on parameters?
+		if (this.binding != null && this.binding.parameterNonNullness != null) {
+			for (int i=0; i<this.binding.parameters.length; i++) {
+				if (this.binding.parameterNonNullness[i] != null) {
+					long nullAnnotationTagBit =  this.binding.parameterNonNullness[i].booleanValue()
+							? TagBits.AnnotationNonNull : TagBits.AnnotationNullable;
+					this.scope.validateNullAnnotation(nullAnnotationTagBit, this.arguments[i].type, this.arguments[i].annotations);
+				}
+			}
+		}
 	}
 }

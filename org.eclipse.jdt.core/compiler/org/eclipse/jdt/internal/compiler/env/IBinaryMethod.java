@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
@@ -64,6 +65,13 @@ char[] getMethodDescriptor();
  * @param index the index of the parameter of interest
  */
 IBinaryAnnotation[] getParameterAnnotations(int index);
+
+/**
+ * Answer the number of parameter annotations that can be retrieved
+ * using {@link #getParameterAnnotations(int)}.
+ * @return one beyond the highest legal argument to {@link #getParameterAnnotations(int)}.
+ */
+int getNumParameterAnnotations();
 
 /**
  * Answer the name of the method.

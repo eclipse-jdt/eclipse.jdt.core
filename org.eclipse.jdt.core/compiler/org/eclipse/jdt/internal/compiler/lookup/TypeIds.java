@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *     							bug 359362 - FUP of bug 349326: Resource leak on non-Closeable resource
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -104,6 +105,11 @@ public interface TypeIds {
 	final int T_JavaxAnnotationPostConstruct = 63;
 
 	final int T_JavaxAnnotationPreDestroy = 64;
+	
+	// new in 3.8 for null annotations:
+	final int T_ConfiguredAnnotationNullable = 65;
+	final int T_ConfiguredAnnotationNonNull = 66;
+	final int T_ConfiguredAnnotationNonNullByDefault = 67;
 
 	final int NoId = Integer.MAX_VALUE;
 

@@ -8,6 +8,7 @@
  * Contributors:
  *    tyeung@bea.com  - initial API and implementation
  *    IBM Corporation - fix for bug 342757
+ *    Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
@@ -35,6 +36,9 @@ MethodInfoWithParameterAnnotations(MethodInfo methodInfo, AnnotationInfo[] annot
 
 public IBinaryAnnotation[] getParameterAnnotations(int index) {
 	return this.parameterAnnotations[index];
+}
+public int getNumParameterAnnotations() {
+	return this.parameterAnnotations == null ? 0 : this.parameterAnnotations.length;
 }
 protected void initialize() {
 	for (int i = 0, l = this.parameterAnnotations == null ? 0 : this.parameterAnnotations.length; i < l; i++) {

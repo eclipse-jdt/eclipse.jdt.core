@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -4289,5 +4290,19 @@ public abstract class Scope {
 			return null;
 		}
 		return visibleIndex == 1 ? visible[0] : mostSpecificMethodBinding(visible, visibleIndex, argumentTypes, allocationSite, allocationType);
+	}
+
+	public void validateNullAnnotation(long tagBits, TypeReference typeRef, Annotation[] annotations) {
+		long nullAnnotationTagBit = tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable);
+		if (nullAnnotationTagBit != 0) {
+			TypeBinding type = typeRef.resolvedType;
+			if (type != null && type.isBaseType()) {
+				char[][] annotationName = (nullAnnotationTagBit == TagBits.AnnotationNonNull)
+						? environment().getNonNullAnnotationName()
+						: environment().getNullableAnnotationName();
+				problemReporter().illegalAnnotationForBaseType(typeRef, annotations,
+						annotationName[annotationName.length-1], nullAnnotationTagBit);
+			}
+		}
 	}
 }

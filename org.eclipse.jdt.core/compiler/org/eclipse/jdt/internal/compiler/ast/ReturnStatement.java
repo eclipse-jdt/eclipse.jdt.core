@@ -7,10 +7,11 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contributions for 
+ *     Stephan Herrmann - Contributions for
  *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *     							bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -44,6 +45,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
 			this.expression.checkNPE(currentScope, flowContext, flowInfo);
 		}
+		if (flowInfo.reachMode() == FlowInfo.REACHABLE)
+			checkAgainstNullAnnotation(currentScope, this.expression.nullStatus(flowInfo));
 		FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression);
 		if (trackingVariable != null) {
 			if (methodScope != trackingVariable.methodScope)
@@ -118,6 +121,23 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	currentScope.checkUnclosedCloseables(flowInfo, this, currentScope);
 	return FlowInfo.DEAD_END;
+}
+void checkAgainstNullAnnotation(BlockScope scope, int nullStatus) {
+	if (nullStatus != FlowInfo.NON_NULL) {
+		// if we can't prove non-null check against declared null-ness of the enclosing method:
+		long tagBits;
+		MethodBinding methodBinding;
+		try {
+			methodBinding = scope.methodScope().referenceMethod().binding;
+			tagBits = methodBinding.tagBits;
+		} catch (NullPointerException npe) {
+			return;
+		}
+		if ((tagBits & TagBits.AnnotationNonNull) != 0) {
+			char[][] annotationName = scope.environment().getNonNullAnnotationName();
+			scope.problemReporter().nullityMismatch(this.expression, methodBinding.returnType, nullStatus, annotationName);
+		}
+	}
 }
 
 /**

@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -86,6 +87,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);
 				}
 			}
+			analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
 		}
 
 		// analyse the anonymous nested type

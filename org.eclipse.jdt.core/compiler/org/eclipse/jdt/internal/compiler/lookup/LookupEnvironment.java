@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - contribution for bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
+ *     Stephan Herrmann - contributions for
+ *     							bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -76,6 +78,10 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public boolean isProcessingAnnotations = false;
 	public boolean mayTolerateMissingType = false;
 
+	PackageBinding nullableAnnotationPackage;			// the package supposed to contain the Nullable annotation type
+	PackageBinding nonnullAnnotationPackage;			// the package supposed to contain the NonNull annotation type
+	PackageBinding nonnullByDefaultAnnotationPackage;	// the package supposed to contain the NonNullByDefault annotation type
+
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;
 	final static int CHECK_AND_SET_IMPORTS = 2;
@@ -83,6 +89,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	static final ProblemPackageBinding TheNotFoundPackage = new ProblemPackageBinding(CharOperation.NO_CHAR, NotFound);
 	static final ProblemReferenceBinding TheNotFoundType = new ProblemReferenceBinding(CharOperation.NO_CHAR_CHAR, null, NotFound);
+
 
 public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOptions, ProblemReporter problemReporter, INameEnvironment nameEnvironment) {
 	this.typeRequestor = typeRequestor;
@@ -1073,6 +1080,71 @@ public ReferenceBinding getCachedType(char[][] compoundName) {
 	return packageBinding.getType0(compoundName[compoundName.length - 1]);
 }
 
+public char[][] getNullableAnnotationName() {
+	return this.globalOptions.nullableAnnotationName;
+}
+
+public char[][] getNonNullAnnotationName() {
+	return this.globalOptions.nonNullAnnotationName;
+}
+
+public char[][] getNonNullByDefaultAnnotationName() {
+	return this.globalOptions.nonNullByDefaultAnnotationName;
+}
+
+/**
+ * Answer the type binding representing the null-annotation identified by the given tag bits.
+ * @param annotationTagBit tag bits potentially denoting a null-annotation
+ * @param resolve should the resulting type binding be resolved?
+ * @return the corresponding annotation type binding
+ * 		or <code>null</code> if no annotation bits are contained in the given tag bits.
+ */
+public TypeBinding getNullAnnotationBinding(long annotationTagBit, boolean resolve) {
+	char[][] name = null;
+	if (annotationTagBit == TagBits.AnnotationNonNull)
+		name = getNonNullAnnotationName();
+	else if (annotationTagBit == TagBits.AnnotationNullable)
+		name = getNullableAnnotationName();
+	else
+		return null;
+	if (resolve)
+		return getType(name);
+	else
+		return getTypeFromCompoundName(name, false, false);
+}
+
+/**
+ * Inspect the given tag bits and answer a corresponding null annotation type binding
+ * @param defaultTagBit tag bits representing the default applicable at the current code location
+ * @param resolve should the resulting type binding be resolved?
+ * @return the corresponding concrete annotation type binding (<code>@NonNull</code> or <code>@Nullable</code>)
+ * 		or <code>null</code> if no bits of a default-annotation are contained in the given tag bits.
+ */
+public TypeBinding getNullAnnotationBindingFromDefault(long defaultTagBit, boolean resolve) {
+	if ((defaultTagBit & TagBits.AnnotationNullUnspecifiedByDefault) != 0)
+		return ReferenceBinding.NULL_UNSPECIFIED;
+	if ((defaultTagBit & TagBits.AnnotationNonNullByDefault) != 0)
+		return getNullAnnotationBinding(TagBits.AnnotationNonNull, resolve);
+	return null;
+}
+
+TypeBinding getNullAnnotationResolved(TypeBinding nullAnnotation, Scope scope) {
+	// avoid unspecific error "The type in.valid cannot be resolved. It is indirectly referenced from required .class files"
+	boolean tolerateMissing = this.mayTolerateMissingType;
+	this.mayTolerateMissingType = true;
+	try {
+		nullAnnotation = BinaryTypeBinding.resolveType(nullAnnotation, this, false);
+	} finally {
+		this.mayTolerateMissingType = tolerateMissing;
+	}
+	if (nullAnnotation instanceof MissingTypeBinding) {
+		// convert error into a specific one:
+		scope.problemReporter().missingNullAnnotationType(((MissingTypeBinding)nullAnnotation).compoundName);
+		return null;
+	}
+	return nullAnnotation;
+}
+
 /* Answer the top level package named name if it exists in the cache.
 * Answer theNotFoundPackage if it could not be resolved the first time
 * it was looked up, otherwise answer null.
@@ -1454,6 +1526,7 @@ public void reset() {
 	this.unitBeingCompleted = null; // in case AbortException occurred
 
 	this.classFilePool.reset();
+
 	// name environment has a longer life cycle, and must be reset in
 	// the code which created it.
 }

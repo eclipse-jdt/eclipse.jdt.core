@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -23,14 +24,28 @@ public class EqualExpression extends BinaryExpression {
 		super(left,right,operator);
 	}
 	private void checkNullComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
+		int rightStatus = this.right.nullStatus(flowInfo);
+		int leftStatus = this.left.nullStatus(flowInfo);
+		// check if either method is annotated @NonNull and compared to null:
+		if (leftStatus == FlowInfo.NON_NULL && rightStatus == FlowInfo.NULL) {
+			if (this.left instanceof MessageSend) { 
+				scope.problemReporter().messageSendRedundantCheckOnNonNull(((MessageSend) this.left).binding, this.left);
+			}
+			// TODO: handle all kinds of expressions (cf. also https://bugs.eclipse.org/364326)
+		} else if (leftStatus == FlowInfo.NULL && rightStatus == FlowInfo.NON_NULL) {
+			if (this.right instanceof MessageSend) {
+				scope.problemReporter().messageSendRedundantCheckOnNonNull(((MessageSend) this.right).binding, this.right);
+			}
+			// TODO: handle all kinds of expressions (cf. also https://bugs.eclipse.org/364326)
+		}
 
 		LocalVariableBinding local = this.left.localVariableBinding();
 		if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
-			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, this.right.nullStatus(flowInfo), this.left);
+			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, rightStatus, this.left);
 		}
 		local = this.right.localVariableBinding();
 		if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
-			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, this.left.nullStatus(flowInfo), this.right);
+			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, leftStatus, this.right);
 		}
 	}
 	private void checkVariableComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, LocalVariableBinding local, int nullStatus, Expression reference) {

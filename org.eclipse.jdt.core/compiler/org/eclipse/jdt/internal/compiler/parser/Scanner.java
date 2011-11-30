@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -546,11 +547,11 @@ public final int getLineEnd(int lineNumber) {
 
 	if (this.lineEnds == null || this.linePtr == -1)
 		return -1;
-	if (lineNumber > this.lineEnds.length+1)
+	if (lineNumber > this.linePtr + 2)
 		return -1;
 	if (lineNumber <= 0)
 		return -1;
-	if (lineNumber == this.lineEnds.length + 1)
+	if (lineNumber == this.linePtr + 2)
 		return this.eofPosition;
 	return this.lineEnds[lineNumber-1]; // next line start one character behind the lineEnd of the previous line
 }
