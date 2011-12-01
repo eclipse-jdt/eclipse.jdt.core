@@ -1416,17 +1416,19 @@ public final class JavaCore extends Plugin {
 	 * Compiler option ID: Annotation-based Null Analysis.
 	 * <p>This option controls whether the compiler will use null annotations for
 	 *    improved analysis of (potential) null references.</p>
-	 * <p>If enabled the compiler will interpret the annotation types defined using
+	 * <p>When enabled, the compiler will interpret the annotation types defined using
 	 *    {@link #COMPILER_NONNULL_ANNOTATION_NAME} and {@link #COMPILER_NULLABLE_ANNOTATION_NAME}
 	 *    as specifying whether or not a given type includes the value <code>null</code>.</p>
-	 * <p>The effect of these analyses is further controled by the options
+	 * <p>The effect of these analyses is further controlled by the options
 	 *    {@link #COMPILER_PB_NULL_SPECIFICATION_VIOLATION},
 	 *    {@link #COMPILER_PB_POTENTIAL_NULL_SPECIFICATION_VIOLATION} and
 	 *    {@link #COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO}.
 	 * </p>
+	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nullanalysis"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "disabled", "enabled" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * </dl>
 	 * @since 3.8
 	 * @category CompilerOptionID
 	 */
@@ -1436,11 +1438,11 @@ public final class JavaCore extends Plugin {
 	 * <p>This option defines a fully qualified Java type name that the compiler may use
 	 *    to perform special null analysis.</p>
 	 * <p>If the annotation specified by this option is applied to a type in a method
-	 *    signature or variable declaration this will be interpreted as a specification
+	 *    signature or variable declaration, this will be interpreted as a specification
 	 *    that <code>null</code> is a legal value in that position. Currently supported
 	 *    positions are: method parameters, method return type and local variables.</p>
 	 * <p>If a value whose type
-	 *    is annotated with this annotation is dereferenced without checking for null
+	 *    is annotated with this annotation is dereferenced without checking for null,
 	 *    the compiler will trigger a diagnostic as further controlled by
 	 *    {@link #COMPILER_PB_POTENTIAL_NULL_REFERENCE}.</p>
 	 * <p>The compiler may furthermore check adherence to the null specification as
@@ -1448,10 +1450,11 @@ public final class JavaCore extends Plugin {
 	 *    {@link #COMPILER_PB_POTENTIAL_NULL_SPECIFICATION_VIOLATION} and
 	 *    {@link #COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO}.</p>
 	 * <p>This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
-	 * </p>
+	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nullable"</code></dd>
-	 * <dt>Possible values:</dt><dd>any legal, fully qualified Java type name, must resolve to an annotation type.</dd>
+	 * <dt>Possible values:</dt><dd>any legal, fully qualified Java type name; must resolve to an annotation type.</dd>
 	 * <dt>Default:</dt><dd><code>"org.eclipse.jdt.annotation.Nullable"</code></dd>
+	 * </dl>
 	 * @since 3.8
 	 * @category CompilerOptionID
 	 */
@@ -1461,10 +1464,10 @@ public final class JavaCore extends Plugin {
 	 * <p>This option defines a fully qualified Java type name that the compiler may use
 	 *    to perform special null analysis.</p>
 	 * <p>If the annotation specified by this option is applied to a type in a method
-	 *    signature or variable declaration this will be interpreted as a specification
+	 *    signature or variable declaration, this will be interpreted as a specification
 	 *    that <code>null</code> is <b>not</b> a legal value in that position. Currently
 	 *    supported positions are: method parameters, method return type and local variables.</p>
-	 * <p>For values declared with this annotation the compiler will never trigger a null
+	 * <p>For values declared with this annotation, the compiler will never trigger a null
 	 *    reference diagnostic (as controlled by {@link #COMPILER_PB_POTENTIAL_NULL_REFERENCE}
 	 *    and {@link #COMPILER_PB_NULL_REFERENCE}), because the assumption is made that null
 	 *    will never occur at runtime in these positions.</p>
@@ -1475,8 +1478,9 @@ public final class JavaCore extends Plugin {
 	 * <p>This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnull"</code></dd>
-	 * <dt>Possible values:</dt><dd>any legal, fully qualified Java type name, must resolve to an annotation type.</dd>
+	 * <dt>Possible values:</dt><dd>any legal, fully qualified Java type name; must resolve to an annotation type.</dd>
 	 * <dt>Default:</dt><dd><code>"org.eclipse.jdt.annotation.NonNull"</code></dd>
+	 * </dl>
 	 * @since 3.8
 	 * @category CompilerOptionID
 	 */
@@ -1485,7 +1489,7 @@ public final class JavaCore extends Plugin {
 	 * Compiler option ID: Name of Annotation Type to specify a nullness default for unannotated types.
 	 * <p>This option defines a fully qualified Java type name that the compiler may use
 	 *    to perform special null analysis.</p>
-	 * <p>If the annotation is applied without an argument all unannotated types in method signatures
+	 * <p>If the annotation is applied without an argument, all unannotated types in method signatures
 	 *    within the annotated element will be treated as if they were specified with the non-null annotation
 	 *    (see {@link #COMPILER_NONNULL_ANNOTATION_NAME}).</p>
 	 * <p>If the annotation is applied with the constant <code>false</code> as its argument
@@ -1495,22 +1499,24 @@ public final class JavaCore extends Plugin {
 	 * <p>This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnullbydefault"</code></dd>
-	 * <dt>Possible values:</dt><dd>any legal, fully qualified Java type name, must resolve to an annotation type.
+	 * <dt>Possible values:</dt><dd>any legal, fully qualified Java type name; must resolve to an annotation type.
 	 *     That annotation type should have exactly one boolean parameter.</dd>
-	 * <dt>Default:</dt><dd><code>"org.eclipse.jdt.annotation.NonNullByDefault"</code></dd></dl>
+	 * <dt>Default:</dt><dd><code>"org.eclipse.jdt.annotation.NonNullByDefault"</code></dd>
+	 * </dl>
 	 * @since 3.8
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nonnullbydefault"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Globally specify non-null as the assumed default for unannotated types.
-	 * <p>When enabled this option globally achieves the same effect 
+	 * <p>When enabled, this option globally achieves the same effect 
 	 *    as specifying {@link #COMPILER_NONNULL_ANNOTATION_NAME} does for individual elements.</p>
 	 * <p>This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnullisdefault"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "disabled", "enabled" }</code>.</dd>
 	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * </dl>
 	 * @since 3.8
 	 * @category CompilerOptionID
 	 */
@@ -1616,7 +1622,7 @@ public final class JavaCore extends Plugin {
 	 * <p>When enabled, the compiler will issue an error or a warning when a non-null annotation
 	 *    (see {@link #COMPILER_NONNULL_ANNOTATION_NAME})
 	 *    is applied although the same effect is already achieved by a default applicable at the
-	 *    current location. Such default may be effective by enabling the option
+	 *    current location. Such a default may be set by enabling the option
 	 *    {@link #COMPILER_NONNULL_IS_DEFAULT} or by using the annotation specified by the option
 	 *    {@link #COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME}.
 	 * </p>
