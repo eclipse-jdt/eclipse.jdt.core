@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -149,7 +149,7 @@ public abstract class ElementImpl
 	/**
 	 * Subclassed by VariableElementImpl, TypeElementImpl, and ExecutableElementImpl.
 	 * This base implementation suffices for other types.
-	 * @see Elements#hides()
+	 * @see Elements#hides
 	 * @return true if this element hides {@code hidden}
 	 */
 	public boolean hides(Element hidden)

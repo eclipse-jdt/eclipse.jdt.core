@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 /**
  * Java 6 annotation processor manager used when compiling from the command line
  * or via the javax.tools.JavaCompiler interface.
- * @see org.eclipse.jdt.internal.compiler.apt.ide.dispatch.IdeAnnotationProcessorManager
+ * @see org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeAnnotationProcessorManager
  */
 public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorManager
 {
@@ -54,7 +54,7 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 	/**
 	 * Zero-arg constructor so this object can be easily created via reflection.
 	 * A BatchAnnotationProcessorManager cannot be used until its
-	 * {@link #configure(Main, String[])} method has been called.
+	 * {@link #configure(Object, String[])} method has been called.
 	 */
 	public BatchAnnotationProcessorManager() 
 	{
@@ -77,7 +77,6 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 	 * If a -processor option was specified in command line arguments,
 	 * parse it into a list of qualified classnames.
 	 * @param commandLineArguments contains one string for every space-delimited token on the command line
-	 * @return a list of qualified classnames, or null if there was no -processor option.
 	 */
 	private void parseCommandLine(String[] commandLineArguments) {
 		List<String> commandLineProcessors = null;

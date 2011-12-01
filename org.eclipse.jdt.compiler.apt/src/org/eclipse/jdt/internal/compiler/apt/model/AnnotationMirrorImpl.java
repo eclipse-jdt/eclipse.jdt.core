@@ -121,7 +121,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 	}
 	
 	/**
-	 * {@see Elements#getElementValuesWithDefaults()}
+	 * @see javax.lang.model.util.Elements#getElementValuesWithDefaults(AnnotationMirror)
 	 * @return all the members of this annotation mirror that have explicit or default
 	 * values.
 	 */
@@ -280,7 +280,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 	 * and must be either a primitive type, String, Class, an enum constant, an annotation, or an
 	 * array of any of those.  Multidimensional arrays are not permitted.
 	 * 
-	 * @param annoValue the value as represented by {@link ElementValuePair#getValue()}
+	 * @param actualValue the value as represented by {@link ElementValuePair#getValue()}
 	 * @param actualType the return type of the corresponding {@link MethodBinding}
 	 * @param expectedType the type that the reflective method invoker is expecting
 	 * @return an object of the expected type representing the annotation member value, 
