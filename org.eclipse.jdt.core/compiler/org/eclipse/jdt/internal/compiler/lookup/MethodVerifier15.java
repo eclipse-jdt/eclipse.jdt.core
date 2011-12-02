@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -165,6 +166,8 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 				|| this.type.superclass.erasure().findSuperTypeOriginatingFrom(originalInherited.declaringClass) == null)
 					this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
 		}
+		if (!concreteMethod.isStatic() && !abstractMethod.isStatic())
+			checkNullSpecInheritance(concreteMethod, abstractMethod);
 	}
 }
 void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMethod, MethodBinding[] allInheritedMethods) {
@@ -359,6 +362,100 @@ boolean checkInheritedReturnTypes(MethodBinding method, MethodBinding otherMetho
 	}
 
 	return false;
+}
+void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length, MethodBinding[] allInheritedMethods)
+{
+	super.checkAgainstInheritedMethods(currentMethod, methods, length, allInheritedMethods);
+	for (int i = length; --i >= 0;)
+		if (!currentMethod.isStatic() && !methods[i].isStatic())
+			checkNullSpecInheritance(currentMethod, methods[i]);
+}
+
+void checkNullSpecInheritance(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	long inheritedBits = inheritedMethod.tagBits;
+	long currentBits = currentMethod.tagBits;
+	AbstractMethodDeclaration srcMethod = null;
+	if (this.type.equals(currentMethod.declaringClass)) // is currentMethod from the current type?
+		srcMethod = currentMethod.sourceMethod();
+
+	// return type:
+	if ((inheritedBits & TagBits.AnnotationNonNull) != 0) {
+		long currentNullBits = currentBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable);
+		if (currentNullBits != TagBits.AnnotationNonNull) {
+			if (srcMethod != null) {
+				this.type.scope.problemReporter().illegalReturnRedefinition(srcMethod, inheritedMethod,
+															this.environment.getNonNullAnnotationName());
+			} else {
+				this.type.scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod);
+				return;
+			}
+		}
+	}
+
+	// parameters:
+	Argument[] currentArguments = srcMethod == null ? null : srcMethod.arguments;
+	if (inheritedMethod.parameterNonNullness != null) {
+		// inherited method has null-annotations, check compatibility:
+
+		for (int i = 0; i < inheritedMethod.parameterNonNullness.length; i++) {
+			Argument currentArgument = currentArguments == null ? null : currentArguments[i];
+
+			Boolean inheritedNonNullNess = inheritedMethod.parameterNonNullness[i];
+			Boolean currentNonNullNess = (currentMethod.parameterNonNullness == null)
+										? null : currentMethod.parameterNonNullness[i];
+			if (inheritedNonNullNess != null) {				// super has a null annotation
+				if (currentNonNullNess == null) {			// current parameter lacks null annotation
+					boolean needNonNull = false;
+					char[][] annotationName;
+					if (inheritedNonNullNess == Boolean.TRUE) {
+						needNonNull = true;
+						annotationName = this.environment.getNonNullAnnotationName();
+					} else {
+						annotationName = this.environment.getNullableAnnotationName();
+					}
+					if (currentArgument != null) {
+						this.type.scope.problemReporter().parameterLackingNonNullAnnotation(
+								currentArgument,
+								inheritedMethod.declaringClass,
+								needNonNull,
+								annotationName);
+						continue;
+					} else {
+						this.type.scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod);
+						break;
+					}
+				}
+			}
+			if (inheritedNonNullNess != Boolean.TRUE) {		// super parameter is not restricted to @NonNull
+				if (currentNonNullNess == Boolean.TRUE) { 	// current parameter is restricted to @NonNull
+					if (currentArgument != null)
+						this.type.scope.problemReporter().illegalRedefinitionToNonNullParameter(
+														currentArgument,
+														inheritedMethod.declaringClass,
+														inheritedNonNullNess == null
+														? null
+														: this.environment.getNullableAnnotationName());
+					else
+						this.type.scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod);
+				}
+			}
+		}
+	} else if (currentMethod.parameterNonNullness != null) {
+		// super method has no annotations but current has
+		for (int i = 0; i < currentMethod.parameterNonNullness.length; i++) {
+			if (currentMethod.parameterNonNullness[i] == Boolean.TRUE) { // tightening from unconstrained to @NonNull
+				if (currentArguments != null) {
+					this.type.scope.problemReporter().illegalRedefinitionToNonNullParameter(
+																	currentArguments[i],
+																	inheritedMethod.declaringClass,
+																	null);
+				} else {
+					this.type.scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod);
+					break;
+				}
+			}
+		}
+	}
 }
 
 void reportRawReferences() {
@@ -935,7 +1032,7 @@ boolean isSubstituteParameterSubsignature(MethodBinding method, MethodBinding su
 boolean isUnsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	// called when currentMethod's return type is NOT compatible with inheritedMethod's return type
 
-	// JLS 3 §8.4.5: more are accepted, with an unchecked conversion
+	// JLS 3 ï¿½8.4.5: more are accepted, with an unchecked conversion
 	if (currentMethod.returnType == inheritedMethod.returnType.erasure()) {
 		TypeBinding[] currentParams = currentMethod.parameters;
 		TypeBinding[] inheritedParams = inheritedMethod.parameters;

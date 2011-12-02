@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann - Contributions for
+ *								bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -79,10 +81,11 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					this.scope,
 					FlowInfo.DEAD_END);
 
-			// tag parameters as being set
+			// nullity and mark as assigned
+			analyseArguments(flowInfo);
+
 			if (this.arguments != null) {
 				for (int i = 0, count = this.arguments.length; i < count; i++) {
-					flowInfo.markAsDefinitelyAssigned(this.arguments[i].binding);
 					// if this method uses a type parameter declared by the declaring class,
 					// it can't be static. https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 					if (this.arguments[i].binding != null && (this.arguments[i].binding.type instanceof TypeVariableBinding)) {
@@ -306,5 +309,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	}
 	public TypeParameter[] typeParameters() {
 	    return this.typeParameters;
+	}
+	
+	void validateAnnotations() {
+		super.validateAnnotations();
+		// null-annotations on the return type?
+		if (this.binding != null)
+			this.scope.validateNullAnnotation(this.binding.tagBits, this.returnType, this.annotations);
 	}
 }

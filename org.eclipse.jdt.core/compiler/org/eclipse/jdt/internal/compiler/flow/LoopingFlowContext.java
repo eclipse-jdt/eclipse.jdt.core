@@ -7,11 +7,14 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - contribution for Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+ *     Stephan Herrmann - contributions for
+ *     							bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
 import java.util.ArrayList;
+
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
@@ -21,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
@@ -246,6 +250,9 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 						continue;
 					}
 					break;
+				case ASSIGN_TO_NONNULL:
+					this.parent.recordNullityMismatch(scope, expression, flowInfo.nullStatus(local), this.expectedTypes[i]);
+					break;
 				default:
 					// never happens
 			}
@@ -337,6 +344,13 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 						this.nullReferences[i] = null;
 						scope.problemReporter().localVariablePotentialNullReference(local, expression);
 						continue;
+					}
+					break;
+				case ASSIGN_TO_NONNULL:
+					int nullStatus = flowInfo.nullStatus(local);
+					if (nullStatus != FlowInfo.NON_NULL) {
+						char[][] annotationName = scope.environment().getNonNullAnnotationName();
+						scope.problemReporter().nullityMismatch(expression, this.expectedTypes[i], nullStatus, annotationName);
 					}
 					break;
 				default:
@@ -666,5 +680,11 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 
 	public boolean hasEscapingExceptions() {
 		return this.escapingExceptionCatchSites != null;
+	}
+
+	protected boolean internalRecordNullityMismatch(Expression expression, int nullStatus, TypeBinding expectedType, int checkType) {
+		recordExpectedType(expectedType, this.nullCount);
+		recordNullReference(expression.localVariableBinding(), expression, checkType);
+		return true;
 	}
 }

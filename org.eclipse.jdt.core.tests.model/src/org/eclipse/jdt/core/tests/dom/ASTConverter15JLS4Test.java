@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
@@ -7494,7 +7495,10 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 				buffer.append(typeBinding.getAnnotations().length);
 				typeBinding= typeBinding.getSuperclass();
 			}
-			assertEquals("Wrong number of annotations", "000", String.valueOf(buffer));
+			// initially, this test expected "000", but after https://bugs.eclipse.org/186342
+			// annotations are resolved more eagerly, which makes the annotations on Test2 show up,
+			// which is actually the right outcome.
+			assertEquals("Wrong number of annotations", "020", String.valueOf(buffer));
 		}
 	}
 

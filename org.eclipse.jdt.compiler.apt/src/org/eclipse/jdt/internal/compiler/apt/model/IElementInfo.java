@@ -15,7 +15,7 @@ package org.eclipse.jdt.internal.compiler.apt.model;
 /**
  * Additional information available for Elements that are implemented 
  * within the Eclipse APT framework.
- * @see javax.lang.model.Element
+ * @see javax.lang.model.element.Element
  * @since 3.3
  */
 public interface IElementInfo {

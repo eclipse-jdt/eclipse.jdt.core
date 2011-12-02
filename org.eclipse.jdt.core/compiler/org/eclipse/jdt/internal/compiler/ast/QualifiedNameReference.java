@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *     							bug 185682 - Increment/decrement operators mark local variables as read
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -963,7 +965,11 @@ public TypeBinding resolveType(BlockScope scope) {
 							&& methodScope.lastVisibleFieldID >= 0
 							&& fieldBinding.id >= methodScope.lastVisibleFieldID
 							&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
-						scope.problemReporter().forwardReference(this, this.indexOfFirstFieldBinding-1, fieldBinding);
+						if ((this.bits & IsMemberValueReference) != 0 && fieldBinding.id == methodScope.lastVisibleFieldID) {
+							// false alarm, location is NOT a field initializer but the value in a memberValuePair
+						} else {
+							scope.problemReporter().forwardReference(this, this.indexOfFirstFieldBinding-1, fieldBinding);
+						}
 					}
 					if (isFieldUseDeprecated(fieldBinding, scope, this.indexOfFirstFieldBinding == this.tokens.length ? this.bits : 0)) {
 						scope.problemReporter().deprecatedField(fieldBinding, this);	

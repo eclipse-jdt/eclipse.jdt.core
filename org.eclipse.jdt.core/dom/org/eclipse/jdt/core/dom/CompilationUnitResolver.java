@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 363858 - [dom] early throwing of AbortCompilation causes NPE in CompilationUnitResolver
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
@@ -99,6 +100,7 @@ class CompilationUnitResolver extends Compiler {
 	DefaultBindingResolver.BindingTables bindingTables;
 
 	boolean hasCompilationAborted;
+	CategorizedProblem abortProblem;
 
 	private IProgressMonitor monitor;
 	
@@ -364,6 +366,7 @@ class CompilationUnitResolver extends Compiler {
 			removeUnresolvedBindings(unit);
 		}
 		this.hasCompilationAborted = true;
+		this.abortProblem = abortException.problem;
 	}
 
 	public static void parse(ICompilationUnit[] compilationUnits, ASTRequestor astRequestor, int apiLevel, Map options, int flags, IProgressMonitor monitor) {
@@ -689,11 +692,16 @@ class CompilationUnitResolver extends Compiler {
 				// the bindings could not be resolved due to missing types in name environment
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=86541
 				CompilationUnitDeclaration unitDeclaration = parse(sourceUnit, nodeSearcher, options, flags);
-				final int problemCount = unit.compilationResult.problemCount;
-				if (problemCount != 0) {
-					unitDeclaration.compilationResult.problems = new CategorizedProblem[problemCount];
-					System.arraycopy(unit.compilationResult.problems, 0, unitDeclaration.compilationResult.problems, 0, problemCount);
-					unitDeclaration.compilationResult.problemCount = problemCount;
+				if (unit != null) {
+					final int problemCount = unit.compilationResult.problemCount;
+					if (problemCount != 0) {
+						unitDeclaration.compilationResult.problems = new CategorizedProblem[problemCount];
+						System.arraycopy(unit.compilationResult.problems, 0, unitDeclaration.compilationResult.problems, 0, problemCount);
+						unitDeclaration.compilationResult.problemCount = problemCount;
+					}
+				} else if (resolver.abortProblem != null) {
+					unitDeclaration.compilationResult.problemCount = 1;
+					unitDeclaration.compilationResult.problems = new CategorizedProblem[] { resolver.abortProblem };
 				}
 				return unitDeclaration;
 			}

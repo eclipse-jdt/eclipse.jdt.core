@@ -4,9 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -30,7 +31,25 @@ public class Argument extends LocalDeclaration {
 		this.bits |= (IsLocalDeclarationReachable | IsArgument);
 	}
 
+	public void createBinding(MethodScope scope, TypeBinding typeBinding) {
+		if (this.binding == null) {
+			// for default constructors and fake implementation of abstract methods 
+			this.binding = new LocalVariableBinding(this, typeBinding, this.modifiers, true);
+		} else if (!this.binding.type.isValidBinding()) {
+			AbstractMethodDeclaration methodDecl = scope.referenceMethod();
+			if (methodDecl != null) {
+				MethodBinding methodBinding = methodDecl.binding;
+				if (methodBinding != null) {
+					methodBinding.tagBits |= TagBits.HasUnresolvedArguments;
+				}
+			}
+		}
+		resolveAnnotations(scope, this.annotations, this.binding);
+		this.binding.declaration = this;
+	}
+
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
+		createBinding(scope, typeBinding); // basically a no-op if createBinding() was called before
 
 		// record the resolved type into the type reference
 		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
@@ -52,22 +71,8 @@ public class Argument extends LocalDeclaration {
 				scope.problemReporter().localVariableHiding(this, existingVariable, isSpecialArgument);
 			}
 		}
-
-		if (this.binding == null) {
-			this.binding = new LocalVariableBinding(this, typeBinding, this.modifiers, true);
-		} else if (!this.binding.type.isValidBinding()) {
-			AbstractMethodDeclaration methodDecl = scope.referenceMethod();
-			if (methodDecl != null) {
-				MethodBinding methodBinding = methodDecl.binding;
-				if (methodBinding != null) {
-					methodBinding.tagBits |= TagBits.HasUnresolvedArguments;
-				}
-			}
-		}
 		scope.addLocalVariable(this.binding);
-		resolveAnnotations(scope, this.annotations, this.binding);
 		//true stand for argument instead of just local
-		this.binding.declaration = this;
 		this.binding.useFlag = used ? LocalVariableBinding.USED : LocalVariableBinding.UNUSED;
 	}
 

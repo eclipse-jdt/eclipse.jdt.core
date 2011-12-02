@@ -8,8 +8,9 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
- *     							bug 328281 - visibility leaks not detected when analyzing unused field in private class
- *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 328281 - visibility leaks not detected when analyzing unused field in private class
+ *								bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -54,6 +55,9 @@ public class SourceTypeBinding extends ReferenceBinding {
 	char[] genericReferenceTypeSignature;
 
 	private SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
+
+	private TypeBinding nullnessDefaultAnnotation;
+	private int nullnessDefaultInitialized = 0; // 0: nothing; 1: type; 2: package
 
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
@@ -781,6 +785,7 @@ public long getAnnotationTagBits() {
 		}
 		if ((this.tagBits & TagBits.AnnotationDeprecated) != 0)
 			this.modifiers |= ClassFileConstants.AccDeprecated;
+		evaluateNullAnnotations(this.tagBits);
 	}
 	return this.tagBits;
 }
@@ -1088,6 +1093,8 @@ public void initializeDeprecatedAnnotationTagBits() {
 			this.modifiers |= ClassFileConstants.AccDeprecated;
 		}
 	}
+	if (CharOperation.equals(this.sourceName, TypeConstants.PACKAGE_INFO_NAME))
+		getAnnotationTagBits(); // initialize
 }
 
 // ensure the receiver knows its hierarchy & fields/methods so static imports can be resolved correctly
@@ -1590,12 +1597,102 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				typeParameters[i].binding = null;
 		return null;
 	}
+	createArgumentBindings(method);
 	if (foundReturnTypeProblem)
 		return method; // but its still unresolved with a null return type & is still connected to its method declaration
 
 	method.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 	return method;
 }
+private void createArgumentBindings(MethodBinding method) {
+	// ensure nullness defaults are initialized at all enclosing levels:
+	switch (this.nullnessDefaultInitialized) {
+	case 0:
+		getAnnotationTagBits(); // initialize
+		//$FALL-THROUGH$
+	case 1:
+		getPackage().isViewedAsDeprecated(); // initialize annotations
+		this.nullnessDefaultInitialized = 2;
+	}
+	AbstractMethodDeclaration methodDecl = method.sourceMethod();
+	if (methodDecl != null) {
+		if (method.parameters != Binding.NO_PARAMETERS)
+			methodDecl.createArgumentBindings();
+		TypeBinding annotationBinding = findDefaultNullness(method, methodDecl.scope.environment());
+		if (annotationBinding != null && annotationBinding.id == TypeIds.T_ConfiguredAnnotationNonNull)
+			method.fillInDefaultNonNullness(annotationBinding);
+	}
+}
+private void evaluateNullAnnotations(long annotationTagBits) {
+	if (this.nullnessDefaultInitialized > 0)
+		return;
+	this.nullnessDefaultInitialized = 1;
+	// transfer nullness info from tagBits to this.nullnessDefaultAnnotation
+	TypeBinding defaultAnnotation = getPackage().environment
+						.getNullAnnotationBindingFromDefault(annotationTagBits, false/*resolve*/);
+	if (defaultAnnotation != null) {
+		if (CharOperation.equals(this.sourceName, TypeConstants.PACKAGE_INFO_NAME)) {
+			getPackage().nullnessDefaultAnnotation = defaultAnnotation;
+		} else {
+			this.nullnessDefaultAnnotation = defaultAnnotation;
+		}
+	}
+}
+private TypeBinding getNullnessDefaultAnnotation() {
+	if (this.nullnessDefaultAnnotation instanceof UnresolvedReferenceBinding)
+		this.nullnessDefaultAnnotation = this.scope.environment().getNullAnnotationResolved(this.nullnessDefaultAnnotation, this.scope);
+	return this.nullnessDefaultAnnotation;
+}
+/**
+ * Answer the nullness default applicable at the given method binding.
+ * Possible values:<ul>
+ * <li>the type binding for @NonNulByDefault</li>
+ * <li>the synthetic type {@link ReferenceBinding#NULL_UNSPECIFIED} if a default from outer scope has been canceled</li>
+ * <li>null if no default has been defined</li>
+ * </ul>
+ */
+private TypeBinding findDefaultNullness(MethodBinding methodBinding, LookupEnvironment environment) {
+	// find the applicable default inside->out:
+
+	// method
+	TypeBinding annotationBinding = environment.getNullAnnotationBindingFromDefault(methodBinding.tagBits, true/*resolve*/);
+	if (annotationBinding != null)
+		return annotationBinding;
+
+	// type
+	ReferenceBinding type = methodBinding.declaringClass;
+	ReferenceBinding currentType = type;
+	while (currentType instanceof SourceTypeBinding) {
+		annotationBinding = ((SourceTypeBinding) currentType).getNullnessDefaultAnnotation();
+		if (annotationBinding != null)
+			return annotationBinding;
+		currentType = currentType.enclosingType();
+	}
+
+	// package
+	annotationBinding = type.getPackage().getNullnessDefaultAnnotation(this.scope);
+	if (annotationBinding != null)
+		return annotationBinding;
+
+	// global
+	long defaultNullness = environment.globalOptions.defaultNonNullness;
+	if (defaultNullness != 0) {
+		// we have a default, so we need an annotation type to record this during compile and in the byte code
+		annotationBinding = environment.getNullAnnotationBinding(defaultNullness, true/*resolve*/);
+		if (annotationBinding != null)
+			return annotationBinding;
+
+		// on this branch default was not defined using an annotation, thus annotation type can still be missing
+		if (defaultNullness == TagBits.AnnotationNonNull)
+			this.scope.problemReporter().missingNullAnnotationType(environment.getNonNullAnnotationName());
+		else
+			this.scope.problemReporter().abortDueToInternalError("Illegal default nullness value: "+defaultNullness); //$NON-NLS-1$
+		// reset default to avoid duplicate errors:
+		environment.globalOptions.defaultNonNullness = 0;
+	}
+	return null;
+}
+
 public AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceInitialization) {
 	if (forceInitialization)
 		binding.getAnnotationTagBits(); // ensure annotations are up to date

@@ -122,6 +122,20 @@
  *									UnclosedCloseable
  *									UnclosedCloseableAtExit
  *									ExplicitlyClosedAutoCloseable
+ * 								    RequiredNonNullButProvidedNull
+ * 									RequiredNonNullButProvidedPotentialNull
+ * 									RequiredNonNullButProvidedUnknown
+ * 									MissingNullAnnotationType
+ * 									NullAnnotationNameMustBeQualified
+ * 									IllegalReturnNullityRedefinition
+ * 									IllegalRedefinitionToNonNullParameter
+ * 									IllegalDefinitionToNonNullParameter
+ * 									ParameterLackingNonNullAnnotation
+ * 									ParameterLackingNullableAnnotation
+ * 									PotentialNullMessageSendReference
+ * 									RedundantNullCheckOnNonNullMessageSend
+ * 									CannotImplementIncompatibleNullness
+ * 									RedundantNullAnnotation
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -1415,6 +1429,38 @@ void setSourceStart(int sourceStart);
 	int ExplicitlyClosedAutoCloseable = Internal + 889;
 	/** @since 3.8 */
 	int SwitchOnEnumNotBelow15 = TypeRelated + 890;	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=360317
+	/**
+	 * Errors/warnings from annotation based null analysis
+	 */
+	/** @since 3.8 */
+	int RequiredNonNullButProvidedNull = TypeRelated + 910;
+	/** @since 3.8 */
+	int RequiredNonNullButProvidedPotentialNull = TypeRelated + 911;
+	/** @since 3.8 */
+	int RequiredNonNullButProvidedUnknown = TypeRelated + 912;
+	/** @since 3.8 */
+	int MissingNullAnnotationType = ImportRelated + 913;
+	/** @since 3.8 */
+	int IllegalReturnNullityRedefinition = MethodRelated + 914;
+	/** @since 3.8 */
+	int IllegalRedefinitionToNonNullParameter = MethodRelated + 915;
+	/** @since 3.8 */
+	int IllegalDefinitionToNonNullParameter = MethodRelated + 916;
+	/** @since 3.8 */
+	int ParameterLackingNonNullAnnotation = MethodRelated + 917;
+	/** @since 3.8 */
+	int ParameterLackingNullableAnnotation = MethodRelated + 918;
+	/** @since 3.8 */
+	int PotentialNullMessageSendReference = Internal + 919;
+	/** @since 3.8 */
+	int RedundantNullCheckOnNonNullMessageSend = Internal + 920;
+	/** @since 3.8 */
+	int CannotImplementIncompatibleNullness = Internal + 921;
+	/** @since 3.8 */
+	int RedundantNullAnnotation = MethodRelated + 922;
+	/** @since 3.8 */
+	int IllegalAnnotationForBaseType = TypeRelated + 923;
+
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */

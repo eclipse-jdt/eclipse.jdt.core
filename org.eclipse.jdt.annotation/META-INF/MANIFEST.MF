@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %bundleName
+Bundle-Localization: bundle
+Bundle-SymbolicName: org.eclipse.jdt.annotation
+Bundle-Version: 1.0.0.qualifier
+Export-Package: org.eclipse.jdt.annotation
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-Vendor: %providerName

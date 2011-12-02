@@ -88,8 +88,6 @@ public class ProcessorInfo {
 	 * subsequent calls.
 	 * 
 	 * @param annotations a set of annotation types
-	 * @param annotationTypes a set of names, which may use the wildcard "*", as described in
-	 * {@link Processor#getSupportedAnnotationTypes()}.
 	 * @param result an empty modifiable set, which upon return will contain a subset of <code>annotations</code>, which may be empty but will not be null.
 	 * @return true if the processor should be called on this round.
 	 */

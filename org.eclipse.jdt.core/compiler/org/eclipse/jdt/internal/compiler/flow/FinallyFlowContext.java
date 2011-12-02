@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -17,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
@@ -83,8 +85,13 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 	// check inconsistent null checks
 	if ((this.tagBits & FlowContext.DEFER_NULL_DIAGNOSTIC) != 0) { // within an enclosing loop, be conservative
 		for (int i = 0; i < this.nullCount; i++) {
-			this.parent.recordUsingNullReference(scope, this.nullLocals[i],
-					this.nullReferences[i],	this.nullCheckTypes[i], flowInfo);
+			if (this.nullCheckTypes[i] == ASSIGN_TO_NONNULL)
+				this.parent.recordNullityMismatch(scope, this.nullReferences[i],
+						flowInfo.nullStatus(this.nullLocals[i]), this.expectedTypes[i]);
+			else
+				this.parent.recordUsingNullReference(scope, this.nullLocals[i],
+						this.nullReferences[i],	this.nullCheckTypes[i], flowInfo);
+
 		}
 	}
 	else { // no enclosing loop, be as precise as possible right now
@@ -165,6 +172,13 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					}
 					if (flowInfo.isPotentiallyNull(local)) {
 						scope.problemReporter().localVariablePotentialNullReference(local, expression);
+					}
+					break;
+				case ASSIGN_TO_NONNULL:
+					int nullStatus = flowInfo.nullStatus(local);
+					if (nullStatus != FlowInfo.NON_NULL) {
+						char[][] annotationName = scope.environment().getNonNullAnnotationName();
+						scope.problemReporter().nullityMismatch(expression, this.expectedTypes[i], nullStatus, annotationName);
 					}
 					break;
 				default:
@@ -441,5 +455,15 @@ protected void recordNullReference(LocalVariableBinding local,
 	this.nullLocals[this.nullCount] = local;
 	this.nullReferences[this.nullCount] = expression;
 	this.nullCheckTypes[this.nullCount++] = status;
+}
+protected boolean internalRecordNullityMismatch(Expression expression, int nullStatus, TypeBinding expectedType, int checkType) {
+	// cf. decision structure inside FinallyFlowContext.recordUsingNullReference(..)
+	if (nullStatus == FlowInfo.UNKNOWN ||
+			((this.tagBits & FlowContext.DEFER_NULL_DIAGNOSTIC) != 0 && nullStatus != FlowInfo.NULL)) {
+		recordExpectedType(expectedType, this.nullCount);
+		recordNullReference(expression.localVariableBinding(), expression, checkType);
+		return true;
+	}
+	return false;
 }
 }

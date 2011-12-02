@@ -126,7 +126,7 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 
 	/**
 	 * A single "round" of processing, in the sense implied in
-	 * {@link javax.lang.annotation.processing.Processor}.
+	 * {@link javax.annotation.processing.Processor}.
 	 * <p>
 	 * The Java 6 Processor spec contains ambiguities about how processors that support "*" are
 	 * handled. Eclipse tries to match Sun's implementation in javac. What that actually does is

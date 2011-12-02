@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -132,6 +133,14 @@ public interface TagBits {
 	long AnnotationPreDestroy = ASTNode.Bit54L;
 	/** @since 3.8 */
 	long AnnotationPostConstruct = ASTNode.Bit55L;
+	/** @since 3.8 null annotation for MethodBinding or LocalVariableBinding (argument): */
+	long AnnotationNullable = ASTNode.Bit56L;
+	/** @since 3.8 null annotation for MethodBinding or LocalVariableBinding (argument): */
+	long AnnotationNonNull = ASTNode.Bit57L;
+	/** @since 3.8 null-default annotation for PackageBinding or TypeBinding or MethodBinding: */
+	long AnnotationNonNullByDefault = ASTNode.Bit58L;
+	/** @since 3.8 canceling null-default annotation for PackageBinding or TypeBinding or MethodBinding: */
+	long AnnotationNullUnspecifiedByDefault = ASTNode.Bit59L;
 
 	long AllStandardAnnotationsMask =
 				  AnnotationTargetMASK
@@ -144,10 +153,14 @@ public interface TagBits {
 				| AnnotationSafeVarargs
 				| AnnotationPolymorphicSignature
 				| AnnotationPostConstruct
-				| AnnotationPreDestroy;
+				| AnnotationPreDestroy
+				| AnnotationNullable
+				| AnnotationNonNull
+				| AnnotationNonNullByDefault
+				| AnnotationNullUnspecifiedByDefault;
 
-	long DefaultValueResolved = ASTNode.Bit56L;
+	long DefaultValueResolved = ASTNode.Bit60L;
 
 	// set when type contains non-private constructor(s)
-	long HasNonPrivateConstructor = ASTNode.Bit57L;
+	long HasNonPrivateConstructor = ASTNode.Bit61L;
 }

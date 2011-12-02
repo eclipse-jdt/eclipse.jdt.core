@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann - Contributions for
+ *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.impl;
@@ -102,8 +104,14 @@ public class IrritantSet {
 			.set(
 				CompilerOptions.DeadCode
 				|CompilerOptions.Tasks
-				|CompilerOptions.UnclosedCloseable);
-			
+				|CompilerOptions.UnclosedCloseable
+				|CompilerOptions.NullSpecInsufficientInfo
+				|CompilerOptions.RedundantNullAnnotation);
+		// default errors IF AnnotationBasedNullAnalysis is enabled:
+		COMPILER_DEFAULT_ERRORS.set(
+				CompilerOptions.NullSpecViolation
+				|CompilerOptions.PotentialNullSpecViolation);
+
 		ALL.setAll();
 		HIDING
 			.set(CompilerOptions.FieldHiding)
@@ -111,7 +119,12 @@ public class IrritantSet {
 			.set(CompilerOptions.TypeHiding);
 		NULL
 			.set(CompilerOptions.PotentialNullReference)
-			.set(CompilerOptions.RedundantNullCheck);
+			.set(CompilerOptions.RedundantNullCheck)
+			.set(CompilerOptions.NullSpecViolation)
+			.set(CompilerOptions.PotentialNullSpecViolation)
+			.set(CompilerOptions.NullSpecInsufficientInfo)
+			.set(CompilerOptions.RedundantNullAnnotation);
+
 		RESTRICTION.set(CompilerOptions.DiscouragedReference);
 		STATIC_ACCESS.set(CompilerOptions.NonStaticAccessToStatic);
 		UNUSED

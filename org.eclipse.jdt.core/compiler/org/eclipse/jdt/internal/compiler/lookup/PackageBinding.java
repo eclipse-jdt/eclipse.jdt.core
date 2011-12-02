@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -22,6 +23,10 @@ public class PackageBinding extends Binding implements TypeConstants {
 	public LookupEnvironment environment;
 	HashtableOfType knownTypes;
 	HashtableOfPackage knownPackages;
+
+	// annotation type binding representing the default that has been defined for this package (using @NonNullByDefault)
+	protected TypeBinding nullnessDefaultAnnotation;
+
 protected PackageBinding() {
 	// for creating problem package
 }
@@ -36,6 +41,8 @@ public PackageBinding(char[][] compoundName, PackageBinding parent, LookupEnviro
 	this.environment = environment;
 	this.knownTypes = null; // initialized if used... class counts can be very large 300-600
 	this.knownPackages = new HashtableOfPackage(3); // sub-package counts are typically 0-3
+	if (compoundName != CharOperation.NO_CHAR_CHAR)
+		checkIfNullAnnotationPackage();
 }
 
 public PackageBinding(LookupEnvironment environment) {
@@ -58,6 +65,8 @@ void addType(ReferenceBinding element) {
 	if (this.knownTypes == null)
 		this.knownTypes = new HashtableOfType(25);
 	this.knownTypes.put(element.compoundName[element.compoundName.length - 1], element);
+	if (element.isAnnotationType() || element instanceof UnresolvedReferenceBinding) // unresolved types don't yet have the modifiers set
+		checkIfNullAnnotationType(element);
 }
 
 void clearMissingTagBit() {
@@ -228,6 +237,55 @@ public int problemId() {
 	if ((this.tagBits & TagBits.HasMissingType) != 0)
 		return ProblemReasons.NotFound;
 	return ProblemReasons.NoError;
+}
+
+
+void checkIfNullAnnotationPackage() {
+	LookupEnvironment env = this.environment;
+	if (env.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+		if (isPackageOfQualifiedTypeName(this.compoundName, env.getNullableAnnotationName()))
+			env.nullableAnnotationPackage = this;
+		if (isPackageOfQualifiedTypeName(this.compoundName, env.getNonNullAnnotationName()))
+			env.nonnullAnnotationPackage = this;
+		if (isPackageOfQualifiedTypeName(this.compoundName, env.getNonNullByDefaultAnnotationName()))
+			env.nonnullByDefaultAnnotationPackage = this;
+	}
+}
+
+private boolean isPackageOfQualifiedTypeName(char[][] packageName, char[][] typeName) {
+	if (typeName == null || typeName.length -1 != packageName.length)
+		return false;
+	for (int i=0; i<packageName.length; i++)
+		if (!CharOperation.equals(packageName[i], typeName[i]))
+			return false;
+	return true;
+}
+
+void checkIfNullAnnotationType(ReferenceBinding type) {
+	// check if type is one of the configured null annotation types
+	// if so mark as a well known type using the corresponding typeID:
+	if (this.environment.nullableAnnotationPackage == this
+			&& CharOperation.equals(type.compoundName, this.environment.getNullableAnnotationName())) {
+		type.id = TypeIds.T_ConfiguredAnnotationNullable;
+		if (!(type instanceof UnresolvedReferenceBinding)) // unresolved will need to check back for the resolved type
+			this.environment.nullableAnnotationPackage = null; // don't check again
+	} else if (this.environment.nonnullAnnotationPackage == this
+			&& CharOperation.equals(type.compoundName, this.environment.getNonNullAnnotationName())) {
+		type.id = TypeIds.T_ConfiguredAnnotationNonNull;
+		if (!(type instanceof UnresolvedReferenceBinding)) // unresolved will need to check back for the resolved type
+			this.environment.nonnullAnnotationPackage = null; // don't check again
+	} else if (this.environment.nonnullByDefaultAnnotationPackage == this
+			&& CharOperation.equals(type.compoundName, this.environment.getNonNullByDefaultAnnotationName())) {
+		type.id = TypeIds.T_ConfiguredAnnotationNonNullByDefault;
+		if (!(type instanceof UnresolvedReferenceBinding)) // unresolved will need to check back for the resolved type
+			this.environment.nonnullByDefaultAnnotationPackage = null; // don't check again
+	}
+}
+
+public TypeBinding getNullnessDefaultAnnotation(Scope scope) {
+	if (this.nullnessDefaultAnnotation instanceof UnresolvedReferenceBinding)
+		return this.nullnessDefaultAnnotation = this.environment.getNullAnnotationResolved(this.nullnessDefaultAnnotation, scope);
+	return this.nullnessDefaultAnnotation;
 }
 
 public char[] readableName() /*java.lang*/ {

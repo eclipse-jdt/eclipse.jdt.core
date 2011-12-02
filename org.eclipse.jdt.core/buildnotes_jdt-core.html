@@ -42,11 +42,314 @@
 	</td>
   </tr>
 </table>
-<a name="v_C22"></a>
+<a name="v_C23"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.8.0 - November 29, 2011 - 3.8.0 M4
+Eclipse SDK 3.8.0 - December 2, 2011 - 3.8.0 M4
+<h2>What's new in this drop</h2>
+<ul>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342">186342</a> for details):
+<pre>
+    /**
+     * Compiler option ID: Annotation-based Null Analysis.
+     * 
+     * This option controls whether the compiler will use null annotations for
+     * improved analysis of (potential) null references.
+     * 
+     * If enabled the compiler will interpret the annotation types defined using
+     * {@link #COMPILER_NONNULL_ANNOTATION_NAME} and {@link #COMPILER_NULLABLE_ANNOTATION_NAME}
+     * as specifying whether or not a given type includes the value <code>null</code>.
+     * 
+     * The effect of these analyses is further controled by the options
+     * {@link #COMPILER_PB_NULL_SPECIFICATION_VIOLATION},
+     * {@link #COMPILER_PB_POTENTIAL_NULL_SPECIFICATION_VIOLATION} and
+     * {@link #COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO}.
+     * 
+     * Option id: <code>"org.eclipse.jdt.core.compiler.annotation.nullanalysis"</code>
+     * Possible values: <code>{ "disabled", "enabled" }</code>
+     * Default: <code>"disabled"</code>
+     * @since 3.8
+     * @category CompilerOptionID
+     */
+    public static final String COMPILER_ANNOTATION_NULL_ANALYSIS = PLUGIN_ID + ".compiler.annotation.nullanalysis";
+</pre></li>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342">186342</a> for details):
+<pre>
+    /**
+     * Compiler option ID: Name of Annotation Type for Nullable Types.
+     * 
+     * This option defines a fully qualified Java type name that the compiler may use
+     * to perform special null analysis.
+     * 
+     * If the annotation specified by this option is applied to a type in a method
+     * signature or variable declaration this will be interpreted as a specification
+     * that <code>null</code> is a legal value in that position. Currently supported
+     * positions are: method parameters, method return type and local variables.
+     * 
+     * If a value whose type
+     * is annotated with this annotation is dereferenced without checking for null
+     * the compiler will trigger a diagnostic as further controlled by
+     * {@link #COMPILER_PB_POTENTIAL_NULL_REFERENCE}.
+     * 
+     * The compiler may furthermore check adherence to the null specification as
+     * further controlled by {@link #COMPILER_PB_NULL_SPECIFICATION_VIOLATION},
+     * {@link #COMPILER_PB_POTENTIAL_NULL_SPECIFICATION_VIOLATION} and
+     * {@link #COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO}.
+     * 
+     * This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
+     * 
+     * Option id: <code>"org.eclipse.jdt.core.compiler.annotation.nullable"</code>
+     * Possible values: any legal, fully qualified Java type name, must resolve to an annotation type.
+     * Default: <code>"org.eclipse.jdt.annotation.Nullable"</code>
+     * @since 3.8
+     * @category CompilerOptionID
+     */
+    public static final String COMPILER_NULLABLE_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nullable";
+</pre></li>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_NONNULL_ANNOTATION_NAME (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342">186342</a> for details):
+<pre>
+    /**
+     * Compiler option ID: Name of Annotation Type for Non-Null Types.
+     * 
+     * This option defines a fully qualified Java type name that the compiler may use
+     * to perform special null analysis.
+     * 
+     * If the annotation specified by this option is applied to a type in a method
+     * signature or variable declaration this will be interpreted as a specification
+     * that <code>null</code> is <b>not</b> a legal value in that position. Currently
+     * supported positions are: method parameters, method return type and local variables.
+     * 
+     * For values declared with this annotation the compiler will never trigger a null
+     * reference diagnostic (as controlled by {@link #COMPILER_PB_POTENTIAL_NULL_REFERENCE}
+     * and {@link #COMPILER_PB_NULL_REFERENCE}), because the assumption is made that null
+     * will never occur at runtime in these positions.
+     * 
+     * The compiler may furthermore check adherence to the null specification as further
+     * controlled by {@link #COMPILER_PB_NULL_SPECIFICATION_VIOLATION},
+     * {@link #COMPILER_PB_POTENTIAL_NULL_SPECIFICATION_VIOLATION} and
+     * {@link #COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO}.
+     * 
+     * This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
+     * 
+     * Option id: <code>"org.eclipse.jdt.core.compiler.annotation.nonnull"</code>
+     * Possible values: any legal, fully qualified Java type name, must resolve to an annotation type.
+     * Default: <code>"org.eclipse.jdt.annotation.NonNull"</code>
+     * @since 3.8
+     * @category CompilerOptionID
+     */
+    public static final String COMPILER_NONNULL_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nonnull";
+</pre></li>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342">186342</a> for details):
+<pre>
+    /**
+     * Compiler option ID: Name of Annotation Type to specify a nullness default for unannotated types.
+     * 
+     * This option defines a fully qualified Java type name that the compiler may use
+     * to perform special null analysis.
+     * 
+     * If the annotation is applied without an argument all unannotated types in method signatures
+     * within the annotated element will be treated as if they were specified with the non-null annotation
+     * (see {@link #COMPILER_NONNULL_ANNOTATION_NAME}).
+     * 
+     * If the annotation is applied with the constant <code>false</code> as its argument
+     * all corresponding defaults at outer scopes will be canceled for the annotated element.
+     * This includes defaults specified using this annotation type or a default defined using
+     * the compiler option {@link #COMPILER_NONNULL_IS_DEFAULT}.
+     * 
+     * This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
+     * 
+     * Option id: <code>"org.eclipse.jdt.core.compiler.annotation.nonnullbydefault"</code>
+     * Possible values: any legal, fully qualified Java type name, must resolve to an annotation type.
+     *     That annotation type should have exactly one boolean parameter.
+     * Default: <code>"org.eclipse.jdt.annotation.NonNullByDefault"</code>
+     * @since 3.8
+     * @category CompilerOptionID
+     */
+    public static final String COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nonnullbydefault";
+</pre></li>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_NONNULL_IS_DEFAULT (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342">186342</a> for details):
+<pre>
+    /**
+     * Compiler option ID: Globally specify non-null as the assumed default for unannotated types.
+     * 
+     * When enabled this option globally achieves the same effect 
+     * as specifying {@link #COMPILER_NONNULL_ANNOTATION_NAME} does for individual elements.
+     * 
+     * This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
+     *
+     * Option id: <code>"org.eclipse.jdt.core.compiler.annotation.nonnullisdefault"</code>
+     * Possible values: <code>{ "disabled", "enabled" }</code>.
+     * Default: <code>"disabled"</code>
+     * @since 3.8
+     * @category CompilerOptionID
+     */
+    public static final String COMPILER_NONNULL_IS_DEFAULT = PLUGIN_ID + ".compiler.annotation.nonnullisdefault";
+</pre></li>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342">186342</a> for details):
+<pre>
+    /**
+     * Compiler option ID: Reporting Violations of Null Specifications.
+     * 
+     * Depending on this option, the compiler will issue either an error or a warning
+     * whenever one of the following situations is detected:
+     * 
+     * 1. A method declared with a nonnull annotation returns an expression that is
+     *    statically known to evaluate to a null value.
+     * 2. An expression that is statically known to evaluate to a null value is passed
+     *    as an argument in a method call where the corresponding parameter of the called
+     *    method is declared with a nonnull annotation.
+     * 3. An expression that is statically known to evaluate to a null value is assigned
+     *    to a local variable that is declared with a nonnull annotation.
+     * 4. A method that overrides an inherited method declared with a nonnull annotation
+     *    tries to relax that contract by specifying a nullable annotation
+     *    (prohibition of contravariant return).
+     * 5. A method that overrides an inherited method which has a nullable declaration
+     *    for at least one of its parameters, tries to tighten that null contract by
+     *    specifying a nonnull annotation for its corresponding parameter
+     *    (prohibition of covariant parameters).
+     * 
+     * The compiler options {@link #COMPILER_NONNULL_ANNOTATION_NAME} and
+     * {@link #COMPILER_NULLABLE_ANNOTATION_NAME} control which annotations the compiler
+     * shall interpret as nonnull or nullable annotations, respectively.
+     * 
+     * This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
+     *
+     * Option id: <code>"org.eclipse.jdt.core.compiler.problem.nullSpecViolation"</code>
+     * Possible values: <code>{ "error", "warning" }</code>
+     * Default: <code>"error"</code>
+     * 
+     * @since 3.8
+     * @category CompilerOptionID
+     */
+    public static final String COMPILER_PB_NULL_SPECIFICATION_VIOLATION = PLUGIN_ID + ".compiler.problem.nullSpecViolation";
+</pre></li>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_PB_POTENTIAL_NULL_SPECIFICATION_VIOLATION (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342">186342</a> for details):
+<pre>
+    /**
+     * Compiler option ID: Reporting Violations of Null Specifications with Potential Null Value.
+     * 
+     * When enabled, the compiler will issue an error or a warning whenever one of the
+     * following situations is detected:
+     *
+     * 1. A method declared with a nonnull annotation returns an expression that is
+     *    statically known to evaluate to a null value on some flow.
+     * 2. An expression that is statically known to evaluate to a null value on some flow
+     *    is passed as an argument in a method call where the corresponding parameter of
+     *    the called method is declared with a nonnull annotation.
+     * 3. An expression that is statically known to evaluate to a null value on some flow
+     *    is assigned to a local variable that is declared with a nonnull annotation.
+     * 
+     * The compiler options {@link #COMPILER_NONNULL_ANNOTATION_NAME} and
+     * {@link #COMPILER_NULLABLE_ANNOTATION_NAME} control which annotations the compiler
+     * shall interpret as nonnull or nullable annotations, respectively.
+     * 
+     * 
+     * This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
+     *
+     * Option id: <code>"org.eclipse.jdt.core.compiler.problem.potentialNullSpecViolation"</code>
+     * Possible values: <code>{ "error", "warning", "ignore" }</code>
+     * Default: <code>"error"</code>
+     * 
+     * @since 3.8
+     * @category CompilerOptionID
+     */
+    public static final String COMPILER_PB_POTENTIAL_NULL_SPECIFICATION_VIOLATION = PLUGIN_ID + ".compiler.problem.potentialNullSpecViolation";
+</pre></li>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342">186342</a> for details):
+<pre>
+    /**
+     * Compiler option ID: Reporting Insufficient Information for Analysing Adherence to Null Specifications.
+     * 
+     * When enabled, the compiler will issue an error or a warning whenever one of the
+     * following situations is detected:
+     *
+     * 1. A method declared with a nonnull annotation returns an expression for which
+     *    insufficient nullness information is available for statically proving that no
+     *    flow will pass a null value at runtime.
+     * 2. An expression for which insufficient nullness information is available for
+     *    statically proving that it will never evaluate to a null value at runtime
+     *    is passed as an argument in a method call where the corresponding parameter of
+     *    the called method is declared with a nonnull annotation.
+     * 3. An expression for which insufficient nullness information is available for
+     *    statically proving that it will never evaluate to a null value at runtime
+     *    is assigned to a local variable that is declared with a nonnull annotation.
+     *
+     * Insufficient nullness information is usually a consequence of using other unannotated
+     * variables or methods.
+     * 
+     * The compiler options {@link #COMPILER_NONNULL_ANNOTATION_NAME} and
+     * {@link #COMPILER_NULLABLE_ANNOTATION_NAME} control which annotations the compiler
+     * shall interpret as nonnull or nullable annotations, respectively.
+     * 
+     * This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
+     * <dl>
+     * Option id: <code>"org.eclipse.jdt.core.compiler.problem.nullSpecInsufficientInfo"</code>
+     * Possible values: <code>{ "error", "warning", "ignore" }</code>
+     * Default: <code>"warning"</code>
+     * 
+     * @since 3.8
+     * @category CompilerOptionID
+     */
+    public static final String COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO = PLUGIN_ID + ".compiler.problem.nullSpecInsufficientInfo";
+</pre></li>
+<li>New Javacore option org.eclipse.jdt.core.JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342">186342</a> for details):
+<pre>
+    /**
+     * Compiler option ID: Reporting Redundant Null Annotations.
+     * 
+     * When enabled, the compiler will issue an error or a warning when a non-null annotation
+     * (see {@link #COMPILER_NONNULL_ANNOTATION_NAME})
+     * is applied although the same effect is already achieved by a default applicable at the
+     * current location. Such default may be effective by enabling the option
+     * {@link #COMPILER_NONNULL_IS_DEFAULT} or by using the annotation specified by the option
+     * {@link #COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME}.
+     * 
+     * This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
+     * 
+     * Option id: <code>"org.eclipse.jdt.core.compiler.problem.redundantNullAnnotation"</code>
+     * Possible values: <code>{ "error", "warning", "ignore" }</code>
+     * Default: <code>"warning"</code>
+     * 
+     * @since 3.8
+     * @category CompilerOptionID
+     */
+    public static final String COMPILER_PB_REDUNDANT_NULL_ANNOTATION = PLUGIN_ID + ".compiler.problem.redundantNullAnnotation";
+</pre>
+</li>
+<li>New API added to org.eclipse.jdt.core.compiler.IProblem to signal null-related issues:
+	<ul>
+	<li> int RequiredNonNullButProvidedNull</li>
+	<li> int RequiredNonNullButProvidedPotentialNull</li>
+	<li> int RequiredNonNullButProvidedUnknown</li>
+	<li> int MissingNullAnnotationType</li>
+	<li> int IllegalReturnNullityRedefinition</li>
+	<li> int IllegalRedefinitionToNonNullParameter</li>
+	<li> int IllegalDefinitionToNonNullParameter</li>
+	<li> int ParameterLackingNonNullAnnotation</li>
+	<li> int ParameterLackingNullableAnnotation</li>
+	<li> int PotentialNullMessageSendReference</li>
+	<li> int RedundantNullCheckOnNonNullMessageSend</li>
+	<li> int CannotImplementIncompatibleNullness</li>
+	<li> int RedundantNullAnnotation</li>
+	<li> int IllegalAnnotationForBaseType</li>
+	</ul>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=363858">363858</a>
+[dom] early throwing of AbortCompilation causes NPE in CompilationUnitResolver
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=331647">331647</a>
+[compiler][null] support flexible default mechanism for null-annotations
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=334457">334457</a>
+[compiler][null] check compatibility of inherited null contracts
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342">186342</a>
+[compiler][null] Using annotations for null checking
+
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java development tools core</h1>
+Eclipse SDK 3.8.0 - November 29, 2011
 <h2>What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>

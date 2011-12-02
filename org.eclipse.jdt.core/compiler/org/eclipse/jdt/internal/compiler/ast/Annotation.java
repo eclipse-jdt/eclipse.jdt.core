@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -172,6 +173,22 @@ public abstract class Annotation extends Expression {
 				break;
 			case TypeIds.T_JavaxAnnotationPreDestroy :
 				tagBits |= TagBits.AnnotationPreDestroy;
+				break;
+			case TypeIds.T_ConfiguredAnnotationNullable :
+				tagBits |= TagBits.AnnotationNullable;
+				break;
+			case TypeIds.T_ConfiguredAnnotationNonNull :
+				tagBits |= TagBits.AnnotationNonNull;
+				break;
+			case TypeIds.T_ConfiguredAnnotationNonNullByDefault :
+				if (valueAttribute != null 
+					&& valueAttribute.value instanceof FalseLiteral) 
+				{
+					// parameter 'false' means: this annotation cancels any defaults
+					tagBits |= TagBits.AnnotationNullUnspecifiedByDefault;
+					break;
+				}
+				tagBits |= TagBits.AnnotationNonNullByDefault;
 				break;
 		}
 		return tagBits;

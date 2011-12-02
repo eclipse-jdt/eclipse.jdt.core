@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *     Stephan Herrmann - Contributions for
+ *								bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -81,6 +83,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 						this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);
 					}
 				}
+				analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
 			}
 
 			ReferenceBinding[] thrownExceptions;

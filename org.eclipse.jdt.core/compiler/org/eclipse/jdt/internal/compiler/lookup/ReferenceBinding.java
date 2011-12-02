@@ -4,10 +4,12 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann - Contributions for
+ *								bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -45,6 +47,14 @@ abstract public class ReferenceBinding extends TypeBinding {
 	int typeBits; // additional bits characterizing this type
 
 	public static final ReferenceBinding LUB_GENERIC = new ReferenceBinding() { /* used for lub computation */
+		public boolean hasTypeBit(int bit) { return false; }
+	};
+
+	/**
+	 * This faked annotation type binding marks types with unspecified nullness.
+	 * For use in {@link PackageBinding#nullnessDefaultAnnotation} and SourceTypeBinding#nullnessDefaultAnnotation
+	 */
+	final static ReferenceBinding NULL_UNSPECIFIED = new ReferenceBinding() { /* faked type binding */
 		public boolean hasTypeBit(int bit) { return false; }
 	};
 

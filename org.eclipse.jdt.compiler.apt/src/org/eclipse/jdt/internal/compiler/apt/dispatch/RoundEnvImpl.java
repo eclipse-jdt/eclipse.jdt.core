@@ -117,9 +117,9 @@ public class RoundEnvImpl implements RoundEnvironment
 
 	/**
 	 * From the set of root elements and their enclosed elements, return the subset that are annotated
-	 * with {@code a}.  If {@code a} is annotated with the {@link java.lang.annotations.Inherited} 
+	 * with {@code a}.  If {@code a} is annotated with the {@link java.lang.annotation.Inherited} 
 	 * annotation, include those elements that inherit the annotation from their superclasses.
-	 * Note that {@link java.lang.annotations.Inherited} only applies to classes (i.e. TypeElements).
+	 * Note that {@link java.lang.annotation.Inherited} only applies to classes (i.e. TypeElements).
 	 */
 	@Override
 	public Set<? extends Element> getElementsAnnotatedWith(TypeElement a)
@@ -146,7 +146,7 @@ public class RoundEnvImpl implements RoundEnvironment
 	 * For every type in types that is a class and that is annotated with anno, either directly or by inheritance,
 	 * add that type to result.  Recursively descend on each types's child classes as well.
 	 * @param anno the compiler binding for an annotation type
-	 * @param types a set of types, not necessarily all classes
+	 * @param type a type, not necessarily a class
 	 * @param result must be a modifiable Set; will accumulate annotated classes
 	 */
 	private void addAnnotatedElements(ReferenceBinding anno, ReferenceBinding type, Set<Element> result) {

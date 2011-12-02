@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for 
  *     							Bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
  *     							Bug 353474 - type converters should include more annotations
+ *     							Bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
@@ -7497,7 +7498,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				buffer.append(typeBinding.getAnnotations().length);
 				typeBinding= typeBinding.getSuperclass();
 			}
-			assertEquals("Wrong number of annotations", "000", String.valueOf(buffer));
+			// initially, this test expected "000", but after https://bugs.eclipse.org/186342
+			// annotations are resolved more eagerly, which makes the annotations on Test2 show up,
+			// which is actually the right outcome.
+			assertEquals("Wrong number of annotations", "020", String.valueOf(buffer));
 		}
 	}
 

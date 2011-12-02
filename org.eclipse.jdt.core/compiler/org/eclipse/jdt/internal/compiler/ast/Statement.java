@@ -7,9 +7,10 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contributions for 
+ *     Stephan Herrmann - Contributions for
  *     							bug 335093 - [compiler][null] minimal hook for future null annotation support
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -57,8 +58,34 @@ public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowCo
 	public static final int COMPLAINED_FAKE_REACHABLE = 1;
 	public static final int COMPLAINED_UNREACHABLE = 2;
 	
-/** Empty hook for checking null status against declaration using null annotations, once this will be supported. */
-protected int checkAgainstNullAnnotation(BlockScope currentScope, LocalVariableBinding local, int nullStatus) {
+
+/** Analysing arguments of MessageSend, ExplicitConstructorCall, AllocationExpression. */
+protected void analyseArguments(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, MethodBinding methodBinding, Expression[] arguments)
+{
+	// compare actual null-status against parameter annotations of the called method:
+	if (arguments != null && methodBinding.parameterNonNullness != null) {
+		for (int i = 0; i < arguments.length; i++) {
+			if (methodBinding.parameterNonNullness[i] == Boolean.TRUE) {
+				TypeBinding expectedType = methodBinding.parameters[i];
+				Expression argument = arguments[i];
+				int nullStatus = argument.nullStatus(flowInfo); // slight loss of precision: should also use the null info from the receiver.
+				if (nullStatus != FlowInfo.NON_NULL) // if required non-null is not provided
+					flowContext.recordNullityMismatch(currentScope, argument, nullStatus, expectedType);
+			}
+		}
+	}
+}
+
+/** Check null-ness of 'local' against a possible null annotation */
+protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, FlowContext flowContext,
+												   LocalVariableBinding local, int nullStatus, Expression expression)
+{
+	if (local != null
+			&& (local.tagBits & TagBits.AnnotationNonNull) != 0
+			&& nullStatus != FlowInfo.NON_NULL) {
+		flowContext.recordNullityMismatch(currentScope, expression, nullStatus, local.type);
+		nullStatus=FlowInfo.NON_NULL;
+	}
 	return nullStatus;
 }
 

@@ -96,7 +96,7 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 
 	/**
 	 * Parse the -A command line arguments so that they can be delivered to
-	 * processors with {@link ProcessingEnvironment#getOptions().  In Sun's Java 6
+	 * processors with {@link javax.annotation.processing.ProcessingEnvironment#getOptions()}.  In Sun's Java 6
 	 * version of javac, unlike in the Java 5 apt tool, only the -A options are
 	 * passed to processors, not the other command line options; that behavior
 	 * is repeated here.

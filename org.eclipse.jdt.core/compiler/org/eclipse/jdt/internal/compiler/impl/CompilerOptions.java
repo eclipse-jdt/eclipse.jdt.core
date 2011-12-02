@@ -12,6 +12,7 @@
  *     							bug 236385 - [compiler] Warn for potential programming problem if an object is created but not used
  *     							bug 295551 - Add option to automatically promote all warnings to errors
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
@@ -26,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -142,6 +144,19 @@ public class CompilerOptions {
 	public static final String OPTION_ReportUnclosedCloseable = "org.eclipse.jdt.core.compiler.problem.unclosedCloseable"; //$NON-NLS-1$
 	public static final String OPTION_ReportPotentiallyUnclosedCloseable = "org.eclipse.jdt.core.compiler.problem.potentiallyUnclosedCloseable"; //$NON-NLS-1$
 	public static final String OPTION_ReportExplicitlyClosedAutoCloseable = "org.eclipse.jdt.core.compiler.problem.explicitlyClosedAutoCloseable"; //$NON-NLS-1$
+	public static final String OPTION_ReportNullSpecViolation = "org.eclipse.jdt.core.compiler.problem.nullSpecViolation";  //$NON-NLS-1$
+	public static final String OPTION_ReportPotentialNullSpecViolation = "org.eclipse.jdt.core.compiler.problem.potentialNullSpecViolation";  //$NON-NLS-1$
+	public static final String OPTION_ReportNullSpecInsufficientInfo = "org.eclipse.jdt.core.compiler.problem.nullSpecInsufficientInfo";  //$NON-NLS-1$
+	public static final String OPTION_ReportRedundantNullAnnotation = "org.eclipse.jdt.core.compiler.problem.redundantNullAnnotation";  //$NON-NLS-1$
+	public static final String OPTION_AnnotationBasedNullAnalysis = "org.eclipse.jdt.core.compiler.annotation.nullanalysis"; //$NON-NLS-1$
+	public static final String OPTION_NullableAnnotationName = "org.eclipse.jdt.core.compiler.annotation.nullable"; //$NON-NLS-1$
+	public static final String OPTION_NonNullAnnotationName = "org.eclipse.jdt.core.compiler.annotation.nonnull"; //$NON-NLS-1$
+	public static final String OPTION_NonNullByDefaultAnnotationName = "org.eclipse.jdt.core.compiler.annotation.nonnullbydefault"; //$NON-NLS-1$
+	// defaults for the above:
+	static final char[][] DEFAULT_NULLABLE_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.Nullable".toCharArray()); //$NON-NLS-1$
+	static final char[][] DEFAULT_NONNULL_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.NonNull".toCharArray()); //$NON-NLS-1$
+	static final char[][] DEFAULT_NONNULLBYDEFAULT_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.NonNullByDefault".toCharArray()); //$NON-NLS-1$
+	public static final String OPTION_NonNullIsDefault = "org.eclipse.jdt.core.compiler.annotation.nonnullisdefault";  //$NON-NLS-1$
 	/**
 	 * Possible values for configurable options
 	 */
@@ -245,10 +260,13 @@ public class CompilerOptions {
 	public static final int MethodCanBeStatic = IrritantSet.GROUP2 | ASTNode.Bit5;
 	public static final int MethodCanBePotentiallyStatic = IrritantSet.GROUP2 | ASTNode.Bit6;
 	public static final int RedundantSpecificationOfTypeArguments = IrritantSet.GROUP2 | ASTNode.Bit7;
-	// bits 8-10 reserved for https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342
-	public static final int UnclosedCloseable = IrritantSet.GROUP2 | ASTNode.Bit11;
-	public static final int PotentiallyUnclosedCloseable = IrritantSet.GROUP2 | ASTNode.Bit12;
-	public static final int ExplicitlyClosedAutoCloseable = IrritantSet.GROUP2 | ASTNode.Bit13;
+	public static final int UnclosedCloseable = IrritantSet.GROUP2 | ASTNode.Bit8;
+	public static final int PotentiallyUnclosedCloseable = IrritantSet.GROUP2 | ASTNode.Bit9;
+	public static final int ExplicitlyClosedAutoCloseable = IrritantSet.GROUP2 | ASTNode.Bit10;
+	public static final int NullSpecViolation = IrritantSet.GROUP2 | ASTNode.Bit11;
+	public static final int PotentialNullSpecViolation = IrritantSet.GROUP2 | ASTNode.Bit12;
+	public static final int NullSpecInsufficientInfo = IrritantSet.GROUP2 | ASTNode.Bit13;
+	public static final int RedundantNullAnnotation = IrritantSet.GROUP2 | ASTNode.Bit14;
 
 	// Severity level for handlers
 	/** 
@@ -370,6 +388,18 @@ public class CompilerOptions {
 	public boolean includeNullInfoFromAsserts;
 	/** Controls whether forced generic type problems get reported  */
 	public boolean reportUnavoidableGenericTypeProblems;
+
+	// === Support for Null Annotations: ===
+	/** Master switch for null analysis based on annotations: */
+	public boolean isAnnotationBasedNullAnalysisEnabled;
+	/** Fully qualified name of annotation to use as marker for nullable types. */
+	public char[][] nullableAnnotationName;
+	/** Fully qualified name of annotation to use as marker for nonnull types. */
+	public char[][] nonNullAnnotationName;
+	/** Fully qualified name of annotation to use as marker for default nonnull. */
+	public char[][] nonNullByDefaultAnnotationName;
+	/** TagBits-encoded default for non-annotated types. */
+	public long defaultNonNullness; // 0 or TagBits#AnnotationNonNull
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
@@ -567,6 +597,14 @@ public class CompilerOptions {
 				return OPTION_ReportPotentiallyUnclosedCloseable;
 			case ExplicitlyClosedAutoCloseable :
 				return OPTION_ReportExplicitlyClosedAutoCloseable;
+			case NullSpecViolation :
+				return OPTION_ReportNullSpecViolation;
+			case PotentialNullSpecViolation :
+				return OPTION_ReportPotentialNullSpecViolation;
+			case NullSpecInsufficientInfo :
+				return OPTION_ReportNullSpecInsufficientInfo;
+			case RedundantNullAnnotation :
+				return OPTION_ReportRedundantNullAnnotation;
 		}
 		return null;
 	}
@@ -733,6 +771,14 @@ public class CompilerOptions {
 			OPTION_ReportUnclosedCloseable,
 			OPTION_ReportPotentiallyUnclosedCloseable,
 			OPTION_ReportExplicitlyClosedAutoCloseable,
+			OPTION_AnnotationBasedNullAnalysis,
+			OPTION_NonNullAnnotationName,
+			OPTION_NullableAnnotationName,
+			OPTION_NonNullByDefaultAnnotationName,
+			OPTION_NonNullIsDefault,
+			OPTION_ReportNullSpecViolation,
+			OPTION_ReportPotentialNullSpecViolation,
+			OPTION_ReportRedundantNullAnnotation
 		};
 		return result;
 	}
@@ -795,6 +841,10 @@ public class CompilerOptions {
 			case NullReference :
 			case PotentialNullReference :
 			case RedundantNullCheck :
+			case NullSpecViolation :
+			case PotentialNullSpecViolation :
+			case NullSpecInsufficientInfo :
+			case RedundantNullAnnotation :
 				return "null"; //$NON-NLS-1$
 			case FallthroughCase :
 				return "fallthrough"; //$NON-NLS-1$
@@ -1008,6 +1058,18 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportUnclosedCloseable, getSeverityString(UnclosedCloseable));
 		optionsMap.put(OPTION_ReportPotentiallyUnclosedCloseable, getSeverityString(PotentiallyUnclosedCloseable));
 		optionsMap.put(OPTION_ReportExplicitlyClosedAutoCloseable, getSeverityString(ExplicitlyClosedAutoCloseable));
+		optionsMap.put(OPTION_AnnotationBasedNullAnalysis, this.isAnnotationBasedNullAnalysisEnabled ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportNullSpecViolation, getSeverityString(NullSpecViolation));
+		optionsMap.put(OPTION_ReportPotentialNullSpecViolation, getSeverityString(PotentialNullSpecViolation));
+		optionsMap.put(OPTION_ReportNullSpecInsufficientInfo, getSeverityString(NullSpecInsufficientInfo));
+		optionsMap.put(OPTION_ReportRedundantNullAnnotation, getSeverityString(RedundantNullAnnotation));
+		optionsMap.put(OPTION_NullableAnnotationName, String.valueOf(CharOperation.concatWith(this.nullableAnnotationName, '.')));
+		optionsMap.put(OPTION_NonNullAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullAnnotationName, '.')));
+		optionsMap.put(OPTION_NonNullByDefaultAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullByDefaultAnnotationName, '.')));
+		if (this.defaultNonNullness == TagBits.AnnotationNonNull)
+			optionsMap.put(OPTION_NonNullIsDefault, CompilerOptions.ENABLED);
+		else
+			optionsMap.put(OPTION_NonNullIsDefault, CompilerOptions.DISABLED);
 		return optionsMap;
 	}
 
@@ -1158,6 +1220,11 @@ public class CompilerOptions {
 		
 		// allow null info from asserts to be considered downstream by default
 		this.includeNullInfoFromAsserts = false;
+		
+		this.isAnnotationBasedNullAnalysisEnabled = false;
+		this.nullableAnnotationName = DEFAULT_NULLABLE_ANNOTATION_NAME;
+		this.nonNullAnnotationName = DEFAULT_NONNULL_ANNOTATION_NAME;
+		this.nonNullByDefaultAnnotationName = DEFAULT_NONNULLBYDEFAULT_ANNOTATION_NAME;
 	}
 
 	public void set(Map optionsMap) {
@@ -1441,6 +1508,39 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportUnclosedCloseable)) != null) updateSeverity(UnclosedCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportPotentiallyUnclosedCloseable)) != null) updateSeverity(PotentiallyUnclosedCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportExplicitlyClosedAutoCloseable)) != null) updateSeverity(ExplicitlyClosedAutoCloseable, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_AnnotationBasedNullAnalysis)) != null) {
+			this.isAnnotationBasedNullAnalysisEnabled = ENABLED.equals(optionValue);
+		}
+		if (this.isAnnotationBasedNullAnalysisEnabled) {
+			if ((optionValue = optionsMap.get(OPTION_ReportNullSpecViolation)) != null) {
+				if (ERROR.equals(optionValue)) {
+					this.errorThreshold.set(NullSpecViolation);
+					this.warningThreshold.clear(NullSpecViolation);
+				} else if (WARNING.equals(optionValue)) {
+					this.errorThreshold.clear(NullSpecViolation);
+					this.warningThreshold.set(NullSpecViolation);
+				}
+				// "ignore" is not valid for this option
+			}
+			if ((optionValue = optionsMap.get(OPTION_ReportPotentialNullSpecViolation)) != null) updateSeverity(PotentialNullSpecViolation, optionValue);
+			if ((optionValue = optionsMap.get(OPTION_ReportNullSpecInsufficientInfo)) != null) updateSeverity(NullSpecInsufficientInfo, optionValue);
+			if ((optionValue = optionsMap.get(OPTION_ReportRedundantNullAnnotation)) != null) updateSeverity(RedundantNullAnnotation, optionValue);
+			if ((optionValue = optionsMap.get(OPTION_NullableAnnotationName)) != null) {
+				this.nullableAnnotationName = CharOperation.splitAndTrimOn('.', ((String)optionValue).toCharArray());
+			}
+			if ((optionValue = optionsMap.get(OPTION_NonNullAnnotationName)) != null) {
+				this.nonNullAnnotationName = CharOperation.splitAndTrimOn('.', ((String)optionValue).toCharArray());
+			}
+			if ((optionValue = optionsMap.get(OPTION_NonNullByDefaultAnnotationName)) != null) {
+				this.nonNullByDefaultAnnotationName = CharOperation.splitAndTrimOn('.', ((String)optionValue).toCharArray());
+			}
+			if ((optionValue = optionsMap.get(OPTION_NonNullIsDefault)) != null) {
+				if (CompilerOptions.ENABLED.equals(optionValue))
+					this.defaultNonNullness = TagBits.AnnotationNonNull;
+				else if (CompilerOptions.DISABLED.equals(optionValue))
+					this.defaultNonNullness = 0;
+			}
+		}
 
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
