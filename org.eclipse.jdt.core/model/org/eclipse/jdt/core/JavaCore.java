@@ -1449,7 +1449,7 @@ public final class JavaCore extends Plugin {
 	 *    further controlled by {@link #COMPILER_PB_NULL_SPECIFICATION_VIOLATION},
 	 *    {@link #COMPILER_PB_POTENTIAL_NULL_SPECIFICATION_VIOLATION} and
 	 *    {@link #COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO}.</p>
-	 * <p>This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nullable"</code></dd>
 	 * <dt>Possible values:</dt><dd>any legal, fully qualified Java type name; must resolve to an annotation type.</dd>
@@ -1475,7 +1475,7 @@ public final class JavaCore extends Plugin {
 	 *    controlled by {@link #COMPILER_PB_NULL_SPECIFICATION_VIOLATION},
 	 *    {@link #COMPILER_PB_POTENTIAL_NULL_SPECIFICATION_VIOLATION} and
 	 *    {@link #COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO}.</p>
-	 * <p>This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnull"</code></dd>
 	 * <dt>Possible values:</dt><dd>any legal, fully qualified Java type name; must resolve to an annotation type.</dd>
@@ -1496,7 +1496,7 @@ public final class JavaCore extends Plugin {
 	 *    all corresponding defaults at outer scopes will be canceled for the annotated element.
 	 *    This includes defaults specified using this annotation type or a default defined using
 	 *    the compiler option {@link #COMPILER_NONNULL_IS_DEFAULT}.</p>
-	 * <p>This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnullbydefault"</code></dd>
 	 * <dt>Possible values:</dt><dd>any legal, fully qualified Java type name; must resolve to an annotation type.
@@ -1511,7 +1511,7 @@ public final class JavaCore extends Plugin {
 	 * Compiler option ID: Globally specify non-null as the assumed default for unannotated types.
 	 * <p>When enabled, this option globally achieves the same effect 
 	 *    as specifying {@link #COMPILER_NONNULL_ANNOTATION_NAME} does for individual elements.</p>
-	 * <p>This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnullisdefault"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "disabled", "enabled" }</code>.</dd>
@@ -1546,7 +1546,7 @@ public final class JavaCore extends Plugin {
 	 *    {@link #COMPILER_NULLABLE_ANNOTATION_NAME} control which annotations the compiler
 	 *    shall interpret as nonnull or nullable annotations, respectively.
 	 * </p>
-	 * <p>This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.nullSpecViolation"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning" }</code></dd>
@@ -1574,7 +1574,7 @@ public final class JavaCore extends Plugin {
 	 *    {@link #COMPILER_NULLABLE_ANNOTATION_NAME} control which annotations the compiler
 	 *    shall interpret as nonnull or nullable annotations, respectively.
 	 * </p>
-	 * <p>This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.potentialNullSpecViolation"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
@@ -1589,12 +1589,12 @@ public final class JavaCore extends Plugin {
 	 * <p>When enabled, the compiler will issue an error or a warning whenever one of the
 	 *    following situations is detected:
 	 *    <ol>
-	 *    <li>A method declared with a nonnull annotation returns an expression for	which
+	 *    <li>A method declared with a nonnull annotation returns an expression for which
 	 *        insufficient nullness information is available for statically proving that no
 	 *        flow will pass a null value at runtime.</li>
 	 *    <li>An expression for which insufficient nullness information is available for
 	 *        statically proving that it will never evaluate to a null value at runtime
-	 *        is passed as an argument in a method call where the corresponding	parameter of
+	 *        is passed as an argument in a method call where the corresponding parameter of
 	 *        the called method is declared with a nonnull annotation.</li>
 	 *    <li>An expression for which insufficient nullness information is available for
 	 *        statically proving that it will never evaluate to a null value at runtime
@@ -1607,7 +1607,7 @@ public final class JavaCore extends Plugin {
 	 *    {@link #COMPILER_NULLABLE_ANNOTATION_NAME} control which annotations the compiler
 	 *    shall interpret as nonnull or nullable annotations, respectively.
 	 * </p>
-	 * <p>This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.nullSpecInsufficientInfo"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
@@ -1626,7 +1626,7 @@ public final class JavaCore extends Plugin {
 	 *    {@link #COMPILER_NONNULL_IS_DEFAULT} or by using the annotation specified by the option
 	 *    {@link #COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME}.
 	 * </p>
-	 * <p>This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.redundantNullAnnotation"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>

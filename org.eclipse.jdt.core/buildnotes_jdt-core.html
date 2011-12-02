@@ -57,11 +57,11 @@ Eclipse SDK 3.8.0 - December 2, 2011 - 3.8.0 M4
      * This option controls whether the compiler will use null annotations for
      * improved analysis of (potential) null references.
      * 
-     * If enabled the compiler will interpret the annotation types defined using
+     * When enabled, the compiler will interpret the annotation types defined using
      * {@link #COMPILER_NONNULL_ANNOTATION_NAME} and {@link #COMPILER_NULLABLE_ANNOTATION_NAME}
      * as specifying whether or not a given type includes the value <code>null</code>.
      * 
-     * The effect of these analyses is further controled by the options
+     * The effect of these analyses is further controlled by the options
      * {@link #COMPILER_PB_NULL_SPECIFICATION_VIOLATION},
      * {@link #COMPILER_PB_POTENTIAL_NULL_SPECIFICATION_VIOLATION} and
      * {@link #COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO}.
@@ -83,12 +83,12 @@ Eclipse SDK 3.8.0 - December 2, 2011 - 3.8.0 M4
      * to perform special null analysis.
      * 
      * If the annotation specified by this option is applied to a type in a method
-     * signature or variable declaration this will be interpreted as a specification
+     * signature or variable declaration, this will be interpreted as a specification
      * that <code>null</code> is a legal value in that position. Currently supported
      * positions are: method parameters, method return type and local variables.
      * 
      * If a value whose type
-     * is annotated with this annotation is dereferenced without checking for null
+     * is annotated with this annotation is dereferenced without checking for null,
      * the compiler will trigger a diagnostic as further controlled by
      * {@link #COMPILER_PB_POTENTIAL_NULL_REFERENCE}.
      * 
@@ -100,7 +100,7 @@ Eclipse SDK 3.8.0 - December 2, 2011 - 3.8.0 M4
      * This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
      * 
      * Option id: <code>"org.eclipse.jdt.core.compiler.annotation.nullable"</code>
-     * Possible values: any legal, fully qualified Java type name, must resolve to an annotation type.
+     * Possible values: any legal, fully qualified Java type name; must resolve to an annotation type.
      * Default: <code>"org.eclipse.jdt.annotation.Nullable"</code>
      * @since 3.8
      * @category CompilerOptionID
@@ -116,11 +116,11 @@ Eclipse SDK 3.8.0 - December 2, 2011 - 3.8.0 M4
      * to perform special null analysis.
      * 
      * If the annotation specified by this option is applied to a type in a method
-     * signature or variable declaration this will be interpreted as a specification
+     * signature or variable declaration, this will be interpreted as a specification
      * that <code>null</code> is <b>not</b> a legal value in that position. Currently
      * supported positions are: method parameters, method return type and local variables.
      * 
-     * For values declared with this annotation the compiler will never trigger a null
+     * For values declared with this annotation, the compiler will never trigger a null
      * reference diagnostic (as controlled by {@link #COMPILER_PB_POTENTIAL_NULL_REFERENCE}
      * and {@link #COMPILER_PB_NULL_REFERENCE}), because the assumption is made that null
      * will never occur at runtime in these positions.
@@ -133,7 +133,7 @@ Eclipse SDK 3.8.0 - December 2, 2011 - 3.8.0 M4
      * This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
      * 
      * Option id: <code>"org.eclipse.jdt.core.compiler.annotation.nonnull"</code>
-     * Possible values: any legal, fully qualified Java type name, must resolve to an annotation type.
+     * Possible values: any legal, fully qualified Java type name; must resolve to an annotation type.
      * Default: <code>"org.eclipse.jdt.annotation.NonNull"</code>
      * @since 3.8
      * @category CompilerOptionID
@@ -148,7 +148,7 @@ Eclipse SDK 3.8.0 - December 2, 2011 - 3.8.0 M4
      * This option defines a fully qualified Java type name that the compiler may use
      * to perform special null analysis.
      * 
-     * If the annotation is applied without an argument all unannotated types in method signatures
+     * If the annotation is applied without an argument, all unannotated types in method signatures
      * within the annotated element will be treated as if they were specified with the non-null annotation
      * (see {@link #COMPILER_NONNULL_ANNOTATION_NAME}).
      * 
@@ -160,7 +160,7 @@ Eclipse SDK 3.8.0 - December 2, 2011 - 3.8.0 M4
      * This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
      * 
      * Option id: <code>"org.eclipse.jdt.core.compiler.annotation.nonnullbydefault"</code>
-     * Possible values: any legal, fully qualified Java type name, must resolve to an annotation type.
+     * Possible values: any legal, fully qualified Java type name; must resolve to an annotation type.
      *     That annotation type should have exactly one boolean parameter.
      * Default: <code>"org.eclipse.jdt.annotation.NonNullByDefault"</code>
      * @since 3.8
@@ -283,7 +283,7 @@ Eclipse SDK 3.8.0 - December 2, 2011 - 3.8.0 M4
      * shall interpret as nonnull or nullable annotations, respectively.
      * 
      * This option only has an effect if the the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
-     * <dl>
+     * 
      * Option id: <code>"org.eclipse.jdt.core.compiler.problem.nullSpecInsufficientInfo"</code>
      * Possible values: <code>{ "error", "warning", "ignore" }</code>
      * Default: <code>"warning"</code>
@@ -301,7 +301,7 @@ Eclipse SDK 3.8.0 - December 2, 2011 - 3.8.0 M4
      * When enabled, the compiler will issue an error or a warning when a non-null annotation
      * (see {@link #COMPILER_NONNULL_ANNOTATION_NAME})
      * is applied although the same effect is already achieved by a default applicable at the
-     * current location. Such default may be effective by enabling the option
+     * current location. Such a default may be effective by enabling the option
      * {@link #COMPILER_NONNULL_IS_DEFAULT} or by using the annotation specified by the option
      * {@link #COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME}.
      * 
