@@ -52,7 +52,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_illegal_annotation_007" };
+//		TESTS_NAMES = new String[] { "test_assignment_expression_1" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -2473,6 +2473,121 @@ public void test_nonnull_var_in_constrol_structure_3() {
 		"	      ^\n" +
 		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
 		"----------\n");
+}
+// witness for an AIOOBE in FlowContext.recordExpectedType()
+public void test_message_send_in_control_structure_01() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.IGNORE);
+	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.WARNING);
+	runNegativeTestWithLibs(
+		new String[] {
+			"p/Scope.java",
+			"package p;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public abstract class Scope {\n" +
+			"	public ReferenceBinding findMemberType(char[] typeName, ReferenceBinding enclosingType) {\n" +
+			"		ReferenceBinding enclosingSourceType = enclosingSourceType();\n" +
+			"		PackageBinding currentPackage = getCurrentPackage();\n" +
+			"		CompilationUnitScope unitScope = compilationUnitScope();\n" +
+			"		ReferenceBinding memberType = enclosingType.getMemberType(typeName);\n" +
+			"		ReferenceBinding currentType = enclosingType;\n" +
+			"		ReferenceBinding[] interfacesToVisit = null;\n" +
+			"		while (true) {\n" +
+			"			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();\n" +
+			"			if (itsInterfaces != null) {\n" +
+			"				if (interfacesToVisit == null) {\n" +
+			"					interfacesToVisit = itsInterfaces;\n" +
+			"				}\n" +
+			"			}\n" +
+			"			unitScope.recordReference(currentType, typeName);\n" +
+			"			\n" +
+			"			if ((memberType = currentType.getMemberType(typeName)) != null) {\n" +
+			"				if (enclosingSourceType == null\n" +
+			"					? memberType.canBeSeenBy(currentPackage)\n" +
+			"					: memberType.canBeSeenBy(enclosingType, enclosingSourceType)) {\n" +
+			"						return memberType;\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
+			"	private CompilationUnitScope compilationUnitScope() {\n" +
+			"		return compilationUnitScope();\n" +
+			"	}\n" +
+			"	private PackageBinding getCurrentPackage() {\n" +
+			"		return getCurrentPackage();\n" +
+			"	}\n" +
+			"	private ReferenceBinding enclosingSourceType() {\n" +
+			"		return enclosingSourceType();\n" +
+			"	}\n" +
+			"}\n",
+			"p/CompilationUnitScope.java",
+			"package p;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class CompilationUnitScope {\n" +
+			"    void recordReference(ReferenceBinding rb, char[] name) {}\n" +
+			"}\n",
+			"p/PackageBinding.java",
+			"package p;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class PackageBinding {\n" +
+			"}\n",
+			"p/ReferenceBinding.java",
+			"package p;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class ReferenceBinding {\n" +
+			"    ReferenceBinding getMemberType(char[] name) { return this; }\n" +
+			"    ReferenceBinding[] superInterfaces() { return new ReferenceBinding[0]; }\n" +
+			"    boolean canBeSeenBy(PackageBinding ob) { return true; }\n" +
+			"    boolean canBeSeenBy(ReferenceBinding rb, ReferenceBinding rb2) { return true; }\n" +
+			"}\n"
+		},
+		customOptions,
+		"----------\n" +
+		"1. ERROR in p\\Scope.java (at line 13)\n" +
+		"	if (itsInterfaces != null) {\n" +
+		"	    ^^^^^^^^^^^^^\n" +
+		"Redundant null check: The variable itsInterfaces cannot be null at this location\n" +
+		"----------\n" +
+		"2. ERROR in p\\Scope.java (at line 20)\n" +
+		"	if ((memberType = currentType.getMemberType(typeName)) != null) {\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: The variable memberType cannot be null at this location\n" +
+		"----------\n" +
+		"3. ERROR in p\\Scope.java (at line 21)\n" +
+		"	if (enclosingSourceType == null\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^\n" +
+		"Null comparison always yields false: The variable enclosingSourceType cannot be null at this location\n" +
+		"----------\n");
+}
+public void test_assignment_expression_1() {
+	Map customOptions = getCompilerOptions();
+//	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
+	customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	@Nullable Object foo() {\n" +
+			"		Object o = null;\n" +
+			"		boolean keepLooking = true;\n" +
+			"		while(keepLooking) {\n" +
+			"			if ((o=getO()) != null) {\n" +
+			"				return o;\n" +
+			"			}\n" +
+			"		}\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"\n" +
+			"	private @Nullable Object getO() {\n" +
+			"		return new Object();\n" +
+			"	}\n" +
+			"}\n",
+
+		},
+		customOptions,
+		"");	
 }
 // a nonnull variable is dereferenced method of a nested type
 public void test_nesting_1() {

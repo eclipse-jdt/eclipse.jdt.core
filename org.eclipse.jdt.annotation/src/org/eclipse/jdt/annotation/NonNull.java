@@ -35,8 +35,8 @@ import java.lang.annotation.Target;
  * <li>Nullness of the value can be statically determined, the entity is definitely bound from either of:
  *     <ul><li>the value <code>null</code>, or</li>
  *         <li>an entity with a {@link Nullable @Nullable} type.</li></ul></li>
- * <li>Nullness can not definitely be determined, because different code branches yield different results.</li>
- * <li>Nullness can not be determined, because other program elements are involved for which
+ * <li>Nullness cannot definitely be determined, because different code branches yield different results.</li>
+ * <li>Nullness cannot be determined, because other program elements are involved for which
  *     null annotations are lacking.</li>
  * </ol>
  * </p>

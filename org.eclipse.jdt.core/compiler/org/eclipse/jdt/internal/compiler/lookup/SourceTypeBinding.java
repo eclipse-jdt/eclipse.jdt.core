@@ -1597,7 +1597,8 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				typeParameters[i].binding = null;
 		return null;
 	}
-	createArgumentBindings(method);
+	if (this.scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
+		createArgumentBindings(method); // need annotations resolved already at this point
 	if (foundReturnTypeProblem)
 		return method; // but its still unresolved with a null return type & is still connected to its method declaration
 
