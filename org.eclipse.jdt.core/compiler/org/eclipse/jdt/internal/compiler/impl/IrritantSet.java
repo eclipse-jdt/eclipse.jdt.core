@@ -104,7 +104,6 @@ public class IrritantSet {
 			.set(
 				CompilerOptions.DeadCode
 				|CompilerOptions.Tasks
-				|CompilerOptions.UnclosedCloseable
 				|CompilerOptions.NullSpecInsufficientInfo
 				|CompilerOptions.RedundantNullAnnotation);
 		// default errors IF AnnotationBasedNullAnalysis is enabled:

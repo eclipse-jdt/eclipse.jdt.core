@@ -453,6 +453,8 @@ public void test013() {
 }
 // Test for unhandled exceptions
 public void test014() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -504,7 +506,8 @@ public void test014() {
 		"	class WeirdException extends Throwable {}\n" + 
 		"	      ^^^^^^^^^^^^^^\n" + 
 		"The serializable class WeirdException does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n");
+		"----------\n",
+		null, true, options);
 }
 // Resource nullness tests
 public void test015() {
@@ -533,6 +536,8 @@ public void test015() {
 }
 // Dead code tests, resource nullness, unhandled exception tests
 public void test016() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -582,7 +587,10 @@ public void test016() {
 		"	class WeirdException extends Throwable {}\n" + 
 		"	      ^^^^^^^^^^^^^^\n" + 
 		"The serializable class WeirdException does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n");
+		"----------\n",
+		null,
+		true,
+		options);
 }
 // Dead code tests
 public void test017() {

@@ -2367,6 +2367,8 @@ public void testBug338234d() {
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // variant < 1.7 using Closeable: not closed
 public void testCloseable1() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2387,11 +2389,14 @@ public void testCloseable1() {
 			"	FileReader fileReader = new FileReader(file); // not closed\n" + 
 			"	           ^^^^^^^^^^\n" + 
 			"Resource leak: 'fileReader' is never closed\n" + 
-			"----------\n");	
+			"----------\n",
+			null, true, options);	
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // variant < 1.7 using Closeable: resource is closed, cannot suggest try-with-resources < 1.7
 public void testCloseable2() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2408,7 +2413,8 @@ public void testCloseable2() {
 				"    }\n" + 
 				"}\n"
 			}, 
-			"");	
+			"",
+			null, true, null, options, null);	
 }
 // Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
 // return/break/continue inside anonymous class inside try-catch inside initializer

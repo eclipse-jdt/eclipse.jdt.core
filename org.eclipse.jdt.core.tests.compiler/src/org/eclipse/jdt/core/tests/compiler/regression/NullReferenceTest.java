@@ -6017,7 +6017,10 @@ public void test0561_try_catch_unchecked_exception() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150854
 // (slightly different) variant of 561
 public void test0562_try_catch_unchecked_exception() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
 	this.runNegativeTest(
+		true,
 		new String[] {
 			"X.java",
 			"import java.io.*;\n" +
@@ -6032,6 +6035,8 @@ public void test0562_try_catch_unchecked_exception() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
+			null,
+			options,
 			"----------\n" +
 			"1. WARNING in X.java (at line 6)\n" +
 			"	o = new LineNumberReader(new FileReader(\"dummy\"));\n" +
@@ -6093,6 +6098,8 @@ public void test0563_try_catch() {
 // null analysis - try/catch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150854
 public void test0564_try_catch_unchecked_exception() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6107,13 +6114,21 @@ public void test0564_try_catch_unchecked_exception() {
 			"    return result;\n" +
 			"  }\n" +
 			"}"},
-		"");
+		"",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* no vm arguments */,
+		options,
+		null /* no custom requestor*/,
+	  	false /* do not skip javac for this peculiar test */);
 }
 
 // null analysis - try/catch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150854
 // variant
 public void test0565_try_catch_unchecked_exception() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6129,13 +6144,21 @@ public void test0565_try_catch_unchecked_exception() {
 			"    return result;\n" +
 			"  }\n" +
 			"}"},
-		"");
+		"",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* no vm arguments */,
+		options,
+		null /* no custom requestor*/,
+	  	false /* do not skip javac for this peculiar test */);
 }
 
 // null analysis - try/catch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150854
 // variant
 public void test0566_try_catch_unchecked_exception() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -6160,7 +6183,13 @@ public void test0566_try_catch_unchecked_exception() {
 			"    return null;\n" +
 			"  }\n" +
 			"}"},
-		"");
+		"",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null /* no vm arguments */,
+		options,
+		null /* no custom requestor*/,
+	  	false /* do not skip javac for this peculiar test */);
 }
 
 // null analysis - try/catch for checked exceptions
