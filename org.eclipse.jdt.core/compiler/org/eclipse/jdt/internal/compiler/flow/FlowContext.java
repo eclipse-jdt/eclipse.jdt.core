@@ -564,9 +564,10 @@ protected void recordExpectedType(TypeBinding expectedType, int nullCount) {
 		while (size <= nullCount) size *= 2;
 		this.expectedTypes = new TypeBinding[size];
 	}
-	else if (nullCount == this.expectedTypes.length) {
+	else if (nullCount >= this.expectedTypes.length) {
+		int oldLen = this.expectedTypes.length;
 		System.arraycopy(this.expectedTypes, 0,
-			this.expectedTypes = new TypeBinding[nullCount * 2], 0, nullCount);
+			this.expectedTypes = new TypeBinding[nullCount * 2], 0, oldLen);
 	}
 	this.expectedTypes[nullCount] = expectedType;
 }

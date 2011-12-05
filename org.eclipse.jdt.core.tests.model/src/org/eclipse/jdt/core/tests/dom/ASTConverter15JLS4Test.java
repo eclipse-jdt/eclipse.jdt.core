@@ -7476,7 +7476,6 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
     	assertTrue("Not assignement compatible", typeBinding.isAssignmentCompatible(typeBinding2));
     	assertTrue("Not assignement compatible", typeBinding.isAssignmentCompatible(collectionTypeBinding));
 	}
-
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=156352
 	 */
@@ -7495,10 +7494,13 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 				buffer.append(typeBinding.getAnnotations().length);
 				typeBinding= typeBinding.getSuperclass();
 			}
-			// initially, this test expected "000", but after https://bugs.eclipse.org/186342
-			// annotations are resolved more eagerly, which makes the annotations on Test2 show up,
-			// which is actually the right outcome.
-			assertEquals("Wrong number of annotations", "020", String.valueOf(buffer));
+			// the right outcome would be "020", but depending on the strategy when exactly
+			// annotations are resolved the annotations on Test2 are (not) present when
+			// traversing the super-class chain.
+			// The patch in https://bugs.eclipse.org/186342#c196 produced "020" but
+			// the previous behavior ("000") was restored in https://bugs.eclipse.org/365387
+			// (see the change in SourceTypeBinding.resolveTypesFor(..))
+			assertEquals("Wrong number of annotations", "000", String.valueOf(buffer));
 		}
 	}
 

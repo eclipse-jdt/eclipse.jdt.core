@@ -778,6 +778,7 @@ public class CompilerOptions {
 			OPTION_NonNullIsDefault,
 			OPTION_ReportNullSpecViolation,
 			OPTION_ReportPotentialNullSpecViolation,
+			OPTION_ReportNullSpecInsufficientInfo,
 			OPTION_ReportRedundantNullAnnotation
 		};
 		return result;
@@ -1225,6 +1226,7 @@ public class CompilerOptions {
 		this.nullableAnnotationName = DEFAULT_NULLABLE_ANNOTATION_NAME;
 		this.nonNullAnnotationName = DEFAULT_NONNULL_ANNOTATION_NAME;
 		this.nonNullByDefaultAnnotationName = DEFAULT_NONNULLBYDEFAULT_ANNOTATION_NAME;
+		this.defaultNonNullness = 0;
 	}
 
 	public void set(Map optionsMap) {

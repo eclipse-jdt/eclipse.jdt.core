@@ -119,7 +119,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 }
 public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
 	super.checkNPE(scope, flowContext, flowInfo);
-	if (nullStatus(flowInfo) == FlowInfo.POTENTIALLY_NULL)
+	if ((nullStatus(flowInfo) & FlowInfo.POTENTIALLY_NULL) != 0)
 		scope.problemReporter().messageSendPotentialNullReference(this.binding, this);
 }
 /**
@@ -281,7 +281,7 @@ public int nullStatus(FlowInfo flowInfo) {
 		if ((tagBits & TagBits.AnnotationNonNull) != 0)
 			return FlowInfo.NON_NULL;
 		if ((tagBits & TagBits.AnnotationNullable) != 0)
-			return FlowInfo.POTENTIALLY_NULL;
+			return FlowInfo.POTENTIALLY_NULL | FlowInfo.POTENTIALLY_NON_NULL;
 	}
 	return FlowInfo.UNKNOWN;
 }
