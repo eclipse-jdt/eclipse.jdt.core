@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1524,6 +1526,33 @@ public class ClasspathEntry implements IClasspathEntry {
 
 		return JavaCore.getResolvedClasspathEntry(this);
 	}
+	
+	/**
+	 * This function computes the URL of the index location for this classpath entry. It returns null if the URL is
+	 * invalid.
+	 */
+	public URL getLibraryIndexLocation() {
+		switch(getEntryKind()) {
+			case IClasspathEntry.CPE_LIBRARY :
+			case IClasspathEntry.CPE_VARIABLE :
+				break;
+			default :
+				return null;
+		}
+		if (this.extraAttributes == null) return null;
+		for (int i= 0; i < this.extraAttributes.length; i++) {
+			IClasspathAttribute attrib= this.extraAttributes[i];
+			if (IClasspathAttribute.INDEX_LOCATION_ATTRIBUTE_NAME.equals(attrib.getName())) {
+				String value = attrib.getValue();
+				try {
+					return new URL(value);
+				} catch (MalformedURLException e) {
+					return null;
+				}
+			}
+		}
+		return null;
+	}	
 
 	/**
 	 * Validate a given classpath and output location for a project, using the following rules:

@@ -13,6 +13,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.File;
+import java.net.URL;
 import java.util.*;
 
 import org.eclipse.core.resources.IContainer;
@@ -997,8 +998,12 @@ public class DeltaProcessor {
 									// first remove the index so that it is forced to be re-indexed
 									this.manager.indexManager.removeIndex(entryPath);
 									// then index the jar
-									this.manager.indexManager.indexLibrary(entryPath, project.getProject());
+									this.manager.indexManager.indexLibrary(entryPath, project.getProject(), ((ClasspathEntry)entries[j]).getLibraryIndexLocation());
 								} else {
+									URL indexLocation = ((ClasspathEntry)entries[j]).getLibraryIndexLocation();
+									if (indexLocation != null) { // force reindexing, this could be faster rather than maintaining the list
+										this.manager.indexManager.indexLibrary(entryPath, project.getProject(), indexLocation);
+									}
 									externalArchivesStatus.put(entryPath, EXTERNAL_JAR_UNCHANGED);
 								}
 							} else {
@@ -1009,7 +1014,7 @@ public class DeltaProcessor {
 									this.state.getExternalLibTimeStamps().put(entryPath, new Long(newTimeStamp));
 									// index the new jar
 									this.manager.indexManager.removeIndex(entryPath);
-									this.manager.indexManager.indexLibrary(entryPath, project.getProject());
+									this.manager.indexManager.indexLibrary(entryPath, project.getProject(), ((ClasspathEntry)entries[j]).getLibraryIndexLocation());
 								}
 							}
 						} else { // internal JAR
@@ -2629,13 +2634,13 @@ public class DeltaProcessor {
 					switch (delta.getKind()) {
 						case IResourceDelta.ADDED:
 							// index the new jar
-							indexManager.indexLibrary(jarPath, root.getJavaProject().getProject());
+							indexManager.indexLibrary(jarPath, root.getJavaProject().getProject(), root.getIndexPath());
 							break;
 						case IResourceDelta.CHANGED:
 							// first remove the index so that it is forced to be re-indexed
 							indexManager.removeIndex(jarPath);
 							// then index the jar
-							indexManager.indexLibrary(jarPath, root.getJavaProject().getProject());
+							indexManager.indexLibrary(jarPath, root.getJavaProject().getProject(), root.getIndexPath());
 							break;
 						case IResourceDelta.REMOVED:
 							// the jar was physically removed: remove the index

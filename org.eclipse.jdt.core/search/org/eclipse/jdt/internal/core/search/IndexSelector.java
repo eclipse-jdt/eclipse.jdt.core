@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.builder.ReferenceCollection;
 import org.eclipse.jdt.internal.core.builder.State;
+import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
@@ -38,7 +39,7 @@ import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 public class IndexSelector {
 	IJavaSearchScope searchScope;
 	SearchPattern pattern;
-	IPath[] indexLocations; // cache of the keys for looking index up
+	IndexLocation[] indexLocations; // cache of the keys for looking index up
 
 public IndexSelector(
 		IJavaSearchScope searchScope,
@@ -267,10 +268,10 @@ private void initializeIndexLocations() {
 	}
 
 	locations.remove(null); // Ensure no nulls
-	this.indexLocations = (IPath[]) locations.toArray(new IPath[locations.size()]);
+	this.indexLocations = (IndexLocation[]) locations.toArray(new IndexLocation[locations.size()]);
 }
 
-public IPath[] getIndexLocations() {
+public IndexLocation[] getIndexLocations() {
 	if (this.indexLocations == null) {
 		initializeIndexLocations();
 	}

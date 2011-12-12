@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.Index;
+import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
@@ -42,14 +43,17 @@ class AddJarFileToIndex extends IndexRequest {
 	private static final char JAR_SEPARATOR = IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR.charAt(0);
 	IFile resource;
 	Scanner scanner;
+	private IndexLocation indexFileURL;
 
-	public AddJarFileToIndex(IFile resource, IndexManager manager) {
+	public AddJarFileToIndex(IFile resource, IndexLocation indexFile, IndexManager manager) {
 		super(resource.getFullPath(), manager);
 		this.resource = resource;
+		this.indexFileURL = indexFile;
 	}
-	public AddJarFileToIndex(IPath jarPath, IndexManager manager) {
+	public AddJarFileToIndex(IPath jarPath, IndexLocation indexFile, IndexManager manager) {
 		// external JAR scenario - no resource
 		super(jarPath, manager);
+		this.indexFileURL = indexFile;
 	}
 	public boolean equals(Object o) {
 		if (o instanceof AddJarFileToIndex) {
@@ -70,6 +74,12 @@ class AddJarFileToIndex extends IndexRequest {
 	public boolean execute(IProgressMonitor progressMonitor) {
 
 		if (this.isCancelled || progressMonitor != null && progressMonitor.isCanceled()) return true;
+
+		if (this.indexFileURL != null) {
+			boolean added = this.manager.addIndex(this.containerPath, this.indexFileURL);
+			if (added) return true;	
+			this.indexFileURL = null;
+		}
 
 		try {
 			// if index is already cached, then do not perform any check
@@ -192,7 +202,11 @@ class AddJarFileToIndex extends IndexRequest {
 					return false;
 				}
 				index.separator = JAR_SEPARATOR;
-
+				IPath indexPath = null;
+				IndexLocation indexLocation;
+				if ((indexLocation = index.getIndexLocation()) != null) {
+					indexPath = new Path(indexLocation.getCanonicalFilePath());
+				}
 				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
 						if (JobManager.VERBOSE)
@@ -208,7 +222,7 @@ class AddJarFileToIndex extends IndexRequest {
 						// index only classes coming from valid packages - https://bugs.eclipse.org/bugs/show_bug.cgi?id=293861
 						final byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
 						JavaSearchDocument entryDocument = new JavaSearchDocument(ze, zipFilePath, classFileBytes, participant);
-						this.manager.indexDocument(entryDocument, participant, index, this.containerPath);
+						this.manager.indexDocument(entryDocument, participant, index, indexPath);
 					}
 				}
 				this.manager.saveIndex(index);
