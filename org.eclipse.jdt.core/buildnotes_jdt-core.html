@@ -50,7 +50,37 @@ Eclipse SDK 3.8.0 - %date% - December 2, 2011
 <br>Project org.eclipse.jdt.core v_C25
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C25">cvs</a>).
 <h2>What's new in this drop</h2>
-
+<ul>
+<li>New constant for the name of index location class path attribute in IClasspathAttribute(see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=356620">356620</a> for details)
+<pre>
+   /**
+     * Constant for the name of the index location attribute.
+     * 
+     * The value for this attribute has to be the string representation of a URL.
+     * It should point to an existing index file in a folder or a jar. The URL can also be of platform protocol.
+     * 
+     * @since 3.8
+     */
+     String INDEX_LOCATION_ATTRIBUTE_NAME = "index_location"; 
+</pre>
+</li>
+<li>New API org.eclipse.jdt.core.index.JavaIndexer.generateIndexForJar to generate the index file for a given jar
+<pre>
+   /**
+     * Generates the index file for the specified jar.
+     *
+     * @param pathToJar The full path to the jar that needs to be indexed
+     * @param pathToIndexFile The full path to the index file that needs to be generated
+     * @throws IOException if the jar is not found or could not write into the index file
+     * @since 3.8
+     */
+     public static void generateIndexForJar(String pathToJar, String pathToIndexFile) throws IOException;
+</pre>
+</li>
+<li> New application org.eclipse.jdt.core.JavaIndexer to generate index file for the given jar
+</li>
+<li> New ant task eclipse.buildJarIndex to generate the index file for the given jar </li>
+</ul>
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=356620">356620</a>
 Make it possible to provide indexes for defined libraries

@@ -375,6 +375,9 @@ void initialize(boolean reuseExistingFile) throws IOException {
 	if (this.indexLocation.exists()) {
 		if (reuseExistingFile) {
 			InputStream stream = this.indexLocation.getInputStream();
+			if (stream == null) {
+				throw new IOException("Failed to use the index file"); //$NON-NLS-1$
+			}
 			this.streamBuffer = new byte[BUFFER_READ_SIZE];
 			this.bufferIndex = 0;
 			this.bufferEnd = stream.read(this.streamBuffer, 0, 128);
