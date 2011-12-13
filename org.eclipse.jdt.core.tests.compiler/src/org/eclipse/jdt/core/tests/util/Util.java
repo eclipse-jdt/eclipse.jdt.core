@@ -1348,6 +1348,34 @@ private static void zip(File dir, ZipOutputStream zip, int rootPathLength) throw
         }
     }
 }
+
+/**
+ * Zips the given files into the given jar. All the files are kept at the root of the zip. 
+ */
+public static void zipFiles(File[] files, String zipPath) throws IOException {
+	File zipFile = new File(zipPath);
+	if (zipFile.exists()) {
+		if (!delete(zipFile))
+			throw new IOException("Could not delete " + zipPath);
+		// ensure the new zip file has a different timestamp than the previous one
+		int timeToWait = 1000; // some platform (like Linux) have a 1s granularity)
+		waitAtLeast(timeToWait);
+	} else {
+		zipFile.getParentFile().mkdirs();
+	}
+	ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zipFile));
+	try {
+		for (int i = 0, length = files.length; i < length; i++) {
+			File file = files[i];
+			ZipEntry entry = new ZipEntry(file.getName());
+			zip.putNextEntry(entry);
+			zip.write(org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(file));
+			zip.closeEntry();
+		}
+	} finally {
+		zip.close();
+	}
+}
 /**
  * Returns the compilation errors / warnings for the given CompilationResult.
  *

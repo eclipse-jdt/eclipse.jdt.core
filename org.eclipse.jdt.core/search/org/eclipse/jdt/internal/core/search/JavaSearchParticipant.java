@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core.search;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 import org.eclipse.jdt.internal.core.search.indexing.SourceIndexer;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
@@ -98,7 +99,20 @@ public class JavaSearchParticipant extends SearchParticipant {
 	 * @see org.eclipse.jdt.core.search.SearchParticipant#selectIndexes(org.eclipse.jdt.core.search.SearchQuery, org.eclipse.jdt.core.search.SearchContext)
 	 */
 	public IPath[] selectIndexes(SearchPattern pattern, IJavaSearchScope scope) {
+		IndexSelector selector = (IndexSelector) this.indexSelector.get();
+		if (selector == null) {
+			selector = new IndexSelector(scope, pattern);
+			this.indexSelector.set(selector);
+		}
+		IndexLocation[] urls = selector.getIndexLocations();
+		IPath[] paths = new IPath[urls.length];
+		for (int i = 0; i < urls.length; i++) {
+			paths[i] = new Path(urls[i].getIndexFile().getPath());
+		}
+		return paths;
+	}
 
+	public IndexLocation[] selectIndexURLs(SearchPattern pattern, IJavaSearchScope scope) {
 		IndexSelector selector = (IndexSelector) this.indexSelector.get();
 		if (selector == null) {
 			selector = new IndexSelector(scope, pattern);

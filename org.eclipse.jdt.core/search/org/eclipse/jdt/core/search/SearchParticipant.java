@@ -14,6 +14,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.index.FileIndexLocation;
+import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
@@ -192,9 +194,9 @@ public abstract class SearchParticipant {
 	 * </p>
 	 *
 	 * @param document the document to index
-	 * @param indexLocation the location on the file system of the index
+	 * @param indexPath the location on the file system of the index
 	 */
-	public final void scheduleDocumentIndexing(SearchDocument document, IPath indexLocation) {
+	public final void scheduleDocumentIndexing(SearchDocument document, IPath indexPath) {
 		IPath documentPath = new Path(document.getPath());
 		Object file = JavaModel.getTarget(documentPath, true);
 		IPath containerPath = documentPath;
@@ -205,11 +207,13 @@ public abstract class SearchParticipant {
 		}
 		IndexManager manager = JavaModelManager.getIndexManager();
 		// TODO (frederic) should not have to create index manually, should expose API that recreates index instead
+		IndexLocation indexLocation;
+		indexLocation = new FileIndexLocation(indexPath.toFile(), true);
 		manager.ensureIndexExists(indexLocation, containerPath);
 		manager.scheduleDocumentIndexing(document, containerPath, indexLocation, this);
-		if (!indexLocation.equals(this.lastIndexLocation)) {
-			manager.updateParticipant(indexLocation, containerPath);
-			this.lastIndexLocation = indexLocation;
+		if (!indexPath.equals(this.lastIndexLocation)) {
+			manager.updateParticipant(indexPath, containerPath);
+			this.lastIndexLocation = indexPath;
 		}
 	}
 

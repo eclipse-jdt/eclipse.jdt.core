@@ -80,7 +80,7 @@ public class IndexBinaryFolder extends IndexRequest {
 				for (int i = 0; i < max; i++) {
 					indexedFileNames.put(paths[i], DELETED);
 				}
-				final long indexLastModified = index.getIndexFile().lastModified();
+				final long indexLastModified = index.getIndexLastModified();
 				this.folder.accept(
 					new IResourceProxyVisitor() {
 						public boolean visit(IResourceProxy proxy) throws CoreException {

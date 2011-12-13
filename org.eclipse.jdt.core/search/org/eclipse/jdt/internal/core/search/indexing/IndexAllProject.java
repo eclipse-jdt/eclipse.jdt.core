@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,7 +77,7 @@ public class IndexAllProject extends IndexRequest {
 					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && entry.getPath().equals(projectPath)) {
 						// the project is also a library folder (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89815)
 						// ensure a job exists to index it as a binary folder
-						this.manager.indexLibrary(projectPath, this.project);
+						this.manager.indexLibrary(projectPath, this.project, ((ClasspathEntry)entry).getLibraryIndexLocation());
 						return true;
 					}
 				}
@@ -107,7 +107,7 @@ public class IndexAllProject extends IndexRequest {
 				for (int i = 0; i < max; i++)
 					indexedFileNames.put(paths[i], DELETED);
 			}
-			final long indexLastModified = max == 0 ? 0L : index.getIndexFile().lastModified();
+			final long indexLastModified = max == 0 ? 0L : index.getIndexLastModified();
 
 			IWorkspaceRoot root = this.project.getWorkspace().getRoot();
 			for (int i = 0; i < sourceEntriesNumber; i++) {

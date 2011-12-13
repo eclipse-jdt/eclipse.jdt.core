@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <!--
-    Copyright (c) 2004, 2010 IBM Corporation and others.
+    Copyright (c) 2004, 2011 IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -158,6 +158,11 @@
 		class="org.eclipse.jdt.core.CheckDebugAttributes"
 		library="jdtCompilerAdapter.jar">
 	</antTask>
+	<antTask
+		name="eclipse.buildJarIndex"
+		class="org.eclipse.jdt.core.BuildJarIndex"
+		library="jdtCompilerAdapter.jar">
+	</antTask>
 </extension>
       
 <!-- =================================================================================== -->
@@ -193,6 +198,17 @@
       	<application>
       		<run class="org.eclipse.jdt.core.formatter.CodeFormatterApplication" />
 		</application>
+</extension>
+
+<!-- =================================================================================== -->
+<!-- Extension: Java Generate Indexer                                                    -->
+<!-- =================================================================================== -->
+<extension
+      id="JavaIndexer"
+      point="org.eclipse.core.runtime.applications">
+   		<application>
+      		<run class="org.eclipse.jdt.core.index.JavaIndexerApplication" />
+   		</application>
 </extension>
 
 <!-- =================================================================================== -->

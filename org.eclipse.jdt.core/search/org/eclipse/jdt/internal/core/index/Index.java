@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,12 +88,12 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 }
 
 
-public Index(String fileName, String containerPath, boolean reuseExistingFile) throws IOException {
+public Index(IndexLocation location, String containerPath, boolean reuseExistingFile) throws IOException {
 	this.containerPath = containerPath;
 	this.monitor = new ReadWriteMonitor();
 
 	this.memoryIndex = new MemoryIndex();
-	this.diskIndex = new DiskIndex(fileName);
+	this.diskIndex = new DiskIndex(location);
 	this.diskIndex.initialize(reuseExistingFile);
 	if (reuseExistingFile) this.separator = this.diskIndex.separator;
 }
@@ -110,7 +110,13 @@ public String containerRelativePath(String documentPath) {
 	return documentPath.substring(index + 1);
 }
 public File getIndexFile() {
-	return this.diskIndex == null ? null : this.diskIndex.indexFile;
+	return this.diskIndex == null ? null : this.diskIndex.indexLocation.getIndexFile();
+}
+public IndexLocation getIndexLocation() {
+	return this.diskIndex == null ? null : this.diskIndex.indexLocation;
+}
+public long getIndexLastModified() {
+	return this.diskIndex == null? -1 : this.diskIndex.indexLocation.lastModified();
 }
 public boolean hasChanged() {
 	return this.memoryIndex.hasChanged();
@@ -180,7 +186,7 @@ public void remove(String containerRelativePath) {
  */
 public void reset() throws IOException {
 	this.memoryIndex = new MemoryIndex();
-	this.diskIndex = new DiskIndex(this.diskIndex.indexFile.getCanonicalPath());
+	this.diskIndex = new DiskIndex(this.diskIndex.indexLocation);
 	this.diskIndex.initialize(false/*do not reuse the index file*/);
 }
 public void save() throws IOException {

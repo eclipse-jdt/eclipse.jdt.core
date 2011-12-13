@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,6 +58,16 @@ public interface IClasspathAttribute {
 	 * @since 3.1
 	 */
 	String JAVADOC_LOCATION_ATTRIBUTE_NAME = "javadoc_location"; //$NON-NLS-1$
+	
+	/**
+	 * Constant for the name of the index location attribute.
+	 * 
+	 * <p>The value for this attribute has to be the string representation of a URL.
+	 * It should point to an existing index file in a folder or a jar. The URL can also be of platform protocol.</p>
+	 * 
+	 * @since 3.8
+	 */
+	String INDEX_LOCATION_ATTRIBUTE_NAME = "index_location"; //$NON-NLS-1$
 
 	/**
 	 * Constant for the name of the optional attribute. The possible values

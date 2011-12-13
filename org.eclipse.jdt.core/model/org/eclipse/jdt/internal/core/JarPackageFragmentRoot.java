@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.net.URL;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -292,4 +293,15 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			return;
 		super.toStringAncestors(buffer);
 	}
+
+	public URL getIndexPath() {
+		try {
+			IClasspathEntry entry = ((JavaProject) getParent()).getClasspathEntryFor(getPath());
+			if (entry != null) return ((ClasspathEntry)entry).getLibraryIndexLocation();	
+		} catch (JavaModelException e) {
+			// ignore exception
+		}
+		return null;
+	}
+
 }

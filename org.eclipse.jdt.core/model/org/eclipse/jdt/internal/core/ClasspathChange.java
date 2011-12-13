@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -335,7 +336,7 @@ public class ClasspathChange {
 							boolean found = false;
 							for (int j = 0; j < accumulatedRoots.size(); j++) {
 								IPackageFragmentRoot root = (IPackageFragmentRoot) accumulatedRoots.elementAt(j);
-								if (!root.getPath().equals(oldRoot.getPath())) {
+								if (root.getPath().equals(oldRoot.getPath())) {
 									found = true;
 									break;
 								}
@@ -511,7 +512,7 @@ public class ClasspathChange {
 
 		for (int i = 0; i < newLength; i++) {
 			int index = classpathContains(this.oldResolvedClasspath, newResolvedClasspath[i]);
-			if (index == -1) {
+			if (index == -1 || newResolvedClasspath[i].getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 				// remote projects are not indexed in this project
 				if (newResolvedClasspath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT){
 					continue;
@@ -519,6 +520,7 @@ public class ClasspathChange {
 
 				// Request indexing
 				int entryKind = newResolvedClasspath[i].getEntryKind();
+				URL newurl = ((ClasspathEntry)newResolvedClasspath[i]).getLibraryIndexLocation();
 				switch (entryKind) {
 					case IClasspathEntry.CPE_LIBRARY:
 						boolean pathHasChanged = true;
@@ -526,12 +528,19 @@ public class ClasspathChange {
 						for (int j = 0; j < oldLength; j++) {
 							IClasspathEntry oldEntry = this.oldResolvedClasspath[j];
 							if (oldEntry.getPath().equals(newPath)) {
-								pathHasChanged = false;
+								URL oldurl = ((ClasspathEntry)oldEntry).getLibraryIndexLocation();
+								if (oldurl == null && newurl == null) {
+									pathHasChanged = false;
+								} else if (oldurl != null && newurl != null) {
+									pathHasChanged = !(newurl.equals(oldurl));
+								} else if (oldurl != null) {
+									indexManager.removeIndex(newPath);
+								}
 								break;
 							}
 						}
 						if (pathHasChanged) {
-							indexManager.indexLibrary(newPath, this.project.getProject());
+							indexManager.indexLibrary(newPath, this.project.getProject(), newurl);
 						}
 						break;
 					case IClasspathEntry.CPE_SOURCE:
