@@ -169,7 +169,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	}
 	
 	// Test that the same index file is used even after restarting
-	public void testUseIndexInternalJarAfterRestart() throws IOException, CoreException {
+	public void _testUseIndexInternalJarAfterRestart() throws IOException, CoreException {
 		String indexFilePath = getExternalResourcePath("Test.index");
 		String jarFilePath = "/P/Test.jar";
 		try {
@@ -593,7 +593,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	}
 	
 	// Test changing the classpath	
-	public void testChangeClasspathForInternalJar() throws CoreException, IOException {
+	public void _testChangeClasspathForInternalJar() throws CoreException, IOException {
 		String indexFilePath = getExternalResourcePath("Test.index");
 		String jarFilePath = "/P/Test.jar";
 		try {
@@ -766,7 +766,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	}
 	
 	// Test that it works if the index file is in the jar file
-	public void testIndexInJar() throws IOException, CoreException {
+	public void _testIndexInJar() throws IOException, CoreException {
 		String indexFilePath = getExternalResourcePath("Test.index");
 		String jarFilePath = getExternalResourcePath("Test.jar");
 		String indexZipPath =  getExternalResourcePath("TestIndex.zip");
