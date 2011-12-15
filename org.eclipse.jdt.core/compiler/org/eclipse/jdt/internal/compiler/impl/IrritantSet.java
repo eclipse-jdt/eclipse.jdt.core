@@ -56,6 +56,7 @@ public class IrritantSet {
 	public static final IrritantSet STATIC_ACCESS = new IrritantSet(CompilerOptions.IndirectStaticAccess);
 	public static final IrritantSet STATIC_METHOD = new IrritantSet(CompilerOptions.MethodCanBeStatic);
 	public static final IrritantSet SYNTHETIC_ACCESS = new IrritantSet(CompilerOptions.AccessEmulation);
+	public static final IrritantSet SYNCHRONIZED = new IrritantSet(CompilerOptions.MissingSynchronizedModifierInInheritedMethod);
 	public static final IrritantSet SUPER = new IrritantSet(CompilerOptions.OverridingMethodWithoutSuperInvocation);
 	public static final IrritantSet UNUSED = new IrritantSet(CompilerOptions.UnusedLocalVariable);
 	public static final IrritantSet UNCHECKED = new IrritantSet(CompilerOptions.UncheckedTypeOperation);
