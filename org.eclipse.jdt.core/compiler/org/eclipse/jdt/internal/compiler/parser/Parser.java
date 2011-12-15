@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - patch for readTable(String) as described in http://bugs.eclipse.org/bugs/show_bug.cgi?id=32196
+ *     Stephan Herrmann - Contribution for Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -3943,6 +3944,9 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			arg.annotations = new Annotation[length],
 			0,
 			length);
+		RecoveredType currentRecoveryType = this.currentRecoveryType();
+		if (currentRecoveryType != null)
+			currentRecoveryType.annotationsConsumed(arg.annotations);
 	}
 	pushOnAstStack(arg);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1901,6 +1901,61 @@ public void test0040() {
 		"}\n";
 
 	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,
+		testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=366003
+public void test0041() {
+
+	String s =
+			"package snippet;\n" +
+					"public class Bug366003 {\n" +
+					"        void foo(Object o1){}\n" +
+					"        @Blah org.User(@Bla String str){}\n" +
+					"}\n";
+
+	String expectedDietUnitToString =
+			"package snippet;\n" + 
+					"public class Bug366003 {\n" + 
+					"  public Bug366003() {\n" + 
+					"  }\n" + 
+					"  void foo(Object o1) {\n" + 
+					"  }\n" + 
+					"  @Blah User(@Bla String str) {\n" + 
+					"  }\n" + 
+					"}\n";
+
+	String expectedDietPlusBodyUnitToString =
+			"package snippet;\n" + 
+					"public class Bug366003 {\n" + 
+					"  public Bug366003() {\n" + 
+					"    super();\n" + 
+					"  }\n" + 
+					"  void foo(Object o1) {\n" + 
+					"  }\n" + 
+					"  @Blah User(@Bla String str) {\n" + 
+					"  }\n" + 
+					"}\n";
+
+	String expectedFullUnitToString = expectedDietUnitToString;
+
+	String expectedCompletionDietUnitToString =
+			"package snippet;\n" + 
+					"public class Bug366003 {\n" + 
+					"  public Bug366003() {\n" + 
+					"  }\n" + 
+					"  void foo(Object o1) {\n" + 
+					"  }\n" + 
+					"  User(@Bla String str) {\n" + 
+					"  }\n" + 
+					"}\n";
+
+	String testName = "<annotation recovery>";
 	checkParse(
 		s.toCharArray(),
 		expectedDietUnitToString,

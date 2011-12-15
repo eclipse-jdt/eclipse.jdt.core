@@ -7,8 +7,10 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann  - Contribution for bug 295551
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
+ *     Stephan Herrmann  - Contributions for
+ *								bug 295551 - Add option to automatically promote all warnings to error
+ *								bug 185682 - Increment/decrement operators mark local variables as read
+ *								bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -9847,5 +9849,303 @@ public void test297() {
 			null,
 			true,
 			customOptions);
+}
+// Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639) 
+// many syntax errors fixed, does not trigger CCE 
+public void testBug366003() {
+	runNegativeTest(
+		new String[] {
+			"snippet/Bug366003.java",
+			"package snippet;\n" +
+			"public class Bug366003 {\n" + 
+			"    public void foo(@NonNull Object o1) {\n" + 
+			"        System.out.println(o1.toString()); // OK: o1 cannot be null\n" +
+			"    }         \n" + 
+			"    @NonNull Object bar(@Nullable String s1) {\n" +
+			"        foo(null); // cannot pass null argument\n" +
+			"        @NonNull String s= null; // cannot assign null value\n" +
+			"        @NonNull String t= s1; // cannot assign potentially null value\n" + 
+			"        return null; // cannot return null value\n" +
+			"    }\n" + 
+			"}\n" + 
+			"org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+			""
+		},
+		"----------\n" + 
+		"1. ERROR in snippet\\Bug366003.java (at line 3)\n" + 
+		"	public void foo(@NonNull Object o1) {\n" + 
+		"	                 ^^^^^^^\n" + 
+		"NonNull cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in snippet\\Bug366003.java (at line 6)\n" + 
+		"	@NonNull Object bar(@Nullable String s1) {\n" + 
+		"	 ^^^^^^^\n" + 
+		"NonNull cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in snippet\\Bug366003.java (at line 6)\n" + 
+		"	@NonNull Object bar(@Nullable String s1) {\n" + 
+		"	                     ^^^^^^^^\n" + 
+		"Nullable cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in snippet\\Bug366003.java (at line 8)\n" + 
+		"	@NonNull String s= null; // cannot assign null value\n" + 
+		"	 ^^^^^^^\n" + 
+		"NonNull cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"5. ERROR in snippet\\Bug366003.java (at line 9)\n" + 
+		"	@NonNull String t= s1; // cannot assign potentially null value\n" + 
+		"	 ^^^^^^^\n" + 
+		"NonNull cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"6. ERROR in snippet\\Bug366003.java (at line 12)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error on token \"}\", delete this token\n" + 
+		"----------\n" + 
+		"7. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error on tokens, delete these tokens\n" + 
+		"----------\n" + 
+		"8. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	            ^^^^\n" + 
+		"Syntax error, insert \"enum Identifier\" to complete EnumHeaderName\n" + 
+		"----------\n" + 
+		"9. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	            ^^^^\n" + 
+		"Syntax error, insert \"EnumBody\" to complete EnumDeclaration\n" + 
+		"----------\n" + 
+		"10. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	            ^^^^\n" + 
+		"Syntax error, insert \"}\" to complete ClassBody\n" + 
+		"----------\n" + 
+		"11. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Return type for the method is missing\n" + 
+		"----------\n" + 
+		"12. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	                       ^^^^^^^\n" + 
+		"NonNull cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"13. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	                                                      ^^^^^^^^\n" + 
+		"Nullable cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"14. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	                                                                           ^\n" + 
+		"Syntax error, insert \";\" to complete ConstructorDeclaration\n" + 
+		"----------\n");
+}
+// Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639) 
+// code is garbage, triggers CCE 
+public void testBug366003b() {
+	runNegativeTest(
+		new String[] {
+			"snippet/Bug366003.java",
+			"package snippet;\n" +
+			"public class Bug366003 {\n" +
+			"    public void foo(@Blah Object o1) {        \n" +
+			"System.out.println(o1.toString()); // OK: o1 cannot be null     }         \n" +
+			"@Blah Object bar(@BlahBlah String s1) {         foo(null); // cannot pass\n" +
+			"null argument         @Blah String s= null; // cannot assign null value     \n" +
+			"    @Blah String t= s1; // cannot assign potentially null value         \n" +
+			"return null; // cannot return null value     }\n" +
+			"}\n" +
+			"\n" +
+			"org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+			""
+		},
+		"----------\n" + 
+		"1. ERROR in snippet\\Bug366003.java (at line 3)\n" + 
+		"	public void foo(@Blah Object o1) {        \n" + 
+		"	                 ^^^^\n" + 
+		"Blah cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in snippet\\Bug366003.java (at line 4)\n" + 
+		"	System.out.println(o1.toString()); // OK: o1 cannot be null     }         \n" + 
+		"	                                 ^\n" + 
+		"Syntax error, insert \"}\" to complete MethodBody\n" + 
+		"----------\n" + 
+		"3. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
+		"	@Blah Object bar(@BlahBlah String s1) {         foo(null); // cannot pass\n" + 
+		"	 ^^^^\n" + 
+		"Blah cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
+		"	@Blah Object bar(@BlahBlah String s1) {         foo(null); // cannot pass\n" + 
+		"	                  ^^^^^^^^\n" + 
+		"BlahBlah cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"5. ERROR in snippet\\Bug366003.java (at line 6)\n" + 
+		"	null argument         @Blah String s= null; // cannot assign null value     \n" + 
+		"	^^^^\n" + 
+		"Syntax error on token \"null\", @ expected\n" + 
+		"----------\n" + 
+		"6. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"Syntax error on tokens, delete these tokens\n" + 
+		"----------\n" + 
+		"7. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	            ^^^^\n" + 
+		"Syntax error, insert \"enum Identifier\" to complete EnumHeaderName\n" + 
+		"----------\n" + 
+		"8. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	            ^^^^\n" + 
+		"Syntax error, insert \"EnumBody\" to complete EnumDeclaration\n" + 
+		"----------\n" + 
+		"9. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	            ^^^^\n" + 
+		"Syntax error, insert \"}\" to complete ClassBody\n" + 
+		"----------\n" + 
+		"10. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Return type for the method is missing\n" + 
+		"----------\n" + 
+		"11. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	                       ^^^^^^^\n" + 
+		"NonNull cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"12. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	                                                      ^^^^^^^^\n" + 
+		"Nullable cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"13. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+		"	                                                                           ^\n" + 
+		"Syntax error, insert \";\" to complete ConstructorDeclaration\n" + 
+		"----------\n");
+}
+// Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639) 
+// minimal syntax error to trigger CCE 
+public void testBug366003c() {
+	runNegativeTest(
+		new String[] {
+			"snippet/Bug366003.java",
+			"package snippet;\n" +
+			"public class Bug366003 {\n" +
+			"    void foo(Object o1) {\n" + 
+			"    }\n" + 
+			"org.User(@Bla String a)"
+		},
+		"----------\n" + 
+		"1. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
+		"	org.User(@Bla String a)\n" + 
+		"	^^^\n" + 
+		"Syntax error on token \"org\", delete this token\n" + 
+		"----------\n" + 
+		"2. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
+		"	org.User(@Bla String a)\n" + 
+		"	^^^\n" + 
+		"Syntax error, insert \"enum Identifier\" to complete EnumHeaderName\n" + 
+		"----------\n" + 
+		"3. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
+		"	org.User(@Bla String a)\n" + 
+		"	^^^\n" + 
+		"Syntax error, insert \"EnumBody\" to complete EnumDeclaration\n" + 
+		"----------\n" + 
+		"4. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
+		"	org.User(@Bla String a)\n" + 
+		"	^^^\n" + 
+		"Syntax error, insert \"}\" to complete ClassBody\n" + 
+		"----------\n" + 
+		"5. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
+		"	org.User(@Bla String a)\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Return type for the method is missing\n" + 
+		"----------\n" + 
+		"6. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
+		"	org.User(@Bla String a)\n" + 
+		"	          ^^^\n" + 
+		"Bla cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"7. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
+		"	org.User(@Bla String a)\n" + 
+		"	                      ^\n" + 
+		"Syntax error, insert \";\" to complete ConstructorDeclaration\n" + 
+		"----------\n");
+}
+// unfinished attempt to trigger the same CCE via catch formal parameters
+public void testBug366003d() {
+	runNegativeTest(
+		new String[] {
+			"snippet/Bug366003.java",
+			"package snippet; \n" +
+			"public class Bug366003 {\n" +
+			"	void foo() {\n" +
+			"		try {\n" +
+			"			System.out.println(\"\");\n" +
+			"		} catch (Exeption eFirst) {\n" +
+			"			e } catch (@Blah Exception eSecond) {\n" +
+			"			e }\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in snippet\\Bug366003.java (at line 7)\n" +
+		"	e } catch (@Blah Exception eSecond) {\n" +
+		"	^\n" +
+		"Syntax error, insert \"AssignmentOperator Expression\" to complete Assignment\n" +
+		"----------\n" +
+		"2. ERROR in snippet\\Bug366003.java (at line 7)\n" +
+		"	e } catch (@Blah Exception eSecond) {\n" +
+		"	^\n" +
+		"Syntax error, insert \";\" to complete BlockStatements\n" +
+		"----------\n" +
+		"3. ERROR in snippet\\Bug366003.java (at line 8)\n" +
+		"	e }\n" +
+		"	^\n" +
+		"Syntax error, insert \"AssignmentOperator Expression\" to complete Expression\n" +
+		"----------\n" +
+		"4. ERROR in snippet\\Bug366003.java (at line 8)\n" +
+		"	e }\n" +
+		"	^\n" +
+		"Syntax error, insert \";\" to complete BlockStatements\n" +
+		"----------\n");
+}
+public void testBug366003e() {
+	runNegativeTest(
+		new String[] {
+			"snippet/Bug366003.java",
+			"package snippet;\n" +
+			"public class Bug366003 {\n" +
+			"        void foo(Object o1){}\n" +
+			"        @Blah org.User(@Bla String str){}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in snippet\\Bug366003.java (at line 4)\n" + 
+		"	@Blah org.User(@Bla String str){}\n" + 
+		"	 ^^^^\n" + 
+		"Blah cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in snippet\\Bug366003.java (at line 4)\n" + 
+		"	@Blah org.User(@Bla String str){}\n" + 
+		"	          ^^^^\n" + 
+		"Syntax error on token \"User\", Identifier expected after this token\n" + 
+		"----------\n" + 
+		"3. ERROR in snippet\\Bug366003.java (at line 4)\n" + 
+		"	@Blah org.User(@Bla String str){}\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Return type for the method is missing\n" + 
+		"----------\n" + 
+		"4. ERROR in snippet\\Bug366003.java (at line 4)\n" + 
+		"	@Blah org.User(@Bla String str){}\n" + 
+		"	                ^^^\n" + 
+		"Bla cannot be resolved to a type\n" +
+		"----------\n");
 }
 }

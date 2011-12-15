@@ -2627,6 +2627,9 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 				arg.annotations = new Annotation[length],
 				0,
 				length);
+			RecoveredType currentRecoveryType = this.currentRecoveryType();
+			if (currentRecoveryType != null)
+				currentRecoveryType.annotationsConsumed(arg.annotations);
 		}
 
 		arg.isCatchArgument = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CATCH_AND_RIGHT_PAREN;
