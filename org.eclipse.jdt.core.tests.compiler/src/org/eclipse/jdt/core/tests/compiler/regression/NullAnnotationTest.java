@@ -19,6 +19,7 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 // see bug 186342 - [compiler][null] Using annotations for null checking
 public class NullAnnotationTest extends AbstractComparableTest {
@@ -52,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_assignment_expression_1" };
+//		TESTS_NAMES = new String[] { "test_nonnull_parameter_015" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -549,6 +550,110 @@ public void test_nonnull_parameter_013() {
 		"	         ^^^^\n" + 
 		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n");
+}
+// non-null varargs (message send)
+public void test_nonnull_parameter_015() {
+	if (this.complianceLevel > ClassFileConstants.JDK1_7) {
+		fail("Reminder: should check if JSR 308 mandates a change in handling vararg elements (see bug 365983).");
+		return;
+	}
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    void foo(@NonNull Object ... o) {\n" +
+			"        if (o != null)\n" +
+			"              System.out.print(o.toString());\n" +
+			"    }\n" +
+			"    void foo2(int i, @NonNull Object ... o) {\n" +
+			"        if (o.length > 0 && o[0] != null)\n" +
+			"              System.out.print(o[0].toString());\n" +
+			"    }\n" +
+			"    void bar() {\n" +
+			"        foo((Object)null);\n" +		// unchecked: single plain argument
+			"        Object[] objs = null;\n" +
+			"        foo(objs);\n" +				// error
+			"        foo(this, null);\n" +			// unchecked: multiple plain arguments
+			"        foo2(2, (Object)null);\n" +    // unchecked: single plain argument
+			"        foo2(2, null, this);\n" +      // unchecked: multiple plain arguments
+			"        foo2(2, null);\n" +  			// error
+			"    }\n" +
+			"}\n"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	if (o != null)\n" + 
+			"	    ^\n" + 
+			"Redundant null check: The variable o cannot be null at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	foo(objs);\n" + 
+			"	    ^^^^\n" + 
+			"Type mismatch: required \'@NonNull Object[]\' but the provided value is null\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 18)\n" + 
+			"	foo2(2, null);\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"The argument of type null should explicitly be cast to Object[] for the invocation of the varargs method foo2(int, Object...) from type X. It could alternatively be cast to Object for a varargs invocation\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 18)\n" + 
+			"	foo2(2, null);\n" + 
+			"	        ^^^^\n" + 
+			"Type mismatch: required \'@NonNull Object[]\' but the provided value is null\n" + 
+			"----------\n",
+		this.LIBS,
+		true /* shouldFlush*/);
+}
+// non-null varargs (allocation and explicit constructor calls)
+public void test_nonnull_parameter_016() {
+	if (this.complianceLevel > ClassFileConstants.JDK1_7) {
+		fail("Reminder: should check if JSR 308 mandates a change in handling vararg elements (see bug 365983).");
+		return;
+	}
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    X(@NonNull Object ... o) {\n" +
+			"        if (o != null)\n" +
+			"              System.out.print(o.toString());\n" +
+			"    }\n" +
+			"    class Y extends X {\n" +
+			"        Y(int i, @NonNull Object ... o) {\n" +
+			"        	super(i, (Object)null);\n" +
+			"        }\n" +
+			"        Y(char c, @NonNull Object ... o) {\n" +
+			"        	this(1, new Object(), null);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    void bar() {\n" +
+			"        new X((Object[])null);\n" +
+			"        new X(this, null);\n" +
+			"        X x = new X(null, this);\n" +
+			"        x.new Y(2, (Object)null);\n" +
+			"        this.new Y(2, null, this);\n" +
+			"        this.new Y(2, (Object[])null);\n" +
+			"    }\n" +
+			"}\n"},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	if (o != null)\n" +
+			"	    ^\n" +
+			"Redundant null check: The variable o cannot be null at this location\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 16)\n" +
+			"	new X((Object[])null);\n" +
+			"	      ^^^^^^^^^^^^^^\n" +
+			"Type mismatch: required \'@NonNull Object[]\' but the provided value is null\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 21)\n" +
+			"	this.new Y(2, (Object[])null);\n" +
+			"	              ^^^^^^^^^^^^^^\n" +
+			"Type mismatch: required \'@NonNull Object[]\' but the provided value is null\n" +
+			"----------\n",
+		this.LIBS,
+		true /* shouldFlush*/);
 }
 // assigning potential null to a nonnull local variable
 public void test_nonnull_local_001() {
