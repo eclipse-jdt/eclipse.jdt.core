@@ -12,6 +12,7 @@
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *     							bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365835 - [compiler][null] inconsistent error reporting.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -46,7 +47,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this.expression.checkNPE(currentScope, flowContext, flowInfo);
 		}
 		if (flowInfo.reachMode() == FlowInfo.REACHABLE)
-			checkAgainstNullAnnotation(currentScope, this.expression.nullStatus(flowInfo));
+			checkAgainstNullAnnotation(currentScope, flowContext, this.expression.nullStatus(flowInfo));
 		FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression);
 		if (trackingVariable != null) {
 			if (methodScope != trackingVariable.methodScope)
@@ -122,7 +123,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	currentScope.checkUnclosedCloseables(flowInfo, this, currentScope);
 	return FlowInfo.DEAD_END;
 }
-void checkAgainstNullAnnotation(BlockScope scope, int nullStatus) {
+void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, int nullStatus) {
 	if (nullStatus != FlowInfo.NON_NULL) {
 		// if we can't prove non-null check against declared null-ness of the enclosing method:
 		long tagBits;
@@ -134,8 +135,7 @@ void checkAgainstNullAnnotation(BlockScope scope, int nullStatus) {
 			return;
 		}
 		if ((tagBits & TagBits.AnnotationNonNull) != 0) {
-			char[][] annotationName = scope.environment().getNonNullAnnotationName();
-			scope.problemReporter().nullityMismatch(this.expression, methodBinding.returnType, nullStatus, annotationName);
+			flowContext.recordNullityMismatch(scope, this.expression, nullStatus, methodBinding.returnType);
 		}
 	}
 }

@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_default_nullness_012" };
+//		TESTS_NAMES = new String[] { "test_nonnull_return_014" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -1617,6 +1617,39 @@ public void test_nonnull_return_013() {
 		},
 		customOptions,
 		"");
+}
+// bug 365835: [compiler][null] inconsistent error reporting.
+public void test_nonnull_return_014() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	@NonNull\n" + 
+			"	public Object foo(Object x, int y) {\n" + 
+			"		@NonNull Object local;\n" + 
+			"		while (true) {\n" + 
+			"			if (y == 4) {\n" + 
+			"				local = x;  // error\n" + 
+			"				return x;   // only a warning.\n" + 
+			"			}\n" + 
+			"			x = null;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	local = x;  // error\n" + 
+		"	        ^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	return x;   // only a warning.\n" + 
+		"	       ^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" + 
+		"----------\n");
 }
 //suppress an error regarding null-spec violation
 public void test_suppress_001() {
