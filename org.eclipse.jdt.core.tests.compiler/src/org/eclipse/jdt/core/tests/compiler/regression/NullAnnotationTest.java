@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_nonnull_parameter_015" };
+//		TESTS_NAMES = new String[] { "test_default_nullness_012" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -2430,6 +2430,61 @@ public void test_default_nullness_011() {
 		"2. ERROR in Main.java (at line 5)\n" + 
 		"	new C(null);\n" + 
 		"	      ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n");
+}
+// Bug 365836 - [compiler][null] Incomplete propagation of null defaults.
+public void test_default_nullness_012() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    @NonNullByDefault \n" + 
+			"    public void foo(@Nullable String [] args) {\n" + 
+			"        class local {\n" + 
+			"            void zoo(Object o) {\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"        new local().zoo(null); // defaults applying from foo\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	new local().zoo(null); // defaults applying from foo\n" + 
+		"	                ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n");
+}
+// Bug 365836 - [compiler][null] Incomplete propagation of null defaults.
+public void test_default_nullness_013() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" +
+			"@SuppressWarnings(\"unused\")\n" +
+			"public class X {\n" + 
+			"    @NonNullByDefault \n" + 
+			"    public void foo(@Nullable String [] args) {\n" + 
+			"        class local {\n" +
+			"            class Deeply {\n" + 
+			"                Object zoo() {\n" +
+			"                    return null; // defaults applying from foo\n" +
+			"                }\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	return null; // defaults applying from foo\n" + 
+		"	       ^^^^\n" + 
 		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n");
 }
