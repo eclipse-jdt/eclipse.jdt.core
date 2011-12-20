@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_nonnull_return_014" };
+//		TESTS_NAMES = new String[] { "test_default_nullness_014" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -2517,6 +2517,66 @@ public void test_default_nullness_013() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	return null; // defaults applying from foo\n" + 
+		"	       ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n");
+}
+// bug 367154 - [compiler][null] Problem in propagating null defaults.
+public void test_default_nullness_014() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"@SuppressWarnings(\"unused\")\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"    public void foo(@Nullable String [] args) {\n" + 
+			"        @NonNullByDefault\n" + 
+			"        class local {\n" + 
+			"            class Deeply {\n" + 
+			"                Object zoo() {\n" + 
+			"                    return null;  // expect error here\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	return null;  // expect error here\n" + 
+		"	       ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n");
+}
+// bug 367154 - [compiler][null] Problem in propagating null defaults.
+// initializer involved
+public void test_default_nullness_015() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"@SuppressWarnings(\"unused\")\n" + 
+			"@NonNullByDefault\n" + 
+			"public class X {\n" + 
+			"    {\n" + 
+			"        class local {\n" + 
+			"            class Deeply {\n" + 
+			"                Object zoo() {\n" + 
+			"                    return null;  // expect error here\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	return null;  // expect error here\n" + 
 		"	       ^^^^\n" + 
 		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n");
