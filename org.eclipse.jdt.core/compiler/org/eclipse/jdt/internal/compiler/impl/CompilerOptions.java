@@ -423,6 +423,7 @@ public class CompilerOptions {
 		"static-method", //$NON-NLS-1$
 		"super", //$NON-NLS-1$
 		"synthetic-access", //$NON-NLS-1$
+		"syncOverride",	//$NON-NLS-1$
 		"unchecked", //$NON-NLS-1$
 		"unqualified-field-access", //$NON-NLS-1$
 		"unused", //$NON-NLS-1$
@@ -862,6 +863,8 @@ public class CompilerOptions {
 			case MissingJavadocComments :
 			case MissingJavadocTags:
 				return "javadoc"; //$NON-NLS-1$
+			case MissingSynchronizedModifierInInheritedMethod:
+				return "syncOverride";	 //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -932,6 +935,8 @@ public class CompilerOptions {
 				if ("super".equals(warningToken)) { //$NON-NLS-1$
 					return IrritantSet.SUPER;
 				}
+				if ("syncOverride".equals(warningToken)) //$NON-NLS-1$
+					return IrritantSet.SYNCHRONIZED;
 				break;
 			case 'u' :
 				if ("unused".equals(warningToken)) //$NON-NLS-1$

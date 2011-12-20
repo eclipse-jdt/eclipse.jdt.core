@@ -115,9 +115,9 @@ public void renamePositive(IJavaElement[] elements, IJavaElement[] destinations,
 			assertTrue("moved from handle should be original", destDelta.getMovedFromElement().equals(e.getParent()));
 		} else {
 			assertTrue("Destination container not changed", destDelta != null && deltaChildrenChanged(destDelta));
-			IJavaElementDelta[] deltas = destDelta.getAddedChildren();
+			IJavaElementDelta[] deltas = force ? destDelta.getChangedChildren() : destDelta.getAddedChildren();
 			assertTrue("Added children not correct for element rename", deltas.length > i && deltas[i].getElement().equals(renamed));
-			assertTrue("kind should be K_ADDED", deltas[i].getKind() == IJavaElementDelta.ADDED);
+			assertTrue("kind should be K_ADDED", deltas[i].getKind() == (force? IJavaElementDelta.CHANGED : IJavaElementDelta.ADDED));
 			deltas = destDelta.getRemovedChildren();
 			assertTrue("Removed children not correct for element rename", deltas.length > i && deltas[i].getElement().equals(e));
 			assertTrue("kind should be K_REMOVED", deltas[i].getKind() == IJavaElementDelta.REMOVED);
@@ -364,11 +364,12 @@ public void testRenameCU2() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" +
-		"	src[*]: {CHILDREN}\n" +
-		"		<default>[*]: {CHILDREN}\n" +
-		"			X.java[-]: {MOVED_TO(Y.java [in <default> [in src [in P]]])}\n" +
-		"			Y.java[+]: {MOVED_FROM(X.java [in <default> [in src [in P]]])}"
+		"P[*]: {CHILDREN}\n" + 
+				"	src[*]: {CHILDREN}\n" + 
+				"		<default>[*]: {CHILDREN}\n" + 
+				"			X.java[-]: {MOVED_TO(Y.java [in <default> [in src [in P]]])}\n" + 
+				"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
+				"				Y[+]: {MOVED_FROM(X [in X.java [in <default> [in src [in P]]]])}"
 	);
 }
 /*

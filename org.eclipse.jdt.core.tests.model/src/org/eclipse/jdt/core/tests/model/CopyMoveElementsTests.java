@@ -2452,7 +2452,7 @@ public void testMoveMethodsWithCancel() throws CoreException {
 	try {
 		TestProgressMonitor monitor = TestProgressMonitor.getInstance();
 		monitor.setCancelledCounter(1);
-		movePositive(typeSource.getMethods(), new IJavaElement[] {typeDest}, null, null, false, monitor);
+		movePositive(typeSource.getMethods(), new IJavaElement[] {typeDest}, null, null, false, true, monitor);
 	} catch (OperationCanceledException e) {
 		isCanceled = true;
 	}
@@ -2488,7 +2488,7 @@ public void testMoveMethodsWithCancelInDifferentProject() throws CoreException {
 		try {
 			TestProgressMonitor monitor = TestProgressMonitor.getInstance();
 			monitor.setCancelledCounter(1);
-			movePositive(typeSource.getMethods(), new IJavaElement[] {typeDest}, null, null, false, monitor);
+			movePositive(typeSource.getMethods(), new IJavaElement[] {typeDest}, null, null, false, true, monitor);
 		} catch (OperationCanceledException e) {
 			isCanceled = true;
 		}

@@ -80,7 +80,13 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 		}
 		IJavaElementDelta destDelta = this.deltaListener.getDeltaFor(container, true);
 		assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
-		IJavaElementDelta[] deltas = destDelta.getAddedChildren();
+		IJavaElementDelta[] deltas = null;
+		if (force) {
+			deltas = destDelta.getChangedChildren();
+		}
+		else {
+			deltas = destDelta.getAddedChildren();
+		}
 		// FIXME: not strong enough
 		boolean found = false;
 		for (int i = 0; i < deltas.length; i++) {
@@ -809,25 +815,38 @@ public void testMoveCU02() throws CoreException {
  * existing CU.
  */
 public void testMoveCU03() throws CoreException {
-	this.createFolder("/P/src/p1");
-	this.createFile(
-		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
-	);
-	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+	try {
+		this.createFolder("/P/src/p1");
+		this.createFile(
+			"/P/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
-	this.createFolder("/P/src/p2");
-	this.createFile(
-		"/P/src/p2/X.java",
-		"package p2;\n" +
-		"public class X {\n" +
-		"}"
-	);
-	IPackageFragment pkgDest = getPackage("/P/src/p2");
-
-	movePositive(cuSource, pkgDest, null, null, true);
+		this.createFolder("/P/src/p2");
+		this.createFile(
+			"/P/src/p2/X.java",
+			"package p2;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		IPackageFragment pkgDest = getPackage("/P/src/p2");
+		startDeltas();
+		movePositive(new IJavaElement[] {cuSource}, new IJavaElement[] {pkgDest}, null, null, true, false, null);
+			assertDeltas(
+					"Incorrect delta",
+					"P[*]: {CHILDREN}\n"
+							+ "	src[*]: {CHILDREN}\n"
+							+ "		p1[*]: {CHILDREN}\n"
+							+ "			X.java[-]: {MOVED_TO(X.java [in p2 [in src [in P]]])}\n"
+							+ "		p2[*]: {CHILDREN}\n"
+							+ "			X.java[*]: {CONTENT | PRIMARY RESOURCE}");
+	}
+	finally {
+		stopDeltas();
+	}
 }
 /**
  * Ensures that a CU can be moved to a different package,
@@ -853,25 +872,39 @@ public void testMoveCU04() throws CoreException {
  * be renamed, overwriting an existing resource.
  */
 public void testMoveCU05() throws CoreException {
-	this.createFolder("/P/src/p1");
-	this.createFile(
-		"/P/src/p1/X.java",
-		"package p1;\n" +
-		"public class X {\n" +
-		"}"
-	);
-	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+	try {
+		this.createFolder("/P/src/p1");
+		this.createFile(
+			"/P/src/p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 
-	this.createFolder("/P/src/p2");
-	this.createFile(
-		"/P/src/p2/Y.java",
-		"package p2;\n" +
-		"public class Y {\n" +
-		"}"
-	);
-	IPackageFragment pkgDest = getPackage("/P/src/p2");
-
-	movePositive(cuSource, pkgDest, null, "Y.java", true);
+		this.createFolder("/P/src/p2");
+		this.createFile(
+			"/P/src/p2/Y.java",
+			"package p2;\n" +
+			"public class Y {\n" +
+			"}"
+		);
+		IPackageFragment pkgDest = getPackage("/P/src/p2");
+		startDeltas();
+		movePositive(new IJavaElement[] {cuSource}, new IJavaElement[] {pkgDest}, null, new String[]{"Y.java"}, true, false, null);
+		assertDeltas(
+					"Incorrect delta",
+					"P[*]: {CHILDREN}\n"
+							+ "	src[*]: {CHILDREN}\n"
+							+ "		p1[*]: {CHILDREN}\n"
+							+ "			X.java[-]: {MOVED_TO(Y.java [in p2 [in src [in P]]])}\n"
+							+ "		p2[*]: {CHILDREN}\n"
+							+ "			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n"
+							+ "				Y[+]: {MOVED_FROM(X [in X.java [in p1 [in src [in P]]]])}");
+	}
+	finally {
+		stopDeltas();
+	}
 }
 /**
  * Ensures that a CU cannot be moved to a different package, replacing an

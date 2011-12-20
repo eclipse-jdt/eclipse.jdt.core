@@ -8,9 +8,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
- *     							bug 335093 - [compiler][null] minimal hook for future null annotation support
- *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 335093 - [compiler][null] minimal hook for future null annotation support
+ *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365983 - [compiler][null] AIOOB with null annotation analysis and varargs
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -64,7 +65,26 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 {
 	// compare actual null-status against parameter annotations of the called method:
 	if (arguments != null && methodBinding.parameterNonNullness != null) {
-		for (int i = 0; i < arguments.length; i++) {
+
+		// check if varargs need special treatment:
+		int numParamsToCheck = methodBinding.parameters.length;
+		boolean passThrough = false;
+		if (methodBinding.isVarargs()) {
+			int varArgPos = numParamsToCheck-1;
+			// this if-block essentially copied from generateArguments(..):
+			if (numParamsToCheck == arguments.length) {
+				TypeBinding varArgsType = methodBinding.parameters[varArgPos];
+				TypeBinding lastType = arguments[varArgPos].resolvedType;
+				if (lastType == TypeBinding.NULL
+						|| (varArgsType.dimensions() == lastType.dimensions()
+						&& lastType.isCompatibleWith(varArgsType)))
+					passThrough = true; // pass directly as-is
+			}
+			if (!passThrough)
+				numParamsToCheck--; // with non-passthrough varargs last param is fed from individual args -> don't check
+		}
+
+		for (int i = 0; i < numParamsToCheck; i++) {
 			if (methodBinding.parameterNonNullness[i] == Boolean.TRUE) {
 				TypeBinding expectedType = methodBinding.parameters[i];
 				Expression argument = arguments[i];

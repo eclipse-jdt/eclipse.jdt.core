@@ -12302,4 +12302,54 @@ public void test0309_warn_options() {
 		"1 problem (1 warning)",
 		true);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=366829
+// -warn option - regression test to check option syncOverride
+// Warning when when a class overrides a synchronized method without synchronizing it
+public void test310_warn_options() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X { synchronized void foo() {} }\n" +
+			"class Y extends X { @Override void foo() { } }"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:syncOverride -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	class Y extends X { @Override void foo() { } }\n" +
+		"	                                   ^^^^^\n" +
+		"The method Y.foo() is overriding a synchronized method without being synchronized\n" +
+		"----------\n" +
+		"1 problem (1 warning)", 
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=366829
+// -warn option - regression test to check option syncOverride
+// Warning when when a class overrides a synchronized method without synchronizing it
+public void test310b_warn_options() {
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"  void bar() { new X() { @Override void foo() {} }; }\n"+
+				"  synchronized void foo() { }\n"+
+				"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:syncOverride -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	void bar() { new X() { @Override void foo() {} }; }\n"+
+		"	                                      ^^^^^\n" +
+		"The method new X(){}.foo() is overriding a synchronized method without being synchronized\n" +
+		"----------\n" +
+		"1 problem (1 warning)", 
+		true);
+}
 }
