@@ -11,6 +11,7 @@
  *								bug 328281 - visibility leaks not detected when analyzing unused field in private class
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365836 - [compiler][null] Incomplete propagation of null defaults.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1667,6 +1668,12 @@ private TypeBinding findDefaultNullness(MethodBinding methodBinding, LookupEnvir
 		annotationBinding = ((SourceTypeBinding) currentType).getNullnessDefaultAnnotation();
 		if (annotationBinding != null)
 			return annotationBinding;
+		if (currentType.isLocalType()) {
+			// if direct enclosing is a method travel that way:
+			MethodBinding enclosingMethod = ((LocalTypeBinding)currentType).enclosingMethod;
+			if (enclosingMethod != null)
+				return findDefaultNullness(enclosingMethod, environment);
+		}
 		currentType = currentType.enclosingType();
 	}
 
