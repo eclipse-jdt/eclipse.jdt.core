@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
+ *     Stephan Herrmann - Contributions for
+ *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 367203 - [compiler][null] detect assigning null to nonnull argument
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -458,8 +460,11 @@ protected void fillInDefaultNonNullness(TypeBinding annotationBinding) {
 		if (this.parameterNonNullness[i] == null) {
 			added = true;
 			this.parameterNonNullness[i] = Boolean.TRUE;
-			if (sourceMethod != null)
-				sourceMethod.addParameterNonNullAnnotation(i, (ReferenceBinding)annotationBinding);
+			if (sourceMethod != null) {
+				Argument argument = sourceMethod.arguments[i];
+				sourceMethod.addParameterNonNullAnnotation(argument, (ReferenceBinding)annotationBinding);
+				argument.binding.tagBits |= TagBits.AnnotationNonNull;
+			}
 		} else if (this.parameterNonNullness[i].booleanValue()) {
 			sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, i);
 		}

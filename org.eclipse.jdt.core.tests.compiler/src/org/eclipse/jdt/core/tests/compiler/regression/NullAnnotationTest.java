@@ -655,6 +655,55 @@ public void test_nonnull_parameter_016() {
 		this.LIBS,
 		true /* shouldFlush*/);
 }
+// Bug 367203 - [compiler][null] detect assigning null to nonnull argument
+public void test_nonnull_argument_001() {
+	runNegativeTestWithLibs(
+			new String[] {
+				"ShowNPE2.java",
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+				"@NonNullByDefault\n" + 
+				"public class ShowNPE2 {\n" + 
+				"     public Object foo(Object o1, final boolean b) {\n" + 
+				"         o1 = null;   // expect NPE error\n" + 
+				"         System.out.println(o1.toString());   \n" + 
+				"         return null;  // expect NPE error\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in ShowNPE2.java (at line 5)\n" + 
+			"	o1 = null;   // expect NPE error\n" + 
+			"	     ^^^^\n" + 
+			"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+			"----------\n" + 
+			"2. ERROR in ShowNPE2.java (at line 7)\n" + 
+			"	return null;  // expect NPE error\n" + 
+			"	       ^^^^\n" + 
+			"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+			"----------\n");
+}
+// Bug 367203 - [compiler][null] detect assigning null to nonnull argument
+public void test_nonnull_argument_002() {
+	runNegativeTestWithLibs(
+			new String[] {
+				"ShowNPE2.java",
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+				"@NonNullByDefault\n" + 
+				"public class ShowNPE2 {\n" + 
+				"    public Object foo(Object o1, final boolean b) {\n" + 
+				"        bar(o1); // expecting no problem\n" + 
+				"        return null;  // expect NPE error\n" + 
+				"    }\n" +
+				"    void bar(Object o2) {}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in ShowNPE2.java (at line 6)\n" + 
+			"	return null;  // expect NPE error\n" + 
+			"	       ^^^^\n" + 
+			"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+			"----------\n");
+}
 // assigning potential null to a nonnull local variable
 public void test_nonnull_local_001() {
 	runNegativeTest(
