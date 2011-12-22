@@ -65,7 +65,7 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 		public IBinaryAnnotation[] getParameterAnnotations(int index) {
 			return null;
 		}
-		public int getNumParameterAnnotations() {
+		public int getAnnotatedParametersCount() {
 			return 0;
 		}
 		public char[] getSelector() {

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 365992 - [builder] [null] Change of nullness for a parameter doesn't trigger a build for the files that call the method
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
@@ -1070,6 +1071,16 @@ private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodI
 		return true;
 	if (hasStructuralAnnotationChanges(currentMethodInfo.getAnnotations(), otherMethodInfo.getAnnotations()))
 		return true;
+	// parameter annotations:
+	int currentAnnotatedParamsCount = currentMethodInfo.getAnnotatedParametersCount();
+	int otherAnnotatedParamsCount = otherMethodInfo.getAnnotatedParametersCount();
+	if (currentAnnotatedParamsCount != otherAnnotatedParamsCount)
+		return true;
+	for (int i=0; i<currentAnnotatedParamsCount; i++) {
+		if (hasStructuralAnnotationChanges(currentMethodInfo.getParameterAnnotations(i), otherMethodInfo.getParameterAnnotations(i)))
+			return true;
+	}
+
 	if (!CharOperation.equals(currentMethodInfo.getSelector(), otherMethodInfo.getSelector()))
 		return true;
 	if (!CharOperation.equals(currentMethodInfo.getMethodDescriptor(), otherMethodInfo.getMethodDescriptor()))

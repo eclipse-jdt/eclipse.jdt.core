@@ -1181,7 +1181,7 @@ void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBindi
 	// parameters:
 	TypeBinding[] parameters = methodBinding.parameters;
 	int numVisibleParams = parameters.length;
-	int numParamAnnotations = method.getNumParameterAnnotations();
+	int numParamAnnotations = method.getAnnotatedParametersCount();
 	if (numParamAnnotations > 0) {
 		int startIndex = numParamAnnotations - numVisibleParams;
 		for (int j = 0; j < numVisibleParams; j++) {
