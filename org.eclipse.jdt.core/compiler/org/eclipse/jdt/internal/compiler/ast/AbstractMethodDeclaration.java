@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
+ *     Stephan Herrmann - Contributions for
+ *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 367203 - [compiler][null] detect assigning null to nonnull argument
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -83,8 +85,7 @@ public abstract class AbstractMethodDeclaration
 	 * Materialize a null parameter annotation that has been added from the current default,
 	 * in order to ensure that this annotation will be generated into the .class file, too.
 	 */
-	public void addParameterNonNullAnnotation(int i, ReferenceBinding annotationBinding) {
-		Argument argument = this.arguments[i];
+	public void addParameterNonNullAnnotation(Argument argument, ReferenceBinding annotationBinding) {
 		if (argument.type != null) // null happens for constructors of anonymous classes
 			argument.annotations = addAnnotation(argument.type, argument.annotations, annotationBinding);
 	}

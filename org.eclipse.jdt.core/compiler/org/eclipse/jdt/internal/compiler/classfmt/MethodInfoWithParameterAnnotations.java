@@ -37,7 +37,7 @@ MethodInfoWithParameterAnnotations(MethodInfo methodInfo, AnnotationInfo[] annot
 public IBinaryAnnotation[] getParameterAnnotations(int index) {
 	return this.parameterAnnotations[index];
 }
-public int getNumParameterAnnotations() {
+public int getAnnotatedParametersCount() {
 	return this.parameterAnnotations == null ? 0 : this.parameterAnnotations.length;
 }
 protected void initialize() {

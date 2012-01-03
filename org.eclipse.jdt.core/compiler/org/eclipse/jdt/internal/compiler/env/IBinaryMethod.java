@@ -71,7 +71,7 @@ IBinaryAnnotation[] getParameterAnnotations(int index);
  * using {@link #getParameterAnnotations(int)}.
  * @return one beyond the highest legal argument to {@link #getParameterAnnotations(int)}.
  */
-int getNumParameterAnnotations();
+int getAnnotatedParametersCount();
 
 /**
  * Answer the name of the method.

@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_nonnull_return_014" };
+//		TESTS_NAMES = new String[] { "test_default_nullness_014" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -654,6 +654,55 @@ public void test_nonnull_parameter_016() {
 			"----------\n",
 		this.LIBS,
 		true /* shouldFlush*/);
+}
+// Bug 367203 - [compiler][null] detect assigning null to nonnull argument
+public void test_nonnull_argument_001() {
+	runNegativeTestWithLibs(
+			new String[] {
+				"ShowNPE2.java",
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+				"@NonNullByDefault\n" + 
+				"public class ShowNPE2 {\n" + 
+				"     public Object foo(Object o1, final boolean b) {\n" + 
+				"         o1 = null;   // expect NPE error\n" + 
+				"         System.out.println(o1.toString());   \n" + 
+				"         return null;  // expect NPE error\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in ShowNPE2.java (at line 5)\n" + 
+			"	o1 = null;   // expect NPE error\n" + 
+			"	     ^^^^\n" + 
+			"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+			"----------\n" + 
+			"2. ERROR in ShowNPE2.java (at line 7)\n" + 
+			"	return null;  // expect NPE error\n" + 
+			"	       ^^^^\n" + 
+			"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+			"----------\n");
+}
+// Bug 367203 - [compiler][null] detect assigning null to nonnull argument
+public void test_nonnull_argument_002() {
+	runNegativeTestWithLibs(
+			new String[] {
+				"ShowNPE2.java",
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+				"@NonNullByDefault\n" + 
+				"public class ShowNPE2 {\n" + 
+				"    public Object foo(Object o1, final boolean b) {\n" + 
+				"        bar(o1); // expecting no problem\n" + 
+				"        return null;  // expect NPE error\n" + 
+				"    }\n" +
+				"    void bar(Object o2) {}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in ShowNPE2.java (at line 6)\n" + 
+			"	return null;  // expect NPE error\n" + 
+			"	       ^^^^\n" + 
+			"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+			"----------\n");
 }
 // assigning potential null to a nonnull local variable
 public void test_nonnull_local_001() {
@@ -2517,6 +2566,66 @@ public void test_default_nullness_013() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	return null; // defaults applying from foo\n" + 
+		"	       ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n");
+}
+// bug 367154 - [compiler][null] Problem in propagating null defaults.
+public void test_default_nullness_014() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"@SuppressWarnings(\"unused\")\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"    public void foo(@Nullable String [] args) {\n" + 
+			"        @NonNullByDefault\n" + 
+			"        class local {\n" + 
+			"            class Deeply {\n" + 
+			"                Object zoo() {\n" + 
+			"                    return null;  // expect error here\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	return null;  // expect error here\n" + 
+		"	       ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n");
+}
+// bug 367154 - [compiler][null] Problem in propagating null defaults.
+// initializer involved
+public void test_default_nullness_015() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"@SuppressWarnings(\"unused\")\n" + 
+			"@NonNullByDefault\n" + 
+			"public class X {\n" + 
+			"    {\n" + 
+			"        class local {\n" + 
+			"            class Deeply {\n" + 
+			"                Object zoo() {\n" + 
+			"                    return null;  // expect error here\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	return null;  // expect error here\n" + 
 		"	       ^^^^\n" + 
 		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n");

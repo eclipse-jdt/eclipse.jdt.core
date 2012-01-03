@@ -1620,7 +1620,7 @@ private void createArgumentBindings(MethodBinding method) {
 	if (methodDecl != null) {
 		if (method.parameters != Binding.NO_PARAMETERS)
 			methodDecl.createArgumentBindings();
-		TypeBinding annotationBinding = findDefaultNullness(method, methodDecl.scope.environment());
+		TypeBinding annotationBinding = findDefaultNullness(methodDecl.scope, methodDecl.scope.environment());
 		if (annotationBinding != null && annotationBinding.id == TypeIds.T_ConfiguredAnnotationNonNull)
 			method.fillInDefaultNonNullness(annotationBinding);
 	}
@@ -1652,35 +1652,42 @@ private TypeBinding getNullnessDefaultAnnotation() {
  * <li>the synthetic type {@link ReferenceBinding#NULL_UNSPECIFIED} if a default from outer scope has been canceled</li>
  * <li>null if no default has been defined</li>
  * </ul>
+ * @param currentScope where to start search for lexically enclosing default
+ * @param environment gateway to options and configured annotation types
  */
-private TypeBinding findDefaultNullness(MethodBinding methodBinding, LookupEnvironment environment) {
+private TypeBinding findDefaultNullness(Scope currentScope, LookupEnvironment environment) {
 	// find the applicable default inside->out:
 
-	// method
-	TypeBinding annotationBinding = environment.getNullAnnotationBindingFromDefault(methodBinding.tagBits, true/*resolve*/);
-	if (annotationBinding != null)
-		return annotationBinding;
-
-	// type
-	ReferenceBinding type = methodBinding.declaringClass;
-	ReferenceBinding currentType = type;
-	while (currentType instanceof SourceTypeBinding) {
-		annotationBinding = ((SourceTypeBinding) currentType).getNullnessDefaultAnnotation();
-		if (annotationBinding != null)
-			return annotationBinding;
-		if (currentType.isLocalType()) {
-			// if direct enclosing is a method travel that way:
-			MethodBinding enclosingMethod = ((LocalTypeBinding)currentType).enclosingMethod;
-			if (enclosingMethod != null)
-				return findDefaultNullness(enclosingMethod, environment);
+	SourceTypeBinding currentType = null;
+	TypeBinding annotationBinding;
+	while (currentScope != null) {
+		switch (currentScope.kind) {
+			case Scope.METHOD_SCOPE:
+				AbstractMethodDeclaration referenceMethod = ((MethodScope)currentScope).referenceMethod();
+				if (referenceMethod != null && referenceMethod.binding != null) {
+					annotationBinding = environment.getNullAnnotationBindingFromDefault(referenceMethod.binding.tagBits, true/*resolve*/);
+					if (annotationBinding != null)
+						return annotationBinding;
+				}
+				break;
+			case Scope.CLASS_SCOPE:
+				currentType = ((ClassScope)currentScope).referenceContext.binding;
+				if (currentType != null) {
+					annotationBinding = currentType.getNullnessDefaultAnnotation();
+					if (annotationBinding != null)
+						return annotationBinding;
+				}
+				break;
 		}
-		currentType = currentType.enclosingType();
+		currentScope = currentScope.parent;
 	}
 
 	// package
-	annotationBinding = type.getPackage().getNullnessDefaultAnnotation(this.scope);
-	if (annotationBinding != null)
-		return annotationBinding;
+	if (currentType != null) {
+		annotationBinding = currentType.getPackage().getNullnessDefaultAnnotation(this.scope);
+		if (annotationBinding != null)
+			return annotationBinding;
+	}
 
 	// global
 	long defaultNullness = environment.globalOptions.defaultNonNullness;
