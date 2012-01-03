@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,6 +64,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	int subCount = 0;
 	boolean saveValueNeeded = false;
 	boolean hasValueToSave = needValueStore();
+	boolean noAutoCloseables = true;
 	do {
 		SubRoutineStatement sub;
 		if ((sub = traversedContext.subroutine()) != null) {
@@ -78,6 +79,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				saveValueNeeded = false;
 				this.bits |= ASTNode.IsAnySubRoutineEscaping;
 				break;
+			}
+			if (sub instanceof TryStatement) {
+				if (((TryStatement) sub).resources.length > 0) {
+					noAutoCloseables = false;
+				}
 			}
 		}
 		traversedContext.recordReturnFrom(flowInfo.unconditionalInits());
@@ -117,7 +123,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	} else {
 		this.saveValueVariable = null;
 		if (((this.bits & ASTNode.IsSynchronized) == 0) && this.expression != null && this.expression.resolvedType == TypeBinding.BOOLEAN) {
-			this.expression.bits |= ASTNode.IsReturnedValue;
+			if (noAutoCloseables) { // can't abruptly return in the presence of autocloseables. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=367566
+				this.expression.bits |= ASTNode.IsReturnedValue;
+			}
 		}
 	}
 	currentScope.checkUnclosedCloseables(flowInfo, this, currentScope);
