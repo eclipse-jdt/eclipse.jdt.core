@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,6 +53,7 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	/* can only replace a current state if its less than the new one */
 	// key = indexLocation path, value = index state integer
 	private SimpleLookupTable indexStates = null;
+	private File indexNamesMapFile = new File(getSavedIndexesDirectory(), "indexNamesMap.txt"); //$NON-NLS-1$
 	private File savedIndexNamesFile = new File(getSavedIndexesDirectory(), "savedIndexNames.txt"); //$NON-NLS-1$
 	private File participantIndexNamesFile = new File(getSavedIndexesDirectory(), "participantsIndexNames.txt"); //$NON-NLS-1$
 	private boolean javaLikeNamesChanged = true;
@@ -394,6 +395,7 @@ private SimpleLookupTable getIndexStates() {
 		this.javaLikeNamesChanged = false;
 		deleteIndexFiles();
 	}
+	readIndexMap();
 	return this.indexStates;
 }
 private IPath getParticipantsContainer(IndexLocation indexLocation) {
@@ -517,7 +519,7 @@ public void indexLibrary(IPath path, IProject requestingProject, URL indexURL) {
 }
 
 synchronized boolean addIndex(IPath containerPath, IndexLocation indexFile) {
-	this.indexStates.put(indexFile, REUSE_STATE);
+	getIndexStates().put(indexFile, REUSE_STATE);
 	this.indexLocations.put(containerPath, indexFile);
 	Index index = getIndex(containerPath, indexFile, true, false);
 	if (index == null) {
@@ -525,6 +527,7 @@ synchronized boolean addIndex(IPath containerPath, IndexLocation indexFile) {
 		this.indexLocations.put(containerPath, null);
 		return false;
 	}
+	writeIndexMapFile();
 	return true;
 }
 
@@ -906,6 +909,27 @@ public String toString() {
 	return buffer.toString();
 }
 
+private void readIndexMap() {
+	try {
+		char[] indexMaps = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(this.indexNamesMapFile, null);
+		char[][] names = CharOperation.splitOn('\n', indexMaps);
+		if (names.length >= 3) {
+			// First line is DiskIndex signature (see writeIndexMapFile())
+			String savedSignature = DiskIndex.SIGNATURE;
+			if (savedSignature.equals(new String(names[0]))) {
+				for (int i = 1, l = names.length-1 ; i < l ; i+=2) {
+					IndexLocation indexPath = IndexLocation.createIndexLocation(new URL(new String(names[i])));
+					this.indexLocations.put(new Path(new String(names[i+1])), indexPath );
+					this.indexStates.put(indexPath, REUSE_STATE);
+				}
+			}		
+		}
+	} catch (IOException ignored) {
+		if (VERBOSE)
+			Util.verbose("Failed to read saved index file names"); //$NON-NLS-1$
+	}
+	return;
+}
 private char[][] readIndexState(String dirOSString) {
 	try {
 		char[] savedIndexNames = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(this.savedIndexNamesFile, null);
@@ -963,6 +987,7 @@ private synchronized void removeIndexesState(IndexLocation[] locations) {
 	if (!changed) return;
 
 	writeSavedIndexNamesFile();
+	writeIndexMapFile();
 }
 private synchronized void updateIndexState(IndexLocation indexLocation, Integer indexState) {
 	if (indexLocation == null)
@@ -1027,6 +1052,39 @@ private void writeJavaLikeNamesFile() {
 	} catch (IOException ignored) {
 		if (VERBOSE)
 			Util.verbose("Failed to write javaLikeNames file", System.err); //$NON-NLS-1$
+	} finally {
+		if (writer != null) {
+			try {
+				writer.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
+}
+private void writeIndexMapFile() {
+	BufferedWriter writer = null;
+	try {
+		writer = new BufferedWriter(new FileWriter(this.indexNamesMapFile));
+		writer.write(DiskIndex.SIGNATURE);
+		writer.write('\n');
+		Object[] keys = this.indexStates.keyTable;
+		Object[] states = this.indexStates.valueTable;
+		for (int i = 0, l = states.length; i < l; i++) {
+			IndexLocation location = (IndexLocation)keys[i];
+			if (location != null && states[i] == REUSE_STATE) {
+				IPath container = (IPath)this.indexLocations.keyForValue(location);
+				if (container != null) {
+					writer.write(location.toString());
+					writer.write('\n');
+					writer.write(container.toOSString());
+					writer.write('\n');
+				}
+			}
+		}
+	} catch (IOException ignored) {
+		if (VERBOSE)
+			Util.verbose("Failed to write saved index file names", System.err); //$NON-NLS-1$
 	} finally {
 		if (writer != null) {
 			try {

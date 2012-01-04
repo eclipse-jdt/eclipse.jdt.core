@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -169,9 +169,10 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	}
 	
 	// Test that the same index file is used even after restarting
-	public void _testUseIndexInternalJarAfterRestart() throws IOException, CoreException {
+	public void testUseIndexInternalJarAfterRestart() throws IOException, CoreException {
 		String indexFilePath = getExternalResourcePath("Test.index");
 		String jarFilePath = "/P/Test.jar";
+		String fullJarPath = getWorkspacePath() + jarFilePath;
 		try {
 			IJavaProject p = createJavaProject("P");
 			createJar(new String[] {
@@ -179,8 +180,9 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 					"package pkg;\n" +
 					"public class Test {\n" +
 					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
-			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
+					"}"}, fullJarPath);
+			p.getProject().refreshLocal(1, null);
+			JavaIndexer.generateIndexForJar(fullJarPath, indexFilePath);
 			long modified = new File(indexFilePath).lastModified();
 			IPath libPath = new Path(jarFilePath);
 			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.INDEX_LOCATION_ATTRIBUTE_NAME, "file:///"+indexFilePath);
@@ -189,17 +191,18 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 			waitUntilIndexesReady();
 			
 			search("Test", TYPE, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaElement[]{p}));
-			assertSearchResults("\\P\\Test.jar pkg.Test");
+			assertSearchResults("Test.jar pkg.Test [No source]");
+			java.io.File indexFile = JavaModelManager.getIndexManager().getIndex(libPath, false, false).getIndexFile();
+			assertEquals(indexFilePath,indexFile.toString());
 			
 			simulateExitRestart();
-			getJavaModel().refreshExternalArchives(null, null);
 			waitUntilIndexesReady();
 			
 			this.resultCollector = new JavaSearchResultCollector();
 			search("Test", TYPE, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaElement[]{p}));
-			assertSearchResults("\\P\\Test.jar pkg.Test");
+			assertSearchResults("Test.jar pkg.Test [No source]");
 			
-			java.io.File indexFile = JavaModelManager.getIndexManager().getIndex(libPath, false, false).getIndexFile();
+			indexFile = JavaModelManager.getIndexManager().getIndex(libPath, false, false).getIndexFile();
 			assertEquals(indexFilePath,indexFile.toString());
 			// Ensure that the file is not modified
 			assertEquals(modified, new File(indexFilePath).lastModified());
@@ -593,9 +596,10 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	}
 	
 	// Test changing the classpath	
-	public void _testChangeClasspathForInternalJar() throws CoreException, IOException {
+	public void testChangeClasspathForInternalJar() throws CoreException, IOException {
 		String indexFilePath = getExternalResourcePath("Test.index");
 		String jarFilePath = "/P/Test.jar";
+		String fullJarPath = getWorkspacePath() + jarFilePath;
 		try {
 			IJavaProject p = createJavaProject("P");
 			createJar(new String[] {
@@ -603,8 +607,8 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 					"package pkg;\n" +
 					"public class Test {\n" +
 					"  protected Test(int i) {}\n" +
-					"}"}, jarFilePath);
-			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
+					"}"}, fullJarPath);
+			JavaIndexer.generateIndexForJar(fullJarPath, indexFilePath);
 			createJar(new String[] {
 					"pkg/Test.java",
 					"package pkg;\n" +
@@ -615,14 +619,15 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 					"package pkg;\n" +
 					"public class NewTest {\n" +
 					"  protected NewTest(int i) {}\n" +
-					"}"}, jarFilePath);
+					"}"}, fullJarPath);
+			p.getProject().refreshLocal(1, null);
 			Path libPath = new Path(jarFilePath);
 			
 			IClasspathEntry entry = JavaCore.newLibraryEntry(libPath, null, null, null, null, false);
 			setClasspath(p, new IClasspathEntry[] {entry});
 			waitUntilIndexesReady();
 			search("NewTest", TYPE, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaElement[]{p}));
-			assertSearchResults("\\P\\Test.jar pkg.NewTest");
+			assertSearchResults("Test.jar pkg.NewTest [No source]");
 			
 			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.INDEX_LOCATION_ATTRIBUTE_NAME, "file:///"+indexFilePath);
 			entry = JavaCore.newLibraryEntry(libPath, null, null, null, new IClasspathAttribute[]{attribute}, false);
@@ -637,9 +642,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 			waitUntilIndexesReady();
 			this.resultCollector = new JavaSearchResultCollector();
 			search("NewTest", TYPE, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaElement[]{p}));
-			assertSearchResults("\\P\\Test.jar pkg.NewTest");
-			
-			
+			assertSearchResults("Test.jar pkg.NewTest [No source]");	
 		} finally {
 			deleteProject("P");
 			new File(indexFilePath).delete();
@@ -766,7 +769,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	}
 	
 	// Test that it works if the index file is in the jar file
-	public void _testIndexInJar() throws IOException, CoreException {
+	public void testIndexInJar() throws IOException, CoreException {
 		String indexFilePath = getExternalResourcePath("Test.index");
 		String jarFilePath = getExternalResourcePath("Test.jar");
 		String indexZipPath =  getExternalResourcePath("TestIndex.zip");
@@ -783,7 +786,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 			
 			IJavaProject p = createJavaProject("P");
 			Path libPath = new Path(jarFilePath);
-			String url = "jar:file:/"+indexZipPath+"!/Test.index";
+			String url = "jar:file:"+indexZipPath+"!/Test.index";
 			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.INDEX_LOCATION_ATTRIBUTE_NAME, url);
 			IClasspathEntry entry = JavaCore.newLibraryEntry(libPath, null, null, null, new IClasspathAttribute[]{attribute}, false);
 			setClasspath(p, new IClasspathEntry[] {entry});
