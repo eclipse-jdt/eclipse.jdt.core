@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class StackMapAttributeTest extends AbstractRegressionTest {
 	public StackMapAttributeTest(String name) {
@@ -7088,5 +7089,48 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=366999
+	public void test056() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import java.io.BufferedReader;\n" + 
+					"import java.io.Closeable;\n" + 
+					"import java.io.File;\n" + 
+					"import java.io.FileReader;\n" + 
+					"import java.io.IOException;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"\n" + 
+					"	static class C implements Closeable {\n" + 
+					"		@Override\n" + 
+					"		public void close() throws IOException {\n" + 
+					"			//\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	int run() throws IOException {\n" + 
+					"		int lcnt = 0;\n" + 
+					"		try (C c = new C();) {\n" + 
+					"			try (final BufferedReader br = new BufferedReader(new FileReader(\n" + 
+					"					new File(\"logging.properties\")))) {\n" + 
+					"				String s = null;\n" + 
+					"				while ((s = br.readLine()) != null)\n" + 
+					"					lcnt++;\n" + 
+					"				return lcnt;\n" + 
+					"			}\n" + 
+					"		} finally {\n" + 
+					"			System.out.println(\"read \" + lcnt + \" lines\");\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	public static void main(final String[] args) throws IOException {\n" + 
+					"		System.out.println(\"SUCCESS\");\n" + 
+					"	}\n" + 
+					"}",
+				},
+				"SUCCESS");
 	}
 }

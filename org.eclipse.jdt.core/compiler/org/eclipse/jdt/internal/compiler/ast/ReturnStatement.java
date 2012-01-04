@@ -183,11 +183,11 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		}
 	}
 	if (this.saveValueVariable != null) {
-		codeStream.addVariable(this.saveValueVariable);
 		codeStream.load(this.saveValueVariable);
 	}
 	if (this.expression != null && !alreadyGeneratedExpression) {
 		this.expression.generateCode(currentScope, codeStream, true);
+		// hook necessary for Code Snippet
 		generateStoreSaveValueIfNecessary(codeStream);
 	}
 	// output the suitable return bytecode or wrap the value inside a descriptor for doits
@@ -214,6 +214,8 @@ public void generateReturnBytecode(CodeStream codeStream) {
 public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 	if (this.saveValueVariable != null) {
 		codeStream.store(this.saveValueVariable, false);
+		// the variable is visible as soon as the local is stored
+		codeStream.addVariable(this.saveValueVariable);
 	}
 }
 
