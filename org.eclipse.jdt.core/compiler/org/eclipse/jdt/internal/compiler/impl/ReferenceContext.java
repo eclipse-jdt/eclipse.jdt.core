@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ package org.eclipse.jdt.internal.compiler.impl;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 
 public interface ReferenceContext {
 
@@ -25,7 +26,10 @@ public interface ReferenceContext {
 
 	CompilationResult compilationResult();
 
+	CompilationUnitDeclaration getCompilationUnitDeclaration();
+
 	boolean hasErrors();
 
 	void tagAsHavingErrors();
+
 }

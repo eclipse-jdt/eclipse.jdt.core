@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -150,6 +151,13 @@ public void handle(
 		case ProblemSeverities.Error :
 			record(problem, unitResult, referenceContext);
 			if ((severity & ProblemSeverities.Fatal) != 0) {
+				// don't abort or tag as error if the error is suppressed
+				if (!referenceContext.hasErrors() && (severity & ProblemSeverities.Optional) != 0 && this.options.suppressOptionalErrors) {
+					CompilationUnitDeclaration unitDecl = referenceContext.getCompilationUnitDeclaration();
+					if (unitDecl != null && unitDecl.isSuppressed(problem)) {
+						return;
+					}
+				}
 				referenceContext.tagAsHavingErrors();
 				// should abort ?
 				int abortLevel;

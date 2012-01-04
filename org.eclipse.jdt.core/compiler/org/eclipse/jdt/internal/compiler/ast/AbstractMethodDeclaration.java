@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -360,6 +360,13 @@ public abstract class AbstractMethodDeclaration
 				this.scope.problemReporter().noMoreAvailableSpaceForArgument(this.scope.locals[i], this.scope.locals[i].declaration);
 			}
 		}
+	}
+
+	public CompilationUnitDeclaration getCompilationUnitDeclaration() {
+		if (this.scope != null) {
+			return this.scope.compilationUnitScope().referenceContext;
+		}
+		return null;
 	}
 
 	public boolean hasErrors() {
