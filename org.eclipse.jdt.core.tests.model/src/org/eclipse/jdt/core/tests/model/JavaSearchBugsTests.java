@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,7 +69,6 @@ import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.SourceMethod;
@@ -11581,9 +11580,9 @@ public void testBug286379b() throws CoreException {
  */
 public void testBug286379c() throws CoreException {
 	class TestResourceChangeListener implements IResourceChangeListener {
-		boolean valid = false;
+		boolean toRemPresent = false;
 		public void resourceChanged(IResourceChangeEvent event) {
-			this.valid = validate(event.getDelta());
+			this.toRemPresent = validate(event.getDelta());
 		}
 		/*
 		 * Ensure that the listener receives a delta concerning the resource
@@ -11606,17 +11605,6 @@ public void testBug286379c() throws CoreException {
 	        return false;
         }
 	}
-	// print statement to debug random failures of this test
-	JavaModelManager.DEBUG_302850 = true;
-	System.out.println("================================================================================");
-	System.out.println("Starting test JavaSearchBugTests.testBug286379c()...");
-	System.out.println("	- Default Options at test start:");
-	System.out.println(Util.indentString(new CompilerOptions(JavaCore.getDefaultOptions()).toString(), 1));
-	System.out.println("	- Options at test start:");
-	System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
-	System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
-	System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
-	System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
 	
 	IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
 	TestResourceChangeListener changeListener = new TestResourceChangeListener();
@@ -11646,7 +11634,7 @@ public void testBug286379c() throws CoreException {
 		// fail as we don't get any specific event from the platform to refresh the indexes.
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=118619
 		int counter = 0;
-		while (!changeListener.valid) {
+		while (!changeListener.toRemPresent) {
 			try {
 				Thread.sleep(100);
 			}
@@ -11659,21 +11647,9 @@ public void testBug286379c() throws CoreException {
 		// Wait to be sure that indexes are ready after the new resource was added
 		waitUntilIndexesReady();
 
-		// print statement to debug random failures of this test
-		System.out.println("	- Options before first exit:");
-		System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
-		System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
-		System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
-		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
 		// Restart to let the indexes to be refreshed
 		simulateExit();
 		simulateRestart();
-		// print statement to debug random failures of this test
-		System.out.println("	- Options after first restart:");
-		System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
-		System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
-		System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
-		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
 		waitUntilIndexesReady();
 
 		// Search for the new type with new extension
@@ -11691,22 +11667,23 @@ public void testBug286379c() throws CoreException {
 				false /*only assume*/);
 		
 		// Delete the file specification
+		changeListener.toRemPresent = true;
 		javaContentType.removeFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
+		counter = 0;
+		while (changeListener.toRemPresent) {
+			try {
+				Thread.sleep(100);
+			}
+			catch (InterruptedException ie) {
+				// skip
+			}
+			assertTrue("We should have got a resource event within a 10s delay!", counter++ < 100);
+		}
+		waitUntilIndexesReady();
 		
-		// print statement to debug random failures of this test
-		System.out.println("	- Options before second exit:");
-		System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
-		System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
-		System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
-		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
 		// Restarting should update the index file to remove the references of any .torem files
 		simulateExit();
-		simulateRestart();	
-		// print statement to debug random failures of this test
-		System.out.println("	- Options after second restart:");
-		System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
-		System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
-		System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
+		simulateRestart();
 		waitUntilIndexesReady();
 
 		// Search for the new type with new extension
@@ -11719,24 +11696,11 @@ public void testBug286379c() throws CoreException {
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
 		assertSearchResults("No search results expected", "", collector);
-		System.out.println("	- Options after search:");
-		System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
-		System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
-		System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
-		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
 	} finally {
 		getWorkspace().removeResourceChangeListener(changeListener);
 		if (javaContentType != null)
 			javaContentType.removeFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
 		deleteProject("P");
-		System.out.println("	- Options at test end:");
-		System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
-		System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
-		System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
-		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
-		System.out.println("	- Default Options at test end:");
-		System.out.println(Util.indentString(new CompilerOptions(JavaCore.getDefaultOptions()).toString(), 2));
-		JavaModelManager.DEBUG_302850 = false;
 	}
 }
 
