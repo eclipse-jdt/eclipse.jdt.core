@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2330,18 +2330,36 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
 	public void test036d() { // 2 interface cases
 		// in these cases, bridge methods are needed once abstract/concrete methods are defiined (either in the abstract class or a concrete subclass)
-		this.runConformTest(
-			new String[] {
-				"Y.java",
-				"abstract class Y implements Equivalent<String>, EqualityComparable<Integer> {\n" +
-				"	public abstract boolean equalTo(Number other);\n" +
-				"}\n" +
-				"interface Equivalent<T> { boolean equalTo(T other); }\n" +
-				"interface EqualityComparable<T> { boolean equalTo(T other); }\n"
-			},
-			""
-			// no bridge methods are created here since Y does not define an equalTo(?) method which equals an inherited equalTo method
-		);
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+			this.runConformTest(
+					new String[] {
+							"Y.java",
+							"abstract class Y implements Equivalent<String>, EqualityComparable<Integer> {\n" +
+									"	public abstract boolean equalTo(Number other);\n" +
+									"}\n" +
+									"interface Equivalent<T> { boolean equalTo(T other); }\n" +
+									"interface EqualityComparable<T> { boolean equalTo(T other); }\n"
+					},
+					""
+					// no bridge methods are created here since Y does not define an equalTo(?) method which equals an inherited equalTo method
+					);
+		} else {
+			this.runNegativeTest(
+					new String[] {
+							"Y.java",
+							"abstract class Y implements Equivalent<String>, EqualityComparable<Integer> {\n" +
+									"	public abstract boolean equalTo(Number other);\n" +
+									"}\n" +
+									"interface Equivalent<T> { boolean equalTo(T other); }\n" +
+									"interface EqualityComparable<T> { boolean equalTo(T other); }\n"
+					},
+					"----------\n" + 
+					"1. ERROR in Y.java (at line 1)\n" + 
+					"	abstract class Y implements Equivalent<String>, EqualityComparable<Integer> {\n" + 
+					"	               ^\n" + 
+					"Name clash: The method equalTo(T) of type Equivalent<T> has the same erasure as equalTo(T) of type EqualityComparable<T> but does not override it\n" + 
+					"----------\n");
+		}
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
 	public void test036e() { // 2 interface cases
@@ -2354,6 +2372,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"interface Equivalent<T> { boolean equalTo(T other); }\n" +
 				"interface EqualityComparable<T> { boolean equalTo(T other); }\n"
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_7 ?
 			"----------\n" +
 			"1. ERROR in Y.java (at line 2)\n" +
 			"	public abstract boolean equalTo(Object other);\n" +
@@ -2364,8 +2383,24 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	public abstract boolean equalTo(Object other);\n" +
 			"	                        ^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Name clash: The method equalTo(Object) of type Y has the same erasure as equalTo(T) of type EqualityComparable<T> but does not override it\n" +
-			"----------\n"
+			"----------\n" :
 			// name clash: equalTo(java.lang.Object) in Y and equalTo(T) in Equivalent<java.lang.String> have the same erasure, yet neither overrides the other
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 1)\n" + 
+			"	abstract class Y implements Equivalent<String>, EqualityComparable<Integer> {\n" + 
+			"	               ^\n" + 
+			"Name clash: The method equalTo(T) of type Equivalent<T> has the same erasure as equalTo(T) of type EqualityComparable<T> but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in Y.java (at line 2)\n" + 
+			"	public abstract boolean equalTo(Object other);\n" + 
+			"	                        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method equalTo(Object) of type Y has the same erasure as equalTo(T) of type Equivalent<T> but does not override it\n" + 
+			"----------\n" + 
+			"3. ERROR in Y.java (at line 2)\n" + 
+			"	public abstract boolean equalTo(Object other);\n" + 
+			"	                        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method equalTo(Object) of type Y has the same erasure as equalTo(T) of type EqualityComparable<T> but does not override it\n" + 
+			"----------\n"
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
@@ -2428,6 +2463,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"interface K extends I { void foo(A<String> a); }\n" +
 				"class A<T> {}"
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_7 ? 
 			"----------\n" + 
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	class YYY implements J, I { public void foo(A a) {} }\n" + 
@@ -2453,7 +2489,38 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	interface K extends I { void foo(A<String> a); }\n" + 
 			"	                             ^^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method foo(A<String>) of type K has the same erasure as foo(A) of type I but does not override it\n" + 
-			"----------\n");
+			"----------\n" : 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	abstract class Y implements J, I { }\n" + 
+				"	               ^\n" + 
+				"Name clash: The method foo(A<String>) of type J has the same erasure as foo(A) of type I but does not override it\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 4)\n" + 
+				"	class YYY implements J, I { public void foo(A a) {} }\n" + 
+				"	                                            ^\n" + 
+				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 5)\n" + 
+				"	class XXX implements I, J { public void foo(A a) {} }\n" + 
+				"	                                            ^\n" + 
+				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 6)\n" + 
+				"	class ZZZ implements K { public void foo(A a) {} }\n" + 
+				"	                                         ^\n" + 
+				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+				"----------\n" + 
+				"5. WARNING in X.java (at line 7)\n" + 
+				"	interface I { void foo(A a); }\n" + 
+				"	                       ^\n" + 
+				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 9)\n" + 
+				"	interface K extends I { void foo(A<String> a); }\n" + 
+				"	                             ^^^^^^^^^^^^^^^^\n" + 
+				"Name clash: The method foo(A<String>) of type K has the same erasure as foo(A) of type I but does not override it\n" + 
+				"----------\n");
 	}
 	public void test037a() { // test inheritance scenarios
 		this.runNegativeTest(
@@ -13616,5 +13683,131 @@ public void test288658a() {
 			"}\n"
 		},
 		this.complianceLevel <= ClassFileConstants.JDK1_5 ? "Annotation was found" : "Annotation was not found");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
+public void test354229() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"interface A {\n" +
+			"int get(List<String> l);\n" +
+			"}\n" +
+			"interface B  {\n" +
+			"int get(List<Integer> l);\n" +
+			"}\n" +
+			"interface C  extends A, B { \n" +
+			"//int get(List l);      // name clash error here\n" +
+			"    Zork z;\n" +
+			"}\n"
+		},
+		this.complianceLevel <= ClassFileConstants.JDK1_6 ?
+				"----------\n" + 
+				"1. ERROR in X.java (at line 10)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" :
+					"----------\n" + 
+					"1. ERROR in X.java (at line 8)\n" + 
+					"	interface C  extends A, B { \n" + 
+					"	          ^\n" + 
+					"Name clash: The method get(List<String>) of type A has the same erasure as get(List<Integer>) of type B but does not override it\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 10)\n" + 
+					"	Zork z;\n" + 
+					"	^^^^\n" + 
+					"Zork cannot be resolved to a type\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
+public void test354229b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"interface A {\n" +
+			"int get(List<String> l);\n" +
+			"}\n" +
+			"interface B  {\n" +
+			"int get(List<Integer> l);\n" +
+			"}\n" +
+			"interface C  extends A, B { \n" +
+			"    int get(List l);      // name clash error here\n" +
+			"    Zork z;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 9)\n" + 
+		"	int get(List l);      // name clash error here\n" + 
+		"	        ^^^^\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
+public void test354229c() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n" +
+			"    <T> T e(Action<T> p);\n" +
+			"}\n" +
+			"interface Y {\n" +
+			"    <S, T> S e(Action<S> t);\n" +
+			"}\n" +
+			"interface E extends X, Y {\n" +
+			"}\n" +
+			"class Action<T> {\n" +
+			"    Zork z;\n" +
+			"}\n"
+
+		},
+		this.complianceLevel < ClassFileConstants.JDK1_7 ? 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 10)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" : 
+					"----------\n" + 
+					"1. ERROR in X.java (at line 7)\n" + 
+					"	interface E extends X, Y {\n" + 
+					"	          ^\n" + 
+					"Name clash: The method e(Action<T>) of type X has the same erasure as e(Action<S>) of type Y but does not override it\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 10)\n" + 
+					"	Zork z;\n" + 
+					"	^^^^\n" + 
+					"Zork cannot be resolved to a type\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
+public void test354229d() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n" +
+			"    <T> T e(Action<T> p);\n" +
+			"    <S, T> S e(Action<S> t);\n" +
+			"}\n" +
+			"class Action<T> {\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	<T> T e(Action<T> p);\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"Method e(Action<T>) has the same erasure e(Action<T>) as another method in type X\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	<S, T> S e(Action<S> t);\n" + 
+		"	         ^^^^^^^^^^^^^^\n" + 
+		"Method e(Action<S>) has the same erasure e(Action<T>) as another method in type X\n" + 
+		"----------\n");
 }
 }

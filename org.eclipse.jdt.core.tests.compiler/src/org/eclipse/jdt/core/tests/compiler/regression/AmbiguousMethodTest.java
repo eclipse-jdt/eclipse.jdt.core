@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,6 +76,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
 	public void test002() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -92,8 +93,31 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 				"	}\n" +
 				"}"
 			},
-			"works"
-		);
+			"works");
+		} else {
+			this.runNegativeTest(
+					new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	static interface I1<E1> { void method(E1 o); }\n" +
+						"	static interface I2<E2> { void method(E2 o); }\n" +
+						"	static interface I3<E3, E4> extends I1<E3>, I2<E4> {}\n" +
+						"	static class Class1 implements I3<String, String> {\n" +
+						"		public void method(String o) { System.out.println(o); }\n" +
+						"	}\n" +
+						"	public static void main(String[] args) {\n" +
+						"		I3<String, String> i = new Class1();\n" +
+						"		i.method(\"works\");\n" +
+						"	}\n" +
+						"}"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 4)\n" + 
+					"	static interface I3<E3, E4> extends I1<E3>, I2<E4> {}\n" + 
+					"	                 ^^\n" + 
+					"Name clash: The method method(E1) of type X.I1<E1> has the same erasure as method(E2) of type X.I2<E2> but does not override it\n" + 
+					"----------\n");
+		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=122881
 	public void test002a() {

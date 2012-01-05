@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -324,7 +324,9 @@ void checkInheritedMethods(MethodBinding inheritedMethod, MethodBinding otherInh
 	//		class Y { <T> void foo(T t) {} }
 	//		abstract class X extends Y implements I {}
 
-	if (inheritedMethod.declaringClass.isInterface() || inheritedMethod.isStatic()) return;
+	if (inheritedMethod.isStatic()) return;
+	if (this.environment.globalOptions.complianceLevel < ClassFileConstants.JDK1_7 && inheritedMethod.declaringClass.isInterface())
+		return;  // JDK7 checks for name clashes in interface inheritance, while JDK6 and below don't. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
 
 	detectInheritedNameClash(inheritedMethod.original(), otherInheritedMethod.original());
 }
