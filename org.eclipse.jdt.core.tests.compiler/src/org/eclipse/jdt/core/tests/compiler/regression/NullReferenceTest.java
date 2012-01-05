@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 IBM Corporation and others.
+ * Copyright (c) 2005, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@
  * 							bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
  * 							bug 349326 - [1.7] new warning for missing try-with-resources
  * 							bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
+ * 							bug 367879 - Incorrect "Potential null pointer access" warning on statement after try-with-resources within try-finally
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -15006,6 +15007,32 @@ public void test358827() {
 				"	    ^\n" + 
 				"Null pointer access: The variable o can only be null at this location\n" + 
 				"----------\n");
+	}
+}
+// Bug 367879 - Incorrect "Potential null pointer access" warning on statement after try-with-resources within try-finally
+public void test367879() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runConformTest(
+				new String[] {
+					"Bug367879.java",
+					"import java.io.IOException;\n" +
+					"import java.io.InputStream;\n" +
+					"import java.net.HttpURLConnection;\n" +
+					"import java.net.URL;\n" +
+					"public class Bug367879 {\n" +
+					"    public void test() throws IOException {\n" + 
+					"    HttpURLConnection http = null;\n" + 
+					"        try {\n" + 
+					"            http = (HttpURLConnection) new URL(\"http://example.com/\").openConnection();\n" + 
+					"            try (InputStream in = http.getInputStream()) { /* get input */ }\n" + 
+					"            http.getURL();\n" + // shouldn't *not* flag as Potential null pointer access 
+					"        } finally {\n" + 
+					"            if (http != null) { http.disconnect(); }\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"}\n"
+				},
+				"");
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=256796
