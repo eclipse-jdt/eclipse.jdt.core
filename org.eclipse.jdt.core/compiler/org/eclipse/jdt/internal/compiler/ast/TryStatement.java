@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -912,9 +912,6 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 	if (finallyMode == FINALLY_INLINE) {
 		if (isStackMapFrameCodeStream) {
 			((StackMapFrameCodeStream) codeStream).pushStateIndex(stateIndex);
-		}
-		if (secretLocal != null) {
-			codeStream.addVariable(secretLocal);
 		}
 		// cannot use jsr bytecode, then simply inline the subroutine
 		// inside try block, ensure to deactivate all catch block exception handlers while inlining finally block

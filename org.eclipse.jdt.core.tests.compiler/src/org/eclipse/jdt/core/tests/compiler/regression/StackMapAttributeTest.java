@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2011 IBM Corporation and others.
+ * Copyright (c) 2006, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class StackMapAttributeTest extends AbstractRegressionTest {
 	public StackMapAttributeTest(String name) {
@@ -7088,5 +7089,531 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=366999
+	public void test056() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import java.io.BufferedReader;\n" + 
+					"import java.io.Closeable;\n" + 
+					"import java.io.File;\n" + 
+					"import java.io.FileReader;\n" + 
+					"import java.io.IOException;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"\n" + 
+					"	static class C implements Closeable {\n" + 
+					"		@Override\n" + 
+					"		public void close() throws IOException {\n" + 
+					"			//\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	int run() throws IOException {\n" + 
+					"		int lcnt = 0;\n" + 
+					"		try (C c = new C();) {\n" + 
+					"			try (final BufferedReader br = new BufferedReader(new FileReader(\n" + 
+					"					new File(\"logging.properties\")))) {\n" + 
+					"				String s = null;\n" + 
+					"				while ((s = br.readLine()) != null)\n" + 
+					"					lcnt++;\n" + 
+					"				return lcnt;\n" + 
+					"			}\n" + 
+					"		} finally {\n" + 
+					"			System.out.println(\"read \" + lcnt + \" lines\");\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	public static void main(final String[] args) throws IOException {\n" + 
+					"		System.out.println(\"SUCCESS\");\n" + 
+					"	}\n" + 
+					"}",
+				},
+				"SUCCESS");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test057() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public void run() {\n" +
+					"        String s;\n" +
+					"        label1: do {\n" +
+					"            for (;;) {\n" +
+					"                s = \"\";\n" +
+					"                if (s == null) \n" +
+					"                    continue label1;\n" +
+					"            }\n" +
+					"        } while (s != null);\n" +
+					"}\n" +
+					"    public static void main(String [] args) {\n" +
+					"		System.out.println(\"SUCCESS\");\n" +
+					"    }\n" +
+					"}\n",
+				},
+				"SUCCESS");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test058() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public void run() {\n" +
+					"        String s;\n" +
+					"        label1: do {\n" +
+					"            for (;true;) {\n" +
+					"                s = \"\";\n" +
+					"                if (s == null) \n" +
+					"                    continue label1;\n" +
+					"            }\n" +
+					"        } while (s != null);\n" +
+					"}\n" +
+					"    public static void main(String [] args) {\n" +
+					"		System.out.println(\"SUCCESS\");\n" +
+					"    }\n" +
+					"}\n"				},
+				"SUCCESS");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test059() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public void run() {\n" +
+					"        String s;\n" +
+					"        label1: do {\n" +
+					"            for (;false;) {\n" +
+					"                s = \"\";\n" +
+					"                if (s == null) \n" +
+					"                    continue label1;\n" +
+					"            }\n" +
+					"        } while (s != null);\n" +
+					"}\n" +
+					"    public static void main(String [] args) {\n" +
+					"		System.out.println(\"SUCCESS\");\n" +
+					"    }\n" +
+					"}\n"				},
+					"----------\n" + 
+					"1. WARNING in X.java (at line 4)\n" + 
+					"	label1: do {\n" + 
+					"	^^^^^^\n" + 
+					"The label label1 is never explicitly referenced\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 5)\n" + 
+					"	for (;false;) {\n" + 
+					"                s = \"\";\n" + 
+					"                if (s == null) \n" + 
+					"                    continue label1;\n" + 
+					"            }\n" + 
+					"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Unreachable code\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 10)\n" + 
+					"	} while (s != null);\n" + 
+					"	         ^\n" + 
+					"The local variable s may not have been initialized\n" + 
+						"----------\n");
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test060() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public void run() {\n" +
+					"        String s;\n" +
+					"        label1: do {\n" +
+					"            for (; 5 < 10;) {\n" +
+					"                s = \"\";\n" +
+					"                if (s == null) \n" +
+					"                    continue label1;\n" +
+					"            }\n" +
+					"        } while (s != null);\n" +
+					"}\n" +
+					"    public static void main(String [] args) {\n" +
+					"		System.out.println(\"SUCCESS\");\n" +
+					"    }\n" +
+					"}\n"				},
+				"SUCCESS");
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test061() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public void run() {\n" +
+					"        int five = 5, ten = 10;\n" +
+					"        String s;\n" +
+					"        label1: do {\n" +
+					"            for (; five < ten;) {\n" +
+					"                s = \"\";\n" +
+					"                if (s == null) \n" +
+					"                    continue label1;\n" +
+					"            }\n" +
+					"        } while (s != null);\n" +
+					"}\n" +
+					"    public static void main(String [] args) {\n" +
+					"		System.out.println(\"SUCCESS\");\n" +
+					"    }\n" +
+					"}\n"				},
+					"----------\n" + 
+					"1. WARNING in X.java (at line 9)\n" + 
+					"	continue label1;\n" + 
+					"	^^^^^^^^^^^^^^^^\n" + 
+					"Dead code\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 11)\n" + 
+					"	} while (s != null);\n" + 
+					"	         ^\n" + 
+					"The local variable s may not have been initialized\n" + 
+					"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test062() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public void run() {\n" +
+				"        final int five = 5, ten = 10;\n" +
+				"        String s;\n" +
+				"        label1: do {\n" +
+				"            for (; five < ten;) {\n" +
+				"                s = \"\";\n" +
+				"                if (s == null) \n" +
+				"                    continue label1;\n" +
+				"            }\n" +
+				"        } while (s != null);\n" +
+				"}\n" +
+				"    public static void main(String [] args) {\n" +
+				"		System.out.println(\"SUCCESS\");\n" +
+				"    }\n" +
+				"}\n"				},
+			"SUCCESS");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test063() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public void run() {\n" +
+				"        final int five = 5, ten = 10;\n" +
+				"        String s;\n" +
+				"        label1: do {\n" +
+				"            for (; five > ten;) {\n" +
+				"                s = \"\";\n" +
+				"                if (s == null) \n" +
+				"                    continue label1;\n" +
+				"            }\n" +
+				"        } while (s != null);\n" +
+				"}\n" +
+				"    public static void main(String [] args) {\n" +
+				"		System.out.println(\"SUCCESS\");\n" +
+				"    }\n" +
+				"}\n"				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	label1: do {\n" + 
+				"	^^^^^^\n" + 
+				"The label label1 is never explicitly referenced\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	for (; five > ten;) {\n" + 
+				"                s = \"\";\n" + 
+				"                if (s == null) \n" + 
+				"                    continue label1;\n" + 
+				"            }\n" + 
+				"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Unreachable code\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 11)\n" + 
+				"	} while (s != null);\n" + 
+				"	         ^\n" + 
+				"The local variable s may not have been initialized\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test064() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public void run() {\n" +
+					"        String s;\n" +
+					"        label1: do {\n" +
+					"            while (true) {\n" +
+					"                s = \"\";\n" +
+					"                if (s == null) \n" +
+					"                    continue label1;\n" +
+					"            }\n" +
+					"        } while (s != null);\n" +
+					"}\n" +
+					"    public static void main(String [] args) {\n" +
+					"		System.out.println(\"SUCCESS\");\n" +
+					"    }\n" +
+					"}\n",
+				},
+				"SUCCESS");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test065() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public void run() {\n" +
+					"        String s;\n" +
+					"        label1: do {\n" +
+					"            while (false) {\n" +
+					"                s = \"\";\n" +
+					"                if (s == null) \n" +
+					"                    continue label1;\n" +
+					"            }\n" +
+					"        } while (s != null);\n" +
+					"}\n" +
+					"    public static void main(String [] args) {\n" +
+					"		System.out.println(\"SUCCESS\");\n" +
+					"    }\n" +
+					"}\n"				},
+					"----------\n" + 
+					"1. WARNING in X.java (at line 4)\n" + 
+					"	label1: do {\n" + 
+					"	^^^^^^\n" + 
+					"The label label1 is never explicitly referenced\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 5)\n" + 
+					"	while (false) {\n" + 
+					"                s = \"\";\n" + 
+					"                if (s == null) \n" + 
+					"                    continue label1;\n" + 
+					"            }\n" + 
+					"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Unreachable code\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 10)\n" + 
+					"	} while (s != null);\n" + 
+					"	         ^\n" + 
+					"The local variable s may not have been initialized\n" + 
+					"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test066() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public void run() {\n" +
+					"        String s;\n" +
+					"        label1: do {\n" +
+					"            while(5 < 10) {\n" +
+					"                s = \"\";\n" +
+					"                if (s == null) \n" +
+					"                    continue label1;\n" +
+					"            }\n" +
+					"        } while (s != null);\n" +
+					"}\n" +
+					"    public static void main(String [] args) {\n" +
+					"		System.out.println(\"SUCCESS\");\n" +
+					"    }\n" +
+					"}\n"				},
+				"SUCCESS");
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test067() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public void run() {\n" +
+					"        int five = 5, ten = 10;\n" +
+					"        String s;\n" +
+					"        label1: do {\n" +
+					"            while (five < ten) {\n" +
+					"                s = \"\";\n" +
+					"                if (s == null) \n" +
+					"                    continue label1;\n" +
+					"            }\n" +
+					"        } while (s != null);\n" +
+					"}\n" +
+					"    public static void main(String [] args) {\n" +
+					"		System.out.println(\"SUCCESS\");\n" +
+					"    }\n" +
+					"}\n"				},
+					"----------\n" + 
+					"1. WARNING in X.java (at line 9)\n" + 
+					"	continue label1;\n" + 
+					"	^^^^^^^^^^^^^^^^\n" + 
+					"Dead code\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 11)\n" + 
+					"	} while (s != null);\n" + 
+					"	         ^\n" + 
+					"The local variable s may not have been initialized\n" + 
+					"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test068() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public void run() {\n" +
+				"        final int five = 5, ten = 10;\n" +
+				"        String s;\n" +
+				"        label1: do {\n" +
+				"            while (five < ten) {\n" +
+				"                s = \"\";\n" +
+				"                if (s == null) \n" +
+				"                    continue label1;\n" +
+				"            }\n" +
+				"        } while (s != null);\n" +
+				"}\n" +
+				"    public static void main(String [] args) {\n" +
+				"		System.out.println(\"SUCCESS\");\n" +
+				"    }\n" +
+				"}\n"				},
+			"SUCCESS");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test069() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public void run() {\n" +
+				"        final int five = 5, ten = 10;\n" +
+				"        String s;\n" +
+				"        label1: do {\n" +
+				"            while (five > ten) {\n" +
+				"                s = \"\";\n" +
+				"                if (s == null) \n" +
+				"                    continue label1;\n" +
+				"            }\n" +
+				"        } while (s != null);\n" +
+				"}\n" +
+				"    public static void main(String [] args) {\n" +
+				"		System.out.println(\"SUCCESS\");\n" +
+				"    }\n" +
+				"}\n"				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	label1: do {\n" + 
+				"	^^^^^^\n" + 
+				"The label label1 is never explicitly referenced\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	while (five > ten) {\n" + 
+				"                s = \"\";\n" + 
+				"                if (s == null) \n" + 
+				"                    continue label1;\n" + 
+				"            }\n" + 
+				"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Unreachable code\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 11)\n" + 
+				"	} while (s != null);\n" + 
+				"	         ^\n" + 
+				"The local variable s may not have been initialized\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367023
+	public void test070() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" +
+				"import java.util.Arrays;\n" +
+				"import java.util.Iterator;\n" +
+				"import java.util.List;\n" +
+				"import java.util.Properties;\n" +
+				"import org.w3c.dom.*;\n" +
+				"public class X extends Object {\n" +
+				"        public static void main(String [] args) {\n" +
+				"            System.out.println (\"SUCCESS\");\n" +
+				"        }\n" +
+				"	private static class Handler extends Object {\n" +
+				"		public int getStuff() {\n" +
+				"			return 1;\n" +
+				"		}\n" +
+				"		public void handle(Element element) {\n" +
+				"			Properties properties = new Properties();\n" +
+				"			NamedNodeMap atts = element.getAttributes();\n" +
+				"			if (atts != null) {\n" +
+				"				for (int a = 0; a < atts.getLength(); a++) {\n" +
+				"					Node att = atts.item(a);\n" +
+				"					String name = att.getNodeName();\n" +
+				"					String value = att.getNodeValue();\n" +
+				"					if (\"foo\".equals(name)) {\n" +
+				"						name = value;\n" +
+				"					} else {\n" +
+				"						if (!\"bar\".equals(name))\n" +
+				"							continue;\n" +
+				"						name = value;\n" +
+				"					}\n" +
+				"					properties.put(name, value);\n" +
+				"				}\n" +
+				"			}\n" +
+				"			label0: do {\n" +
+				"				Node node;\n" +
+				"				String nodeName;\n" +
+				"				label1: do {\n" +
+				"					for (Iterator i = (new ArrayList(1)).iterator(); i\n" +
+				"							.hasNext(); members.add(equals(node))) {\n" +
+				"						node = (Node) i.next();\n" +
+				"						nodeName = \"\" + equals(node.getNodeName());\n" +
+				"						if (!\"foo\".equals(nodeName))\n" +
+				"							continue label1;\n" +
+				"					}\n" +
+				"					break label0;\n" +
+				"				} while (!\"bar\".equals(nodeName));\n" +
+				"				Iterator i = (new ArrayList(1)).iterator();\n" +
+				"				while (i.hasNext()) {\n" +
+				"					Node n = (Node) i.next();\n" +
+				"					String name = toString() + n.getNodeName();\n" +
+				"					if (\"wtf\".equals(name)) {\n" +
+				"						String propertyName = (toString() + n.getAttributes()\n" +
+				"								.getNamedItem(\"broken\")).trim();\n" +
+				"						String value = toString() + n;\n" +
+				"						properties.put(propertyName, value);\n" +
+				"					}\n" +
+				"				}\n" +
+				"			} while (true);\n" +
+				"			propertiesBuilder.equals(properties);\n" +
+				"			builder.equals(propertiesBuilder.hashCode());\n" +
+				"			builder.equals(members);\n" +
+				"		}\n" +
+				"		private final Object c;\n" +
+				"		private Object builder;\n" +
+				"		private List members;\n" +
+				"		private Object propertiesBuilder;\n" +
+				"		public Handler(Object c) {\n" +
+				"			this.c = c;\n" +
+				"			builder = Arrays.asList(Object.class);\n" +
+				"			builder.equals(\"foo\");\n" +
+				"			builder.equals(\"bar\");\n" +
+				"			members = new ArrayList();\n" +
+				"			propertiesBuilder = Arrays.asList(Object.class);\n" +
+				"			Object beanDefinition = propertiesBuilder.toString();\n" +
+				"			Object holder = new String(\"stirng\");\n" +
+				"			Arrays.asList(holder, c.toString());\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public X() {\n" +
+				"	}\n" +
+				"	protected Object parseInternal(Element element, Object c) {\n" +
+				"		Handler h = new Handler(c);\n" +
+				"		h.handle(element);\n" +
+				"		return h.getStuff();\n" +
+				"	}\n" +
+				"}\n"
+				},
+				"SUCCESS");
 	}
 }

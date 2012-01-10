@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -364,6 +364,10 @@ public void generateCode() {
 	}
 }
 
+public CompilationUnitDeclaration getCompilationUnitDeclaration() {
+	return this;
+}
+
 public char[] getFileName() {
 	return this.compilationResult.getFileName();
 }
@@ -392,6 +396,24 @@ public boolean isEmpty() {
 
 public boolean isPackageInfo() {
 	return CharOperation.equals(getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME);
+}
+
+public boolean isSuppressed(CategorizedProblem problem) {
+	if (this.suppressWarningsCount == 0) return false;
+	int irritant = ProblemReporter.getIrritant(problem.getID());
+	if (irritant == 0) return false;
+	int start = problem.getSourceStart();
+	int end = problem.getSourceEnd();
+	nextSuppress: for (int iSuppress = 0, suppressCount = this.suppressWarningsCount; iSuppress < suppressCount; iSuppress++) {
+		long position = this.suppressWarningScopePositions[iSuppress];
+		int startSuppress = (int) (position >>> 32);
+		int endSuppress = (int) position;
+		if (start < startSuppress) continue nextSuppress;
+		if (end > endSuppress) continue nextSuppress;
+		if (this.suppressWarningIrritants[iSuppress].isSet(irritant))
+			return true;
+	}
+	return false;
 }
 
 public boolean hasErrors() {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5226,6 +5226,135 @@ public void test058() {
 			"}\n"
 		},  "");	
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367566 - In try-with-resources statement close() method of resource is not called
+public void test059() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"\n" +
+			"public class X implements java.lang.AutoCloseable {\n" +
+			"  static boolean isOpen = true;\n" +
+			"  public static void main(final String[] args) throws IOException {\n" +
+			"    foo();\n" +
+			"    System.out.println(isOpen);\n" +
+			"  }\n" +
+			"  static boolean foo() {\n" +
+			"    try (final X x = new X()) {\n" +
+			"      return x.num() >= 1;\n" +
+			"    }\n" +
+			"  }\n" +
+			"  int num() { return 2; }\n" +
+			"  public void close() {\n" +
+			"    isOpen = false;\n" +
+			"  }\n" +
+			"}\n"
+		},  
+		"false");	
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=367566 - In try-with-resources statement close() method of resource is not called
+public void test060() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X implements AutoCloseable {\n" +
+			"	static int num = 10 ;\n" +
+			"    public static void main(String [] args) throws Exception { \n" +
+			"    	System.out.println(foo(1));\n" +
+			"    	System.out.println(foo(2));\n" +
+			"    	System.out.println(foo(3));\n" +
+			"    }\n" +
+			"	private static boolean foo(int where) throws Exception {\n" +
+			"		final boolean getOut = true;\n" +
+			"    	System.out.println(\"Main\");\n" +
+			"    	try (X x1 = new X(); X x2 = new X()) {\n" +
+			"    		if (where == 1) {\n" +
+			"    			return where == 1;\n" +
+			"    		}\n" +
+			"            System.out.println(\"Outer Try\");\n" +
+			"            while (true) {\n" +
+			"            	try (Y y1 = new Y(); Y y2 = new Y()) { \n" +
+			"            		if (where == 2) {\n" +
+			"            			return where == 2;\n" +
+			"            		}		\n" +
+			"            		System.out.println(\"Middle Try\");\n" +
+			"            		try (Z z1 = new Z(); Z z2 = new Z()) {\n" +
+			"            			System.out.println(\"Inner Try\");\n" +
+			"            			if (getOut) \n" +
+			"            				return num >= 10;\n" +
+			"            			else\n" +
+			"            				break; \n" +
+			"            		}\n" +
+			"            	}\n" +
+			"            }\n" +
+			"            System.out.println(\"Out of while\");\n" +
+			"        }\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"    public X() {\n" +
+			"        System.out.println(\"X::X\");\n" +
+			"    }\n" +
+			"    @Override\n" +
+			"	public void close() throws Exception {\n" +
+			"        System.out.println(\"X::~X\");\n" +
+			"    }\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"    public Y() {\n" +
+			"        System.out.println(\"Y::Y\");\n" +
+			"    }\n" +
+			"    @Override\n" +
+			"	public void close() throws Exception {\n" +
+			"        System.out.println(\"Y::~Y\");\n" +
+			"    }\n" +
+			"}\n" +
+			"class Z implements AutoCloseable {\n" +
+			"    public Z() {\n" +
+			"        System.out.println(\"Z::Z\");\n" +
+			"    }\n" +
+			"    @Override\n" +
+			"	public void close() throws Exception {\n" +
+			"        System.out.println(\"Z::~Z\");\n" +
+			"    }\n" +
+			"}\n"
+		}, 
+		"Main\n" + 
+		"X::X\n" + 
+		"X::X\n" + 
+		"X::~X\n" + 
+		"X::~X\n" + 
+		"true\n" + 
+		"Main\n" + 
+		"X::X\n" + 
+		"X::X\n" + 
+		"Outer Try\n" + 
+		"Y::Y\n" + 
+		"Y::Y\n" + 
+		"Y::~Y\n" + 
+		"Y::~Y\n" + 
+		"X::~X\n" + 
+		"X::~X\n" + 
+		"true\n" + 
+		"Main\n" + 
+		"X::X\n" + 
+		"X::X\n" + 
+		"Outer Try\n" + 
+		"Y::Y\n" + 
+		"Y::Y\n" + 
+		"Middle Try\n" + 
+		"Z::Z\n" + 
+		"Z::Z\n" + 
+		"Inner Try\n" + 
+		"Z::~Z\n" + 
+		"Z::~Z\n" + 
+		"Y::~Y\n" + 
+		"Y::~Y\n" + 
+		"X::~X\n" + 
+		"X::~X\n" + 
+		"true");
+}
+
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }

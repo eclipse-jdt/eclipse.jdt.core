@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2922,13 +2922,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return org.eclipse.jdt.core.tests.util.Util.toString(strings, false/*don't add extra new line*/);
 	}
 	protected void tearDown() throws Exception {
-		if (JavaModelManager.DEBUG_302850) {
-			System.out.println("	- Options before tear down:");
-			System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
-			System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
-			System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
-			System.out.println(org.eclipse.jdt.core.tests.util.Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
-		}
 
 		super.tearDown();
 		if (this.workingCopies != null) {
@@ -2937,17 +2930,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		this.wcOwner = null;
 
-		if (JavaModelManager.DEBUG_302850) {
-			System.out.println("	- Options before comparison with defaults:");
-			System.out.println("		+ Task tags:           " + JavaCore.getOption(JavaCore.COMPILER_TASK_TAGS));
-			System.out.println("		+ Task priorities:     " + JavaCore.getOption(JavaCore.COMPILER_TASK_PRIORITIES));
-			System.out.println("		+ Forbidden reference: " + JavaCore.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE));
-			System.out.println(org.eclipse.jdt.core.tests.util.Util.indentString(new CompilerOptions(JavaCore.getOptions()).toString(), 2));
-			System.out.println("	- Default Options before comparison:");
-			System.out.println(org.eclipse.jdt.core.tests.util.Util.indentString(new CompilerOptions(JavaCore.getDefaultOptions()).toString(), 2));
-			System.out.println("================================================================================");
-		}
-
 		// ensure workspace options have been restored to their default
 		Hashtable options = JavaCore.getOptions();
 		Hashtable defaultOptions = JavaCore.getDefaultOptions();
@@ -2955,8 +2937,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			"Workspace options should be back to their default",
 			new CompilerOptions(defaultOptions).toString(),
 			new CompilerOptions(options).toString());
-		
-		JavaModelManager.DEBUG_302850 = false;
 	}
 
 	/**

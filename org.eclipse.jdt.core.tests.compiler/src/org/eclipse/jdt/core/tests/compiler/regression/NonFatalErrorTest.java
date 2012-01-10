@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -24,7 +25,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 5 };
+//		TESTS_NUMBERS = new int[] { 7 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -257,5 +258,42 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			null /* do not check error string */,
 			// javac options
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
+	}
+	public void test007() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+			return;
+		}
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_FatalOptionalError,
+				CompilerOptions.ENABLED);
+		customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal,
+				CompilerOptions.ERROR);
+		customOptions.put(CompilerOptions.OPTION_SuppressWarnings,
+				CompilerOptions.ENABLED);
+		customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors,
+				CompilerOptions.ENABLED);
+		customOptions.put(CompilerOptions.OPTION_ReportUnusedWarningToken,
+				CompilerOptions.ERROR);
+		runConformTest(
+				new String[] { /* test files */
+						"X.java",
+						"public class X {\n" +
+								"        @SuppressWarnings(\"unused\")\n" +
+								"        static void foo() {\n" +
+								"            String s = null;\n" +
+								"            System.out.println(\"SUCCESS\");\n" +
+								"        }\n" +
+								"        public static void main(String argv[]) {\n" +
+								"            foo();\n" +
+								"        }\n" +
+								"}"
+				},
+				"SUCCESS" /* expected output string */,
+				null /* no class libraries */,
+				true,
+				null,
+				customOptions /* custom options */,
+				// compiler results
+				null /* do not check error string */);
 	}
 }
