@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7592,7 +7592,9 @@ public void unusedPrivateConstructor(ConstructorDeclaration constructorDecl) {
 
 	int severity = computeSeverity(IProblem.UnusedPrivateConstructor);
 	if (severity == ProblemSeverities.Ignore) return;
-
+	
+	if (excludeDueToAnnotation(constructorDecl.annotations)) return;
+	
 	MethodBinding constructor = constructorDecl.binding;
 	this.handle(
 			IProblem.UnusedPrivateConstructor,
@@ -7638,6 +7640,7 @@ public void unusedPrivateField(FieldDeclaration fieldDecl) {
 			}
 		}
 	}
+	if (excludeDueToAnnotation(fieldDecl.annotations)) return;
 	this.handle(
 			IProblem.UnusedPrivateField,
 		new String[] {
@@ -7691,10 +7694,8 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 			&& CharOperation.equals(method.selector, TypeConstants.WRITEREPLACE)) {
 		return;
 	}
-	if ((method.tagBits & (TagBits.AnnotationPostConstruct | TagBits.AnnotationPreDestroy)) != 0) {
-		// PostConstruct and PreDestroy method are ignored
-		return;
-	}
+	if (excludeDueToAnnotation(methodDecl.annotations)) return;
+	
 	this.handle(
 			IProblem.UnusedPrivateMethod,
 		new String[] {
@@ -7711,10 +7712,43 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+
+/**
+ * Returns true if a private member should not be warned as unused if
+ * annotated with a non-standard annotation
+ * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
+ */
+private boolean excludeDueToAnnotation(Annotation[] annotations) {
+	int annotationsLen = 0;
+	if (annotations != null) {
+		annotationsLen = annotations.length;
+	} else {
+		return false;
+	}
+	if (annotationsLen == 0) return false;
+	for (int i = 0; i < annotationsLen; i++) {
+		 TypeBinding resolvedType = annotations[i].resolvedType;
+	     if (resolvedType != null) {
+			switch (resolvedType.id) {
+				case TypeIds.T_JavaLangSuppressWarnings:
+				case TypeIds.T_JavaLangDeprecated:
+				case TypeIds.T_JavaLangSafeVarargs:
+				case TypeIds.T_ConfiguredAnnotationNonNull:
+				case TypeIds.T_ConfiguredAnnotationNullable:
+				case TypeIds.T_ConfiguredAnnotationNonNullByDefault:
+					break;
+				default:
+					// non-standard annotation found, don't warn
+					return true;
+			}
+		}
+	}
+	return false;
+}
 public void unusedPrivateType(TypeDeclaration typeDecl) {
 	int severity = computeSeverity(IProblem.UnusedPrivateType);
 	if (severity == ProblemSeverities.Ignore) return;
-
+	if (excludeDueToAnnotation(typeDecl.annotations)) return;
 	ReferenceBinding type = typeDecl.binding;
 	this.handle(
 			IProblem.UnusedPrivateType,

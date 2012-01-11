@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -380,8 +380,7 @@ public void computeId() {
 	switch (this.compoundName.length) {
 
 		case 3 :
-			if (!CharOperation.equals(TypeConstants.JAVA, this.compoundName[0])
-					&& !CharOperation.equals(TypeConstants.JAVAX, this.compoundName[0]))
+			if (!CharOperation.equals(TypeConstants.JAVA, this.compoundName[0]))
 				return;
 			
 			char[] packageName = this.compoundName[1];
@@ -389,19 +388,6 @@ public void computeId() {
 			char[] typeName = this.compoundName[2];
 			if (typeName.length == 0) return; // just to be safe
 			// remaining types MUST be in java.*.*
-			if (CharOperation.equals(TypeConstants.JAVAX, this.compoundName[0])) {
-				if (CharOperation.equals(TypeConstants.ANNOTATION, this.compoundName[1])) {
-					switch (typeName[0]) {
-						case 'P' :
-							if (CharOperation.equals(typeName, TypeConstants.JAVAX_ANNOTATION_POSTCONSTRUCT[2]))
-								this.id = TypeIds.T_JavaxAnnotationPostConstruct;
-							if (CharOperation.equals(typeName, TypeConstants.JAVAX_ANNOTATION_PREDESTROY[2]))
-								this.id = TypeIds.T_JavaxAnnotationPreDestroy;
-							return;
-					}
-				}
-				return;
-			}
 			if (!CharOperation.equals(TypeConstants.LANG, this.compoundName[1])) {
 				switch (packageName[0]) {
 					case 'i' :

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -100,11 +100,6 @@ public interface TypeIds {
 
 	// java 7 java.lang.AutoCloseable
 	final int T_JavaLangAutoCloseable = 62;
-
-	// new in 3.8
-	final int T_JavaxAnnotationPostConstruct = 63;
-
-	final int T_JavaxAnnotationPreDestroy = 64;
 	
 	// new in 3.8 for null annotations:
 	final int T_ConfiguredAnnotationNullable = 65;

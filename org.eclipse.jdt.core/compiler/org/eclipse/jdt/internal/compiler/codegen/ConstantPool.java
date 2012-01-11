@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -248,8 +248,6 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] JAVA_LANG_SAFEVARARGS = "Ljava/lang/SafeVarargs;".toCharArray(); //$NON-NLS-1$
 	// java 7 java.lang.invoke.MethodHandle.invokeExact(..)/invokeGeneric(..)
 	public static final char[] JAVA_LANG_INVOKE_METHODHANDLE_POLYMORPHICSIGNATURE = "Ljava/lang/invoke/MethodHandle$PolymorphicSignature;".toCharArray(); //$NON-NLS-1$
-	public static final char[] JAVAX_ANNOTATION_POSTCONSTRUCT = "Ljavax/annotation/PostConstruct;".toCharArray(); //$NON-NLS-1$
-	public static final char[] JAVAX_ANNOTATION_PREDESTROY = "Ljavax/annotation/PreDestroy;".toCharArray(); //$NON-NLS-1$
 
 	public static final char[] HashCode = "hashCode".toCharArray(); //$NON-NLS-1$
 	public static final char[] HashCodeSignature = "()I".toCharArray(); //$NON-NLS-1$; 

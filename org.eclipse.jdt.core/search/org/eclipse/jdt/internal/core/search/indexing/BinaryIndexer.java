@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,6 +46,9 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 		super(document);
 	}
 	private void addBinaryStandardAnnotations(long annotationTagBits) {
+		if ((annotationTagBits & TagBits.AllStandardAnnotationsMask) == 0) {
+			return;
+		}
 		if ((annotationTagBits & TagBits.AnnotationTargetMASK) != 0) {
 			char[][] compoundName = TypeConstants.JAVA_LANG_ANNOTATION_TARGET;
 			addAnnotationTypeReference(compoundName[compoundName.length-1]);
@@ -83,14 +86,6 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 		if ((annotationTagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
 			char[][] compoundName =
 					TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_$_POLYMORPHICSIGNATURE;
-			addAnnotationTypeReference(compoundName[compoundName.length-1]);
-		}
-		if ((annotationTagBits & TagBits.AnnotationPostConstruct) != 0) {
-			char[][] compoundName = TypeConstants.JAVAX_ANNOTATION_POSTCONSTRUCT;
-			addAnnotationTypeReference(compoundName[compoundName.length-1]);
-		}
-		if ((annotationTagBits & TagBits.AnnotationPreDestroy) != 0) {
-			char[][] compoundName = TypeConstants.JAVAX_ANNOTATION_PREDESTROY;
 			addAnnotationTypeReference(compoundName[compoundName.length-1]);
 		}
 	}

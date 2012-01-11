@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,11 +54,10 @@ public static AnnotationBinding[] addStandardAnnotations(AnnotationBinding[] rec
 		count++;
 	if ((annotationTagBits & TagBits.AnnotationSafeVarargs) != 0)
 		count++;
-	if ((annotationTagBits & TagBits.AnnotationPostConstruct) != 0)
-		count++;
-	if ((annotationTagBits & TagBits.AnnotationPreDestroy) != 0)
-		count++;
-	// count must be different from 0
+	if (count == 0) {
+		// this is possible if bits were set for null annotations
+		return recordedAnnotations;
+	}
 
 	int index = recordedAnnotations.length;
 	AnnotationBinding[] result = new AnnotationBinding[index + count];
@@ -81,10 +80,6 @@ public static AnnotationBinding[] addStandardAnnotations(AnnotationBinding[] rec
 		result[index++] = buildMarkerAnnotationForMemberType(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_$_POLYMORPHICSIGNATURE, env);
 	if ((annotationTagBits & TagBits.AnnotationSafeVarargs) != 0)
 		result[index++] = buildMarkerAnnotation(TypeConstants.JAVA_LANG_SAFEVARARGS, env);
-	if ((annotationTagBits & TagBits.AnnotationPostConstruct) != 0)
-		result[index++] = buildMarkerAnnotation(TypeConstants.JAVAX_ANNOTATION_POSTCONSTRUCT, env);
-	if ((annotationTagBits & TagBits.AnnotationPreDestroy) != 0)
-		result[index++] = buildMarkerAnnotation(TypeConstants.JAVAX_ANNOTATION_PREDESTROY, env);
 	return result;
 }
 

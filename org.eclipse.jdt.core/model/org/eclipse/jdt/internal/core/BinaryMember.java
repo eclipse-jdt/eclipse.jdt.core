@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,12 +86,6 @@ protected IAnnotation[] getStandardAnnotations(long tagBits) {
 	}
 	if ((tagBits & TagBits.AnnotationSafeVarargs) != 0) {
 		annotations.add(getAnnotation(TypeConstants.JAVA_LANG_SAFEVARARGS));
-	}
-	if ((tagBits & TagBits.AnnotationPostConstruct) != 0) {
-		annotations.add(getAnnotation(TypeConstants.JAVAX_ANNOTATION_POSTCONSTRUCT));
-	}
-	if ((tagBits & TagBits.AnnotationPreDestroy) != 0) {
-		annotations.add(getAnnotation(TypeConstants.JAVAX_ANNOTATION_PREDESTROY));
 	}
 	// note that JAVA_LANG_SUPPRESSWARNINGS and JAVA_LANG_OVERRIDE cannot appear in binaries
 	return (IAnnotation[]) annotations.toArray(new IAnnotation[annotations.size()]);
