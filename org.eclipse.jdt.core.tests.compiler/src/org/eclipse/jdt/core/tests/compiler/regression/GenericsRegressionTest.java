@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2463,6 +2463,90 @@ public void test348493a() {
 		"	X<> x = new X<>();\n" + 
 		"	            ^\n" + 
 		"\'<>\' operator is not allowed for source level below 1.7\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=366131
+public void test366131() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"}\n" +
+			"class Range<T extends Comparable<? super T>> {\n" +
+			"    public boolean containsNC(T value) {\n" +
+			"        return false;\n" +
+			"    }\n" +
+			"}\n" +
+			"class NumberRange<T extends Number & Comparable<? super T>> extends Range<T> {\n" +
+			"    public boolean contains(Comparable<?> value) {\n" +
+			"        return castTo((Class) null).containsNC((Comparable) null);\n" +
+			"    }\n" +
+			"    public <N extends Number & Comparable<? super N>> NumberRange<N>\n" +
+			"castTo(Class<N> type) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"SUCCESS");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=366131
+public void test366131b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String [] args) {\n" +
+			"        Zork z;\n" +
+			"    }\n" +
+			"}\n" +
+			"class Range<T extends Comparable<? super T>> {\n" +
+			"    public boolean containsNC(T value) {\n" +
+			"        return false;\n" +
+			"    }\n" +
+			"}\n" +
+			"class NumberRange<T extends Number & Comparable<? super T>> extends Range<T> {\n" +
+			"    public boolean contains(Comparable<?> value) {\n" +
+			"        return castTo((Class) null).containsNC((Comparable) null);\n" +
+			"    }\n" +
+			"    public <N extends Number & Comparable<? super N>> NumberRange<N>\n" +
+			"castTo(Class<N> type) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 13)\n" + 
+		"	return castTo((Class) null).containsNC((Comparable) null);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation castTo(Class) of the generic method castTo(Class<N>) of type NumberRange<T>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 13)\n" + 
+		"	return castTo((Class) null).containsNC((Comparable) null);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method containsNC(Comparable) belongs to the raw type Range. References to generic type Range<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 13)\n" + 
+		"	return castTo((Class) null).containsNC((Comparable) null);\n" + 
+		"	              ^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Number&Comparable<? super Number&Comparable<? super N>>>\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 13)\n" + 
+		"	return castTo((Class) null).containsNC((Comparable) null);\n" + 
+		"	               ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 13)\n" + 
+		"	return castTo((Class) null).containsNC((Comparable) null);\n" + 
+		"	                                        ^^^^^^^^^^\n" + 
+		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 		"----------\n");
 }
 }
