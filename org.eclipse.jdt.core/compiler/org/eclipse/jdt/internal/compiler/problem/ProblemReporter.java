@@ -7715,8 +7715,8 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 
 /**
  * Returns true if a private member should not be warned as unused if
- * annotated with a non-standard annotation
- * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
+ * annotated with a non-standard annotation.
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
  */
 private boolean excludeDueToAnnotation(Annotation[] annotations) {
 	int annotationsLen = 0;
@@ -7727,8 +7727,8 @@ private boolean excludeDueToAnnotation(Annotation[] annotations) {
 	}
 	if (annotationsLen == 0) return false;
 	for (int i = 0; i < annotationsLen; i++) {
-		 TypeBinding resolvedType = annotations[i].resolvedType;
-	     if (resolvedType != null) {
+		TypeBinding resolvedType = annotations[i].resolvedType;
+		if (resolvedType != null) {
 			switch (resolvedType.id) {
 				case TypeIds.T_JavaLangSuppressWarnings:
 				case TypeIds.T_JavaLangDeprecated:
