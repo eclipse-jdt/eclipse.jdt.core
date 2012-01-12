@@ -54,12 +54,11 @@ public class ModelTesterProc extends AbstractProcessor {
 	
 	public static final String TEST_FIELD_TYPE_PKG = "p";
 	public static final String TEST_FIELD_TYPE_CLASS = "Foo";
-	public static final String TEST_FIELD_TYPE_SOURCE = 				
+	public static final String TEST_FIELD_TYPE_SOURCE =
 		"package p;\n" +
 		"import org.eclipse.jdt.apt.pluggable.tests.annotations.ModelTestTrigger;\n" +
 		"import org.eclipse.jdt.apt.pluggable.tests.annotations.LookAt;\n" +
 		"@ModelTestTrigger(test = \"testFieldType\")" +
-		"@SuppressWarnings(\"unused\")\n" +
 		"public class Foo {\n" +
 		"    @LookAt\n" +
 		"    private int _fInt = 0;\n" +
@@ -71,12 +70,11 @@ public class ModelTesterProc extends AbstractProcessor {
 
 	public static final String TEST_METHOD_TYPE_PKG = "p";
 	public static final String TEST_METHOD_TYPE_CLASS = "Foo";
-	public static final String TEST_METHOD_TYPE_SOURCE = 				
+	public static final String TEST_METHOD_TYPE_SOURCE =
 		"package p;\n" +
 		"import org.eclipse.jdt.apt.pluggable.tests.annotations.ModelTestTrigger;\n" +
 		"import org.eclipse.jdt.apt.pluggable.tests.annotations.LookAt;\n" +
 		"@ModelTestTrigger(test = \"testMethodType\")" +
-		"@SuppressWarnings(\"unused\")\n" +
 		"public class Foo {\n" +
 		"    @LookAt\n" +
 		"    private Foo self() { return this;}\n" +
