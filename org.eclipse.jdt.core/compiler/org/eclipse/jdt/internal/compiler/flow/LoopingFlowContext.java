@@ -10,6 +10,7 @@
  *     Stephan Herrmann - contributions for
  *     							bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -51,6 +52,7 @@ public class LoopingFlowContext extends SwitchFlowContext {
 	Expression[] nullReferences;
 	int[] nullCheckTypes;
 	int nullCount;
+	// see also the related field FlowContext#expectedTypes
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321926
 	static private class EscapingExceptionCatchSite {

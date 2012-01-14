@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
  *     							bug 185682 - Increment/decrement operators mark local variables as read
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -965,7 +966,7 @@ public TypeBinding resolveType(BlockScope scope) {
 							&& methodScope.lastVisibleFieldID >= 0
 							&& fieldBinding.id >= methodScope.lastVisibleFieldID
 							&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
-						if ((this.bits & IsMemberValueReference) != 0 && fieldBinding.id == methodScope.lastVisibleFieldID) {
+						if (methodScope.insideTypeAnnotation && fieldBinding.id == methodScope.lastVisibleFieldID) {
 							// false alarm, location is NOT a field initializer but the value in a memberValuePair
 						} else {
 							scope.problemReporter().forwardReference(this, this.indexOfFirstFieldBinding-1, fieldBinding);

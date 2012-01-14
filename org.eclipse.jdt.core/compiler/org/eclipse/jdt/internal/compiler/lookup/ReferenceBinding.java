@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -376,6 +377,8 @@ public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 }
 
 public void computeId() {
+	// note that more (configurable) ids are assigned from PackageBinding#checkIfNullAnnotationType() 
+
 	// try to avoid multiple checks against a package/type name
 	switch (this.compoundName.length) {
 

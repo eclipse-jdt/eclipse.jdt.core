@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 367203 - [compiler][null] detect assigning null to nonnull argument
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -74,15 +75,15 @@ public abstract class AbstractMethodDeclaration
 	}
 
 	/**
-	 * Materialize a null annotation that has been added from the current default,
+	 * Materialize a non-null annotation that has been added from the current default,
 	 * in order to ensure that this annotation will be generated into the .class file, too.
 	 */
-	public void addNullnessAnnotation(ReferenceBinding annotationBinding) {
+	public void addNonNullAnnotation(ReferenceBinding annotationBinding) {
 		this.annotations = addAnnotation(this, this.annotations, annotationBinding);
 	}
 
 	/**
-	 * Materialize a null parameter annotation that has been added from the current default,
+	 * Materialize a non-null parameter annotation that has been added from the current default,
 	 * in order to ensure that this annotation will be generated into the .class file, too.
 	 */
 	public void addParameterNonNullAnnotation(Argument argument, ReferenceBinding annotationBinding) {
@@ -497,7 +498,7 @@ public abstract class AbstractMethodDeclaration
 			bindThrownExceptions();
 			resolveJavadoc();
 			resolveAnnotations(this.scope, this.annotations, this.binding);
-			validateAnnotations();
+			validateNullAnnotations();
 			resolveStatements();
 			// check @Deprecated annotation presence
 			if (this.binding != null
@@ -562,10 +563,11 @@ public abstract class AbstractMethodDeclaration
 	    return null;
 	}
 
-	void validateAnnotations() {
+	void validateNullAnnotations() {
 		// null annotations on parameters?
 		if (this.binding != null && this.binding.parameterNonNullness != null) {
-			for (int i=0; i<this.binding.parameters.length; i++) {
+			int length = this.binding.parameters.length;
+			for (int i=0; i<length; i++) {
 				if (this.binding.parameterNonNullness[i] != null) {
 					long nullAnnotationTagBit =  this.binding.parameterNonNullness[i].booleanValue()
 							? TagBits.AnnotationNonNull : TagBits.AnnotationNullable;

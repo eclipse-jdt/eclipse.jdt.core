@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365836 - [compiler][null] Incomplete propagation of null defaults.
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1525,7 +1526,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 					method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				newParameters[i] = parameterType;
-				arg.binding = new LocalVariableBinding(arg, parameterType, arg.modifiers, true);
+				arg.binding = new LocalVariableBinding(arg, parameterType, arg.modifiers, true /*isArgument*/);
 			}
 		}
 		// only assign parameters if no problems are found
@@ -1626,7 +1627,7 @@ private void createArgumentBindings(MethodBinding method) {
 	}
 }
 private void evaluateNullAnnotations(long annotationTagBits) {
-	if (this.nullnessDefaultInitialized > 0)
+	if (this.nullnessDefaultInitialized > 0 || !this.scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
 		return;
 	this.nullnessDefaultInitialized = 1;
 	// transfer nullness info from tagBits to this.nullnessDefaultAnnotation

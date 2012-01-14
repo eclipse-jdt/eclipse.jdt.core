@@ -26,7 +26,7 @@ public class EqualExpression extends BinaryExpression {
 	private void checkNullComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
 		int rightStatus = this.right.nullStatus(flowInfo);
 		int leftStatus = this.left.nullStatus(flowInfo);
-		// check if either method is annotated @NonNull and compared to null:
+		// check if either is a method annotated @NonNull and compared to null:
 		if (leftStatus == FlowInfo.NON_NULL && rightStatus == FlowInfo.NULL) {
 			if (this.left instanceof MessageSend) { 
 				scope.problemReporter().messageSendRedundantCheckOnNonNull(((MessageSend) this.left).binding, this.left);

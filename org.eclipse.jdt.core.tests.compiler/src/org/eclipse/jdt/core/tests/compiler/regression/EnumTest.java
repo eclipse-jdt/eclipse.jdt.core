@@ -1,12 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *		IBM Corporation - initial API and implementation
+ *		Stephan Herrmann - Contribution for Bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -15,6 +16,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -6498,6 +6500,66 @@ public void test180() {
 		""
 	);
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	this.runConformTest(
+		false,
+		new String[] {
+			"X.java",
+			"import test180.Test;\n" +
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(Test.class);\n" + 
+			"	}\n" + 
+			"}"
+		},
+		null,
+		options,
+		"",
+		"class test180.Test",
+		"",
+		null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=289892
+// in interaction with null annotations
+// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=365519#c4 item (6) 
+public void test180a() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+	this.runConformTest(
+		new String[] {
+			"p/package-info.java",
+			"@p.Annot(state=p.MyEnum.BROKEN)\n" + 
+			"package p;",
+			"p/Annot.java",
+			"package p;\n" + 
+			"@Annot(state=MyEnum.KO)\n" + 
+			"public @interface Annot {\n" + 
+			"	MyEnum state() default MyEnum.KO;\n" + 
+			"}",
+			"p/MyEnum.java",
+			"package p;\n" + 
+			"@Annot(state=MyEnum.KO)\n" + 
+			"public enum MyEnum {\n" + 
+			"	WORKS, OK, KO, BROKEN, ;\n" + 
+			"}",
+			"test180/package-info.java",
+			"@p.Annot(state=p.MyEnum.OK)\n" + 
+			"package test180;",
+			"test180/Test.java",
+			"package test180;\n" +
+			"import p.MyEnum;\n" + 
+			"import p.Annot;\n" + 
+			"@Annot(state=MyEnum.OK)\n" + 
+			"public class Test {}",
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null
+	);
+	options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
 	this.runConformTest(
 		false,

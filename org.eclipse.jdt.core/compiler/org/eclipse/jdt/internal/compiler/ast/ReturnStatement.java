@@ -13,6 +13,7 @@
  *     							bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365835 - [compiler][null] inconsistent error reporting.
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -140,7 +141,9 @@ void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, int n
 			methodBinding = scope.methodScope().referenceMethod().binding;
 			tagBits = methodBinding.tagBits;
 		} catch (NullPointerException npe) {
-			return;
+			// chain of references in try-block has several potential nulls;
+			// any null means we cannot perform the following check
+			return;			
 		}
 		if ((tagBits & TagBits.AnnotationNonNull) != 0) {
 			flowContext.recordNullityMismatch(scope, this.expression, nullStatus, methodBinding.returnType);

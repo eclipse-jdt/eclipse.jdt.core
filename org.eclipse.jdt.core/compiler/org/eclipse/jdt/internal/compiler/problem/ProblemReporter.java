@@ -13,6 +13,7 @@
  *  	   						bug 338303 - Warning about Redundant assignment conflicts with definite assignment
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -8156,7 +8157,7 @@ public void illegalRedefinitionToNonNullParameter(Argument argument, ReferenceBi
 			argument.type.sourceEnd);
 	}
 }
-public void parameterLackingNonNullAnnotation(Argument argument, ReferenceBinding declaringClass, boolean needNonNull, char[][] inheritedAnnotationName) {
+public void parameterLackingNullAnnotation(Argument argument, ReferenceBinding declaringClass, boolean needNonNull, char[][] inheritedAnnotationName) {
 	this.handle(
 		needNonNull ? IProblem.ParameterLackingNonNullAnnotation : IProblem.ParameterLackingNullableAnnotation, 
 		new String[] { new String(argument.name), new String(declaringClass.readableName()), CharOperation.toString(inheritedAnnotationName)},
@@ -8267,7 +8268,8 @@ private int findAnnotationSourceStart(Annotation[] annotations, int startFallbac
 	int sourceStart = startFallback;
 	if (annotations != null) {
 		// should have a @NonNull/@Nullable annotation, search for it:
-		for (int j=0; j<annotations.length; j++) {
+		int length = annotations.length;
+		for (int j=0; j<length; j++) {
 			if (annotations[j].resolvedType != null && annotations[j].resolvedType.id == typeId) {
 				sourceStart = annotations[j].sourceStart;
 				break;

@@ -187,7 +187,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if ((this.modifiers & ClassFileConstants.AccFinal)!= 0 && this.initialization == null) {
 			this.modifiers |= ExtraCompilerModifiers.AccBlankFinal;
 		}
-		this.binding = new LocalVariableBinding(this, variableType, this.modifiers, false);
+		this.binding = new LocalVariableBinding(this, variableType, this.modifiers, false /*isArgument*/);
 		scope.addLocalVariable(this.binding);
 		this.binding.setConstant(Constant.NotAConstant);
 		// allow to recursivelly target the binding....

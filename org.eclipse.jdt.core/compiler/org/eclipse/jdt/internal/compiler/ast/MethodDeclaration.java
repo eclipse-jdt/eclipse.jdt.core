@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -311,8 +312,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	    return this.typeParameters;
 	}
 	
-	void validateAnnotations() {
-		super.validateAnnotations();
+	void validateNullAnnotations() {
+		super.validateNullAnnotations();
 		// null-annotations on the return type?
 		if (this.binding != null)
 			this.scope.validateNullAnnotation(this.binding.tagBits, this.returnType, this.annotations);

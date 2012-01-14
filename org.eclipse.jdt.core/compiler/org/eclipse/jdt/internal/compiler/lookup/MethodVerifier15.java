@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
+ *     Stephan Herrmann - Contributions for
+ *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -145,7 +147,7 @@ boolean canSkipInheritedMethods(MethodBinding one, MethodBinding two) {
 }
 void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
 	super.checkConcreteInheritedMethod(concreteMethod, abstractMethods);
-
+	boolean analyseNullAnnotations = this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;
 	for (int i = 0, l = abstractMethods.length; i < l; i++) {
 		MethodBinding abstractMethod = abstractMethods[i];
 		if (concreteMethod.isVarargs() != abstractMethod.isVarargs())
@@ -166,7 +168,7 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 				|| this.type.superclass.erasure().findSuperTypeOriginatingFrom(originalInherited.declaringClass) == null)
 					this.type.addSyntheticBridgeMethod(originalInherited, concreteMethod.original());
 		}
-		if (!concreteMethod.isStatic() && !abstractMethod.isStatic())
+		if (analyseNullAnnotations && !concreteMethod.isStatic() && !abstractMethod.isStatic())
 			checkNullSpecInheritance(concreteMethod, abstractMethod);
 	}
 }
@@ -368,12 +370,15 @@ boolean checkInheritedReturnTypes(MethodBinding method, MethodBinding otherMetho
 void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length, MethodBinding[] allInheritedMethods)
 {
 	super.checkAgainstInheritedMethods(currentMethod, methods, length, allInheritedMethods);
-	for (int i = length; --i >= 0;)
-		if (!currentMethod.isStatic() && !methods[i].isStatic())
-			checkNullSpecInheritance(currentMethod, methods[i]);
+	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+		for (int i = length; --i >= 0;)
+			if (!currentMethod.isStatic() && !methods[i].isStatic())
+				checkNullSpecInheritance(currentMethod, methods[i]);
+	}
 }
 
 void checkNullSpecInheritance(MethodBinding currentMethod, MethodBinding inheritedMethod) {
+	// precondition: caller has checked whether annotation-based null analysis is enabled.
 	long inheritedBits = inheritedMethod.tagBits;
 	long currentBits = currentMethod.tagBits;
 	AbstractMethodDeclaration srcMethod = null;
@@ -399,7 +404,8 @@ void checkNullSpecInheritance(MethodBinding currentMethod, MethodBinding inherit
 	if (inheritedMethod.parameterNonNullness != null) {
 		// inherited method has null-annotations, check compatibility:
 
-		for (int i = 0; i < inheritedMethod.parameterNonNullness.length; i++) {
+		int length = inheritedMethod.parameterNonNullness.length;
+		for (int i = 0; i < length; i++) {
 			Argument currentArgument = currentArguments == null ? null : currentArguments[i];
 
 			Boolean inheritedNonNullNess = inheritedMethod.parameterNonNullness[i];
@@ -416,7 +422,7 @@ void checkNullSpecInheritance(MethodBinding currentMethod, MethodBinding inherit
 						annotationName = this.environment.getNullableAnnotationName();
 					}
 					if (currentArgument != null) {
-						this.type.scope.problemReporter().parameterLackingNonNullAnnotation(
+						this.type.scope.problemReporter().parameterLackingNullAnnotation(
 								currentArgument,
 								inheritedMethod.declaringClass,
 								needNonNull,

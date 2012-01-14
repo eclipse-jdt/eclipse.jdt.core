@@ -704,6 +704,30 @@ public void test_nonnull_argument_002() {
 			"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 			"----------\n");
 }
+// a method of a local class has a non-null parameter, client passes potential null (msg send)
+public void test_nonnull_parameter_014() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"B.java",
+			"class B {\n" +
+			"    void bar () {\n" +
+			"        class Local {\n" +
+			"            void callMe(@org.eclipse.jdt.annotation.NonNull Object o){\n" +
+			"            }\n" +
+			"        }\n" +
+			"        Local l = new Local();\n" +
+			"        l.callMe(getNull());\n" +
+			"    }\n" +
+			"    @org.eclipse.jdt.annotation.Nullable Object getNull() { return null; }" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in B.java (at line 8)\n" + 
+		"	l.callMe(getNull());\n" + 
+		"	         ^^^^^^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" + 
+		"----------\n");
+}
 // assigning potential null to a nonnull local variable
 public void test_nonnull_local_001() {
 	runNegativeTest(
