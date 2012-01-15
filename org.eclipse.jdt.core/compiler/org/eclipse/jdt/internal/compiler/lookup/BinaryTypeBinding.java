@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 364890 - BinaryTypeBinding should use char constants from Util
+ *								bug 365387 - [compiler][null] bug 186342: Issues to follow up post review and verification.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -389,7 +390,13 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		if (this.environment.globalOptions.storeAnnotations)
 			setAnnotations(createAnnotations(binaryType.getAnnotations(), this.environment, missingTypeNames));
 
-		scanTypeForNullAnnotation(binaryType);
+		if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled
+				&& CharOperation.equals(TypeConstants.PACKAGE_INFO_NAME, binaryType.getSourceName())) 
+		{
+			// only for package-info.java can type-level null-annotations (i.e., @NonNullByDefault) 
+			// on a binary type influence the compilation
+			scanPackageInfoForNullDefaultAnnotation(binaryType);
+		}
 	} finally {
 		// protect against incorrect use of the needFieldsAndMethods flag, see 48459
 		if (this.fields == null)
@@ -1209,18 +1216,15 @@ void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBindi
 		}
 	}
 }
-void scanTypeForNullAnnotation(IBinaryType binaryType) {
-	if (!this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
-		return;
+void scanPackageInfoForNullDefaultAnnotation(IBinaryType binaryType) {
 	char[][] nonNullByDefaultAnnotationName = this.environment.getNonNullByDefaultAnnotationName();
 	if (nonNullByDefaultAnnotationName == null)
 		return; // not well-configured to use null annotations
 
 	IBinaryAnnotation[] annotations = binaryType.getAnnotations();
 	if (annotations != null) {
-		long annotationBit = 0L;
-		TypeBinding defaultNullness = null;
-		for (int i = 0; i < annotations.length; i++) {
+		int length = annotations.length;
+		for (int i = 0; i < length; i++) {
 			char[] annotationTypeName = annotations[i].getTypeName();
 			if (annotationTypeName[0] != Util.C_RESOLVED)
 				continue;
@@ -1233,20 +1237,14 @@ void scanTypeForNullAnnotation(IBinaryType binaryType) {
 						&& !((BooleanConstant)value).booleanValue())
 					{
 						// parameter is 'false': this means we cancel defaults from outer scopes:
-						annotationBit = TagBits.AnnotationNullUnspecifiedByDefault;
-						defaultNullness = ReferenceBinding.NULL_UNSPECIFIED;
-						break;
+						this.getPackage().nullnessDefaultAnnotation = ReferenceBinding.NULL_UNSPECIFIED;
+						return;
 					}
 				}
-				annotationBit = TagBits.AnnotationNonNullByDefault;
-				defaultNullness = this.environment.getNullAnnotationBinding(TagBits.AnnotationNonNull, false/*resolve*/);
-				break;
+				this.getPackage().nullnessDefaultAnnotation = 
+						this.environment.getNullAnnotationBinding(TagBits.AnnotationNonNull, false/*resolve*/);
+				return;
 			}
-		}
-		if (annotationBit != 0L) {
-			this.tagBits |= annotationBit;
-			if (CharOperation.equals(this.sourceName(), TypeConstants.PACKAGE_INFO_NAME))
-				this.getPackage().nullnessDefaultAnnotation = defaultNullness;
 		}
 	}
 }
