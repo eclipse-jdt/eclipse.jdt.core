@@ -563,21 +563,20 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		
 		FakedTrackingVariable trackVar = getCloseTrackingVariable(expression);
 		if (trackVar != null) {
-			if (trackVar.originalBinding == null) {
-				// an allocation that never was assigned to a local variable -> drop it completely as we're not responsible
-				scope.removeTrackingVar(trackVar);
-				return flowInfo;
-			}
 			// insert info that the tracked resource *may* be closed (by the target method, i.e.)
-			FlowInfo infoResourceIsClosed = flowInfo.copy();
+			FlowInfo infoResourceIsClosed = owned ? flowInfo : flowInfo.copy();
 			int flag = owned ? OWNED_BY_OUTSIDE : SHARED_WITH_OUTSIDE;
 			do {
 				trackVar.globalClosingState |= flag;
 				if (scope.methodScope() != trackVar.methodScope)
 					trackVar.globalClosingState |= CLOSED_IN_NESTED_METHOD;
 				infoResourceIsClosed.markAsDefinitelyNonNull(trackVar.binding);
-			} while ((trackVar = trackVar.innerTracker) != null); 
-			return FlowInfo.conditional(flowInfo, infoResourceIsClosed);
+			} while ((trackVar = trackVar.innerTracker) != null);
+			if (owned) {
+				return infoResourceIsClosed; // don't let downstream signal any problems on this flow
+			} else {
+				return FlowInfo.conditional(flowInfo, infoResourceIsClosed); // only report potential problems on this flow
+			}
 		}
 		return flowInfo;
 	}

@@ -827,6 +827,11 @@ public void test056l() {
 				"	FileReader r2 = new FileReader(new File(\"inexist\")); // only potential problem: ctor X below might close r2\n" +
 				"	           ^^\n" +
 				"Potential resource leak: 'r2' may not be closed\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 25)\n" +
+				"	new X(r2).foo(new FileReader(new File(\"notthere\"))); // potential problem: foo may/may not close the new FileReader\n" +
+				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
 				"----------\n"
 			:
 				"----------\n" +
@@ -834,6 +839,11 @@ public void test056l() {
 				"	FileReader r2 = new FileReader(new File(\"inexist\")); // only potential problem: ctor X below might close r2\n" +
 				"	           ^^\n" +
 				"Potential resource leak: 'r2' may not be closed\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 25)\n" +
+				"	new X(r2).foo(new FileReader(new File(\"notthere\"))); // potential problem: foo may/may not close the new FileReader\n" +
+				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -862,7 +872,7 @@ public void test056l() {
 			"    }\n" +
 			"    public static void main(String[] args) throws IOException {\n" +
 			"        FileReader r2 = new FileReader(new File(\"inexist\")); // only potential problem: ctor X below might close r2\n" +
-			"        new X(r2).foo(new FileReader(new File(\"notthere\")));\n" +
+			"        new X(r2).foo(new FileReader(new File(\"notthere\"))); // potential problem: foo may/may not close the new FileReader\n" +
 			"    }\n" +
 			"}\n"
 		},
@@ -2455,12 +2465,17 @@ public void test061m() throws IOException {
 		},
 		// TODO: also these warnings *might* be avoidable by detecting check(s) as a wrapper creation??
 		"----------\n" +
-		"1. ERROR in X.java (at line 14)\n" +
+		"1. ERROR in X.java (at line 10)\n" +
+		"	return check(new BufferedInputStream(s));\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 14)\n" +
 		"	return check(s);\n" +
 		"	^^^^^^^^^^^^^^^^\n" +
 		"Potential resource leak: \'s\' may not be closed at this location\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 18)\n" +
+		"3. ERROR in X.java (at line 18)\n" +
 		"	return check(s);\n" +
 		"	^^^^^^^^^^^^^^^^\n" +
 		"Potential resource leak: \'s\' may not be closed at this location\n" +
@@ -2747,7 +2762,7 @@ public void test062c() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"import java.io.File;\n" +
@@ -2763,12 +2778,15 @@ public void test062c() throws IOException {
 			"    }\n" +
 			"}\n"
 		},
-		"",
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	writeIt(new FileOutputStream(new File(\"C:\\temp\\foo.txt\")));\n" +
+		"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		"----------\n",
 		null,
 		true,
-		null,
-		options,
-		null);
+		options);
 }
 // Bug 362331 - Resource leak not detected when closeable not assigned to variable
 // a resource is not used
