@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
  *							bug 335093 - [compiler][null] minimal hook for future null annotation support
  *							bug 349326 - [1.7] new warning for missing try-with-resources
  *							bug 186342 - [compiler][null] Using annotations for null checking
+ *							bug 358903 - Filter practically unimportant resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -74,11 +75,26 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this.initialization.checkNPE(currentScope, flowContext, flowInfo);
 	}
 	
+	FlowInfo preInitInfo = null;
+	boolean shouldAnalyseResource = this.binding != null 
+			&& flowInfo.reachMode() == FlowInfo.REACHABLE 
+			&& FakedTrackingVariable.isAnyCloseable(this.initialization.resolvedType);
+	if (shouldAnalyseResource) {
+		preInitInfo = flowInfo.unconditionalCopy();
+		// analysis of resource leaks needs additional context while analyzing the RHS:
+		FakedTrackingVariable.preConnectTrackerAcrossAssignment(this, this.binding, this.initialization);
+	}
+
 	flowInfo =
 		this.initialization
 			.analyseCode(currentScope, flowContext, flowInfo)
 			.unconditionalInits();
-	FakedTrackingVariable.handleResourceAssignment(flowInfo, this, this.initialization, this.binding, null);
+
+	if (shouldAnalyseResource)
+		FakedTrackingVariable.handleResourceAssignment(currentScope, preInitInfo, flowInfo, this, this.initialization, this.binding);
+	else
+		FakedTrackingVariable.cleanUpAfterAssignment(currentScope, Binding.LOCAL, this.initialization);
+
 	int nullStatus = this.initialization.nullStatus(flowInfo);
 	if (!flowInfo.isDefinitelyAssigned(this.binding)){// for local variable debug attributes
 		this.bits |= FirstAssignmentToLocal;

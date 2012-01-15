@@ -12,6 +12,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 364890 - BinaryTypeBinding should use char constants from Util
  *								bug 365387 - [compiler][null] bug 186342: Issues to follow up post review and verification.
+ *								bug 358903 - Filter practically unimportant resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1273,7 +1274,9 @@ public ReferenceBinding superclass() {
 			this.environment.mayTolerateMissingType = wasToleratingMissingTypeProcessingAnnotations;
 		}
 	}
-	this.typeBits |= this.superclass.typeBits;
+	this.typeBits |= (this.superclass.typeBits & TypeIds.InheritableBits);
+	if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()! 
+		this.typeBits |= applyCloseableWhitelists();
 	return this.superclass;
 }
 // NOTE: superInterfaces of binary types are resolved when needed
@@ -1296,7 +1299,7 @@ public ReferenceBinding[] superInterfaces() {
 				this.environment.mayTolerateMissingType = wasToleratingMissingTypeProcessingAnnotations;
 			}	
 		}
-		this.typeBits |= this.superInterfaces[i].typeBits;
+		this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
 	}
 	this.tagBits &= ~TagBits.HasUnresolvedSuperinterfaces;
 	return this.superInterfaces;

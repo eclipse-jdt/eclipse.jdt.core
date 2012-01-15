@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *								bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 358903 - Filter practically unimportant resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -96,9 +97,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if ((this.arguments[i].implicitConversion & TypeIds.UNBOXING) != 0) {
 				this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);
 			}
-			// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
-			flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo);
 			flowInfo = this.arguments[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+			// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
+			flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, false);
 		}
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
 	}

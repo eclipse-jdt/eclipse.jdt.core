@@ -11,6 +11,7 @@
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
+ *								bug 358903 - Filter practically unimportant resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1457,5 +1458,51 @@ MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't re
 
 public FieldBinding[] unResolvedFields() {
 	return Binding.NO_FIELDS;
+}
+
+/*
+ * If a type - known to be a Closeable - is mentioned in one of our white lists
+ * answer the typeBit for the white list (BitWrapperCloseable or BitResourceFreeCloseable).
+ */
+protected int applyCloseableWhitelists() {
+	switch (this.compoundName.length) {
+		case 3:
+			if (CharOperation.equals(TypeConstants.JAVA, this.compoundName[0])) {
+				if (CharOperation.equals(TypeConstants.IO, this.compoundName[1])) {
+					char[] simpleName = this.compoundName[2];
+					int l = TypeConstants.JAVA_IO_WRAPPER_CLOSEABLES.length;
+					for (int i = 0; i < l; i++) {
+						if (CharOperation.equals(simpleName, TypeConstants.JAVA_IO_WRAPPER_CLOSEABLES[i]))
+							return TypeIds.BitWrapperCloseable;
+					}
+					l = TypeConstants.JAVA_IO_RESOURCE_FREE_CLOSEABLES.length;
+					for (int i = 0; i < l; i++) {
+						if (CharOperation.equals(simpleName, TypeConstants.JAVA_IO_RESOURCE_FREE_CLOSEABLES[i]))
+							return TypeIds.BitResourceFreeCloseable;
+					}
+				}
+			}
+			break;
+		case 4:
+			if (CharOperation.equals(TypeConstants.JAVA, this.compoundName[0])) {
+				if (CharOperation.equals(TypeConstants.UTIL, this.compoundName[1])) {
+					if (CharOperation.equals(TypeConstants.ZIP, this.compoundName[2])) {
+						char[] simpleName = this.compoundName[3];
+						int l = TypeConstants.JAVA_UTIL_ZIP_WRAPPER_CLOSEABLES.length;
+						for (int i = 0; i < l; i++) {
+							if (CharOperation.equals(simpleName, TypeConstants.JAVA_UTIL_ZIP_WRAPPER_CLOSEABLES[i]))
+								return TypeIds.BitWrapperCloseable;
+						}
+					}
+				}
+			}
+			break;
+	}
+	int l = TypeConstants.OTHER_WRAPPER_CLOSEABLES.length;
+	for (int i = 0; i < l; i++) {
+		if (CharOperation.equals(this.compoundName, TypeConstants.OTHER_WRAPPER_CLOSEABLES[i]))
+			return TypeIds.BitWrapperCloseable;
+	}	
+	return 0;
 }
 }

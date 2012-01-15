@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@
  *     						bug 335093 - [compiler][null] minimal hook for future null annotation support
  *     						bug 349326 - [1.7] new warning for missing try-with-resources
  *							bug 186342 - [compiler][null] Using annotations for null checking
+ *							bug 358903 - Filter practically unimportant resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -46,19 +47,27 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
 		this.expression.checkNPE(currentScope, flowContext, flowInfo);
 	}
+	
+	FlowInfo preInitInfo = null;
+	boolean shouldAnalyseResource = local != null 
+			&& flowInfo.reachMode() == FlowInfo.REACHABLE 
+			&& (FakedTrackingVariable.isAnyCloseable(this.expression.resolvedType)
+					|| this.expression.resolvedType == TypeBinding.NULL);
+	if (shouldAnalyseResource) {
+		preInitInfo = flowInfo.unconditionalCopy();
+		// analysis of resource leaks needs additional context while analyzing the RHS:
+		FakedTrackingVariable.preConnectTrackerAcrossAssignment(this, local, this.expression);
+	}
+	
 	flowInfo = ((Reference) this.lhs)
 		.analyseAssignment(currentScope, flowContext, flowInfo, this, false)
 		.unconditionalInits();
-	if (local != null) {
-		LocalVariableBinding previousTrackerBinding = null;
-		if (local.closeTracker != null) {
-			// Assigning to a variable already holding an AutoCloseable, has it been closed before?
-			previousTrackerBinding = local.closeTracker.binding;
-			if (!flowInfo.isDefinitelyNull(local)) // only if previous value may be non-null
-				local.closeTracker.recordErrorLocation(this, flowInfo.nullStatus(previousTrackerBinding));
-		}
-		FakedTrackingVariable.handleResourceAssignment(flowInfo, this, this.expression, local, previousTrackerBinding);
-	}
+
+	if (shouldAnalyseResource)
+		FakedTrackingVariable.handleResourceAssignment(currentScope, preInitInfo, flowInfo, this, this.expression, local);
+	else
+		FakedTrackingVariable.cleanUpAfterAssignment(currentScope, this.lhs.bits, this.expression);
+
 	int nullStatus = this.expression.nullStatus(flowInfo);
 	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
 		if (nullStatus == FlowInfo.NULL) {

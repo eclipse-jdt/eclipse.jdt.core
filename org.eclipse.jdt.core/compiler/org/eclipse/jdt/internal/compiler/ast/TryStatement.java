@@ -12,6 +12,7 @@
  *     							bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *     							bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
+ *								bug 358903 - Filter practically unimportant resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -134,7 +135,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (resourceBinding.closeTracker != null) {
 				// this was false alarm, we don't need to track the resource
 				this.tryBlock.scope.removeTrackingVar(resourceBinding.closeTracker);
-				resourceBinding.closeTracker = null;
+				// keep the tracking variable in the resourceBinding in order to prevent creating a new one while analyzing the try block
 			}
 			TypeBinding type = resourceBinding.type;
 			if (type != null && type.isValidBinding()) {
@@ -276,7 +277,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (resourceBinding.closeTracker != null) {
 				// this was false alarm, we don't need to track the resource
 				this.tryBlock.scope.removeTrackingVar(resourceBinding.closeTracker);
-				resourceBinding.closeTracker = null;
+				// keep the tracking variable in the resourceBinding in order to prevent creating a new one while analyzing the try block
 			} 
 			TypeBinding type = resourceBinding.type;
 			if (type != null && type.isValidBinding()) {

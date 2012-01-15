@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *     						Bug 300576 - NPE Computing type hierarchy when compliance doesn't match libraries
  *     						Bug 354536 - compiling package-info.java still depends on the order of compilation units
  *     						Bug 349326 - [1.7] new warning for missing try-with-resources
+ *     						Bug 358903 - Filter practically unimportant resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -909,7 +910,10 @@ public class ClassScope extends Scope {
 			} else {
 				// only want to reach here when no errors are reported
 				sourceType.superclass = superclass;
-				sourceType.typeBits |= superclass.typeBits;
+				sourceType.typeBits |= (superclass.typeBits & TypeIds.InheritableBits);
+				// further analysis against white lists for the unlikely case we are compiling java.io.*:
+				if ((sourceType.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0)
+					sourceType.typeBits |= sourceType.applyCloseableWhitelists();
 				return true;
 			}
 		}
@@ -1025,7 +1029,7 @@ public class ClassScope extends Scope {
 				noProblems &= superInterfaceRef.resolvedType.isValidBinding();
 			}
 			// only want to reach here when no errors are reported
-			sourceType.typeBits |= superInterface.typeBits;
+			sourceType.typeBits |= (superInterface.typeBits & TypeIds.InheritableBits);
 			interfaceBindings[count++] = superInterface;
 		}
 		// hold onto all correctly resolved superinterfaces
