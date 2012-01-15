@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class ResourceLeakTests extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test061a"};
+//	TESTS_NAMES = new String[] { "test061l"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -2430,6 +2430,104 @@ public void test061l() throws IOException {
 		null,
 		options,
 		null);
+}
+// Bug 361407 - Resource leak warning when resource is assigned to a field outside of constructor
+// a closeable is assigned to a field - constructor vs. method
+public void test061l2() throws IOException {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"xy/Leaks.java",
+			"package xy;\n" +
+			"\n" +
+			"import java.io.FileInputStream;\n" +
+			"import java.io.IOException;\n" +
+			"import java.util.Objects;\n" +
+			"\n" +
+			"public class Leaks {\n" +
+			"    private FileInputStream fInput;\n" +
+			"\n" +
+			"    Leaks(String name) throws IOException {\n" +
+			"        FileInputStream fileInputStream= new FileInputStream(name);\n" +
+			"        fInput= fileInputStream;\n" + // warning silenced by field assignment
+			"        Objects.hashCode(fInput);\n" +
+			"        \n" +
+			"        init(name);\n" +
+			"    }\n" +
+			"    \n" +
+			"    Leaks() throws IOException {\n" +
+			"        this(new FileInputStream(\"default\")); // potential problem\n" +
+			"    }\n" +
+			"    \n" +
+			"    Leaks(FileInputStream fis) throws IOException {\n" +
+			"        fInput= fis;\n" +
+			"    }\n" +
+			"    void init(String name) throws IOException {\n" +
+			"        FileInputStream fileInputStream= new FileInputStream(name);\n" +
+			"        fInput= fileInputStream;\n" + // warning silenced by field assignment
+			"        Objects.hashCode(fInput);\n" +
+			"    }\n" +
+			"    \n" +
+			"    public void dispose() throws IOException {\n" +
+			"        fInput.close();\n" +
+			"    }\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in xy\\Leaks.java (at line 19)\n" +
+		"	this(new FileInputStream(\"default\")); // potential problem\n" +
+		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		"----------\n",
+		null,
+		true,
+		options);
+}
+// Bug 361407 - Resource leak warning when resource is assigned to a field outside of constructor
+// a closeable is not assigned to a field - constructor vs. method
+public void test061l3() throws IOException {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"xy/Leaks.java",
+			"package xy;\n" +
+			"\n" +
+			"import java.io.FileInputStream;\n" +
+			"import java.io.IOException;\n" +
+			"import java.util.Objects;\n" +
+			"\n" +
+			"public class Leaks {\n" +
+			"\n" +
+			"    Leaks(String name) throws IOException {\n" +
+			"        FileInputStream fileInputStream= new FileInputStream(name);\n" +
+			"        Objects.hashCode(fileInputStream);\n" +
+			"        \n" +
+			"        init(name);\n" +
+			"    }\n" +
+			"    void init(String name) throws IOException {\n" +
+			"        FileInputStream fileInputStream= new FileInputStream(name);\n" +
+			"        Objects.hashCode(fileInputStream);\n" +
+			"    }\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in xy\\Leaks.java (at line 10)\n" +
+		"	FileInputStream fileInputStream= new FileInputStream(name);\n" +
+		"	                ^^^^^^^^^^^^^^^\n" +
+		"Potential resource leak: \'fileInputStream\' may not be closed\n" +
+		"----------\n" +
+		"2. ERROR in xy\\Leaks.java (at line 16)\n" +
+		"	FileInputStream fileInputStream= new FileInputStream(name);\n" +
+		"	                ^^^^^^^^^^^^^^^\n" +
+		"Potential resource leak: \'fileInputStream\' may not be closed\n" +
+		"----------\n",
+		null,
+		true,
+		options);
 }
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a closeable is passed to another method in a return statement
