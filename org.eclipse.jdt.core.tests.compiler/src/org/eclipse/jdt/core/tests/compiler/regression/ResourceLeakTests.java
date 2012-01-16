@@ -3100,19 +3100,19 @@ public void testBug368709a() {
 			"public class X {\n" +
 			"  Object db, pack;\n" + // mock
 			"  int objectOffset, headerLength, type, size;\n" +
-			"  public ObjectStream openStream() throws MissingObjectException, IOException {\n" + 
-			"    WindowCursor wc = new WindowCursor(db);\n" + 
-			"    InputStream in;\n" + 
-			"    try\n" + 
-			"      {\n" + 
-			"        in = new PackInputStream(pack, (objectOffset + headerLength), wc);\n" + 
-			"      }\n" + 
-			"    catch (IOException packGone)\n" + 
-			"      {\n" + 
-			"        return wc.open(getObjectId(), type).openStream();\n" + 
-			"      }\n" + 
-			"    in = new BufferedInputStream(new InflaterInputStream(in, wc.inflater(), 8192), 8192);\n" + 
-			"    return new ObjectStream.Filter(type, size, in);\n" + 
+			"  public ObjectStream openStream() throws MissingObjectException, IOException {\n" +
+			"    WindowCursor wc = new WindowCursor(db);\n" +
+			"    InputStream in;\n" +
+			"    try\n" +
+			"      {\n" +
+			"        in = new PackInputStream(pack, (objectOffset + headerLength), wc);\n" +
+			"      }\n" +
+			"    catch (IOException packGone)\n" +
+			"      {\n" +
+			"        return wc.open(getObjectId(), type).openStream();\n" +
+			"      }\n" +
+			"    in = new BufferedInputStream(new InflaterInputStream(in, wc.inflater(), 8192), 8192);\n" +
+			"    return new ObjectStream.Filter(type, size, in);\n" +
 			"  }\n" +
 			"  String getObjectId() { return \"\"; }\n" + // mock
 			"}\n" +
@@ -3138,16 +3138,16 @@ public void testBug368709a() {
 			"    public int read() { return 0; }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 15)\n" + 
-		"	return wc.open(getObjectId(), type).openStream();\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Resource leak: \'in\' is not closed at this location\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 18)\n" + 
-		"	return new ObjectStream.Filter(type, size, in);\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Potential resource leak: \'in\' may not be closed at this location\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 15)\n" +
+		"	return wc.open(getObjectId(), type).openStream();\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Resource leak: \'in\' is not closed at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 18)\n" +
+		"	return new ObjectStream.Filter(type, size, in);\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Potential resource leak: \'in\' may not be closed at this location\n" +
 		"----------\n",
 		null,
 		true,
@@ -3166,20 +3166,20 @@ public void testBug368709b() {
 			"import java.io.*;\n" +
 			"import java.util.zip.*;\n" +
 			"public class X {\n" +
-			"  void doit() throws IOException {\n" + 
-			"    InputStream in = new FileInputStream(\"somefile\");\n" + 
-			"    in = new BufferedInputStream(new InflaterInputStream(in, inflater(), 8192), 8192);\n" + 
+			"  void doit() throws IOException {\n" +
+			"    InputStream in = new FileInputStream(\"somefile\");\n" +
+			"    in = new BufferedInputStream(new InflaterInputStream(in, inflater(), 8192), 8192);\n" +
 			"    process(in);\n" +
 			"  }\n" +
 			"  Inflater inflater() { return null; }\n" +
 			"  void process(InputStream is) { }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	InputStream in = new FileInputStream(\"somefile\");\n" + 
-		"	            ^^\n" + 
-		"Potential resource leak: \'in\' may not be closed\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	InputStream in = new FileInputStream(\"somefile\");\n" +
+		"	            ^^\n" +
+		"Potential resource leak: \'in\' may not be closed\n" +
 		"----------\n",
 		null,
 		true,
