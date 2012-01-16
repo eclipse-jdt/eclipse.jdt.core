@@ -186,7 +186,12 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			}
 			if (closeTracker != null) {
 				closeTracker.currentAssignment = location;
-				((AllocationExpression)rhs).closeTracker = closeTracker;
+				AllocationExpression allocation = (AllocationExpression)rhs;
+				allocation.closeTracker = closeTracker;
+				if (allocation.arguments != null && allocation.arguments.length > 0) {
+					// also push into nested allocations, see https://bugs.eclipse.org/368709
+					preConnectTrackerAcrossAssignment(location, local, allocation.arguments[0]);
+				}
 			}
 		}
 	}
@@ -209,8 +214,13 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				// find the wrapped resource represented by its tracking var:
 				FakedTrackingVariable innerTracker = findCloseTracker(scope, flowInfo, allocation.arguments[0]);
 				if (innerTracker != null) {
-					if (innerTracker == allocation.closeTracker)
-						return; // self wrap (res = new Res(res)) -> neither change (here) nor remove (below)
+					FakedTrackingVariable currentInner = innerTracker;
+					do {
+						if (currentInner == allocation.closeTracker)
+							return; // self wrap (res = new Res(res)) -> neither change (here) nor remove (below)
+						// also check for indirect cycles, see https://bugs.eclipse.org/368709
+						currentInner = currentInner.innerTracker;
+					} while (currentInner != null);
 					int newStatus = FlowInfo.NULL;
 					if (allocation.closeTracker == null) {
 						allocation.closeTracker = new FakedTrackingVariable(scope, allocation); // no local available, closeable is unassigned
