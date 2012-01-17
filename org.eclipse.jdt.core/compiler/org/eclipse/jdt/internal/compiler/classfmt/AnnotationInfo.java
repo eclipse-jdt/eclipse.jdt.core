@@ -303,10 +303,6 @@ private int scanAnnotation(int offset, boolean expectRuntimeVisibleAnno, boolean
 					currentOffset += 2;
 					return readTargetValue(currentOffset);
 				}
-				if (CharOperation.equals(typeName, ConstantPool.JAVAX_ANNOTATION_PREDESTROY)) {
-					this.standardAnnotationTagBits |= TagBits.AnnotationPreDestroy;
-					return currentOffset;
-				}
 				break;
 			case 32:
 				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_RETENTION)) {
@@ -315,10 +311,6 @@ private int scanAnnotation(int offset, boolean expectRuntimeVisibleAnno, boolean
 				}
 				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_INHERITED)) {
 					this.standardAnnotationTagBits |= TagBits.AnnotationInherited;
-					return currentOffset;
-				}
-				if (CharOperation.equals(typeName, ConstantPool.JAVAX_ANNOTATION_POSTCONSTRUCT)) {
-					this.standardAnnotationTagBits |= TagBits.AnnotationPostConstruct;
 					return currentOffset;
 				}
 				break;

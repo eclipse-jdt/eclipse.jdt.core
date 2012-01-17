@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *     						bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *     						bug 349326 - [1.7] new warning for missing try-with-resources
  * 							bug 186342 - [compiler][null] Using annotations for null checking
+ *							bug 358903 - Filter practically unimportant resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -37,25 +38,35 @@ public class AllocationExpression extends Expression implements InvocationSite {
 	protected TypeBinding typeExpected;	  // for <> inference
 	public boolean inferredReturnType;
 
+	public FakedTrackingVariable closeTracker;	// when allocation a Closeable store a pre-liminary tracking variable here
+
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	// check captured variables are initialized in current context (26134)
 	checkCapturedLocalInitializationIfNecessary((ReferenceBinding)this.binding.declaringClass.erasure(), currentScope, flowInfo);
 
 	// process arguments
 	if (this.arguments != null) {
+		boolean hasResourceWrapperType = this.resolvedType instanceof ReferenceBinding 
+				&& ((ReferenceBinding)this.resolvedType).hasTypeBit(TypeIds.BitWrapperCloseable);
 		for (int i = 0, count = this.arguments.length; i < count; i++) {
-			// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
-			flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo);
 			flowInfo =
 				this.arguments[i]
 					.analyseCode(currentScope, flowContext, flowInfo)
 					.unconditionalInits();
+			// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
+			if (!hasResourceWrapperType) { // allocation of wrapped closeables is analyzed specially
+				flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, false);
+			}
 			if ((this.arguments[i].implicitConversion & TypeIds.UNBOXING) != 0) {
 				this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);
 			}
 		}
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
 	}
+
+	if (FakedTrackingVariable.isAnyCloseable(this.resolvedType))
+		FakedTrackingVariable.analyseCloseableAllocation(currentScope, flowInfo, this);
+
 	// record some dependency information for exception types
 	ReferenceBinding[] thrownExceptions;
 	if (((thrownExceptions = this.binding.thrownExceptions).length) != 0) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *     							bug 359362 - FUP of bug 349326: Resource leak on non-Closeable resource
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 358903 - Filter practically unimportant resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -100,11 +101,6 @@ public interface TypeIds {
 
 	// java 7 java.lang.AutoCloseable
 	final int T_JavaLangAutoCloseable = 62;
-
-	// new in 3.8
-	final int T_JavaxAnnotationPostConstruct = 63;
-
-	final int T_JavaxAnnotationPreDestroy = 64;
 	
 	// new in 3.8 for null annotations:
 	final int T_ConfiguredAnnotationNullable = 65;
@@ -207,4 +203,19 @@ public interface TypeIds {
 	 * @see ReferenceBinding#hasTypeBit(int)
 	 */
 	final int BitCloseable = 2;
+	/**
+	 * Bit for members of a white list:
+	 * Subtypes of Closeable that wrap another resource without directly holding any OS resources. 
+	 */
+	final int BitWrapperCloseable = 4;
+	/**
+	 * Bit for members of a white list:
+	 * Subtypes of Closeable that do not hold an OS resource that needs to be released.
+	 */
+	final int BitResourceFreeCloseable = 8;
+	
+	/**
+	 * Set of type bits that should be inherited by any sub types.
+	 */
+	final int InheritableBits = BitAutoCloseable | BitCloseable;
 }

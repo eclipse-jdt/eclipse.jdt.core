@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *     							bug 343713 - [compiler] bogus line number in constructor of inner class in 1.5 compliance
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 361407 - Resource leak warning when resource is assigned to a field outside of constructor
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -176,6 +177,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		constructorContext.complainIfUnusedExceptionHandlers(this);
 		// check unused parameters
 		this.scope.checkUnusedParameters(this.binding);
+		this.scope.checkUnclosedCloseables(flowInfo, null/*don't report against a specific location*/, null);
 	} catch (AbortMethod e) {
 		this.ignoreFurtherInvestigation = true;
 	}
@@ -210,15 +212,10 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 		} catch (AbortMethod e) {
 			if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
 				// a branch target required a goto_w, restart code gen in wide mode.
-				if (!restart) {
-					classFile.contentsOffset = problemResetPC;
-					classFile.methodCount--;
-					classFile.codeStream.resetInWideMode(); // request wide mode
-					restart = true;
-				} else {
-					restart = false;
-					abort = true;
-				}
+				classFile.contentsOffset = problemResetPC;
+				classFile.methodCount--;
+				classFile.codeStream.resetInWideMode(); // request wide mode
+				restart = true;
 			} else if (e.compilationResult == CodeStream.RESTART_CODE_GEN_FOR_UNUSED_LOCALS_MODE) {
 				classFile.contentsOffset = problemResetPC;
 				classFile.methodCount--;

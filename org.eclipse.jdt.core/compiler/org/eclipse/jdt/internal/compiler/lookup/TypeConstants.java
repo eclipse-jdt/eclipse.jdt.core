@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,9 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann - Contributions for
+ *								bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 358903 - Filter practically unimportant resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -19,6 +21,7 @@ public interface TypeConstants {
 	char[] LANG = "lang".toCharArray(); //$NON-NLS-1$
 	char[] IO = "io".toCharArray(); //$NON-NLS-1$
 	char[] UTIL = "util".toCharArray(); //$NON-NLS-1$
+	char[] ZIP = "zip".toCharArray(); //$NON-NLS-1$
 	char[] ANNOTATION = "annotation".toCharArray(); //$NON-NLS-1$
 	char[] REFLECT = "reflect".toCharArray(); //$NON-NLS-1$
 	char[] LENGTH = "length".toCharArray(); //$NON-NLS-1$
@@ -154,6 +157,59 @@ public interface TypeConstants {
 	};
 	char[][] JAVA_LANG_AUTOCLOSEABLE =  {JAVA, LANG, "AutoCloseable".toCharArray()}; //$NON-NLS-1$
 	char[] CLOSE = "close".toCharArray(); //$NON-NLS-1$
+	// white lists of closeables:
+	char[][] JAVA_IO_WRAPPER_CLOSEABLES = new char[][] {
+		"BufferedInputStream".toCharArray(), //$NON-NLS-1$
+		"BufferedOutputStream".toCharArray(), //$NON-NLS-1$
+		"BufferedReader".toCharArray(), //$NON-NLS-1$
+		"BufferedWriter".toCharArray(), //$NON-NLS-1$
+		"InputStreamReader".toCharArray(), //$NON-NLS-1$
+		"PrintWriter".toCharArray(),  //$NON-NLS-1$
+		"LineNumberReader".toCharArray(), //$NON-NLS-1$
+		"DataInputStream".toCharArray(), //$NON-NLS-1$
+		"DataOutputStream".toCharArray(), //$NON-NLS-1$
+		"ObjectInputStream".toCharArray(), //$NON-NLS-1$
+		"ObjectOutputStream".toCharArray(), //$NON-NLS-1$
+		"FilterInputStream".toCharArray(), //$NON-NLS-1$
+		"FilterOutputStream".toCharArray(), //$NON-NLS-1$
+		"DataInputStream".toCharArray(), //$NON-NLS-1$
+		"DataOutputStream".toCharArray(), //$NON-NLS-1$
+		"PushbackInputStream".toCharArray(), //$NON-NLS-1$
+		"SequenceInputStream".toCharArray(), //$NON-NLS-1$
+		"PrintStream".toCharArray(), //$NON-NLS-1$
+		"PushbackReader".toCharArray(), //$NON-NLS-1$
+		"OutputStreamWriter".toCharArray(), //$NON-NLS-1$
+	};
+	char[][] JAVA_UTIL_ZIP_WRAPPER_CLOSEABLES = new char[][] {
+		"GZIPInputStream".toCharArray(), //$NON-NLS-1$
+		"InflaterInputStream".toCharArray(), //$NON-NLS-1$
+		"DeflaterInputStream".toCharArray(), //$NON-NLS-1$
+		"CheckedInputStream".toCharArray(), //$NON-NLS-1$
+		"ZipInputStream".toCharArray(), //$NON-NLS-1$
+		"JarInputStream".toCharArray(), //$NON-NLS-1$
+		"GZIPOutputStream".toCharArray(), //$NON-NLS-1$
+		"InflaterOutputStream".toCharArray(), //$NON-NLS-1$
+		"DeflaterOutputStream".toCharArray(), //$NON-NLS-1$
+		"CheckedOutputStream".toCharArray(), //$NON-NLS-1$
+		"ZipOutputStream".toCharArray(), //$NON-NLS-1$
+		"JarOutputStream".toCharArray(), //$NON-NLS-1$
+	};
+	char[][][] OTHER_WRAPPER_CLOSEABLES = new char[][][] {
+		{JAVA, "security".toCharArray(), "DigestInputStream".toCharArray()}, //$NON-NLS-1$ //$NON-NLS-2$
+		{JAVA, "security".toCharArray(), "DigestOutputStream".toCharArray()}, //$NON-NLS-1$ //$NON-NLS-2$
+		{JAVA, "beans".toCharArray(), "XMLEncoder".toCharArray()}, //$NON-NLS-1$ //$NON-NLS-2$
+		{JAVA, "beans".toCharArray(), "XMLDecoder".toCharArray()}, //$NON-NLS-1$ //$NON-NLS-2$
+		{JAVAX, "sound".toCharArray(), "sampled".toCharArray(), "AudioInputStream".toCharArray()}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	};
+	char[][] JAVA_IO_RESOURCE_FREE_CLOSEABLES = new char[][] {			
+		"StringReader".toCharArray(), //$NON-NLS-1$
+		"StringWriter".toCharArray(), //$NON-NLS-1$
+		"ByteArrayInputStream".toCharArray(), //$NON-NLS-1$
+		"ByteArrayOutputStream".toCharArray(), //$NON-NLS-1$
+		"CharArrayReader".toCharArray(), //$NON-NLS-1$
+		"CharArrayWriter".toCharArray(), //$NON-NLS-1$
+		"StringBufferInputStream".toCharArray(), //$NON-NLS-1$
+	};
 
 	// Constraints for generic type argument inference
 	int CONSTRAINT_EQUAL = 0;		// Actual = Formal
@@ -177,18 +233,6 @@ public interface TypeConstants {
 	char[] SYNTHETIC_ACCESS_METHOD_PREFIX =  "access$".toCharArray(); //$NON-NLS-1$
 	char[] SYNTHETIC_ENUM_CONSTANT_INITIALIZATION_METHOD_PREFIX =  " enum constant initialization$".toCharArray(); //$NON-NLS-1$
 	char[] SYNTHETIC_STATIC_FACTORY =  "<factory>".toCharArray(); //$NON-NLS-1$
-	char[][] JAVAX_ANNOTATION_POSTCONSTRUCT =
-			new char[][] {
-				JAVAX,
-				ANNOTATION,
-				"PostConstruct".toCharArray() //$NON-NLS-1$
-			};
-	char[][] JAVAX_ANNOTATION_PREDESTROY =
-			new char[][] {
-				JAVAX,
-				ANNOTATION,
-				"PreDestroy".toCharArray() //$NON-NLS-1$
-			};
 
 	// synthetic package-info name
 	public static final char[] PACKAGE_INFO_NAME = "package-info".toCharArray(); //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,8 @@
  *     Stephan Herrmann - Contributions for
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
+ *								bug 358903 - Filter practically unimportant resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -376,12 +378,13 @@ public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 }
 
 public void computeId() {
+	// note that more (configurable) ids are assigned from PackageBinding#checkIfNullAnnotationType() 
+
 	// try to avoid multiple checks against a package/type name
 	switch (this.compoundName.length) {
 
 		case 3 :
-			if (!CharOperation.equals(TypeConstants.JAVA, this.compoundName[0])
-					&& !CharOperation.equals(TypeConstants.JAVAX, this.compoundName[0]))
+			if (!CharOperation.equals(TypeConstants.JAVA, this.compoundName[0]))
 				return;
 			
 			char[] packageName = this.compoundName[1];
@@ -389,19 +392,6 @@ public void computeId() {
 			char[] typeName = this.compoundName[2];
 			if (typeName.length == 0) return; // just to be safe
 			// remaining types MUST be in java.*.*
-			if (CharOperation.equals(TypeConstants.JAVAX, this.compoundName[0])) {
-				if (CharOperation.equals(TypeConstants.ANNOTATION, this.compoundName[1])) {
-					switch (typeName[0]) {
-						case 'P' :
-							if (CharOperation.equals(typeName, TypeConstants.JAVAX_ANNOTATION_POSTCONSTRUCT[2]))
-								this.id = TypeIds.T_JavaxAnnotationPostConstruct;
-							if (CharOperation.equals(typeName, TypeConstants.JAVAX_ANNOTATION_PREDESTROY[2]))
-								this.id = TypeIds.T_JavaxAnnotationPreDestroy;
-							return;
-					}
-				}
-				return;
-			}
 			if (!CharOperation.equals(TypeConstants.LANG, this.compoundName[1])) {
 				switch (packageName[0]) {
 					case 'i' :
@@ -1468,5 +1458,51 @@ MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't re
 
 public FieldBinding[] unResolvedFields() {
 	return Binding.NO_FIELDS;
+}
+
+/*
+ * If a type - known to be a Closeable - is mentioned in one of our white lists
+ * answer the typeBit for the white list (BitWrapperCloseable or BitResourceFreeCloseable).
+ */
+protected int applyCloseableWhitelists() {
+	switch (this.compoundName.length) {
+		case 3:
+			if (CharOperation.equals(TypeConstants.JAVA, this.compoundName[0])) {
+				if (CharOperation.equals(TypeConstants.IO, this.compoundName[1])) {
+					char[] simpleName = this.compoundName[2];
+					int l = TypeConstants.JAVA_IO_WRAPPER_CLOSEABLES.length;
+					for (int i = 0; i < l; i++) {
+						if (CharOperation.equals(simpleName, TypeConstants.JAVA_IO_WRAPPER_CLOSEABLES[i]))
+							return TypeIds.BitWrapperCloseable;
+					}
+					l = TypeConstants.JAVA_IO_RESOURCE_FREE_CLOSEABLES.length;
+					for (int i = 0; i < l; i++) {
+						if (CharOperation.equals(simpleName, TypeConstants.JAVA_IO_RESOURCE_FREE_CLOSEABLES[i]))
+							return TypeIds.BitResourceFreeCloseable;
+					}
+				}
+			}
+			break;
+		case 4:
+			if (CharOperation.equals(TypeConstants.JAVA, this.compoundName[0])) {
+				if (CharOperation.equals(TypeConstants.UTIL, this.compoundName[1])) {
+					if (CharOperation.equals(TypeConstants.ZIP, this.compoundName[2])) {
+						char[] simpleName = this.compoundName[3];
+						int l = TypeConstants.JAVA_UTIL_ZIP_WRAPPER_CLOSEABLES.length;
+						for (int i = 0; i < l; i++) {
+							if (CharOperation.equals(simpleName, TypeConstants.JAVA_UTIL_ZIP_WRAPPER_CLOSEABLES[i]))
+								return TypeIds.BitWrapperCloseable;
+						}
+					}
+				}
+			}
+			break;
+	}
+	int l = TypeConstants.OTHER_WRAPPER_CLOSEABLES.length;
+	for (int i = 0; i < l; i++) {
+		if (CharOperation.equals(this.compoundName, TypeConstants.OTHER_WRAPPER_CLOSEABLES[i]))
+			return TypeIds.BitWrapperCloseable;
+	}	
+	return 0;
 }
 }

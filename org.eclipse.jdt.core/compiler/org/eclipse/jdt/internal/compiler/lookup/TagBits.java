@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -129,10 +129,6 @@ public interface TagBits {
 	long AnnotationSafeVarargs = ASTNode.Bit52L;
 	/** @since 3.7 - java 7 MethodHandle.invokeExact(..)/invokeGeneric(..)*/
 	long AnnotationPolymorphicSignature = ASTNode.Bit53L;
-	/** @since 3.8 */
-	long AnnotationPreDestroy = ASTNode.Bit54L;
-	/** @since 3.8 */
-	long AnnotationPostConstruct = ASTNode.Bit55L;
 	/** @since 3.8 null annotation for MethodBinding or LocalVariableBinding (argument): */
 	long AnnotationNullable = ASTNode.Bit56L;
 	/** @since 3.8 null annotation for MethodBinding or LocalVariableBinding (argument): */
@@ -152,8 +148,6 @@ public interface TagBits {
 				| AnnotationSuppressWarnings
 				| AnnotationSafeVarargs
 				| AnnotationPolymorphicSignature
-				| AnnotationPostConstruct
-				| AnnotationPreDestroy
 				| AnnotationNullable
 				| AnnotationNonNull
 				| AnnotationNonNullByDefault

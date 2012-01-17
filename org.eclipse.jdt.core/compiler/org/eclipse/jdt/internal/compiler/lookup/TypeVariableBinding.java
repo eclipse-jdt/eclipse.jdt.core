@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *     							bug 282152 - [1.5][compiler] Generics code rejected by Eclipse but accepted by javac
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *     							bug 359362 - FUP of bug 349326: Resource leak on non-Closeable resource
+ *								bug 358903 - Filter practically unimportant resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -316,11 +317,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 			// initialize from bounds
 			this.typeBits = 0;
 			if (this.superclass != null && this.superclass.hasTypeBit(~TypeIds.BitUninitialized))
-				this.typeBits |= this.superclass.typeBits;
+				this.typeBits |= (this.superclass.typeBits & TypeIds.InheritableBits);
 			if (this.superInterfaces != null)
 				for (int i = 0, l = this.superInterfaces.length; i < l; i++)
 					if (this.superInterfaces[i].hasTypeBit(~TypeIds.BitUninitialized))
-						this.typeBits |= this.superInterfaces[i].typeBits;
+						this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
 		}
 		return (this.typeBits & bit) != 0;
 	}

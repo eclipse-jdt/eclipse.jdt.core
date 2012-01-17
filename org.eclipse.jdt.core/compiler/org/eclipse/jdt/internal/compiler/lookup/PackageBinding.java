@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
+ *     Stephan Herrmann - Contributions for
+ *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -65,8 +67,9 @@ void addType(ReferenceBinding element) {
 	if (this.knownTypes == null)
 		this.knownTypes = new HashtableOfType(25);
 	this.knownTypes.put(element.compoundName[element.compoundName.length - 1], element);
-	if (element.isAnnotationType() || element instanceof UnresolvedReferenceBinding) // unresolved types don't yet have the modifiers set
-		checkIfNullAnnotationType(element);
+	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
+		if (element.isAnnotationType() || element instanceof UnresolvedReferenceBinding) // unresolved types don't yet have the modifiers set
+			checkIfNullAnnotationType(element);
 }
 
 void clearMissingTagBit() {
@@ -253,9 +256,10 @@ void checkIfNullAnnotationPackage() {
 }
 
 private boolean isPackageOfQualifiedTypeName(char[][] packageName, char[][] typeName) {
-	if (typeName == null || typeName.length -1 != packageName.length)
+	int length;
+	if (typeName == null || (length = packageName.length) != typeName.length -1)
 		return false;
-	for (int i=0; i<packageName.length; i++)
+	for (int i=0; i<length; i++)
 		if (!CharOperation.equals(packageName[i], typeName[i]))
 			return false;
 	return true;

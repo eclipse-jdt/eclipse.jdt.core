@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
  *  	   						bug 338303 - Warning about Redundant assignment conflicts with definite assignment
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -7592,7 +7593,9 @@ public void unusedPrivateConstructor(ConstructorDeclaration constructorDecl) {
 
 	int severity = computeSeverity(IProblem.UnusedPrivateConstructor);
 	if (severity == ProblemSeverities.Ignore) return;
-
+	
+	if (excludeDueToAnnotation(constructorDecl.annotations)) return;
+	
 	MethodBinding constructor = constructorDecl.binding;
 	this.handle(
 			IProblem.UnusedPrivateConstructor,
@@ -7638,6 +7641,7 @@ public void unusedPrivateField(FieldDeclaration fieldDecl) {
 			}
 		}
 	}
+	if (excludeDueToAnnotation(fieldDecl.annotations)) return;
 	this.handle(
 			IProblem.UnusedPrivateField,
 		new String[] {
@@ -7691,10 +7695,8 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 			&& CharOperation.equals(method.selector, TypeConstants.WRITEREPLACE)) {
 		return;
 	}
-	if ((method.tagBits & (TagBits.AnnotationPostConstruct | TagBits.AnnotationPreDestroy)) != 0) {
-		// PostConstruct and PreDestroy method are ignored
-		return;
-	}
+	if (excludeDueToAnnotation(methodDecl.annotations)) return;
+	
 	this.handle(
 			IProblem.UnusedPrivateMethod,
 		new String[] {
@@ -7711,10 +7713,43 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+
+/**
+ * Returns true if a private member should not be warned as unused if
+ * annotated with a non-standard annotation.
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
+ */
+private boolean excludeDueToAnnotation(Annotation[] annotations) {
+	int annotationsLen = 0;
+	if (annotations != null) {
+		annotationsLen = annotations.length;
+	} else {
+		return false;
+	}
+	if (annotationsLen == 0) return false;
+	for (int i = 0; i < annotationsLen; i++) {
+		TypeBinding resolvedType = annotations[i].resolvedType;
+		if (resolvedType != null) {
+			switch (resolvedType.id) {
+				case TypeIds.T_JavaLangSuppressWarnings:
+				case TypeIds.T_JavaLangDeprecated:
+				case TypeIds.T_JavaLangSafeVarargs:
+				case TypeIds.T_ConfiguredAnnotationNonNull:
+				case TypeIds.T_ConfiguredAnnotationNullable:
+				case TypeIds.T_ConfiguredAnnotationNonNullByDefault:
+					break;
+				default:
+					// non-standard annotation found, don't warn
+					return true;
+			}
+		}
+	}
+	return false;
+}
 public void unusedPrivateType(TypeDeclaration typeDecl) {
 	int severity = computeSeverity(IProblem.UnusedPrivateType);
 	if (severity == ProblemSeverities.Ignore) return;
-
+	if (excludeDueToAnnotation(typeDecl.annotations)) return;
 	ReferenceBinding type = typeDecl.binding;
 	this.handle(
 			IProblem.UnusedPrivateType,
@@ -8122,7 +8157,7 @@ public void illegalRedefinitionToNonNullParameter(Argument argument, ReferenceBi
 			argument.type.sourceEnd);
 	}
 }
-public void parameterLackingNonNullAnnotation(Argument argument, ReferenceBinding declaringClass, boolean needNonNull, char[][] inheritedAnnotationName) {
+public void parameterLackingNullAnnotation(Argument argument, ReferenceBinding declaringClass, boolean needNonNull, char[][] inheritedAnnotationName) {
 	this.handle(
 		needNonNull ? IProblem.ParameterLackingNonNullAnnotation : IProblem.ParameterLackingNullableAnnotation, 
 		new String[] { new String(argument.name), new String(declaringClass.readableName()), CharOperation.toString(inheritedAnnotationName)},
@@ -8233,7 +8268,8 @@ private int findAnnotationSourceStart(Annotation[] annotations, int startFallbac
 	int sourceStart = startFallback;
 	if (annotations != null) {
 		// should have a @NonNull/@Nullable annotation, search for it:
-		for (int j=0; j<annotations.length; j++) {
+		int length = annotations.length;
+		for (int j=0; j<length; j++) {
 			if (annotations[j].resolvedType != null && annotations[j].resolvedType.id == typeId) {
 				sourceStart = annotations[j].sourceStart;
 				break;

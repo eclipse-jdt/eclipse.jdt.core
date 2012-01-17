@@ -6020,6 +6020,7 @@ public void test0561_try_catch_unchecked_exception() {
 public void test0562_try_catch_unchecked_exception() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
 	this.runNegativeTest(
 		true,
 		new String[] {
@@ -6042,7 +6043,7 @@ public void test0562_try_catch_unchecked_exception() {
 			"1. WARNING in X.java (at line 6)\n" +
 			"	o = new LineNumberReader(new FileReader(\"dummy\"));\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Resource leak: 'o' is never closed\n" +
+			"Potential resource leak: \'o\' may not be closed\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 8)\n" +
 			"	o.toString();\n" +

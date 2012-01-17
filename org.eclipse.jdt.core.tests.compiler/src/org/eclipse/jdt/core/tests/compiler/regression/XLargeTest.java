@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 IBM Corporation and others.
+ * Copyright (c) 2005, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,100 @@ public XLargeTest(String name) {
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=368435
+public void test368435() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	StringBuffer sourceCode = new StringBuffer(
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"    public void print() {\n" +
+			"        int i = 0;\n" +
+			"        if (System.currentTimeMillis() > 17000L) {\n" +
+			"            System.out.println(i++);\n");
+	
+	for (int i = 0; i < 5000; i++) {
+		sourceCode.append("\t\t		System.out.println(\"xyz\");\n");
+	}
+	sourceCode.append("}\n}\n}\n");
+	
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					sourceCode.toString()
+			},
+			"SUCCESS",
+			null,
+			true,
+			null,
+			settings,
+			null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=368435
+public void test368435b() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	StringBuffer sourceCode = new StringBuffer(
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"    public X() {\n" +
+			"        int i = 0;\n" +
+			"        if (System.currentTimeMillis() > 17000L) {\n" +
+			"            System.out.println(i++);\n");
+	
+	for (int i = 0; i < 5000; i++) {
+		sourceCode.append("\t\t		System.out.println(\"xyz\");\n");
+	}
+	sourceCode.append("}\n}\n}\n");
+	
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					sourceCode.toString()
+			},
+			"SUCCESS",
+			null,
+			true,
+			null,
+			settings,
+			null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=368435
+public void test368435c() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+	StringBuffer sourceCode = new StringBuffer(
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.println(\"SUCCESS\");\n" +
+			"    }\n" +
+			"    {\n" +
+			"        int i = 0;\n" +
+			"        if (System.currentTimeMillis() > 17000L) {\n" +
+			"            System.out.println(i++);\n");
+	
+	for (int i = 0; i < 5000; i++) {
+		sourceCode.append("\t\t		System.out.println(\"xyz\");\n");
+	}
+	sourceCode.append("}\n}\n}\n");
+	
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					sourceCode.toString()
+			},
+			"SUCCESS",
+			null,
+			true,
+			null,
+			settings,
+			null);
 }
 
 public void test001() {

@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 367203 - [compiler][null] detect assigning null to nonnull argument
+ *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -453,10 +454,11 @@ protected void fillInDefaultNonNullness(TypeBinding annotationBinding) {
 	if (this.parameterNonNullness == null)
 		this.parameterNonNullness = new Boolean[this.parameters.length];
 	AbstractMethodDeclaration sourceMethod = sourceMethod();
-	for (int i = 0; i < this.parameterNonNullness.length; i++) {
+	boolean added = false;
+	int length = this.parameterNonNullness.length;
+	for (int i = 0; i < length; i++) {
 		if (this.parameters[i].isBaseType())
 			continue;
-		boolean added = false;
 		if (this.parameterNonNullness[i] == null) {
 			added = true;
 			this.parameterNonNullness[i] = Boolean.TRUE;
@@ -468,16 +470,16 @@ protected void fillInDefaultNonNullness(TypeBinding annotationBinding) {
 		} else if (this.parameterNonNullness[i].booleanValue()) {
 			sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, i);
 		}
-		if (added)
-			this.tagBits |= TagBits.HasParameterAnnotations;
 	}
+	if (added)
+		this.tagBits |= TagBits.HasParameterAnnotations;
 	if (   this.returnType != null
 		&& !this.returnType.isBaseType()
 		&& (this.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
 	{
 		this.tagBits |= TagBits.AnnotationNonNull;
 		if (sourceMethod != null)
-			sourceMethod.addNullnessAnnotation((ReferenceBinding)annotationBinding);
+			sourceMethod.addNonNullAnnotation((ReferenceBinding)annotationBinding);
 	} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
 		sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, -1/*signifies method return*/);
 	}
