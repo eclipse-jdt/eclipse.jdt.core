@@ -2444,7 +2444,6 @@ public void test061l2() throws IOException {
 			"\n" +
 			"import java.io.FileInputStream;\n" +
 			"import java.io.IOException;\n" +
-			"import java.util.Objects;\n" +
 			"\n" +
 			"public class Leaks {\n" +
 			"    private FileInputStream fInput;\n" +
@@ -2473,10 +2472,13 @@ public void test061l2() throws IOException {
 			"    public void dispose() throws IOException {\n" +
 			"        fInput.close();\n" +
 			"    }\n" +
-			"}"
+			"}\n" +
+			"class Objects {\n" + // mock java.util.Objects (@since 1.7).
+			"    static int hashCode(Object o) { return 13; }\n" +
+			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in xy\\Leaks.java (at line 19)\n" +
+		"1. ERROR in xy\\Leaks.java (at line 18)\n" +
 		"	this(new FileInputStream(\"default\")); // potential problem\n" +
 		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
@@ -2498,7 +2500,6 @@ public void test061l3() throws IOException {
 			"\n" +
 			"import java.io.FileInputStream;\n" +
 			"import java.io.IOException;\n" +
-			"import java.util.Objects;\n" +
 			"\n" +
 			"public class Leaks {\n" +
 			"\n" +
@@ -2512,15 +2513,18 @@ public void test061l3() throws IOException {
 			"        FileInputStream fileInputStream= new FileInputStream(name);\n" +
 			"        Objects.hashCode(fileInputStream);\n" +
 			"    }\n" +
-			"}"
+			"}\n" +
+			"class Objects {\n" + // mock java.util.Objects (@since 1.7).
+			"    static int hashCode(Object o) { return 13; }\n" +
+			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in xy\\Leaks.java (at line 10)\n" +
+		"1. ERROR in xy\\Leaks.java (at line 9)\n" +
 		"	FileInputStream fileInputStream= new FileInputStream(name);\n" +
 		"	                ^^^^^^^^^^^^^^^\n" +
 		"Potential resource leak: \'fileInputStream\' may not be closed\n" +
 		"----------\n" +
-		"2. ERROR in xy\\Leaks.java (at line 16)\n" +
+		"2. ERROR in xy\\Leaks.java (at line 15)\n" +
 		"	FileInputStream fileInputStream= new FileInputStream(name);\n" +
 		"	                ^^^^^^^^^^^^^^^\n" +
 		"Potential resource leak: \'fileInputStream\' may not be closed\n" +
