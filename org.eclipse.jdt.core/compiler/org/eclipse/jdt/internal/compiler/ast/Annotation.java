@@ -7,7 +7,9 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
+ *     Stephan Herrmann - Contributions for
+ *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -25,6 +27,8 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 public abstract class Annotation extends Expression {
 
 	final static MemberValuePair[] NoValuePairs = new MemberValuePair[0];
+	private static final long TAGBITS_NULLABLE_OR_NONNULL = TagBits.AnnotationNullable|TagBits.AnnotationNonNull;
+
 	public int declarationSourceEnd;
 	public Binding recipient;
 
@@ -387,6 +391,10 @@ public abstract class Annotation extends Expression {
 							AbstractMethodDeclaration methodDeclaration = sourceType.scope.referenceContext.declarationOf(sourceMethod);
 							recordSuppressWarnings(scope, methodDeclaration.declarationSourceStart, methodDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
 						}
+						if ((sourceMethod.tagBits & TAGBITS_NULLABLE_OR_NONNULL) == TAGBITS_NULLABLE_OR_NONNULL) {
+							scope.problemReporter().contradictoryNullAnnotations(this);
+							sourceMethod.tagBits &= ~TAGBITS_NULLABLE_OR_NONNULL; // avoid secondary problems
+						}
 						break;
 					case Binding.FIELD :
 						FieldBinding sourceField = (FieldBinding) this.recipient;
@@ -403,6 +411,10 @@ public abstract class Annotation extends Expression {
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							 LocalDeclaration localDeclaration = variable.declaration;
 							recordSuppressWarnings(scope, localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
+						}
+						if ((variable.tagBits & TAGBITS_NULLABLE_OR_NONNULL) == TAGBITS_NULLABLE_OR_NONNULL) {
+							scope.problemReporter().contradictoryNullAnnotations(this);
+							variable.tagBits &= ~TAGBITS_NULLABLE_OR_NONNULL; // avoid secondary problems
 						}
 						break;
 				}

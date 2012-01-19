@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2011 IBM Corporation and others.
+ * Copyright (c) 2006, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *     							bug 236385: [compiler] Warn for potential programming problem if an object is created but not used
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *     							bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -397,6 +398,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("CodeCannotBeReached", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("CodeSnippetMissingClass", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("CodeSnippetMissingMethod", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("ContradictoryNullAnnotations", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ComparingIdentical", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ConflictingImport", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
 		expectedProblemAttributes.put("ConstructorVarargsArgumentNeedCast", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -801,6 +803,10 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("RedundantNullCheckOnNonNullMessageSend", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("RedundantNullCheckOnNullField", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("RedundantNullCheckOnNullLocalVariable", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("RedundantNullDefaultAnnotation", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
+		expectedProblemAttributes.put("RedundantNullDefaultAnnotationPackage", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
+		expectedProblemAttributes.put("RedundantNullDefaultAnnotationType", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
+		expectedProblemAttributes.put("RedundantNullDefaultAnnotationMethod", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("RedundantSuperinterface", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("ReferenceToForwardField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedNull", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -1097,6 +1103,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("CodeSnippetMissingMethod", SKIP);
 		expectedProblemAttributes.put("ComparingIdentical", new ProblemAttributes(JavaCore.COMPILER_PB_COMPARING_IDENTICAL));
 		expectedProblemAttributes.put("ConflictingImport", SKIP);
+		expectedProblemAttributes.put("ContradictoryNullAnnotations", SKIP);
 		expectedProblemAttributes.put("ConstructorVarargsArgumentNeedCast", new ProblemAttributes(JavaCore.COMPILER_PB_VARARGS_ARGUMENT_NEED_CAST));
 		expectedProblemAttributes.put("CorruptedSignature", SKIP);
 		expectedProblemAttributes.put("DeadCode", new ProblemAttributes(JavaCore.COMPILER_PB_DEAD_CODE));
@@ -1499,6 +1506,10 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("RedundantNullCheckOnNonNullMessageSend", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
 		expectedProblemAttributes.put("RedundantNullCheckOnNullField", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
 		expectedProblemAttributes.put("RedundantNullCheckOnNullLocalVariable", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
+		expectedProblemAttributes.put("RedundantNullDefaultAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION));
+		expectedProblemAttributes.put("RedundantNullDefaultAnnotationPackage", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION));
+		expectedProblemAttributes.put("RedundantNullDefaultAnnotationType", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION));
+		expectedProblemAttributes.put("RedundantNullDefaultAnnotationMethod", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION));
 		expectedProblemAttributes.put("RedundantSuperinterface", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_SUPERINTERFACE));
 		expectedProblemAttributes.put("ReferenceToForwardField", SKIP);
 		expectedProblemAttributes.put("ReferenceToForwardTypeVariable", SKIP);

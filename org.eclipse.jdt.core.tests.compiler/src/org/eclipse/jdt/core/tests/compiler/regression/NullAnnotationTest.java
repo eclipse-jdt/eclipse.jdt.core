@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_default_nullness_014" };
+//		TESTS_NAMES = new String[] { "test_redundant_annotation_" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -2537,6 +2537,12 @@ public void test_default_nullness_011() {
 		"	new C(null);\n" + 
 		"	      ^^^^\n" + 
 		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in p1\\C.java (at line 2)\n" + 
+		"	@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing package p1\n" + 
 		"----------\n");
 }
 // Bug 365836 - [compiler][null] Incomplete propagation of null defaults.
@@ -2654,6 +2660,298 @@ public void test_default_nullness_015() {
 		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n");
 }
+
+// redundant default annotations - class vs. inner class
+public void test_redundant_annotation_01() {
+	Map customOptions = getCompilerOptions();
+//	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
+	runConformTestWithLibs(
+		new String[] {
+			"p2/Y.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class Y {\n" +
+			"    @NonNullByDefault class Inner {\n" +
+			"        @NonNullByDefault class DeepInner {}\n" +
+			"    }\n" +
+			"    class Inner2 {\n" +
+			"        @NonNullByDefault class DeepInner2 {\n" +
+			"        }\n" +
+			"        void foo() {\n" +
+			"            @SuppressWarnings(\"unused\") @NonNullByDefault class Local {}\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"@NonNullByDefault class V {}\n",
+			"p3/package-info.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault package p3;\n",
+			"p3/Z.java",
+			"package p3;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class Z {\n" +
+			"}\n" +
+			"class X {\n" +
+			"    @NonNullByDefault class Inner {}\n" +
+			"    class Inner2 {\n" +
+			"        @NonNullByDefault class DeepInner {}\n" +
+			"    }\n" +
+			"}\n"
+		},
+		customOptions,
+		"----------\n" + 
+		"1. WARNING in p2\\Y.java (at line 5)\n" +
+		"	@NonNullByDefault class Inner {\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing type Y\n" +
+		"----------\n" +
+		"2. WARNING in p2\\Y.java (at line 6)\n" +
+		"	@NonNullByDefault class DeepInner {}\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing type Y.Inner\n" +
+		"----------\n" +
+		"3. WARNING in p2\\Y.java (at line 9)\n" +
+		"	@NonNullByDefault class DeepInner2 {\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing type Y\n" +
+		"----------\n" +
+		"4. WARNING in p2\\Y.java (at line 12)\n" +
+		"	@SuppressWarnings(\"unused\") @NonNullByDefault class Local {}\n" +
+		"	                            ^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing type Y\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. WARNING in p3\\Z.java (at line 3)\n" +
+		"	@NonNullByDefault\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing package p3\n" +
+		"----------\n" +
+		"2. WARNING in p3\\Z.java (at line 7)\n" +
+		"	@NonNullByDefault class Inner {}\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing package p3\n" +
+		"----------\n" +
+		"3. WARNING in p3\\Z.java (at line 9)\n" +
+		"	@NonNullByDefault class DeepInner {}\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing package p3\n" +
+		"----------\n");
+}
+
+// redundant default annotations - class vs. method
+public void test_redundant_annotation_02() {
+	Map customOptions = getCompilerOptions();
+	runConformTestWithLibs(
+		new String[] {
+			"p2/Y.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class Y {\n" +
+			"    @NonNullByDefault void foo() {}\n" +
+			"}\n" +
+			"class Z {\n" +
+			"    @NonNullByDefault void bar() {\n" +
+			"         @NonNullByDefault @SuppressWarnings(\"unused\") class Zork {\n" +
+			"             @NonNullByDefault void fubar() {}\n" +
+			"         }\n" +
+			"    }\n" +
+			"    @NonNullByDefault void zink() {\n" +
+			"         @SuppressWarnings(\"unused\") class Bork {\n" +
+			"             @NonNullByDefault void jubar() {}\n" +
+			"         }\n" +
+			"    }\n" +
+			"}\n"
+		},
+		customOptions,
+		"----------\n" +
+		"1. WARNING in p2\\Y.java (at line 5)\n" +
+		"	@NonNullByDefault void foo() {}\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing type Y\n" +
+		"----------\n" +
+		"2. WARNING in p2\\Y.java (at line 9)\n" +
+		"	@NonNullByDefault @SuppressWarnings(\"unused\") class Zork {\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing method bar()\n" +
+		"----------\n" +
+		"3. WARNING in p2\\Y.java (at line 10)\n" +
+		"	@NonNullByDefault void fubar() {}\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing type Zork\n" +
+		"----------\n" +
+		"4. WARNING in p2\\Y.java (at line 15)\n" +
+		"	@NonNullByDefault void jubar() {}\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing method zink()\n" +
+		"----------\n");
+}
+
+//redundant default annotations - class vs. method - generics
+public void test_redundant_annotation_02g() {
+	Map customOptions = getCompilerOptions();
+	runConformTestWithLibs(
+		new String[] {
+			"p2/Y.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class Y<TY> {\n" +
+			"    @NonNullByDefault <TF> void foo(TF arg) {}\n" +
+			"}\n" +
+			"class Z {\n" +
+			"    @NonNullByDefault <TB> void bar() {\n" +
+			"         @NonNullByDefault @SuppressWarnings(\"unused\") class Zork {\n" +
+			"             @NonNullByDefault void fubar(TB arg) {}\n" +
+			"         }\n" +
+			"    }\n" +
+			"}\n"
+		},
+		customOptions,
+		"----------\n" + 
+		"1. WARNING in p2\\Y.java (at line 5)\n" + 
+		"	@NonNullByDefault <TF> void foo(TF arg) {}\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing type Y<TY>\n" + 
+		"----------\n" + 
+		"2. WARNING in p2\\Y.java (at line 9)\n" + 
+		"	@NonNullByDefault @SuppressWarnings(\"unused\") class Zork {\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing method bar()\n" + 
+		"----------\n" + 
+		"3. WARNING in p2\\Y.java (at line 10)\n" + 
+		"	@NonNullByDefault void fubar(TB arg) {}\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing type Zork\n" + 
+		"----------\n");
+}
+
+// redundant default annotations - package / class / method vs global default
+public void test_redundant_annotation_03() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		new String[] {
+			"p2/Y.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class Y {\n" +
+			"    @NonNullByDefault void foo() {}\n" +
+			"}\n" +
+			"class Z {\n" +
+			"    @NonNullByDefault void bar() {}\n" +
+			"}\n",
+			"p3/package-info.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault package p3;\n"
+		},
+		customOptions,
+		"----------\n" + 
+		"1. WARNING in p2\\Y.java (at line 3)\n" +
+		"	@NonNullByDefault\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with the global default\n" +
+		"----------\n" +
+		"2. WARNING in p2\\Y.java (at line 5)\n" +
+		"	@NonNullByDefault void foo() {}\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing type Y\n" +
+		"----------\n" +
+		"3. WARNING in p2\\Y.java (at line 8)\n" +
+		"	@NonNullByDefault void bar() {}\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with the global default\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. WARNING in p3\\package-info.java (at line 1)\n" +
+		"	@org.eclipse.jdt.annotation.NonNullByDefault package p3;\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with the global default\n" +
+		"----------\n");
+}
+
+// redundant default annotations - class vs. inner class
+// ensure that disabling null annotations also disables this diagnostic
+public void test_redundant_annotation_04() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.DISABLED);
+	runConformTestWithLibs(
+		new String[] {
+			"p2/Y.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class Y {\n" +
+			"    @NonNullByDefault class Inner {\n" +
+			"        @NonNullByDefault class DeepInner {}\n" +
+			"    }\n" +
+			"    class Inner2 {\n" +
+			"        @NonNullByDefault class DeepInner2 {\n" +
+			"        }\n" +
+			"        @NonNullByDefault void foo(@Nullable @NonNull Object arg) {\n" +
+			"            @NonNullByDefault class Local {}\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"@NonNullByDefault class V {}\n",
+			"p3/package-info.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault package p3;\n",
+			"p3/Z.java",
+			"package p3;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class Z {\n" +
+			"}\n" +
+			"class X {\n" +
+			"    @NonNullByDefault class Inner {}\n" +
+			"    class Inner2 {\n" +
+			"        @NonNullByDefault class DeepInner {}\n" +
+			"    }\n" +
+			"}\n"
+		},
+		customOptions,
+		"");
+}
+
+// contradictory null annotations
+public void test_contradictory_annotations_01() {
+	Map customOptions = getCompilerOptions();
+	runNegativeTestWithLibs(
+		new String[] {
+			"p2/Y.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y {\n" +
+			"    void foo(@NonNull @Nullable Object o) {}\n" +
+			"    @Nullable @NonNull Object bar() {\n" +
+			"        @NonNull @Nullable Object o = null;\n" +
+			"        return o;\n" +
+			"    }\n" +
+			"}\n" +
+			"class Z {\n" +
+			"    @NonNullByDefault void bar() {}\n" +
+			"}\n"
+		},
+		customOptions,
+		"----------\n" + 
+		"1. ERROR in p2\\Y.java (at line 4)\n" + 
+		"	void foo(@NonNull @Nullable Object o) {}\n" + 
+		"	                  ^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" + 
+		"2. ERROR in p2\\Y.java (at line 5)\n" + 
+		"	@Nullable @NonNull Object bar() {\n" + 
+		"	          ^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" + 
+		"3. ERROR in p2\\Y.java (at line 6)\n" + 
+		"	@NonNull @Nullable Object o = null;\n" + 
+		"	         ^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n");
+}
+
 // a nonnull variable is dereferenced in a loop
 public void test_nonnull_var_in_constrol_structure_1() {
 	Map customOptions = getCompilerOptions();
@@ -2915,7 +3213,7 @@ public void test_assignment_expression_1() {
 		customOptions,
 		"");	
 }
-// a nonnull variable is dereferenced method of a nested type
+// a nonnull variable is dereferenced in a method of a nested type
 public void test_nesting_1() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -2924,7 +3222,6 @@ public void test_nesting_1() {
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"@NonNullByDefault\n" +
 			"public class X {\n" +
 			"    void print4(final String s1) {\n" +
 			"        for (int i=0; i<3; i++)\n" +
@@ -2959,12 +3256,12 @@ public void test_nesting_1() {
 		},
 		customOptions,
 		"----------\n" +
-		"1. ERROR in X.java (at line 16)\n" +
+		"1. ERROR in X.java (at line 15)\n" +
 		"	print(s2);\n" +
 		"	      ^^\n" +
 		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 25)\n" +
+		"2. ERROR in X.java (at line 24)\n" +
 		"	@NonNull String s3R = s3;\n" +
 		"	                      ^^\n" +
 		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +

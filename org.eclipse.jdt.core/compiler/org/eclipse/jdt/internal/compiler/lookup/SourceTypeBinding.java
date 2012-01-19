@@ -13,6 +13,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365836 - [compiler][null] Incomplete propagation of null defaults.
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
+ *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -23,6 +24,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
@@ -1639,11 +1641,47 @@ private void evaluateNullAnnotations(long annotationTagBits) {
 	if (defaultAnnotation != null) {
 		if (CharOperation.equals(this.sourceName, TypeConstants.PACKAGE_INFO_NAME)) {
 			getPackage().nullnessDefaultAnnotation = defaultAnnotation;
+			long globalDefault = this.scope.compilerOptions().defaultNonNullness;
+			if (globalDefault == TagBits.AnnotationNonNull && (annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0) {
+				TypeDeclaration typeDecl = this.scope.referenceContext;
+				this.scope.problemReporter().nullDefaultAnnotationIsRedundant(typeDecl, typeDecl.annotations, null);
+			}
 		} else {
 			this.nullnessDefaultAnnotation = defaultAnnotation;
+			TypeDeclaration typeDecl = this.scope.referenceContext;
+			long nullDefaultBits = annotationTagBits & (TagBits.AnnotationNullUnspecifiedByDefault|TagBits.AnnotationNonNullByDefault);
+			checkRedundantNullnessDefaultRecurse(typeDecl, typeDecl.annotations, nullDefaultBits);
 		}
 	}
 }
+
+protected void checkRedundantNullnessDefaultRecurse(ASTNode location, Annotation[] annotations, long annotationTagBits) {
+	if (this.fPackage.nullnessDefaultAnnotation != null) {
+		if ((this.fPackage.nullnessDefaultAnnotation.id == TypeIds.T_ConfiguredAnnotationNonNull
+				&& ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0))) {
+			this.scope.problemReporter().nullDefaultAnnotationIsRedundant(location, annotations, this.fPackage);
+		}
+		return;
+	}
+	long globalDefault = this.scope.compilerOptions().defaultNonNullness;
+	if (globalDefault == TagBits.AnnotationNonNull && annotationTagBits == TagBits.AnnotationNonNullByDefault) {
+		this.scope.problemReporter().nullDefaultAnnotationIsRedundant(location, annotations, null);
+	}
+}
+
+// return: should caller continue searching?
+protected boolean checkRedundantNullnessDefaultOne(ASTNode location, Annotation[] annotations, long annotationTagBits) {
+	TypeBinding thisDefault = this.nullnessDefaultAnnotation;
+	if (thisDefault != null) {
+		if (thisDefault.id == TypeIds.T_ConfiguredAnnotationNonNull
+			&& ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0)) {
+			this.scope.problemReporter().nullDefaultAnnotationIsRedundant(location, annotations, this);
+		}
+		return false; // different default means inner default is not redundant -> we're done
+	}
+	return true;
+}
+
 private TypeBinding getNullnessDefaultAnnotation() {
 	if (this.nullnessDefaultAnnotation instanceof UnresolvedReferenceBinding)
 		this.nullnessDefaultAnnotation = this.scope.environment().getNullAnnotationResolved(this.nullnessDefaultAnnotation, this.scope);

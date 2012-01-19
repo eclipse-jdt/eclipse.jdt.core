@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,14 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for  bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -83,6 +85,17 @@ public ReferenceBinding anonymousOriginalSuperType() {
 		}
 	}
 	return this.superclass; // default answer
+}
+
+protected void checkRedundantNullnessDefaultRecurse(ASTNode location, Annotation[] annotations, long annotationTagBits) {
+	long outerDefault = this.enclosingMethod != null ? this.enclosingMethod.tagBits & ((TagBits.AnnotationNonNullByDefault|TagBits.AnnotationNullUnspecifiedByDefault)) : 0;
+	if (outerDefault != 0) {
+		if (outerDefault == annotationTagBits) {
+			this.scope.problemReporter().nullDefaultAnnotationIsRedundant(location, annotations, this.enclosingMethod);
+		}
+		return;
+	}
+	super.checkRedundantNullnessDefaultRecurse(location, annotations, annotationTagBits);
 }
 
 public char[] computeUniqueKey(boolean isLeaf) {
