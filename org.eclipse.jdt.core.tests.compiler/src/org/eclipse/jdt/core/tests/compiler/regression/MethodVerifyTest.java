@@ -11416,9 +11416,9 @@ public void test207() {
 		},
 		"class java.lang.Object");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343060, make sure a bridge method
-// is NOT generated when a public method is inherited from a non-public class into a
-// public class if the non public class happens to be in the default package.
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658, make sure a bridge method
+// is generated when a public method is inherited from a non-public class into a
+// public class.
 public void test208() {
 	this.runConformTest(
 		new String[] {
@@ -11451,11 +11451,11 @@ public void test208() {
 			"\n"+ 
 			"}\n"
 		},
-		"Annotation was found");
+		this.complianceLevel <= ClassFileConstants.JDK1_5 ? "Annotation was found" : "Annotation was not found");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343060, make sure a bridge method
-// is NOT generated when a public method is inherited from a non-public class into a
-// public class if the non public class happens to be in the default package.
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658, make sure a bridge method
+// is generated when a public method is inherited from a non-public class into a
+// public class.
 public void test208a() {
 	this.runConformTest(
 		new String[] {
@@ -11489,7 +11489,7 @@ public void test208a() {
 			"\n"+ 
 			"}\n"
 		},
-		"Annotation was found");
+		this.complianceLevel <= ClassFileConstants.JDK1_5 ? "Annotation was found" : "Annotation was not found");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322001
 public void test209() {
@@ -13419,82 +13419,5 @@ public void testBug317719h() throws Exception {
 			"}\n"
 		},
 		output);
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658, make sure a bridge method
-// is generated when a public method is inherited from a non-public class into a
-// public class if the non public class happens to be defined in a named package.
-public void test288658() {
-	this.runConformTest(
-		new String[] {
-			"pkg/Test.java",
-			"package pkg;\n" +
-			"import java.lang.annotation.Annotation;\n"+ 
-			"import java.lang.annotation.Retention;\n"+ 
-			"import java.lang.annotation.RetentionPolicy;\n"+ 
-			"import java.lang.reflect.Method;\n"+ 
-			"\n"+ 
-			"public class Test extends Super {\n"+ 
-			"    public static void main(String[] args) {\n"+ 
-			"        try {\n"+ 
-			"            Method m = Test.class.getMethod(\"setFoo\", String.class);\n"+
-			"            Annotation a = m.getAnnotation(Anno.class);\n"+ 
-			"            System.out.println(\"Annotation was \" + (a == null ? \"not \" : \"\") +\n"+ 
-			"\"found\");\n"+ 
-			"        } catch (Exception e) {\n"+ 
-			"            e.printStackTrace();\n"+ 
-			"        }\n"+ 
-			"    }\n"+ 
-			"}\n"+ 
-			"\n"+ 
-			"class Super {\n"+ 
-			"    @Anno\n"+ 
-			"    public void setFoo(String foo) {}\n"+ 
-			"}\n"+ 
-			"\n"+ 
-			"@Retention(RetentionPolicy.RUNTIME)\n"+ 
-			"@interface Anno {\n"+ 
-			"\n"+ 
-			"}\n"
-		},
-		this.complianceLevel <= ClassFileConstants.JDK1_5 ? "Annotation was found" : "Annotation was not found");
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=288658, make sure a bridge method
-// is generated when a public method is inherited from a non-public class into a
-// public class if the non public class happens to be defined in a named package.
-public void test288658a() {
-	this.runConformTest(
-		new String[] {
-			"pkg/Test.java",
-			"package pkg;\n" +
-			"import java.lang.annotation.Annotation;\n"+ 
-			"import java.lang.annotation.Retention;\n"+ 
-			"import java.lang.annotation.RetentionPolicy;\n"+ 
-			"import java.lang.reflect.Method;\n"+ 
-			"\n"+ 
-			"public class Test extends Super {\n"+
-			"    public void setFoo() {}\n" +
-			"    public static void main(String[] args) {\n"+ 
-			"        try {\n"+ 
-			"            Method m = Test.class.getMethod(\"setFoo\", String.class);\n"+
-			"            Annotation a = m.getAnnotation(Anno.class);\n"+ 
-			"            System.out.println(\"Annotation was \" + (a == null ? \"not \" : \"\") +\n"+ 
-			"\"found\");\n"+ 
-			"        } catch (Exception e) {\n"+ 
-			"            e.printStackTrace();\n"+ 
-			"        }\n"+ 
-			"    }\n"+ 
-			"}\n"+ 
-			"\n"+ 
-			"class Super {\n"+ 
-			"    @Anno\n"+ 
-			"    public void setFoo(String foo) {}\n"+ 
-			"}\n"+ 
-			"\n"+ 
-			"@Retention(RetentionPolicy.RUNTIME)\n"+ 
-			"@interface Anno {\n"+ 
-			"\n"+ 
-			"}\n"
-		},
-		this.complianceLevel <= ClassFileConstants.JDK1_5 ? "Annotation was found" : "Annotation was not found");
 }
 }
