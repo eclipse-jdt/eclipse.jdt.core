@@ -526,22 +526,22 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
  * @param flowInfo the upstream flow info; caveat: may get modified
  */
 public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
-	VariableBinding local = variableBinding(scope);
-	if (local != null &&
-			(local.type.tagBits & TagBits.IsBaseType) == 0) {
+	VariableBinding var = variableBinding(scope);
+	if (var != null &&
+			(var.type.tagBits & TagBits.IsBaseType) == 0) {
 		if ((this.bits & ASTNode.IsNonNull) == 0) {
-			flowContext.recordUsingNullReference(scope, local, this,
+			flowContext.recordUsingNullReference(scope, var, this,
 					FlowContext.MAY_NULL, flowInfo);
 		}
-		flowInfo.markAsComparedEqualToNonNull(local );
+		flowInfo.markAsComparedEqualToNonNull(var );
 			// from thereon it is set
 		if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
-			flowInfo.markedAsNullOrNonNullInAssertExpression(local);
+			flowInfo.markedAsNullOrNonNullInAssertExpression(var);
 		}
 		if (flowContext.initsOnFinally != null) {
-			flowContext.initsOnFinally.markAsComparedEqualToNonNull(local);
+			flowContext.initsOnFinally.markAsComparedEqualToNonNull(var);
 			if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
-				flowContext.initsOnFinally.markedAsNullOrNonNullInAssertExpression(local);
+				flowContext.initsOnFinally.markedAsNullOrNonNullInAssertExpression(var);
 			}
 		}
 	}
@@ -873,9 +873,9 @@ public int nullStatus(FlowInfo flowInfo) {
 		this.constant != null && this.constant != Constant.NotAConstant)
 	return FlowInfo.NON_NULL; // constant expression cannot be null
 
-	VariableBinding local = variableBinding(null);
-	if (local != null)
-		return flowInfo.nullStatus(local);
+	VariableBinding var = variableBinding(null);
+	if (var != null)
+		return flowInfo.nullStatus(var);
 	return FlowInfo.NON_NULL;
 }
 

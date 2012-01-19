@@ -100,18 +100,18 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 		for (int i = 0; i < this.nullCount; i++) {
 			Expression expression = this.nullReferences[i];
 			// final local variable
-			VariableBinding local = this.nullVariables[i];
+			VariableBinding var = this.nullVariables[i];
 			switch (this.nullCheckTypes[i]) {
 				case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL:
 				case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL:
-					if (flowInfo.isDefinitelyNonNull(local)) {
+					if (flowInfo.isDefinitelyNonNull(var)) {
 						if (this.nullCheckTypes[i] == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
 							if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-								scope.problemReporter().variableRedundantCheckOnNonNull(local, expression);
+								scope.problemReporter().variableRedundantCheckOnNonNull(var, expression);
 							}
 						} else {
 							if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-								scope.problemReporter().variableNonNullComparedToNull(local, expression);
+								scope.problemReporter().variableNonNullComparedToNull(var, expression);
 							}
 						}
 						continue;
@@ -121,46 +121,46 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 				case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
 				case CAN_ONLY_NULL | IN_ASSIGNMENT:
 				case CAN_ONLY_NULL | IN_INSTANCEOF:
-					if (flowInfo.isDefinitelyNull(local)) {
+					if (flowInfo.isDefinitelyNull(var)) {
 						switch(this.nullCheckTypes[i] & CONTEXT_MASK) {
 							case FlowContext.IN_COMPARISON_NULL:
 								if (((this.nullCheckTypes[i] & CHECK_MASK) == CAN_ONLY_NULL) && (expression.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
-									scope.problemReporter().variableNullReference(local, expression);
+									scope.problemReporter().variableNullReference(var, expression);
 									continue;
 								}
 								if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-									scope.problemReporter().variableRedundantCheckOnNull(local, expression);
+									scope.problemReporter().variableRedundantCheckOnNull(var, expression);
 								}
 								continue;
 							case FlowContext.IN_COMPARISON_NON_NULL:
 								if (((this.nullCheckTypes[i] & CHECK_MASK) == CAN_ONLY_NULL) && (expression.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
-									scope.problemReporter().variableNullReference(local, expression);
+									scope.problemReporter().variableNullReference(var, expression);
 									continue;
 								}
 								if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-									scope.problemReporter().variableNullComparedToNonNull(local, expression);
+									scope.problemReporter().variableNullComparedToNonNull(var, expression);
 								}
 								continue;
 							case FlowContext.IN_ASSIGNMENT:
-								scope.problemReporter().variableRedundantNullAssignment(local, expression);
+								scope.problemReporter().variableRedundantNullAssignment(var, expression);
 								continue;
 							case FlowContext.IN_INSTANCEOF:
-								scope.problemReporter().variableNullInstanceof(local, expression);
+								scope.problemReporter().variableNullInstanceof(var, expression);
 								continue;
 						}
-					} else if (flowInfo.isPotentiallyNull(local)) {
+					} else if (flowInfo.isPotentiallyNull(var)) {
 						switch(this.nullCheckTypes[i] & CONTEXT_MASK) {
 							case FlowContext.IN_COMPARISON_NULL:
 								this.nullReferences[i] = null;
 								if (((this.nullCheckTypes[i] & CHECK_MASK) == CAN_ONLY_NULL) && (expression.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
-									scope.problemReporter().variablePotentialNullReference(local, expression);
+									scope.problemReporter().variablePotentialNullReference(var, expression);
 									continue;
 								}
 								break;
 							case FlowContext.IN_COMPARISON_NON_NULL:
 								this.nullReferences[i] = null;
 								if (((this.nullCheckTypes[i] & CHECK_MASK) == CAN_ONLY_NULL) && (expression.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
-									scope.problemReporter().variablePotentialNullReference(local, expression);
+									scope.problemReporter().variablePotentialNullReference(var, expression);
 									continue;
 								}
 								break;
@@ -168,16 +168,16 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					}
 					break;
 				case MAY_NULL:
-					if (flowInfo.isDefinitelyNull(local)) {
-						scope.problemReporter().variableNullReference(local, expression);
+					if (flowInfo.isDefinitelyNull(var)) {
+						scope.problemReporter().variableNullReference(var, expression);
 						continue;
 					}
-					if (flowInfo.isPotentiallyNull(local)) {
-						scope.problemReporter().variablePotentialNullReference(local, expression);
+					if (flowInfo.isPotentiallyNull(var)) {
+						scope.problemReporter().variablePotentialNullReference(var, expression);
 					}
 					break;
 				case ASSIGN_TO_NONNULL:
-					int nullStatus = flowInfo.nullStatus(local);
+					int nullStatus = flowInfo.nullStatus(var);
 					if (nullStatus != FlowInfo.NON_NULL) {
 						char[][] annotationName = scope.environment().getNonNullAnnotationName();
 						scope.problemReporter().nullityMismatch(expression, this.expectedTypes[i], nullStatus, annotationName);
@@ -228,9 +228,9 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 		return true;
 	}
 
-	public void recordUsingNullReference(Scope scope, VariableBinding local,
+	public void recordUsingNullReference(Scope scope, VariableBinding var,
 			Expression reference, int checkType, FlowInfo flowInfo) {
-		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0 && !flowInfo.isDefinitelyUnknown(local))	{
+		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0 && !flowInfo.isDefinitelyUnknown(var))	{
 			if ((this.tagBits & FlowContext.DEFER_NULL_DIAGNOSTIC) != 0) { // within an enclosing loop, be conservative
 				switch (checkType) {
 					case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL:
@@ -239,68 +239,68 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
 					case CAN_ONLY_NULL | IN_ASSIGNMENT:
 					case CAN_ONLY_NULL | IN_INSTANCEOF:
-						if (flowInfo.cannotBeNull(local)) {
+						if (flowInfo.cannotBeNull(var)) {
 							if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
 								if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-									scope.problemReporter().variableRedundantCheckOnNonNull(local, reference);
+									scope.problemReporter().variableRedundantCheckOnNonNull(var, reference);
 								}
-								if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+								if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(var)) {
 									flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 								}
 							} else if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL)) {
 								if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-									scope.problemReporter().variableNonNullComparedToNull(local, reference);
+									scope.problemReporter().variableNonNullComparedToNull(var, reference);
 								}
-								if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+								if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(var)) {
 									flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 								}
 							}
 							return;
 						}
-						if (flowInfo.canOnlyBeNull(local)) {
+						if (flowInfo.canOnlyBeNull(var)) {
 							switch(checkType & CONTEXT_MASK) {
 								case FlowContext.IN_COMPARISON_NULL:
 									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
-										scope.problemReporter().variableNullReference(local, reference);
+										scope.problemReporter().variableNullReference(var, reference);
 										return;
 									}
 									if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-										scope.problemReporter().variableRedundantCheckOnNull(local, reference);
+										scope.problemReporter().variableRedundantCheckOnNull(var, reference);
 									}
-									if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+									if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(var)) {
 										flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 									}
 									return;
 								case FlowContext.IN_COMPARISON_NON_NULL:
 									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
-										scope.problemReporter().variableNullReference(local, reference);
+										scope.problemReporter().variableNullReference(var, reference);
 										return;
 									}
 									if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-										scope.problemReporter().variableNullComparedToNonNull(local, reference);
+										scope.problemReporter().variableNullComparedToNonNull(var, reference);
 									}
-									if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+									if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(var)) {
 										flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 									}
 									return;
 								case FlowContext.IN_ASSIGNMENT:
-									scope.problemReporter().variableRedundantNullAssignment(local, reference);
+									scope.problemReporter().variableRedundantNullAssignment(var, reference);
 									return;
 								case FlowContext.IN_INSTANCEOF:
-									scope.problemReporter().variableNullInstanceof(local, reference);
+									scope.problemReporter().variableNullInstanceof(var, reference);
 									return;
 							}
-						} else if (flowInfo.isPotentiallyNull(local)) {
+						} else if (flowInfo.isPotentiallyNull(var)) {
 							switch(checkType & CONTEXT_MASK) {
 								case FlowContext.IN_COMPARISON_NULL:
 									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
-										scope.problemReporter().variablePotentialNullReference(local, reference);
+										scope.problemReporter().variablePotentialNullReference(var, reference);
 										return;
 									}
 									break;
 								case FlowContext.IN_COMPARISON_NON_NULL:
 									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
-										scope.problemReporter().variablePotentialNullReference(local, reference);
+										scope.problemReporter().variablePotentialNullReference(var, reference);
 										return;
 									}
 									break;
@@ -308,11 +308,11 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						}
 						break;
 					case MAY_NULL :
-						if (flowInfo.cannotBeNull(local)) {
+						if (flowInfo.cannotBeNull(var)) {
 							return;
 						}
-						if (flowInfo.canOnlyBeNull(local)) {
-							scope.problemReporter().variableNullReference(local, reference);
+						if (flowInfo.canOnlyBeNull(var)) {
+							scope.problemReporter().variableNullReference(var, reference);
 							return;
 						}
 						break;
@@ -324,19 +324,19 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 				switch (checkType) {
 					case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL:
 					case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL:
-						if (flowInfo.isDefinitelyNonNull(local)) {
+						if (flowInfo.isDefinitelyNonNull(var)) {
 							if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
 								if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-									scope.problemReporter().variableRedundantCheckOnNonNull(local, reference);
+									scope.problemReporter().variableRedundantCheckOnNonNull(var, reference);
 								}
-								if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+								if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(var)) {
 									flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 								}
 							} else {
 								if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-									scope.problemReporter().variableNonNullComparedToNull(local, reference);
+									scope.problemReporter().variableNonNullComparedToNull(var, reference);
 								}
-								if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+								if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(var)) {
 									flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 								}
 							}
@@ -347,50 +347,50 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
 					case CAN_ONLY_NULL | IN_ASSIGNMENT:
 					case CAN_ONLY_NULL | IN_INSTANCEOF:
-						if (flowInfo.isDefinitelyNull(local)) {
+						if (flowInfo.isDefinitelyNull(var)) {
 							switch(checkType & CONTEXT_MASK) {
 								case FlowContext.IN_COMPARISON_NULL:
 									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
-										scope.problemReporter().variableNullReference(local, reference);
+										scope.problemReporter().variableNullReference(var, reference);
 										return;
 									}
 									if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-										scope.problemReporter().variableRedundantCheckOnNull(local, reference);
+										scope.problemReporter().variableRedundantCheckOnNull(var, reference);
 									}
-									if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+									if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(var)) {
 										flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 									}
 									return;
 								case FlowContext.IN_COMPARISON_NON_NULL:
 									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
-										scope.problemReporter().variableNullReference(local, reference);
+										scope.problemReporter().variableNullReference(var, reference);
 										return;
 									}
 									if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-										scope.problemReporter().variableNullComparedToNonNull(local, reference);
+										scope.problemReporter().variableNullComparedToNonNull(var, reference);
 									}
-									if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
+									if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(var)) {
 										flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 									}
 									return;
 								case FlowContext.IN_ASSIGNMENT:
-									scope.problemReporter().variableRedundantNullAssignment(local, reference);
+									scope.problemReporter().variableRedundantNullAssignment(var, reference);
 									return;
 								case FlowContext.IN_INSTANCEOF:
-									scope.problemReporter().variableNullInstanceof(local, reference);
+									scope.problemReporter().variableNullInstanceof(var, reference);
 									return;
 							}
-						} else if (flowInfo.isPotentiallyNull(local)) {
+						} else if (flowInfo.isPotentiallyNull(var)) {
 							switch(checkType & CONTEXT_MASK) {
 								case FlowContext.IN_COMPARISON_NULL:
 									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
-										scope.problemReporter().variablePotentialNullReference(local, reference);
+										scope.problemReporter().variablePotentialNullReference(var, reference);
 										return;
 									}
 									break;
 								case FlowContext.IN_COMPARISON_NON_NULL:
 									if (((checkType & CHECK_MASK) == CAN_ONLY_NULL) && (reference.implicitConversion & TypeIds.UNBOXING) != 0) { // check for auto-unboxing first and report appropriate warning
-										scope.problemReporter().variablePotentialNullReference(local, reference);
+										scope.problemReporter().variablePotentialNullReference(var, reference);
 										return;
 									}
 									break;
@@ -398,15 +398,15 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						}
 						break;
 					case MAY_NULL :
-						if (flowInfo.isDefinitelyNull(local)) {
-							scope.problemReporter().variableNullReference(local, reference);
+						if (flowInfo.isDefinitelyNull(var)) {
+							scope.problemReporter().variableNullReference(var, reference);
 							return;
 						}
-						if (flowInfo.isPotentiallyNull(local)) {
-							scope.problemReporter().variablePotentialNullReference(local, reference);
+						if (flowInfo.isPotentiallyNull(var)) {
+							scope.problemReporter().variablePotentialNullReference(var, reference);
 							return;
 						}
-						if (flowInfo.isDefinitelyNonNull(local)) {
+						if (flowInfo.isDefinitelyNonNull(var)) {
 							return; // shortcut: cannot be null
 						}
 						break;
@@ -419,7 +419,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 			if(((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) || checkType == MAY_NULL
 					|| (checkType & CONTEXT_MASK) == FlowContext.IN_ASSIGNMENT
 					|| (checkType & CONTEXT_MASK) == FlowContext.IN_INSTANCEOF) {
-				recordNullReference(local, reference, checkType);
+				recordNullReference(var, reference, checkType);
 			}
 			// prepare to re-check with try/catch flow info
 		}
@@ -435,7 +435,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 		}
 	}
 
-protected void recordNullReference(VariableBinding local,
+protected void recordNullReference(VariableBinding var,
 	Expression expression, int status) {
 	if (this.nullCount == 0) {
 		this.nullVariables = new VariableBinding[5];
@@ -454,7 +454,7 @@ protected void recordNullReference(VariableBinding local,
 			this.nullCheckTypes = new int[newLength], 0,
 			this.nullCount);
 	}
-	this.nullVariables[this.nullCount] = local;
+	this.nullVariables[this.nullCount] = var;
 	this.nullReferences[this.nullCount] = expression;
 	this.nullCheckTypes[this.nullCount++] = status;
 }

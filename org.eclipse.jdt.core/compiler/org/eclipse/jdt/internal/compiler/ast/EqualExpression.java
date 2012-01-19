@@ -39,43 +39,43 @@ public class EqualExpression extends BinaryExpression {
 			// TODO: handle all kinds of expressions (cf. also https://bugs.eclipse.org/364326)
 		}
 
-		VariableBinding local = this.left.variableBinding(scope);
-		if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
-			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, rightStatus, this.left);
+		VariableBinding var = this.left.variableBinding(scope);
+		if (var != null && (var.type.tagBits & TagBits.IsBaseType) == 0) {
+			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, var, rightStatus, this.left);
 		}
-		local = this.right.variableBinding(scope);
-		if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
-			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, leftStatus, this.right);
+		var = this.right.variableBinding(scope);
+		if (var != null && (var.type.tagBits & TagBits.IsBaseType) == 0) {
+			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, var, leftStatus, this.right);
 		}
 	}
-	private void checkVariableComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, VariableBinding local, int nullStatus, Expression reference) {
+	private void checkVariableComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, VariableBinding var, int nullStatus, Expression reference) {
 		switch (nullStatus) {
 			case FlowInfo.NULL :
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
-					flowContext.recordUsingNullReference(scope, local, reference,
+					flowContext.recordUsingNullReference(scope, var, reference,
 							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
-					initsWhenTrue.markAsComparedEqualToNull(local); // from thereon it is set
-					initsWhenFalse.markAsComparedEqualToNonNull(local); // from thereon it is set
+					initsWhenTrue.markAsComparedEqualToNull(var); // from thereon it is set
+					initsWhenFalse.markAsComparedEqualToNonNull(var); // from thereon it is set
 				} else {
-					flowContext.recordUsingNullReference(scope, local, reference,
+					flowContext.recordUsingNullReference(scope, var, reference,
 							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
-					initsWhenTrue.markAsComparedEqualToNonNull(local); // from thereon it is set
-					initsWhenFalse.markAsComparedEqualToNull(local); // from thereon it is set
+					initsWhenTrue.markAsComparedEqualToNonNull(var); // from thereon it is set
+					initsWhenFalse.markAsComparedEqualToNull(var); // from thereon it is set
 				}
 				if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
-					flowInfo.markedAsNullOrNonNullInAssertExpression(local);
+					flowInfo.markedAsNullOrNonNullInAssertExpression(var);
 				}
 				break;
 			case FlowInfo.NON_NULL :
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
-					flowContext.recordUsingNullReference(scope, local, reference,
+					flowContext.recordUsingNullReference(scope, var, reference,
 							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
-					initsWhenTrue.markAsComparedEqualToNonNull(local); // from thereon it is set
+					initsWhenTrue.markAsComparedEqualToNonNull(var); // from thereon it is set
 					if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
-						initsWhenTrue.markedAsNullOrNonNullInAssertExpression(local);
+						initsWhenTrue.markedAsNullOrNonNullInAssertExpression(var);
 					}
 				} else {
-					flowContext.recordUsingNullReference(scope, local, reference,
+					flowContext.recordUsingNullReference(scope, var, reference,
 							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
 				}
 				break;
