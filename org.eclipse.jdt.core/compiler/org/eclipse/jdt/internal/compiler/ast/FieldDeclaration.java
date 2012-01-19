@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -74,6 +74,13 @@ public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowCon
 				.analyseCode(initializationScope, flowContext, flowInfo)
 				.unconditionalInits();
 		flowInfo.markAsDefinitelyAssigned(this.binding);
+		if (this.binding.isFinal() && this.binding.isStatic()) {
+			int nullStatus = this.initialization.nullStatus(flowInfo);
+			// static final field being initialized. Record its null status for future reference
+			// since the flowInfo from an initialization wont be available in a method
+			flowInfo.markNullStatus(this.binding, nullStatus);
+//			this.binding.setNullStatusForStaticFinalField(nullStatus);
+		}
 	}
 	return flowInfo;
 }

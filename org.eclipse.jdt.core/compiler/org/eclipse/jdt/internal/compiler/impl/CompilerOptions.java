@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -138,6 +138,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportTasks = "org.eclipse.jdt.core.compiler.problem.tasks"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedObjectAllocation = "org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation";  //$NON-NLS-1$
 	public static final String OPTION_IncludeNullInfoFromAsserts = "org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts";  //$NON-NLS-1$
+	public static final String OPTION_IncludeFieldsInNullAnalysis = "org.eclipse.jdt.core.compiler.problem.includeFieldsInNullAnalysis";  //$NON-NLS-1$
 	public static final String OPTION_ReportMethodCanBeStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic";  //$NON-NLS-1$
 	public static final String OPTION_ReportMethodCanBePotentiallyStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic";  //$NON-NLS-1$
 	public static final String OPTION_ReportRedundantSpecificationOfTypeArguments =  "org.eclipse.jdt.core.compiler.problem.redundantSpecificationOfTypeArguments"; //$NON-NLS-1$
@@ -386,6 +387,8 @@ public class CompilerOptions {
 	public boolean ignoreMethodBodies;
 	/** Raise null related warnings for variables tainted inside an assert statement (java 1.4 and above)*/
 	public boolean includeNullInfoFromAsserts;
+	/** Specify if fields are to be included in null analysis */
+	public boolean includeFieldsInNullAnalysis;
 	/** Controls whether forced generic type problems get reported  */
 	public boolean reportUnavoidableGenericTypeProblems;
 
@@ -1058,6 +1061,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportTasks, getSeverityString(Tasks));
 		optionsMap.put(OPTION_ReportUnusedObjectAllocation, getSeverityString(UnusedObjectAllocation));
 		optionsMap.put(OPTION_IncludeNullInfoFromAsserts, this.includeNullInfoFromAsserts ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_IncludeFieldsInNullAnalysis, this.includeFieldsInNullAnalysis ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportMethodCanBeStatic, getSeverityString(MethodCanBeStatic));
 		optionsMap.put(OPTION_ReportMethodCanBePotentiallyStatic, getSeverityString(MethodCanBePotentiallyStatic));
 		optionsMap.put(OPTION_ReportRedundantSpecificationOfTypeArguments, getSeverityString(RedundantSpecificationOfTypeArguments));
@@ -1226,6 +1230,9 @@ public class CompilerOptions {
 		
 		// allow null info from asserts to be considered downstream by default
 		this.includeNullInfoFromAsserts = false;
+		
+		// null analysis for fields
+		this.includeFieldsInNullAnalysis = false;
 		
 		this.isAnnotationBasedNullAnalysisEnabled = false;
 		this.nullableAnnotationName = DEFAULT_NULLABLE_ANNOTATION_NAME;
@@ -1450,6 +1457,13 @@ public class CompilerOptions {
 				this.includeNullInfoFromAsserts = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.includeNullInfoFromAsserts = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_IncludeFieldsInNullAnalysis)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.includeFieldsInNullAnalysis = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.includeFieldsInNullAnalysis = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
@@ -1742,6 +1756,7 @@ public class CompilerOptions {
 		buf.append("\n\t- missing @Deprecated annotation: ").append(getSeverityString(MissingDeprecatedAnnotation)); //$NON-NLS-1$
 		buf.append("\n\t- incomplete enum switch: ").append(getSeverityString(IncompleteEnumSwitch)); //$NON-NLS-1$
 		buf.append("\n\t- raise null related warnings for variables tainted in assert statements: ").append(this.includeNullInfoFromAsserts ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- include fields in null analysis: ").append(this.includeFieldsInNullAnalysis ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- suppress warnings: ").append(this.suppressWarnings ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- suppress optional errors: ").append(this.suppressOptionalErrors ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unhandled warning token: ").append(getSeverityString(UnhandledWarningToken)); //$NON-NLS-1$

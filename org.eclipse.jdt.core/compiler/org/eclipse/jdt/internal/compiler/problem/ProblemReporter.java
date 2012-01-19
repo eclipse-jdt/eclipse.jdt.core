@@ -109,6 +109,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -287,18 +288,26 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.VarargsArgumentNeedCast;
 
 		case IProblem.NullLocalVariableReference:
+		case IProblem.NullFieldReference:
 			return CompilerOptions.NullReference;
 
 		case IProblem.PotentialNullLocalVariableReference:
 		case IProblem.PotentialNullMessageSendReference:
+		case IProblem.PotentialNullFieldReference:
 			return CompilerOptions.PotentialNullReference;
 
 		case IProblem.RedundantLocalVariableNullAssignment:
+		case IProblem.RedundantFieldNullAssignment:
 		case IProblem.RedundantNullCheckOnNonNullLocalVariable:
 		case IProblem.RedundantNullCheckOnNullLocalVariable:
 		case IProblem.NonNullLocalVariableComparisonYieldsFalse:
 		case IProblem.NullLocalVariableComparisonYieldsFalse:
 		case IProblem.NullLocalVariableInstanceofYieldsFalse:
+		case IProblem.NullFieldInstanceofYieldsFalse:
+		case IProblem.RedundantNullCheckOnNonNullField:
+		case IProblem.RedundantNullCheckOnNullField:
+		case IProblem.NonNullFieldComparisonYieldsFalse:
+		case IProblem.NullFieldComparisonYieldsFalse:
 		case IProblem.RedundantNullCheckOnNonNullMessageSend:
 			return CompilerOptions.RedundantNullCheck;
 
@@ -5073,110 +5082,158 @@ public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, 
 	}
 }
 
-public void localVariableNonNullComparedToNull(LocalVariableBinding local, ASTNode location) {
-	int severity = computeSeverity(IProblem.NonNullLocalVariableComparisonYieldsFalse);
+public void variableNonNullComparedToNull(VariableBinding variable, ASTNode location) {
+	int problem;
+	if (variable instanceof FieldBinding) {
+		problem = IProblem.NonNullFieldComparisonYieldsFalse;
+	} else {
+		problem = IProblem.NonNullLocalVariableComparisonYieldsFalse;
+	}
+	int severity = computeSeverity(problem);
 	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(local.name)  };
+	String[] arguments = new String[] {new String(variable.name)  };
 	this.handle(
-		IProblem.NonNullLocalVariableComparisonYieldsFalse,
+		problem,
 		arguments,
 		arguments,
 		severity,
-		nodeSourceStart(local, location),
-		nodeSourceEnd(local, location));
+		nodeSourceStart(variable, location),
+		nodeSourceEnd(variable, location));
 }
 
-public void localVariableNullComparedToNonNull(LocalVariableBinding local, ASTNode location) {
-	int severity = computeSeverity(IProblem.NullLocalVariableComparisonYieldsFalse);
+public void variableNullComparedToNonNull(VariableBinding variable, ASTNode location) {
+	int problem;
+	if (variable instanceof FieldBinding) {
+		problem = IProblem.NullFieldComparisonYieldsFalse;
+	} else {
+		problem = IProblem.NullLocalVariableComparisonYieldsFalse;
+	}
+	int severity = computeSeverity(problem);
 	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(local.name)  };
+	String[] arguments = new String[] {new String(variable.name)  };
 	this.handle(
-		IProblem.NullLocalVariableComparisonYieldsFalse,
+		problem,
 		arguments,
 		arguments,
 		severity,
-		nodeSourceStart(local, location),
-		nodeSourceEnd(local, location));
+		nodeSourceStart(variable, location),
+		nodeSourceEnd(variable, location));
 }
 
-public void localVariableNullInstanceof(LocalVariableBinding local, ASTNode location) {
-	int severity = computeSeverity(IProblem.NullLocalVariableInstanceofYieldsFalse);
+public void variableNullInstanceof(VariableBinding variable, ASTNode location) {
+	int problem;
+	if (variable instanceof FieldBinding) {
+		problem = IProblem.NullFieldInstanceofYieldsFalse;
+	} else {
+		problem = IProblem.NullLocalVariableInstanceofYieldsFalse;
+	}
+	int severity = computeSeverity(problem);
 	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(local.name)  };
+	String[] arguments = new String[] {new String(variable.name)  };
 	this.handle(
-		IProblem.NullLocalVariableInstanceofYieldsFalse,
+		problem,
 		arguments,
 		arguments,
 		severity,
-		nodeSourceStart(local, location),
-		nodeSourceEnd(local, location));
+		nodeSourceStart(variable, location),
+		nodeSourceEnd(variable, location));
 }
 
-public void localVariableNullReference(LocalVariableBinding local, ASTNode location) {
-	int severity = computeSeverity(IProblem.NullLocalVariableReference);
+public void variableNullReference(VariableBinding variable, ASTNode location) {
+	int problem;
+	if (variable instanceof FieldBinding) {
+		problem = IProblem.NullFieldReference;
+	} else {
+		problem = IProblem.NullLocalVariableReference;
+	}
+	int severity = computeSeverity(problem);
 	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(local.name)  };
+	String[] arguments = new String[] {new String(variable.name)  };
 	this.handle(
-		IProblem.NullLocalVariableReference,
+		problem,
 		arguments,
 		arguments,
 		severity,
-		nodeSourceStart(local, location),
-		nodeSourceEnd(local, location));
+		nodeSourceStart(variable, location),
+		nodeSourceEnd(variable, location));
 }
 
-public void localVariablePotentialNullReference(LocalVariableBinding local, ASTNode location) {
-	int severity = computeSeverity(IProblem.PotentialNullLocalVariableReference);
+public void variablePotentialNullReference(VariableBinding variable, ASTNode location) {
+	int problem;
+	if (variable instanceof FieldBinding) {
+		problem = IProblem.PotentialNullFieldReference;
+	} else {
+		problem = IProblem.PotentialNullLocalVariableReference;
+	}
+	int severity = computeSeverity(problem);
 	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(local.name)};
+	String[] arguments = new String[] {new String(variable.name)};
 	this.handle(
-		IProblem.PotentialNullLocalVariableReference,
+		problem,
 		arguments,
 		arguments,
 		severity,
-		nodeSourceStart(local, location),
-		nodeSourceEnd(local, location));
+		nodeSourceStart(variable, location),
+		nodeSourceEnd(variable, location));
 }
 
-public void localVariableRedundantCheckOnNonNull(LocalVariableBinding local, ASTNode location) {
-	int severity = computeSeverity(IProblem.RedundantNullCheckOnNonNullLocalVariable);
+public void variableRedundantCheckOnNonNull(VariableBinding variable, ASTNode location) {
+	int problem;
+	if (variable instanceof FieldBinding) {
+		problem = IProblem.RedundantNullCheckOnNonNullField;
+	} else {
+		problem = IProblem.RedundantNullCheckOnNonNullLocalVariable;
+	}
+	int severity = computeSeverity(problem);
 	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(local.name)  };
+	String[] arguments = new String[] {new String(variable.name)  };
 	this.handle(
-		IProblem.RedundantNullCheckOnNonNullLocalVariable,
+		problem,
 		arguments,
 		arguments,
 		severity,
-		nodeSourceStart(local, location),
-		nodeSourceEnd(local, location));
+		nodeSourceStart(variable, location),
+		nodeSourceEnd(variable, location));
 }
 
-public void localVariableRedundantCheckOnNull(LocalVariableBinding local, ASTNode location) {
-	int severity = computeSeverity(IProblem.RedundantNullCheckOnNullLocalVariable);
+public void variableRedundantCheckOnNull (VariableBinding variable, ASTNode location) {
+	int problem;
+	if (variable instanceof FieldBinding) {
+		problem = IProblem.RedundantNullCheckOnNullField;
+	} else {
+		problem = IProblem.RedundantNullCheckOnNullLocalVariable;
+	}
+	int severity = computeSeverity(problem);
 	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(local.name)  };
+	String[] arguments = new String[] {new String(variable.name)  };
 	this.handle(
-		IProblem.RedundantNullCheckOnNullLocalVariable,
+		problem,
 		arguments,
 		arguments,
 		severity,
-		nodeSourceStart(local, location),
-		nodeSourceEnd(local, location));
+		nodeSourceStart(variable, location),
+		nodeSourceEnd(variable, location));
 }
 
-public void localVariableRedundantNullAssignment(LocalVariableBinding local, ASTNode location) {
+public void variableRedundantNullAssignment (VariableBinding variable, ASTNode location) {
 	if ((location.bits & ASTNode.FirstAssignmentToLocal) != 0) // https://bugs.eclipse.org/338303 - Warning about Redundant assignment conflicts with definite assignment
 		return;
-	int severity = computeSeverity(IProblem.RedundantLocalVariableNullAssignment);
+	int problem;
+	if (variable instanceof FieldBinding) {
+		problem = IProblem.RedundantFieldNullAssignment;
+	} else {
+		problem = IProblem.RedundantLocalVariableNullAssignment;
+	}
+	int severity = computeSeverity(problem);
 	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(local.name)  };
+	String[] arguments = new String[] {new String(variable.name)  };
 	this.handle(
-		IProblem.RedundantLocalVariableNullAssignment,
+		problem,
 		arguments,
 		arguments,
 		severity,
-		nodeSourceStart(local, location),
-		nodeSourceEnd(local, location));
+		nodeSourceStart(variable, location),
+		nodeSourceEnd(variable, location));
 }
 
 public void methodMustOverride(AbstractMethodDeclaration method, long complianceLevel) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -806,6 +806,20 @@ public LocalVariableBinding localVariableBinding() {
 	return null;
 }
 
+public VariableBinding variableBinding(Scope scope) {
+	switch (this.bits & ASTNode.RestrictiveFlagMASK) {
+		case Binding.FIELD : 
+			// reading a field
+			if (scope != null) {
+				CompilerOptions options = scope.compilerOptions();
+				if(!options.includeFieldsInNullAnalysis) return null;
+			}			
+			//$FALL-THROUGH$
+		case Binding.LOCAL : // reading a local variable
+			return (VariableBinding) this.binding;
+	}
+	return null;
+}
 public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 	//If inlinable field, forget the access emulation, the code gen will directly target it
 	if (((this.bits & ASTNode.DepthMASK) == 0) || (this.constant != Constant.NotAConstant)) {
@@ -858,11 +872,10 @@ public int nullStatus(FlowInfo flowInfo) {
 	}
 	switch (this.bits & ASTNode.RestrictiveFlagMASK) {
 		case Binding.FIELD : // reading a field
-			return FlowInfo.UNKNOWN;
 		case Binding.LOCAL : // reading a local variable
-			LocalVariableBinding local = (LocalVariableBinding) this.binding;
-			if (local != null)
-				return flowInfo.nullStatus(local);
+			VariableBinding variable = (VariableBinding) this.binding;
+			if (variable != null)
+				return flowInfo.nullStatus(variable);
 	}
 	return FlowInfo.NON_NULL; // never get there
 }

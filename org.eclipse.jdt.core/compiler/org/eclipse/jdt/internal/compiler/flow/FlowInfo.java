@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.IfStatement;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 public abstract class FlowInfo {
 
@@ -52,7 +53,7 @@ public abstract class FlowInfo {
 		DEAD_END = new UnconditionalFlowInfo();
 		DEAD_END.tagBits = UNREACHABLE;
 	}
-
+	
 /**
  * Add other inits to this flow info, then return this. The operation semantics
  * are to match as closely as possible the application to this flow info of all
@@ -94,39 +95,42 @@ abstract public FlowInfo addPotentialInitializationsFrom(FlowInfo otherInits);
 	}
 
 /**
- * Check whether a given local variable is known to be unable to gain a definite
+ * Check whether a given field or local variable is known to be unable to gain a definite
  * non null or definite null status by the use of an enclosing flow info. The
  * semantics are that if the current flow info marks the variable as potentially
  * unknown or else as being both potentially null and potentially non null,
  * then it won't ever be promoted as definitely null or definitely non null. (It
  * could still get promoted to definite unknown).
- * @param local the variable to check
- * @return true iff this flow info prevents local from being promoted to
+ * @param binding the field or local variable to check
+ * @return true iff this flow info prevents field or local from being promoted to
  *         definite non null or definite null against an enclosing flow info
  */
-public boolean cannotBeDefinitelyNullOrNonNull(LocalVariableBinding local) {
-	return isPotentiallyUnknown(local) ||
-		isPotentiallyNonNull(local) && isPotentiallyNull(local);
+public boolean cannotBeDefinitelyNullOrNonNull(VariableBinding binding) {
+	return isPotentiallyUnknown(binding) ||
+		isPotentiallyNonNull(binding) && isPotentiallyNull(binding);
 }
 
 /**
- * Check whether a given local variable is known to be non null, either because
+ * Check whether a given field or local variable is known to be non null, either because
  * it is definitely non null, or because is has been tested against non null.
- * @param local the variable to ckeck
- * @return true iff local cannot be null for this flow info
+ * @param binding the field or local to check
+ * @return true iff field or local cannot be null for this flow info
  */
-public boolean cannotBeNull(LocalVariableBinding local) {
-	return isDefinitelyNonNull(local) || isProtectedNonNull(local);
+public boolean cannotBeNull(VariableBinding binding) {
+	return isDefinitelyNonNull(binding) || isProtectedNonNull(binding);
 }
 
 /**
- * Check whether a given local variable is known to be null, either because it
- * is definitely null, or because is has been tested against null.
- * @param local the variable to ckeck
- * @return true iff local can only be null for this flow info
+ * Check whether a given field or local variable is known to be null, either because it
+ * is definitely null, or because is has been tested against null. Note that for fields, 
+ * this method only takes compile time analysis into account and there's no 
+ * guarantee of the field being definitely null during runtime
+ * since it can be modified in some other thread.
+ * @param binding the field or local to check
+ * @return true iff field or local can only be null for this flow info
  */
-public boolean canOnlyBeNull(LocalVariableBinding local) {
-	return isDefinitelyNull(local) || isProtectedNull(local);
+public boolean canOnlyBeNull(VariableBinding binding) {
+	return isDefinitelyNull(binding) || isProtectedNull(binding);
 }
 
 /**
@@ -138,6 +142,7 @@ public boolean canOnlyBeNull(LocalVariableBinding local) {
 	public static UnconditionalFlowInfo initial(int maxFieldCount) {
 		UnconditionalFlowInfo info = new UnconditionalFlowInfo();
 		info.maxFieldCount = maxFieldCount;
+		info.constantFieldsMask = 0L;
 		return info;
 	}
 
@@ -164,196 +169,202 @@ abstract public FlowInfo initsWhenFalse();
 	abstract public FlowInfo initsWhenTrue();
 
 	/**
-	 * Check status of definite assignment for a field.
+	 * Check status of definite assignment for a local or field.
 	 */
-	 abstract public boolean isDefinitelyAssigned(FieldBinding field);
+	 abstract public boolean isDefinitelyAssigned(VariableBinding var);
+
+/**
+ * Check status of definite non-null value for a given field or local variable. Note that for fields, this method only
+ * takes compile time analysis into account and there's no guarantee of the field being definitely non null during runtime
+ * since it can be modified in some other thread.
+ * @param binding the field or local to check
+ * @return true iff field or local is definitely non null for this flow info
+ */
+	public abstract boolean isDefinitelyNonNull(VariableBinding binding);
+
+/**
+ * Check status of definite null value for a given field or local variable. Note that for fields, this method only
+ * takes compile time analysis into account and there's no guarantee of the field being definitely null during runtime
+ * since it can be modified in some other thread.
+ * @param binding the field or local to check
+ * @return true iff field or local is definitely null for this flow info
+ */
+public abstract boolean isDefinitelyNull(VariableBinding binding);
+
+/**
+ * Check status of definite unknown value for a given field or local variable.
+ * @param binding the field or local to check
+ * @return true iff field or local is definitely unknown for this flow info
+ */
+public abstract boolean isDefinitelyUnknown(VariableBinding binding);
 
 	/**
-	 * Check status of definite assignment for a local.
-	 */
-	public abstract boolean isDefinitelyAssigned(LocalVariableBinding local);
-
-/**
- * Check status of definite non-null value for a given local variable.
- * @param local the variable to ckeck
- * @return true iff local is definitely non null for this flow info
- */
-	public abstract boolean isDefinitelyNonNull(LocalVariableBinding local);
-
-/**
- * Check status of definite null value for a given local variable.
- * @param local the variable to ckeck
- * @return true iff local is definitely null for this flow info
- */
-public abstract boolean isDefinitelyNull(LocalVariableBinding local);
-
-/**
- * Check status of definite unknown value for a given local variable.
- * @param local the variable to ckeck
- * @return true iff local is definitely unknown for this flow info
- */
-public abstract boolean isDefinitelyUnknown(LocalVariableBinding local);
-
-	/**
-	 * Check status of potential assignment for a field.
-	 */
-	 abstract public boolean isPotentiallyAssigned(FieldBinding field);
-
-	/**
-	 * Check status of potential assignment for a local variable.
+	 * Check status of potential assignment for a local variable or a field.
 	 */
 
-	 abstract public boolean isPotentiallyAssigned(LocalVariableBinding field);
+	 abstract public boolean isPotentiallyAssigned(VariableBinding var);
 
 /**
- * Check status of potential null assignment for a local. Return true if there
+ * Check status of potential null assignment for a field or local. Return true if there
  * is a reasonable expectation that the variable be non null at this point.
- * @param local LocalVariableBinding - the binding for the checked local
- * @return true if there is a reasonable expectation that local be non null at
+ * @param binding VariableBinding - the binding for the checked field or local
+ * @return true if there is a reasonable expectation that the field or local be non null at
  * this point
  */
-public abstract boolean isPotentiallyNonNull(LocalVariableBinding local);
+public abstract boolean isPotentiallyNonNull(VariableBinding binding);
 
 /**
- * Check status of potential null assignment for a local. Return true if there
+ * Check status of potential null assignment for a field or local. Return true if there
  * is a reasonable expectation that the variable be null at this point. This
  * includes the protected null case, so as to augment diagnostics, but does not
  * really check that someone deliberately assigned to null on any specific
  * path
- * @param local LocalVariableBinding - the binding for the checked local
- * @return true if there is a reasonable expectation that local be null at
+ * @param binding VariableBinding - the binding for the checked field or local
+ * @return true if there is a reasonable expectation that the field or local be null at
  * this point
  */
-public abstract boolean isPotentiallyNull(LocalVariableBinding local);
+public abstract boolean isPotentiallyNull(VariableBinding binding);
 
 /**
- * Return true if the given local may have been assigned to an unknown value.
- * @param local the local to check
- * @return true if the given local may have been assigned to an unknown value
+ * Return true if the given field or local may have been assigned to an unknown value.
+ * @param binding the field or local to check
+ * @return true if the given field or local may have been assigned to an unknown value
  */
-public abstract boolean isPotentiallyUnknown(LocalVariableBinding local);
+public abstract boolean isPotentiallyUnknown(VariableBinding binding);
 
 /**
- * Return true if the given local is protected by a test against a non null
+ * Return true if the given field or local is protected by a test against a non null
  * value.
- * @param local the local to check
- * @return true if the given local is protected by a test against a non null
+ * @param binding the field or local to check
+ * @return true if the given field or local is protected by a test against a non null
  */
-public abstract boolean isProtectedNonNull(LocalVariableBinding local);
+public abstract boolean isProtectedNonNull(VariableBinding binding);
 
 /**
- * Return true if the given local is protected by a test against null.
- * @param local the local to check
- * @return true if the given local is protected by a test against null
+ * Return true if the given field or local is protected by a test against null.
+ * @param binding the field or local to check
+ * @return true if the given field or local is protected by a test against null
  */
-public abstract boolean isProtectedNull(LocalVariableBinding local);
+public abstract boolean isProtectedNull(VariableBinding binding);
 
 /**
- * Record that a local variable got checked to be non null.
- * @param local the checked local variable
+ * Record that a field or local variable got checked to be non null.
+ * @param binding the checked field or local variable
  */
-abstract public void markAsComparedEqualToNonNull(LocalVariableBinding local);
+abstract public void markAsComparedEqualToNonNull(VariableBinding binding);
 
 /**
- * Record that a local variable got checked to be null.
- * @param local the checked local variable
+ * Record that a field or local variable got checked to be null.
+ * @param binding the checked field or local variable
  */
-abstract public void markAsComparedEqualToNull(LocalVariableBinding local);
+abstract public void markAsComparedEqualToNull(VariableBinding binding);
 
 	/**
-	 * Record a field got definitely assigned.
+	 * Record a field or local got definitely assigned to a non-null value.
 	 */
-	abstract public void markAsDefinitelyAssigned(FieldBinding field);
+	abstract public void markAsDefinitelyNonNull(VariableBinding binding);
 
 	/**
-	 * Record a local got definitely assigned to a non-null value.
+	 * Record a field or local got definitely assigned to null.
 	 */
-	abstract public void markAsDefinitelyNonNull(LocalVariableBinding local);
+	abstract public void markAsDefinitelyNull(VariableBinding binding);
 
 	/**
-	 * Record a local got definitely assigned to null.
+	 * Reset all null-information about a given field or local.
 	 */
-	abstract public void markAsDefinitelyNull(LocalVariableBinding local);
+	abstract public void resetNullInfo(VariableBinding binding);
 
 	/**
-	 * Reset all null-information about a given local.
+	 *  variant of {@link #resetNullInfo(VariableBinding)} for resetting null info for all fields
+	 *  Note that each fields status after the reset will become def. unknown i.e. 1001
+	 *  Also this method does not reset constant fields, which are identified by {@link #constantFieldsMask}
 	 */
-	abstract public void resetNullInfo(LocalVariableBinding local);
+	abstract public void resetNullInfoForFields();
+	
+	/**
+	 * exclude a new field from being reset by {@link #resetNullInfoForFields()}
+	 */
+	abstract public void updateConstantFieldsMask(FieldBinding field);
+	
+	/**
+	 * add the constant fields info from the other flow info
+	 */
+	abstract public void addConstantFieldsMask(UnconditionalFlowInfo other);
+	
+	/**
+	 * Record a field or local may have got assigned to unknown (set the bit on existing info).
+	 */
+	abstract public void markPotentiallyUnknownBit(VariableBinding binding);
 
 	/**
-	 * Record a local may have got assigned to unknown (set the bit on existing info).
+	 * Record a field or local may have got assigned to null (set the bit on existing info).
 	 */
-	abstract public void markPotentiallyUnknownBit(LocalVariableBinding local);
+	abstract public void markPotentiallyNullBit(VariableBinding binding);
 
 	/**
-	 * Record a local may have got assigned to null (set the bit on existing info).
+	 * Record a field or local may have got assigned to non-null (set the bit on existing info).
 	 */
-	abstract public void markPotentiallyNullBit(LocalVariableBinding local);
+	abstract public void markPotentiallyNonNullBit(VariableBinding binding);
 
 	/**
-	 * Record a local may have got assigned to non-null (set the bit on existing info).
+	 * Record a local or field got definitely assigned.
 	 */
-	abstract public void markPotentiallyNonNullBit(LocalVariableBinding local);
-
-	/**
-	 * Record a local got definitely assigned.
-	 */
-	abstract public void markAsDefinitelyAssigned(LocalVariableBinding local);
+	abstract public void markAsDefinitelyAssigned(VariableBinding var);
 
 /**
- * Record a local got definitely assigned to an unknown value.
+ * Record a field or local got definitely assigned to an unknown value.
  */
-abstract public void markAsDefinitelyUnknown(LocalVariableBinding local);
+abstract public void markAsDefinitelyUnknown(VariableBinding binding);
 
 /**
- * Mark the null status of the given local according to the given status
- * @param local
+ * Mark the null status of the given field or local according to the given status
+ * @param binding
  * @param nullStatus bitset of FLowInfo.UNKNOWN ... FlowInfo.POTENTIALLY_NON_NULL
  */
-public void markNullStatus(LocalVariableBinding local, int nullStatus) {
+public void markNullStatus(VariableBinding binding, int nullStatus) {
 	switch(nullStatus) {
 		// definite status?
 		case FlowInfo.UNKNOWN :
-			markAsDefinitelyUnknown(local);
+			markAsDefinitelyUnknown(binding);
 			break;
 		case FlowInfo.NULL :
-			markAsDefinitelyNull(local);
+			markAsDefinitelyNull(binding);
 			break;
 		case FlowInfo.NON_NULL :
-			markAsDefinitelyNonNull(local);
+			markAsDefinitelyNonNull(binding);
 			break;
 		default:
 			// collect potential status:
-			resetNullInfo(local);
+			resetNullInfo(binding);
 			if ((nullStatus & FlowInfo.POTENTIALLY_UNKNOWN) != 0)
-				markPotentiallyUnknownBit(local);
+				markPotentiallyUnknownBit(binding);
 			if ((nullStatus & FlowInfo.POTENTIALLY_NULL) != 0)
-				markPotentiallyNullBit(local);
+				markPotentiallyNullBit(binding);
 			if ((nullStatus & FlowInfo.POTENTIALLY_NON_NULL) != 0)
-				markPotentiallyNonNullBit(local);
+				markPotentiallyNonNullBit(binding);
 			if ((nullStatus & (FlowInfo.POTENTIALLY_NULL|FlowInfo.POTENTIALLY_NON_NULL|FlowInfo.POTENTIALLY_UNKNOWN)) == 0)
-				markAsDefinitelyUnknown(local);
+				markAsDefinitelyUnknown(binding);
 	}
 }
 
 /**
- * Answer the null status of the given local
- * @param local
+ * Answer the null status of the given field or local
+ * @param binding
  * @return bitset of FlowInfo.UNKNOWN ... FlowInfo.POTENTIALLY_NON_NULL
  */
-public int nullStatus(LocalVariableBinding local) {
-	if (isDefinitelyUnknown(local))
+public int nullStatus(VariableBinding binding) {
+	if (isDefinitelyUnknown(binding))
 		return FlowInfo.UNKNOWN;
-	if (isDefinitelyNull(local))
+	if (isDefinitelyNull(binding))
 		return FlowInfo.NULL;
-	if (isDefinitelyNonNull(local))
+	if (isDefinitelyNonNull(binding))
 		return FlowInfo.NON_NULL;
 	int status = 0;
-	if (isPotentiallyUnknown(local))
+	if (isPotentiallyUnknown(binding))
 		status |= FlowInfo.POTENTIALLY_UNKNOWN;
-	if (isPotentiallyNull(local))
+	if (isPotentiallyNull(binding))
 		status |= FlowInfo.POTENTIALLY_NULL;
-	if (isPotentiallyNonNull(local))
+	if (isPotentiallyNonNull(binding))
 		status |= FlowInfo.POTENTIALLY_NON_NULL;
 	if (status > 0)
 		return status;
@@ -601,14 +612,14 @@ abstract public UnconditionalFlowInfo unconditionalInitsWithoutSideEffect();
  * where this variable is being checked against null
  */
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
-abstract public void markedAsNullOrNonNullInAssertExpression(LocalVariableBinding local);
+abstract public void markedAsNullOrNonNullInAssertExpression(VariableBinding binding);
 
 /** 
  * Returns true if the local variable being checked for was marked as null or not null
  * inside an assert expression due to comparison against null.
  */
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
-abstract public boolean isMarkedAsNullOrNonNullInAssertExpression(LocalVariableBinding local);
+abstract public boolean isMarkedAsNullOrNonNullInAssertExpression(VariableBinding binding);
 
 /**
  * Resets the definite and potential initialization info for the given local variable

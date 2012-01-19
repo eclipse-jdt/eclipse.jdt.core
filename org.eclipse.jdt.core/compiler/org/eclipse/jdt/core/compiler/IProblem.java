@@ -1281,6 +1281,26 @@ void setSourceStart(int sourceStart);
     /** @since 3.4 */
     int UnusedTypeArgumentsForConstructorInvocation = MethodRelated + 660;
 
+    /**
+	 * Null analysis for fields
+	 */
+    /** @since 3.8*/
+	int NullFieldReference = Internal + FieldRelated + 670;
+	/** @since 3.8*/
+	int PotentialNullFieldReference = Internal + FieldRelated + 671;
+	/** @since 3.8*/
+	int RedundantNullCheckOnNullField = Internal + FieldRelated + 672;
+	/** @since 3.8*/
+	int NullFieldComparisonYieldsFalse = Internal + FieldRelated + 673;
+	/** @since 3.8*/
+	int RedundantNullCheckOnNonNullField = Internal + FieldRelated + 674;
+	/** @since 3.8*/
+	int NonNullFieldComparisonYieldsFalse = Internal + FieldRelated + 675;
+	/** @since 3.8*/
+	int RedundantFieldNullAssignment = Internal + FieldRelated + 676;
+	/** @since 3.8*/
+	int NullFieldInstanceofYieldsFalse = Internal + FieldRelated + 677;
+	
 	/**
 	 * Corrupted binaries
 	 */

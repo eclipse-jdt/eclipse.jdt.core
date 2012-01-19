@@ -116,6 +116,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		//               NullReferenceTest#test0510
 	}
 	manageSyntheticAccessIfNecessary(currentScope, flowInfo);
+	// a method call can result in changed values for fields, 
+	// so wipe out null info for fields collected till now.
+	CompilerOptions options = currentScope.compilerOptions();
+	if(options.includeFieldsInNullAnalysis)
+		flowInfo.resetNullInfoForFields();
 	return flowInfo;
 }
 public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
