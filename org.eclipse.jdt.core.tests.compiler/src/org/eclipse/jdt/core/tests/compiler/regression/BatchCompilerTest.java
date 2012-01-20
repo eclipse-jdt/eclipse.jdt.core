@@ -15,6 +15,7 @@
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *     							bug 359721 - [options] add command line option for new warning token "resource"
  *     							bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 365208 - [compiler][batch] command line options for annotation based null analysis
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -51,8 +52,33 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 	static final String JRE_HOME_DIR = Util.getJREDirectory();
 	private static final Main MAIN = new Main(null/*outWriter*/, null/*errWriter*/, false/*systemExit*/, null/*options*/, null/*progress*/);
 
+	private static final String NONNULL_BY_DEFAULT_ANNOTATION_CONTENT = "package org.eclipse.jdt.annotation;\n" +
+			"import static java.lang.annotation.ElementType.*;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Documented\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target({ PACKAGE, TYPE, METHOD, CONSTRUCTOR })\n" +
+			"public @interface NonNullByDefault{\n" +
+			"}";
+	private static final String NULLABLE_ANNOTATION_CONTENT = "package org.eclipse.jdt.annotation;\n" +
+			"import static java.lang.annotation.ElementType.*;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Documented\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target({ METHOD, PARAMETER })\n" +
+			"public @interface Nullable{\n" +
+			"}\n";
+	private static final String NONNULL_ANNOTATION_CONTENT = "package org.eclipse.jdt.annotation;\n" +
+			"import static java.lang.annotation.ElementType.*;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Documented\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target({ METHOD, PARAMETER })\n" +
+			"public @interface NonNull{\n" +
+			"}\n";
+
 	static {
-//		TESTS_NAMES = new String[] { "test295_warn_options" };
+//		TESTS_NAMES = new String[] { "test31" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -1614,6 +1640,8 @@ public void test012(){
         "    -enableJavadoc     consider references in javadoc\n" +
         "    -Xemacs            used to enable emacs-style output in the console.\n" +
         "                       It does not affect the xml log output\n" +
+        "    -nonNullByDefault  for annotation based null analysis assume nonnull\n" + 
+        "                       as the global default\n" + 
         " \n" +
         "    -? -help           print this help message\n" +
         "    -v -version        print compiler version\n" +
@@ -1702,6 +1730,9 @@ public void test012b(){
         "      nls                  string literal lacking non-nls tag //$NON-NLS-<n>$\n" + 
         "      noEffectAssign     + assignment without effect\n" + 
         "      null                 potential missing or redundant null check\n" + 
+        "      nullAnnot(<annot. names separated by |>) + annotation based null analysis,\n" +
+        "                           nullable|nonnull|nonnullbydefault annotation types\n" +
+        "                           optionally specified using fully qualified names\n" +
         "      nullDereference    + missing null check\n" + 
         "      nullFields    	  + null analysis for fields\n" + 
         "      over-ann             missing @Override annotation (superclass)\n" + 
@@ -12382,6 +12413,317 @@ public void test311_warn_options() {
 		"Potential null pointer access: The field o may be null at this location\n" + 
 		"----------\n" + 
 		"1 problem (1 warning)", 
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
+// -warn option - regression tests to check option nullAnnot (with args)
+// Null warnings because of annotations - custom annotation types used - challenging various kinds of diagnostics
+public void test312_warn_options() {
+	this.runConformTest(
+		new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"import java.lang.annotation.*;\n" +
+				"@SuppressWarnings(\"unused\")\n" +
+				"public class X {\n" +
+				"	public void test() { Object o = null; o.toString();}\n" +
+				"  @NonNull Object foo(@Nullable Object o, @NonNull Object o2) {\n" +
+				"    if (o.toString() == \"\"){ return null;}\n" +
+				"    if (o2 == null) {}\n" +
+				"    goo(null).toString();\n" +
+				"	 Object local = null;\n" +
+				"	 o.toString();\n" +
+				"	 return null;\n" +
+				"  }\n" +
+				"  @Nullable Object goo(@NonNull Object o2) {\n" +
+				"    return new Object();\n" +
+				"  }\n" +
+				"  @NonNullByDefault Object hoo(Object o2) {\n" +
+				"    if (o2 == null){}\n" +
+				"    if (o2 == null){\n" +
+				"	    return null;\n" +
+				"	 }\n" +
+				"	 return new Object();\n" +
+				"  }\n" +
+				"}\n" +
+				"@Documented\n" +
+				"@Retention(RetentionPolicy.CLASS)\n" +
+				"@Target({ METHOD, PARAMETER })\n" +
+				"@interface NonNull{\n" +
+				"}\n" +
+				"@Documented\n" +
+				"@Retention(RetentionPolicy.CLASS)\n" +
+				"@Target({ METHOD, PARAMETER })\n" +
+				"@interface Nullable{\n" +
+				"}\n" +
+				"@Documented\n" +
+				"@Retention(RetentionPolicy.CLASS)\n" +
+				"@Target({ PACKAGE, TYPE, METHOD, CONSTRUCTOR })\n" +
+				"@interface NonNullByDefault{\n" +
+				"}"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+//		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -warn:+nullAnnot(p.Nullable|p.NonNull|p.NonNullByDefault) -warn:+null -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)\n" + 
+		"	public void test() { Object o = null; o.toString();}\n" + 
+		"	                                      ^\n" + 
+		"Null pointer access: The variable o can only be null at this location\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" + 
+		"	if (o.toString() == \"\"){ return null;}\n" + 
+		"	    ^\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" + 
+		"	if (o.toString() == \"\"){ return null;}\n" + 
+		"	                                ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
+		"	if (o2 == null) {}\n" + 
+		"	    ^^\n" + 
+		"Null comparison always yields false: The variable o2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" + 
+		"	goo(null).toString();\n" + 
+		"	^^^^^^^^^\n" + 
+		"Potential null pointer access: The method goo(Object) may return null\n" + 
+		"----------\n" + 
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" + 
+		"	goo(null).toString();\n" + 
+		"	    ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 13)\n" + 
+		"	return null;\n" + 
+		"	       ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 19)\n" + 
+		"	if (o2 == null){}\n" + 
+		"	    ^^\n" + 
+		"Null comparison always yields false: The variable o2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"9. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 20)\n" + 
+		"	if (o2 == null){\n" + 
+		"	    ^^\n" + 
+		"Null comparison always yields false: The variable o2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"9 problems (9 warnings)", 
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
+// -warn option - regression tests to check option nullAnnot (no args)
+// Null warnings because of annotations, null spec violations
+public void test313_warn_options() {
+	this.runConformTest(
+		new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X {\n" +
+				"  @NonNull Object foo(@Nullable Object o, @NonNull Object o2) {\n" +
+				"	 return this;\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y extends X {\n" +
+				"    @Nullable Object foo(Object o, Object o2) { return null; }\n" +
+				"}\n",
+				"org/eclipse/jdt/annotation/NonNull.java",
+				NONNULL_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/Nullable.java",
+				NULLABLE_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/NonNullByDefault.java",				
+				NONNULL_BY_DEFAULT_ANNOTATION_CONTENT
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -warn:+nullAnnot -warn:-null -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
+		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with the @NonNull return from X.foo(Object, Object)\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
+		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
+		"	                     ^^^^^^\n" + 
+		"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
+		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
+		"	                               ^^^^^^\n" + 
+		"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" + 
+		"----------\n" + 
+		"3 problems (3 warnings)", 
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
+// -err option - regression tests to check option nullAnnot
+// Null warnings because of annotations, null spec violations configured as errors
+public void test314_warn_options() {
+	this.runNegativeTest(
+		new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X {\n" +
+				"  @NonNull Object foo(@Nullable Object o, @NonNull Object o2) {\n" +
+				"	 return this;\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y extends X {\n" +
+				"    @Nullable Object foo(Object o, Object o2) { return null; }\n" +
+				"}\n",
+				"org/eclipse/jdt/annotation/NonNull.java",
+				NONNULL_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/Nullable.java",
+				NULLABLE_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/NonNullByDefault.java",				
+				NONNULL_BY_DEFAULT_ANNOTATION_CONTENT
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -err:+nullAnnot -warn:-null -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
+		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with the @NonNull return from X.foo(Object, Object)\n" + 
+		"----------\n" + 
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
+		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
+		"	                     ^^^^^^\n" + 
+		"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" + 
+		"----------\n" + 
+		"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
+		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
+		"	                               ^^^^^^\n" + 
+		"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" + 
+		"----------\n" + 
+		"3 problems (3 errors)", 
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
+// -warn option - regression tests to check option nullAnnot
+// Null warnings because of annotations, global nonNullByDefault
+public void test315_warn_options() {
+	this.runConformTest(
+		new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"@SuppressWarnings(\"unused\")\n" +
+				"public class X {\n" +
+				"  Object foo(@Nullable Object o, Object o2) {\n" +
+				"    if (o.toString() == \"\"){ return null;}\n" +
+				"    if (o2 == null) {}\n" +
+				"    goo(null).toString();\n" +
+				"	 return null;\n" +
+				"  }\n" +
+				"  @Nullable Object goo(Object o2) {\n" +
+				"    return new Object();\n" +
+				"  }\n" +
+				"  @NonNullByDefault Object hoo(Object o2) {\n" + // redundant
+				"    if (o2 == null)\n" +
+				"	    return null;\n" +
+				"    return this;\n" +
+				"  }\n" +
+				"}\n",
+				"org/eclipse/jdt/annotation/NonNull.java",
+				NONNULL_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/Nullable.java",
+				NULLABLE_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/NonNullByDefault.java",				
+				NONNULL_BY_DEFAULT_ANNOTATION_CONTENT
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -warn:+nullAnnot -warn:+null -nonNullByDefault -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)\n" + 
+		"	if (o.toString() == \"\"){ return null;}\n" + 
+		"	    ^\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)\n" + 
+		"	if (o.toString() == \"\"){ return null;}\n" + 
+		"	                                ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 7)\n" + 
+		"	if (o2 == null) {}\n" + 
+		"	    ^^\n" + 
+		"Null comparison always yields false: The variable o2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" + 
+		"	goo(null).toString();\n" + 
+		"	^^^^^^^^^\n" + 
+		"Potential null pointer access: The method goo(Object) may return null\n" + 
+		"----------\n" + 
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" + 
+		"	goo(null).toString();\n" + 
+		"	    ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
+		"	return null;\n" + 
+		"	       ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 14)\n" + 
+		"	@NonNullByDefault Object hoo(Object o2) {\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Nullness default is redundant with the global default\n" + 
+		"----------\n" + 
+		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 15)\n" + 
+		"	if (o2 == null)\n" + 
+		"	    ^^\n" + 
+		"Null comparison always yields false: The variable o2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"8 problems (8 warnings)", 
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
+// -warn option - regression tests to check option nullAnnot
+// option syntax error
+public void test316_warn_options() {
+	this.runNegativeTest(
+		new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"@SuppressWarnings(\"unused\")\n" +
+				"public class X {}\n",
+				"org/eclipse/jdt/annotation/NonNull.java",
+				NONNULL_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/Nullable.java",
+				NULLABLE_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/NonNullByDefault.java",				
+				NONNULL_BY_DEFAULT_ANNOTATION_CONTENT
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -warn:+nullAnnot(foo|bar) -warn:+null -nonNullByDefault -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"Token nullAnnot(foo|bar) is not in the expected format \"nullAnnot(<non null annotation name> | <nullable annotation name> | <non-null by default annotation name>)\"\n", 
 		true);
 }
 }
