@@ -42,16 +42,98 @@
 	</td>
   </tr>
 </table>
+<a name="v_C30"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java development tools core</h1>
+Eclipse SDK 3.8.0 - January 20, 2012 - 3.8.0 M5
+<br>
+<h2>What's new in this drop</h2>
+<ul>
+<li>New constant for the name of the encoding to be used for source attachments in IClasspathAttribute (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=361356">361356</a> for details)
+<pre>
+	/**
+	 * Constant for the name of the encoding to be used for source attachments.
+	 *
+	 * &lt;p&gt;The value of this attribute has to be a string representation of a valid encoding. The encoding
+	 * for a source attachment is determined in the following order:  &lt;/p&gt;
+	 *
+	 * &lt;ul&gt;
+	 * &lt;li&gt; Encoding explicitly set on the source file (java or zip), i.e. <code>org.eclipse.core.resources.IFile#getCharset(false)</code> &lt;/li&gt;
+	 * &lt;li&gt; Encoding set on the corresponding classpath entry &lt;/li&gt;
+	 * &lt;li&gt; If the source attachment is a member of the project, then the project's default charSet&lt;/li&gt;
+	 * &lt;li&gt; Workspace default charSet &lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @since 3.8
+	 */
+	String SOURCE_ATTACHMENT_ENCODING = "source_encoding";
+</pre>
+</li>
+<li> New JavaCore option to control null analysis for fields
+<pre>
+	/**
+	 * Compiler option ID: Raise null related errors or warnings on fields.
+	 *
+	 * When enabled, the compiler will flag all null related errors or warnings that have been enabled by the user
+	 * on fields, in addition to local variables.
+	 * When disabled, the compiler will not flag null related errors or warnings on fields.
+	 * 
+	 * Option id:<code>"org.eclipse.jdt.core.compiler.problem.includeFieldsInNullAnalysis"</code>
+	 * Possible values:<code>{ "enabled", "disabled" }</code>
+	 * Default:<code>"disabled"</code>
+	 * 
+	 * @since 3.8
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_INCLUDE_FIELDS_IN_NULL_ANALYSIS = PLUGIN_ID + ".compiler.problem.includeFieldsInNullAnalysis";
+</pre>
+</li>
+<li> New IProblems for messages relating to null analysis for fields
+<pre>
+ 	/** @since 3.8*/
+	int NullFieldReference = Internal + FieldRelated + 670;
+	/** @since 3.8*/
+	int PotentialNullFieldReference = Internal + FieldRelated + 671;
+	/** @since 3.8*/
+	int RedundantNullCheckOnNullField = Internal + FieldRelated + 672;
+	/** @since 3.8*/
+	int NullFieldComparisonYieldsFalse = Internal + FieldRelated + 673;
+	/** @since 3.8*/
+	int RedundantNullCheckOnNonNullField = Internal + FieldRelated + 674;
+	/** @since 3.8*/
+	int NonNullFieldComparisonYieldsFalse = Internal + FieldRelated + 675;
+	/** @since 3.8*/
+	int RedundantFieldNullAssignment = Internal + FieldRelated + 676;
+	/** @since 3.8*/
+	int NullFieldInstanceofYieldsFalse = Internal + FieldRelated + 677;
+</pre>
+</li>
+</ul>
+<h3>Problem Reports Fixed</h3>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=361356">361356</a>
+Allow to specify encoding for source attachments
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368152">368152</a>
+ConcurrentModificationException on startup in ExternalFoldersManager.createPendingFolders
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=365582">365582</a>
+FUP of bug 361938: Other error code pattern
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=365662">365662</a>
+[compiler][null] warn on contradictory and redundant null annotations
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=247564">247564</a>
+[compiler][null] Detecting null field reference
+
 <a name="v_C29"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.8.0 - January 17, 2012 - 3.8.0 M5
+Eclipse SDK 3.8.0 - January 17, 2012
 <br>
 <h2>What's new in this drop</h2>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368709">368709</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368842">368842</a>
+test failure because test case refers to java.util.Objects
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368709">368709</a>
 Endless loop in FakedTrackingVariable.markPassedToOutside
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=361407">361407</a>
 Resource leak warning when resource is assigned to a field outside of constructor
@@ -531,8 +613,6 @@ java.lang.VerifyError on try-with-resources
 [1.5][compiler] ecj vs. javac differ for varargs overloading
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=362279">362279</a>
 ecj vs. javac differ for automatic boxing of implicitly converted types
-<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=343060">343060</a>
-Method.getMethods() returns different methods (compared to standard compiler) for public/non-public inheritance hierarchies
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=362591">362591</a>
 VerifyError: Inconsistent stackmap frames
 

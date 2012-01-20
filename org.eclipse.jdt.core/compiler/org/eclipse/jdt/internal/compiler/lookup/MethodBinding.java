@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 367203 - [compiler][null] detect assigning null to nonnull argument
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
+ *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -570,6 +571,13 @@ public long getAnnotationTagBits() {
 			AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(originalMethod);
 			if (methodDecl != null)
 				ASTNode.resolveAnnotations(methodDecl.scope, methodDecl.annotations, originalMethod);
+			long nullDefaultBits = this.tagBits & (TagBits.AnnotationNonNullByDefault|TagBits.AnnotationNullUnspecifiedByDefault);
+			if (nullDefaultBits != 0 && this.declaringClass instanceof SourceTypeBinding) {
+				SourceTypeBinding declaringSourceType = (SourceTypeBinding) this.declaringClass;
+				if (declaringSourceType.checkRedundantNullnessDefaultOne(methodDecl, methodDecl.annotations, nullDefaultBits)) {
+					declaringSourceType.checkRedundantNullnessDefaultRecurse(methodDecl, methodDecl.annotations, nullDefaultBits);
+				}
+			}
 		}
 	}
 	return originalMethod.tagBits;

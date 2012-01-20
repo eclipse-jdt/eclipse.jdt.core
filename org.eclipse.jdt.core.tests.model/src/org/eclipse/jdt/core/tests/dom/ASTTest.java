@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5265,6 +5265,16 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	 * @deprecated (Uses getLeadingComment() which is deprecated)
 	 */
 	public void testTryStatement() {
+		if (this.ast.apiLevel() <= AST.JLS3) {
+			// node type introduced in 4.0 API
+			try {
+				final TryStatement x = this.ast.newTryStatement();
+				x.resources();
+				assertTrue("should not be reached if jls level <= JLS3", false);
+			} catch (UnsupportedOperationException e) {
+				// pass
+			}
+		}
 		long previousCount = this.ast.modificationCount();
 		final TryStatement x = this.ast.newTryStatement();
 		assertTrue(this.ast.modificationCount() > previousCount);

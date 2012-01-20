@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3404,7 +3404,12 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 					setSeverity(CompilerOptions.OPTION_ReportRedundantNullCheck, ProblemSeverities.Ignore, isEnabling);
 				}
 				return;
-			}
+			} else if (token.equals("nullFields")) { //$NON-NLS-1$
+				this.options.put(
+						CompilerOptions.OPTION_IncludeFieldsInNullAnalysis,
+						isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+				return;
+			} 
 			break;
 		case 'o' :
 			if (token.equals("over-sync") /*|| token.equals("syncOverride")*/) { //$NON-NLS-1$ 

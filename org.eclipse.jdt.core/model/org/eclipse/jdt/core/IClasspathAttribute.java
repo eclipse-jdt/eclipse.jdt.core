@@ -70,6 +70,23 @@ public interface IClasspathAttribute {
 	String INDEX_LOCATION_ATTRIBUTE_NAME = "index_location"; //$NON-NLS-1$
 
 	/**
+	 * Constant for the name of the encoding to be used for source attachments.
+	 * 
+	 * <p>The value of this attribute has to be a string representation of a valid encoding. The encoding
+	 * for a source attachment is determined in the following order: </p>
+	 *
+	 * <ul>
+	 * <li>	Encoding explicitly set on the source file (java or zip), i.e. <code>org.eclipse.core.resources.IFile#getCharset(false)</code> </li>
+	 * <li>	Encoding set on the corresponding classpath entry </li>
+	 * <li> If the source attachment is a member of the project, then the project's default charSet</li>
+	 * <li> Workspace default charSet </li>
+	 * </ul>
+	 *
+	 * @since 3.8
+	 */
+	String SOURCE_ATTACHMENT_ENCODING = "source_encoding"; //$NON-NLS-1$
+
+	/**
 	 * Constant for the name of the optional attribute. The possible values
 	 * for this attribute are <code>"true"</code> or <code>"false"</code>.
 	 * When not present, <code>"false"</code> is assumed.

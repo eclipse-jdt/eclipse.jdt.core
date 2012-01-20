@@ -1271,6 +1271,15 @@ public class ClasspathEntry implements IClasspathEntry {
 		return false;
 	}
 
+	public String getSourceAttachmentEncoding() {
+		for (int i = 0, length = this.extraAttributes.length; i < length; i++) {
+			IClasspathAttribute attribute = this.extraAttributes[i];
+			if (IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING.equals(attribute.getName()))
+				return attribute.getValue();
+		}
+		return null;
+	}
+	
 	/**
 	 * Returns the kind of a <code>PackageFragmentRoot</code> from its <code>String</code> form.
 	 */

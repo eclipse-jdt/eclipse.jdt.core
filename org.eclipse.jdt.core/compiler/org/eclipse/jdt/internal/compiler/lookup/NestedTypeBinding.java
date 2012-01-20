@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,8 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for  bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
+
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 
 public class NestedTypeBinding extends SourceTypeBinding {
 
@@ -105,6 +109,17 @@ public SyntheticArgumentBinding addSyntheticArgumentAndField(ReferenceBinding ta
 	if (synthLocal.matchingField == null)
 		synthLocal.matchingField = addSyntheticFieldForInnerclass(targetEnclosingType);
 	return synthLocal;
+}
+
+protected void checkRedundantNullnessDefaultRecurse(ASTNode location, Annotation[] annotations, long annotationTagBits) {
+	ReferenceBinding currentType = this.enclosingType;
+	do {
+		if (!((SourceTypeBinding)currentType).checkRedundantNullnessDefaultOne(location, annotations, annotationTagBits)) {
+			return;
+		}
+		currentType = currentType.enclosingType();
+	} while (currentType instanceof SourceTypeBinding);
+	super.checkRedundantNullnessDefaultRecurse(location, annotations, annotationTagBits);
 }
 
 /* Answer the receiver's enclosing type... null if the receiver is a top level type.

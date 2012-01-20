@@ -154,11 +154,15 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	return computeChildren(info, underlyingResource);
 }
 
-SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) {
+SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) throws JavaModelException {
+	IClasspathEntry entry = ((JavaProject) getParent()).getClasspathEntryFor(getPath());
+	String encoding = (entry== null) ? null : ((ClasspathEntry) entry).getSourceAttachmentEncoding();
 	SourceMapper mapper = new SourceMapper(
 		sourcePath,
 		rootPath == null ? null : rootPath.toOSString(),
-		getJavaProject().getOptions(true)); // cannot use workspace options if external jar is 1.5 jar and workspace options are 1.4 options
+		getJavaProject().getOptions(true),// cannot use workspace options if external jar is 1.5 jar and workspace options are 1.4 options
+		encoding);
+
 	return mapper;
 }
 /*

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,9 +18,11 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -35,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 public class FieldReference extends Reference implements InvocationSite {
 
@@ -667,5 +670,23 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 		this.receiver.traverse(visitor, scope);
 	}
 	visitor.endVisit(this, scope);
+}
+
+public VariableBinding variableBinding(Scope scope) {
+	if (scope != null) {
+		CompilerOptions options = scope.compilerOptions();
+		if(!options.includeFieldsInNullAnalysis) return null;
+		if (this.receiver.isThis()) return this.binding;
+		if (this.binding != null && this.binding.isStatic()) {
+			// does the static field belong to the current type or one of the enclosing ones?
+			ClassScope enclosingClass = scope.enclosingClassScope();
+			while (enclosingClass != null) {
+				TypeDeclaration type = enclosingClass.referenceContext;
+				if (type != null && (this.binding.declaringClass.original() == type.binding)) return this.binding;
+				enclosingClass = enclosingClass.enclosingClassScope();
+			}
+		}
+	}
+	return null;
 }
 }

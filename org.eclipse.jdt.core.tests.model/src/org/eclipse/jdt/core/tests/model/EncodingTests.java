@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -62,7 +63,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug110576" };
+//		TESTS_NAMES = new String[] { "testBug361356" };
 //		TESTS_NUMBERS = new int[] { 2, 12 };
 //		TESTS_RANGE = new int[] { 16, -1 };
 	}
@@ -1217,7 +1218,256 @@ public class EncodingTests extends ModifyingResourceTests {
 			getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
 		}
 	}
-	
+	public void testBug361356() throws Exception {
+		String oldEncoding = this.encodingProject.getDefaultCharset();
+		try{
+			String encoding = "Shift-JIS";
+			if (wkspEncoding.equals(encoding))
+				getWorkspaceRoot().setDefaultCharset("UTF-8", null);
+			this.encodingProject.setDefaultCharset("UTF-8", null);
+			IJavaProject project = this.createJavaProject("Encoding2", new String[] {""}, "");
+			IFile zipFile = (IFile) this.encodingProject.findMember("testShiftJIS.zip"); //$NON-NLS-1$
+			IFile sourceFile = (IFile) this.encodingProject.findMember("src/testShiftJIS/A.java");
+			
+			IClasspathEntry[] entries = this.encodingJavaProject.getRawClasspath();
+			IClasspathEntry newEntry = null;
+			for (int index = 0; index < entries.length; index++) {
+				IClasspathEntry entry = entries[index];
+				if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
+					newEntry = entries[index]; 
+				}
+			}
+
+			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING, encoding);
+			project.setRawClasspath(new IClasspathEntry[]{JavaCore.newLibraryEntry(newEntry.getPath(), new Path("/Encoding/src"), null, null, new IClasspathAttribute[]{attribute}, false)}, null);
+			sourceFile.setCharset(null, null);
+			
+			IPackageFragmentRoot root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			ISourceReference sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			String source = sourceRef.getSource();
+			assertNotNull(source);
+			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			char[] charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+
+			attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING, "UTF-8");
+			project.setRawClasspath(new IClasspathEntry[]{JavaCore.newLibraryEntry(newEntry.getPath(), new Path("/Encoding/src"), null, null, new IClasspathAttribute[]{attribute}, false)}, null);
+			sourceFile.setCharset(encoding, null);
+			
+			root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			source = sourceRef.getSource();
+			assertNotNull(source);
+			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+
+			attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING, encoding);
+			project.setRawClasspath(new IClasspathEntry[]{JavaCore.newLibraryEntry(newEntry.getPath(), new Path("/Encoding/testShiftJIS.zip"), null, null, new IClasspathAttribute[]{attribute}, false)}, null);
+			zipFile.setCharset(null, null);
+			
+			root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			source = sourceRef.getSource();
+			assertNotNull(source);
+			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+
+			attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING, "UTF-8");
+			project.setRawClasspath(new IClasspathEntry[]{JavaCore.newLibraryEntry(newEntry.getPath(), new Path("/Encoding/testShiftJIS.zip"), null, null, new IClasspathAttribute[]{attribute}, false)}, null);
+			zipFile.setCharset(encoding, null);
+			
+			root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			source = sourceRef.getSource();
+			assertNotNull(source);
+			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+
+		}
+		finally {
+			this.encodingProject.setDefaultCharset(oldEncoding, null);
+			deleteProject("Encoding2");
+			getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
+		}		
+	}
+	public void testBug361356a() throws Exception {
+		String oldEncoding = this.encodingProject.getDefaultCharset();
+		try{
+			String encoding = "Shift-JIS";
+			if (wkspEncoding.equals(encoding))
+				getWorkspaceRoot().setDefaultCharset("UTF-8", null);
+			this.encodingProject.setDefaultCharset("UTF-8", null);
+			IJavaProject project = this.createJavaProject("Encoding2", new String[] {""}, "");
+			IFile zipFile = (IFile) this.encodingProject.findMember("testShiftJIS.zip"); //$NON-NLS-1$
+			IFile sourceFile = (IFile) this.encodingProject.findMember("src/testShiftJIS/A.java");
+			
+			IClasspathEntry[] entries = this.encodingJavaProject.getRawClasspath();
+			IClasspathEntry newEntry = null;
+			for (int index = 0; index < entries.length; index++) {
+				IClasspathEntry entry = entries[index];
+				if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
+					newEntry = entries[index]; 
+				}
+			}
+
+			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING, encoding);
+			attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING, encoding);
+			project.setRawClasspath(new IClasspathEntry[]{JavaCore.newLibraryEntry(newEntry.getPath(), new Path("/Encoding/testShiftJIS.zip"), null, null, new IClasspathAttribute[]{attribute}, false)}, null);
+			zipFile.setCharset(null, null);
+			
+			IPackageFragmentRoot root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			ISourceReference sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			String source = sourceRef.getSource();
+			assertNotNull(source);
+			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			char[] charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+
+			attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING, "UTF-8");
+			project.setRawClasspath(new IClasspathEntry[]{JavaCore.newLibraryEntry(newEntry.getPath(), new Path("/Encoding/testShiftJIS.zip"), null, null, new IClasspathAttribute[]{attribute}, false)}, null);
+			zipFile.setCharset(encoding, null);
+			
+			root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			source = sourceRef.getSource();
+			assertNotNull(source);
+			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+		}
+		finally {
+			this.encodingProject.setDefaultCharset(oldEncoding, null);
+			deleteProject("Encoding2");
+			getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
+		}		
+	}
+	public void testBug361356b() throws Exception {
+		String oldEncoding = this.encodingProject.getDefaultCharset();
+		File externalSourceZip = null;
+		File externalSource = null;
+		try{
+			String encoding = "Shift-JIS";
+			if (wkspEncoding.equals(encoding))
+				getWorkspaceRoot().setDefaultCharset("UTF-8", null);
+			this.encodingProject.setDefaultCharset("UTF-8", null);
+			IJavaProject project = this.createJavaProject("Encoding2", new String[] {""}, "");
+			IFile sourceFile = (IFile) this.encodingProject.findMember("src/testShiftJIS/A.java");
+			
+			File internalSourceZip = new File(getWorkspacePath(), "/Encoding/testShiftJIS.zip");
+			externalSourceZip = new File(getExternalPath(), "testShiftJIS.zip");
+			File internalSource = new File(getWorkspacePath(), "/Encoding/src");
+			externalSource = new File(getExternalPath(), "testShiftJIS");
+
+			copyDirectory(internalSource, externalSource);
+			copy(internalSourceZip, externalSourceZip);
+			
+			IClasspathEntry[] entries = this.encodingJavaProject.getRawClasspath();
+			IClasspathEntry newEntry = null;
+			for (int index = 0; index < entries.length; index++) {
+				IClasspathEntry entry = entries[index];
+				if (entry.getPath().toOSString().endsWith("testShiftJIS.jar")) {
+					newEntry = entries[index]; 
+				}
+			}
+
+			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING, encoding);
+			attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING, encoding);
+			project.setRawClasspath(new IClasspathEntry[]{JavaCore.newLibraryEntry(newEntry.getPath(), new Path(getExternalResourcePath("testShiftJIS.zip")), null, null, new IClasspathAttribute[]{attribute}, false)}, null);
+			
+			IPackageFragmentRoot root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			ISourceReference sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			String source = sourceRef.getSource();
+			assertNotNull(source);
+			String encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			char[] charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+
+			attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING, "UTF-8");
+			project.setRawClasspath(new IClasspathEntry[]{JavaCore.newLibraryEntry(newEntry.getPath(), new Path(getExternalResourcePath("testShiftJIS.zip")), null, null, new IClasspathAttribute[]{attribute}, false)}, null);
+			
+			root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			source = sourceRef.getSource();
+			assertNotNull(source);
+			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
+			assertFalse("Sources should not be decoded the same way", encodedContents.equals(source));
+			
+			attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING, encoding);
+			project.setRawClasspath(new IClasspathEntry[]{JavaCore.newLibraryEntry(newEntry.getPath(), new Path(getExternalResourcePath("testShiftJIS")), null, null, new IClasspathAttribute[]{attribute}, false)}, null);
+			sourceFile.setCharset(null, null);
+			
+			root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			source = sourceRef.getSource();
+			assertNotNull(source);
+			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
+			assertTrue("Sources should be decoded the same way", encodedContents.equals(source));
+
+			attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING, "UTF-8");
+			project.setRawClasspath(new IClasspathEntry[]{JavaCore.newLibraryEntry(newEntry.getPath(), new Path(getExternalResourcePath("testShiftJIS")), null, null, new IClasspathAttribute[]{attribute}, false)}, null);
+			sourceFile.setCharset(encoding, null);
+			
+			root = getPackageFragmentRoot("Encoding2", "testShiftJIS.jar");
+			sourceRef = root.getPackageFragment("testShiftJIS").getClassFile("A.class");
+			assertNotNull(sourceRef);
+			source = sourceRef.getSource();
+			assertNotNull(source);
+			encodedContents = new String (Util.getResourceContentsAsCharArray(sourceFile, encoding));
+			charArray = encodedContents.toCharArray();
+			encodedContents = new String(CharOperation.remove(charArray, '\r'));
+			charArray = source.toCharArray();
+			source = new String(CharOperation.remove(charArray, '\r'));
+			assertFalse("Sources should not be decoded the same way", encodedContents.equals(source));
+		}
+		finally {
+			if (externalSourceZip != null) externalSourceZip.delete();
+			if (externalSource != null) deleteExternalResource("testShiftJIS");
+			this.encodingProject.setDefaultCharset(oldEncoding, null);
+			deleteProject("Encoding2");
+			getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
+		}		
+	}
 	private void verifyUtf8BOM(IFile file) throws CoreException {
 		assertNull("File should not have any explicit charset", file.getCharset(false));
 		IContentDescription contentDescription = file.getContentDescription();
