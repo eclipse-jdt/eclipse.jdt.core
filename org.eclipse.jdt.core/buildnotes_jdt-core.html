@@ -122,11 +122,23 @@ Eclipse SDK 3.8.0 - January 20, 2012
 	int NullFieldInstanceofYieldsFalse = Internal + FieldRelated + 677;
 </pre>
 </li>
+<li> New IProblems for messages relating to contradictory or redundant null annotations
+<pre>
+	/** @since 3.8 */
+	int RedundantNullDefaultAnnotation = Internal + 925;
+	/** @since 3.8 */
+	int RedundantNullDefaultAnnotationPackage = Internal + 926;
+	/** @since 3.8 */
+	int RedundantNullDefaultAnnotationType = Internal + 927;
+	/** @since 3.8 */
+	int RedundantNullDefaultAnnotationMethod = Internal + 928;
+	/** @since 3.8 */
+	int ContradictoryNullAnnotations = Internal + 929;
+</pre>
+</li>
 </ul>
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=365208">365208</a>
-[compiler][batch] command line options for annotation based null analysis
-<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=361356">361356</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=361356">361356</a>
 Allow to specify encoding for source attachments
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368152">368152</a>
 ConcurrentModificationException on startup in ExternalFoldersManager.createPendingFolders
@@ -1193,7 +1205,6 @@ Eclipse SDK 3.8.0 - August 9, 2011
  * Returns the binding key of the declaring type of the element represented by this binding key. If the binding key
  * does not represent a member or if the member doesn't have a declaring type, returns <code>null</code>.
  * 
- * <p>
  * Note that only binding keys for references to methods and fields
  * are fully supported. The binding keys for declarations will not have type parameters.
  * 
