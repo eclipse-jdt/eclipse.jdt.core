@@ -70,6 +70,45 @@ Eclipse SDK 3.8.0 - %date% - 3.8.0 M5
 	String SOURCE_ATTACHMENT_ENCODING = "source_encoding";
 </pre>
 </li>
+<li> New JavaCore option to control null analysis for fields
+<pre>
+	/**
+	 * Compiler option ID: Raise null related errors or warnings on fields.
+	 *
+	 * When enabled, the compiler will flag all null related errors or warnings that have been enabled by the user
+	 * on fields, in addition to local variables.
+	 * When disabled, the compiler will not flag null related errors or warnings on fields.
+	 * 
+	 * Option id:<code>"org.eclipse.jdt.core.compiler.problem.includeFieldsInNullAnalysis"</code>
+	 * Possible values:<code>{ "enabled", "disabled" }</code>
+	 * Default:<code>"disabled"</code>
+	 * 
+	 * @since 3.8
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_INCLUDE_FIELDS_IN_NULL_ANALYSIS = PLUGIN_ID + ".compiler.problem.includeFieldsInNullAnalysis";
+</pre>
+</li>
+<li> New IProblems for messages relating to null analysis for fields
+<pre>
+ 	/** @since 3.8*/
+	int NullFieldReference = Internal + FieldRelated + 670;
+	/** @since 3.8*/
+	int PotentialNullFieldReference = Internal + FieldRelated + 671;
+	/** @since 3.8*/
+	int RedundantNullCheckOnNullField = Internal + FieldRelated + 672;
+	/** @since 3.8*/
+	int NullFieldComparisonYieldsFalse = Internal + FieldRelated + 673;
+	/** @since 3.8*/
+	int RedundantNullCheckOnNonNullField = Internal + FieldRelated + 674;
+	/** @since 3.8*/
+	int NonNullFieldComparisonYieldsFalse = Internal + FieldRelated + 675;
+	/** @since 3.8*/
+	int RedundantFieldNullAssignment = Internal + FieldRelated + 676;
+	/** @since 3.8*/
+	int NullFieldInstanceofYieldsFalse = Internal + FieldRelated + 677;
+</pre>
+</li>
 </ul>
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=361356">361356</a>
