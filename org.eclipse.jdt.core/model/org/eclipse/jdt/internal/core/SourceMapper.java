@@ -250,6 +250,7 @@ public class SourceMapper
 	 *Options to be used
 	 */
 	String encoding;
+	String defaultEncoding;
 	Map options;
 
 	/**
@@ -261,15 +262,19 @@ public class SourceMapper
 		this.areRootPathsComputed = false;
 	}
 
+	public SourceMapper(IPath sourcePath, String rootPath, Map options) {
+		this(sourcePath, rootPath, options, null);
+	}
 	/**
 	 * Creates a <code>SourceMapper</code> that locates source in the zip file
 	 * at the given location in the specified package fragment root.
 	 */
-	public SourceMapper(IPath sourcePath, String rootPath, Map options) {
+	public SourceMapper(IPath sourcePath, String rootPath, Map options, String encoding) {
 		this.areRootPathsComputed = false;
 		this.options = options;
+		this.encoding = encoding;
 		try {
-			this.encoding = ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
+			this.defaultEncoding = ResourcesPlugin.getWorkspace().getRoot().getDefaultCharset();
 		} catch (CoreException e) {
 			// use no encoding
 		}
@@ -1020,9 +1025,16 @@ public class SourceMapper
 			IResource res = ((IContainer)target).findMember(fullName);
 			if (res instanceof IFile) {
 				try {
-					source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile)res);
+					// Order of preference: charSet supplied, this.encoding or this.defaultEncoding in that order
+					try {
+						charSet = ((IFile) res).getCharset(this.encoding == null);
+					} catch (CoreException e) {
+						// Ignore
+					}
+					source = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray((IFile) res,
+									charSet == null ? (this.encoding == null ? this.defaultEncoding : this.encoding) : charSet);
 				} catch (JavaModelException e) {
-					// ignore
+					// Ignore
 				}
 			}
 		} else {
@@ -1030,7 +1042,7 @@ public class SourceMapper
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=303511
 				// For a resource inside the workspace, use the encoding set on the resource
 				if (target instanceof IFile)
-					charSet = ((IFile)target).getCharset();
+					charSet = ((IFile)target).getCharset(this.encoding == null);
 			} catch (CoreException e) {
 				// Ignore
 			}
@@ -1414,7 +1426,8 @@ public class SourceMapper
 		try {
 			byte[] bytes = Util.getZipEntryByteContent(entry, zip);
 			if (bytes != null) {
-				return Util.bytesToChar(bytes, charSet == null ? this.encoding : charSet);
+				// Order of preference: charSet supplied, this.encoding or this.defaultEncoding in that order
+				return Util.bytesToChar(bytes, charSet == null ? (this.encoding == null ? this.defaultEncoding : this.encoding) : charSet);
 			}
 		} catch (IOException e) {
 			// ignore

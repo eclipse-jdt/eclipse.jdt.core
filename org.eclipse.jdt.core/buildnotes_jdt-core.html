@@ -49,9 +49,32 @@ Java development tools core</h1>
 Eclipse SDK 3.8.0 - %date% - 3.8.0 M5
 <br>
 <h2>What's new in this drop</h2>
-
+<ul>
+<li>New constant for the name of the encoding to be used for source attachments in IClasspathAttribute (see bug <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=361356">361356</a> for details)
+<pre>
+	/**
+	 * Constant for the name of the encoding to be used for source attachments.
+	 *
+	 * &lt;p&gt;The value of this attribute has to be a string representation of a valid encoding. The encoding
+	 * for a source attachment is determined in the following order:  &lt;/p&gt;
+	 *
+	 * &lt;ul&gt;
+	 * &lt;li&gt; Encoding explicitly set on the source file (java or zip), i.e. <code>org.eclipse.core.resources.IFile#getCharset(false)</code> &lt;/li&gt;
+	 * &lt;li&gt; Encoding set on the corresponding classpath entry &lt;/li&gt;
+	 * &lt;li&gt; If the source attachment is a member of the project, then the project's default charSet&lt;/li&gt;
+	 * &lt;li&gt; Workspace default charSet &lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @since 3.8
+	 */
+	String SOURCE_ATTACHMENT_ENCODING = "source_encoding";
+</pre>
+</li>
+</ul>
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368152">368152</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=361356">361356</a>
+Allow to specify encoding for source attachments
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368152">368152</a>
 ConcurrentModificationException on startup in ExternalFoldersManager.createPendingFolders
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=365582">365582</a>
 FUP of bug 361938: Other error code pattern
