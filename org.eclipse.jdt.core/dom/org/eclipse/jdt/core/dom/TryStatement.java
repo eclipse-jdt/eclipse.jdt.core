@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -352,7 +352,7 @@ public class TryStatement extends Statement {
 	 */
 	public List resources() {
 		// more efficient than just calling unsupportedIn2_3() to check
-		if (this.resources != null) {
+		if (this.resources == null) {
 			unsupportedIn2_3();
 		}
 		return this.resources;
