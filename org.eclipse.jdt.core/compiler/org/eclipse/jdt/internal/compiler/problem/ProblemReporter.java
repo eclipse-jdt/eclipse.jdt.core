@@ -5141,10 +5141,10 @@ public void variableNullComparedToNonNull(VariableBinding variable, ASTNode loca
  * @param checkForNull true if checking for null, false if checking for nonnull 
  */
 public boolean expressionNonNullComparison(Expression expr, boolean checkForNull) {
-	int problemId;
-	Binding binding;
-	String[] arguments;
-	int start, end;
+	int problemId = 0;
+	Binding binding = null;
+	String[] arguments = null;
+	int start = 0, end = 0;
 
 	Expression location = expr;
 	// unwrap uninteresting nodes:
@@ -5192,12 +5192,7 @@ public boolean expressionNonNullComparison(Expression expr, boolean checkForNull
 			|| expr instanceof ArrayInitializer
 			|| expr instanceof ClassLiteralAccess
 			|| expr instanceof ThisReference) {
-		problemId = checkForNull 
-				? IProblem.NonNullExpressionComparisonYieldsFalse
-				: IProblem.RedundantNullCheckOnNonNullExpression;
-		start = location.sourceStart;
-		end = location.sourceEnd;
-		arguments = NoArgument;
+		// fall through
 	} else if (expr instanceof Literal) {
 		if (expr instanceof NullLiteral) {
 			needImplementation(location); // reported as nonnull??
@@ -5207,18 +5202,28 @@ public boolean expressionNonNullComparison(Expression expr, boolean checkForNull
 			// false alarm, auto(un)boxing is involved
 			return false;
 		}
-		problemId = checkForNull 
-				? IProblem.NonNullExpressionComparisonYieldsFalse
-				: IProblem.RedundantNullCheckOnNonNullExpression;
-		start = location.sourceStart;
-		end = location.sourceEnd;
-		arguments = NoArgument;
+		// fall through
+	} else if (expr instanceof BinaryExpression) {
+		if ((expr.bits & ASTNode.ReturnTypeIDMASK) != TypeIds.T_JavaLangString) {
+			// false alarm, primitive types involved, must be auto(un)boxing?
+			return false;
+		}
+		// fall through
 	} else if (expr instanceof ConditionalExpression) {
 		needImplementation(location); // TODO
 		return false;
 	} else {
 		needImplementation(expr);
 		return false;
+	}
+	if (problemId == 0) {
+		// standard case, fill in details now
+		problemId = checkForNull 
+				? IProblem.NonNullExpressionComparisonYieldsFalse
+				: IProblem.RedundantNullCheckOnNonNullExpression;
+		start = location.sourceStart;
+		end = location.sourceEnd;
+		arguments = NoArgument;
 	}
 	this.handle(problemId, arguments, arguments, start, end);
 	return true;
