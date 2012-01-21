@@ -101,6 +101,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
@@ -116,6 +117,7 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -3888,6 +3890,7 @@ public final class JavaCore extends Plugin {
 				monitor.subTask(Messages.javamodel_resetting_source_attachment_properties);
 			final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
 			HashSet visitedPaths = new HashSet();
+			HashSet externalPaths = new HashSet();
 			ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
 			for (int i = 0, length = projects.length; i < length; i++) {
 				JavaProject javaProject = (JavaProject) projects[i];
@@ -3911,19 +3914,32 @@ public final class JavaCore extends Plugin {
 						if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 							IPath entryPath = entry.getPath();
 							if (ExternalFoldersManager.isExternalFolderPath(entryPath) && externalFoldersManager.getFolder(entryPath) == null) {
-								externalFoldersManager.addFolder(entryPath, true);
+								externalPaths.add(entryPath);
 							}
 						}
 					}
 				}
 			}
+			
+			ISchedulingRule rule = null;
 			try {
+				// Use a schedule rule to avoid a race condition (https://bugs.eclipse.org/bugs/show_bug.cgi?id=369251)
+				rule = ResourcesPlugin.getWorkspace().getRuleFactory().modifyRule(externalFoldersManager.getExternalFoldersProject());
+				Job.getJobManager().beginRule(rule, monitor);
+				
+				Iterator externalPathIter = externalPaths.iterator();
+				while (externalPathIter.hasNext()) {
+					externalFoldersManager.addFolder((IPath) externalPathIter.next(), true);
+				}
 				externalFoldersManager.createPendingFolders(monitor);
-			}
-			catch(JavaModelException jme) {
+				
+			} catch (JavaModelException jme) {
 				// Creation of external folder project failed. Log it and continue;
 				Util.log(jme, "Error while processing external folders"); //$NON-NLS-1$
+			} finally {
+				Job.getJobManager().endRule(rule);
 			}
+			
 			// initialize delta state
 			if (monitor != null)
 				monitor.subTask(Messages.javamodel_initializing_delta_state);
