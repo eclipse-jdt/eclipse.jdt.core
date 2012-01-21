@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,10 +29,21 @@ public NameReference() {
 	this.bits |= Binding.TYPE | Binding.VARIABLE; // restrictiveFlag
 }
 
+/** 
+ * Use this method only when sure that the current reference is <strong>not</strong>
+ * a chain of several fields (QualifiedNameReference with more than one field).
+ * Otherwise use {@link #lastFieldBinding()}.
+ */
 public FieldBinding fieldBinding() {
 	//this method should be sent ONLY after a check against isFieldReference()
 	//check its use doing senders.........
 	return (FieldBinding) this.binding ;
+}
+
+public FieldBinding lastFieldBinding() {
+	if ((this.bits & ASTNode.RestrictiveFlagMASK) == Binding.FIELD)
+		return fieldBinding(); // most subclasses only refer to one field anyway
+	return null;
 }
 
 public boolean isSuperAccess() {

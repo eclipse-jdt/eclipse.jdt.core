@@ -1306,7 +1306,9 @@ public void markAsDefinitelyNonNull(VariableBinding var) {
     	int position;
     	// position is zero-based
     	if (var instanceof FieldBinding) {
-			if ((var.modifiers & AccConstant) == AccConstant) {
+			if ((var.modifiers & AccConstant) == AccConstant
+				|| (var.tagBits & TagBits.AnnotationNonNull) != 0) {
+				// record precise info for constant and @NonNull fields
 				position = var.getAnalysisId(this.maxFieldCount);
 			} else {
 	    		// non-final fields may be modified in separate threads and we cannot be sure about their
@@ -1518,22 +1520,23 @@ public void resetNullInfo(VariableBinding var) {
 	}
 }
 
-public void resetNullInfoForFields() {
+public void resetNullInfoForFields(UnconditionalFlowInfo fieldResetFlow) {
 	if (this != DEAD_END) {
 		long mask = this.maxFieldCount < BitCacheSize ? (-1L << this.maxFieldCount) : 0L; 
-		mask |= this.constantFieldsMask;
+		mask |= fieldResetFlow.constantFieldsMask;
 		// first reset normal bits:
-		this.nullBit1 |= ~mask;
-		this.nullBit2 &= mask;
-		this.nullBit3 &= mask;
-		this.nullBit4 |= ~mask;
+		this.nullBit1 = (this.nullBit1 & mask) | fieldResetFlow.nullBit1;
+		this.nullBit2 = (this.nullBit2 & mask) | fieldResetFlow.nullBit2;
+		this.nullBit3 = (this.nullBit3 & mask) | fieldResetFlow.nullBit3;
+		this.nullBit4 = (this.nullBit4 & mask) | fieldResetFlow.nullBit4;
+
 		if (this.maxFieldCount >= BitCacheSize && this.extra != null) {
 			// use extra vector
 			int localsStartIndex = this.maxFieldCount/BitCacheSize - 1;
 			int localsStartOffset = this.maxFieldCount % BitCacheSize;
-			if (this.extraConstantFieldMask != null){
-				for (int vectorIndex = 0; vectorIndex < this.extra[2].length; vectorIndex++) {
-				    if (vectorIndex >= this.extraConstantFieldMask.length) {
+			for (int vectorIndex = 0; vectorIndex < this.extra[2].length; vectorIndex++) {
+				if (fieldResetFlow.extraConstantFieldMask != null) {
+				    if (vectorIndex >= fieldResetFlow.extraConstantFieldMask.length) {
 				    	// no constant fields after this, just mask all fields
 				    	if (vectorIndex == localsStartIndex) {
 				    		// some locals, some fields at this vectorIndex
@@ -1545,35 +1548,37 @@ public void resetNullInfoForFields() {
 				    } else {
 				    	if (vectorIndex == localsStartIndex) {
 				    		// some locals, some fields at this vectorIndex
-				    		mask = ((-1 << localsStartOffset) | this.extraConstantFieldMask[vectorIndex]);
+				    		mask = ((-1 << localsStartOffset) | fieldResetFlow.extraConstantFieldMask[vectorIndex]);
 				    	} else {
 				    		// all fields here
-				    		mask = 0L | this.extraConstantFieldMask[vectorIndex];
+				    		mask = 0L | fieldResetFlow.extraConstantFieldMask[vectorIndex];
 				    	}
 				    	
 				    }
-					this.extra[2][vectorIndex]
-					    |= ~mask;
-					this.extra[3][vectorIndex] &= mask;
-					this.extra[4][vectorIndex] &= mask;
-					this.extra[5][vectorIndex] |= ~mask;
+				} else {
+					if (vectorIndex == localsStartIndex) {
+						// some locals, some fields at this vectorIndex
+						mask = -1L << localsStartOffset;
+					} else {
+						// all fields here
+						mask = 0L;
+					}
 				}
-			} else {
-				// no constant fields
-				for (int vectorIndex = 0; vectorIndex < this.extra[2].length; vectorIndex++) {
-				    if (vectorIndex == localsStartIndex) {
-				    	// some locals, some fields at this vectorIndex
-				    	mask = -1L << localsStartOffset;
-				    } else {
-				    	// all fields here
-				    	mask = 0L;
-				    }
-					this.extra[2][vectorIndex]
-					    |= ~mask;
-					this.extra[3][vectorIndex] &= mask;
-					this.extra[4][vectorIndex] &= mask;
-					this.extra[5][vectorIndex] |= ~mask;
-				}
+			    long reset1, reset2, reset3, reset4;
+			    if (fieldResetFlow.extra != null && fieldResetFlow.extra[2].length > vectorIndex) {
+			    	reset1 = fieldResetFlow.extra[2][vectorIndex];
+			    	reset2 = fieldResetFlow.extra[3][vectorIndex];
+			    	reset3 = fieldResetFlow.extra[4][vectorIndex];
+			    	reset4 = fieldResetFlow.extra[5][vectorIndex];
+			    } else {
+			    	// no status recorded in fieldResetFlow, use def unknown instead:
+			    	reset1 = reset4 = 1;
+			    	reset2 = reset3 = 0;
+			    }
+				this.extra[2][vectorIndex] = (this.extra[2][vectorIndex] & mask) | reset1;
+				this.extra[3][vectorIndex] = (this.extra[3][vectorIndex] & mask) | reset2;
+				this.extra[4][vectorIndex] = (this.extra[4][vectorIndex] & mask) | reset3;
+				this.extra[5][vectorIndex] = (this.extra[5][vectorIndex] & mask) | reset4;
 			}
 		}
 	}

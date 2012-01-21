@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -103,7 +103,7 @@ protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, Flow
 			&& (var.tagBits & TagBits.AnnotationNonNull) != 0
 			&& nullStatus != FlowInfo.NON_NULL) {
 		flowContext.recordNullityMismatch(currentScope, expression, nullStatus, var.type);
-		nullStatus=FlowInfo.NON_NULL;
+		nullStatus=FlowInfo.NON_NULL; // @NonNull variable is still considered nonnull even after erroneous assignment
 	}
 	return nullStatus;
 }

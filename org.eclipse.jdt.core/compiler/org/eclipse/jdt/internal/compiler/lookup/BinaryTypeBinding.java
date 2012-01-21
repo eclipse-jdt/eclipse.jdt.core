@@ -450,6 +450,12 @@ private void createFields(IBinaryField[] iFields, long sourceLevel, char[][][] m
 					this.fields[i].setAnnotations(createAnnotations(binaryField.getAnnotations(), this.environment, missingTypeNames));
 				}
 			}
+			if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+				for (int i = 0; i <size; i++) {
+					IBinaryField binaryField = iFields[i];
+					scanFieldForNullAnnotation(binaryField, this.fields[i]);
+				}
+			}
 		}
 	}
 }
@@ -1160,6 +1166,33 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize) {
 	}
 	return this.storedAnnotations;
 }
+
+void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBinding) {
+	// global option is checked by caller
+	char[][] nullableAnnotationName = this.environment.getNullableAnnotationName();
+	char[][] nonNullAnnotationName = this.environment.getNonNullAnnotationName();
+	if (nullableAnnotationName == null || nonNullAnnotationName == null)
+		return; // not well-configured to use null annotations
+
+	IBinaryAnnotation[] annotations = field.getAnnotations();
+	if (annotations != null) {
+		for (int i = 0; i < annotations.length; i++) {
+			char[] annotationTypeName = annotations[i].getTypeName();
+			if (annotationTypeName[0] != Util.C_RESOLVED)
+				continue;
+			char[][] typeName = CharOperation.splitOn('/', annotationTypeName, 1, annotationTypeName.length-1); // cut of leading 'L' and trailing ';'
+			if (CharOperation.equals(typeName, nonNullAnnotationName)) {
+				fieldBinding.tagBits |= TagBits.AnnotationNonNull;
+				break;
+			}
+			if (CharOperation.equals(typeName, nullableAnnotationName)) {
+				fieldBinding.tagBits |= TagBits.AnnotationNullable;
+				break;
+			}
+		}
+	}	
+}
+
 void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBinding) {
 	if (!this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
 		return;

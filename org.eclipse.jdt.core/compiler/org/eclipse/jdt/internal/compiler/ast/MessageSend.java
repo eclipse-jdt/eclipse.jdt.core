@@ -119,14 +119,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	// a method call can result in changed values for fields, 
 	// so wipe out null info for fields collected till now.
 	CompilerOptions options = currentScope.compilerOptions();
-	if(options.includeFieldsInNullAnalysis)
-		flowInfo.resetNullInfoForFields();
+	if(options.includeFieldsInNullAnalysis || options.isAnnotationBasedNullAnalysisEnabled)
+		flowInfo.resetNullInfoForFields(currentScope.classScope().fieldResetFlowInfo);
 	return flowInfo;
 }
-public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
-	super.checkNPE(scope, flowContext, flowInfo);
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
 	if ((nullStatus(flowInfo) & FlowInfo.POTENTIALLY_NULL) != 0)
 		scope.problemReporter().messageSendPotentialNullReference(this.binding, this);
+	return true; // done all possible checking
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.ast.Expression#computeConversion(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
