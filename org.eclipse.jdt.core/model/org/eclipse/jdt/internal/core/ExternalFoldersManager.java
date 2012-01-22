@@ -122,7 +122,7 @@ public class ExternalFoldersManager {
 		} while (result.exists());
 		if (scheduleForCreation) {
 			if (this.pendingFolders == null)
-				this.pendingFolders = Collections.synchronizedSet(new HashSet());
+				this.pendingFolders = new HashSet();
 			this.pendingFolders.add(externalFolderPath);
 		}
 		knownFolders.put(externalFolderPath, result);
@@ -166,15 +166,13 @@ public class ExternalFoldersManager {
 		catch(CoreException e) {
 			throw new JavaModelException(e);
 		}
-		synchronized (this.pendingFolders) {
-			Iterator iterator = this.pendingFolders.iterator();
-			while (iterator.hasNext()) {
-				Object folderPath = iterator.next();
-				try {
-					createLinkFolder((IPath) folderPath, false, externalFoldersProject, monitor);
-				} catch (CoreException e) {
-					Util.log(e, "Error while creating a link for external folder :" + folderPath); //$NON-NLS-1$
-				}
+		Iterator iterator = this.pendingFolders.iterator();
+		while (iterator.hasNext()) {
+			Object folderPath = iterator.next();
+			try {
+				createLinkFolder((IPath) folderPath, false, externalFoldersProject, monitor);
+			} catch (CoreException e) {
+				Util.log(e, "Error while creating a link for external folder :" + folderPath); //$NON-NLS-1$
 			}
 		}
 		this.pendingFolders.clear();
