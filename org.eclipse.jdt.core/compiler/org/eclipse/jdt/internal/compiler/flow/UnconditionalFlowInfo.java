@@ -1531,8 +1531,9 @@ public void resetNullInfoForFields() {
 			// use extra vector
 			int localsStartIndex = this.maxFieldCount/BitCacheSize - 1;
 			int localsStartOffset = this.maxFieldCount % BitCacheSize;
+			int len = Math.min(localsStartIndex+1, this.extra[2].length);
 			if (this.extraConstantFieldMask != null){
-				for (int vectorIndex = 0; vectorIndex < this.extra[2].length; vectorIndex++) {
+				for (int vectorIndex = 0; vectorIndex < len; vectorIndex++) {
 				    if (vectorIndex >= this.extraConstantFieldMask.length) {
 				    	// no constant fields after this, just mask all fields
 				    	if (vectorIndex == localsStartIndex) {
@@ -1560,7 +1561,7 @@ public void resetNullInfoForFields() {
 				}
 			} else {
 				// no constant fields
-				for (int vectorIndex = 0; vectorIndex < this.extra[2].length; vectorIndex++) {
+				for (int vectorIndex = 0; vectorIndex < len; vectorIndex++) {
 				    if (vectorIndex == localsStartIndex) {
 				    	// some locals, some fields at this vectorIndex
 				    	mask = -1L << localsStartOffset;
@@ -1613,11 +1614,15 @@ public void addConstantFieldsMask(UnconditionalFlowInfo other) {
     	int otherLen = other.extraConstantFieldMask.length;
     	if (this.extraConstantFieldMask != null) {
     		oldLength = this.extraConstantFieldMask.length;
-	    	if (otherLen >= (oldLength = this.extraConstantFieldMask.length)) {
+	    	if (otherLen > (oldLength = this.extraConstantFieldMask.length)) {
 				System.arraycopy(this.extraConstantFieldMask, 0, (this.extraConstantFieldMask = new long[otherLen]), 0, oldLength);
-			}
-	    	for (int i = 0; i < this.extraConstantFieldMask.length; i++) {
-				this.extraConstantFieldMask[i] |= other.extraConstantFieldMask[i];
+				for (int i = 0; i < oldLength; i++) {
+					this.extraConstantFieldMask[i] |= other.extraConstantFieldMask[i];
+				}
+			} else {
+				for (int i = 0; i < otherLen; i++) {
+					this.extraConstantFieldMask[i] |= other.extraConstantFieldMask[i];
+				}
 			}
     	} else {
     		this.extraConstantFieldMask = new long[otherLen];
