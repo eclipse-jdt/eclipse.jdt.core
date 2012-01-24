@@ -3531,9 +3531,6 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			} else if (token.equals("static-method")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportMethodCanBeStatic, severity, isEnabling);
 				return;
-			} else if (token.equals("syncOverride")) { //$NON-NLS-1$
-				setSeverity(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, severity, isEnabling);
-				return;
 			}
 			break;
 		case 't' :
