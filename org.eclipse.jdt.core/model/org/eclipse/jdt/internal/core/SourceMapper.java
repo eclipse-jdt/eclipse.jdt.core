@@ -246,11 +246,11 @@ public class SourceMapper
 	int anonymousCounter;
 	int anonymousClassName;
 
+	String encoding;
+	String defaultEncoding;
 	/**
 	 *Options to be used
 	 */
-	String encoding;
-	String defaultEncoding;
 	Map options;
 
 	/**
@@ -1027,6 +1027,7 @@ public class SourceMapper
 				try {
 					// Order of preference: charSet supplied, this.encoding or this.defaultEncoding in that order
 					try {
+						// Use the implicit encoding only when the source attachment's encoding hasn't been explicitly set.
 						charSet = ((IFile) res).getCharset(this.encoding == null);
 					} catch (CoreException e) {
 						// Ignore

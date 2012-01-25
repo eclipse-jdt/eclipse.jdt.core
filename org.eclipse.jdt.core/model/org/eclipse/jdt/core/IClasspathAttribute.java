@@ -78,10 +78,11 @@ public interface IClasspathAttribute {
 	 * <ul>
 	 * <li>	Encoding explicitly set on the source file (java or zip), i.e. <code>org.eclipse.core.resources.IFile#getCharset(false)</code> </li>
 	 * <li>	Encoding set on the corresponding classpath entry </li>
-	 * <li> If the source attachment is a member of the project, then the project's default charSet</li>
-	 * <li> Workspace default charSet </li>
+	 * <li> If the source attachment is a folder, then the encoding determined by the file content if detectable </li>
+	 * <li> If the source attachment is in the workspace, then the encoding of the enclosing resources</li>
 	 * </ul>
 	 *
+	 * @see org.eclipse.core.resources.IFile#getCharset()
 	 * @since 3.8
 	 */
 	String SOURCE_ATTACHMENT_ENCODING = "source_encoding"; //$NON-NLS-1$
