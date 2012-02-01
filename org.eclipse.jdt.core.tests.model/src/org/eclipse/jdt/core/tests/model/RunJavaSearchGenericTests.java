@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,6 +45,7 @@ public static Test suite() {
 	AbstractJavaSearchTests.JAVA_SEARCH_SUITES = new ArrayList(Arrays.asList(getJavaSearchTestClasses()));
 	List allClasses = new ArrayList(AbstractJavaSearchTests.JAVA_SEARCH_SUITES);
 	allClasses.add(JavaSearchBugsTests.class);
+	allClasses.add(JavaSearchBugsTests2.class);
 
 	// Reset forgotten subsets of tests
 	TestCase.TESTS_PREFIX = null;

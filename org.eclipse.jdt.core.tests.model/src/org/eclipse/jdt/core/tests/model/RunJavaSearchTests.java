@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,6 +58,7 @@ public class RunJavaSearchTests extends junit.framework.TestCase {
 		// Get all classes
 		List allClasses = new ArrayList(TEST_CLASSES);
 		allClasses.add(JavaSearchBugsTests.class);
+		allClasses.add(JavaSearchBugsTests2.class);
 		allClasses.add(JavaSearchMultipleProjectsTests.class);
 		allClasses.add(SearchTests.class);
 		allClasses.add(JavaSearchScopeTests.class);
