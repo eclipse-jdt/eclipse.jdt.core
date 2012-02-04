@@ -663,6 +663,9 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				if (staticFieldInfo == FlowInfo.DEAD_END) {
 					this.staticInitializerScope.problemReporter().initializerMustCompleteNormally(field);
 					staticFieldInfo = FlowInfo.initial(this.maxFieldCount).setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
+				} else {
+					// make null info from static field visible for non-static @NonNull fields, too.
+					nonStaticFieldInfo.addNullInfoFrom(staticFieldInfo);
 				}
 			} else {
 				if ((nonStaticFieldInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)

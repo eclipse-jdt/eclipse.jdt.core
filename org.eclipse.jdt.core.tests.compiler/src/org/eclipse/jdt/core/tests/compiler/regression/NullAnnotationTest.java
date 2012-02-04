@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_nullable_field" };
+//		TESTS_NAMES = new String[] { "test_nonnull_field_10" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -3683,6 +3683,27 @@ public void test_nonnull_field_9() {
 		"	if (getObjs().o != null) // redundant\n" + 
 		"	              ^\n" + 
 		"Redundant null check: The field o is declared as @NonNull\n" + 
+		"----------\n");
+}
+
+public void test_nonnull_field_10() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_INCLUDE_FIELDS_IN_NULL_ANALYSIS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X  {\n" + 
+			"     static final Object a = null;\n" + 
+			"     @NonNull Object o = a;\n" + 
+			"}\n"
+		},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	@NonNull Object o = a;\n" + 
+		"	                    ^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n");
 }
 
