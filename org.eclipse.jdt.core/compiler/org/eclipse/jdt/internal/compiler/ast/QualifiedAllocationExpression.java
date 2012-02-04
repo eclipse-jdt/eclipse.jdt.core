@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -109,6 +110,12 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				flowInfo.unconditionalCopy(),
 				currentScope);
 		}
+
+		// after having analysed exceptions above start tracking newly allocated resource:
+		if (FakedTrackingVariable.isAnyCloseable(this.resolvedType)) {
+			FakedTrackingVariable.analyseCloseableAllocation(currentScope, flowInfo, this);
+		}
+
 		manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 		manageSyntheticAccessIfNecessary(currentScope, flowInfo);
 		return flowInfo;

@@ -109,6 +109,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				scope.getJavaLangObject(),  // dummy, just needs to be a reference type
 				0,
 				false);
+		this.binding.closeTracker = this;
 		this.binding.declaringScope = scope;
 		this.binding.setConstant(Constant.NotAConstant);
 		this.binding.useFlag = LocalVariableBinding.USED;
@@ -336,18 +337,35 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				disconnectedTracker = previousTracker; // report error below, unless we have a self-wrap assignment
 		}
 
+		rhsAnalyis:
 		if (rhs.resolvedType != TypeBinding.NULL) {
 			// new value is AutoCloseable, start tracking, possibly re-using existing tracker var:
 			FakedTrackingVariable rhsTrackVar = getCloseTrackingVariable(rhs);
 			if (rhsTrackVar != null) {								// 1. if RHS has a tracking variable...
 				if (local.closeTracker == null) {
-					// null shouldn't occur but let's play safe
+					// null shouldn't occur but let's play safe:
 					if (rhsTrackVar.originalBinding != null)
-						local.closeTracker = rhsTrackVar;			//		a.: let fresh LHS share it 
+						local.closeTracker = rhsTrackVar;			//		a.: let fresh LHS share it
+					if (rhsTrackVar.currentAssignment == location) {
+						// pre-set tracker from lhs - passed from outside?
+						// now it's a fresh resource
+						rhsTrackVar.globalClosingState &= ~(SHARED_WITH_OUTSIDE|OWNED_BY_OUTSIDE);
+					}
 				} else {
-					if (rhsTrackVar == disconnectedTracker && rhs instanceof AllocationExpression)
-						return; 									// 		b.: self wrapper: res = new Wrap(res); -> done!
-					local.closeTracker = rhsTrackVar;				//		c.: conflicting LHS and RHS, proceed with recordErrorLocation below
+					if (rhs instanceof AllocationExpression) {
+						if (rhsTrackVar == disconnectedTracker)
+							return;									// 		b.: self wrapper: res = new Wrap(res); -> done!
+						if (local.closeTracker == rhsTrackVar 
+								&& ((rhsTrackVar.globalClosingState & OWNED_BY_OUTSIDE) != 0)) {
+																	// 		c.: assigning a fresh resource (pre-connected alloc) 
+																	//			to a local previously holding an alien resource -> start over
+							local.closeTracker = new FakedTrackingVariable(local, location);
+							flowInfo.markAsDefinitelyNull(local.closeTracker.binding);
+							// still check disconnectedTracker below
+							break rhsAnalyis;
+						}
+					}
+					local.closeTracker = rhsTrackVar;				//		d.: conflicting LHS and RHS, proceed with recordErrorLocation below
 				}
 				// keep close-status of RHS unchanged across this assignment
 			} else if (previousTracker != null) {					// 2. re-use tracking variable from the LHS?
@@ -420,8 +438,11 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			FakedTrackingVariable tracker = new FakedTrackingVariable(local, location);
 			tracker.globalClosingState |= SHARED_WITH_OUTSIDE;
 			flowInfo.markPotentiallyNullBit(tracker.binding); // shed some doubt
-			return tracker;			
-		} else if ((expression.bits & RestrictiveFlagMASK) == Binding.FIELD) 
+			return tracker;
+		} else if (
+				(expression.bits & RestrictiveFlagMASK) == Binding.FIELD
+				||((expression instanceof QualifiedNameReference)
+						&& ((QualifiedNameReference) expression).isFieldAccess()))
 		{
 			// responsibility for this resource probably lies at a higher level
 			FakedTrackingVariable tracker = new FakedTrackingVariable(local, location);
@@ -440,7 +461,12 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		if (local.closeTracker != null)
 			// (c): inner has already been analyzed: -> re-use track var
 			return local.closeTracker;
-		return new FakedTrackingVariable(local, location);
+		FakedTrackingVariable newTracker = new FakedTrackingVariable(local, location);
+		LocalVariableBinding rhsLocal = expression.localVariableBinding();
+		if (rhsLocal != null && rhsLocal.isParameter()) {
+			newTracker.globalClosingState |= OWNED_BY_OUTSIDE;
+		}
+		return newTracker;
 	}
 
 	public static void cleanUpAfterAssignment(BlockScope currentScope, int lhsBits, Expression expression) {
@@ -552,8 +578,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			flowInfo.markAsDefinitelyNonNull(current.binding);
 			current.globalClosingState |= CLOSE_SEEN;
 //TODO(stephan): this might be useful, but I could not find a test case for it: 
-//			if (flowContext.initsOnFinally != null)
-//				flowContext.initsOnFinally.markAsDefinitelyNonNull(this.binding);
+			if (flowContext.initsOnFinally != null)
+				flowContext.initsOnFinally.markAsDefinitelyNonNull(this.binding);
 			current = current.innerTracker;
 		} while (current != null);
 	}
@@ -631,6 +657,35 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		return trackingVar;
 	}
 
+	/**
+	 * Answer true if we know for sure that no resource is bound to this variable
+	 * at the point of 'flowInfo'. 
+	 */
+	public boolean hasDefinitelyNoResource(FlowInfo flowInfo) {
+		if (this.originalBinding == null) return false; // shouldn't happen but keep quiet.
+		if (flowInfo.isDefinitelyNull(this.originalBinding)) {
+			return true;
+		}
+		if (!(flowInfo.isDefinitelyAssigned(this.originalBinding) 
+				|| flowInfo.isPotentiallyAssigned(this.originalBinding))) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isClosedInFinallyOfEnclosing(BlockScope scope) {
+		BlockScope currentScope = scope;
+		while (true) {			
+			if (currentScope.finallyInfo != null
+					&& currentScope.finallyInfo.isDefinitelyNonNull(this.binding)) {
+				return true; // closed in enclosing finally
+			}
+			if (!(currentScope.parent instanceof BlockScope)) {
+				return false;
+			}
+			currentScope = (BlockScope) currentScope.parent;
+		} 
+	}
 	/** 
 	 * If current is the same as 'returnedResource' or a wrapper thereof,
 	 * mark as reported and return true, otherwise false.
@@ -648,6 +703,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	}
 
 	public void recordErrorLocation(ASTNode location, int nullStatus) {
+		if ((this.globalClosingState & OWNED_BY_OUTSIDE) != 0) {
+			return;
+		}
 		if (this.recordedLocations == null)
 			this.recordedLocations = new HashMap();
 		this.recordedLocations.put(location, new Integer(nullStatus));
@@ -684,12 +742,15 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	}
 	
 	public int reportError(ProblemReporter problemReporter, ASTNode location, int nullStatus) {
+		if ((this.globalClosingState & OWNED_BY_OUTSIDE) != 0) {
+			return 0; // TODO: should we still propagate some flags??
+		}
 		// which degree of problem?
 		boolean isPotentialProblem = false;
 		if (nullStatus == FlowInfo.NULL) {
 			if ((this.globalClosingState & CLOSED_IN_NESTED_METHOD) != 0)
 				isPotentialProblem = true;
-		} else if (nullStatus == FlowInfo.POTENTIALLY_NULL) {
+		} else if ((nullStatus & (FlowInfo.POTENTIALLY_NULL|FlowInfo.POTENTIALLY_NON_NULL)) != 0) {
 			isPotentialProblem = true;
 		}
 		// report:

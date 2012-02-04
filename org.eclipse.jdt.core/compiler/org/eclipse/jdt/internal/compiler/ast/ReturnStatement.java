@@ -15,6 +15,7 @@
  *								bug 365835 - [compiler][null] inconsistent error reporting.
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 358903 - Filter practically unimportant resource leak warnings
+ *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -129,7 +130,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 		}
 	}
-	currentScope.checkUnclosedCloseables(flowInfo, this, currentScope);
+	currentScope.checkUnclosedCloseables(flowInfo, flowContext, this, currentScope);
 	return FlowInfo.DEAD_END;
 }
 void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, int nullStatus) {

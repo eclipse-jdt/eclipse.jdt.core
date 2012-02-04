@@ -11,6 +11,7 @@
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
  *								bug 358903 - Filter practically unimportant resource leak warnings
+ *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -23,6 +24,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -1001,11 +1003,11 @@ public void pruneWrapperTrackingVar(FakedTrackingVariable trackingVariable) {
  * At the end of a block check the closing-status of all tracked closeables that are declared in this block.
  * Also invoked when entering unreachable code.
  */
-public void checkUnclosedCloseables(FlowInfo flowInfo, ASTNode location, BlockScope locationScope) {
+public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, ASTNode location, BlockScope locationScope) {
 	if (this.trackingVariables == null) {
 		// at a method return we also consider enclosing scopes
 		if (location != null && this.parent instanceof BlockScope)
-			((BlockScope) this.parent).checkUnclosedCloseables(flowInfo, location, locationScope);
+			((BlockScope) this.parent).checkUnclosedCloseables(flowInfo, flowContext, location, locationScope);
 		return;
 	}
 	if (location != null && flowInfo.reachMode() != 0) return;
@@ -1022,9 +1024,14 @@ public void checkUnclosedCloseables(FlowInfo flowInfo, ASTNode location, BlockSc
 			continue;
 		}
 
-		if (location != null && trackingVar.originalBinding != null && flowInfo.isDefinitelyNull(trackingVar.originalBinding))
-			continue; // reporting against a specific location, resource is null at this flow, don't complain
-		
+		if (location != null && trackingVar.hasDefinitelyNoResource(flowInfo)) {
+			continue; // reporting against a specific location, there is no resource at this flow, don't complain
+		}
+
+		if (location != null && flowContext != null && flowContext.recordExitAgainstResource(this, flowInfo, trackingVar, location)) {
+			continue; // handled by the flow context
+		}
+
 		// compute the most specific null status for this resource,
 		int status = trackingVar.findMostSpecificStatus(flowInfo, this, locationScope);
 		
