@@ -67,6 +67,10 @@ public class ClassLiteralAccess extends Expression {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
+	public int nullStatus(FlowInfo flowInfo) {
+		return FlowInfo.NON_NULL;
+	}
+
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		return this.type.print(0, output).append(".class"); //$NON-NLS-1$

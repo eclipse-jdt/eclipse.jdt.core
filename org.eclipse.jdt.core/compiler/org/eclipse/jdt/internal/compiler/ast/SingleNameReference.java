@@ -118,6 +118,8 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 				} else {
 					currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this);
 				}
+			} else if (!fieldBinding.isStatic() && fieldBinding.isNonNull()) {
+				flowInfo.markAsDefinitelyAssigned(fieldBinding);
 			}
 			if (!fieldBinding.isStatic()) {
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
@@ -812,14 +814,21 @@ public VariableBinding variableBinding(Scope scope) {
 			// reading a field
 			if (scope != null) {
 				CompilerOptions options = scope.compilerOptions();
-				if(!options.includeFieldsInNullAnalysis) return null;
-			}			
+				FieldBinding fieldBinding = (FieldBinding) this.binding;
+				if(options.includeFieldsInNullAnalysis) {
+					return fieldBinding;
+				}
+				if (fieldBinding != null && fieldBinding.isNullable()) {
+					return fieldBinding;
+				}
+			}
 			//$FALL-THROUGH$
 		case Binding.LOCAL : // reading a local variable
 			return (VariableBinding) this.binding;
 	}
 	return null;
 }
+
 public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 	//If inlinable field, forget the access emulation, the code gen will directly target it
 	if (((this.bits & ASTNode.DepthMASK) == 0) || (this.constant != Constant.NotAConstant)) {
@@ -864,20 +873,6 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			return;
 		}
 	}
-}
-
-public int nullStatus(FlowInfo flowInfo) {
-	if (this.constant != null && this.constant != Constant.NotAConstant) {
-		return FlowInfo.NON_NULL; // constant expression cannot be null
-	}
-	switch (this.bits & ASTNode.RestrictiveFlagMASK) {
-		case Binding.FIELD : // reading a field
-		case Binding.LOCAL : // reading a local variable
-			VariableBinding variable = (VariableBinding) this.binding;
-			if (variable != null)
-				return flowInfo.nullStatus(variable);
-	}
-	return FlowInfo.NON_NULL; // never get there
 }
 
 	/**

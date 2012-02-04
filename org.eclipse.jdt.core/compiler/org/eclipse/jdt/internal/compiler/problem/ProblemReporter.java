@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
 import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
@@ -48,6 +49,7 @@ import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.BranchStatement;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
+import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
@@ -68,6 +70,7 @@ import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
+import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
@@ -291,6 +294,7 @@ public static int getIrritant(int problemID) {
 
 		case IProblem.NullLocalVariableReference:
 		case IProblem.NullFieldReference:
+		case IProblem.NullableFieldReference:
 			return CompilerOptions.NullReference;
 
 		case IProblem.PotentialNullLocalVariableReference:
@@ -310,7 +314,12 @@ public static int getIrritant(int problemID) {
 		case IProblem.RedundantNullCheckOnNullField:
 		case IProblem.NonNullFieldComparisonYieldsFalse:
 		case IProblem.NullFieldComparisonYieldsFalse:
+		case IProblem.RedundantNullCheckOnNonNullExpression:
+		case IProblem.NonNullExpressionComparisonYieldsFalse:
 		case IProblem.RedundantNullCheckOnNonNullMessageSend:
+		case IProblem.NonNullMessageSendComparisonYieldsFalse:
+		case IProblem.RedundantNullCheckOnNonNullSpecdField:
+		case IProblem.NonNullSpecdFieldComparisonYieldsFalse:
 			return CompilerOptions.RedundantNullCheck;
 
 		case IProblem.RequiredNonNullButProvidedNull:
@@ -320,6 +329,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.ParameterLackingNonNullAnnotation:
 		case IProblem.ParameterLackingNullableAnnotation:
 		case IProblem.CannotImplementIncompatibleNullness:
+		case IProblem.UninitializedNonNullField:
 			return CompilerOptions.NullSpecViolation;
 
 		case IProblem.RequiredNonNullButProvidedPotentialNull:
@@ -5126,6 +5136,99 @@ public void variableNullComparedToNonNull(VariableBinding variable, ASTNode loca
 		nodeSourceEnd(variable, location));
 }
 
+/**
+ * @parm expr expression being compared for null or nonnull
+ * @param checkForNull true if checking for null, false if checking for nonnull 
+ */
+public boolean expressionNonNullComparison(Expression expr, boolean checkForNull) {
+	int problemId = 0;
+	Binding binding = null;
+	String[] arguments = null;
+	int start = 0, end = 0;
+
+	Expression location = expr;
+	// unwrap uninteresting nodes:
+	while (true) {
+		if (expr instanceof Assignment)
+			return false; // don't report against the assignment, but the variable
+		else if (expr instanceof CastExpression)
+			expr = ((CastExpression) expr).expression;
+		else
+			break;
+	}
+	// check all those kinds of expressions that can possible answer NON_NULL from nullStatus():
+	if (expr instanceof MessageSend) {
+		problemId = checkForNull 
+				? IProblem.NonNullMessageSendComparisonYieldsFalse
+				: IProblem.RedundantNullCheckOnNonNullMessageSend;
+		MethodBinding method = ((MessageSend)expr).binding;
+		binding = method;
+		arguments = new String[] { new String(method.shortReadableName()) };
+		start = location.sourceStart;
+		end = location.sourceEnd;
+	} else if (expr instanceof Reference && !(expr instanceof ThisReference) && !(expr instanceof ArrayReference)) {
+		FieldBinding field = ((Reference)expr).lastFieldBinding();
+		if (field == null) {
+			return false;
+		}
+		if (field.isNonNull()) {
+			problemId = checkForNull
+					? IProblem.NonNullSpecdFieldComparisonYieldsFalse
+					: IProblem.RedundantNullCheckOnNonNullSpecdField;
+			char[][] nonNullName = this.options.nonNullAnnotationName;
+			arguments = new String[] { new String(field.name), 
+									   new String(nonNullName[nonNullName.length-1]) };
+		} else {
+			problemId = checkForNull
+					? IProblem.NonNullFieldComparisonYieldsFalse
+					: IProblem.RedundantNullCheckOnNonNullField;
+			arguments = new String[] { new String(field.name) };
+		}
+		binding = field;
+		start = nodeSourceStart(binding, location);
+		end = nodeSourceEnd(binding, location);
+	} else if (expr instanceof AllocationExpression 
+			|| expr instanceof ArrayAllocationExpression 
+			|| expr instanceof ArrayInitializer
+			|| expr instanceof ClassLiteralAccess
+			|| expr instanceof ThisReference) {
+		// fall through
+	} else if (expr instanceof Literal) {
+		if (expr instanceof NullLiteral) {
+			needImplementation(location); // reported as nonnull??
+			return false;
+		}
+		if (expr.resolvedType != null && expr.resolvedType.isBaseType()) {
+			// false alarm, auto(un)boxing is involved
+			return false;
+		}
+		// fall through
+	} else if (expr instanceof BinaryExpression) {
+		if ((expr.bits & ASTNode.ReturnTypeIDMASK) != TypeIds.T_JavaLangString) {
+			// false alarm, primitive types involved, must be auto(un)boxing?
+			return false;
+		}
+		// fall through
+	} else if (expr instanceof ConditionalExpression) {
+		needImplementation(location); // TODO
+		return false;
+	} else {
+		needImplementation(expr);
+		return false;
+	}
+	if (problemId == 0) {
+		// standard case, fill in details now
+		problemId = checkForNull 
+				? IProblem.NonNullExpressionComparisonYieldsFalse
+				: IProblem.RedundantNullCheckOnNonNullExpression;
+		start = location.sourceStart;
+		end = location.sourceEnd;
+		arguments = NoArgument;
+	}
+	this.handle(problemId, arguments, arguments, start, end);
+	return true;
+}
+
 public void variableNullInstanceof(VariableBinding variable, ASTNode location) {
 	int problem;
 	if (variable instanceof FieldBinding) {
@@ -5166,14 +5269,22 @@ public void variableNullReference(VariableBinding variable, ASTNode location) {
 
 public void variablePotentialNullReference(VariableBinding variable, ASTNode location) {
 	int problem;
+	String[] arguments = new String[] {new String(variable.name)};
 	if (variable instanceof FieldBinding) {
-		problem = IProblem.PotentialNullFieldReference;
+		if ((variable.tagBits & TagBits.AnnotationNullable) != 0) {
+			// instead of reporting "can be null at this location" say *why* we give the warning: @Nullable!
+			problem = IProblem.NullableFieldReference;
+			char[][] nullableName = this.options.nullableAnnotationName;
+			arguments = new String[] {new String(variable.name),
+					                  new String(nullableName[nullableName.length-1])};
+		} else {
+			problem = IProblem.PotentialNullFieldReference;
+		}
 	} else {
 		problem = IProblem.PotentialNullLocalVariableReference;
 	}
 	int severity = computeSeverity(problem);
 	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(variable.name)};
 	this.handle(
 		problem,
 		arguments,
@@ -5181,6 +5292,18 @@ public void variablePotentialNullReference(VariableBinding variable, ASTNode loc
 		severity,
 		nodeSourceStart(variable, location),
 		nodeSourceEnd(variable, location));
+}
+
+public void nullableFieldDereference(VariableBinding variable, long position) {
+	String[] arguments = new String[] {new String(variable.name)};
+	char[][] nullableName = this.options.nullableAnnotationName;
+		arguments = new String[] {new String(variable.name), new String(nullableName[nullableName.length-1])};
+	this.handle(
+		IProblem.NullableFieldReference,
+		arguments,
+		arguments,
+		(int)(position >>> 32),
+		(int)(position));
 }
 
 public void variableRedundantCheckOnNonNull(VariableBinding variable, ASTNode location) {
@@ -7198,6 +7321,19 @@ public void uninitializedBlankFinalField(FieldBinding field, ASTNode location) {
 		nodeSourceStart(field, location),
 		nodeSourceEnd(field, location));
 }
+public void uninitializedNonNullField(FieldBinding field, ASTNode location) {
+	char[][] nonNullAnnotationName = this.options.nonNullAnnotationName;
+	String[] arguments = new String[] {
+			new String(nonNullAnnotationName[nonNullAnnotationName.length-1]),
+			new String(field.readableName())
+	};
+	this.handle(
+		IProblem.UninitializedNonNullField,
+		arguments,
+		arguments,
+		nodeSourceStart(field, location),
+		nodeSourceEnd(field, location));
+}
 public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode location) {
 	binding.tagBits |= TagBits.NotInitialized;
 	String[] arguments = new String[] {new String(binding.readableName())};
@@ -8260,15 +8396,6 @@ public void messageSendPotentialNullReference(MethodBinding method, ASTNode loca
 	String[] arguments = new String[] {new String(method.readableName())};
 	this.handle(
 		IProblem.PotentialNullMessageSendReference,
-		arguments,
-		arguments,
-		location.sourceStart,
-		location.sourceEnd);
-}
-public void messageSendRedundantCheckOnNonNull(MethodBinding method, ASTNode location) {
-	String[] arguments = new String[] {new String(method.readableName())  };
-	this.handle(
-		IProblem.RedundantNullCheckOnNonNullMessageSend,
 		arguments,
 		arguments,
 		location.sourceStart,

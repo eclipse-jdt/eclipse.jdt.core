@@ -10399,7 +10399,7 @@ public void testBug365437e() {
 			"}\n" +
 			"class E3 {\n" +
 			"	 @p.NonNull\n" +
-			"    private int E3;\n" +
+			"    private Object E3 = new Object();\n" +
 			"}\n" +
 			"class E4 {\n" +
 			"	 @Deprecated\n" +
@@ -10439,8 +10439,8 @@ public void testBug365437e() {
 		"The value of the field E2.E2 is not used\n" + 
 		"----------\n" + 
 		"4. ERROR in Example.java (at line 15)\n" + 
-		"	private int E3;\n" + 
-		"	            ^^\n" + 
+		"	private Object E3 = new Object();\n" + 
+		"	               ^^\n" + 
 		"The value of the field E3.E3 is not used\n" + 
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);

@@ -637,6 +637,14 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 	InitializationFlowContext staticInitializerContext = new InitializationFlowContext(null, this, flowInfo, flowContext, this.staticInitializerScope);
 	FlowInfo nonStaticFieldInfo = flowInfo.unconditionalFieldLessCopy();
 	FlowInfo staticFieldInfo = flowInfo.unconditionalFieldLessCopy();
+
+	// start assembling info for reseting field info by UnconditionalFlowInfo.resetNullInfoForFields():
+	ClassScope enclosingClassScope = this.scope.enclosingClassScope();
+	UnconditionalFlowInfo fieldResetInfo = (enclosingClassScope != null)
+			? (UnconditionalFlowInfo) enclosingClassScope.fieldResetFlowInfo.copy()
+			: FlowInfo.initial(((UnconditionalFlowInfo)staticFieldInfo).maxFieldCount);
+	this.scope.fieldResetFlowInfo = fieldResetInfo;
+
 	if (this.fields != null) {
 		for (int i = 0, count = this.fields.length; i < count; i++) {
 			FieldDeclaration field = this.fields[i];
@@ -649,12 +657,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				} else {*/
 				staticInitializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
 				/*}*/
-				staticFieldInfo = field.analyseCode(this.staticInitializerScope, staticInitializerContext, staticFieldInfo);
-				if (field.binding != null && this.scope.compilerOptions().includeFieldsInNullAnalysis
-						&& ((field.binding.modifiers & ClassFileConstants.AccFinal) != 0)) {
-					// we won't reset null Info for constant fields
-					staticFieldInfo.updateConstantFieldsMask(field.binding);
-				}
+				staticFieldInfo = field.analyseCode(this.staticInitializerScope, staticInitializerContext, staticFieldInfo, flowInfo, fieldResetInfo);
 				// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 				// branch, since the previous initializer already got the blame.
 				if (staticFieldInfo == FlowInfo.DEAD_END) {
@@ -670,7 +673,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				} else {*/
 					initializerContext.handledExceptions = Binding.ANY_EXCEPTION; // tolerate them all, and record them
 				/*}*/
-				nonStaticFieldInfo = field.analyseCode(this.initializerScope, initializerContext, nonStaticFieldInfo);
+				nonStaticFieldInfo = field.analyseCode(this.initializerScope, initializerContext, nonStaticFieldInfo, flowInfo, fieldResetInfo);
 				// in case the initializer is not reachable, use a reinitialized flowInfo and enter a fake reachable
 				// branch, since the previous initializer already got the blame.
 				if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
@@ -695,10 +698,10 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 		FlowInfo constructorInfo;
 		if (this.scope.compilerOptions().includeFieldsInNullAnalysis) {
 			flowInfo.addNullInfoFrom(staticFieldUnconditionalInfo.discardNonFieldInitializations());
-			flowInfo.addConstantFieldsMask(staticFieldUnconditionalInfo);	// prevent resetting null info for constant fields inside methods
-			flowInfo.resetNullInfoForFields();	// only preserve null info for constant fields
+			flowInfo.addConstantFieldsMask(fieldResetInfo);	// prevent resetting null info for constant fields inside methods
+			flowInfo.resetNullInfoForFields(fieldResetInfo);	// only preserve null info for constant fields
 			constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(flowInfo);
-			constructorInfo.addConstantFieldsMask(staticFieldUnconditionalInfo); // prevent resetting null info for constant fields inside c'tor too
+			constructorInfo.addConstantFieldsMask(fieldResetInfo); // prevent resetting null info for constant fields inside c'tor too
 		} else {
 			constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
 		}

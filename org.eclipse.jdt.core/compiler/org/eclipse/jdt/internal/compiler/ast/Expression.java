@@ -524,8 +524,9 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
  * @param scope the scope of the analysis
  * @param flowContext the current flow context
  * @param flowInfo the upstream flow info; caveat: may get modified
+ * @return could this expression be checked by the current implementation?
  */
-public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
 	VariableBinding var = variableBinding(scope);
 	if (var != null &&
 			(var.type.tagBits & TagBits.IsBaseType) == 0) {
@@ -544,7 +545,9 @@ public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInf
 				flowContext.initsOnFinally.markedAsNullOrNonNullInAssertExpression(var);
 			}
 		}
+		return true;
 	}
+	return false; // not checked
 }
 
 public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
@@ -871,12 +874,13 @@ public int nullStatus(FlowInfo flowInfo) {
 
 	if (/* (this.bits & IsNonNull) != 0 || */
 		this.constant != null && this.constant != Constant.NotAConstant)
-	return FlowInfo.NON_NULL; // constant expression cannot be null
+		return FlowInfo.NON_NULL; // constant expression cannot be null
 
 	VariableBinding var = variableBinding(null);
-	if (var != null)
+	if (var != null) {
 		return flowInfo.nullStatus(var);
-	return FlowInfo.NON_NULL;
+	}
+	return FlowInfo.UNKNOWN;
 }
 
 /**

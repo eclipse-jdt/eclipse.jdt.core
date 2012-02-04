@@ -155,9 +155,9 @@ public void resetNullInfo(VariableBinding var) {
 	this.initsWhenFalse.resetNullInfo(var);
 }
 
-public void resetNullInfoForFields() {
-	this.initsWhenTrue.resetNullInfoForFields();
-	this.initsWhenFalse.resetNullInfoForFields();
+public void resetNullInfoForFields(UnconditionalFlowInfo fieldResetInfo) {
+	this.initsWhenTrue.resetNullInfoForFields(fieldResetInfo);
+	this.initsWhenFalse.resetNullInfoForFields(fieldResetInfo);
 }
 
 public void updateConstantFieldsMask(FieldBinding field) {

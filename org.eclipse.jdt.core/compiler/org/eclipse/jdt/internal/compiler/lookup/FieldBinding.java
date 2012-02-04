@@ -276,7 +276,7 @@ public long getAnnotationTagBits() {
 }
 
 public int getAnalysisId(int maxFieldCount) {
-	TypeBinding original = this.declaringClass.original();
+	TypeBinding original = (this.declaringClass != null) ? this.declaringClass.original() : null; // Array.length has no declaringClass
 	if (original instanceof SourceTypeBinding)
 		return ((SourceTypeBinding)original).fieldAnalysisOffset + this.id;
 	return this.id;
@@ -392,5 +392,21 @@ public FieldDeclaration sourceField() {
 				return fields[i];
 	}
 	return null;
+}
+public void fillInDefaultNonNullness(TypeBinding annotationBinding, FieldDeclaration sourceField, Scope scope) {
+//	if (added)
+//		this.tagBits |= TagBits.HasParameterAnnotations;
+	if (   this.type != null
+		&& !this.type.isBaseType()
+		&& (this.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
+	{
+		this.tagBits |= TagBits.AnnotationNonNull;
+// FIXME
+//		if (sourceField != null)
+//			sourceField.addNullnessAnnotation((ReferenceBinding)annotationBinding);
+	} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
+// FIXME
+//		scope.problemReporter().nullAnnotationIsRedundant(sourceField);
+	}
 }
 }

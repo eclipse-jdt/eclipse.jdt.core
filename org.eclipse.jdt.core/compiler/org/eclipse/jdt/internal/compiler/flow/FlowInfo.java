@@ -279,10 +279,10 @@ abstract public void markAsComparedEqualToNull(VariableBinding binding);
 	 *  Note that each fields status after the reset will become def. unknown i.e. 1001
 	 *  Also this method does not reset constant fields
 	 */
-	abstract public void resetNullInfoForFields();
+	abstract public void resetNullInfoForFields(UnconditionalFlowInfo fieldResetInfo);
 	
 	/**
-	 * exclude a new field from being reset by {@link #resetNullInfoForFields()}
+	 * exclude a new field from being reset by {@link #resetNullInfoForFields(UnconditionalFlowInfo)}
 	 */
 	abstract public void updateConstantFieldsMask(FieldBinding field);
 	

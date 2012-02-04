@@ -1442,7 +1442,7 @@ public final class JavaCore extends Plugin {
 	 * <p>If the annotation specified by this option is applied to a type in a method
 	 *    signature or variable declaration, this will be interpreted as a specification
 	 *    that <code>null</code> is a legal value in that position. Currently supported
-	 *    positions are: method parameters, method return type and local variables.</p>
+	 *    positions are: method parameters, method return type, fields and local variables.</p>
 	 * <p>If a value whose type
 	 *    is annotated with this annotation is dereferenced without checking for null,
 	 *    the compiler will trigger a diagnostic as further controlled by
@@ -1468,7 +1468,7 @@ public final class JavaCore extends Plugin {
 	 * <p>If the annotation specified by this option is applied to a type in a method
 	 *    signature or variable declaration, this will be interpreted as a specification
 	 *    that <code>null</code> is <b>not</b> a legal value in that position. Currently
-	 *    supported positions are: method parameters, method return type and local variables.</p>
+	 *    supported positions are: method parameters, method return type, fields and local variables.</p>
 	 * <p>For values declared with this annotation, the compiler will never trigger a null
 	 *    reference diagnostic (as controlled by {@link #COMPILER_PB_POTENTIAL_NULL_REFERENCE}
 	 *    and {@link #COMPILER_PB_NULL_REFERENCE}), because the assumption is made that null
@@ -1492,8 +1492,8 @@ public final class JavaCore extends Plugin {
 	 * <p>This option defines a fully qualified Java type name that the compiler may use
 	 *    to perform special null analysis.</p>
 	 * <p>If the annotation is applied without an argument, all unannotated types in method signatures
-	 *    within the annotated element will be treated as if they were specified with the non-null annotation
-	 *    (see {@link #COMPILER_NONNULL_ANNOTATION_NAME}).</p>
+	 *    and field declarations within the annotated element will be treated as if they were specified
+	 *    with the non-null annotation (see {@link #COMPILER_NONNULL_ANNOTATION_NAME}).</p>
 	 * <p>If the annotation is applied with the constant <code>false</code> as its argument
 	 *    all corresponding defaults at outer scopes will be canceled for the annotated element.
 	 *    This includes defaults specified using this annotation type or a default defined using
@@ -1542,6 +1542,9 @@ public final class JavaCore extends Plugin {
 	 *        for at least one of its parameters, tries to tighten that null contract by
 	 *        specifying a nonnull annotation for its corresponding parameter
 	 *        (prohibition of covariant parameters).</li>
+	 *    <li>A non-static field with a nonnull annotation is not definitely assigned at
+	 *        the end of each constructor.</li>
+	 *    <li>A static field with a nonnull annotation is not definitely assigned at <strong>TODO</strong> .</li>
 	 *    </ol>
 	 * </p>
 	 * <p>The compiler options {@link #COMPILER_NONNULL_ANNOTATION_NAME} and

@@ -50,7 +50,10 @@ public FieldDeclaration(	char[] name, int sourceStart, int sourceEnd) {
 	this.sourceEnd = sourceEnd;
 }
 
-public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowContext, FlowInfo flowInfo) {
+public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo declaringClassFlowInfo, FlowInfo fieldResetInfo) {
+	// fieldResetInfo: in this info we collect all information required for UnconditionalFlowInfo.resetNullInfoForFields:
+	// - which fields should never reset their null status? (constants and @NonNull)
+	// - for other fields: to what status should it be reset at each MessageSend? (unknown or pot.null)
 	if (this.binding != null && !this.binding.isUsed() && this.binding.isOrEnclosedByPrivateType()) {
 		if (!initializationScope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
 			initializationScope.problemReporter().unusedPrivateField(this);
@@ -68,19 +71,52 @@ public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowCon
 			this);
 	}
 
+	boolean isConstant = this.binding.isFinal() && this.binding.isStatic();
+	boolean includeFieldsInNullAnalysis = initializationScope.compilerOptions().includeFieldsInNullAnalysis;
 	if (this.initialization != null) {
 		flowInfo =
 			this.initialization
 				.analyseCode(initializationScope, flowContext, flowInfo)
 				.unconditionalInits();
 		flowInfo.markAsDefinitelyAssigned(this.binding);
-		if (this.binding.isFinal() && this.binding.isStatic()) {
+		if (isConstant && includeFieldsInNullAnalysis) {
 			int nullStatus = this.initialization.nullStatus(flowInfo);
 			// static final field being initialized. Record its null status for future reference
 			// since the flowInfo from an initialization wont be available in a method
 			flowInfo.markNullStatus(this.binding, nullStatus);
-//			this.binding.setNullStatusForStaticFinalField(nullStatus);
 		}
+	}
+	if (isConstant && includeFieldsInNullAnalysis) {
+		// never reset null status for constants
+		fieldResetInfo.updateConstantFieldsMask(this.binding);
+	}
+	long tagBits = this.binding.tagBits;
+	if ((tagBits & TagBits.AnnotationNonNull) != 0) {
+		if (this.initialization != null) {
+			int nullStatus = this.initialization.nullStatus(flowInfo);
+			// check against annotation @NonNull:
+			if (nullStatus != FlowInfo.NON_NULL) {
+				char[][] annotationName = initializationScope.environment().getNonNullAnnotationName();
+				initializationScope.problemReporter().nullityMismatch(this.initialization, this.binding.type, nullStatus, annotationName);
+			}
+		}
+		// record nonnull for use by methods:
+		declaringClassFlowInfo.markAsDefinitelyNonNull(this.binding);
+
+		// tell resetNullInfoForFields not to update this field's status
+		fieldResetInfo.updateConstantFieldsMask(this.binding);
+	} else if ((tagBits & TagBits.AnnotationNullable) != 0) {
+		// record pot.null for use by methods:
+		declaringClassFlowInfo.resetNullInfo(this.binding);
+		declaringClassFlowInfo.markPotentiallyNullBit(this.binding);
+
+		// tell resetNullInfoForFields to reset this field to pot.null:
+		// (note that this info is ineffective if the field is also constant)
+		fieldResetInfo.resetNullInfo(this.binding);
+		fieldResetInfo.markPotentiallyNullBit(this.binding);
+	} else if (!isConstant && includeFieldsInNullAnalysis) {
+		// tell resetNullInfoForFields to reset this field to def.unknown:
+		fieldResetInfo.markAsDefinitelyUnknown(this.binding);
 	}
 	return flowInfo;
 }
@@ -197,7 +233,8 @@ public void resolve(MethodScope initializationScope) {
 		initializationScope.initializedField = this.binding;
 		initializationScope.lastVisibleFieldID = this.binding.id;
 
-		resolveAnnotations(initializationScope, this.annotations, this.binding);
+// 	already invoked from SourceTypeBinding.resolveTypeFor(..)
+//		resolveAnnotations(initializationScope, this.annotations, this.binding);
 		// check @Deprecated annotation presence
 		if ((this.binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
 				&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0
