@@ -1451,7 +1451,7 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 				if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 					initializeNullDefault();
 					defaultNullnessAnnotationBinding = findDefaultNullness(this.scope, environment);
-					if (defaultNullnessAnnotationBinding != null && defaultNullnessAnnotationBinding.id == TypeIds.T_ConfiguredAnnotationNonNullByDefault) {
+					if (defaultNullnessAnnotationBinding != null && defaultNullnessAnnotationBinding.id == TypeIds.T_ConfiguredAnnotationNonNull) {
 						field.fillInDefaultNonNullness(defaultNullnessAnnotationBinding, fieldDecl, initializationScope);
 					}
 					// validate null annotation:

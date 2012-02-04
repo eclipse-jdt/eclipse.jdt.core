@@ -223,6 +223,17 @@ public Constant constant() {
 	return fieldConstant;
 }
 
+public void fillInDefaultNonNullness(TypeBinding annotationBinding, FieldDeclaration sourceField, Scope scope) {
+	if (   this.type != null
+		&& !this.type.isBaseType()
+		&& (this.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
+	{
+		this.tagBits |= TagBits.AnnotationNonNull;
+	} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
+		scope.problemReporter().nullAnnotationIsRedundant(sourceField);
+	}
+}
+
 /**
  * X<T> t   -->  LX<TT;>;
  */
@@ -392,21 +403,5 @@ public FieldDeclaration sourceField() {
 				return fields[i];
 	}
 	return null;
-}
-public void fillInDefaultNonNullness(TypeBinding annotationBinding, FieldDeclaration sourceField, Scope scope) {
-//	if (added)
-//		this.tagBits |= TagBits.HasParameterAnnotations;
-	if (   this.type != null
-		&& !this.type.isBaseType()
-		&& (this.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
-	{
-		this.tagBits |= TagBits.AnnotationNonNull;
-// FIXME
-//		if (sourceField != null)
-//			sourceField.addNullnessAnnotation((ReferenceBinding)annotationBinding);
-	} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
-// FIXME
-//		scope.problemReporter().nullAnnotationIsRedundant(sourceField);
-	}
 }
 }

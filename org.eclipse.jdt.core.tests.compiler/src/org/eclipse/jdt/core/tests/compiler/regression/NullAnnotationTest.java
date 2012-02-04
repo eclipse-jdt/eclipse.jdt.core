@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_contradictory_annotations_02" };
+//		TESTS_NAMES = new String[] { "test_default_nullness_017" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -2665,6 +2665,87 @@ public void test_default_nullness_015() {
 		"	return null;  // expect error here\n" + 
 		"	       ^^^^\n" + 
 		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n");
+}
+
+// default nullness applied to fields, class-level:
+public void test_default_nullness_016() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class X {\n" +
+			"    Object foo;\n" +
+			"    void doFoo() {\n" +
+			"        foo = null;\n" +
+			"    }\n" +
+			"    class Inner {\n" +
+			"        Object iFoo;\n" +
+			"        void diFoo(@Nullable Object arg) {\n" +
+			"            iFoo = arg;\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	public class X {\n" + 
+		"	             ^\n" + 
+		"The @NonNull field foo may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	foo = null;\n" + 
+		"	      ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	class Inner {\n" + 
+		"	      ^^^^^\n" + 
+		"The @NonNull field iFoo may not have been initialized\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	iFoo = arg;\n" + 
+		"	       ^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" + 
+		"----------\n");
+}
+
+//default nullness applied to fields, method level applied to local class + redundant annotation
+public void test_default_nullness_017() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @NonNullByDefault\n" +
+			"    Object doFoo() {\n" +
+			"        class Local {\n" +
+			"            Object foo;\n" +
+			"            @NonNull Object goo;\n" +
+			"        };" +
+			"        return new Local();\n" +
+			"    }\n" +
+			"}\n",
+		},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	class Local {\n" + 
+		"	      ^^^^^\n" + 
+		"The @NonNull field foo may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	class Local {\n" + 
+		"	      ^^^^^\n" + 
+		"The @NonNull field goo may not have been initialized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 7)\n" + 
+		"	@NonNull Object goo;\n" + 
+		"	^^^^^^^^^^^^^^^\n" + 
+		"The nullness annotation is redundant with a default that applies to this location\n" + 
 		"----------\n");
 }
 
