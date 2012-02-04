@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_nonnull_field_10" };
+//		TESTS_NAMES = new String[] { "test_contradictory_annotations_02" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -2954,6 +2954,27 @@ public void test_contradictory_annotations_01() {
 		"----------\n" + 
 		"3. ERROR in p2\\Y.java (at line 6)\n" + 
 		"	@NonNull @Nullable Object o = null;\n" + 
+		"	         ^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n");
+}
+
+// contradictory null annotations on a field
+public void test_contradictory_annotations_02() {
+	Map customOptions = getCompilerOptions();
+	runNegativeTestWithLibs(
+		new String[] {
+			"p2/Y.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y {\n" +
+			"    @NonNull @Nullable Object o;\n" +
+			"}\n"
+		},
+		customOptions,
+		"----------\n" + 
+		"1. ERROR in p2\\Y.java (at line 4)\n" + 
+		"	@NonNull @Nullable Object o;\n" + 
 		"	         ^^^^^^^^^\n" + 
 		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
 		"----------\n");
