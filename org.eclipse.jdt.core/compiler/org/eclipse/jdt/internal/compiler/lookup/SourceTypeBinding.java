@@ -1115,18 +1115,6 @@ void initializeForStaticImports() {
 	this.scope.buildMethods();
 }
 
-private void initializeNullDefault() {
-	// ensure nullness defaults are initialized at all enclosing levels:
-	switch (this.nullnessDefaultInitialized) {
-	case 0:
-		getAnnotationTagBits(); // initialize
-		//$FALL-THROUGH$
-	case 1:
-		getPackage().isViewedAsDeprecated(); // initialize annotations
-		this.nullnessDefaultInitialized = 2;
-	}
-}
-
 /**
  * Returns true if a type is identical to another one,
  * or for generic types, true if compared to its raw type.
@@ -1444,19 +1432,6 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 				if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
 					field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				}
-
-				// apply null default:
-				LookupEnvironment environment = this.scope.environment();
-				TypeBinding defaultNullnessAnnotationBinding = null;
-				if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-					initializeNullDefault();
-					defaultNullnessAnnotationBinding = findDefaultNullness(this.scope, environment);
-					if (defaultNullnessAnnotationBinding != null && defaultNullnessAnnotationBinding.id == TypeIds.T_ConfiguredAnnotationNonNull) {
-						field.fillInDefaultNonNullness(defaultNullnessAnnotationBinding, fieldDecl, initializationScope);
-					}
-					// validate null annotation:
-					this.scope.validateNullAnnotation(field.tagBits, fieldDecl.type, fieldDecl.annotations);
-				}
 			} finally {
 			    initializationScope.initializedField = previousField;
 			}
@@ -1638,7 +1613,15 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 	return method;
 }
 private void createArgumentBindings(MethodBinding method) {
-	initializeNullDefault();
+	// ensure nullness defaults are initialized at all enclosing levels:
+	switch (this.nullnessDefaultInitialized) {
+	case 0:
+		getAnnotationTagBits(); // initialize
+		//$FALL-THROUGH$
+	case 1:
+		getPackage().isViewedAsDeprecated(); // initialize annotations
+		this.nullnessDefaultInitialized = 2;
+	}
 	AbstractMethodDeclaration methodDecl = method.sourceMethod();
 	if (methodDecl != null) {
 		if (method.parameters != Binding.NO_PARAMETERS)

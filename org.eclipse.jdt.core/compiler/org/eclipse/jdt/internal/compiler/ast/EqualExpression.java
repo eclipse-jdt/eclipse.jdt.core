@@ -26,40 +26,26 @@ public class EqualExpression extends BinaryExpression {
 	private void checkNullComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
 		int rightStatus = this.right.nullStatus(flowInfo);
 		int leftStatus = this.left.nullStatus(flowInfo);
-
-		boolean leftNonNullChecked = false;
-		boolean rightNonNullChecked = false;
-
-		// check if either is a non-local expression known to be nonnull and compared to null, candidates are
-		// - method/field annotated @NonNull
-		// - allocation expression, some literals, this reference (see inside expressionNonNullComparison(..))
-		boolean checkForNull = ((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL;
+		// check if either is a method annotated @NonNull and compared to null:
 		if (leftStatus == FlowInfo.NON_NULL && rightStatus == FlowInfo.NULL) {
-			leftNonNullChecked = scope.problemReporter().expressionNonNullComparison(this.left, checkForNull);
+			if (this.left instanceof MessageSend) { 
+				scope.problemReporter().messageSendRedundantCheckOnNonNull(((MessageSend) this.left).binding, this.left);
+			}
+			// TODO: handle all kinds of expressions (cf. also https://bugs.eclipse.org/364326)
 		} else if (leftStatus == FlowInfo.NULL && rightStatus == FlowInfo.NON_NULL) {
-			rightNonNullChecked = scope.problemReporter().expressionNonNullComparison(this.right, checkForNull);
-		}
-		
-		if (!leftNonNullChecked) {
-			VariableBinding var = this.left.variableBinding(scope);
-			if (var != null && (var.type.tagBits & TagBits.IsBaseType) == 0) {
-				checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, var, rightStatus, this.left);
+			if (this.right instanceof MessageSend) {
+				scope.problemReporter().messageSendRedundantCheckOnNonNull(((MessageSend) this.right).binding, this.right);
 			}
-		}
-		if (!rightNonNullChecked) {
-			VariableBinding var = this.right.variableBinding(scope);
-			if (var != null && (var.type.tagBits & TagBits.IsBaseType) == 0) {
-				checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, var, leftStatus, this.right);
-			}
+			// TODO: handle all kinds of expressions (cf. also https://bugs.eclipse.org/364326)
 		}
 
-		if (leftNonNullChecked || rightNonNullChecked) {
-			// above checks have not propagated unrechable into the corresponding branch, do it now:
-			if (checkForNull) {
-				initsWhenTrue.setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
-			} else {
-				initsWhenFalse.setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
-			}
+		VariableBinding var = this.left.variableBinding(scope);
+		if (var != null && (var.type.tagBits & TagBits.IsBaseType) == 0) {
+			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, var, rightStatus, this.left);
+		}
+		var = this.right.variableBinding(scope);
+		if (var != null && (var.type.tagBits & TagBits.IsBaseType) == 0) {
+			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, var, leftStatus, this.right);
 		}
 	}
 	private void checkVariableComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, VariableBinding var, int nullStatus, Expression reference) {
@@ -68,17 +54,13 @@ public class EqualExpression extends BinaryExpression {
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
 					flowContext.recordUsingNullReference(scope, var, reference,
 							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
-					if ((var.tagBits & TagBits.AnnotationNonNull) == 0) { // never drop information from @NonNull annotation
-						initsWhenTrue.markAsComparedEqualToNull(var); // from thereon it is set
-						initsWhenFalse.markAsComparedEqualToNonNull(var); // from thereon it is set
-					}
+					initsWhenTrue.markAsComparedEqualToNull(var); // from thereon it is set
+					initsWhenFalse.markAsComparedEqualToNonNull(var); // from thereon it is set
 				} else {
 					flowContext.recordUsingNullReference(scope, var, reference,
 							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
-					if ((var.tagBits & TagBits.AnnotationNonNull) == 0) { // never drop information from @NonNull annotation
-						initsWhenTrue.markAsComparedEqualToNonNull(var); // from thereon it is set
-						initsWhenFalse.markAsComparedEqualToNull(var); // from thereon it is set
-					}
+					initsWhenTrue.markAsComparedEqualToNonNull(var); // from thereon it is set
+					initsWhenFalse.markAsComparedEqualToNull(var); // from thereon it is set
 				}
 				if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
 					flowInfo.markedAsNullOrNonNullInAssertExpression(var);

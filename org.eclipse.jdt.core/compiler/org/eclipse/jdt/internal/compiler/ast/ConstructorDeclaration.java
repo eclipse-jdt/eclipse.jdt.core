@@ -158,26 +158,19 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
 		// flowInfo.setReachMode(initialReachMode);
 
-		// check missing blank final field initializations (plus @NonNull)
+		// check missing blank final field initializations
 		if ((this.constructorCall != null)
 			&& (this.constructorCall.accessMode != ExplicitConstructorCall.This)) {
 			flowInfo = flowInfo.mergedWith(constructorContext.initsOnReturn);
 			FieldBinding[] fields = this.binding.declaringClass.fields();
 			for (int i = 0, count = fields.length; i < count; i++) {
-				FieldBinding field = fields[i];
-				if (!field.isStatic()) {
-					if (field.isFinal()
-							&& (!flowInfo.isDefinitelyAssigned(field))) {
-						this.scope.problemReporter().uninitializedBlankFinalField(
-								field,
-								((this.bits & ASTNode.IsDefaultConstructor) != 0) ? (ASTNode) this.scope.referenceType() : this);
-					} else if (field.isNonNull()) {
-						if (!flowInfo.isDefinitelyAssigned(field)) {
-							this.scope.problemReporter().uninitializedNonNullField(
-									field,
-									((this.bits & ASTNode.IsDefaultConstructor) != 0) ? (ASTNode) this.scope.referenceType() : this);						
-						}
-					}
+				FieldBinding field;
+				if ((!(field = fields[i]).isStatic())
+					&& field.isFinal()
+					&& (!flowInfo.isDefinitelyAssigned(fields[i]))) {
+					this.scope.problemReporter().uninitializedBlankFinalField(
+						field,
+						((this.bits & ASTNode.IsDefaultConstructor) != 0) ? (ASTNode) this.scope.referenceType() : this);
 				}
 			}
 		}

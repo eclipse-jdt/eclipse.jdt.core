@@ -245,10 +245,6 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	}
 }
 
-public int nullStatus(FlowInfo flowInfo) {
-	return FlowInfo.NON_NULL;
-}
-
 public StringBuffer printExpression(int indent, StringBuffer output) {
 	if (this.type != null) { // type null for enum constant initializations
 		output.append("new "); //$NON-NLS-1$

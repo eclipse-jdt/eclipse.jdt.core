@@ -104,7 +104,7 @@ protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, Flow
 			&& (var.tagBits & TagBits.AnnotationNonNull) != 0
 			&& nullStatus != FlowInfo.NON_NULL) {
 		flowContext.recordNullityMismatch(currentScope, expression, nullStatus, var.type);
-		nullStatus=FlowInfo.NON_NULL; // @NonNull variable is still considered nonnull even after erroneous assignment
+		nullStatus=FlowInfo.NON_NULL;
 	}
 	return nullStatus;
 }

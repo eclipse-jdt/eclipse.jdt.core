@@ -115,10 +115,6 @@ public class ArrayInitializer extends Expression {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
-	public int nullStatus(FlowInfo flowInfo) {
-		return FlowInfo.NON_NULL;
-	}
-
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		output.append('{');

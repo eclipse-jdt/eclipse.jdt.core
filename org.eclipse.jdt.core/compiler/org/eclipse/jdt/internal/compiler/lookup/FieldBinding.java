@@ -223,17 +223,6 @@ public Constant constant() {
 	return fieldConstant;
 }
 
-public void fillInDefaultNonNullness(TypeBinding annotationBinding, FieldDeclaration sourceField, Scope scope) {
-	if (   this.type != null
-		&& !this.type.isBaseType()
-		&& (this.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) == 0)
-	{
-		this.tagBits |= TagBits.AnnotationNonNull;
-	} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
-		scope.problemReporter().nullAnnotationIsRedundant(sourceField);
-	}
-}
-
 /**
  * X<T> t   -->  LX<TT;>;
  */
@@ -287,7 +276,7 @@ public long getAnnotationTagBits() {
 }
 
 public int getAnalysisId(int maxFieldCount) {
-	TypeBinding original = (this.declaringClass != null) ? this.declaringClass.original() : null; // Array.length has no declaringClass
+	TypeBinding original = this.declaringClass.original();
 	if (original instanceof SourceTypeBinding)
 		return ((SourceTypeBinding)original).fieldAnalysisOffset + this.id;
 	return this.id;

@@ -1307,14 +1307,6 @@ void setSourceStart(int sourceStart);
 	int NullFieldInstanceofYieldsFalse = Internal + FieldRelated + 677;
 	
 	/**
-	 * Null analysis for other kinds of expressions, syntactically nonnull
-	 */
-	/** @since 3.8 */
-	int NonNullExpressionComparisonYieldsFalse = Internal + 685;
-	/** @since 3.8 */
-	int RedundantNullCheckOnNonNullExpression = Internal + 686;
-
-	/**
 	 * Corrupted binaries
 	 */
 	/** @since 3.1 */
@@ -1485,15 +1477,14 @@ void setSourceStart(int sourceStart);
 	int ParameterLackingNullableAnnotation = MethodRelated + 918;
 	/** @since 3.8 */
 	int PotentialNullMessageSendReference = Internal + 919;
-	// what was at 920 has been moved down
+	/** @since 3.8 */
+	int RedundantNullCheckOnNonNullMessageSend = Internal + 920;
 	/** @since 3.8 */
 	int CannotImplementIncompatibleNullness = Internal + 921;
 	/** @since 3.8 */
 	int RedundantNullAnnotation = MethodRelated + 922;
 	/** @since 3.8 */
 	int IllegalAnnotationForBaseType = TypeRelated + 923;
-	/** @since 3.8 */
-	int NullableFieldReference = FieldRelated + 924;
 	/** @since 3.8 */
 	int RedundantNullDefaultAnnotation = Internal + 925;
 	/** @since 3.8 */
@@ -1504,17 +1495,6 @@ void setSourceStart(int sourceStart);
 	int RedundantNullDefaultAnnotationMethod = Internal + 928;
 	/** @since 3.8 */
 	int ContradictoryNullAnnotations = Internal + 929;
-	/** @since 3.8 */
-	int UninitializedNonNullField = FieldRelated + 930;
-	/** @since 3.8 */
-	int RedundantNullCheckOnNonNullMessageSend = Internal + 931;
-	/** @since 3.8 */
-	int NonNullMessageSendComparisonYieldsFalse = Internal + 932;
-	/** @since 3.8 */
-	int RedundantNullCheckOnNonNullSpecdField = Internal + 933;
-	/** @since 3.8 */
-	int NonNullSpecdFieldComparisonYieldsFalse = Internal + 934;
-
 
 	/**
 	 * External problems -- These are problems defined by other plugins

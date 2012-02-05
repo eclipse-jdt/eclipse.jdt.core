@@ -110,8 +110,6 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			// assigning a final field outside an initializer or constructor or wrong reference
 			currentScope.problemReporter().cannotAssignToFinalField(this.binding, this);
 		}
-	} else if (this.receiver.isThis() && !this.binding.isStatic() && this.binding.isNonNull()) {
-		flowInfo.markAsDefinitelyAssigned(this.binding);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 	if (!this.binding.isStatic()) {
@@ -152,16 +150,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 	}
 	return flowInfo;
-}
-
-public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
-	// first try check based on flowInfo (most accurate):
-	if (super.checkNPE(scope, flowContext, flowInfo)) return true;
-	if (!this.receiver.isThis()) {
-		// on a non-this field ref @Nullable is all we could possibly report
-		return checkNullableDereference(scope, this.binding, this.nameSourcePosition);
-	}
-	return false; // not checked
 }
 
 /**
@@ -450,10 +438,6 @@ public boolean isTypeAccess() {
 	return this.receiver != null && this.receiver.isTypeReference();
 }
 
-public FieldBinding lastFieldBinding() {
-	return this.binding;
-}
-
 /*
  * No need to emulate access to protected fields since not implicitly accessed
  */
@@ -497,6 +481,10 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			return;
 		}
 	}
+}
+
+public int nullStatus(FlowInfo flowInfo) {
+	return FlowInfo.UNKNOWN;
 }
 
 public Constant optimizedBooleanConstant() {
@@ -685,12 +673,6 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 }
 
 public VariableBinding variableBinding(Scope scope) {
-	if (this.binding != null
-			&& ((this.binding.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) != 0)
-			&& this.receiver.isThis()) {
-		// for fields of the current type most specific null info is in the flowInfo
-		return this.binding;
-	}
 	if (scope != null) {
 		CompilerOptions options = scope.compilerOptions();
 		if(!options.includeFieldsInNullAnalysis) return null;
