@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ protected boolean isDeclarationOfReferencedMethodsPattern;
 //extra reference info
 public char[][][] allSuperDeclaringTypeNames;
 
+private MatchLocator matchLocator;
 //method declarations which parameters verification fail
 private HashMap methodDeclarationsWithInvalidParam = new HashMap();
 
@@ -82,6 +83,7 @@ public void initializePolymorphicSearch(MatchLocator locator) {
 				locator,
 				this.pattern.declaringType,
 				locator.progressMonitor).collect();
+		this.matchLocator = locator;	
 	} catch (JavaModelException e) {
 		// inaccurate matches will be found
 	}
@@ -255,6 +257,15 @@ protected int matchMethod(MethodBinding method, boolean skipImpossibleArg) {
 		// verify each parameter
 		for (int i = 0; i < parameterCount; i++) {
 			TypeBinding argType = method.parameters[i];
+			if (argType.isTypeVariable()) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123836, No point in textually comparing type variables, captures etc with concrete types. 
+				MethodBinding focusMethodBinding = this.matchLocator.getMethodBinding(this.pattern);
+				if (focusMethodBinding != null) {
+					if (matchOverriddenMethod(focusMethodBinding.declaringClass, focusMethodBinding, method)) {
+						return ACCURATE_MATCH;
+					}
+				}
+			}
 			int newLevel = IMPOSSIBLE_MATCH;
 			if (argType.isMemberType()) {
 				// only compare source name for member type (bug 41018)

@@ -15,15 +15,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.Test;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
-
-import junit.framework.Test;
+import org.eclipse.jdt.core.search.SearchPattern;
 
 // The size of JavaSearchBugsTests.java is very big, Hence continuing here.
 public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
@@ -31,6 +34,10 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	public JavaSearchBugsTests2(String name) {
 		super(name);
 		this.endChar = "";
+	}
+	
+	static {
+		//TESTS_NAMES = new String[] {"testBug123836"};
 	}
 
 	public static Test suite() {
@@ -92,6 +99,358 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					this.resultCollector);
 		} finally {
 			deleteProject("P");
+		}
+	}
+	
+	/**
+	 * @bug 123836: [1.5][search] for references to overriding method with bound type variable is not polymorphic
+	 * @test Search for references to an overridden method with bound variables should yield.
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=123836"
+	 */
+	public void testBug123836a() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/Sub.java", 
+					"abstract class Sup<C> {\n" +
+					"    protected void m(C classifier) {}\n"+
+					"    public void use(C owner) { m (owner); }\n" +
+					"}\n" +
+					"public class Sub extends Sup<String>{\n" +
+					"    @Override\n"+
+					"    protected void m(String classifier) {}\n"+
+					"}\n");
+			IType type = getCompilationUnit("/P/Sub.java").getType("Sub");
+			IMethod method = type.getMethod("m", new String[]{"QString;"});
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Sub.java void Sup.use(C) [m (owner)] EXACT_MATCH");
+		} finally {
+			deleteProject(project);
+		}
+	}
+	// Search for a non-overriden method with same name as which could have been overriden should
+	// not have results
+	public void testBug123836b() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/Sub.java", 
+					"abstract class Sup<C> {\n" +
+					"    protected void m(C classifier) {}\n"+
+					"    public void use(C owner) { m (owner); }\n" +
+					"}\n" +
+					"public class Sub extends Sup<String>{\n" +
+					"    @Override\n"+
+					"    protected void m(String classifier) {}\n"+
+					"    protected void m(Sub classifier) {}\n"+
+					"}\n" );
+			// search
+			IType type = getCompilationUnit("/P/Sub.java").getType("Sub");
+			IMethod method = type.getMethod("m", new String[]{"QSub;"});
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("");
+			
+		} finally {
+			deleteProject(project);
+		}
+	}
+	// another variant of the testcase
+	public void testBug123836c() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/Test.java", 
+				"class Test {\n"+
+				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
+				"        prop.compute(null);\n"+
+				"        p2.compute(null);\n"+
+				"    }\n"+
+				"}\n"+
+				"abstract class Property<E> {\n"+
+				"    public abstract void compute(E e);\n"+
+				"}\n"+
+				"class StringProperty extends Property<String> {\n"+
+				"    @Override public void compute(String e) {\n"+
+				"        System.out.println(e);\n"+
+				"    }");
+			IType type = getCompilationUnit("/P/Test.java").getType("StringProperty");
+			IMethod method = type.getMethod("compute", new String[]{"QString;"});
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
+		} finally {
+			deleteProject(project);
+		}
+	}
+	// Test inner class
+	public void testBug123836d() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/Test.java", 
+				"class Test {\n"+
+				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
+				"        prop.compute(null);\n"+
+				"        p2.compute(null);\n"+
+				"    }\n"+
+				"	class StringProperty extends Property<String> {\n"+
+				"    @Override public void compute(String e) {\n"+
+				"        System.out.println(e);\n"+
+				"    }\n"+
+				"}\n"+
+				"abstract class Property<E> {\n"+
+				"    public abstract void compute(E e);\n"+
+				"}");
+				
+			IType type = getCompilationUnit("/P/Test.java").getType("Test").getType("StringProperty");
+			IMethod method = type.getMethod("compute", new String[]{"QString;"});
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
+		} finally {
+			deleteProject(project);
+		}
+	}
+	// Test local class
+	public void testBug123836e() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/Test.java", 
+				"class Test {\n"+
+				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
+				"        prop.compute(null);\n"+
+				"        p2.compute(null);\n"+
+				"		class StringProperty extends Property<String> {\n"+
+				"   		@Override public void compute(String e) {\n"+
+				"        		System.out.println(e);\n"+
+				"    		}\n"+
+				"		}\n"+
+				"    }\n"+
+				"}\n"+
+				"abstract class Property<E> {\n"+
+				"    public abstract void compute(E e);\n"+
+				"}");
+			IMethod method = selectMethod(getCompilationUnit("/P/Test.java"), "compute", 3);
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
+		} finally {
+			deleteProject(project);
+		}
+	}
+	// test inner class
+	public void testBug123836f() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/Test.java", 
+				"class Test {\n"+
+				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
+				"        prop.compute(null);\n"+
+				"        p2.compute(null);\n"+
+				"		 new Property<String>() {\n"+
+				"   		@Override public void compute(String e) {\n"+
+				"        		System.out.println(e);\n"+
+				"    		}\n"+
+				"		};\n"+
+				"    }\n"+
+				"}\n"+
+				"abstract class Property<E> {\n"+
+				"    public abstract void compute(E e);\n"+
+				"}");
+			IMethod method = selectMethod(getCompilationUnit("/P/Test.java"), "compute", 3);
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
+		} finally {
+			deleteProject(project);
+		}
+	}
+	// test in initializer block
+	public void testBug123836g() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/Test.java", 
+				"class Test {\n"+
+				"	{\n" +
+				"		new Property<String>() {\n" +
+				"			@Override public void compute(String e) {}\n" +
+				"		};\n"+
+				"	 }\n"+
+				"	void calc(Property prop, Property<? extends Serializable> p2) {\n"+
+				"		prop.compute(null);\n"+
+				"		p2.compute(null);\n"+
+				"	}\n"+
+				"}\n"+
+				"abstract class Property<E> {\n"+
+				"	public abstract void compute(E e);\n"+
+				"}");
+			IMethod method = selectMethod(getCompilationUnit("/P/Test.java"), "compute", 1);
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
+		} finally {
+			deleteProject(project);
+		}
+	}
+	// test in static initializer
+	public void testBug123836h() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/Test.java", 
+				"class Test {\n"+
+				"	static {\n" +
+				"		new Property<String>() {\n" +
+				"			@Override public void compute(String e) {}\n" +
+				"		};\n"+
+				"	 }\n"+
+				"	void calc(Property prop, Property<? extends Serializable> p2) {\n"+
+				"		prop.compute(null);\n"+
+				"		p2.compute(null);\n"+
+				"	}\n"+
+				"}\n"+
+				"abstract class Property<E> {\n"+
+				"	public abstract void compute(E e);\n"+
+				"}");
+			IMethod method = selectMethod(getCompilationUnit("/P/Test.java"), "compute", 1);
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
+		} finally {
+			deleteProject(project);
+		}
+	}
+	// test in static initializer
+	public void testBug123836i() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/Test.java", 
+				"class Test {\n"+
+				"	Property <?>p = new Property<String>() {\n" +
+				"			@Override public void compute(String e) {}\n" +
+				"		};\n"+
+				"	void calc(Property prop, Property<? extends Serializable> p2) {\n"+
+				"		prop.compute(null);\n"+
+				"		p2.compute(null);\n"+
+				"	}\n"+
+				"}\n"+
+				"abstract class Property<E> {\n"+
+				"	public abstract void compute(E e);\n"+
+				"}");
+			IMethod method = selectMethod(getCompilationUnit("/P/Test.java"), "compute", 1);
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
+		} finally {
+			deleteProject(project);
+		}
+	}
+	public void testBug123836j() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/Test.java", 
+				"class Test {\n"+
+				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
+				"        prop.compute(null);\n"+
+				"        p2.compute(null);\n"+
+				"    }\n"+
+				"}\n"+
+				"abstract class Property<E> {\n"+
+				"    public abstract void compute(E e);\n"+
+				"}\n"+
+				"class StringProperty extends Property<String> {\n"+
+				"	@Override public void compute(String e) {\n"+
+				"		 new Property<String>() {\n"+
+				"			@Override public void compute(String e) {\n"+
+				"				new Property<String>() {\n"+
+				"					@Override public void compute(String e) {}\n"+
+				"				};\n"+
+				"			}\n"+
+				"		};\n"+
+				"	}\n"+
+				"}");
+			IMethod method = selectMethod(getCompilationUnit("/P/Test.java"), "compute", 6);
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
+		} finally {
+			deleteProject(project);
+		}
+	}
+	// test search of name
+	public void _testBug123836g1() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/Sub.java", 
+					"abstract class Sup<C> {\n" +
+					"    protected void m(C classifier) {}\n"+
+					"    public void use(C owner) { m (owner); }\n" +
+					"}\n" +
+					"public class Sub extends Sup<String>{\n" +
+					"    @Override\n"+
+					"    protected void m(String classifier) {}\n"+
+					"    protected void m(Sub classifier) {}\n"+
+					"}\n" );
+			waitUntilIndexesReady();
+			// search
+			SearchPattern pattern = SearchPattern.createPattern("Sub.m(String)", METHOD, REFERENCES, EXACT_RULE);
+			search(pattern, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Sub.java void Sup.use(C) [m (owner)] EXACT_MATCH");
+			
+		} finally {
+			deleteProject(project);
+		}
+	}
+	// test search of name (negative)
+	public void _testBug123836h1() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			createFile("/P/Sub.java", 
+					"abstract class Sup<C> {\n" +
+					"    protected void m(C classifier) {}\n"+
+					"    public void use(C owner) { m (owner); }\n" +
+					"}\n" +
+					"public class Sub extends Sup<String>{\n" +
+					"    @Override\n"+
+					"    protected void m(String classifier) {}\n"+
+					"    protected void m(Sub classifier) {}\n"+
+					"}\n" );
+			// search
+			SearchPattern pattern = SearchPattern.createPattern("Sub.m(Sub)", METHOD, REFERENCES, EXACT_RULE);
+			search(pattern, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("");
+			
+		} finally {
+			deleteProject(project);
 		}
 	}
 }
