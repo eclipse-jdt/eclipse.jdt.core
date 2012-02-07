@@ -13,6 +13,7 @@
  *     						bug 349326 - [1.7] new warning for missing try-with-resources
  * 							bug 186342 - [compiler][null] Using annotations for null checking
  *							bug 358903 - Filter practically unimportant resource leak warnings
+ *							bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -64,9 +65,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
 	}
 
-	if (FakedTrackingVariable.isAnyCloseable(this.resolvedType))
-		FakedTrackingVariable.analyseCloseableAllocation(currentScope, flowInfo, this);
-
 	// record some dependency information for exception types
 	ReferenceBinding[] thrownExceptions;
 	if (((thrownExceptions = this.binding.thrownExceptions).length) != 0) {
@@ -81,6 +79,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			flowInfo.unconditionalCopy(),
 			currentScope);
 	}
+
+	// after having analysed exceptions above start tracking newly allocated resource:
+	if (FakedTrackingVariable.isAnyCloseable(this.resolvedType))
+		FakedTrackingVariable.analyseCloseableAllocation(currentScope, flowInfo, this);
+
 	if (this.binding.declaringClass.isMemberType() && !this.binding.declaringClass.isStatic()) {
 		// allocating a non-static member type without an enclosing instance of parent type
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845

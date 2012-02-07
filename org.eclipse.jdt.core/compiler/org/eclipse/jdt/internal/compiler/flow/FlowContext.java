@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *     							bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -19,6 +20,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
 import org.eclipse.jdt.internal.compiler.ast.LabeledStatement;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
@@ -74,6 +76,8 @@ public static final int CAN_ONLY_NON_NULL = 0x0002;
 public static final int MAY_NULL = 0x0003;
 //check binding a value to a @NonNull variable 
 public final static int ASSIGN_TO_NONNULL = 0x0080;
+//check against unclosed resource at early exit:
+public static final int EXIT_RESOURCE = 0x0800;
 // check against null, with potential values -- NPE guard
 public static final int CHECK_MASK = 0x00FF;
 public static final int IN_COMPARISON_NULL = 0x0100;
@@ -556,6 +560,18 @@ public void recordContinueFrom(FlowContext innerFlowContext, FlowInfo flowInfo) 
 	// default implementation: do nothing
 }
 
+/** 
+ * Record that we found an early exit from a method while a resource is in scope.
+ * @param scope enclosing scope
+ * @param flowInfo flowInfo at the point of the early exit
+ * @param trackingVar representation of the resource
+ * @param reference the return or throw statement marking the early exit
+ * @return true if the situation has been handled by this flow context.
+ */
+public boolean recordExitAgainstResource(BlockScope scope, FlowInfo flowInfo, FakedTrackingVariable trackingVar, ASTNode reference) {
+	return false; // not handled
+}
+
 protected void recordExpectedType(TypeBinding expectedType, int nullCount) {
 	if (nullCount == 0) {
 		this.expectedTypes = new TypeBinding[5];
@@ -580,7 +596,9 @@ protected boolean recordFinalAssignment(VariableBinding variable, Reference fina
  * Record a null reference for use by deferred checks. Only looping or
  * finally contexts really record that information.
  * @param local the local variable involved in the check
- * @param expression the expression within which local lays
+ * @param location the location triggering the analysis, for normal null dereference
+ *      this is an expression resolving to 'local', for resource leaks it is an
+ *      early exit statement.
  * @param status the status against which the check must be performed; one of
  * 		{@link #CAN_ONLY_NULL CAN_ONLY_NULL}, {@link #CAN_ONLY_NULL_NON_NULL
  * 		CAN_ONLY_NULL_NON_NULL}, {@link #MAY_NULL MAY_NULL},
@@ -589,7 +607,7 @@ protected boolean recordFinalAssignment(VariableBinding variable, Reference fina
  *      {@link #IN_COMPARISON_NON_NULL}, {@link #IN_ASSIGNMENT} or {@link #IN_INSTANCEOF})
  */
 protected void recordNullReference(VariableBinding local,
-	Expression expression, int status) {
+	ASTNode location, int status) {
 	// default implementation: do nothing
 }
 
@@ -620,7 +638,9 @@ public void recordSettingFinal(VariableBinding variable, Reference finalReferenc
  * context).
  * @param scope the scope into which the check is performed
  * @param local the local variable involved in the check
- * @param reference the expression within which local lies
+ * @param location the location triggering the analysis, for normal null dereference
+ *      this is an expression resolving to 'local', for resource leaks it is an
+ *      early exit statement.
  * @param checkType the status against which the check must be performed; one
  * 		of {@link #CAN_ONLY_NULL CAN_ONLY_NULL}, {@link #CAN_ONLY_NULL_NON_NULL
  * 		CAN_ONLY_NULL_NON_NULL}, {@link #MAY_NULL MAY_NULL}, potentially
@@ -632,7 +652,7 @@ public void recordSettingFinal(VariableBinding variable, Reference finalReferenc
  * 		code that follows the current point)
  */
 public void recordUsingNullReference(Scope scope, VariableBinding local,
-		Expression reference, int checkType, FlowInfo flowInfo) {
+		ASTNode location, int checkType, FlowInfo flowInfo) {
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0 ||
 			flowInfo.isDefinitelyUnknown(local)) {
 		return;
@@ -643,14 +663,14 @@ public void recordUsingNullReference(Scope scope, VariableBinding local,
 			if (flowInfo.isDefinitelyNonNull(local)) {
 				if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
 					if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-						scope.problemReporter().variableRedundantCheckOnNonNull(local, reference);
+						scope.problemReporter().variableRedundantCheckOnNonNull(local, location);
 					}
 					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
 						flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 					}
 				} else {
 					if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-						scope.problemReporter().variableNonNullComparedToNull(local, reference);
+						scope.problemReporter().variableNonNullComparedToNull(local, location);
 					}
 					if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(local)) {
 						flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
@@ -666,6 +686,7 @@ public void recordUsingNullReference(Scope scope, VariableBinding local,
 		case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
 		case CAN_ONLY_NULL | IN_ASSIGNMENT:
 		case CAN_ONLY_NULL | IN_INSTANCEOF:
+			Expression reference = (Expression)location;
 			if (flowInfo.isDefinitelyNull(local)) {
 				switch(checkType & CONTEXT_MASK) {
 					case FlowContext.IN_COMPARISON_NULL:
@@ -720,11 +741,11 @@ public void recordUsingNullReference(Scope scope, VariableBinding local,
 			break;
 		case MAY_NULL :
 			if (flowInfo.isDefinitelyNull(local)) {
-				scope.problemReporter().variableNullReference(local, reference);
+				scope.problemReporter().variableNullReference(local, location);
 				return;
 			}
 			if (flowInfo.isPotentiallyNull(local)) {
-				scope.problemReporter().variablePotentialNullReference(local, reference);
+				scope.problemReporter().variablePotentialNullReference(local, location);
 				return;
 			}
 			break;
@@ -732,7 +753,7 @@ public void recordUsingNullReference(Scope scope, VariableBinding local,
 			// never happens
 	}
 	if (this.parent != null) {
-		this.parent.recordUsingNullReference(scope, local, reference, checkType,
+		this.parent.recordUsingNullReference(scope, local, location, checkType,
 				flowInfo);
 	}
 }

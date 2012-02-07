@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2168,8 +2168,8 @@ public void testSearchFieldInBinaryWithResolution() throws CoreException {
 		search("MissingFieldType.*", FIELD, DECLARATIONS,  getJavaSearchScope());
 		assertSearchResults(
 			"AbortCompilation.jar AbortCompilation.MissingFieldType.field [No source] EXACT_MATCH\n" +
-			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] EXACT_MATCH\n" +
-			"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] POTENTIAL_MATCH"
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.missing [No source] EXACT_MATCH\n" +
+			"AbortCompilation.jar AbortCompilation.MissingFieldType.otherField [No source] EXACT_MATCH"
 		);
 	} finally {
 		// reset classpath
@@ -2229,8 +2229,8 @@ public void testSearchMethodInBinaryWithResolution() throws CoreException {
 		search("MissingArgumentType.foo*", METHOD, DECLARATIONS, getJavaSearchScope());
 		assertSearchResults(
 			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo() [No source] EXACT_MATCH\n" +
-			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo2() [No source] EXACT_MATCH\n" +
-			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo(java.util.EventListener) [No source] POTENTIAL_MATCH"
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo(java.util.EventListener) [No source] EXACT_MATCH\n" +
+			"AbortCompilation.jar void AbortCompilation.MissingArgumentType.foo2() [No source] EXACT_MATCH"		
 		);
 	} finally {
 		// reset classpath

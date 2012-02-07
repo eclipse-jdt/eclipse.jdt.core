@@ -116,7 +116,7 @@ private void compileVerifyTests(String verifierDir) {
 	}
 	String fileName = dir + File.separator + simpleName + ".java";
 	Util.writeToFile(getVerifyTestsCode(), fileName);
-	BatchCompiler.compile("\"" + fileName + "\" -d \"" + verifierDir + "\" -classpath \"" + Util.getJavaClassLibsAsString() + "\"", new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
+	BatchCompiler.compile("\"" + fileName + "\" -d \"" + verifierDir + "\" -warn:-resource -classpath \"" + Util.getJavaClassLibsAsString() + "\"", new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
 }
 public void execute(String className, String[] classpaths) {
 	this.outputBuffer = new StringBuffer();
@@ -145,222 +145,243 @@ public String getExecutionError(){
  */
 private String getVerifyTestsCode() {
 	return
-		"/*******************************************************************************" +
-		" * Copyright (c) 2000, 2005 IBM Corporation and others." +
-		" * All rights reserved. This program and the accompanying materials" +
-		" * are made available under the terms of the Eclipse Public License v1.0" +
-		" * which accompanies this distribution, and is available at" +
-		" * http://www.eclipse.org/legal/epl-v10.html" +
-		" *" +
-		" * Contributors:" +
-		" *     IBM Corporation - initial API and implementation" +
-		" *******************************************************************************/" +
-		"package org.eclipse.jdt.core.tests.util;\n" +
-		"\n" +
-		"import java.lang.reflect.*;\n" +
-		"import java.io.*;\n" +
-		"import java.net.*;\n" +
-		"import java.util.*;\n" +
-		"\n" +
-		"/******************************************************\n" +
-		" * \n" +
-		" * IMPORTANT NOTE: If modifying this class, copy the source to TestVerifier#getVerifyTestsCode()\n" +
-		" * (see this method for details)\n" +
-		" * \n" +
-		" ******************************************************/\n" +
-		"\n" +
-		"public class VerifyTests {\n" +
-		"	int portNumber;\n" +
-		"	Socket socket;\n" +
-		"\n" +
-		"/**\n" +
-		" * NOTE: Code copied from junit.util.TestCaseClassLoader.\n" +
-		" *\n" +
-		" * A custom class loader which enables the reloading\n" +
-		" * of classes for each test run. The class loader\n" +
-		" * can be configured with a list of package paths that\n" +
-		" * should be excluded from loading. The loading\n" +
-		" * of these packages is delegated to the system class\n" +
-		" * loader. They will be shared across test runs.\n" +
-		" * <p>\n" +
-		" * The list of excluded package paths is specified in\n" +
-		" * a properties file \"excluded.properties\" that is located in \n" +
-		" * the same place as the TestCaseClassLoader class.\n" +
-		" * <p>\n" +
-		" * <b>Known limitation:</b> the VerifyClassLoader cannot load classes\n" +
-		" * from jar files.\n" +
-		" */\n" +
-		"\n" +
-		"\n" +
-		"public class VerifyClassLoader extends ClassLoader {\n" +
-		"	/** scanned class path */\n" +
-		"	private String[] fPathItems;\n" +
-		"	\n" +
-		"	/** excluded paths */\n" +
-		"	private String[] fExcluded= {};\n" +
-		"\n" +
-		"	/**\n" +
-		"	 * Constructs a VerifyClassLoader. It scans the class path\n" +
-		"	 * and the excluded package paths\n" +
-		"	 */\n" +
-		"	public VerifyClassLoader() {\n" +
-		"		super();\n" +
-		"		String classPath= System.getProperty(\"java.class.path\");\n" +
-		"		String separator= System.getProperty(\"path.separator\");\n" +
-		"		\n" +
-		"		// first pass: count elements\n" +
-		"		StringTokenizer st= new StringTokenizer(classPath, separator);\n" +
-		"		int i= 0;\n" +
-		"		while (st.hasMoreTokens()) {\n" +
-		"			st.nextToken();\n" +
-		"			i++;\n" +
-		"		}\n" +
-		"		// second pass: split\n" +
-		"		fPathItems= new String[i];\n" +
-		"		st= new StringTokenizer(classPath, separator);\n" +
-		"		i= 0;\n" +
-		"		while (st.hasMoreTokens()) {\n" +
-		"			fPathItems[i++]= st.nextToken();\n" +
-		"		}\n" +
-		"\n" +
-		"	}\n" +
-		"	public java.net.URL getResource(String name) {\n" +
-		"		return ClassLoader.getSystemResource(name);\n" +
-		"	}\n" +
-		"	public InputStream getResourceAsStream(String name) {\n" +
-		"		return ClassLoader.getSystemResourceAsStream(name);\n" +
-		"	}\n" +
-		"	protected boolean isExcluded(String name) {\n" +
-		"		// exclude the \"java\" packages.\n" +
-		"		// They always need to be excluded so that they are loaded by the system class loader\n" +
-		"		if (name.startsWith(\"java\"))\n" +
-		"			return true;\n" +
-		"			\n" +
-		"		// exclude the user defined package paths\n" +
-		"		for (int i= 0; i < fExcluded.length; i++) {\n" +
-		"			if (name.startsWith(fExcluded[i])) {\n" +
-		"				return true;\n" +
-		"			}\n" +
-		"		}\n" +
-		"		return false;	\n" +
-		"	}\n" +
-		"	public synchronized Class loadClass(String name, boolean resolve)\n" +
-		"		throws ClassNotFoundException {\n" +
-		"			\n" +
-		"		Class c= findLoadedClass(name);\n" +
-		"		if (c != null)\n" +
-		"			return c;\n" +
-		"		//\n" +
-		"		// Delegate the loading of excluded classes to the\n" +
-		"		// standard class loader.\n" +
-		"		//\n" +
-		"		if (isExcluded(name)) {\n" +
-		"			try {\n" +
-		"				c= findSystemClass(name);\n" +
-		"				return c;\n" +
-		"			} catch (ClassNotFoundException e) {\n" +
-		"				// keep searching\n" +
-		"			}\n" +
-		"		}\n" +
-		"		File file= locate(name);\n" +
-		"		if (file == null)\n" +
-		"			throw new ClassNotFoundException();\n" +
-		"		byte data[]= loadClassData(file);\n" +
-		"		c= defineClass(name, data, 0, data.length);\n" +
-		"		if (resolve) \n" +
-		"			resolveClass(c);\n" +
-		"		return c;\n" +
-		"	}\n" +
-		"	private byte[] loadClassData(File f) throws ClassNotFoundException {\n" +
-		"		try {\n" +
-		"			//System.out.println(\"loading: \"+f.getPath());\n" +
-		"			FileInputStream stream= new FileInputStream(f);\n" +
-		"			\n" +
-		"			try {\n" +
-		"				byte[] b= new byte[stream.available()];\n" +
-		"				stream.read(b);\n" +
-		"				stream.close();\n" +
-		"				return b;\n" +
-		"			}\n" +
-		"			catch (IOException e) {\n" +
-		"				throw new ClassNotFoundException();\n" +
-		"			}\n" +
-		"		}\n" +
-		"		catch (FileNotFoundException e) {\n" +
-		"			throw new ClassNotFoundException();\n" +
-		"		}\n" +
-		"	}\n" +
-		"	/**\n" +
-		"	 * Locate the given file.\n" +
-		"	 * @return Returns null if file couldn\'t be found.\n" +
-		"	 */\n" +
-		"	private File locate(String fileName) { \n" +
-		"		if (fileName != null) {\n" +
-		"		  fileName= fileName.replace(\'.\', \'/\')+\".class\";\n" +
-		"		  File path= null;\n" +
-		"			for (int i= 0; i < fPathItems.length; i++) {\n" +
-		"				path= new File(fPathItems[i], fileName);\n" +
-		"				if (path.exists())\n" +
-		"					return path;\n" +
-		"			}\n" +
-		"		}\n" +
-		"		return null;\n" +
-		"	}\n" +
-		"}\n" +
-		"	\n" +
-		"public void loadAndRun(String className) throws Throwable {\n" +
-		"	//System.out.println(\"Loading \" + className + \"...\");\n" +
-		"	Class testClass = new VerifyClassLoader().loadClass(className);\n" +
-		"	//System.out.println(\"Loaded \" + className);\n" +
-		"	try {\n" +
-		"		Method main = testClass.getMethod(\"main\", new Class[] {String[].class});\n" +
-		"		//System.out.println(\"Running \" + className);\n" +
-		"		main.invoke(null, new Object[] {new String[] {}});\n" +
-		"		//System.out.println(\"Finished running \" + className);\n" +
-		"	} catch (NoSuchMethodException e) {\n" +
-		"		return;\n" +
-		"	} catch (InvocationTargetException e) {\n" +
-		"		throw e.getTargetException();\n" +
-		"	}\n" +
-		"}\n" +
-		"public static void main(String[] args) throws IOException {\n" +
-		"	VerifyTests verify = new VerifyTests();\n" +
-		"	verify.portNumber = Integer.parseInt(args[0]);\n" +
-		"	verify.run();\n" +
-		"}\n" +
-		"public void run() throws IOException {\n" +
-		"	ServerSocket server = new ServerSocket(this.portNumber);\n" +
-		"	this.socket = server.accept();\n" +
-		"	this.socket.setTcpNoDelay(true);\n" +
-		"	server.close();\n" +
-		"\n" +
-		"	final DataInputStream in = new DataInputStream(this.socket.getInputStream());\n" +
-		"	final DataOutputStream out = new DataOutputStream(this.socket.getOutputStream());\n" +
-		"	while (true) {\n" +
-		"		final String className = in.readUTF();\n" +
-		"		Thread thread = new Thread() {\n" +
-		"			public void run() {\n" +
-		"				try {\n" +
-		"					loadAndRun(className);\n" +
-		"					out.writeBoolean(true);\n" +
-		"					System.err.println(VerifyTests.class.getName());\n" +
-		"					System.out.println(VerifyTests.class.getName());\n" +
-		"				} catch (Throwable e) {\n" +
-		"					e.printStackTrace();\n" +
-		"					try {\n" +
-		"						System.err.println(VerifyTests.class.getName());\n" +
-		"						System.out.println(VerifyTests.class.getName());\n" +
-		"						out.writeBoolean(false);\n" +
-		"					} catch (IOException e1) {\n" +
-		"						// ignore\n" +
-		"					}\n" +
-		"				}\n" +
-		"			}\n" +
-		"		};\n" +
-		"		thread.start();\n" +
-		"	}\n" +
-		"}\n" +
-		"}\n";
+		"/*******************************************************************************\n" + 
+		" * Copyright (c) 2000, 2011 IBM Corporation and others.\n" + 
+		" * All rights reserved. This program and the accompanying materials\n" + 
+		" * are made available under the terms of the Eclipse Public License v1.0\n" + 
+		" * which accompanies this distribution, and is available at\n" + 
+		" * http://www.eclipse.org/legal/epl-v10.html\n" + 
+		" *\n" + 
+		" * Contributors:\n" + 
+		" *     IBM Corporation - initial API and implementation\n" + 
+		" *******************************************************************************/\n" + 
+		"package org.eclipse.jdt.core.tests.util;\n" + 
+		"\n" + 
+		"import java.io.DataInputStream;\n" + 
+		"import java.io.DataOutputStream;\n" + 
+		"import java.io.File;\n" + 
+		"import java.io.FileInputStream;\n" + 
+		"import java.io.FileNotFoundException;\n" + 
+		"import java.io.IOException;\n" + 
+		"import java.io.InputStream;\n" + 
+		"import java.lang.reflect.InvocationTargetException;\n" + 
+		"import java.lang.reflect.Method;\n" + 
+		"import java.net.ServerSocket;\n" + 
+		"import java.net.Socket;\n" + 
+		"import java.util.StringTokenizer;\n" + 
+		"\n" + 
+		"/******************************************************\n" + 
+		" *\n" + 
+		" * IMPORTANT NOTE: If modifying this class, copy the source to TestVerifier#getVerifyTestsCode()\n" + 
+		" * (see this method for details)\n" + 
+		" *\n" + 
+		" ******************************************************/\n" + 
+		"\n" + 
+		"public class VerifyTests {\n" + 
+		"	int portNumber;\n" + 
+		"	Socket socket;\n" + 
+		"\n" + 
+		"/**\n" + 
+		" * NOTE: Code copied from junit.util.TestCaseClassLoader.\n" + 
+		" *\n" + 
+		" * A custom class loader which enables the reloading\n" + 
+		" * of classes for each test run. The class loader\n" + 
+		" * can be configured with a list of package paths that\n" + 
+		" * should be excluded from loading. The loading\n" + 
+		" * of these packages is delegated to the system class\n" + 
+		" * loader. They will be shared across test runs.\n" + 
+		" * <p>\n" + 
+		" * The list of excluded package paths is specified in\n" + 
+		" * a properties file \"excluded.properties\" that is located in\n" + 
+		" * the same place as the TestCaseClassLoader class.\n" + 
+		" * <p>\n" + 
+		" * <b>Known limitation:</b> the VerifyClassLoader cannot load classes\n" + 
+		" * from jar files.\n" + 
+		" */\n" + 
+		"\n" + 
+		"\n" + 
+		"public class VerifyClassLoader extends ClassLoader {\n" + 
+		"	/** scanned class path */\n" + 
+		"	private String[] pathItems;\n" + 
+		"\n" + 
+		"	/** excluded paths */\n" + 
+		"	private String[] excluded= {};\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Constructs a VerifyClassLoader. It scans the class path\n" + 
+		"	 * and the excluded package paths\n" + 
+		"	 */\n" + 
+		"	public VerifyClassLoader() {\n" + 
+		"		super();\n" + 
+		"		String classPath= System.getProperty(\"java.class.path\");\n" + 
+		"		String separator= System.getProperty(\"path.separator\");\n" + 
+		"\n" + 
+		"		// first pass: count elements\n" + 
+		"		StringTokenizer st= new StringTokenizer(classPath, separator);\n" + 
+		"		int i= 0;\n" + 
+		"		while (st.hasMoreTokens()) {\n" + 
+		"			st.nextToken();\n" + 
+		"			i++;\n" + 
+		"		}\n" + 
+		"		// second pass: split\n" + 
+		"		this.pathItems= new String[i];\n" + 
+		"		st= new StringTokenizer(classPath, separator);\n" + 
+		"		i= 0;\n" + 
+		"		while (st.hasMoreTokens()) {\n" + 
+		"			this.pathItems[i++]= st.nextToken();\n" + 
+		"		}\n" + 
+		"\n" + 
+		"	}\n" + 
+		"	public java.net.URL getResource(String name) {\n" + 
+		"		return ClassLoader.getSystemResource(name);\n" + 
+		"	}\n" + 
+		"	public InputStream getResourceAsStream(String name) {\n" + 
+		"		return ClassLoader.getSystemResourceAsStream(name);\n" + 
+		"	}\n" + 
+		"	protected boolean isExcluded(String name) {\n" + 
+		"		// exclude the \"java\" packages.\n" + 
+		"		// They always need to be excluded so that they are loaded by the system class loader\n" + 
+		"		if (name.startsWith(\"java\"))\n" + 
+		"			return true;\n" + 
+		"\n" + 
+		"		// exclude the user defined package paths\n" + 
+		"		for (int i= 0; i < this.excluded.length; i++) {\n" + 
+		"			if (name.startsWith(this.excluded[i])) {\n" + 
+		"				return true;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		return false;\n" + 
+		"	}\n" + 
+		"	public synchronized Class loadClass(String name, boolean resolve)\n" + 
+		"		throws ClassNotFoundException {\n" + 
+		"\n" + 
+		"		Class c= findLoadedClass(name);\n" + 
+		"		if (c != null)\n" + 
+		"			return c;\n" + 
+		"		//\n" + 
+		"		// Delegate the loading of excluded classes to the\n" + 
+		"		// standard class loader.\n" + 
+		"		//\n" + 
+		"		if (isExcluded(name)) {\n" + 
+		"			try {\n" + 
+		"				c= findSystemClass(name);\n" + 
+		"				return c;\n" + 
+		"			} catch (ClassNotFoundException e) {\n" + 
+		"				// keep searching\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		File file= locate(name);\n" + 
+		"		if (file == null)\n" + 
+		"			throw new ClassNotFoundException();\n" + 
+		"		byte data[]= loadClassData(file);\n" + 
+		"		c= defineClass(name, data, 0, data.length);\n" + 
+		"		if (resolve)\n" + 
+		"			resolveClass(c);\n" + 
+		"		return c;\n" + 
+		"	}\n" + 
+		"	private byte[] loadClassData(File f) throws ClassNotFoundException {\n" + 
+		"		FileInputStream stream = null;\n" + 
+		"		try {\n" + 
+		"			//System.out.println(\"loading: \"+f.getPath());\n" + 
+		"			stream = new FileInputStream(f);\n" + 
+		"\n" + 
+		"			try {\n" + 
+		"				byte[] b= new byte[stream.available()];\n" + 
+		"				stream.read(b);\n" + 
+		"				return b;\n" + 
+		"			}\n" + 
+		"			catch (IOException e) {\n" + 
+		"				throw new ClassNotFoundException();\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		catch (FileNotFoundException e) {\n" + 
+		"			throw new ClassNotFoundException();\n" + 
+		"		} finally {\n" + 
+		"			if (stream != null) {\n" + 
+		"				try {\n" + 
+		"					stream.close();\n" + 
+		"				} catch (IOException e) {\n" + 
+		"					/* ignore */\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	/**\n" + 
+		"	 * Locate the given file.\n" + 
+		"	 * @return Returns null if file couldn't be found.\n" + 
+		"	 */\n" + 
+		"	private File locate(String fileName) {\n" + 
+		"		if (fileName != null) {\n" + 
+		"			fileName= fileName.replace('.', '/')+\".class\";\n" + 
+		"			File path= null;\n" + 
+		"			for (int i= 0; i < this.pathItems.length; i++) {\n" + 
+		"				path= new File(this.pathItems[i], fileName);\n" + 
+		"				if (path.exists())\n" + 
+		"					return path;\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"\n" + 
+		"public void loadAndRun(String className) throws Throwable {\n" + 
+		"	//System.out.println(\"Loading \" + className + \"...\");\n" + 
+		"	Class testClass = new VerifyClassLoader().loadClass(className);\n" + 
+		"	//System.out.println(\"Loaded \" + className);\n" + 
+		"	try {\n" + 
+		"		Method main = testClass.getMethod(\"main\", new Class[] {String[].class});\n" + 
+		"		//System.out.println(\"Running \" + className);\n" + 
+		"		main.invoke(null, new Object[] {new String[] {}});\n" + 
+		"		//System.out.println(\"Finished running \" + className);\n" + 
+		"	} catch (NoSuchMethodException e) {\n" + 
+		"		return;\n" + 
+		"	} catch (InvocationTargetException e) {\n" + 
+		"		throw e.getTargetException();\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"public static void main(String[] args) throws IOException {\n" + 
+		"	VerifyTests verify = new VerifyTests();\n" + 
+		"	verify.portNumber = Integer.parseInt(args[0]);\n" + 
+		"	verify.run();\n" + 
+		"}\n" + 
+		"public void run() throws IOException {\n" + 
+		"	ServerSocket server = new ServerSocket(this.portNumber);\n" + 
+		"	this.socket = server.accept();\n" + 
+		"	this.socket.setTcpNoDelay(true);\n" + 
+		"	server.close();\n" + 
+		"\n" + 
+		"	DataInputStream in = new DataInputStream(this.socket.getInputStream());\n" + 
+		"	final DataOutputStream out = new DataOutputStream(this.socket.getOutputStream());\n" + 
+		"	while (true) {\n" + 
+		"		final String className = in.readUTF();\n" + 
+		"		Thread thread = new Thread() {\n" + 
+		"			public void run() {\n" + 
+		"				try {\n" + 
+		"					loadAndRun(className);\n" + 
+		"					out.writeBoolean(true);\n" + 
+		"					System.err.println(VerifyTests.class.getName());\n" + 
+		"					System.out.println(VerifyTests.class.getName());\n" + 
+		"				} catch (Throwable e) {\n" + 
+		"					e.printStackTrace();\n" + 
+		"					try {\n" + 
+		"						System.err.println(VerifyTests.class.getName());\n" + 
+		"						System.out.println(VerifyTests.class.getName());\n" + 
+		"						out.writeBoolean(false);\n" + 
+		"					} catch (IOException e1) {\n" + 
+		"						e1.printStackTrace();\n" + 
+		"					}\n" + 
+		"				}\n" + 
+		"				try {\n" + 
+		"					out.flush();\n" + 
+		"				} catch (IOException e) {\n" + 
+		"					e.printStackTrace();\n" + 
+		"				}\n" + 
+		"			}\n" + 
+		"		};\n" + 
+		"		thread.start();\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"}";
 }
 private void launchAndRun(String className, String[] classpaths, String[] programArguments, String[] vmArguments) {
 	// we won't reuse the vm, shut the existing one if running

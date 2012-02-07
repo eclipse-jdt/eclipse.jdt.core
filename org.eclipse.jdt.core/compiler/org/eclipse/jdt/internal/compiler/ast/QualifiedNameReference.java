@@ -11,6 +11,7 @@
  *     							bug 185682 - Increment/decrement operators mark local variables as read
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
+ *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -783,6 +784,13 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	return (type != null && (this.bits & ASTNode.IsStrictlyAssigned) == 0)
 			? type.capture(scope, this.sourceEnd)
 			: type;
+}
+
+public boolean isFieldAccess() {
+	if (this.otherBindings != null) {
+		return true;
+	}
+	return (this.bits & ASTNode.RestrictiveFlagMASK) == Binding.FIELD;
 }
 
 public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {

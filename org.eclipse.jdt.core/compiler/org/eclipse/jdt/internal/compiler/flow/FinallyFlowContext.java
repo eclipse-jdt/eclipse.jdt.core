@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
+ *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -34,8 +35,10 @@ public class FinallyFlowContext extends FlowContext {
 	VariableBinding[] finalVariables;
 	int assignCount;
 
+	// the following three arrays are in sync regarding their indices:
 	VariableBinding[] nullVariables;
-	Expression[] nullReferences;
+	ASTNode[] nullReferences;	// Expressions for null checking, Statements for resource analysis
+								// cast to Expression is safe if corresponding nullCheckType != EXIT_RESOURCE
 	int[] nullCheckTypes;
 	int nullCount;
 	// see also the related field FlowContext#expectedTypes
@@ -89,7 +92,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 	if ((this.tagBits & FlowContext.DEFER_NULL_DIAGNOSTIC) != 0) { // within an enclosing loop, be conservative
 		for (int i = 0; i < this.nullCount; i++) {
 			if (this.nullCheckTypes[i] == ASSIGN_TO_NONNULL)
-				this.parent.recordNullityMismatch(scope, this.nullReferences[i],
+				this.parent.recordNullityMismatch(scope, (Expression)this.nullReferences[i],
 						flowInfo.nullStatus(this.nullVariables[i]), this.expectedTypes[i]);
 			else
 				this.parent.recordUsingNullReference(scope, this.nullVariables[i],
@@ -98,7 +101,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 	}
 	else { // no enclosing loop, be as precise as possible right now
 		for (int i = 0; i < this.nullCount; i++) {
-			Expression expression = this.nullReferences[i];
+			ASTNode location = this.nullReferences[i];
 			// final local variable
 			VariableBinding var = this.nullVariables[i];
 			switch (this.nullCheckTypes[i]) {
@@ -107,11 +110,11 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					if (flowInfo.isDefinitelyNonNull(var)) {
 						if (this.nullCheckTypes[i] == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
 							if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-								scope.problemReporter().variableRedundantCheckOnNonNull(var, expression);
+								scope.problemReporter().variableRedundantCheckOnNonNull(var, location);
 							}
 						} else {
 							if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-								scope.problemReporter().variableNonNullComparedToNull(var, expression);
+								scope.problemReporter().variableNonNullComparedToNull(var, location);
 							}
 						}
 						continue;
@@ -121,6 +124,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 				case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
 				case CAN_ONLY_NULL | IN_ASSIGNMENT:
 				case CAN_ONLY_NULL | IN_INSTANCEOF:
+					Expression expression = (Expression) location;
 					if (flowInfo.isDefinitelyNull(var)) {
 						switch(this.nullCheckTypes[i] & CONTEXT_MASK) {
 							case FlowContext.IN_COMPARISON_NULL:
@@ -169,18 +173,18 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					break;
 				case MAY_NULL:
 					if (flowInfo.isDefinitelyNull(var)) {
-						scope.problemReporter().variableNullReference(var, expression);
+						scope.problemReporter().variableNullReference(var, location);
 						continue;
 					}
 					if (flowInfo.isPotentiallyNull(var)) {
-						scope.problemReporter().variablePotentialNullReference(var, expression);
+						scope.problemReporter().variablePotentialNullReference(var, location);
 					}
 					break;
 				case ASSIGN_TO_NONNULL:
 					int nullStatus = flowInfo.nullStatus(var);
 					if (nullStatus != FlowInfo.NON_NULL) {
 						char[][] annotationName = scope.environment().getNonNullAnnotationName();
-						scope.problemReporter().nullityMismatch(expression, this.expectedTypes[i], nullStatus, annotationName);
+						scope.problemReporter().nullityMismatch((Expression) location, this.expectedTypes[i], nullStatus, annotationName);
 					}
 					break;
 				default:
@@ -229,7 +233,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 	}
 
 	public void recordUsingNullReference(Scope scope, VariableBinding var,
-			Expression reference, int checkType, FlowInfo flowInfo) {
+			ASTNode location, int checkType, FlowInfo flowInfo) {
 		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0 && !flowInfo.isDefinitelyUnknown(var))	{
 			if ((this.tagBits & FlowContext.DEFER_NULL_DIAGNOSTIC) != 0) { // within an enclosing loop, be conservative
 				switch (checkType) {
@@ -239,6 +243,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
 					case CAN_ONLY_NULL | IN_ASSIGNMENT:
 					case CAN_ONLY_NULL | IN_INSTANCEOF:
+						Expression reference = (Expression) location;
 						if (flowInfo.cannotBeNull(var)) {
 							if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
 								if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
@@ -312,7 +317,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 							return;
 						}
 						if (flowInfo.canOnlyBeNull(var)) {
-							scope.problemReporter().variableNullReference(var, reference);
+							scope.problemReporter().variableNullReference(var, location);
 							return;
 						}
 						break;
@@ -327,14 +332,14 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						if (flowInfo.isDefinitelyNonNull(var)) {
 							if (checkType == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
 								if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-									scope.problemReporter().variableRedundantCheckOnNonNull(var, reference);
+									scope.problemReporter().variableRedundantCheckOnNonNull(var, location);
 								}
 								if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(var)) {
 									flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 								}
 							} else {
 								if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-									scope.problemReporter().variableNonNullComparedToNull(var, reference);
+									scope.problemReporter().variableNonNullComparedToNull(var, location);
 								}
 								if (!flowInfo.isMarkedAsNullOrNonNullInAssertExpression(var)) {
 									flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
@@ -347,6 +352,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					case CAN_ONLY_NULL | IN_COMPARISON_NON_NULL:
 					case CAN_ONLY_NULL | IN_ASSIGNMENT:
 					case CAN_ONLY_NULL | IN_INSTANCEOF:
+						Expression reference = (Expression) location;
 						if (flowInfo.isDefinitelyNull(var)) {
 							switch(checkType & CONTEXT_MASK) {
 								case FlowContext.IN_COMPARISON_NULL:
@@ -399,11 +405,11 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						break;
 					case MAY_NULL :
 						if (flowInfo.isDefinitelyNull(var)) {
-							scope.problemReporter().variableNullReference(var, reference);
+							scope.problemReporter().variableNullReference(var, location);
 							return;
 						}
 						if (flowInfo.isPotentiallyNull(var)) {
-							scope.problemReporter().variablePotentialNullReference(var, reference);
+							scope.problemReporter().variablePotentialNullReference(var, location);
 							return;
 						}
 						if (flowInfo.isDefinitelyNonNull(var)) {
@@ -419,7 +425,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 			if(((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) || checkType == MAY_NULL
 					|| (checkType & CONTEXT_MASK) == FlowContext.IN_ASSIGNMENT
 					|| (checkType & CONTEXT_MASK) == FlowContext.IN_INSTANCEOF) {
-				recordNullReference(var, reference, checkType);
+				recordNullReference(var, location, checkType);
 			}
 			// prepare to re-check with try/catch flow info
 		}
@@ -436,7 +442,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 	}
 
 protected void recordNullReference(VariableBinding var,
-	Expression expression, int status) {
+	ASTNode expression, int status) {
 	if (this.nullCount == 0) {
 		this.nullVariables = new VariableBinding[5];
 		this.nullReferences = new Expression[5];
