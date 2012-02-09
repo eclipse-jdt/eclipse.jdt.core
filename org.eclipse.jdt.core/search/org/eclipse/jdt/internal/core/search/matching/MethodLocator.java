@@ -253,19 +253,10 @@ protected int matchMethod(MethodBinding method, boolean skipImpossibleArg) {
 			// return inaccurate match for ambiguous call (bug 80890)
 			return INACCURATE_MATCH;
 		}
-
+		boolean foundTypeVariable = false;
 		// verify each parameter
 		for (int i = 0; i < parameterCount; i++) {
 			TypeBinding argType = method.parameters[i];
-			if (argType.isTypeVariable()) {
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123836, No point in textually comparing type variables, captures etc with concrete types. 
-				MethodBinding focusMethodBinding = this.matchLocator.getMethodBinding(this.pattern);
-				if (focusMethodBinding != null) {
-					if (matchOverriddenMethod(focusMethodBinding.declaringClass, focusMethodBinding, method)) {
-						return ACCURATE_MATCH;
-					}
-				}
-			}
 			int newLevel = IMPOSSIBLE_MATCH;
 			if (argType.isMemberType()) {
 				// only compare source name for member type (bug 41018)
@@ -283,6 +274,9 @@ protected int matchMethod(MethodBinding method, boolean skipImpossibleArg) {
 						// Do not consider match as impossible while finding declarations and source level >= 1.5
 					 	// (see  bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=79990, 96761, 96763)
 						newLevel = level;
+					} else if (argType.isTypeVariable()) {
+						newLevel = level;
+						foundTypeVariable = true;
 					} else {
 						return IMPOSSIBLE_MATCH;
 					}
@@ -290,10 +284,23 @@ protected int matchMethod(MethodBinding method, boolean skipImpossibleArg) {
 				level = newLevel; // can only be downgraded
 			}
 		}
+		if (foundTypeVariable) {
+			if (!method.isStatic() && !method.isPrivate()) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123836, No point in textually comparing type variables, captures etc with concrete types. 
+				MethodBinding focusMethodBinding = this.matchLocator.getMethodBinding(this.pattern);
+				if (focusMethodBinding != null) {
+					if (matchOverriddenMethod(focusMethodBinding.declaringClass, focusMethodBinding, method)) {
+						return ACCURATE_MATCH;
+					}
+				}
+			} 
+			return IMPOSSIBLE_MATCH;
+		}
 	}
 
 	return level;
 }
+// This works for only methods of parameterized types.
 private boolean matchOverriddenMethod(ReferenceBinding type, MethodBinding method, MethodBinding matchMethod) {
 	if (type == null || this.pattern.selector == null) return false;
 
