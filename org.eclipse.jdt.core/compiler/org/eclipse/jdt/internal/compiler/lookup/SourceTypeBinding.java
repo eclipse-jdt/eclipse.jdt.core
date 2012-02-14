@@ -14,6 +14,7 @@
  *								bug 365836 - [compiler][null] Incomplete propagation of null defaults.
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
+ *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -62,7 +63,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 
 	private SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
 
-	private TypeBinding nullnessDefaultAnnotation;
+	private int defaultNullness;
 	private int nullnessDefaultInitialized = 0; // 0: nothing; 1: type; 2: package
 
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
@@ -1626,9 +1627,9 @@ private void createArgumentBindings(MethodBinding method) {
 	if (methodDecl != null) {
 		if (method.parameters != Binding.NO_PARAMETERS)
 			methodDecl.createArgumentBindings();
-		TypeBinding annotationBinding = findDefaultNullness(methodDecl.scope, methodDecl.scope.environment());
-		if (annotationBinding != null && annotationBinding.id == TypeIds.T_ConfiguredAnnotationNonNull)
-			method.fillInDefaultNonNullness(annotationBinding);
+		if ((findNonNullDefault(methodDecl.scope, methodDecl.scope.environment()) == NONNULL_BY_DEFAULT)) {
+			method.fillInDefaultNonNullness();
+		}
 	}
 }
 private void evaluateNullAnnotations(long annotationTagBits) {
@@ -1636,18 +1637,21 @@ private void evaluateNullAnnotations(long annotationTagBits) {
 		return;
 	this.nullnessDefaultInitialized = 1;
 	// transfer nullness info from tagBits to this.nullnessDefaultAnnotation
-	TypeBinding defaultAnnotation = getPackage().environment
-						.getNullAnnotationBindingFromDefault(annotationTagBits, false/*resolve*/);
-	if (defaultAnnotation != null) {
+	int newDefaultNullness = NO_NULL_DEFAULT;
+	if ((annotationTagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0)
+		newDefaultNullness = NULL_UNSPECIFIED_BY_DEFAULT;
+	else if ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0)
+		newDefaultNullness = NONNULL_BY_DEFAULT;
+	if (newDefaultNullness != NO_NULL_DEFAULT) {
 		if (CharOperation.equals(this.sourceName, TypeConstants.PACKAGE_INFO_NAME)) {
-			getPackage().nullnessDefaultAnnotation = defaultAnnotation;
+			getPackage().defaultNullness = newDefaultNullness;
 			long globalDefault = this.scope.compilerOptions().defaultNonNullness;
 			if (globalDefault == TagBits.AnnotationNonNull && (annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0) {
 				TypeDeclaration typeDecl = this.scope.referenceContext;
 				this.scope.problemReporter().nullDefaultAnnotationIsRedundant(typeDecl, typeDecl.annotations, null);
 			}
 		} else {
-			this.nullnessDefaultAnnotation = defaultAnnotation;
+			this.defaultNullness = newDefaultNullness;
 			TypeDeclaration typeDecl = this.scope.referenceContext;
 			long nullDefaultBits = annotationTagBits & (TagBits.AnnotationNullUnspecifiedByDefault|TagBits.AnnotationNonNullByDefault);
 			checkRedundantNullnessDefaultRecurse(typeDecl, typeDecl.annotations, nullDefaultBits);
@@ -1656,8 +1660,8 @@ private void evaluateNullAnnotations(long annotationTagBits) {
 }
 
 protected void checkRedundantNullnessDefaultRecurse(ASTNode location, Annotation[] annotations, long annotationTagBits) {
-	if (this.fPackage.nullnessDefaultAnnotation != null) {
-		if ((this.fPackage.nullnessDefaultAnnotation.id == TypeIds.T_ConfiguredAnnotationNonNull
+	if (this.fPackage.defaultNullness != NO_NULL_DEFAULT) {
+		if ((this.fPackage.defaultNullness == NONNULL_BY_DEFAULT
 				&& ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0))) {
 			this.scope.problemReporter().nullDefaultAnnotationIsRedundant(location, annotations, this.fPackage);
 		}
@@ -1671,10 +1675,9 @@ protected void checkRedundantNullnessDefaultRecurse(ASTNode location, Annotation
 
 // return: should caller continue searching?
 protected boolean checkRedundantNullnessDefaultOne(ASTNode location, Annotation[] annotations, long annotationTagBits) {
-	TypeBinding thisDefault = this.nullnessDefaultAnnotation;
-	if (thisDefault != null) {
-		if (thisDefault.id == TypeIds.T_ConfiguredAnnotationNonNull
-			&& ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0)) {
+	int thisDefault = this.defaultNullness;
+	if (thisDefault == NONNULL_BY_DEFAULT) {
+		if ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0) {
 			this.scope.problemReporter().nullDefaultAnnotationIsRedundant(location, annotations, this);
 		}
 		return false; // different default means inner default is not redundant -> we're done
@@ -1682,42 +1685,35 @@ protected boolean checkRedundantNullnessDefaultOne(ASTNode location, Annotation[
 	return true;
 }
 
-private TypeBinding getNullnessDefaultAnnotation() {
-	if (this.nullnessDefaultAnnotation instanceof UnresolvedReferenceBinding)
-		this.nullnessDefaultAnnotation = this.scope.environment().getNullAnnotationResolved(this.nullnessDefaultAnnotation, this.scope);
-	return this.nullnessDefaultAnnotation;
-}
 /**
  * Answer the nullness default applicable at the given method binding.
- * Possible values:<ul>
- * <li>the type binding for @NonNulByDefault</li>
- * <li>the synthetic type {@link ReferenceBinding#NULL_UNSPECIFIED} if a default from outer scope has been canceled</li>
- * <li>null if no default has been defined</li>
- * </ul>
+ * Possible values: {@link Binding#NO_NULL_DEFAULT}, {@link Binding#NULL_UNSPECIFIED_BY_DEFAULT}, {@link Binding#NONNULL_BY_DEFAULT}.
  * @param currentScope where to start search for lexically enclosing default
- * @param environment gateway to options and configured annotation types
+ * @param environment gateway to options
  */
-private TypeBinding findDefaultNullness(Scope currentScope, LookupEnvironment environment) {
+private int findNonNullDefault(Scope currentScope, LookupEnvironment environment) {
 	// find the applicable default inside->out:
 
 	SourceTypeBinding currentType = null;
-	TypeBinding annotationBinding;
 	while (currentScope != null) {
 		switch (currentScope.kind) {
 			case Scope.METHOD_SCOPE:
 				AbstractMethodDeclaration referenceMethod = ((MethodScope)currentScope).referenceMethod();
 				if (referenceMethod != null && referenceMethod.binding != null) {
-					annotationBinding = environment.getNullAnnotationBindingFromDefault(referenceMethod.binding.tagBits, true/*resolve*/);
-					if (annotationBinding != null)
-						return annotationBinding;
+					long methodTagBits = referenceMethod.binding.tagBits;
+					if ((methodTagBits & TagBits.AnnotationNonNullByDefault) != 0)
+						return NONNULL_BY_DEFAULT;
+					if ((methodTagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0)
+						return NULL_UNSPECIFIED_BY_DEFAULT;
 				}
 				break;
 			case Scope.CLASS_SCOPE:
 				currentType = ((ClassScope)currentScope).referenceContext.binding;
 				if (currentType != null) {
-					annotationBinding = currentType.getNullnessDefaultAnnotation();
-					if (annotationBinding != null)
-						return annotationBinding;
+					int foundDefaultNullness = currentType.defaultNullness;
+					if (foundDefaultNullness != NO_NULL_DEFAULT) {
+						return foundDefaultNullness;
+					}
 				}
 				break;
 		}
@@ -1726,28 +1722,16 @@ private TypeBinding findDefaultNullness(Scope currentScope, LookupEnvironment en
 
 	// package
 	if (currentType != null) {
-		annotationBinding = currentType.getPackage().getNullnessDefaultAnnotation(this.scope);
-		if (annotationBinding != null)
-			return annotationBinding;
+		int foundDefaultNullness = currentType.getPackage().defaultNullness;
+		if (foundDefaultNullness != NO_NULL_DEFAULT) {
+			return foundDefaultNullness;
+		}
 	}
 
 	// global
-	long defaultNullness = environment.globalOptions.defaultNonNullness;
-	if (defaultNullness != 0) {
-		// we have a default, so we need an annotation type to record this during compile and in the byte code
-		annotationBinding = environment.getNullAnnotationBinding(defaultNullness, true/*resolve*/);
-		if (annotationBinding != null)
-			return annotationBinding;
-
-		// on this branch default was not defined using an annotation, thus annotation type can still be missing
-		if (defaultNullness == TagBits.AnnotationNonNull)
-			this.scope.problemReporter().missingNullAnnotationType(environment.getNonNullAnnotationName());
-		else
-			this.scope.problemReporter().abortDueToInternalError("Illegal default nullness value: "+defaultNullness); //$NON-NLS-1$
-		// reset default to avoid duplicate errors:
-		environment.globalOptions.defaultNonNullness = 0;
-	}
-	return null;
+	if (environment.globalOptions.defaultNonNullness == TagBits.AnnotationNonNull)
+		return NONNULL_BY_DEFAULT;
+	return NO_NULL_DEFAULT;
 }
 
 public AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceInitialization) {

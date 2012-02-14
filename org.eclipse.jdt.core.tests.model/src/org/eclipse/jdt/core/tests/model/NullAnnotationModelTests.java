@@ -161,7 +161,8 @@ public class NullAnnotationModelTests extends ReconcilerTests {
     	}
     }
 
-	public void testMissingAnnotation1() throws CoreException {
+	// DISABLED: no longer a problem since bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
+	public void _testMissingAnnotation1() throws CoreException {
     	try {
 			// Resources creation
 			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
@@ -197,7 +198,8 @@ public class NullAnnotationModelTests extends ReconcilerTests {
     	}
 	}
 
-	public void testMissingAnnotation2() throws CoreException {
+	// DISABLED: no longer a problem since bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
+	public void _testMissingAnnotation2() throws CoreException {
 		Hashtable javaOptions = JavaCore.getOptions();
     	try {
 			// Resources creation
@@ -241,7 +243,8 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	// Bug 363858 - [dom] early throwing of AbortCompilation causes NPE in CompilationUnitResolver
 	// currently not actually challenging the NPE, because we no longer report
 	// "Cannot use the unqualified name \'invalid\' as an annotation name for null specification"
-	public void testMissingAnnotation3() throws CoreException {
+	// DISABLED: no longer a problem since bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
+	public void _testMissingAnnotation3() throws CoreException {
     	try {
 			// Resources creation
 			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
@@ -357,7 +360,8 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	// - triggered from resolveTypesFor(MethodBinding)
 	// - default is defined in package-info.java:
 	// must detect missing non-null annotation and report against the project
-	public void testMissingAnnotation5() throws CoreException, InterruptedException {
+	// DISABLED: no longer a problem since bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
+	public void _testMissingAnnotation5() throws CoreException, InterruptedException {
     	try {
 			// Resources creation
 			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");

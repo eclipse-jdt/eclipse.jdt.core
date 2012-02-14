@@ -15,6 +15,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
+ *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -593,7 +594,6 @@ public static int getProblemCategory(int severity, int problemID) {
 	switch (problemID) {
 		case IProblem.IsClassPathCorrect :
 		case IProblem.CorruptedSignature :
-		case IProblem.MissingNullAnnotationType :
 			return CategorizedProblem.CAT_BUILDPATH;
 
 		default :
@@ -8273,11 +8273,6 @@ public void messageSendRedundantCheckOnNonNull(MethodBinding method, ASTNode loc
 		arguments,
 		location.sourceStart,
 		location.sourceEnd);
-}
-
-public void missingNullAnnotationType(char[][] nullAnnotationName) {
-	String[] args = { new String(CharOperation.concatWith(nullAnnotationName, '.')) };
-	this.handle(IProblem.MissingNullAnnotationType, args, args, 0, 0);
 }
 
 public void cannotImplementIncompatibleNullness(MethodBinding currentMethod, MethodBinding inheritedMethod) {

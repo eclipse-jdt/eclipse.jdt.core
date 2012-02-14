@@ -12,6 +12,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 358903 - Filter practically unimportant resource leak warnings
+ *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -49,14 +50,6 @@ abstract public class ReferenceBinding extends TypeBinding {
 	int typeBits; // additional bits characterizing this type
 
 	public static final ReferenceBinding LUB_GENERIC = new ReferenceBinding() { /* used for lub computation */
-		public boolean hasTypeBit(int bit) { return false; }
-	};
-
-	/**
-	 * This faked annotation type binding marks types with unspecified nullness.
-	 * For use in {@link PackageBinding#nullnessDefaultAnnotation} and SourceTypeBinding#nullnessDefaultAnnotation
-	 */
-	final static ReferenceBinding NULL_UNSPECIFIED = new ReferenceBinding() { /* faked type binding */
 		public boolean hasTypeBit(int bit) { return false; }
 	};
 

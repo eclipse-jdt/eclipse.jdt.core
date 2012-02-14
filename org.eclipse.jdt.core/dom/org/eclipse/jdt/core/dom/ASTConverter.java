@@ -4361,7 +4361,6 @@ class ASTConverter {
 			int indexInAnnotations = 0;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				IExtendedModifier modifier = null;
-				switchToken:
 				switch(token) {
 					case TerminalTokens.TokenNameabstract:
 						modifier = createModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
@@ -4399,13 +4398,7 @@ class ASTConverter {
 					case TerminalTokens.TokenNameAT :
 						// we have an annotation
 						if (annotations != null && indexInAnnotations < annotations.length) {
-							// method may have synthetic annotations, skip them:
-							org.eclipse.jdt.internal.compiler.ast.Annotation annotation;
-							do {
-								if (indexInAnnotations == annotations.length)
-									break switchToken;
-								annotation = annotations[indexInAnnotations++];
-							} while ((annotation.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsSynthetic) != 0);
+							org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
 							modifier = convert(annotation);
 							this.scanner.resetTo(annotation.declarationSourceEnd + 1, modifiersEnd);
 						}
@@ -4519,7 +4512,6 @@ class ASTConverter {
 					int token;
 					while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 						IExtendedModifier modifier = null;
-						switchToken:
 						switch(token) {
 							case TerminalTokens.TokenNameabstract:
 								modifier = createModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
@@ -4557,13 +4549,7 @@ class ASTConverter {
 							case TerminalTokens.TokenNameAT :
 								// we have an annotation
 								if (annotations != null && indexInAnnotations < annotations.length) {
-									// argument may have synthetic annotations, skip them:
-									org.eclipse.jdt.internal.compiler.ast.Annotation annotation;
-									do {
-										if (indexInAnnotations == annotations.length)
-											break switchToken;
-										annotation = annotations[indexInAnnotations++];
-									} while ((annotation.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsSynthetic) != 0);
+									org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
 									modifier = convert(annotation);
 									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 								}
@@ -4637,7 +4623,6 @@ class ASTConverter {
 							break;
 						case TerminalTokens.TokenNameAT :
 							// we have an annotation
-							// (local variable has no synthetic annotations, no need to skip them)
 							if (annotations != null && indexInAnnotations < annotations.length) {
 								org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
 								modifier = convert(annotation);
@@ -4740,7 +4725,6 @@ class ASTConverter {
 								break;
 							case TerminalTokens.TokenNameAT :
 								// we have an annotation
-								// (local variable has no synthetic annotations, no need to skip them)
 								if (annotations != null && indexInAnnotations < annotations.length) {
 									org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
 									modifier = convert(annotation);
@@ -4822,7 +4806,6 @@ class ASTConverter {
 								break;
 							case TerminalTokens.TokenNameAT :
 								// we have an annotation
-								// (local variable has no synthetic annotations, no need to skip them)
 								if (annotations != null && indexInAnnotations < annotations.length) {
 									org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
 									modifier = convert(annotation);

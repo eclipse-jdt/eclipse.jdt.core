@@ -125,7 +125,6 @@
  * 								    RequiredNonNullButProvidedNull
  * 									RequiredNonNullButProvidedPotentialNull
  * 									RequiredNonNullButProvidedUnknown
- * 									MissingNullAnnotationType
  * 									NullAnnotationNameMustBeQualified
  * 									IllegalReturnNullityRedefinition
  * 									IllegalRedefinitionToNonNullParameter
@@ -1463,8 +1462,7 @@ void setSourceStart(int sourceStart);
 	int RequiredNonNullButProvidedPotentialNull = TypeRelated + 911;
 	/** @since 3.8 */
 	int RequiredNonNullButProvidedUnknown = TypeRelated + 912;
-	/** @since 3.8 */
-	int MissingNullAnnotationType = ImportRelated + 913;
+	// removed during 3.8 M6: ImportRelated + 913 
 	/** @since 3.8 */
 	int IllegalReturnNullityRedefinition = MethodRelated + 914;
 	/** @since 3.8 */

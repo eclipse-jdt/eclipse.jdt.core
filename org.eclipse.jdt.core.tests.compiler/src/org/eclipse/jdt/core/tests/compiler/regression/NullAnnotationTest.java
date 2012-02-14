@@ -1877,15 +1877,14 @@ public void test_annotation_import_006() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
-// using nullness defaulting to nonnull, missing annotation types
+// using nullness defaulting to nonnull, missing annotation types, no longer a problem
 public void test_annotation_import_007() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.MayBeNull");
 	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.MustNotBeNull");
 	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
-	runNegativeTest(
-		true/*shouldFlushOutputDirectory*/,
+	runConformTestWithLibs(
 		new String[] {
 			"Lib.java",
 			"public class Lib {\n" +
@@ -1898,15 +1897,8 @@ public void test_annotation_import_007() {
 			"    }\n" +
 			"}\n"
 		},
-		this.LIBS,
 		customOptions,
-		"----------\n" +
-		"1. ERROR in Lib.java (at line 1)\n" +
-		"	public class Lib {\n" +
-		"	^\n" +
-		"Buildpath problem: the type org.foo.MustNotBeNull, which is configured as a null annotation type, cannot be resolved\n" +
-		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+		"");
 }
 
 // a null annotation is illegally used on a class:
@@ -2162,7 +2154,7 @@ public void test_default_nullness_003() {
 		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
 		"----------\n");
 }
-// package level default is consumed from package-info.class
+// package level default is consumed from package-info.class, similarly for type level default
 public void test_default_nullness_003a() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
@@ -2219,7 +2211,7 @@ public void test_default_nullness_003a() {
 		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
 		"----------\n");
 }
-//same as test_default_nullness_003b, but default-induced annotations are combined with explicit ones (not null related)
+// same as test_default_nullness_003a, but default-induced annotations are combined with explicit ones (not null related)
 public void test_default_nullness_003b() {
 	Map customOptions = getCompilerOptions();
 	runConformTestWithLibs(
