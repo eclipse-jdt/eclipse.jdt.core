@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_redundant_annotation_" };
+//		TESTS_NAMES = new String[] { "test_message_send_in_control_structure_02" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -756,6 +756,43 @@ public void test_nonnull_local_001() {
 		"3. WARNING in X.java (at line 7)\n" +
 		"	@NonNull Object o3 = p;\n" +
 		"	                     ^\n" +
+		"Potential type mismatch: required \'@NonNull Object\' but nullness of the provided value is unknown\n" +
+		"----------\n",
+		this.LIBS,
+		true /* shouldFlush*/);
+}
+
+// assigning potential null to a nonnull local variable - separate decl and assignment
+public void test_nonnull_local_002() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			  "import org.eclipse.jdt.annotation.*;\n" +
+			  "public class X {\n" +
+			  "    void foo(boolean b, Object p) {\n" +
+			  "        @NonNull Object o1;\n" +
+			  "        o1 = b ? null : new Object();\n" +
+			  "        @NonNull String o2;\n" +
+			  "        o2 = \"\";\n" +
+			  "        o2 = null;\n" +
+			  "        @NonNull Object o3;\n" +
+			  "        o3 = p;\n" +
+			  "    }\n" +
+			  "}\n"},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	o1 = b ? null : new Object();\n" +
+		"	     ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	o2 = null;\n" +
+		"	     ^^^^\n" +
+		"Type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 10)\n" +
+		"	o3 = p;\n" +
+		"	     ^\n" +
 		"Potential type mismatch: required \'@NonNull Object\' but nullness of the provided value is unknown\n" +
 		"----------\n",
 		this.LIBS,
@@ -3182,6 +3219,54 @@ public void test_message_send_in_control_structure_01() {
 		"	if (enclosingSourceType == null\n" +
 		"	    ^^^^^^^^^^^^^^^^^^^\n" +
 		"Null comparison always yields false: The variable enclosingSourceType cannot be null at this location\n" +
+		"----------\n");
+}
+// Bug 370930 - NonNull annotation not considered for enhanced for loops
+public void test_message_send_in_control_structure_02() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Bug370930.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"public class Bug370930 {\n" +
+			"	void loop(Collection<String> list) {\n" + 
+			"		for(@NonNull String s: list) { // warning here: insufficient info on elements\n" + 
+			"			expectNonNull(s); // no warning here\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	void expectNonNull(@NonNull String s) {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in Bug370930.java (at line 5)\n" + 
+		"	for(@NonNull String s: list) { // warning here: insufficient info on elements\n" + 
+		"	                       ^^^^\n" + 
+		"Potential type mismatch: required \'@NonNull String\' but nullness of the provided value is unknown\n" + 
+		"----------\n");
+}
+//Bug 370930 - NonNull annotation not considered for enhanced for loops
+public void test_message_send_in_control_structure_03() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Bug370930.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"public class Bug370930 {\n" +
+			"	void loop(Collection<String> list) {\n" + 
+			"		for(@Nullable String s: list) {\n" + 
+			"			expectNonNull(s); // warning here\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	void expectNonNull(@NonNull String s) {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Bug370930.java (at line 6)\n" + 
+		"	expectNonNull(s); // warning here\n" + 
+		"	              ^\n" + 
+		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" + 
 		"----------\n");
 }
 public void test_assignment_expression_1() {

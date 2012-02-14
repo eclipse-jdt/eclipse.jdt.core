@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann - Contribution for
+ *								bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 370930 - NonNull annotation not considered for enhanced for loops
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -26,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ForeachStatement extends Statement {
@@ -83,9 +86,10 @@ public class ForeachStatement extends Statement {
 		this.collection.checkNPE(currentScope, flowContext, flowInfo);
 		flowInfo = this.elementVariable.analyseCode(this.scope, flowContext, flowInfo);		
 		FlowInfo condInfo = this.collection.analyseCode(this.scope, flowContext, flowInfo.copy());
+		LocalVariableBinding elementVarBinding = this.elementVariable.binding;
 
 		// element variable will be assigned when iterating
-		condInfo.markAsDefinitelyAssigned(this.elementVariable.binding);
+		condInfo.markAsDefinitelyAssigned(elementVarBinding);
 
 		this.postCollectionInitStateIndex = currentScope.methodScope().recordInitializationStates(condInfo);
 
@@ -95,7 +99,17 @@ public class ForeachStatement extends Statement {
 				this.continueLabel, this.scope);
 		UnconditionalFlowInfo actionInfo =
 			condInfo.nullInfoLessUnconditionalCopy();
-		actionInfo.markAsDefinitelyUnknown(this.elementVariable.binding);
+		actionInfo.markAsDefinitelyUnknown(elementVarBinding);
+		if (currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+			// this currently produces an unavoidable warning against all @NonNull element vars:
+			int nullStatus = this.elementVariable.checkAssignmentAgainstNullAnnotation(currentScope, flowContext, 
+															elementVarBinding, FlowInfo.UNKNOWN, this.collection);
+			// TODO (stephan): 	once we have JSR 308 fetch nullStatus from the collection element type
+			//              	and feed the result into the above check (instead of FlowInfo.UNKNOWN)
+			if ((elementVarBinding.type.tagBits & TagBits.IsBaseType) == 0) {
+				actionInfo.markNullStatus(elementVarBinding, nullStatus);
+			}
+		}
 		FlowInfo exitBranch;
 		if (!(this.action == null || (this.action.isEmptyBlock()
 				&& currentScope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_3))) {
@@ -129,7 +143,7 @@ public class ForeachStatement extends Statement {
 		switch(this.kind) {
 			case ARRAY :
 				if (!hasEmptyAction
-						|| this.elementVariable.binding.resolvedPosition != -1) {
+						|| elementVarBinding.resolvedPosition != -1) {
 					this.collectionVariable.useFlag = LocalVariableBinding.USED;
 					if (this.continueLabel != null) {
 						this.indexVariable.useFlag = LocalVariableBinding.USED;
