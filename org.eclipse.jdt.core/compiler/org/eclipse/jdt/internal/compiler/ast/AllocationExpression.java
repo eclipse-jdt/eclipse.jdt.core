@@ -14,6 +14,7 @@
  * 							bug 186342 - [compiler][null] Using annotations for null checking
  *							bug 358903 - Filter practically unimportant resource leak warnings
  *							bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
+ *							bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -47,7 +48,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	// process arguments
 	if (this.arguments != null) {
-		boolean hasResourceWrapperType = this.resolvedType instanceof ReferenceBinding 
+		boolean analyseResources = currentScope.compilerOptions().analyseResourceLeaks;
+		boolean hasResourceWrapperType = analyseResources 
+				&& this.resolvedType instanceof ReferenceBinding 
 				&& ((ReferenceBinding)this.resolvedType).hasTypeBit(TypeIds.BitWrapperCloseable);
 		for (int i = 0, count = this.arguments.length; i < count; i++) {
 			flowInfo =
@@ -55,7 +58,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					.analyseCode(currentScope, flowContext, flowInfo)
 					.unconditionalInits();
 			// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
-			if (!hasResourceWrapperType) { // allocation of wrapped closeables is analyzed specially
+			if (analyseResources && !hasResourceWrapperType) { // allocation of wrapped closeables is analyzed specially
 				flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, false);
 			}
 			if ((this.arguments[i].implicitConversion & TypeIds.UNBOXING) != 0) {
@@ -81,7 +84,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 
 	// after having analysed exceptions above start tracking newly allocated resource:
-	if (FakedTrackingVariable.isAnyCloseable(this.resolvedType))
+	if (FakedTrackingVariable.isAnyCloseable(this.resolvedType) && currentScope.compilerOptions().analyseResourceLeaks)
 		FakedTrackingVariable.analyseCloseableAllocation(currentScope, flowInfo, this);
 
 	if (this.binding.declaringClass.isMemberType() && !this.binding.declaringClass.isStatic()) {

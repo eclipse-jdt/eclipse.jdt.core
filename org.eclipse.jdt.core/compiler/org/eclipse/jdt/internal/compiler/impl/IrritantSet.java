@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.impl;
@@ -105,6 +106,7 @@ public class IrritantSet {
 			.set(
 				CompilerOptions.DeadCode
 				|CompilerOptions.Tasks
+				|CompilerOptions.UnclosedCloseable
 				|CompilerOptions.NullSpecInsufficientInfo
 				|CompilerOptions.RedundantNullAnnotation);
 		// default errors IF AnnotationBasedNullAnalysis is enabled:

@@ -15,6 +15,7 @@
  *     						bug 349326 - [1.7] new warning for missing try-with-resources
  *							bug 186342 - [compiler][null] Using annotations for null checking
  *							bug 358903 - Filter practically unimportant resource leak warnings
+ *							bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -51,7 +52,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	FlowInfo preInitInfo = null;
 	LocalVariableBinding localToAnalyseAsResource = null;
 	if (var instanceof LocalVariableBinding 
-			&& flowInfo.reachMode() == FlowInfo.REACHABLE 
+			&& flowInfo.reachMode() == FlowInfo.REACHABLE
+			&& currentScope.compilerOptions().analyseResourceLeaks
 			&& (FakedTrackingVariable.isAnyCloseable(this.expression.resolvedType)
 					|| this.expression.resolvedType == TypeBinding.NULL)) {
 		localToAnalyseAsResource = (LocalVariableBinding) var;

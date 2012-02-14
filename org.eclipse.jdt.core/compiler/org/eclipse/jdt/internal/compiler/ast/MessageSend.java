@@ -13,6 +13,7 @@
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 358903 - Filter practically unimportant resource leak warnings
+ *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -66,7 +67,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	boolean nonStatic = !this.binding.isStatic();
 	flowInfo = this.receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
 	// recording the closing of AutoCloseable resources:
-	if (CharOperation.equals(TypeConstants.CLOSE, this.selector)) 
+	boolean analyseResources = currentScope.compilerOptions().analyseResourceLeaks;
+	if (analyseResources && CharOperation.equals(TypeConstants.CLOSE, this.selector)) 
 	{
 		FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.receiver);
 		if (trackingVariable != null) { // null happens if receiver is not a local variable or not an AutoCloseable
@@ -98,8 +100,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);
 			}
 			flowInfo = this.arguments[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
-			// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
-			flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, false);
+			if (analyseResources) {
+				// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
+				flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, false);
+			}
 		}
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
 	}

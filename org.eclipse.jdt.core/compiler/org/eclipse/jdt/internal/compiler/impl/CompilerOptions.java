@@ -13,6 +13,7 @@
  *     							bug 295551 - Add option to automatically promote all warnings to errors
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
@@ -403,6 +404,8 @@ public class CompilerOptions {
 	public char[][] nonNullByDefaultAnnotationName;
 	/** TagBits-encoded default for non-annotated types. */
 	public long defaultNonNullness; // 0 or TagBits#AnnotationNonNull
+	/** Should resources (objects of type Closeable) be analysed for matching calls to close()? */
+	public boolean analyseResourceLeaks;
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
@@ -1239,6 +1242,8 @@ public class CompilerOptions {
 		this.nonNullAnnotationName = DEFAULT_NONNULL_ANNOTATION_NAME;
 		this.nonNullByDefaultAnnotationName = DEFAULT_NONNULLBYDEFAULT_ANNOTATION_NAME;
 		this.defaultNonNullness = 0;
+		
+		this.analyseResourceLeaks = true;
 	}
 
 	public void set(Map optionsMap) {
@@ -1529,6 +1534,13 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportUnclosedCloseable)) != null) updateSeverity(UnclosedCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportPotentiallyUnclosedCloseable)) != null) updateSeverity(PotentiallyUnclosedCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportExplicitlyClosedAutoCloseable)) != null) updateSeverity(ExplicitlyClosedAutoCloseable, optionValue);
+		if (getSeverity(UnclosedCloseable) == ProblemSeverities.Ignore
+				&& getSeverity(PotentiallyUnclosedCloseable) == ProblemSeverities.Ignore
+				&& getSeverity(ExplicitlyClosedAutoCloseable) == ProblemSeverities.Ignore) {
+			this.analyseResourceLeaks = false;
+		} else {
+			this.analyseResourceLeaks = true;
+		}
 		if ((optionValue = optionsMap.get(OPTION_AnnotationBasedNullAnalysis)) != null) {
 			this.isAnnotationBasedNullAnalysisEnabled = ENABLED.equals(optionValue);
 		}
