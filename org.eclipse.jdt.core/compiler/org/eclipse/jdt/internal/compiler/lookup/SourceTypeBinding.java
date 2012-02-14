@@ -15,6 +15,7 @@
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
+ *								bug 366063 - Compiler should not add synthetic @NonNull annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1645,11 +1646,6 @@ private void evaluateNullAnnotations(long annotationTagBits) {
 	if (newDefaultNullness != NO_NULL_DEFAULT) {
 		if (CharOperation.equals(this.sourceName, TypeConstants.PACKAGE_INFO_NAME)) {
 			getPackage().defaultNullness = newDefaultNullness;
-			long globalDefault = this.scope.compilerOptions().defaultNonNullness;
-			if (globalDefault == TagBits.AnnotationNonNull && (annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0) {
-				TypeDeclaration typeDecl = this.scope.referenceContext;
-				this.scope.problemReporter().nullDefaultAnnotationIsRedundant(typeDecl, typeDecl.annotations, null);
-			}
 		} else {
 			this.defaultNullness = newDefaultNullness;
 			TypeDeclaration typeDecl = this.scope.referenceContext;
@@ -1666,10 +1662,6 @@ protected void checkRedundantNullnessDefaultRecurse(ASTNode location, Annotation
 			this.scope.problemReporter().nullDefaultAnnotationIsRedundant(location, annotations, this.fPackage);
 		}
 		return;
-	}
-	long globalDefault = this.scope.compilerOptions().defaultNonNullness;
-	if (globalDefault == TagBits.AnnotationNonNull && annotationTagBits == TagBits.AnnotationNonNullByDefault) {
-		this.scope.problemReporter().nullDefaultAnnotationIsRedundant(location, annotations, null);
 	}
 }
 
@@ -1728,9 +1720,6 @@ private int findNonNullDefault(Scope currentScope, LookupEnvironment environment
 		}
 	}
 
-	// global
-	if (environment.globalOptions.defaultNonNullness == TagBits.AnnotationNonNull)
-		return NONNULL_BY_DEFAULT;
 	return NO_NULL_DEFAULT;
 }
 

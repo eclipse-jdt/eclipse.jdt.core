@@ -14,6 +14,7 @@
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
+ *								bug 366063 - Compiler should not add synthetic @NonNull annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
@@ -403,7 +404,7 @@ public class CompilerOptions {
 	/** Fully qualified name of annotation to use as marker for default nonnull. */
 	public char[][] nonNullByDefaultAnnotationName;
 	/** TagBits-encoded default for non-annotated types. */
-	public long defaultNonNullness; // 0 or TagBits#AnnotationNonNull
+	public long intendedDefaultNonNullness; // 0 or TagBits#AnnotationNonNull
 	/** Should resources (objects of type Closeable) be analysed for matching calls to close()? */
 	public boolean analyseResourceLeaks;
 
@@ -1079,7 +1080,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_NullableAnnotationName, String.valueOf(CharOperation.concatWith(this.nullableAnnotationName, '.')));
 		optionsMap.put(OPTION_NonNullAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullAnnotationName, '.')));
 		optionsMap.put(OPTION_NonNullByDefaultAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullByDefaultAnnotationName, '.')));
-		if (this.defaultNonNullness == TagBits.AnnotationNonNull)
+		if (this.intendedDefaultNonNullness == TagBits.AnnotationNonNull)
 			optionsMap.put(OPTION_NonNullIsDefault, CompilerOptions.ENABLED);
 		else
 			optionsMap.put(OPTION_NonNullIsDefault, CompilerOptions.DISABLED);
@@ -1241,7 +1242,7 @@ public class CompilerOptions {
 		this.nullableAnnotationName = DEFAULT_NULLABLE_ANNOTATION_NAME;
 		this.nonNullAnnotationName = DEFAULT_NONNULL_ANNOTATION_NAME;
 		this.nonNullByDefaultAnnotationName = DEFAULT_NONNULLBYDEFAULT_ANNOTATION_NAME;
-		this.defaultNonNullness = 0;
+		this.intendedDefaultNonNullness = 0;
 		
 		this.analyseResourceLeaks = true;
 	}
@@ -1569,9 +1570,9 @@ public class CompilerOptions {
 			}
 			if ((optionValue = optionsMap.get(OPTION_NonNullIsDefault)) != null) {
 				if (CompilerOptions.ENABLED.equals(optionValue))
-					this.defaultNonNullness = TagBits.AnnotationNonNull;
+					this.intendedDefaultNonNullness = TagBits.AnnotationNonNull;
 				else if (CompilerOptions.DISABLED.equals(optionValue))
-					this.defaultNonNullness = 0;
+					this.intendedDefaultNonNullness = 0;
 			}
 		}
 

@@ -2077,11 +2077,13 @@ public void test_illegal_annotation_007() {
 public void test_default_nullness_002() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
+// This option currently does nothing:
+//	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
 			"public class X {\n" +
 			"    Object getObject(@Nullable Object o) {\n" +
 			"        return new Object();\n" +
@@ -2089,6 +2091,7 @@ public void test_default_nullness_002() {
 			"}\n",
 			"Y.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
 			"public class Y extends X {\n" +
 			"    @Override\n" +
 			"    @Nullable Object getObject(Object o) {\n" + // complain illegal return redef and inherited annot is not repeated
@@ -2099,13 +2102,13 @@ public void test_default_nullness_002() {
 		customOptions,
 		// main error:
 		"----------\n" +
-		"1. ERROR in Y.java (at line 4)\n" +
+		"1. ERROR in Y.java (at line 5)\n" +
 		"	@Nullable Object getObject(Object o) {\n" +
 		"	^^^^^^^^^^^^^^^^\n" +
 		"The return type is incompatible with the @NonNull return from X.getObject(Object)\n" +
 		"----------\n" +
 		// additional error:
-		"2. ERROR in Y.java (at line 4)\n" +
+		"2. ERROR in Y.java (at line 5)\n" +
 		"	@Nullable Object getObject(Object o) {\n" +
 		"	                           ^^^^^^\n" +
 		"Illegal redefinition of parameter o, inherited method from X declares this parameter as @Nullable\n" +
@@ -2365,7 +2368,8 @@ public void test_default_nullness_006() {
 		"----------\n");
 }
 // global default nonnull, but return may be null
-public void test_default_nullness_007() {
+// DISABLED due to dysfunctional global default after Bug 366063 - Compiler should not add synthetic @NonNull annotations
+public void _test_default_nullness_007() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
 	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
@@ -2820,7 +2824,8 @@ public void test_redundant_annotation_02g() {
 }
 
 // redundant default annotations - package / class / method vs global default
-public void test_redundant_annotation_03() {
+// DISABLED due to dysfunctional global default after Bug 366063 - Compiler should not add synthetic @NonNull annotations
+public void _test_redundant_annotation_03() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 	runConformTestWithLibs(
@@ -2948,11 +2953,13 @@ public void test_contradictory_annotations_01() {
 public void test_nonnull_var_in_constrol_structure_1() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
+// This option currently does nothing:
+//	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
 			"public class X {\n" +
 			"    void print4(@NonNull String s) {\n" +
 			"        for (int i=0; i<4; i++)\n" +
@@ -2975,22 +2982,22 @@ public void test_nonnull_var_in_constrol_structure_1() {
 		},
 		customOptions,
 		"----------\n" +
-		"1. WARNING in X.java (at line 3)\n" +
+		"1. WARNING in X.java (at line 4)\n" +
 		"	void print4(@NonNull String s) {\n" +
 		"	            ^^^^^^^^^^^^^^^^^\n" +
 		"The nullness annotation is redundant with a default that applies to this location\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
+		"2. ERROR in X.java (at line 10)\n" +
 		"	print(s);\n" +
 		"	      ^\n" +
 		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 14)\n" +
+		"3. ERROR in X.java (at line 15)\n" +
 		"	print(s);\n" +
 		"	      ^\n" +
 		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
 		"----------\n" +
-		"4. WARNING in X.java (at line 16)\n" +
+		"4. WARNING in X.java (at line 17)\n" +
 		"	void print(@NonNull String s) {\n" +
 		"	           ^^^^^^^^^^^^^^^^^\n" +
 		"The nullness annotation is redundant with a default that applies to this location\n" +
@@ -3000,11 +3007,13 @@ public void test_nonnull_var_in_constrol_structure_1() {
 public void test_nonnull_var_in_constrol_structure_2() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
+// This option currently does nothing:
+//	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
-			"import org.eclipse.jdt.annotation.*;\n" +
+			"import org.eclipse.jdt.annotation.*;" +
+			"@NonNullByDefault\n" +
 			"public class X {\n" +
 			"    void print4(String s) {\n" +
 			"        try { /*empty*/ } finally {\n" +
@@ -3209,11 +3218,13 @@ public void test_assignment_expression_1() {
 public void test_nesting_1() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
+// This option currently does nothing:
+//	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
 			"public class X {\n" +
 			"    void print4(final String s1) {\n" +
 			"        for (int i=0; i<3; i++)\n" +
@@ -3248,12 +3259,12 @@ public void test_nesting_1() {
 		},
 		customOptions,
 		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" +
+		"1. ERROR in X.java (at line 16)\n" +
 		"	print(s2);\n" +
 		"	      ^^\n" +
 		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 24)\n" +
+		"2. ERROR in X.java (at line 25)\n" +
 		"	@NonNull String s3R = s3;\n" +
 		"	                      ^^\n" +
 		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +

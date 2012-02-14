@@ -12621,7 +12621,8 @@ public void test314_warn_options() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
 // -warn option - regression tests to check option nullAnnot
 // Null warnings because of annotations, global nonNullByDefault
-public void test315_warn_options() {
+// DISABLED due to dysfunctional global default after Bug 366063 - Compiler should not add synthetic @NonNull annotations
+public void _test315_warn_options() {
 	this.runConformTest(
 		new String[] {
 				"p/X.java",
