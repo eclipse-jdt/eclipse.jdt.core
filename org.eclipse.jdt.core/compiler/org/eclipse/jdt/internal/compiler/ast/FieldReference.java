@@ -677,7 +677,7 @@ public VariableBinding variableBinding(Scope scope) {
 		CompilerOptions options = scope.compilerOptions();
 		if(!options.includeFieldsInNullAnalysis) return null;
 		if (this.receiver.isThis()) return this.binding;
-		if (this.binding != null && this.binding.declaringClass != null && this.binding.isStatic()) {
+		if (this.binding != null && this.binding.isStatic()) {
 			// does the static field belong to the current type or one of the enclosing ones?
 			ClassScope enclosingClass = scope.enclosingClassScope();
 			while (enclosingClass != null) {
