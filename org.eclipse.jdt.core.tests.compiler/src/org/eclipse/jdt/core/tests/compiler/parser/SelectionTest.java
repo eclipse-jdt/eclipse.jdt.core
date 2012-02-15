@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2433,6 +2433,68 @@ public void test55() {
 		"  }\n" +
 		"}\n";
 	String expectedReplacedSource = "new Test.Sub()";
+	String testName = "<select>";
+
+	int selectionStart = str.indexOf(selection);
+	int selectionEnd = str.indexOf(selection) + selection.length() - 1;
+
+	this.checkMethodParse(
+		str.toCharArray(),
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=291040
+public void test56() {
+
+	String str =
+			"class X {\n" +
+			"    void foo() {\n" +
+			"        new X(null) {\n" +
+			"            void goo() {\n" +
+			"                new X(zoo()) {\n" +
+			"                    void voo() {\n" +
+			"                    }\n" +
+			"                };\n" +
+			"            }\n" +
+			"\n" +
+			"            Object zoo() {\n" +
+			"                return null;\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
+			"\n" +
+			"    X(Object k) {\n" +
+			"    }\n" +
+			"}\n";
+
+	String selection = "zoo";
+
+	String expectedCompletionNodeToString = "<SelectOnMessageSend:zoo()>";
+
+	String completionIdentifier = "zoo";
+	String expectedUnitDisplayString =
+			"class X {\n" + 
+			"  void foo() {\n" + 
+			"    new X(null) {\n" + 
+			"      void goo() {\n" + 
+			"        new X(<SelectOnMessageSend:zoo()>) {\n" + 
+			"          void voo() {\n" + 
+			"          }\n" + 
+			"        };\n" + 
+			"      }\n" + 
+			"      Object zoo() {\n" + 
+			"      }\n" + 
+			"    };\n" + 
+			"  }\n" + 
+			"  X(Object k) {\n" + 
+			"  }\n" + 
+			"}\n";
+	String expectedReplacedSource = "zoo()";
 	String testName = "<select>";
 
 	int selectionStart = str.indexOf(selection);
