@@ -277,7 +277,7 @@ abstract public void markAsComparedEqualToNull(VariableBinding binding);
 	/**
 	 *  variant of {@link #resetNullInfo(VariableBinding)} for resetting null info for all fields
 	 *  Note that each fields status after the reset will become def. unknown i.e. 1001
-	 *  Also this method does not reset constant fields
+	 *  Also this method does not reset constant fields, which are identified by {@link #constantFieldsMask}
 	 */
 	abstract public void resetNullInfoForFields();
 	

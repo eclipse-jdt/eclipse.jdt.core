@@ -15533,7 +15533,6 @@ public void testBug247564a_3() {
 			"public class X {\n" +
 			"  Object o;\n" +
 			"  void foo() {\n" +
-			"      o = null;\n" +
 			"  }\n" +
 			"  void foo1() {\n" + 
 			"	 o.toString();\n" +
@@ -15581,7 +15580,7 @@ public void testBug247564a_5() {
 			"            if (field == null) { \n" +
 			"                field = new Object();\n" +
 			"            }\n" +
-			"            field.toString(); // Wrong outcome was: Pot. NPE\n" +
+			"            field.toString(); //Pot. NPE\n" +
 			"            i--;\n" +
 			"        }\n" +
 			"    }\n" +
@@ -16006,7 +16005,7 @@ public void testBug247564b_4() {
 			"  }\n" +
 			"  void foo1() {\n" +
 			"    if (o == null) {\n" +
-			"        o.toString(); // danger\n" +
+			"        o.toString(); // danger" +
 			"        return;\n" +
 			"    }\n" +
 			"	 o.toString(); // safe\n" +
@@ -16020,11 +16019,11 @@ public void testBug247564b_4() {
 			"}\n"},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 13)\n" + 
-			"	o.toString(); // danger\n" + 
+			"	o.toString(); // danger        return;\n" + 
 			"	^\n" + 
 			"Null pointer access: The field o can only be null at this location\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 22)\n" + 
+			"2. ERROR in X.java (at line 21)\n" + 
 			"	o.toString(); // uncertain\n" + 
 			"	^\n" + 
 			"Potential null pointer access: The field o may be null at this location\n" + 
@@ -16076,7 +16075,7 @@ public void testBug247564b_4_2() {
 			"  }\n" +
 			"  void foo1() {\n" +
 			"    if (o == null) {\n" +
-			"        o.toString(); // danger\n" +
+			"        o.toString(); // danger" +
 			"        return;\n" +
 			"    }\n" +
 			"	 o.toString(); // safe\n" +
@@ -16090,11 +16089,11 @@ public void testBug247564b_4_2() {
 			"}\n"},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 39)\n" + 
-			"	o.toString(); // danger\n" + 
+			"	o.toString(); // danger        return;\n" + 
 			"	^\n" + 
 			"Null pointer access: The field o can only be null at this location\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 48)\n" + 
+			"2. ERROR in X.java (at line 47)\n" + 
 			"	o.toString(); // uncertain\n" + 
 			"	^\n" + 
 			"Potential null pointer access: The field o may be null at this location\n" + 
@@ -16129,7 +16128,6 @@ public void testBug247564b_5() {
 			"	 if (o == null) {\n" +	// don't know o's nullness, so silent
 			"		o.toString();\n" + // report NPE
 			"	 }\n" +
-			"    local.toString();\n" + // try to diffuse status for o / o2
 			"	 o.toString();\n" +	// already reported NPE above. So silent. Same behaviour as 'local'
 			"	 if (o2 == null) {\n" + // report always false null check
 			"		o2.toString();\n" + // dead code
@@ -16153,12 +16151,12 @@ public void testBug247564b_5() {
 			"	^\n" + 
 			"Null pointer access: The field o can only be null at this location\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 23)\n" + 
+			"4. ERROR in X.java (at line 22)\n" + 
 			"	if (o2 == null) {\n" + 
 			"	    ^^\n" + 
 			"Null comparison always yields false: The field o2 cannot be null at this location\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 23)\n" + 
+			"5. WARNING in X.java (at line 22)\n" + 
 			"	if (o2 == null) {\n" + 
 			"		o2.toString();\n" + 
 			"	 }\n" + 
@@ -16168,9 +16166,9 @@ public void testBug247564b_5() {
 	);
 }
 
-// null analysis -- case for static final field initialized inside static block with different values
-// check if the resetting works properly i.e. null status for constant fields should not be 
-// reset on method calls. This test is for constructors
+//null analysis -- case for static final field initialized inside static block with different values
+//check if the resetting works properly i.e. null status for constant fields should not be 
+//reset on method calls. This test is for constructors
 public void testBug247564b_6() {
 	this.runNegativeTest(
 		new String[] {
@@ -16195,7 +16193,6 @@ public void testBug247564b_6() {
 			"	 if (o == null) {\n" +	// don't know o's nullness, so silent
 			"		o.toString();\n" + // report NPE
 			"	 }\n" +
-			"    local.toString();\n" + // try to diffuse status for o / o2
 			"	 o.toString();\n" +	// already reported NPE above. So silent. Same behaviour as 'local'
 			"	 if (o2 == null) {\n" + // report always false null check
 			"		o2.toString();\n" + // dead code
@@ -16219,12 +16216,12 @@ public void testBug247564b_6() {
 			"	^\n" + 
 			"Null pointer access: The field o can only be null at this location\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 23)\n" + 
+			"4. ERROR in X.java (at line 22)\n" + 
 			"	if (o2 == null) {\n" + 
 			"	    ^^\n" + 
 			"Null comparison always yields false: The field o2 cannot be null at this location\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 23)\n" + 
+			"5. WARNING in X.java (at line 22)\n" + 
 			"	if (o2 == null) {\n" + 
 			"		o2.toString();\n" + 
 			"	 }\n" + 
@@ -16234,9 +16231,9 @@ public void testBug247564b_6() {
 	);
 }
 
-// null analysis -- case for static final field initialized inside static block with different values
-// check if the resetting works properly i.e. null status for constant fields should not be 
-// reset on method calls. This test is for constructors
+//null analysis -- case for static final field initialized inside static block with different values
+//check if the resetting works properly i.e. null status for constant fields should not be 
+//reset on method calls. This test is for constructors
 public void testBug247564b_6_2() {
 	this.runNegativeTest(
 		new String[] {
@@ -16287,7 +16284,6 @@ public void testBug247564b_6_2() {
 			"	 if (o == null) {\n" +	// don't know o's nullness, so silent
 			"		o.toString();\n" + // report NPE
 			"	 }\n" +
-			"    local.toString();\n" + // try to diffuse status for o / o2
 			"	 o.toString();\n" +	// already reported NPE above. So silent. Same behaviour as 'local'
 			"	 if (o2 == null) {\n" + // report always false null check
 			"		o2.toString();\n" + // dead code
@@ -16311,12 +16307,12 @@ public void testBug247564b_6_2() {
 			"	^\n" + 
 			"Null pointer access: The field o can only be null at this location\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 49)\n" + 
+			"4. ERROR in X.java (at line 48)\n" + 
 			"	if (o2 == null) {\n" + 
 			"	    ^^\n" + 
 			"Null comparison always yields false: The field o2 cannot be null at this location\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 49)\n" + 
+			"5. WARNING in X.java (at line 48)\n" + 
 			"	if (o2 == null) {\n" + 
 			"		o2.toString();\n" + 
 			"	 }\n" + 
@@ -16353,7 +16349,6 @@ public void testBug247564b_7() {
 			"	 if (o1 == null) {\n" +	// can't be null, was dereferenced in static initializer
 			"		o1.toString();\n" + // dead
 			"	 }\n" +
-			"    local.toString();\n" + // try to diffuse status for o1 / o2
 			"	 o1.toString();\n" +	// safe
 			"	 if (o2 == null) {\n" + // report always false null check
 			"		o2.toString();\n" + // dead code
@@ -16389,12 +16384,12 @@ public void testBug247564b_7() {
 			"	                ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Dead code\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 23)\n" + 
+			"6. ERROR in X.java (at line 22)\n" + 
 			"	if (o2 == null) {\n" + 
 			"	    ^^\n" + 
 			"Null comparison always yields false: The field o2 cannot be null at this location\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 23)\n" + 
+			"7. WARNING in X.java (at line 22)\n" + 
 			"	if (o2 == null) {\n" + 
 			"		o2.toString();\n" + 
 			"	 }\n" + 
@@ -16452,7 +16447,6 @@ public void testBug247564b_8() {
 			"	 if (o1 == null) {\n" +	// report redundant null check
 			"		o1.toString();\n" + // report NPE
 			"	 }\n" +
-			"    local.toString();\n" + // try to diffuse status for o1 / o2
 			"	 o1.toString();\n" +	// already reported NPE above. So silent. Same behaviour as 'local'
 			"	 if (o2 == null) {\n" + // report always false null check
 			"		o2.toString();\n" + // dead code
@@ -16483,12 +16477,12 @@ public void testBug247564b_8() {
 		"	^^\n" + 
 		"Null pointer access: The field o1 can only be null at this location\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 41)\n" + 
+		"5. ERROR in X.java (at line 40)\n" + 
 		"	if (o2 == null) {\n" + 
 		"	    ^^\n" + 
 		"Null comparison always yields false: The field o2 cannot be null at this location\n" + 
 		"----------\n" + 
-		"6. WARNING in X.java (at line 41)\n" + 
+		"6. WARNING in X.java (at line 40)\n" + 
 		"	if (o2 == null) {\n" + 
 		"		o2.toString();\n" + 
 		"	 }\n" + 
@@ -16523,7 +16517,6 @@ public void testBug247564b_9() {
 			"	 if (o1 == null) {\n" +	// report redundant null check
 			"		o1.toString();\n" + // report NPE
 			"	 }\n" +
-			"    local.toString();\n" + // try to diffuse status for o1 / o2
 			"	 o1.toString();\n" +	// already reported NPE above. So silent. Same behaviour as 'local'
 			"	 if (o2 == null) {\n" + // report always false null check
 			"		o2.toString();\n" + // dead code
@@ -16554,12 +16547,12 @@ public void testBug247564b_9() {
 		"	^^\n" + 
 		"Null pointer access: The field o1 can only be null at this location\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 19)\n" + 
+		"5. ERROR in X.java (at line 18)\n" + 
 		"	if (o2 == null) {\n" + 
 		"	    ^^\n" + 
 		"Null comparison always yields false: The field o2 cannot be null at this location\n" + 
 		"----------\n" + 
-		"6. WARNING in X.java (at line 19)\n" + 
+		"6. WARNING in X.java (at line 18)\n" + 
 		"	if (o2 == null) {\n" + 
 		"		o2.toString();\n" + 
 		"	 }\n" + 
@@ -17032,6 +17025,26 @@ public void testBug247564d_1() {
 	);
 }
 
+// null analysis -- test redundant instanceof warning for static final fields
+public void testBug247564e_1() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  static final Object o = null;\n" +
+			"  void foo() {\n" +
+			"      if (o instanceof X) return;\n" +
+			"  }\n" +
+			"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o instanceof X) return;\n" + 
+		"	    ^\n" + 
+		"instanceof always yields false: The field o can only be null at this location\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
 // null analysis -- test potential null ptr access warning because of static field access through object returned by method call
 public void testBug247564f() {
 	Map compilerOptions = getCompilerOptions();
@@ -17135,7 +17148,7 @@ public void testBug247564g() {
 			"      if (this.field99 == null && this.field99.hashCode() == 0){}\n" +
 			"	   this.field98 = null;\n" +
 			"	}\n" +
-			"	if (this.field98.hashCode() == 0) {}\n" +
+			"	if (this.field98.hashCode() == 0) {}\n" +	// should not complain
 			"	this.field97 = null;\n" +
 			"	if (this.field97.hashCode() == 0) {}\n" +
 			"	if (this.field100.hashCode() == 0) {}\n" +
@@ -17199,7 +17212,7 @@ public void testBug247564h() {
 }
 
 // null analysis -- simple case for field for inner class
-// to make sure that id's of local variables in inner classes don't conflict with those of fields.
+// to make sure that id's of local variables in inner classes dotn conflict with those of fields.
 public void testBug247564h_1() {
 	this.runNegativeTest(
 		new String[] {
@@ -17227,7 +17240,7 @@ public void testBug247564h_1() {
 }
 
 // null analysis -- simple case for field for inner class
-// to make sure that id's of local variables in inner classes don't conflict with those of fields.
+// to make sure that id's of local variables in inner classes dotn conflict with those of fields.
 public void testBug247564h_2() {
 	this.runNegativeTest(
 		new String[] {
@@ -17241,14 +17254,14 @@ public void testBug247564h_2() {
 			"	 class X2 {\n" +
 			"	 	Object field4;\n" +
 			"	 	Object field5;\n" +
-			"	    void goo(Object var) {\n" +
-			"    	   if (var == null && field4.toString() == \"\"){}\n" +
-			"    	   if (var == null && field5.toString() == \"\"){}\n" +
-			"    	   if (field3 == null && field3.toString() == \"\"){}\n" +
-			"    	   if (field3 == null && field1.toString() == \"\"){}\n" +
-			"       }\n" +
+			"	 void goo(Object var) {\n" +
+			"    	if (var == null && field4.toString() == \"\"){}\n" +
+			"    	if (var == null && field5.toString() == \"\"){}\n" +
+			"    	if (field3 == null && field3.toString() == \"\"){}\n" +
+			"    	if (field3 == null && field1.toString() == \"\"){}\n" +
 			"    }\n" +
-			"    Object field22;\n" +
+			"    }\n" +
+			"  Object field22;\n" +
 			"  }\n" +
 			"}\n"},
 		"----------\n" + 
@@ -17285,7 +17298,7 @@ public void testBug247564i_1() {
 			"    	if (X.field0 == null && X.field0.toString() == \"\"){}\n" +   // warn
 			"    	if (this.field0 == null && X.field0.toString() == \"\"){}\n" +   // warn
 			"    	if (X.field0 == null && this.field0.toString() == \"\"){}\n" +   // warn
-			"    	if (X.field0 == null && getX().field0.toString() == \"\"){}\n" +   // no warn (diffused by getX() call)
+			"    	if (X.field0 == null && getX().field0.toString() == \"\"){}\n" +   // no warn
 			"  }\n" +
 			"}\n" +
 			"class Y{\n" +
@@ -17399,9 +17412,9 @@ public void testBug247564i_3() {
 			"  static Y getY(){ return new Y();}\n" +
 			"  static X getX() { return new X();}\n" +
 			"  static class XInner{\n" +
-			"    static Object xinnerfield;\n" +
-			"    XInner getXInner() { return new XInner();\n}" +
-			"    void goo(Object var) {\n" +
+			"   static Object xinnerfield;\n" +
+			"   XInner getXInner() { return new XInner();\n}" +
+			"   void goo(Object var) {\n" +
 			"    	if (new Y().getY().yField1 == null && field0.toString() == \"\"){}\n" +  // no warn
 			"    	if (getY().yField1 == null && field0.toString() == \"\"){}\n" +  // no warn
 			"    	if (new Y().getX().field0 == null && field0.toString() == \"\"){}\n" +   // warn
@@ -17423,7 +17436,7 @@ public void testBug247564i_3() {
 			"    	if (Y.xiny.field1 == null && Y.yField1.toString() == \"\"){}\n" +  // no warn
 			"    	if (X.field0 == null && X.field0.toString() == \"\"){}\n" +   // warn
 			"    	if (X.field0 == null && getX().field0.toString() == \"\"){}\n" +   // no warn
-			"    }\n" +
+			"   }\n" +
 			"  }\n" +
 			"}\n" +
 			"class Y{\n" +
@@ -17877,7 +17890,7 @@ public void testBug247564m() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"class MyException extends Exception{}\n" +
+			"class MyException extends Exception{}" +
 			"public class X {\n" +
 			"  private Object f;\n" +
 			"	 void gooCalls() throws MyException{}\n" +
@@ -17894,11 +17907,11 @@ public void testBug247564m() {
 			"}\n"},
 		"----------\n" + 
 		"1. WARNING in X.java (at line 1)\n" + 
-		"	class MyException extends Exception{}\n" + 
+		"	class MyException extends Exception{}public class X {\n" + 
 		"	      ^^^^^^^^^^^\n" + 
 		"The serializable class MyException does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 12)\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
 		"	f.toString();\n" + 
 		"	^\n" + 
 		"Potential null pointer access: The field f may be null at this location\n" + 
