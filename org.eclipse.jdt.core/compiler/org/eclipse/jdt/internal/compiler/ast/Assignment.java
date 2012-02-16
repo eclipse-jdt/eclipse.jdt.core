@@ -50,8 +50,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	
 	FlowInfo preInitInfo = null;
-	boolean shouldAnalyseResource = local != null 
-			&& flowInfo.reachMode() == FlowInfo.REACHABLE 
+	boolean shouldAnalyseResource = local != null
+			&& flowInfo.reachMode() == FlowInfo.REACHABLE
+			&& currentScope.compilerOptions().analyseResourceLeaks
 			&& (FakedTrackingVariable.isAnyCloseable(this.expression.resolvedType)
 					|| this.expression.resolvedType == TypeBinding.NULL);
 	if (shouldAnalyseResource) {
