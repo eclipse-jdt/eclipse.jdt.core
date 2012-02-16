@@ -1368,9 +1368,9 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 			if (this.fields != null) {
 				int length = this.fields.length;
 				for (int i = 0; i < length; i++) {
-					FieldDeclaration field;
-					if ((field = this.fields[i]).isStatic()) {
-						// local type cannot have static fields
+					FieldDeclaration field = this.fields[i];
+					if (field.isStatic() && !field.isFinal()) {
+						// local type cannot have static fields that are not final, https://bugs.eclipse.org/bugs/show_bug.cgi?id=244544
 					} else {
 						field.traverse(visitor, this.initializerScope);
 					}

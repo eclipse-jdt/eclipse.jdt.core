@@ -123,6 +123,12 @@ public boolean isStatic() {
 	return (this.modifiers & ClassFileConstants.AccStatic) != 0;
 }
 
+public boolean isFinal() {
+	if (this.binding != null)
+		return this.binding.isFinal();
+	return (this.modifiers & ClassFileConstants.AccFinal) != 0;
+}
+
 public StringBuffer printStatement(int indent, StringBuffer output) {
 	if (this.javadoc != null) {
 		this.javadoc.print(indent, output);
