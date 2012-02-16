@@ -606,7 +606,7 @@ protected boolean recordFinalAssignment(VariableBinding variable, Reference fina
  *      combined with a context indicator (one of {@link #IN_COMPARISON_NULL},
  *      {@link #IN_COMPARISON_NON_NULL}, {@link #IN_ASSIGNMENT} or {@link #IN_INSTANCEOF})
  */
-protected void recordNullReference(VariableBinding local,
+protected void recordNullReference(LocalVariableBinding local,
 	ASTNode location, int status) {
 	// default implementation: do nothing
 }
