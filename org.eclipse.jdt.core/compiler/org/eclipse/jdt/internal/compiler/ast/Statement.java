@@ -61,6 +61,7 @@ public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowCo
 	public static final int COMPLAINED_FAKE_REACHABLE = 1;
 	public static final int COMPLAINED_UNREACHABLE = 2;
 	
+
 /** Analysing arguments of MessageSend, ExplicitConstructorCall, AllocationExpression. */
 protected void analyseArguments(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, MethodBinding methodBinding, Expression[] arguments)
 {
@@ -99,14 +100,14 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 
 /** Check null-ness of 'local' against a possible null annotation */
 protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, FlowContext flowContext,
-												   VariableBinding var, int nullStatus, Expression expression)
+												   LocalVariableBinding local, int nullStatus, Expression expression)
 {
-	if (var != null) {
-		if ((var.tagBits & TagBits.AnnotationNonNull) != 0
+	if (local != null) {
+		if ((local.tagBits & TagBits.AnnotationNonNull) != 0
 				&& nullStatus != FlowInfo.NON_NULL) {
-			flowContext.recordNullityMismatch(currentScope, expression, nullStatus, var.type);
+			flowContext.recordNullityMismatch(currentScope, expression, nullStatus, local.type);
 			return FlowInfo.NON_NULL;
-		} else if ((var.tagBits & TagBits.AnnotationNullable) != 0
+		} else if ((local.tagBits & TagBits.AnnotationNullable) != 0
 				&& nullStatus == FlowInfo.UNKNOWN) {	// provided a legacy type?
 			return FlowInfo.POTENTIALLY_NULL;			// -> use more specific info from the annotation
 		}

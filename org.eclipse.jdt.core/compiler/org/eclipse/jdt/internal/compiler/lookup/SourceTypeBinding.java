@@ -48,8 +48,6 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public TypeVariableBinding[] typeVariables;
 
 	public ClassScope scope;
-	public int fieldAnalysisOffset;		// an offset for ids of fields of this class (id to be used for flow analysis) 
-	public int cumulativeFieldCount;   // cumulative field count from all enclosing types, used to build unique field id's for member types.
 
 	// Synthetics are separated into 4 categories: methods, super methods, fields, class literals and bridge methods
 	// if a new category is added, also increment MAX_SYNTHETICS
@@ -74,7 +72,6 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.modifiers = scope.referenceContext.modifiers;
 	this.sourceName = scope.referenceContext.name;
 	this.scope = scope;
-	this.cumulativeFieldCount = 0;
 
 	// expect the fields & methods to be initialized correctly later
 	this.fields = Binding.UNINITIALIZED_FIELDS;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,16 +39,16 @@ public class EqualExpression extends BinaryExpression {
 			// TODO: handle all kinds of expressions (cf. also https://bugs.eclipse.org/364326)
 		}
 
-		VariableBinding local = this.left.variableBinding(scope);
+		LocalVariableBinding local = this.left.localVariableBinding();
 		if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
 			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, rightStatus, this.left);
 		}
-		local = this.right.variableBinding(scope);
+		local = this.right.localVariableBinding();
 		if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
 			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, leftStatus, this.right);
 		}
 	}
-	private void checkVariableComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, VariableBinding local, int nullStatus, Expression reference) {
+	private void checkVariableComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, LocalVariableBinding local, int nullStatus, Expression reference) {
 		switch (nullStatus) {
 			case FlowInfo.NULL :
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {

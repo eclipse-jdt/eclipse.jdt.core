@@ -1735,7 +1735,6 @@ public void test012b(){
         "                           nullable|nonnull|nonnullbydefault annotation types\n" +
         "                           optionally specified using fully qualified names\n" +
         "      nullDereference    + missing null check\n" + 
-        "      nullFields    	  + null analysis for fields\n" + 
         "      over-ann             missing @Override annotation (superclass)\n" + 
         "      paramAssign          assignment to a parameter\n" + 
         "      pkgDefaultMethod   + attempt to override package-default method\n" + 
@@ -1868,7 +1867,6 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.forbiddenReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.includeFieldsInNullAnalysis\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch\" value=\"ignore\"/>\n" + 
@@ -12383,36 +12381,6 @@ public void test310b_warn_options() {
 		"	                                      ^^^^^\n" +
 		"The method new X(){}.foo() is overriding a synchronized method without being synchronized\n" +
 		"----------\n" +
-		"1 problem (1 warning)", 
-		true);
-}
-
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
-// -warn option - regression tests to check option nulLFields
-// Null warnings should be flagged on fields
-public void test311_warn_options() {
-	this.runConformTest(
-		new String[] {
-				"X.java",
-				"public class X {\n" +
-				"  Object o;\n" +
-				"  void foo() {\n" +
-				"    if (o == null && o.toString() == \"\"){}\n" +
-				"    else {}\n" +
-				"    o.toString();\n" + // toString() call above defuses null info, so no warning here
-				"  }\n" +
-				"}\n",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -warn:null,nullFields -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
-		"	if (o == null && o.toString() == \"\"){}\n" + 
-		"	                 ^\n" + 
-		"Potential null pointer access: The field o may be null at this location\n" + 
-		"----------\n" + 
 		"1 problem (1 warning)", 
 		true);
 }

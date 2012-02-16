@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,13 +18,11 @@
 package org.eclipse.jdt.internal.compiler.flow;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 /**
  * Record initialization status during definite assignment analysis
@@ -82,20 +80,17 @@ public class UnconditionalFlowInfo extends FlowInfo {
 
 	// extra segments
 	public static final int extraLength = 6;
-	// extra bit fields for larger numbers of fields/variables
-	// extra[0] holds definiteInits values, extra[1] potentialInits, etc.
-	// lifecycle is extra == null or else all extra[]'s are allocated
-	// arrays which have the same size
 	public long extra[][];
-	
+		// extra bit fields for larger numbers of fields/variables
+		// extra[0] holds definiteInits values, extra[1] potentialInits, etc.
+		// lifecycle is extra == null or else all extra[]'s are allocated
+		// arrays which have the same size
+
 	public int maxFieldCount; // limit between fields and locals
 
 	// Constants
 	public static final int BitCacheSize = 64; // 64 bits in a long.
 	public int[] nullStatusChangedInAssert; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
-	public long constantFieldsMask; // record positions of constant fields so that they don't get reset in resetNullInfoForFields()
-	public long extraConstantFieldMask[]; // extra mask for larger number of fields
-	protected static final int AccConstant = ClassFileConstants.AccStatic|ClassFileConstants.AccFinal;
 
 public FlowInfo addInitializationsFrom(FlowInfo inits) {
 	return addInfoFrom(inits, true);
@@ -525,13 +520,13 @@ public UnconditionalFlowInfo addPotentialNullInfoFrom(
 	return this;
 }
 
-final public boolean cannotBeDefinitelyNullOrNonNull(VariableBinding local) {
+final public boolean cannotBeDefinitelyNullOrNonNull(LocalVariableBinding local) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
-	int position = local.getAnalysisId(this.maxFieldCount);
-	if (position < BitCacheSize) {
+	int position;
+	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
 		// use bits
 		return (
 			(~this.nullBit1
@@ -556,13 +551,13 @@ final public boolean cannotBeDefinitelyNullOrNonNull(VariableBinding local) {
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
-final public boolean cannotBeNull(VariableBinding local) {
+final public boolean cannotBeNull(LocalVariableBinding local) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
-	int position = local.getAnalysisId(this.maxFieldCount);
-	if (position < BitCacheSize) {
+	int position;
+	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
 		// use bits
 		return (this.nullBit1 & this.nullBit3
 			& ((this.nullBit2 & this.nullBit4) | ~this.nullBit2)
@@ -583,13 +578,13 @@ final public boolean cannotBeNull(VariableBinding local) {
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
-final public boolean canOnlyBeNull(VariableBinding local) {
+final public boolean canOnlyBeNull(LocalVariableBinding local) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
-	int position = local.getAnalysisId(this.maxFieldCount);
-	if (position < BitCacheSize) {
+	int position;
+	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
 		// use bits
 		return (this.nullBit1 & this.nullBit2
 			& (~this.nullBit3 | ~this.nullBit4)
@@ -627,8 +622,6 @@ public FlowInfo copy() {
 	}
 	copy.tagBits = this.tagBits;
 	copy.maxFieldCount = this.maxFieldCount;
-	copy.constantFieldsMask = this.constantFieldsMask;
-	copy.extraConstantFieldMask = this.extraConstantFieldMask;
 	if (this.extra != null) {
 		int length;
 		copy.extra = new long[extraLength][];
@@ -746,7 +739,7 @@ final public boolean isDefinitelyAssigned(FieldBinding field) {
 	if ((this.tagBits & UNREACHABLE_OR_DEAD) != 0) {
 		return true;
 	}
-	return isDefinitelyAssigned(field.getAnalysisId(this.maxFieldCount));
+	return isDefinitelyAssigned(field.id);
 }
 
 final public boolean isDefinitelyAssigned(LocalVariableBinding local) {
@@ -757,22 +750,7 @@ final public boolean isDefinitelyAssigned(LocalVariableBinding local) {
 	return isDefinitelyAssigned(local.id + this.maxFieldCount);
 }
 
-final public boolean isDefinitelyAssigned(VariableBinding var) {
-	if (var instanceof FieldBinding) {
-		return this.isDefinitelyAssigned((FieldBinding)var);
-	} else {
-		return this.isDefinitelyAssigned((LocalVariableBinding)var);
-	}
-}
-
-final public boolean isDefinitelyNonNull(VariableBinding local) {
-	boolean isField = local instanceof FieldBinding;
-	if (isField && (this.tagBits & NULL_FLAG_MASK) == 0) {
-		// no local yet in scope. Came here because of a field being queried for non null
-		// will only happen for final fields, since they are assigned in a constructor or static block
-		// and we may currently be in some other method
-		this.tagBits |= NULL_FLAG_MASK;
-	}
+final public boolean isDefinitelyNonNull(LocalVariableBinding local) {
 	// do not want to complain in unreachable code
 	if ((this.tagBits & UNREACHABLE) != 0 ||
 			(this.tagBits & NULL_FLAG_MASK) == 0) {
@@ -782,7 +760,7 @@ final public boolean isDefinitelyNonNull(VariableBinding local) {
 			local.constant() != Constant.NotAConstant) { // String instances
 		return true;
 	}
-	int position = local.getAnalysisId(this.maxFieldCount);
+	int position = local.id + this.maxFieldCount;
 	if (position < BitCacheSize) { // use bits
 		return ((this.nullBit1 & this.nullBit3 & (~this.nullBit2 | this.nullBit4))
 			    & (1L << position)) != 0;
@@ -801,21 +779,14 @@ final public boolean isDefinitelyNonNull(VariableBinding local) {
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
-final public boolean isDefinitelyNull(VariableBinding local) {
-	boolean isField = local instanceof FieldBinding;
-	if (isField && (this.tagBits & NULL_FLAG_MASK) == 0) {
-		// no local yet in scope. Came here because of a field being queried for non null
-		// will only happen for final fields, since they are assigned in a constructor or static block
-		// and we may currently be in some other method
-		this.tagBits |= NULL_FLAG_MASK;
-	}
+final public boolean isDefinitelyNull(LocalVariableBinding local) {
 	// do not want to complain in unreachable code
 	if ((this.tagBits & UNREACHABLE) != 0 ||
 			(this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
-	int position = local.getAnalysisId(this.maxFieldCount);
+	int position = local.id + this.maxFieldCount;
 	if (position < BitCacheSize) { // use bits
 		return ((this.nullBit1 & this.nullBit2
 			        & (~this.nullBit3 | ~this.nullBit4))
@@ -835,13 +806,13 @@ final public boolean isDefinitelyNull(VariableBinding local) {
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
-final public boolean isDefinitelyUnknown(VariableBinding local) {
+final public boolean isDefinitelyUnknown(LocalVariableBinding local) {
 	// do not want to complain in unreachable code
 	if ((this.tagBits & UNREACHABLE) != 0 ||
 			(this.tagBits & NULL_FLAG_MASK) == 0) {
 		return false;
 	}
-	int position = local.getAnalysisId(this.maxFieldCount);
+	int position = local.id + this.maxFieldCount;
 	if (position < BitCacheSize) { // use bits
 		return ((this.nullBit1 & this.nullBit4
 				& ~this.nullBit2 & ~this.nullBit3) & (1L << position)) != 0;
@@ -883,7 +854,7 @@ final private boolean isPotentiallyAssigned(int position) {
 }
 
 final public boolean isPotentiallyAssigned(FieldBinding field) {
-	return isPotentiallyAssigned(field.getAnalysisId(this.maxFieldCount));
+	return isPotentiallyAssigned(field.id);
 }
 
 final public boolean isPotentiallyAssigned(LocalVariableBinding local) {
@@ -894,22 +865,14 @@ final public boolean isPotentiallyAssigned(LocalVariableBinding local) {
 	return isPotentiallyAssigned(local.id + this.maxFieldCount);
 }
 
-final public boolean isPotentiallyAssigned(VariableBinding var) {
-	if (var instanceof FieldBinding) {
-	return this.isPotentiallyAssigned((FieldBinding)var);
-	} else {
-		return this.isPotentiallyAssigned((LocalVariableBinding)var);
-	}
-}
-
 // TODO (Ayush) Check why this method does not return true for protected non null (1111)
-final public boolean isPotentiallyNonNull(VariableBinding local) {
+final public boolean isPotentiallyNonNull(LocalVariableBinding local) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
-	int position = local.getAnalysisId(this.maxFieldCount);
-	if (position < BitCacheSize) { // use bits
+	int position;
+	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
 		// use bits
 		return ((this.nullBit3 & (~this.nullBit1 | ~this.nullBit2))
 			    & (1L << position)) != 0;
@@ -929,13 +892,13 @@ final public boolean isPotentiallyNonNull(VariableBinding local) {
 }
 
 // TODO (Ayush) Check why this method does not return true for protected null
-final public boolean isPotentiallyNull(VariableBinding local) {
+final public boolean isPotentiallyNull(LocalVariableBinding local) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
-	int position = local.getAnalysisId(this.maxFieldCount);
-	if (position < BitCacheSize) {
+	int position;
+	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
 		// use bits
 		return ((this.nullBit2 & (~this.nullBit1 | ~this.nullBit3))
 			    & (1L << position)) != 0;
@@ -954,13 +917,13 @@ final public boolean isPotentiallyNull(VariableBinding local) {
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
-final public boolean isPotentiallyUnknown(VariableBinding local) {
+final public boolean isPotentiallyUnknown(LocalVariableBinding local) {
 	// do not want to complain in unreachable code
 	if ((this.tagBits & UNREACHABLE) != 0 ||
 			(this.tagBits & NULL_FLAG_MASK) == 0) {
 		return false;
 	}
-	int position = local.getAnalysisId(this.maxFieldCount);
+	int position = local.id + this.maxFieldCount;
 	if (position < BitCacheSize) { // use bits
 		return (this.nullBit4
 			& (~this.nullBit1 | ~this.nullBit2 & ~this.nullBit3)
@@ -981,13 +944,14 @@ final public boolean isPotentiallyUnknown(VariableBinding local) {
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
-final public boolean isProtectedNonNull(VariableBinding local) {
+final public boolean isProtectedNonNull(LocalVariableBinding local) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
-	int position = local.getAnalysisId(this.maxFieldCount);
-	if (position < BitCacheSize) { // use bits
+	int position;
+	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
+		// use bits
 		return (this.nullBit1 & this.nullBit3 & this.nullBit4 & (1L << position)) != 0;
 	}
 	// use extra vector
@@ -1005,13 +969,13 @@ final public boolean isProtectedNonNull(VariableBinding local) {
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 
-final public boolean isProtectedNull(VariableBinding local) {
+final public boolean isProtectedNull(LocalVariableBinding local) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
-	int position = local.getAnalysisId(this.maxFieldCount);
-	if (position < BitCacheSize) {
+	int position;
+	if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
 		// use bits
 		return (this.nullBit1 & this.nullBit2
 			& (this.nullBit3 ^ this.nullBit4)
@@ -1044,27 +1008,15 @@ protected static boolean isTrue(boolean expression, String message) {
 		throw new AssertionFailedException("assertion failed: " + message); //$NON-NLS-1$
 	return expression;
 }
-public void markAsComparedEqualToNonNull(VariableBinding local) {
+public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
 	// protected from non-object locals in calling methods
 	if (this != DEAD_END) {
 		this.tagBits |= NULL_FLAG_MASK;
 		int position;
-		if (local instanceof FieldBinding) {
-			if ((local.modifiers & AccConstant) == AccConstant) {
-				position = local.getAnalysisId(this.maxFieldCount);
-			} else {
-				// non-final fields may be modified in separate threads and we cannot be sure about their
-				// definite nullness. Hence, marking as definitely unknown to avoid deferring null check for these fields
-				this.markAsDefinitelyUnknown(local);
-				return;
-			}
-		} else {
-			position = local.id + this.maxFieldCount;
-		}
 		long mask;
 		long a1, a2, a3, a4, na2;
 		// position is zero-based
-		if (position < BitCacheSize) {
+		if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
 			// use bits
 			if (((mask = 1L << position)
 				& (a1 = this.nullBit1)
@@ -1153,26 +1105,14 @@ public void markAsComparedEqualToNonNull(VariableBinding local) {
 	}
 }
 
-public void markAsComparedEqualToNull(VariableBinding local) {
+public void markAsComparedEqualToNull(LocalVariableBinding local) {
 	// protected from non-object locals in calling methods
 	if (this != DEAD_END) {
 		this.tagBits |= NULL_FLAG_MASK;
 		int position;
 		long mask;
 		// position is zero-based
-		if (local instanceof FieldBinding) {
-			if ((local.modifiers & AccConstant) == AccConstant) {
-				position = local.getAnalysisId(this.maxFieldCount);
-			} else {
-				// non-final fields may be modified in separate threads and we cannot be sure about their
-				// definite nullness. Hence, marking as potential null.
-				this.markNullStatus(local, FlowInfo.POTENTIALLY_NULL);
-				return;
-			}
-		} else {
-			position = local.id + this.maxFieldCount;
-		}
-		if (position < BitCacheSize) {
+		if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
 			// use bits
 			if (((mask = 1L << position) & this.nullBit1) != 0) {
   			  	if ((mask
@@ -1293,31 +1233,24 @@ final private void markAsDefinitelyAssigned(int position) {
 	}
 }
 
-public void markAsDefinitelyAssigned(VariableBinding var) {
+public void markAsDefinitelyAssigned(FieldBinding field) {
 	if (this != DEAD_END)
-		markAsDefinitelyAssigned(var.getAnalysisId(this.maxFieldCount));
+		markAsDefinitelyAssigned(field.id);
 }
 
-public void markAsDefinitelyNonNull(VariableBinding local) {
+public void markAsDefinitelyAssigned(LocalVariableBinding local) {
+	if (this != DEAD_END)
+		markAsDefinitelyAssigned(local.id + this.maxFieldCount);
+}
+
+public void markAsDefinitelyNonNull(LocalVariableBinding local) {
 	// protected from non-object locals in calling methods
 	if (this != DEAD_END) {
     	this.tagBits |= NULL_FLAG_MASK;
     	long mask;
     	int position;
     	// position is zero-based
-    	if (local instanceof FieldBinding) {
-			if ((local.modifiers & AccConstant) == AccConstant) {
-				position = local.getAnalysisId(this.maxFieldCount);
-			} else {
-	    		// non-final fields may be modified in separate threads and we cannot be sure about their
-	    		// definite nullness. Hence, marking as definitely unknown to avoid deferring null check for these fields.
-	    		this.markAsDefinitelyUnknown(local);
-	    		return;
-			}
-    	} else {
-    		position = local.id + this.maxFieldCount;
-    	}
-    	if (position < BitCacheSize) { // use bits
+    	if ((position = local.id + this.maxFieldCount) < BitCacheSize) { // use bits
     		// set assigned non null
     		this.nullBit1 |= (mask = 1L << position);
     		this.nullBit3 |= mask;
@@ -1364,26 +1297,14 @@ public void markAsDefinitelyNonNull(VariableBinding local) {
 	}
 }
 
-public void markAsDefinitelyNull(VariableBinding local) {
+public void markAsDefinitelyNull(LocalVariableBinding local) {
 	// protected from non-object locals in calling methods
 	if (this != DEAD_END) {
     	this.tagBits |= NULL_FLAG_MASK;
     	long mask;
     	int position;
     	// position is zero-based
-    	if (local instanceof FieldBinding) {
-			if ((local.modifiers & AccConstant) == AccConstant) {
-				position = local.getAnalysisId(this.maxFieldCount);
-			} else {
-	    		// non-final fields may be modified in separate threads and we cannot be sure about their
-	    		// definite nullness. Hence, marking as potential null.
-	    		this.markNullStatus(local, FlowInfo.POTENTIALLY_NULL);
-	    		return;
-			}
-    	} else {
-    		position = local.id + this.maxFieldCount;
-    	}
-    	if (position < BitCacheSize) { // use bits
+    	if ((position = local.id + this.maxFieldCount) < BitCacheSize) { // use bits
     		// mark assigned null
     		this.nullBit1 |= (mask = 1L << position);
     		this.nullBit2 |= mask;
@@ -1436,13 +1357,14 @@ public void markAsDefinitelyNull(VariableBinding local) {
  */
 // PREMATURE may try to get closer to markAsDefinitelyAssigned, but not
 //			 obvious
-public void markAsDefinitelyUnknown(VariableBinding local) {
+public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 	// protected from non-object locals in calling methods
 	if (this != DEAD_END) {
 		this.tagBits |= NULL_FLAG_MASK;
 		long mask;
-		int position = local.getAnalysisId(this.maxFieldCount);
-		if (position < BitCacheSize) {
+		int position;
+		// position is zero-based
+		if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
 			// use bits
 			// mark assigned null
 			this.nullBit1 |= (mask = 1L << position);
@@ -1490,12 +1412,12 @@ public void markAsDefinitelyUnknown(VariableBinding local) {
 	}
 }
 
-public void resetNullInfo(VariableBinding local) {
+public void resetNullInfo(LocalVariableBinding local) {
 	if (this != DEAD_END) {
 		this.tagBits |= NULL_FLAG_MASK;
+        int position;
         long mask;
-    	int position = local.getAnalysisId(this.maxFieldCount);
-        if (position < BitCacheSize) {
+        if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
             // use bits
             this.nullBit1 &= (mask = ~(1L << position));
             this.nullBit2 &= mask;
@@ -1518,127 +1440,17 @@ public void resetNullInfo(VariableBinding local) {
 	}
 }
 
-public void resetNullInfoForFields() {
-	if (this != DEAD_END) {
-		long mask = this.maxFieldCount < BitCacheSize ? (-1L << this.maxFieldCount) : 0L; 
-		mask |= this.constantFieldsMask;
-		// first reset normal bits:
-		this.nullBit1 |= ~mask;
-		this.nullBit2 &= mask;
-		this.nullBit3 &= mask;
-		this.nullBit4 |= ~mask;
-		if (this.maxFieldCount >= BitCacheSize && this.extra != null) {
-			// use extra vector
-			int localsStartIndex = this.maxFieldCount/BitCacheSize - 1;
-			int localsStartOffset = this.maxFieldCount % BitCacheSize;
-			if (this.extraConstantFieldMask != null){
-				for (int vectorIndex = 0; vectorIndex < this.extra[2].length; vectorIndex++) {
-				    if (vectorIndex >= this.extraConstantFieldMask.length) {
-				    	// no constant fields after this, just mask all fields
-				    	if (vectorIndex == localsStartIndex) {
-				    		// some locals, some fields at this vectorIndex
-				    		mask = -1L << localsStartOffset;
-				    	} else {
-				    		// all fields here
-				    		mask = 0L;
-				    	}
-				    } else {
-				    	if (vectorIndex == localsStartIndex) {
-				    		// some locals, some fields at this vectorIndex
-				    		mask = ((-1 << localsStartOffset) | this.extraConstantFieldMask[vectorIndex]);
-				    	} else {
-				    		// all fields here
-				    		mask = 0L | this.extraConstantFieldMask[vectorIndex];
-				    	}
-				    	
-				    }
-					this.extra[2][vectorIndex]
-					    |= ~mask;
-					this.extra[3][vectorIndex] &= mask;
-					this.extra[4][vectorIndex] &= mask;
-					this.extra[5][vectorIndex] |= ~mask;
-				}
-			} else {
-				// no constant fields
-				for (int vectorIndex = 0; vectorIndex < this.extra[2].length; vectorIndex++) {
-				    if (vectorIndex == localsStartIndex) {
-				    	// some locals, some fields at this vectorIndex
-				    	mask = -1L << localsStartOffset;
-				    } else {
-				    	// all fields here
-				    	mask = 0L;
-				    }
-					this.extra[2][vectorIndex]
-					    |= ~mask;
-					this.extra[3][vectorIndex] &= mask;
-					this.extra[4][vectorIndex] &= mask;
-					this.extra[5][vectorIndex] |= ~mask;
-				}
-			}
-		}
-	}
-}
-
-public void updateConstantFieldsMask(FieldBinding field) {
-	int position = field.getAnalysisId(this.maxFieldCount);
-	long mask = 1L << (position % BitCacheSize);
-	if (position < BitCacheSize) {
-		this.constantFieldsMask |= 1L << position; // exclude this field from being reset
-    } else {
-		// use extra vector
-		int vectorIndex = (position / BitCacheSize) - 1;
-		if (this.extraConstantFieldMask == null) {
-			// extra array not created. Create constant field mask bit streams.
-			int length = vectorIndex + 1;
-			this.extraConstantFieldMask = new long[length];
-		}
-		else {
-			int oldLength; // might need to grow the arrays
-			if (vectorIndex >= (oldLength = this.extraConstantFieldMask.length)) {
-				System.arraycopy(this.extraConstantFieldMask, 0, (this.extraConstantFieldMask = new long[vectorIndex + 1]), 0, oldLength);
-			}
-		}
-		this.extraConstantFieldMask[vectorIndex] |= mask; // exclude this field from resetNullInfoForFields
-	}
-}
-
-/**
- * All the infos originate in TypeDeclaration.analyseCode(). So making sure that this method is called for every info that is sent into
- * methods/constructors should be sufficient
- */
-public void addConstantFieldsMask(UnconditionalFlowInfo other) {
-	this.constantFieldsMask |= other.constantFieldsMask;
-    if (other.extraConstantFieldMask != null) {
-    	int oldLength = 0;
-    	int otherLen = other.extraConstantFieldMask.length;
-    	if (this.extraConstantFieldMask != null) {
-    		oldLength = this.extraConstantFieldMask.length;
-	    	if (otherLen >= (oldLength = this.extraConstantFieldMask.length)) {
-				System.arraycopy(this.extraConstantFieldMask, 0, (this.extraConstantFieldMask = new long[otherLen]), 0, oldLength);
-			}
-	    	for (int i = 0; i < this.extraConstantFieldMask.length; i++) {
-				this.extraConstantFieldMask[i] |= other.extraConstantFieldMask[i];
-			}
-    	} else {
-    		this.extraConstantFieldMask = new long[otherLen];
-    	}
-    	for (int i = oldLength; i < otherLen; i++) {
-			this.extraConstantFieldMask[i] = other.extraConstantFieldMask[i];
-		}
-	}
-}
-
 /**
  * Mark a local as potentially having been assigned to an unknown value.
  * @param local the local to mark
  */
-public void markPotentiallyUnknownBit(VariableBinding local) {
+public void markPotentiallyUnknownBit(LocalVariableBinding local) {
 	// protected from non-object locals in calling methods
 	if (this != DEAD_END) {
 		this.tagBits |= NULL_FLAG_MASK;
+        int position;
         long mask;
-    	int position = local.getAnalysisId(this.maxFieldCount);
-        if (position < BitCacheSize) {
+        if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
             // use bits
         	mask = 1L << position;
         	isTrue((this.nullBit1 & mask) == 0, "Adding 'unknown' mark in unexpected state"); //$NON-NLS-1$
@@ -1680,12 +1492,12 @@ public void markPotentiallyUnknownBit(VariableBinding local) {
 	}
 }
 
-public void markPotentiallyNullBit(VariableBinding local) {
+public void markPotentiallyNullBit(LocalVariableBinding local) {
 	if (this != DEAD_END) {
 		this.tagBits |= NULL_FLAG_MASK;
+        int position;
         long mask;
-    	int position = local.getAnalysisId(this.maxFieldCount);
-        if (position < BitCacheSize) {
+        if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
             // use bits
         	mask = 1L << position;
         	isTrue((this.nullBit1 & mask) == 0, "Adding 'potentially null' mark in unexpected state"); //$NON-NLS-1$
@@ -1727,12 +1539,12 @@ public void markPotentiallyNullBit(VariableBinding local) {
 	}
 }
 
-public void markPotentiallyNonNullBit(VariableBinding local) {
+public void markPotentiallyNonNullBit(LocalVariableBinding local) {
 	if (this != DEAD_END) {
 		this.tagBits |= NULL_FLAG_MASK;
+        int position;
         long mask;
-    	int position = local.getAnalysisId(this.maxFieldCount);
-        if (position < BitCacheSize) {
+        if ((position = local.id + this.maxFieldCount) < BitCacheSize) {
             // use bits
         	mask = 1L << position;
         	isTrue((this.nullBit1 & mask) == 0, "Adding 'potentially non-null' mark in unexpected state"); //$NON-NLS-1$
@@ -2089,8 +1901,6 @@ public UnconditionalFlowInfo nullInfoLessUnconditionalCopy() {
 	copy.tagBits = this.tagBits & ~NULL_FLAG_MASK;
 	copy.maxFieldCount = this.maxFieldCount;
 	copy.nullStatusChangedInAssert = this.nullStatusChangedInAssert;
-	copy.constantFieldsMask = this.constantFieldsMask;
-	copy.extraConstantFieldMask = this.extraConstantFieldMask;
 	if (this.extra != null) {
 		int length;
 		copy.extra = new long[extraLength][];
@@ -2213,8 +2023,6 @@ public UnconditionalFlowInfo unconditionalFieldLessCopy() {
 	UnconditionalFlowInfo copy = new UnconditionalFlowInfo();
 	copy.tagBits = this.tagBits;
 	copy.maxFieldCount = this.maxFieldCount;
-	copy.constantFieldsMask = this.constantFieldsMask;
-	copy.extraConstantFieldMask = this.extraConstantFieldMask;
 	int limit = this.maxFieldCount;
 	if (limit < BitCacheSize) {
 		long mask;
@@ -2269,8 +2077,8 @@ public UnconditionalFlowInfo unconditionalInitsWithoutSideEffect() {
 	return this;
 }
 
-public void markedAsNullOrNonNullInAssertExpression(VariableBinding binding) {
-	int position = binding.getAnalysisId(this.maxFieldCount);
+public void markedAsNullOrNonNullInAssertExpression(LocalVariableBinding local) {
+	int position = local.id + this.maxFieldCount;
 	int oldLength;
 	if (this.nullStatusChangedInAssert == null) {
 		this.nullStatusChangedInAssert = new int[position + 1];
@@ -2283,8 +2091,8 @@ public void markedAsNullOrNonNullInAssertExpression(VariableBinding binding) {
 	this.nullStatusChangedInAssert[position] = 1;
 }
 
-public boolean isMarkedAsNullOrNonNullInAssertExpression(VariableBinding binding) {
-	int position = binding.getAnalysisId(this.maxFieldCount);
+public boolean isMarkedAsNullOrNonNullInAssertExpression(LocalVariableBinding local) {
+	int position = local.id + this.maxFieldCount;
 	if(this.nullStatusChangedInAssert == null || position >= this.nullStatusChangedInAssert.length) {
 		return false;
 	}

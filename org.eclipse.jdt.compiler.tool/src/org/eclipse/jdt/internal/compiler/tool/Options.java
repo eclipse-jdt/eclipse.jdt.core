@@ -184,7 +184,6 @@ public final class Options {
 						|| token.equals("noImplicitStringConversion")//$NON-NLS-1$
 						|| token.equals("null")//$NON-NLS-1$
 						|| token.equals("nullDereference")//$NON-NLS-1$
-						|| token.equals("nullFields")//$NON-NLS-1$
 						|| token.equals("over-ann")//$NON-NLS-1$
 						|| token.equals("packageDefaultMethod")//$NON-NLS-1$
 						|| token.equals("paramAssign")//$NON-NLS-1$

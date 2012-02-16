@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1781,20 +1781,6 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_INCLUDE_ASSERTS_IN_NULL_ANALYSIS = PLUGIN_ID + ".compiler.problem.includeNullInfoFromAsserts"; //$NON-NLS-1$
-	/**
-	 * Compiler option ID: Raise null related errors or warnings on fields.
-	 * <p>When enabled, the compiler will flag all null related errors or warnings that have been enabled by the user
-	 *    on fields, in addition to local variables.</p>
-	 * <p>When disabled, the compiler will not flag null related errors or warnings on fields.</p>
-	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.includeFieldsInNullAnalysis"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
-	 * </dl>
-	 * @since 3.8
-	 * @category CompilerOptionID
-	 */
-	public static final String COMPILER_PB_INCLUDE_FIELDS_IN_NULL_ANALYSIS = PLUGIN_ID + ".compiler.problem.includeFieldsInNullAnalysis"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Further Determining the Effect of <code>@SuppressWarnings</code> if also
 	 * {@link #COMPILER_PB_SUPPRESS_WARNINGS} is enabled.
