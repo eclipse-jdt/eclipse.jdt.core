@@ -14,6 +14,7 @@
  *							bug 349326 - [1.7] new warning for missing try-with-resources
  *							bug 186342 - [compiler][null] Using annotations for null checking
  *							bug 358903 - Filter practically unimportant resource leak warnings
+ *							bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -77,8 +78,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	
 	FlowInfo preInitInfo = null;
 	boolean shouldAnalyseResource = this.binding != null 
-			&& flowInfo.reachMode() == FlowInfo.REACHABLE 
-			&& FakedTrackingVariable.isAnyCloseable(this.initialization.resolvedType);
+			&& flowInfo.reachMode() == FlowInfo.REACHABLE
+			&& FakedTrackingVariable.isAnyCloseable(this.initialization.resolvedType)
+			&& currentScope.compilerOptions().analyseResourceLeaks;
 	if (shouldAnalyseResource) {
 		preInitInfo = flowInfo.unconditionalCopy();
 		// analysis of resource leaks needs additional context while analyzing the RHS:

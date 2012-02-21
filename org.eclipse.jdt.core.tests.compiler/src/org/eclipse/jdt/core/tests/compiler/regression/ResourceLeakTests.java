@@ -3687,4 +3687,27 @@ public void test074() {
 	true,
 	options);
 }
+// Bug 370639 - [compiler][resource] restore the default for resource leak warnings
+// check that the default is warning
+public void test075() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.File;\n" +
+			"import java.io.FileReader;\n" +
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"    void foo() throws IOException {\n" +
+			"        File file = new File(\"somefile\");\n" +
+			"        FileReader fileReader = new FileReader(file);\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 7)\n" +
+		"	FileReader fileReader = new FileReader(file);\n" +
+		"	           ^^^^^^^^^^\n" +
+		"Resource leak: 'fileReader' is never closed\n" +
+		"----------\n");
+}
 }

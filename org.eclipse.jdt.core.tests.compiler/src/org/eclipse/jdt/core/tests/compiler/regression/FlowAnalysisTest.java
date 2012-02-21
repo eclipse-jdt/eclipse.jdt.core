@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class FlowAnalysisTest extends AbstractRegressionTest {
 static {
-//	TESTS_NAMES = new String[] { "testInnerClassesWithFields1" };
+//	TESTS_NAMES = new String[] { "testLocalClassInInitializer1" };
 //	TESTS_NUMBERS = new int[] { 69 };
 }
 public FlowAnalysisTest(String name) {
@@ -2495,119 +2495,6 @@ public void testLocalClassInInitializer2() {
 			"	     ^^^^^^^^^\n" + 
 			"continue cannot be used outside of a loop\n" + 
 			"----------\n");
-}
-// final field in anonymous nested class
-// witness a regression during working on Bug 247564 - [compiler][null] Detecting null field reference
-public void testFinalFieldInNested1() {
-	this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"    void print4() {\n" +
-				"        for (int i=0; i<4; i++)\n" +
-				"            new Runnable() {\n" +
-				"                final String s1local;\n" +
-				"                public void run() {\n" +
-				"                     s1local.toString();\n" +
-				"                }\n" +
-				"            }.run();\n" +
-				"    }\n" +
-				"}\n"
-			}, 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	new Runnable() {\n" + 
-			"	    ^^^^^^^^^^\n" + 
-			"The blank final field s1local may not have been initialized\n" + 
-			"----------\n");
-}
-// witness a regression during working on Bug 247564 - [compiler][null] Detecting null field reference
-// local variable in inner class triggered IAE in StackMapFrame.addStackItem
-public void testInnerClassesWithFields1() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_6) { // we're specifically interested in StackMap generation
-		this.runConformTest(
-				new String[] {
-					"X.java",
-					"public class X {\n" +
-					"    int f1, f2, f3;\n" +
-					"    class I1 {\n" +
-					"        int f4;\n" +
-					"        String m(boolean b) {\n" +
-					"            String l1 = \"Hello\";\n" +
-					"            if (b) {\n" +
-					"                l1 += \" world!\";\n" +
-					"            } else {\n" +
-					"                l1 += \" test.\";\n" +
-					"            }\n" +
-					"            return l1;\n" +
-					"        }\n" +
-					"    }\n" +
-					"    class I2 {\n" +
-					"        int f5, f6, f7;\n" +
-					"    }\n" +
-					"}\n"
-				}, 
-				"");
-	}
-}
-// witness a regression during working on Bug 247564 - [compiler][null] Detecting null field reference
-// local variable in local class triggered IAE in StackMapFrame.addStackItem
-public void testInnerClassesWithFields1a() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_6) { // we're specifically interested in StackMap generation
-		this.runConformTest(
-				new String[] {
-					"X.java",
-					"public class X {\n" +
-					"    int f1, f2, f3;\n" +
-					"    void foo() {\n" +
-					"        class I1 {\n" +
-					"            int f4;\n" +
-					"            String m(boolean b) {\n" +
-					"                String l1 = \"Hello\";\n" +
-					"                if (b) {\n" +
-					"                    l1 += \" world!\";\n" +
-					"                } else {\n" +
-					"                    l1 += \" test.\";\n" +
-					"                }\n" +
-					"                return l1;\n" +
-					"            }\n" +
-					"        }\n" +
-					"    }\n" +
-					"    class I2 {\n" +
-					"        int f5, f6, f7;\n" +
-					"    }\n" +
-					"}\n"
-				}, 
-				"");
-	}
-}
-// witness a regression during working on Bug 247564 - [compiler][null] Detecting null field reference
-// final fields in parameterized nested were reported as uninitialized
-public void testInnerClassesWithFields2() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"    static final String f1 = \"f1\";\n" +
-				"    static final String f2 = \"f2\";\n" +
-				"    String f3;\n" +
-				"    X() {\n" +
-				"        f3 = \"f3\";\n" +
-				"    }\n" +
-				"    protected abstract class I<T> {\n" +
-				"        final String f5, f6;\n" +
-				"        T f7;\n" +
-				"        I(T a) {\n" +
-				"            f5 = \"f5\";\n" +
-				"            f6 = \"f6\";\n" +
-				"            f7 = a;\n" +
-				"        }\n" +
-				"    }\n" +
-				"}\n"
-			}, 
-			"");
-	}
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;

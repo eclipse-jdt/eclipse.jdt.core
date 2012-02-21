@@ -39,7 +39,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			flowInfo = stat.analyseCode(this.scope, flowContext, flowInfo);
 		}
 	}
-
 	if (this.explicitDeclarations > 0) // if block has its own scope analyze tracking vars now:
 		this.scope.checkUnclosedCloseables(flowInfo, flowContext, null, null);
 	return flowInfo;

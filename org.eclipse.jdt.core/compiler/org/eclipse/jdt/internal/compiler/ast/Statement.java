@@ -13,6 +13,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365983 - [compiler][null] AIOOB with null annotation analysis and varargs
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
+ *								bug 370930 - NonNull annotation not considered for enhanced for loops
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -60,6 +61,7 @@ public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowCo
 	public static final int COMPLAINED_FAKE_REACHABLE = 1;
 	public static final int COMPLAINED_UNREACHABLE = 2;
 	
+
 /** Analysing arguments of MessageSend, ExplicitConstructorCall, AllocationExpression. */
 protected void analyseArguments(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, MethodBinding methodBinding, Expression[] arguments)
 {
@@ -98,13 +100,17 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 
 /** Check null-ness of 'local' against a possible null annotation */
 protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, FlowContext flowContext,
-												   VariableBinding var, int nullStatus, Expression expression)
+												   LocalVariableBinding local, int nullStatus, Expression expression)
 {
-	if (var != null
-			&& (var.tagBits & TagBits.AnnotationNonNull) != 0
-			&& nullStatus != FlowInfo.NON_NULL) {
-		flowContext.recordNullityMismatch(currentScope, expression, nullStatus, var.type);
-		nullStatus=FlowInfo.NON_NULL;
+	if (local != null) {
+		if ((local.tagBits & TagBits.AnnotationNonNull) != 0
+				&& nullStatus != FlowInfo.NON_NULL) {
+			flowContext.recordNullityMismatch(currentScope, expression, nullStatus, local.type);
+			return FlowInfo.NON_NULL;
+		} else if ((local.tagBits & TagBits.AnnotationNullable) != 0
+				&& nullStatus == FlowInfo.UNKNOWN) {	// provided a legacy type?
+			return FlowInfo.POTENTIALLY_NULL;			// -> use more specific info from the annotation
+		}
 	}
 	return nullStatus;
 }

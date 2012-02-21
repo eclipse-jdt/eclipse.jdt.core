@@ -42,11 +42,38 @@
 	</td>
   </tr>
 </table>
+<a name="v_C35"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java development tools core</h1>
+Eclipse SDK 3.8.0 - February 21, 2012 - 3.8.0 M6
+<br>Project org.eclipse.jdt.core v_C35
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C35">cvs</a>).
+<h2>What's new in this drop</h2>
+
+<h3>Problem Reports Fixed</h3>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=365499">365499</a>
+Add a system property to control for JavaModelManager's jar type cache size
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368152">368152</a>
+ConcurrentModificationException on startup in ExternalFoldersManager.createPendingFolders
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=244544">244544</a>
+codeSelect fails on constant declaration in anonymous and local classes
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=291040">291040</a>
+codeSelect(..) does not work for a deeply nested method invocation in nested and anonymous class
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=370930">370930</a>
+NonNull annotation not considered for enhanced for loops
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=366063">366063</a>
+Compiler should not add synthetic @NonNull annotations
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=365531">365531</a>
+[compiler][null] investigate alternative strategy for internally encoding nullness defaults
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=370639">370639</a>
+[compiler][resource] restore the default for resource leak warnings
+
 <a name="v_C34"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.8.0 - February 14, 2012 - 3.8.0 M6
+Eclipse SDK 3.8.0 - February 14, 2012
 <br>
 <h2>What's new in this drop</h2>
 
@@ -83,8 +110,6 @@ Eclipse SDK 3.8.0 - January 24, 2012
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=366829">366829</a>
 Batch compiler option and SuppressWarnings token for Overriding a Synchronized Method with a Non-synchronized Method
-<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=369381">369381</a>
-[null][compiler] 'Adding potential null mark in unexpected state' assertion while compiling
 
 <a name="v_C31"></a>
 <hr><h1>
@@ -128,45 +153,6 @@ Eclipse SDK 3.8.0 - January 20, 2012
 	String SOURCE_ATTACHMENT_ENCODING = "source_encoding";
 </pre>
 </li>
-<li> New JavaCore option to control null analysis for fields
-<pre>
-	/**
-	 * Compiler option ID: Raise null related errors or warnings on fields.
-	 *
-	 * When enabled, the compiler will flag all null related errors or warnings that have been enabled by the user
-	 * on fields, in addition to local variables.
-	 * When disabled, the compiler will not flag null related errors or warnings on fields.
-	 * 
-	 * Option id:<code>"org.eclipse.jdt.core.compiler.problem.includeFieldsInNullAnalysis"</code>
-	 * Possible values:<code>{ "enabled", "disabled" }</code>
-	 * Default:<code>"disabled"</code>
-	 * 
-	 * @since 3.8
-	 * @category CompilerOptionID
-	 */
-	public static final String COMPILER_PB_INCLUDE_FIELDS_IN_NULL_ANALYSIS = PLUGIN_ID + ".compiler.problem.includeFieldsInNullAnalysis";
-</pre>
-</li>
-<li> New IProblems for messages relating to null analysis for fields
-<pre>
- 	/** @since 3.8*/
-	int NullFieldReference = Internal + FieldRelated + 670;
-	/** @since 3.8*/
-	int PotentialNullFieldReference = Internal + FieldRelated + 671;
-	/** @since 3.8*/
-	int RedundantNullCheckOnNullField = Internal + FieldRelated + 672;
-	/** @since 3.8*/
-	int NullFieldComparisonYieldsFalse = Internal + FieldRelated + 673;
-	/** @since 3.8*/
-	int RedundantNullCheckOnNonNullField = Internal + FieldRelated + 674;
-	/** @since 3.8*/
-	int NonNullFieldComparisonYieldsFalse = Internal + FieldRelated + 675;
-	/** @since 3.8*/
-	int RedundantFieldNullAssignment = Internal + FieldRelated + 676;
-	/** @since 3.8*/
-	int NullFieldInstanceofYieldsFalse = Internal + FieldRelated + 677;
-</pre>
-</li>
 <li> New IProblems for messages relating to contradictory or redundant null annotations
 <pre>
 	/** @since 3.8 */
@@ -189,8 +175,6 @@ Allow to specify encoding for source attachments
 FUP of bug 361938: Other error code pattern
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=365662">365662</a>
 [compiler][null] warn on contradictory and redundant null annotations
-<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=247564">247564</a>
-[compiler][null] Detecting null field reference
 
 <a name="v_C29"></a>
 <hr><h1>

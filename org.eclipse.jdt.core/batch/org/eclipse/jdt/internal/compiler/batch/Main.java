@@ -3409,11 +3409,6 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 					setSeverity(CompilerOptions.OPTION_ReportRedundantNullCheck, ProblemSeverities.Ignore, isEnabling);
 				}
 				return;
-			} else if (token.equals("nullFields")) { //$NON-NLS-1$
-				this.options.put(
-						CompilerOptions.OPTION_IncludeFieldsInNullAnalysis,
-						isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-				return;
 			} else if (token.startsWith("nullAnnot")) { //$NON-NLS-1$
 				String annotationNames = Util.EMPTY_STRING;
 				int start = token.indexOf('(');

@@ -16,6 +16,7 @@
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
+ *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -51,12 +52,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		if (flowInfo.reachMode() == FlowInfo.REACHABLE)
 			checkAgainstNullAnnotation(currentScope, flowContext, this.expression.nullStatus(flowInfo));
-		FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression);
-		if (trackingVariable != null) {
-			if (methodScope != trackingVariable.methodScope)
-				trackingVariable.markClosedInNestedMethod();
-			// by returning the method passes the responsibility to the caller:
-			flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.expression, flowInfo, true);
+		if (currentScope.compilerOptions().analyseResourceLeaks) {
+			FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression);
+			if (trackingVariable != null) {
+				if (methodScope != trackingVariable.methodScope)
+					trackingVariable.markClosedInNestedMethod();
+				// by returning the method passes the responsibility to the caller:
+				flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.expression, flowInfo, true);
+			}
 		}
 	}
 	this.initStateIndex =

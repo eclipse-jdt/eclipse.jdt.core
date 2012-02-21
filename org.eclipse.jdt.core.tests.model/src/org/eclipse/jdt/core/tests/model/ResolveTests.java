@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2685,5 +2685,44 @@ public void testMethodParameter() throws JavaModelException {
 			elements
 		);
 	assertTrue("Not a parameter", ((ILocalVariable)elements[0]).isParameter());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=244544
+public void testConstantInLocal() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/Test2.java",
+			"class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        class Local {\n" +
+			"            private static final long CONSTANT = 1L; // code select fails\n" +
+			"        }\n" +
+			"        new X() {\n" +
+			"            private static final long FINAL = 1L; // code select fails\n" +
+			"        };\n" +
+			"    }\n" +
+			"}\n");
+
+	String str = this.workingCopies[0].getSource();
+	String selectAt = "FINAL";
+	String selection = "FINAL";
+	int start = str.indexOf(selectAt);
+	int length = selection.length();
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"FINAL [in <anonymous #1> [in main(String[]) [in X [in [Working copy] Test2.java [in <default> [in src [in Resolve]]]]]]]",
+			elements);
+
+	selectAt = "CONSTANT";
+	selection = "CONSTANT";
+	start = str.indexOf(selectAt);
+	length = selection.length();
+	elements = this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"CONSTANT [in Local [in main(String[]) [in X [in [Working copy] Test2.java [in <default> [in src [in Resolve]]]]]]]",
+			elements);
 }
 }

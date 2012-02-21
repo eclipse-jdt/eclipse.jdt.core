@@ -13,6 +13,8 @@
  *     							bug 295551 - Add option to automatically promote all warnings to errors
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
+ *								bug 366063 - Compiler should not add synthetic @NonNull annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
@@ -138,7 +140,6 @@ public class CompilerOptions {
 	public static final String OPTION_ReportTasks = "org.eclipse.jdt.core.compiler.problem.tasks"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedObjectAllocation = "org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation";  //$NON-NLS-1$
 	public static final String OPTION_IncludeNullInfoFromAsserts = "org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts";  //$NON-NLS-1$
-	public static final String OPTION_IncludeFieldsInNullAnalysis = "org.eclipse.jdt.core.compiler.problem.includeFieldsInNullAnalysis";  //$NON-NLS-1$
 	public static final String OPTION_ReportMethodCanBeStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic";  //$NON-NLS-1$
 	public static final String OPTION_ReportMethodCanBePotentiallyStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic";  //$NON-NLS-1$
 	public static final String OPTION_ReportRedundantSpecificationOfTypeArguments =  "org.eclipse.jdt.core.compiler.problem.redundantSpecificationOfTypeArguments"; //$NON-NLS-1$
@@ -387,8 +388,6 @@ public class CompilerOptions {
 	public boolean ignoreMethodBodies;
 	/** Raise null related warnings for variables tainted inside an assert statement (java 1.4 and above)*/
 	public boolean includeNullInfoFromAsserts;
-	/** Specify if fields are to be included in null analysis */
-	public boolean includeFieldsInNullAnalysis;
 	/** Controls whether forced generic type problems get reported  */
 	public boolean reportUnavoidableGenericTypeProblems;
 
@@ -402,7 +401,9 @@ public class CompilerOptions {
 	/** Fully qualified name of annotation to use as marker for default nonnull. */
 	public char[][] nonNullByDefaultAnnotationName;
 	/** TagBits-encoded default for non-annotated types. */
-	public long defaultNonNullness; // 0 or TagBits#AnnotationNonNull
+	public long intendedDefaultNonNullness; // 0 or TagBits#AnnotationNonNull
+	/** Should resources (objects of type Closeable) be analysed for matching calls to close()? */
+	public boolean analyseResourceLeaks;
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
@@ -1061,7 +1062,6 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportTasks, getSeverityString(Tasks));
 		optionsMap.put(OPTION_ReportUnusedObjectAllocation, getSeverityString(UnusedObjectAllocation));
 		optionsMap.put(OPTION_IncludeNullInfoFromAsserts, this.includeNullInfoFromAsserts ? ENABLED : DISABLED);
-		optionsMap.put(OPTION_IncludeFieldsInNullAnalysis, this.includeFieldsInNullAnalysis ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportMethodCanBeStatic, getSeverityString(MethodCanBeStatic));
 		optionsMap.put(OPTION_ReportMethodCanBePotentiallyStatic, getSeverityString(MethodCanBePotentiallyStatic));
 		optionsMap.put(OPTION_ReportRedundantSpecificationOfTypeArguments, getSeverityString(RedundantSpecificationOfTypeArguments));
@@ -1076,7 +1076,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_NullableAnnotationName, String.valueOf(CharOperation.concatWith(this.nullableAnnotationName, '.')));
 		optionsMap.put(OPTION_NonNullAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullAnnotationName, '.')));
 		optionsMap.put(OPTION_NonNullByDefaultAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullByDefaultAnnotationName, '.')));
-		if (this.defaultNonNullness == TagBits.AnnotationNonNull)
+		if (this.intendedDefaultNonNullness == TagBits.AnnotationNonNull)
 			optionsMap.put(OPTION_NonNullIsDefault, CompilerOptions.ENABLED);
 		else
 			optionsMap.put(OPTION_NonNullIsDefault, CompilerOptions.DISABLED);
@@ -1231,14 +1231,13 @@ public class CompilerOptions {
 		// allow null info from asserts to be considered downstream by default
 		this.includeNullInfoFromAsserts = false;
 		
-		// null analysis for fields
-		this.includeFieldsInNullAnalysis = false;
-		
 		this.isAnnotationBasedNullAnalysisEnabled = false;
 		this.nullableAnnotationName = DEFAULT_NULLABLE_ANNOTATION_NAME;
 		this.nonNullAnnotationName = DEFAULT_NONNULL_ANNOTATION_NAME;
 		this.nonNullByDefaultAnnotationName = DEFAULT_NONNULLBYDEFAULT_ANNOTATION_NAME;
-		this.defaultNonNullness = 0;
+		this.intendedDefaultNonNullness = 0;
+		
+		this.analyseResourceLeaks = true;
 	}
 
 	public void set(Map optionsMap) {
@@ -1459,13 +1458,6 @@ public class CompilerOptions {
 				this.includeNullInfoFromAsserts = false;
 			}
 		}
-		if ((optionValue = optionsMap.get(OPTION_IncludeFieldsInNullAnalysis)) != null) {
-			if (ENABLED.equals(optionValue)) {
-				this.includeFieldsInNullAnalysis = true;
-			} else if (DISABLED.equals(optionValue)) {
-				this.includeFieldsInNullAnalysis = false;
-			}
-		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportOverridingPackageDefaultMethod)) != null) updateSeverity(OverriddenPackageDefaultMethod, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDeprecation)) != null) updateSeverity(UsingDeprecatedAPI, optionValue);
@@ -1529,6 +1521,13 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportUnclosedCloseable)) != null) updateSeverity(UnclosedCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportPotentiallyUnclosedCloseable)) != null) updateSeverity(PotentiallyUnclosedCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportExplicitlyClosedAutoCloseable)) != null) updateSeverity(ExplicitlyClosedAutoCloseable, optionValue);
+		if (getSeverity(UnclosedCloseable) == ProblemSeverities.Ignore
+				&& getSeverity(PotentiallyUnclosedCloseable) == ProblemSeverities.Ignore
+				&& getSeverity(ExplicitlyClosedAutoCloseable) == ProblemSeverities.Ignore) {
+			this.analyseResourceLeaks = false;
+		} else {
+			this.analyseResourceLeaks = true;
+		}
 		if ((optionValue = optionsMap.get(OPTION_AnnotationBasedNullAnalysis)) != null) {
 			this.isAnnotationBasedNullAnalysisEnabled = ENABLED.equals(optionValue);
 		}
@@ -1557,9 +1556,9 @@ public class CompilerOptions {
 			}
 			if ((optionValue = optionsMap.get(OPTION_NonNullIsDefault)) != null) {
 				if (CompilerOptions.ENABLED.equals(optionValue))
-					this.defaultNonNullness = TagBits.AnnotationNonNull;
+					this.intendedDefaultNonNullness = TagBits.AnnotationNonNull;
 				else if (CompilerOptions.DISABLED.equals(optionValue))
-					this.defaultNonNullness = 0;
+					this.intendedDefaultNonNullness = 0;
 			}
 		}
 
@@ -1756,7 +1755,6 @@ public class CompilerOptions {
 		buf.append("\n\t- missing @Deprecated annotation: ").append(getSeverityString(MissingDeprecatedAnnotation)); //$NON-NLS-1$
 		buf.append("\n\t- incomplete enum switch: ").append(getSeverityString(IncompleteEnumSwitch)); //$NON-NLS-1$
 		buf.append("\n\t- raise null related warnings for variables tainted in assert statements: ").append(this.includeNullInfoFromAsserts ? ENABLED : DISABLED); //$NON-NLS-1$
-		buf.append("\n\t- include fields in null analysis: ").append(this.includeFieldsInNullAnalysis ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- suppress warnings: ").append(this.suppressWarnings ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- suppress optional errors: ").append(this.suppressOptionalErrors ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unhandled warning token: ").append(getSeverityString(UnhandledWarningToken)); //$NON-NLS-1$

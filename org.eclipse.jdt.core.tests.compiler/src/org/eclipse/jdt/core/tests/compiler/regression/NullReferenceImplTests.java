@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 IBM Corporation and others.
+ * Copyright (c) 2005, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,6 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 /**
  * A tests series especially meant to validate the internals of our null
@@ -1084,21 +1083,18 @@ public FlowInfo copy() {
 	return copy;
 }
 
-public void markAsDefinitelyNonNull(VariableBinding local) {
-	int position = local.getAnalysisId(this.maxFieldCount);
-	grow(position);
+public void markAsDefinitelyNonNull(LocalVariableBinding local) {
+	grow(local.id + this.maxFieldCount);
 	super.markAsDefinitelyNonNull(local);
 }
 
-public void markAsDefinitelyNull(VariableBinding local) {
-	int position = local.getAnalysisId(this.maxFieldCount);
-	grow(position);
+public void markAsDefinitelyNull(LocalVariableBinding local) {
+	grow(local.id + this.maxFieldCount);
 	super.markAsDefinitelyNull(local);
 }
 
-public void markAsDefinitelyUnknown(VariableBinding local) {
-	int position = local.getAnalysisId(this.maxFieldCount);
-	grow(position);
+public void markAsDefinitelyUnknown(LocalVariableBinding local) {
+	grow(local.id + this.maxFieldCount);
 	super.markAsDefinitelyUnknown(local);
 }
 

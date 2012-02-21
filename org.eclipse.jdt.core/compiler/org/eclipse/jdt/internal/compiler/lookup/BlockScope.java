@@ -12,6 +12,7 @@
  *								bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
+ *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1004,6 +1005,7 @@ public void pruneWrapperTrackingVar(FakedTrackingVariable trackingVariable) {
  * Also invoked when entering unreachable code.
  */
 public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, ASTNode location, BlockScope locationScope) {
+	if (!compilerOptions().analyseResourceLeaks) return;
 	if (this.trackingVariables == null) {
 		// at a method return we also consider enclosing scopes
 		if (location != null && this.parent instanceof BlockScope)
