@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2010 IBM Corporation and others.
+ * Copyright (c) 2006, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,7 +41,6 @@ public final class Options {
 		Options.ZERO_ARGUMENT_OPTIONS.add("-inlineJSR");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-g");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-g:none");//$NON-NLS-1$
-		Options.ZERO_ARGUMENT_OPTIONS.add("-nowarn");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-warn:none");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-preserveAllLocals");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-enableJavadoc");//$NON-NLS-1$
@@ -241,6 +240,28 @@ public final class Options {
 				return -1;
 			} else {
 				return 0;
+			}
+		}
+		if (option.startsWith("-nowarn")) {//$NON-NLS-1$
+			switch (option.length()) {
+				case 7:
+					return 0;
+				case 8:
+					return -1;
+				default:
+					int foldersStart = option.indexOf('[') + 1;
+					int foldersEnd = option.lastIndexOf(']');
+					if (foldersStart <= 8 || foldersEnd == -1
+							|| foldersStart > foldersEnd
+							|| foldersEnd < option.length() - 1) {
+						return -1;
+					}
+					String folders = option.substring(foldersStart, foldersEnd);
+					if (folders.length() > 0) {
+						return 0;
+					} else {
+						return -1;
+					}
 			}
 		}
 		if (option.startsWith("-J")//$NON-NLS-1$

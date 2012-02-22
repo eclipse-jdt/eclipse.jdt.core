@@ -1323,6 +1323,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public Logger logger;
 	public int maxProblems;
 	public Map options;
+	public char[][] ignoreOptionalProblemsFromFolders;
 	protected PrintWriter out;
 	public boolean proceed = true;
 	public boolean proceedOnError = false;
@@ -1839,6 +1840,42 @@ public void configure(String[] argv) {
 
 		switch(mode) {
 			case DEFAULT :
+				if (currentArg.startsWith("-nowarn")) { //$NON-NLS-1$
+					switch (currentArg.length()) {
+						case 7:
+							disableAll(ProblemSeverities.Warning);
+							break;
+						case 8:
+							throw new IllegalArgumentException(this.bind(
+									"configure.invalidNowarnOption", currentArg)); //$NON-NLS-1$
+						default:
+							int foldersStart = currentArg.indexOf('[') + 1;
+							int foldersEnd = currentArg.lastIndexOf(']');
+							if (foldersStart <= 8 || foldersEnd == -1 || foldersStart > foldersEnd
+									|| foldersEnd < currentArg.length() - 1) {
+								throw new IllegalArgumentException(this.bind(
+										"configure.invalidNowarnOption", currentArg)); //$NON-NLS-1$
+							}
+							String folders = currentArg.substring(foldersStart, foldersEnd);
+							if (folders.length() > 0) {
+								char[][] currentFolders = decodeIgnoreOptionalProblemsFromFolders(folders);
+								if (this.ignoreOptionalProblemsFromFolders != null) {
+									int length = this.ignoreOptionalProblemsFromFolders.length + currentFolders.length;
+									char[][] tempFolders = new char[length][];
+									System.arraycopy(this.ignoreOptionalProblemsFromFolders, 0, tempFolders, 0, this.ignoreOptionalProblemsFromFolders.length);
+									System.arraycopy(currentFolders, 0, tempFolders, this.ignoreOptionalProblemsFromFolders.length, currentFolders.length);
+									this.ignoreOptionalProblemsFromFolders = tempFolders;
+								} else {
+									this.ignoreOptionalProblemsFromFolders = currentFolders;
+								}
+							} else {
+								throw new IllegalArgumentException(this.bind(
+										"configure.invalidNowarnOption", currentArg)); //$NON-NLS-1$
+							}
+					}
+					mode = DEFAULT;
+					continue;
+				}
 				if (currentArg.startsWith("[")) { //$NON-NLS-1$
 					throw new IllegalArgumentException(
 						this.bind("configure.unexpectedBracket", //$NON-NLS-1$
@@ -2188,11 +2225,6 @@ public void configure(String[] argv) {
 					}
 					throw new IllegalArgumentException(
 						this.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
-				}
-				if (currentArg.startsWith("-nowarn")) { //$NON-NLS-1$
-					disableAll(ProblemSeverities.Warning);
-					mode = DEFAULT;
-					continue;
 				}
 				if (currentArg.startsWith("-warn")) { //$NON-NLS-1$
 					mode = DEFAULT;
@@ -2759,6 +2791,31 @@ public void configure(String[] argv) {
 		this.pendingErrors = null;
 	}
 }
+
+private static char[][] decodeIgnoreOptionalProblemsFromFolders(String folders) {
+	StringTokenizer tokenizer = new StringTokenizer(folders, File.pathSeparator);
+	char[][] result = new char[tokenizer.countTokens()][];
+	int count = 0;
+	while (tokenizer.hasMoreTokens()) {
+		String fileName = tokenizer.nextToken();
+		// relative folder names are created relative to the current user dir
+		File file = new File(fileName);
+		if (file.exists()) {
+			// if the file exists, we should try to use its canonical path
+			try {
+				result[count++] = file.getCanonicalPath().toCharArray();
+			} catch (IOException e) {
+				// if we got exception during canonicalization, fall back to the name that was specified
+				result[count++] = fileName.toCharArray();
+			}
+		} else {
+			// if the file does not exist, use the name that was specified
+			result[count++] = fileName.toCharArray();
+		}
+	}
+	return result;
+}
+
 private static String getAllEncodings(Set encodings) {
 	int size = encodings.size();
 	String[] allEncodings = new String[size];
@@ -2913,8 +2970,15 @@ public CompilationUnit[] getCompilationUnits() {
 		String encoding = this.encodings[i];
 		if (encoding == null)
 			encoding = defaultEncoding;
-		units[i] = new CompilationUnit(null, this.filenames[i], encoding,
-				this.destinationPaths[i]);
+		String fileName;
+		try {
+			fileName = file.getCanonicalPath();
+		} catch (IOException e) {
+			// if we got exception during canonicalization, fall back to the name that was specified
+			fileName = this.filenames[i];
+		}
+		units[i] = new CompilationUnit(null, fileName, encoding, this.destinationPaths[i],
+				shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()));
 	}
 	return units;
 }
@@ -3651,6 +3715,7 @@ protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean 
 	this.err = errWriter;
 	this.systemExitWhenFinished = systemExit;
 	this.options = new CompilerOptions().getMap();
+	this.ignoreOptionalProblemsFromFolders = null;
 
 	this.progress = compilationProgress;
 	if (customDefaultOptions != null) {
@@ -3687,7 +3752,20 @@ protected void initializeAnnotationProcessorManager() {
 		this.logger.logIncorrectVMVersionForAnnotationProcessing();
 	}
 }
-
+private static boolean isParentOf(char[] folderName, char[] fileName) {
+	if (folderName.length >= fileName.length) {
+		return false;
+	}
+	if (fileName[folderName.length] != '\\' && fileName[folderName.length] != '/') {
+		return false;
+	}
+	for (int i = folderName.length - 1; i >= 0; i--) {
+		if (folderName[i] != fileName[i]) {
+			return false;
+		}
+	}
+	return true;
+}
 // Dump classfiles onto disk for all compilation units that where successful
 // and do not carry a -d none spec, either directly or inherited from Main.
 public void outputClassFiles(CompilationResult unitResult) {
@@ -4232,6 +4310,18 @@ protected void setPaths(ArrayList bootclasspaths,
 	this.checkedClasspaths = new FileSystem.Classpath[classpaths.size()];
 	classpaths.toArray(this.checkedClasspaths);
 	this.logger.logClasspath(this.checkedClasspaths);
+}
+private static boolean shouldIgnoreOptionalProblems(char[][] folderNames, char[] fileName) {
+	if (folderNames == null || fileName == null) {
+		return false;
+	}
+	for (int i = 0, max = folderNames.length; i < max; i++) {
+		char[] folderName = folderNames[i];
+		if (isParentOf(folderName, fileName)) {
+			return true;
+		}
+	}
+	return false;
 }
 protected void validateOptions(boolean didSpecifyCompliance) {
 	if (didSpecifyCompliance) {

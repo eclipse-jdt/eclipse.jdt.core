@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,14 +17,17 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Hashtable;
 
-import junit.framework.*;
+import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IRegion;
 import org.eclipse.jdt.core.JavaCore;
@@ -43,6 +46,8 @@ import org.eclipse.jdt.internal.core.builder.JavaBuilder;
  * Basic errors tests of the image builder.
  */
 public class ErrorsTests extends BuilderTests {
+	private static final IClasspathAttribute ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE = JavaCore.newClasspathAttribute(IClasspathAttribute.IGNORE_OPTIONAL_PROBLEMS, "true");
+
 	private static final Comparator COMPARATOR = new Comparator() {
 		public int compare(Object o1, Object o2) {
 			IResource resource1 = (IResource) o1;
@@ -440,5 +445,200 @@ private String getResourceOuput(IResource[] resources) {
 	writer.flush();
 	writer.close();
 	return Util.convertToIndependantLineDelimiter(String.valueOf(stringWriter));
+}
+
+// ignore optional errors
+public void test0108() throws JavaModelException {
+	Hashtable options = JavaCore.getOptions();
+	Hashtable newOptions = JavaCore.getOptions();
+	newOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+
+	JavaCore.setOptions(newOptions);
+
+	IPath projectPath = env.addProject("P");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(projectPath, "");
+
+	env.setOutputFolder(projectPath, "bin");
+	IPath root = new Path("/P/src");
+	env.addEntry(projectPath, JavaCore.newSourceEntry(root, null, null,
+			null, new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE }));
+
+	env.addClass(root, "p", "X",
+			"package p;\n" +
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		int i;\n" +
+			"	}\n" +
+			"}");
+
+	fullBuild(projectPath);
+	expectingNoProblems();
+
+	JavaCore.setOptions(options);
+}
+
+// two different source folders ignore only from one
+public void test0109() throws JavaModelException {
+	Hashtable options = JavaCore.getOptions();
+	Hashtable newOptions = JavaCore.getOptions();
+	newOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+
+	JavaCore.setOptions(newOptions);
+
+	IPath projectPath = env.addProject("P");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(projectPath, "");
+
+	env.setOutputFolder(projectPath, "bin");
+	IPath src = new Path("/P/src");
+	IPath src2 = new Path("/P/src2");
+	env.addEntry(projectPath, JavaCore.newSourceEntry(src, null, null,
+			null, new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE }));
+	env.addEntry(projectPath, JavaCore.newSourceEntry(src2));
+
+	env.addClass(src, "p", "X",
+			"package p;\n" +
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		int i;\n" +
+			"	}\n" +
+			"}");
+
+	IPath classY = env.addClass(src2, "q", "Y",
+			"package q;\n" +
+			"public class Y {\n" +
+			"	public void foo() {\n" +
+			"		int i;\n" +
+			"	}\n" +
+			"}");
+
+	fullBuild(projectPath);
+	expectingNoProblemsFor(src);
+	expectingOnlySpecificProblemFor(classY, new Problem("q", "The value of the local variable i is not used", classY, 55, 56, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_ERROR));
+
+	JavaCore.setOptions(options);
+}
+
+// two different source folders ignore from both
+public void test0110() throws JavaModelException {
+	Hashtable options = JavaCore.getOptions();
+	Hashtable newOptions = JavaCore.getOptions();
+	newOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+
+	JavaCore.setOptions(newOptions);
+
+	IPath projectPath = env.addProject("P");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(projectPath, "");
+
+	env.setOutputFolder(projectPath, "bin");
+	IPath src = new Path("/P/src");
+	IPath src2 = new Path("/P/src2");
+	env.addEntry(projectPath, JavaCore.newSourceEntry(src, null, null,
+			null, new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE }));
+	env.addEntry(projectPath, JavaCore.newSourceEntry(src2, null, null,
+			null, new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE }));
+
+	env.addClass(src, "p", "X",
+			"package p;\n" +
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		int i;\n" +
+			"	}\n" +
+			"}");
+
+	env.addClass(src2, "q", "Y",
+			"package q;\n" +
+			"public class Y {\n" +
+			"	public void foo() {\n" +
+			"		int i;\n" +
+			"	}\n" +
+			"}");
+
+	fullBuild(projectPath);
+	expectingNoProblems();
+
+	JavaCore.setOptions(options);
+}
+
+//non-optional errors cannot be ignored
+public void test0111() throws JavaModelException {
+	Hashtable options = JavaCore.getOptions();
+	Hashtable newOptions = JavaCore.getOptions();
+	newOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+
+	JavaCore.setOptions(newOptions);
+
+	IPath projectPath = env.addProject("P");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(projectPath, "");
+
+	env.setOutputFolder(projectPath, "bin");
+	IPath root = new Path("/P/src");
+	env.addEntry(projectPath, JavaCore.newSourceEntry(root, null, null,
+			null, new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE }));
+
+	IPath classX = env.addClass(root, "p", "X",
+			"package p;\n" +
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		int i;\n" +
+			"	}\n" +
+			"	public void bar() {\n" +
+			"		a++;\n" +
+			"	}\n" +
+			"}");
+
+	fullBuild(projectPath);
+	expectingOnlySpecificProblemFor(classX, new Problem("p", "a cannot be resolved to a variable", classX, 84, 85, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR));
+
+	JavaCore.setOptions(options);
+}
+
+//task tags cannot be ignored
+public void test0112() throws JavaModelException {
+	Hashtable options = JavaCore.getOptions();
+	Hashtable newOptions = JavaCore.getOptions();
+	newOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+	newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO");
+	newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL");
+
+	JavaCore.setOptions(newOptions);
+
+	IPath projectPath = env.addProject("P");
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(projectPath, "");
+
+	env.setOutputFolder(projectPath, "bin");
+	IPath root = new Path("/P/src");
+	env.addEntry(projectPath, JavaCore.newSourceEntry(root, null, null,
+			null, new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE }));
+
+	IPath classX = env.addClass(root, "p", "X",
+			"package p;\n" +
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		int i;\n" +
+			"	}\n" +
+			"	public void bar() {\n" +
+			"		// TODO nothing\n" +
+			"	}\n" +
+			"}");
+
+	fullBuild(projectPath);
+	expectingOnlySpecificProblemFor(classX, new Problem("p", "TODO nothing", classX, 87, 99, -1, IMarker.SEVERITY_ERROR));
+
+	JavaCore.setOptions(options);
 }
 }

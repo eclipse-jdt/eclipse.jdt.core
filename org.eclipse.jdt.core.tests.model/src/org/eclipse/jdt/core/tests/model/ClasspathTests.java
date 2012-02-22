@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,9 +69,12 @@ import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
+import org.eclipse.jdt.internal.core.builder.State;
 import org.eclipse.team.core.RepositoryProvider;
 
 public class ClasspathTests extends ModifyingResourceTests {
+	private static final IClasspathAttribute ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE = JavaCore.newClasspathAttribute(IClasspathAttribute.IGNORE_OPTIONAL_PROBLEMS, "true");
+	private static final IClasspathAttribute ATTR_IGNORE_OPTIONAL_PROBLEMS_FALSE = JavaCore.newClasspathAttribute(IClasspathAttribute.IGNORE_OPTIONAL_PROBLEMS, "false");
 
 	public class TestContainer implements IClasspathContainer {
 		IPath path;
@@ -339,6 +342,8 @@ public static Test suite() {
 	suite.addTest(new ClasspathTests("testBug274737"));
 	suite.addTest(new ClasspathTests("testBug357425"));
 	suite.addTest(new ClasspathTests("testBug287164"));
+	suite.addTest(new ClasspathTests("testBug220928a"));
+	suite.addTest(new ClasspathTests("testBug220928b"));
 	return suite;
 }
 public void setUpSuite() throws Exception {
@@ -7342,4 +7347,77 @@ public void testBug287164() throws CoreException {
 	}
 }
 
+/**
+ * @bug220928: [buildpath] Should be able to ignore warnings from certain source folders
+ * 
+ * Verify that adding the {@link IClasspathAttribute#IGNORE_OPTIONAL_PROBLEMS} attribute is
+ * correctly reflected by the {@link ClasspathEntry#ignoreOptionalProblems()} method.
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928"
+ */
+public void testBug220928a() throws CoreException {
+	ClasspathEntry entry;
+
+	entry = (ClasspathEntry) JavaCore.newSourceEntry(new Path("/P/src"));
+	assertFalse(entry.ignoreOptionalProblems());
+
+	entry = (ClasspathEntry) JavaCore.newSourceEntry(new Path("/P/src"), null, null, null,
+			new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE });
+	assertTrue(entry.ignoreOptionalProblems());
+
+	entry = (ClasspathEntry) JavaCore.newSourceEntry(new Path("/P/src"), null, null, null,
+			new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_FALSE });
+	assertFalse(entry.ignoreOptionalProblems());
+}
+
+/**
+ * @bug220928: [buildpath] Should be able to ignore warnings from certain source folders
+ * 
+ * Verify that value of the {@link IClasspathAttribute#IGNORE_OPTIONAL_PROBLEMS} attribute is
+ * correctly saved on workspace save.
+ * 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928"
+ */
+public void testBug220928b() throws CoreException {
+	boolean autoBuild = getWorkspace().isAutoBuilding();
+	IWorkspaceDescription preferences = getWorkspace().getDescription();
+	try {
+		// ensure that the workspace auto-build is ON
+		preferences.setAutoBuilding(true);
+		getWorkspace().setDescription(preferences);
+
+		IJavaProject project = createJavaProject("P", new String[] {}, "bin");
+		createFolder("/P/src");
+		IClasspathEntry[] originalCP = project.getRawClasspath();
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length + 1];
+		State state;
+
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"));
+		getJavaProject("P").setRawClasspath(newCP, null);
+		simulateExitRestart();
+		state = (State) JavaModelManager.getJavaModelManager().getLastBuiltState(getJavaProject("P").getProject(), null);
+		assertFalse(state.sourceLocations[0].ignoreOptionalProblems);
+
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), null, null, null,
+				new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE });
+		getJavaProject("P").setRawClasspath(newCP, null);
+		simulateExitRestart();
+		state = (State) JavaModelManager.getJavaModelManager().getLastBuiltState(getJavaProject("P").getProject(), null);
+		assertTrue(state.sourceLocations[0].ignoreOptionalProblems);
+
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), null, null, null,
+				new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_FALSE });
+		getJavaProject("P").setRawClasspath(newCP, null);
+		simulateExitRestart();
+		state = (State) JavaModelManager.getJavaModelManager().getLastBuiltState(getJavaProject("P").getProject(), null);
+		assertFalse(state.sourceLocations[0].ignoreOptionalProblems);
+	} finally {
+		preferences.setAutoBuilding(autoBuild);
+		getWorkspace().setDescription(preferences);
+		deleteProject("P");
+	}
+}
 }
