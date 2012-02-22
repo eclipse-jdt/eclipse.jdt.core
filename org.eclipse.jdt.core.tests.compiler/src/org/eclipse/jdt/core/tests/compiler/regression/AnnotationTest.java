@@ -47,7 +47,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug365437" };
+//		TESTS_NAMES = new String[] { "test135" };
 //		TESTS_NUMBERS = new int[] { 297 };
 //		TESTS_RANGE = new int[] { 294, -1 };
 	}
@@ -10517,4 +10517,38 @@ public void testBug365437f() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=371832
+//Unused imports should be reported even if other errors are suppressed.
+public void testBug371832() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.ERROR);
+	String testFiles [] = new String[] {
+			"A.java",
+			"import java.util.List;\n"+
+			"@SuppressWarnings(\"serial\")\n" +
+			"public class A implements java.io.Serializable {\n" +
+			"	void foo() { \n" +
+			"	}\n"+
+			"}\n"
+			};
+	String expectedErrorString = 
+			"----------\n" + 
+			"1. ERROR in A.java (at line 1)\n" + 
+			"	import java.util.List;\n" + 
+			"	       ^^^^^^^^^^^^^^\n" + 
+			"The import java.util.List is never used\n" + 
+			"----------\n";
+	runNegativeTest(
+			true,
+			testFiles,
+			null, 
+			customOptions,
+			expectedErrorString,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
 }
