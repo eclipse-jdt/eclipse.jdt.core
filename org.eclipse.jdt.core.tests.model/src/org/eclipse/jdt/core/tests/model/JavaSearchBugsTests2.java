@@ -453,4 +453,32 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(project);
 		}
 	}
+
+	/**
+	 * @bug 342393: Anonymous class' occurrence count is incorrect when two methods in a class have the same name.
+	 * @test Search for Enumerators with anonymous types
+	 *
+	 * @throws CoreException
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=342393"
+	 */
+	public void testBug342393() throws CoreException {
+		try {
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+			String content = "package b342393;\n" + "class Generic {\n"
+					+ "enum A {\n" + "ONE {\n" + "A getSquare() {\n"
+					+ "return ONE;\n" + "}\n" + "},\n" + "TWO {\n"
+					+ "A getSquare() {\n" + "return TWO;\n" + "}\n" + "};\n"
+					+ "abstract A getSquare();\n" + "}\n" + "}";
+			createFolder("/P/b342393");
+			createFile("/P/b342393/Generic.java", content);
+			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
+					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			search("getSquare", METHOD, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+			assertSearchResults("b342393/Generic.java A b342393.Generic$A.ONE:<anonymous>#1.getSquare() [getSquare] EXACT_MATCH\n" + 
+					"b342393/Generic.java A b342393.Generic$A.TWO:<anonymous>#1.getSquare() [getSquare] EXACT_MATCH\n" + 
+					"b342393/Generic.java A b342393.Generic$A.getSquare() [getSquare] EXACT_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
 }

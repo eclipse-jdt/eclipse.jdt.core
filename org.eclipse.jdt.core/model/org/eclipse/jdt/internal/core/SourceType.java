@@ -36,6 +36,12 @@ import org.eclipse.jdt.internal.core.util.Messages;
 
 public class SourceType extends NamedMember implements IType {
 
+/*
+ * A count to uniquely identify this element within the context of the enclosing type.
+ * Currently this is computed and used only for anonymous types.
+ */
+public int localOccurrenceCount = 1;
+
 protected SourceType(JavaElement parent, String name) {
 	super(parent, name);
 }
@@ -274,6 +280,13 @@ public String getFullyQualifiedName(char enclosingTypeSeparator) {
  */
 public String getFullyQualifiedParameterizedName() throws JavaModelException {
 	return getFullyQualifiedName('.', true/*show parameters*/);
+}
+/*
+ * For source types, the occurrence count is the one computed in the context of the immediately enclosing type.
+ *
+ */
+protected String getOccurrenceCountSignature() {
+	return Integer.toString(this.localOccurrenceCount);
 }
 /*
  * @see JavaElement
