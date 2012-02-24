@@ -119,8 +119,13 @@ public void handle(
 
 	if ((severity & ProblemSeverities.Optional) != 0 && problemId != IProblem.Task) {
 		ICompilationUnit cu = unitResult.getCompilationUnit();
-		if (cu != null && cu.ignoreOptionalProblems())
-			return;
+		try{
+			if (cu != null && cu.ignoreOptionalProblems())
+				return;
+		// workaround for illegal implementation of ICompilationUnit, see https://bugs.eclipse.org/372351
+		} catch (AbstractMethodError ex) {
+			// continue
+		}
 	}
 
 	// if no reference context, we need to abort from the current compilation process
