@@ -561,7 +561,7 @@ public void resolve() {
 				this.types[i].resolve(this.scope);
 			}
 		}
-		if (!this.compilationResult.hasMandatoryErrors()) checkUnusedImports();
+		if (!this.compilationResult.hasErrors()) checkUnusedImports();
 		reportNLSProblems();
 	} catch (AbortCompilationUnit e) {
 		this.ignoreFurtherInvestigation = true;
