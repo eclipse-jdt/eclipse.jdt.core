@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -828,8 +828,9 @@ public ITypeHierarchy newTypeHierarchy(
 	return op.getResult();
 }
 public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedSourceType(this.parent, this.name, new String(binding.computeUniqueKey()));
+	ResolvedSourceType resolvedHandle = new ResolvedSourceType(this.parent, this.name, new String(binding.computeUniqueKey()));
 	resolvedHandle.occurrenceCount = this.occurrenceCount;
+	resolvedHandle.localOccurrenceCount = this.localOccurrenceCount;
 	return resolvedHandle;
 }
 /**
