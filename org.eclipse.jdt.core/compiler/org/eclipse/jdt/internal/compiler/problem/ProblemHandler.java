@@ -117,7 +117,7 @@ public void handle(
 	if (severity == ProblemSeverities.Ignore)
 		return;
 
-	if ((severity & ProblemSeverities.Optional) != 0 && problemId != IProblem.Task) {
+	if ((severity & ProblemSeverities.Optional) != 0 && problemId != IProblem.Task  && !this.options.ignoreSourceFolderWarningOption) {
 		ICompilationUnit cu = unitResult.getCompilationUnit();
 		try{
 			if (cu != null && cu.ignoreOptionalProblems())

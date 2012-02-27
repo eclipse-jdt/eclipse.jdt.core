@@ -390,6 +390,10 @@ public class CompilerOptions {
 	public boolean includeNullInfoFromAsserts;
 	/** Controls whether forced generic type problems get reported  */
 	public boolean reportUnavoidableGenericTypeProblems;
+	/** Indicates that the 'ignore optional problems from source folder' option need to be ignored
+	 *  See https://bugs.eclipse.org/bugs/show_bug.cgi?id=372377
+	 */
+	public boolean ignoreSourceFolderWarningOption;
 
 	// === Support for Null Annotations: ===
 	/** Master switch for null analysis based on annotations: */
@@ -1227,6 +1231,8 @@ public class CompilerOptions {
 		
 		// ignore method bodies
 		this.ignoreMethodBodies = false;
+		
+		this.ignoreSourceFolderWarningOption = false;
 		
 		// allow null info from asserts to be considered downstream by default
 		this.includeNullInfoFromAsserts = false;

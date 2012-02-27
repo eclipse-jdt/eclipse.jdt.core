@@ -21,6 +21,11 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTRequestor;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResourceTests {
 	private static final IClasspathAttribute ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE = JavaCore.newClasspathAttribute(IClasspathAttribute.IGNORE_OPTIONAL_PROBLEMS, "true");
@@ -283,6 +288,53 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 			if (unit != null) {
 				unit.discardWorkingCopy();
 			}
+			deleteProject("P");
+		}
+	}
+	
+	/**
+	 * createASTs() should not respect this option.
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=372377
+	 */
+	public void test006() throws CoreException {
+		try {
+			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL_LIB" }, "bin");
+			project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+
+			IClasspathEntry[] originalCP = project.getRawClasspath();
+			IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length + 1];
+			System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+			newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P/src"), null, null, null,
+					new IClasspathAttribute[] { ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE });
+			project.setRawClasspath(newCP, null);
+
+			createFolder("/P/src/p");
+			IFile file = createFile("/P/src/p/X.java",
+					"package p;\n" +
+					"public class X {\n" +
+					"	public void foo() {\n" +
+					"		int i;\n" +
+					"	}\n" +
+					"}");
+			ICompilationUnit unit = (ICompilationUnit) JavaCore.create(file);
+			
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setProject(project);
+			parser.setSource(unit);
+			parser.setResolveBindings(true);
+			
+			class Requestor extends ASTRequestor {
+				CompilationUnit cuAST;
+				public void acceptAST(ICompilationUnit source,
+						CompilationUnit ast) {
+					this.cuAST = ast;
+				}
+			}
+			Requestor requestor = new Requestor();
+			parser.createASTs(new ICompilationUnit[] {unit}, new String[0], requestor, null);
+			IProblem[] problems = requestor.cuAST.getProblems();		
+			assertEquals("Should have 1 problem", 1, problems.length);
+		} finally {
 			deleteProject("P");
 		}
 	}
