@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.SourceType;
 
 public class TypeResolveTests extends ModifyingResourceTests {
 	ICompilationUnit cu;
@@ -698,6 +699,109 @@ public void testParamAnnotations8() throws CoreException, IOException {
 		assertEquals("Wrong length", 0, method.getParameters()[2].getAnnotations().length);
 	} finally {
 		deleteProject("P");
+	}
+}
+/**
+ * @bug 342393: Anonymous class' occurrence count is incorrect when two methods in a class have the same name.
+ *
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=342393"
+ */
+public void testBug342393() throws Exception {
+	try {
+		IJavaProject project = createJavaProject("Test342393", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+		project.open(null);
+			String fileContent =  "package p;\n"
+					 + "public class Test {\n"
+					 + "Test() {\n"
+					 + "    class A {\n"
+					 + "    	// one \n"
+					 + "        public void foo() {\n"
+					 + "            Throwable a1 = new Throwable(){ // two \n"
+					 + "            };\n"
+					 + "            Throwable b1 = new Throwable(){ // three \n"
+					 + "            };\n"
+					 + "        }\n"
+					 + "        public void bar() {\n"
+					 + "            Throwable b2 = new Throwable(){ // four\n"
+					 + "            	Throwable bi2 = new Throwable() { // five\n"
+					 + "            	};\n"
+					 + "            };\n"
+					 + "        }\n"
+					 + "        class B {\n"
+					 + "        	Throwable t1 = new Throwable() { // six\n"
+					 + "        	};\n"
+					 + "        	Throwable t2 = new Throwable() { // seven\n"
+					 + "        	};\n"
+					 + "        }\n"
+					 + "    };\n"
+					 + "    {\n"
+					 + "        Throwable a3 = new Throwable(){ // eight\n"
+					 + "        	Throwable ai3 = new Throwable() { // nine\n"
+					 + "        	};\n"
+					 + "        };\n"
+					 + "    }\n"
+					 + "}\n"
+					 + "public static void main(String[] args) throws Exception {\n"
+					 + "	Throwable c1 = new Throwable() { // ten\n"
+					 + "	};\n"
+					 + "	Throwable c2 = new Throwable() { // eleven\n"
+					 + "	};\n"
+					 + "}\n"
+					 + "}\n";
+			createFolder("/Test342393/src/p");
+			createFile(	"/Test342393/src/p/Test.java",	fileContent);
+
+			ICompilationUnit unit = getCompilationUnit("/Test342393/src/p/Test.java");
+			int index = fileContent.indexOf("// one");
+			IJavaElement element = unit.getElementAt(index);
+			assertEquals("Incorrect Type selected", "p.Test$A", ((SourceType)element.getParent()).getFullyQualifiedName());
+			index = fileContent.indexOf("// two");
+			element = unit.getElementAt(index);
+			assertEquals("Incorrect Type selected", "p.Test$A$1", ((SourceType)element).getFullyQualifiedName());
+			index = fileContent.indexOf("// three");
+			element = unit.getElementAt(index);
+			assertEquals("Incorrect Type selected", "p.Test$A$2", ((SourceType)element).getFullyQualifiedName());
+			index = fileContent.indexOf("// four");
+			element = unit.getElementAt(index);
+			assertEquals("Incorrect Type selected", "p.Test$A$3", ((SourceType)element).getFullyQualifiedName());
+			index = fileContent.indexOf("// five");
+			element = unit.getElementAt(index);
+			assertEquals("Incorrect Type selected", "p.Test$A$3$1", ((SourceType)element).getFullyQualifiedName());
+			index = fileContent.indexOf("// six");
+			element = unit.getElementAt(index);
+			assertEquals("Incorrect Type selected", "p.Test$A$B$1", ((SourceType)element).getFullyQualifiedName());
+			index = fileContent.indexOf("// seven");
+			element = unit.getElementAt(index);
+			assertEquals("Incorrect Type selected", "p.Test$A$B$2", ((SourceType)element).getFullyQualifiedName());
+
+			String handleId = ((SourceType)element).getHandleMemento();
+			IJavaElement newElement = JavaCore.create(handleId);
+			assertEquals("Incorrect Element", element, newElement);
+
+			index = fileContent.indexOf("// eight");
+			element = unit.getElementAt(index);
+			assertEquals("Incorrect Type selected", "p.Test$1", ((SourceType)element).getFullyQualifiedName());
+			index = fileContent.indexOf("// nine");
+			element = unit.getElementAt(index);
+			assertEquals("Incorrect Type selected", "p.Test$1$1", ((SourceType)element).getFullyQualifiedName());
+
+			handleId = ((SourceType)element).getHandleMemento();
+			newElement = JavaCore.create(handleId);
+			assertEquals("Incorrect Element", element, newElement);
+
+			index = fileContent.indexOf("// ten");
+			element = unit.getElementAt(index);
+			assertEquals("Incorrect Type selected", "p.Test$2", ((SourceType)element).getFullyQualifiedName());
+			index = fileContent.indexOf("// eleven");
+			element = unit.getElementAt(index);
+			assertEquals("Incorrect Type selected", "p.Test$3", ((SourceType)element).getFullyQualifiedName());
+
+			handleId = ((SourceType)element).getHandleMemento();
+			newElement = JavaCore.create(handleId);
+			assertEquals("Incorrect Element", element, newElement);
+	}
+	finally {
+		deleteProject("Test342393");
 	}
 }
 }

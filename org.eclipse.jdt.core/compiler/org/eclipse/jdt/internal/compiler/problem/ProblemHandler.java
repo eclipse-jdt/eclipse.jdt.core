@@ -12,10 +12,12 @@ package org.eclipse.jdt.internal.compiler.problem;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -114,6 +116,17 @@ public void handle(
 
 	if (severity == ProblemSeverities.Ignore)
 		return;
+
+	if ((severity & ProblemSeverities.Optional) != 0 && problemId != IProblem.Task  && !this.options.ignoreSourceFolderWarningOption) {
+		ICompilationUnit cu = unitResult.getCompilationUnit();
+		try{
+			if (cu != null && cu.ignoreOptionalProblems())
+				return;
+		// workaround for illegal implementation of ICompilationUnit, see https://bugs.eclipse.org/372351
+		} catch (AbstractMethodError ex) {
+			// continue
+		}
+	}
 
 	// if no reference context, we need to abort from the current compilation process
 	if (referenceContext == null) {

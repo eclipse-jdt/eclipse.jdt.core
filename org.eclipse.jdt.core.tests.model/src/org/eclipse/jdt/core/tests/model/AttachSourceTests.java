@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,6 +51,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.ExternalFoldersManager;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -499,11 +501,39 @@ public void testExternalFolder5() throws Exception {
 				"}"
 			};
 		org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "/src228639/src");
+
 		createExternalFolder("externalFolder/src228639/META-INF");
 		createExternalFolder("externalFolder/lib/META-INF");
 
 		String externalLib = externalFolder + "/lib";
-		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {externalLib}, "");
+		IJavaProject javaProject = null;
+		try {
+			javaProject = createJavaProject("P", new String[0], new String[] {externalLib}, "");
+		}
+		catch (Exception e) {
+			IFolder folder = getFolder(externalLib);
+			System.out.println("----------  This information is logged for debugging purposes as this test fails sporadically.---------");
+			System.out.println("Failing when creating Link folder for: " + externalFolder);
+			System.out.println("Existing? " + folder.exists());
+			IProject externalFolderProject = JavaModelManager.getExternalManager().getExternalFoldersProject();
+			IFile externalProjectFile = externalFolderProject.getFile(".project");
+			if (externalProjectFile.exists()) {
+				System.out.println("External Folder Project exists with following content:");
+				BufferedInputStream bs = new BufferedInputStream(externalProjectFile.getContents());
+				int available = 0;
+				while ((available = bs.available()) > 0) {
+					byte[] contents = new byte[available];
+					bs.read(contents);
+					System.out.println(new String(contents));
+				}
+				bs.close();
+			}
+			else {
+				System.out.println("External folders project doesn't exist.");
+			}
+			System.out.println("----------  Debug information ends ---------");
+			throw e;
+		}
 		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(externalLib);
 		attachSource(root, externalFolder + "/src228639", "");
 		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();

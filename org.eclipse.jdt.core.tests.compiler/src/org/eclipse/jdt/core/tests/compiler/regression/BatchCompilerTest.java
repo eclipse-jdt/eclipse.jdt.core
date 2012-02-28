@@ -1577,6 +1577,9 @@ public void test012(){
         "    -deprecation     + deprecation outside deprecated code (equivalent to\n" +
         "                       -warn:+deprecation)\n" +
         "    -nowarn -warn:none disable all warnings\n" +
+        "    -nowarn:[<directories separated by " + File.pathSeparator+ ">]\n" +
+        "                       specify directories from which optional problems should\n" +
+        "                       be ignored\n" +
         "    -?:warn -help:warn display advanced warning options\n" +
         " \n" +
         " Error options:\n" + 
@@ -1689,6 +1692,9 @@ public void test012b(){
         " Warning options:\n" + 
         "    -deprecation         + deprecation outside deprecated code\n" + 
         "    -nowarn -warn:none disable all warnings\n" + 
+        "    -nowarn:[<directories separated by " + File.pathSeparator+ ">]\n" +
+        "                       specify directories from which optional problems should\n" +
+        "                       be ignored\n" +
         "    -warn:<warnings separated by ,>    enable exactly the listed warnings\n" + 
         "    -warn:+<warnings separated by ,>   enable additional warnings\n" + 
         "    -warn:-<warnings separated by ,>   disable specific warnings\n" + 
@@ -12695,5 +12701,350 @@ public void test316_warn_options() {
 		"",
 		"Token nullAnnot(foo|bar) is not in the expected format \"nullAnnot(<non null annotation name> | <nullable annotation name> | <non-null by default annotation name>)\"\n", 
 		true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//default
+public void test317_nowarn_options() {
+	this.runConformTest(
+		new String[] {
+				"src/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
+			+ " -warn:javadoc -nowarn:[\"" +
+			OUTPUT_DIR + File.separator + "src" + 
+			"\"] -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"",
+			true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//two different source folders ignore only from one
+public void test318_nowarn_options() {
+	this.runConformTest(
+		new String[] {
+				"src/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}",
+				"src2/Y.java",
+				"public class Y {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}"
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src/X.java\"" +
+			" \"" + OUTPUT_DIR + File.separator + "src2/Y.java\"" +
+			" -warn:javadoc -nowarn:[" +
+			"\"" + OUTPUT_DIR + File.separator + "src"
+			+ "\"] -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"----------\n" +
+			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" +
+			"	@param\n" +
+			"	 ^^^^^\n" +
+			"Javadoc: Missing parameter name\n" +
+			"----------\n" +
+			"1 problem (1 warning)",
+			true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//two different source folders ignore from both
+public void test319_nowarn_options() {
+	this.runConformTest(
+		new String[] {
+				"src1/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}",
+				"src2/Y.java",
+				"public class Y {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}"
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src1/X.java\"" +
+			" \"" + OUTPUT_DIR + File.separator + "src2/Y.java\"" +
+			" -warn:javadoc -nowarn:[" +
+			"\"" + OUTPUT_DIR + File.separator + "src1\"" + File.pathSeparator +
+			"\"" + OUTPUT_DIR + File.separator +
+			"src2\"] -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"",
+			true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//two different source folders ignore from both using multiple -nowarn
+public void test320_nowarn_options() {
+	this.runConformTest(
+		new String[] {
+				"src1/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}",
+				"src2/Y.java",
+				"public class Y {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}"
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src1/X.java\"" +
+			" \"" + OUTPUT_DIR + File.separator + "src2/Y.java\"" +
+			" -warn:javadoc -nowarn:[" +
+			"\"" + OUTPUT_DIR + File.separator + "src1\"] -nowarn:[" +
+			"\"" + OUTPUT_DIR + File.separator + "src2\"] " +
+			"-proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"",
+			true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//option syntax error -nowarn:
+public void test321_nowarn_options() {
+	this.runNegativeTest(
+		new String[] {
+				"src/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
+			+ " -warn:javadoc -nowarn: -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"invalid syntax for nowarn option: -nowarn:\n",
+			true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//option syntax error -nowarn:[
+public void test322_nowarn_options() {
+	this.runNegativeTest(
+		new String[] {
+				"src/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
+			+ " -warn:javadoc -nowarn:[ -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"invalid syntax for nowarn option: -nowarn:[\n",
+			true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//option syntax error -nowarn:[src
+public void test323_nowarn_options() {
+	this.runNegativeTest(
+		new String[] {
+				"src/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
+			+ " -warn:javadoc -nowarn:[src -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"invalid syntax for nowarn option: -nowarn:[src\n",
+			true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//option syntax error -nowarn:src]
+public void test324_nowarn_options() {
+	this.runNegativeTest(
+		new String[] {
+				"src/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
+			+ " -warn:javadoc -nowarn:src] -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"invalid syntax for nowarn option: -nowarn:src]\n",
+			true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//option syntax error -nowarn[src]
+public void test325_nowarn_options() {
+	this.runNegativeTest(
+		new String[] {
+				"src/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
+			+ " -warn:javadoc -nowarn[src] -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"invalid syntax for nowarn option: -nowarn[src]\n",
+			true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//option syntax error -nowarn:[src1]src2
+public void test326_nowarn_options() {
+	this.runNegativeTest(
+		new String[] {
+				"src/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
+			+ " -warn:javadoc -nowarn:[src1]src2 -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"invalid syntax for nowarn option: -nowarn:[src1]src2\n",
+			true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//option syntax error -nowarn:[]
+public void test327_nowarn_options() {
+	this.runNegativeTest(
+		new String[] {
+				"src/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
+			+ " -warn:javadoc -nowarn:[] -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"invalid syntax for nowarn option: -nowarn:[]\n",
+			true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//non-optional errors cannot be ignored
+public void test328_nowarn_options() {
+	this.runNegativeTest(
+		new String[] {
+				"src/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"    a++;\n" +
+				"  }\n" +
+				"}",
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
+			+ " -warn:javadoc -nowarn:[" +
+			"\"" + OUTPUT_DIR + File.separator + "src]\" -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"----------\n" +
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 6)\n" +
+			"	a++;\n" +
+			"	^\n" +
+			"a cannot be resolved to a variable\n" +
+			"----------\n" +
+			"1 problem (1 error)",
+			true);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=220928
+//-nowarn option - regression tests
+//task tags cannot be ignored
+public void test329_nowarn_options() {
+	this.runConformTest(
+		new String[] {
+				"src/X.java",
+				"public class X {\n" +
+				"  /**\n" +
+				"    @param\n" +
+				"  */\n" +
+				"  public void foo() {\n" +
+				"    // TODO nothing\n" +
+				"  }\n" +
+				"}",
+			},
+			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
+			+ " -warn:javadoc,tasks(TODO) -nowarn:[" +
+			"\"" + OUTPUT_DIR + File.separator + "src]\" -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"----------\n" +
+			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 6)\n" +
+			"	// TODO nothing\n" +
+			"	   ^^^^^^^^^^^^\n" +
+			"TODO nothing\n" +
+			"----------\n" +
+			"1 problem (1 warning)",
+			true);
 }
 }
