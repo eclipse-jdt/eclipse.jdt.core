@@ -49,7 +49,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug360328" };
+//		TESTS_NAMES = new String[] { "testBug336428f" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -8574,16 +8574,21 @@ public void test0953_assert_combined() {
 				"    if (o2 == null) { };\n" + 		// complain
 				"  }\n" +
 				"}\n"},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	if (o1 == null) { };\n" +
-			"	    ^^\n" +
-			"Null comparison always yields false: The variable o1 cannot be null at this location\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	if (o2 == null) { };\n" +
-			"	    ^^\n" +
-			"Redundant null check: The variable o2 can only be null at this location\n" +
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	if (o1 == null) { };\n" + 
+			"	    ^^\n" + 
+			"Null comparison always yields false: The variable o1 cannot be null at this location\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	if (o1 == null) { };\n" + 
+			"	                ^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	if (o2 == null) { };\n" + 
+			"	    ^^\n" + 
+			"Redundant null check: The variable o2 can only be null at this location\n" + 
 			"----------\n",
 		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -8624,11 +8629,16 @@ public void test0955_assert_combined() {
 				"    if (o == null) { };\n" + 		// complain
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	if (o == null) { };\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o == null) { };\n" + 
+		"	    ^\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	if (o == null) { };\n" + 
+		"	               ^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -8644,22 +8654,32 @@ public void test0956_assert_combined() {
 				"public class X {\n" +
 				"  void foo() {\n" +
 				"    Object o = null;\n" +
-				"    assert(o != null);\n" +    // don't complain
+				"    assert(o != null);\n" +    // complain
 				"    if (o == null) { };\n" +   // complain
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	if (o == null) { };\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable o cannot be null at this location\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	assert(o != null);\n" + 
+		"	       ^\n" + 
+		"Null comparison always yields false: The variable o can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	if (o == null) { };\n" + 
+		"	    ^\n" + 
+		"Null comparison always yields false: The variable o cannot be null at this location\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	if (o == null) { };\n" + 
+		"	               ^^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=250056
-// Test to verify that asserts are exempted from null comparison warnings,
+// Test to verify that asserts are exempted from redundant null check warnings,
 // but this doesn't affect the downstream info.
 public void test0957_assert() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
@@ -8682,26 +8702,46 @@ public void test0957_assert() {
 				"	 if (bar2 == null) {}\n" +
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
+		"----------\n" + 
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	if (foo == null) {}\n" + 
 		"	    ^^^\n" + 
 		"Null comparison always yields false: The variable foo cannot be null at this location\n" + 
-		"----------\n" +  
-		"2. ERROR in X.java (at line 8)\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	if (foo == null) {}\n" + 
+		"	                 ^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	assert (foo2 == null);\n" + 
+		"	        ^^^^\n" + 
+		"Null comparison always yields false: The variable foo2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
 		"	if (foo2 == null) {}\n" + 
 		"	    ^^^^\n" + 
 		"Redundant null check: The variable foo2 can only be null at this location\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 11)\n" + 
+		"5. ERROR in X.java (at line 11)\n" + 
 		"	if (bar == null) {}\n" + 
 		"	    ^^^\n" + 
 		"Redundant null check: The variable bar can only be null at this location\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 14)\n" + 
+		"6. ERROR in X.java (at line 13)\n" + 
+		"	assert (bar2 != null);\n" + 
+		"	        ^^^^\n" + 
+		"Null comparison always yields false: The variable bar2 can only be null at this location\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 14)\n" + 
 		"	if (bar2 == null) {}\n" + 
 		"	    ^^^^\n" + 
 		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 14)\n" + 
+		"	if (bar2 == null) {}\n" + 
+		"	                  ^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -8746,7 +8786,7 @@ public void test0958_assert() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=250056
-// Test to verify that asserts are exempted from null comparison warnings in a looping context,
+// Test to verify that asserts are exempted from redundant null check warnings in a looping context,
 // but this doesn't affect the downstream info.
 public void test0959a_assert_loop() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
@@ -8771,33 +8811,53 @@ public void test0959a_assert_loop() {
 				"	 }\n" +
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
+		"----------\n" + 
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	if (foo == null) {}\n" + 
 		"	    ^^^\n" + 
 		"Null comparison always yields false: The variable foo cannot be null at this location\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	if (foo == null) {}\n" + 
+		"	                 ^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
+		"	assert (foo2 == null);\n" + 
+		"	        ^^^^\n" + 
+		"Null comparison always yields false: The variable foo2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
 		"	if (foo2 == null) {}\n" + 
 		"	    ^^^^\n" + 
 		"Redundant null check: The variable foo2 can only be null at this location\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 13)\n" + 
+		"5. ERROR in X.java (at line 13)\n" + 
 		"	if (bar == null) {}\n" + 
 		"	    ^^^\n" + 
 		"Redundant null check: The variable bar can only be null at this location\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 15)\n" + 
+		"6. ERROR in X.java (at line 14)\n" + 
+		"	assert (bar2 != null);\n" + 
+		"	        ^^^^\n" + 
+		"Null comparison always yields false: The variable bar2 can only be null at this location\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 15)\n" + 
 		"	if (bar2 == null) {}\n" + 
 		"	    ^^^^\n" + 
 		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 15)\n" + 
+		"	if (bar2 == null) {}\n" + 
+		"	                  ^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=250056
-// Test to verify that asserts are exempted from null comparison warnings in a looping context,
+// Test to verify that asserts are exempted from redundant null check warnings in a looping context,
 // but this doesn't affect the downstream info.
 public void test0959b_assert_loop() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
@@ -8822,33 +8882,53 @@ public void test0959b_assert_loop() {
 				"	 }\n" +
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
+		"----------\n" + 
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	if (foo == null) {}\n" + 
 		"	    ^^^\n" + 
 		"Null comparison always yields false: The variable foo cannot be null at this location\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
+		"2. WARNING in X.java (at line 6)\n" + 
+		"	if (foo == null) {}\n" + 
+		"	                 ^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	assert (foo2 == null);\n" + 
+		"	        ^^^^\n" + 
+		"Null comparison always yields false: The variable foo2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
 		"	if (foo2 == null) {}\n" + 
 		"	    ^^^^\n" + 
 		"Redundant null check: The variable foo2 can only be null at this location\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 12)\n" + 
+		"5. ERROR in X.java (at line 12)\n" + 
 		"	if (bar == null) {}\n" + 
 		"	    ^^^\n" + 
 		"Redundant null check: The variable bar can only be null at this location\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 15)\n" + 
+		"6. ERROR in X.java (at line 14)\n" + 
+		"	assert (bar2 != null);\n" + 
+		"	        ^^^^\n" + 
+		"Null comparison always yields false: The variable bar2 can only be null at this location\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 15)\n" + 
 		"	if (bar2 == null) {}\n" + 
 		"	    ^^^^\n" + 
 		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 15)\n" + 
+		"	if (bar2 == null) {}\n" + 
+		"	                  ^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=250056
-// Test to verify that asserts are exempted from null comparison warnings in a finally context,
+// Test to verify that asserts are exempted from redundant null check warnings in a finally context,
 // but this doesn't affect the downstream info.
 public void test0960_assert_finally() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
@@ -8876,26 +8956,46 @@ public void test0960_assert_finally() {
 				"	 }\n" +
 				"  }\n" +
 				"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
-		"	if (foo == null) {}\n" +
-		"	    ^^^\n" +
-		"Null comparison always yields false: The variable foo cannot be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 14)\n" +
-		"	if (foo2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Redundant null check: The variable foo2 can only be null at this location\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 16)\n" +
-		"	if (bar == null) {}\n" +
-		"	    ^^^\n" +
-		"Redundant null check: The variable bar can only be null at this location\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 18)\n" +
-		"	if (bar2 == null) {}\n" +
-		"	    ^^^^\n" +
-		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	if (foo == null) {}\n" + 
+		"	    ^^^\n" + 
+		"Null comparison always yields false: The variable foo cannot be null at this location\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	if (foo == null) {}\n" + 
+		"	                 ^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
+		"	assert (foo2 == null);\n" + 
+		"	        ^^^^\n" + 
+		"Null comparison always yields false: The variable foo2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 14)\n" + 
+		"	if (foo2 == null) {}\n" + 
+		"	    ^^^^\n" + 
+		"Redundant null check: The variable foo2 can only be null at this location\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 16)\n" + 
+		"	if (bar == null) {}\n" + 
+		"	    ^^^\n" + 
+		"Redundant null check: The variable bar can only be null at this location\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 17)\n" + 
+		"	assert (bar2 != null);\n" + 
+		"	        ^^^^\n" + 
+		"Null comparison always yields false: The variable bar2 can only be null at this location\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 18)\n" + 
+		"	if (bar2 == null) {}\n" + 
+		"	    ^^^^\n" + 
+		"Null comparison always yields false: The variable bar2 cannot be null at this location\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 18)\n" + 
+		"	if (bar2 == null) {}\n" + 
+		"	                  ^^\n" + 
+		"Dead code\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -13798,12 +13898,26 @@ public void testBug325342b() {
 			"	    ^\n" + 
 			"Null comparison always yields false: The variable a can only be null at this location\n" + 
 			"----------\n" + 
-			"2. ERROR in Test.java (at line 10)\n" + 
+			"2. WARNING in Test.java (at line 4)\n" + 
+			"	if (a!=null) {\n" + 
+			"			System.out.println(\"a is not null\");\n" + 
+			"		 } else{\n" + 
+			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 10)\n" + 
 			"	if (b!=null) {\n" + 
 			"	    ^\n" + 
 			"Redundant null check: The variable b cannot be null at this location\n" + 
 			"----------\n" + 
-			"3. ERROR in Test.java (at line 16)\n" + 
+			"4. WARNING in Test.java (at line 12)\n" + 
+			"	} else{\n" + 
+			"			System.out.println(\"a is null\");\n" + 
+			"		 }\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"5. ERROR in Test.java (at line 16)\n" + 
 			"	if (c.equals(a)) {\n" + 
 			"	    ^\n" + 
 			"Null pointer access: The variable c can only be null at this location\n" + 
@@ -14161,6 +14275,40 @@ public void testBug336428d() {
 //Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
 //same analysis, but assert instead of if suppresses the warning
 public void testBug336428e() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+		"DoWhileBug.java",
+				"public class DoWhileBug {\n" + 
+				"	void test(boolean b1) {\n" + 
+				"		Object o1 = null;\n" + 
+				"		Object o2 = null;\n" + 
+				"		do {\n" +
+				"           if (b1)\n" + 
+				"				o1 = null;\n" +
+				"           assert (o2 = o1) != null : \"bug\";\n" +
+				"		} while (true);\n" + 
+				"	}\n" + 
+				"}"	
+			},
+			"----------\n" + 
+			"1. ERROR in DoWhileBug.java (at line 7)\n" + 
+			"	o1 = null;\n" + 
+			"	^^\n" + 
+			"Redundant assignment: The variable o1 can only be null at this location\n" + 
+			"----------\n" +
+			"2. ERROR in DoWhileBug.java (at line 8)\n" + 
+			"	assert (o2 = o1) != null : \"bug\";\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"Null comparison always yields false: The variable o2 can only be null at this location\n" + 
+			"----------\n");
+	}
+}
+
+// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+// same analysis, but assert instead of if suppresses the warning
+// condition inside assert is redundant null check and hence should not be warned against
+public void testBug336428f() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(
 			new String[] {

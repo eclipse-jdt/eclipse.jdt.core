@@ -11182,8 +11182,8 @@ public void test292_warn_options() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
 // -warn option - regression tests to check option includeAssertNull
-// No null problems arising from asserts should be reported here
-// since includeAssertNull is not enabled
+// Null problems arising from asserts should be reported here
+// since includeAssertNull is enabled
 public void test293_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11227,22 +11227,27 @@ public void test293_warn_options() {
 		"	    ^\n" + 
 		"Null comparison always yields false: The variable a can only be null at this location\n" + 
 		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" + 
+		"	a = null;\n" + 
+		"	^\n" + 
+		"Redundant assignment: The variable a can only be null at this location\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n" + 
 		"	if (a== null) {}\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable a can only be null at this location\n" + 
 		"----------\n" + 
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 12)\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 12)\n" + 
 		"	if (b!=null) {\n" + 
 		"	    ^\n" + 
 		"Redundant null check: The variable b cannot be null at this location\n" + 
 		"----------\n" + 
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 18)\n" + 
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 18)\n" + 
 		"	if (c.equals(a)) {\n" + 
-		"	    ^\n" +  
+		"	    ^\n" + 
 		"Null pointer access: The variable c can only be null at this location\n" + 
 		"----------\n" + 
-		"4 problems (4 warnings)", 
+		"5 problems (5 warnings)", 
 		true);
 }
 

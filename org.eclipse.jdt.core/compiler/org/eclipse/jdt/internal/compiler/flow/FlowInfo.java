@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -593,22 +593,6 @@ abstract public UnconditionalFlowInfo unconditionalInits();
  * @return a flow info carrying this unconditional flow info
  */
 abstract public UnconditionalFlowInfo unconditionalInitsWithoutSideEffect();
-
-/**
- * Tell the flowInfo that a local variable got marked as non null or null
- * due to comparison with null inside an assert expression.
- * This is to prevent over-aggressive code generation for subsequent if statements
- * where this variable is being checked against null
- */
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
-abstract public void markedAsNullOrNonNullInAssertExpression(LocalVariableBinding local);
-
-/** 
- * Returns true if the local variable being checked for was marked as null or not null
- * inside an assert expression due to comparison against null.
- */
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
-abstract public boolean isMarkedAsNullOrNonNullInAssertExpression(LocalVariableBinding local);
 
 /**
  * Resets the definite and potential initialization info for the given local variable
