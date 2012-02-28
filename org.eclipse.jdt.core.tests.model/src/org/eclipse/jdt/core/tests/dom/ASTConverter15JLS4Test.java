@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4767,6 +4767,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
     		"	RED, GREEN(), BLUE(17);\n" +
     		"	X() {}\n" +
     		"	X(int i) {}\n" +
+    		"   @SuppressWarnings(\"incomplete-switch\")\n" +
     		"	public static void main(String[] args) {\n" +
     		"		for (X x : X.values()) {\n" +
     		"			switch(x) {\n" +

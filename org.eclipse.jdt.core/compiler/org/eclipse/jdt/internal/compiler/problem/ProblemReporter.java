@@ -330,6 +330,7 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.AutoBoxing;
 
 		case IProblem.MissingEnumConstantCase :
+		case IProblem.MissingEnumDefaultCase :
 			return CompilerOptions.IncompleteEnumSwitch;
 
 		case IProblem.AnnotationTypeUsedAsSuperInterface :
@@ -5350,6 +5351,14 @@ public void missingEnumConstantCase(SwitchStatement switchStatement, FieldBindin
 		IProblem.MissingEnumConstantCase,
 		new String[] {new String(enumConstant.declaringClass.readableName()), new String(enumConstant.name) },
 		new String[] {new String(enumConstant.declaringClass.shortReadableName()), new String(enumConstant.name) },
+		switchStatement.expression.sourceStart,
+		switchStatement.expression.sourceEnd);
+}
+public void missingEnumDefaultCase(SwitchStatement switchStatement, TypeBinding enumType) {
+	this.handle(
+		IProblem.MissingEnumDefaultCase,
+		new String[] {new String(enumType.readableName())},
+		new String[] {new String(enumType.shortReadableName())},
 		switchStatement.expression.sourceStart,
 		switchStatement.expression.sourceEnd);
 }

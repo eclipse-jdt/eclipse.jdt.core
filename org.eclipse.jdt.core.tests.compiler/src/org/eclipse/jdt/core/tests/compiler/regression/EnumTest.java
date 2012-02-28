@@ -7,7 +7,9 @@
  *
  * Contributors:
  *		IBM Corporation - initial API and implementation
- *		Stephan Herrmann - Contribution for Bug 365519 - editorial cleanup after bug 186342 and bug 365387
+ *		Stephan Herrmann - Contributions for
+ *								Bug 365519 - editorial cleanup after bug 186342 and bug 365387
+ *								Bug 265744 - Enum switch should warn about missing default
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -34,7 +36,7 @@ public class EnumTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test000" };
+//		TESTS_NAMES = new String[] { "test146" };
 //		TESTS_NUMBERS = new int[] { 185 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
@@ -389,6 +391,7 @@ public void test009() {
 			"			case ROUGE :\n" +
 			"				System.out.println(\"FAILED\");\n" +
 			"				break;\n" +
+			"           default: // nop\n" +
 			"		}\n" +
 			"	}\n" +
 			"	\n" +
@@ -419,6 +422,7 @@ public void test010() {
 			"			case ROUGE :\n" +
 			"				System.out.println(\"FAILED\");\n" +
 			"				break;\n" +
+			"           default: // nop\n" +
 			"		}\n" +
 			"	}\n" +
 			"	\n" +
@@ -668,8 +672,8 @@ public void test019() {
 			"    	boolean leapYear = true;\n" +
 			"    	switch(this) {\n" +
 			"    		case FEBRUARY: if(leapYear) return days+1;\n" +
+			"           default: return days;\n" +
 			"    	}\n" +
-			"    	return days;\n" +
 			"    }\n" +
 			"    \n" +
 			"    public static void main(String[] args) {\n" +
@@ -731,17 +735,22 @@ public void test022() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	switch(e) {\n" + 
+		"	       ^\n" + 
+		"The switch on the enum type X.MX should have a default case\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
 		"	case MX.BLEU : break;\n" + 
 		"	     ^^^^^^^\n" + 
 		"The qualified case label X.MX.BLEU must be replaced with the unqualified enum constant BLEU\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
 		"	case MX.BLANC : break;\n" + 
 		"	     ^^^^^^^^\n" + 
 		"The qualified case label X.MX.BLANC must be replaced with the unqualified enum constant BLANC\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
 		"	case MX.ROUGE : break;\n" + 
 		"	     ^^^^^^^^\n" + 
 		"The qualified case label X.MX.ROUGE must be replaced with the unqualified enum constant ROUGE\n" + 
@@ -858,6 +867,7 @@ public void test027() {
 			"					break;\n" +
 			"				case ROUGE :\n" +
 			"					break;\n" +
+			"               default: // nop\n" +
 			"			}\n" +
 			"		}	\n" +
 			"	}\n" +
@@ -885,6 +895,7 @@ public void test028() {
 			"					break;\n" +
 			"				case ROUGE :\n" +
 			"					break;\n" +
+			"               default: // nop\n" +
 			"			}\n" +
 			"			FOO();\n" +
 			"			C++;\n" +
@@ -893,12 +904,12 @@ public void test028() {
 			"}\n",
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 17)\n" +
+		"1. ERROR in X.java (at line 18)\n" +
 		"	FOO();\n" +
 		"	^^^\n" +
 		"The method FOO() is undefined for the type X.Y\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 18)\n" +
+		"2. ERROR in X.java (at line 19)\n" +
 		"	C++;\n" +
 		"	^\n" +
 		"C cannot be resolved to a variable\n" +
@@ -922,6 +933,7 @@ public void test029() {
 			"					break;\n" +
 			"				case ROUGE :\n" +
 			"					break;\n" +
+			"               default: // nop\n" +
 			"			}\n" +
 			"		}	\n" +
 			"	}\n" +
@@ -952,6 +964,7 @@ public void test030() {
 			"					break;\n" +
 			"				case ROUGE :\n" +
 			"					break;\n" +
+			"               default: // nop\n" +
 			"			}\n" +
 			"		}	\n" +
 			"	}\n" +
@@ -979,6 +992,7 @@ public void test031() {
 			"					break;\n" +
 			"				case ROUGE :\n" +
 			"					break;\n" +
+			"               default: // nop\n" +
 			"			}\n" +
 			"		}	\n" +
 			"	}\n" +
@@ -1650,6 +1664,7 @@ public void test057() {
 			"        case GREEN:\n" +
 			"            System.out.println(c);\n" +
 			"            break;\n" +
+			"        default: // nop\n" +
 			"        }\n" +
 			"    }\n" +
 			"}\n"
@@ -1675,12 +1690,14 @@ public void test058() {
 			"		if (x == a) a++; // incomparable types: X and int\n" +
 			"		switch(x) {\n" +
 			"			case a : System.out.println(a); // prints \'9\'\n" +
+			"           default: // nop\n" +
 			"		}\n" +
 			"	}\n" +
 			"	static void test2(X x, final int aa) {\n" +
 			"		switch(x) {\n" +
 			"			case aa : // unqualified enum constant error\n" +
 			"				System.out.println(a); // cannot find a\n" +
+			"           default: // nop\n" +
 			"		}\n" +
 			"	}\n" +
 			"}\n"
@@ -1691,12 +1708,12 @@ public void test058() {
 		"	    ^^^^^^\n" +
 		"Incompatible operand types X and int\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 15)\n" +
+		"2. ERROR in X.java (at line 16)\n" +
 		"	case aa : // unqualified enum constant error\n" +
 		"	     ^^\n" +
 		"aa cannot be resolved or is not a field\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 16)\n" +
+		"3. ERROR in X.java (at line 17)\n" +
 		"	System.out.println(a); // cannot find a\n" +
 		"	                   ^\n" +
 		"a cannot be resolved to a variable\n" +
@@ -1753,6 +1770,7 @@ public void test060() {
 			"            break;\n" +
 			"        case Second:\n" +
 			"            break;\n" +
+			"        default: // nop\n" +
 			"        }\n" +
 			"        throw new Exception();\n" + // fake error to cause dump of unused import warnings
 			"    }\n" +
@@ -1769,7 +1787,7 @@ public void test060() {
 		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"The import com.flarion.test.a.MyEnum.Second is never used\n" +
 		"----------\n" +
-		"3. ERROR in com\\flarion\\test\\b\\MyClass.java (at line 15)\n" +
+		"3. ERROR in com\\flarion\\test\\b\\MyClass.java (at line 16)\n" +
 		"	throw new Exception();\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Unhandled exception type Exception\n" +
@@ -1800,19 +1818,24 @@ public void test061() {
 		"1. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The enum constant A needs a corresponding case label in this enum switch on X\n" +
+		"The switch on the enum type X should have a default case\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The enum constant B needs a corresponding case label in this enum switch on X\n" +
+		"The enum constant A needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
+		"The enum constant B needs a corresponding case label in this enum switch on X\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 8)\n" +
+		"	switch (x) {\n" +
+		"	        ^\n" +
 		"The enum constant C needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
-		"4. ERROR in X.java (at line 9)\n" +
+		"5. ERROR in X.java (at line 9)\n" +
 		"	case D:\n" +
 		"	     ^\n" +
 		"The field X.D cannot be referenced from an enum case label; only enum constants can be used in enum switch\n" +
@@ -1843,19 +1866,24 @@ public void test062() {
 		"1. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The enum constant A needs a corresponding case label in this enum switch on X\n" +
+		"The switch on the enum type X should have a default case\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The enum constant B needs a corresponding case label in this enum switch on X\n" +
+		"The enum constant A needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
+		"The enum constant B needs a corresponding case label in this enum switch on X\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 8)\n" +
+		"	switch (x) {\n" +
+		"	        ^\n" +
 		"The enum constant C needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
-		"4. ERROR in X.java (at line 9)\n" +
+		"5. ERROR in X.java (at line 9)\n" +
 		"	case X.D:\n" +
 		"	       ^\n" +
 		"The field X.D cannot be referenced from an enum case label; only enum constants can be used in enum switch\n" +
@@ -1875,6 +1903,7 @@ public void test063() {
 			"    switch (item) {\n" +
 			"    case ALPHA:      break;\n" +
 			"    case BRAVO:      break;\n" +
+			"    default:         break;\n" +
 			"    }\n" +
 			"  }\n" +
 			"}\n",
@@ -3065,6 +3094,7 @@ public void test097() {
 			"			case BLUE:\n" +
 			"			case RED:\n" +
 			"				break;\n" +
+			"			default: // nop\n" +
 			"		} \n" +
 			"	}\n" +
 			"}\n" +
@@ -3111,19 +3141,24 @@ public void test098() {
 		"1. WARNING in E.java (at line 5)\n" +
 		"	switch (color) {\n" +
 		"	        ^^^^^\n" +
-		"The enum constant BLACK needs a corresponding case label in this enum switch on Colors\n" +
+		"The switch on the enum type Colors should have a default case\n" +
 		"----------\n" +
 		"2. WARNING in E.java (at line 5)\n" +
 		"	switch (color) {\n" +
 		"	        ^^^^^\n" +
-		"The enum constant RED needs a corresponding case label in this enum switch on Colors\n" +
+		"The enum constant BLACK needs a corresponding case label in this enum switch on Colors\n" +
 		"----------\n" +
 		"3. WARNING in E.java (at line 5)\n" +
 		"	switch (color) {\n" +
 		"	        ^^^^^\n" +
+		"The enum constant RED needs a corresponding case label in this enum switch on Colors\n" +
+		"----------\n" +
+		"4. WARNING in E.java (at line 5)\n" +
+		"	switch (color) {\n" +
+		"	        ^^^^^\n" +
 		"The enum constant WHITE needs a corresponding case label in this enum switch on Colors\n" +
 		"----------\n" +
-		"4. ERROR in E.java (at line 16)\n" +
+		"5. ERROR in E.java (at line 16)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
@@ -3349,6 +3384,7 @@ public void test105() {
 				"        case WHITE:\n" +
 				"            System.out.print(\"White\");\n" +
 				"            break;\n" +
+				"        default: // nop\n" +
 				"        }\n" +
 				"    }\n" +
 				"}",
@@ -3383,6 +3419,8 @@ public void test105() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
 public void test106() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.IGNORE);
 	this.runConformTest(
 			new String[] {
 				"pack/X.java",
@@ -3400,7 +3438,12 @@ public void test106() {
 				"package pack;\n" +
 				"enum Color {WHITE, BLACK}"
 			},
-			"SUCCESS"
+			"SUCCESS",
+			null,
+			true,
+			null,
+			options,
+			null
 		);
 
 	this.runConformTest(
@@ -3426,6 +3469,8 @@ public void test106() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
 public void test107() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.IGNORE);
 	this.runConformTest(
 			new String[] {
 				"pack/X.java",
@@ -3456,7 +3501,12 @@ public void test107() {
 				"package pack;\n" +
 				"enum Color {WHITE, BLACK}"
 			},
-			"BlackBlack"
+			"BlackBlack",
+			null,
+			true,
+			null,
+			options,
+			null
 		);
 
 	this.runConformTest(
@@ -3483,6 +3533,8 @@ public void test107() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
 public void test108() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.IGNORE);
 	this.runConformTest(
 			new String[] {
 				"pack/X.java",
@@ -3508,7 +3560,12 @@ public void test108() {
 				"package pack;\n" +
 				"enum Color {WHITE, BLACK}"
 			},
-			"Black"
+			"Black",
+			null,
+			true,
+			null,
+			options,
+			null
 		);
 
 	this.runConformTest(
@@ -3535,6 +3592,8 @@ public void test108() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
 public void test109() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.IGNORE);
 	this.runConformTest(
 			new String[] {
 				"pack/X.java",
@@ -3563,7 +3622,12 @@ public void test109() {
 				"package pack;\n" +
 				"enum Color {WHITE, BLACK}"
 			},
-			"Black"
+			"Black",
+			null,
+			true,
+			null,
+			options,
+			null
 		);
 
 	this.runConformTest(
@@ -3590,6 +3654,8 @@ public void test109() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
 public void test110() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.IGNORE);
 	this.runConformTest(
 			new String[] {
 				"pack/X.java",
@@ -3614,7 +3680,12 @@ public void test110() {
 				"package pack;\n" +
 				"enum Color {WHITE, BLACK}"
 			},
-			"Black"
+			"Black",
+			null,
+			true,
+			null,
+			options,
+			null
 		);
 
 	this.runConformTest(
@@ -3646,6 +3717,7 @@ public void test111() {
 				"pack/X.java",
 				"package pack;\n" +
 				"import static pack.Color.*;\n" +
+				"@SuppressWarnings(\"incomplete-switch\")\n" +
 				"public class X {\n" +
 				"	public int[] $SWITCH_TABLE$pack$Color;\n" +
 				"	public int[] $SWITCH_TABLE$pack$Color() { return null; }\n" +
@@ -3704,6 +3776,8 @@ public void test111() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97247
 public void test112() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.IGNORE);
 	this.runConformTest(
 		new String[] {
 			"com/annot/Foo.java",
@@ -3745,7 +3819,12 @@ public void test112() {
 			"	PERFORMANCE\n" +
 			"}"
 		},
-		""
+		"",
+		null,
+		true,
+		null,
+		options,
+		null
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=93789
@@ -4151,6 +4230,7 @@ public void test122() {
 			"		case (NORMAL) :\n" +
 			"			System.out.println(State.NORMAL);\n" +
 			"			break;\n" +
+			"       default: // nop\n" +
 			"		}\n" +
 			"	}\n" +
 			"}"
@@ -4678,8 +4758,13 @@ public void test135() {
 			"    }\n" +
 			"}",
         },
+        "----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	switch (e) {\n" + 
+		"	        ^\n" + 
+		"The switch on the enum type E should have a default case\n" + 
 		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
+		"2. ERROR in X.java (at line 12)\n" +
 		"	return b;\n" +
 		"	       ^\n" +
 		"The local variable b may not have been initialized\n" +
@@ -5095,6 +5180,11 @@ public void test146() {
 		"	public X(MyEnum e) { // error\n" +
 		"	       ^^^^^^^^^^^\n" +
 		"The blank final field test may not have been initialized\n" +
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	switch (e) {\n" + 
+		"	        ^\n" + 
+		"The switch on the enum type X.MyEnum should have a default case\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502

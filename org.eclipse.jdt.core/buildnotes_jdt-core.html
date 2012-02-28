@@ -42,11 +42,33 @@
 	</td>
   </tr>
 </table>
+<a name="v_C37"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java development tools core</h1>
+Eclipse SDK 3.8.0 - %date% - 3.8.0 M6
+<br>Project org.eclipse.jdt.core v_C37
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C37">cvs</a>).
+<h2>What's new in this drop</h2>
+
+<ul>
+<li> New IProblems for reporting if an enum switch lacks a default cause (recommended by the JLS).
+<pre>
+	/** @since 3.8 */
+	int MissingEnumDefaultCase = Internal + 766;
+</pre>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=265744">265744</a>
+Enum switch should warn about missing default
+
 <a name="v_C36"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.8.0 - February 28, 2012 - 3.8.0 M6
+Eclipse SDK 3.8.0 - February 28, 2012
 <br>
 <h2>What's new in this drop</h2>
 
