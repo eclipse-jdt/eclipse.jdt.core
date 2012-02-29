@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2483,6 +2483,49 @@ public void testBug360317() throws IOException, CoreException {
 				"Cannot switch on an enum value for source level below 1.5. Only convertible int values are permitted\n" +
 				"----------\n",
 				problemRequestor);
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
+ * @bug 347386: Cannot delete package from java project (two source and output folders)
+ * @test Verify that when source folders are set specific output location, deleted packge fragments
+ * 		are not recreated as part of output generation.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=347386"
+ */
+public void testBug347386() throws CoreException {
+	try {
+		IJavaProject proj = this.createJavaProject("P", new String[] {"src"}, "bin");
+		proj.getProject().open(null);
+		createFolder("/P/src1");
+		IFolder toDelete = createFolder("/P/src/com");
+		createFolder("/P/src1/com");
+
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length+1];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[0] =
+			JavaCore.newSourceEntry(
+				new Path("/P/src"),
+				new IPath[] {},
+				new Path("/P/src"));
+
+		newCP[1] =
+				JavaCore.newSourceEntry(
+					new Path("/P/src1"),
+					new IPath[] {},
+					new Path("/P/src1"));
+
+		proj.setRawClasspath(newCP, null);
+		proj.getResolvedClasspath(true);
+		proj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForAutoBuild();
+
+		deleteResource(toDelete);
+		proj.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+		waitForAutoBuild();
+		assertFalse("Folder is not removed", toDelete.exists());
 	} finally {
 		this.deleteProject("P");
 	}
