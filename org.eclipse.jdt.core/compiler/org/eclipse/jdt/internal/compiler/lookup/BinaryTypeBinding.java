@@ -370,11 +370,6 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			}
 		}
 
-		// need type annotations before processing methods (for @NonNullByDefault)
-		if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-			scanTypeForNullDefaultAnnotation(binaryType);
-		}
-
 		if (needFieldsAndMethods) {
 			createFields(binaryType.getFields(), sourceLevel, missingTypeNames);
 			createMethods(binaryType.getMethods(), sourceLevel, missingTypeNames);
@@ -1241,12 +1236,13 @@ void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBindi
 		}
 	}
 }
-void scanTypeForNullDefaultAnnotation(IBinaryType binaryType) {
+void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBinding packageBinding, BinaryTypeBinding binaryBinding) {
 	char[][] nonNullByDefaultAnnotationName = this.environment.getNonNullByDefaultAnnotationName();
 	if (nonNullByDefaultAnnotationName == null)
 		return; // not well-configured to use null annotations
 
 	IBinaryAnnotation[] annotations = binaryType.getAnnotations();
+	boolean isPackageInfo = CharOperation.equals(binaryBinding.sourceName(), TypeConstants.PACKAGE_INFO_NAME);
 	if (annotations != null) {
 		long annotationBit = 0L;
 		int nullness = NO_NULL_DEFAULT;
@@ -1275,19 +1271,44 @@ void scanTypeForNullDefaultAnnotation(IBinaryType binaryType) {
 			}
 		}
 		if (annotationBit != 0L) {
-			this.tagBits |= annotationBit;
-			if (CharOperation.equals(this.sourceName(), TypeConstants.PACKAGE_INFO_NAME))
-				this.getPackage().defaultNullness = nullness;
-		} else {
-			switch (this.getPackage().defaultNullness) {
-				case NONNULL_BY_DEFAULT : 
-					this.tagBits |= TagBits.AnnotationNonNullByDefault;
-					break;
-				case NULL_UNSPECIFIED_BY_DEFAULT :
-					this.tagBits |= TagBits.AnnotationNullUnspecifiedByDefault;
-					break;
-			}
+			binaryBinding.tagBits |= annotationBit;
+			if (isPackageInfo)
+				packageBinding.defaultNullness = nullness;
+			return;
 		}
+	}
+	if (isPackageInfo) {
+		// no default annotations found in package-info
+		packageBinding.defaultNullness = Binding.NULL_UNSPECIFIED_BY_DEFAULT;
+		return;
+	}
+	ReferenceBinding enclosingTypeBinding = binaryBinding.enclosingType;
+	if (enclosingTypeBinding != null) {
+		if ((enclosingTypeBinding.tagBits & TagBits.AnnotationNonNullByDefault) != 0) {
+			binaryBinding.tagBits |= TagBits.AnnotationNonNullByDefault;
+			return;
+		} else if ((enclosingTypeBinding.tagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0) {
+			binaryBinding.tagBits |= TagBits.AnnotationNullUnspecifiedByDefault;
+			return;
+		}
+	}
+	// no annotation found on the type or its enclosing types
+	// check the package-info for default annotation if not already done before
+	if (packageBinding.defaultNullness == Binding.NO_NULL_DEFAULT && !isPackageInfo) {
+		// this will scan the annotations in package-info
+		ReferenceBinding packageInfo = packageBinding.getType(TypeConstants.PACKAGE_INFO_NAME);
+		if (packageInfo == null) {
+			packageBinding.defaultNullness = Binding.NULL_UNSPECIFIED_BY_DEFAULT;
+		}
+	}
+	// no @NonNullByDefault at type level, check containing package:
+	switch (packageBinding.defaultNullness) {
+		case Binding.NONNULL_BY_DEFAULT : 
+			binaryBinding.tagBits |= TagBits.AnnotationNonNullByDefault;
+			break;
+		case Binding.NULL_UNSPECIFIED_BY_DEFAULT :
+			binaryBinding.tagBits |= TagBits.AnnotationNullUnspecifiedByDefault;
+			break;
 	}
 }
 

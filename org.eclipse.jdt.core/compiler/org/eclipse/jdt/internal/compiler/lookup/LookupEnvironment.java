@@ -694,6 +694,9 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 	}
 	packageBinding.addType(binaryBinding);
 	setAccessRestriction(binaryBinding, accessRestriction);
+	// need type annotations before processing methods (for @NonNullByDefault)
+	if (this.globalOptions.isAnnotationBasedNullAnalysisEnabled)
+		binaryBinding.scanTypeForNullDefaultAnnotation(binaryType, packageBinding, binaryBinding);
 	binaryBinding.cachePartsFrom(binaryType, needFieldsAndMethods);
 	return binaryBinding;
 }
