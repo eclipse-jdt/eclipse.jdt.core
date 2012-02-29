@@ -1730,6 +1730,10 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 		}
 		reportMatching(unit, mustResolve);
 	} catch (AbortCompilation e) {
+		if (BasicSearchEngine.VERBOSE) {
+			System.out.println("AbortCompilation while resolving unit " + String.valueOf(unit.getFileName())); //$NON-NLS-1$
+			e.printStackTrace();
+		}
 		// could not resolve: report inaccurate matches
 		reportMatching(unit, false); // do not resolve when cu has errors
 		if (!(e instanceof AbortCompilationUnit)) {
