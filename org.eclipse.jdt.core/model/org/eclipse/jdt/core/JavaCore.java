@@ -1075,12 +1075,13 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Reporting Incomplete Enum Switch.
 	 * <p>When enabled, the compiler will issue an error or a warning whenever
-	 *    an enum constant has no corresponding case label in an enum switch
-	 *    statement.
+	 *    an enum switch statement lacks a default case.
+	 *    If no default case is given, additionally one error or warning is issued
+	 *    regarding each enum constant for which a corresponding case label is lacking.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.1
 	 * @category CompilerOptionID

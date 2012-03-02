@@ -58,6 +58,24 @@ Eclipse SDK 3.8.0 - %date% - 3.8.0 M6
 	int MissingEnumDefaultCase = Internal + 766;
 </pre>
 </li>
+<li>Adjusted the specification of the corresponding constant in JavaCore:
+<pre>
+	/**
+	 * Compiler option ID: Reporting Incomplete Enum Switch.
+	 *    
+	 * When enabled, the compiler will issue an error or a warning whenever
+	 * an enum switch statement lacks a default case.
+	 * If no default case is given, additionally one error or warning is issued
+	 * regarding each enum constant for which a corresponding case label is lacking.
+	 * 
+	 * Option id: "org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"
+	 * Possible values: { "error", "warning", "ignore" }
+	 * Default: "warning"
+	 * @since 3.1
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_INCOMPLETE_ENUM_SWITCH = PLUGIN_ID + ".compiler.problem.incompleteEnumSwitch"; //$NON-NLS-1$
+</pre>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
