@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1210,7 +1210,7 @@ public void testBug152841() throws Exception{
 		"}";
 		ICompilationUnit cu= pack.createCompilationUnit("Test.java", source, true, null);
 
-		ASTParser parser= ASTParser.newParser(AST.JLS3);
+		ASTParser parser= ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.createAST(null);

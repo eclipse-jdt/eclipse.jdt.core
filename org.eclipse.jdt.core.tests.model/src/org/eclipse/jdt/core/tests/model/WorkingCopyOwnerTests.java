@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 	private void assertProblems(String expectedProblems, String path, String source, WorkingCopyOwner owner) throws JavaModelException {
 		this.workingCopy = getWorkingCopy(path, source);
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setSource(this.workingCopy);
 		parser.setResolveBindings(true);
 		parser.setWorkingCopyOwner(owner);
@@ -1058,7 +1058,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			"  int field;\n" +
 			"}"
 		);
-		CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, false, null, null);
+		CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3_INTERNAL, false, null, null);
 		assertASTNodeEquals(
 			"Unexpected AST",
 			"public class X {\n" +
@@ -1081,7 +1081,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			"  int field;\n" +
 			"}"
 		);
-		CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, true/*force resolution*/, null, null);
+		CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3_INTERNAL, true/*force resolution*/, null, null);
 		TypeDeclaration type = (TypeDeclaration) ast.types().get(0);
 		assertNull("Unexpected binding", type.resolveBinding());
 	}

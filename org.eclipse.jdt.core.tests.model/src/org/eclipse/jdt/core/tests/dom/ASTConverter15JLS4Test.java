@@ -11283,7 +11283,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		CompilationUnit unit = (CompilationUnit) buildAST(
-			AST.JLS3,
+			AST.JLS3_INTERNAL,
 			contents,
 			this.workingCopy,
 			false,

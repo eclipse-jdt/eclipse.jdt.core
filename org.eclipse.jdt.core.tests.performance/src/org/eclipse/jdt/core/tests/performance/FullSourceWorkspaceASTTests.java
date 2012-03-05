@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -599,7 +599,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		tagAsSummary("DOM AST tree for one file using JLS3", false); // do NOT put in fingerprint
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
-		createAST(unit, AST.JLS3);
+		createAST(unit, AST.JLS3_INTERNAL);
 	}
 
 	/*
@@ -664,7 +664,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	 */
 	private void runAstCreation(IJavaProject javaProject) throws JavaModelException {
 		if (DEBUG) System.out.println("Creating AST for project" + javaProject.getElementName());
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(javaProject);
 

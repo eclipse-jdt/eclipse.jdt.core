@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 IBM Corporation and others.
+ * Copyright (c) 2008, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -142,7 +142,7 @@ public void test001() throws CoreException, IllegalArgumentException, IllegalAcc
 		// fetch default option values
 		Hashtable realDefaultValues = JavaCore.getDefaultOptions();
 		// load documented values in a map
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setSource(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(javaCoreSourceFile, null));
 		ASTNode rootNode = parser.createAST(null);
 		final JavaCoreJavadocAnalyzer analyzer = new JavaCoreJavadocAnalyzer();

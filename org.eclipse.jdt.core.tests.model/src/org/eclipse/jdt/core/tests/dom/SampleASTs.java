@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2011 IBM Corporation and others.
+ * Copyright (c) 2004, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,7 +50,7 @@ public class SampleASTs {
 		Initializer in = target.newInitializer();
 		td.bodyDeclarations().add(in);
 
-		if (target.apiLevel() >= AST.JLS3) {
+		if (target.apiLevel() >= AST.JLS3_INTERNAL) {
 			EnumDeclaration ed = target.newEnumDeclaration();
 			td.bodyDeclarations().add(ed);
 			EnumConstantDeclaration ec = target.newEnumConstantDeclaration();
@@ -70,7 +70,7 @@ public class SampleASTs {
 		ArrayType at = target.newArrayType(pt);
 		fd.setType(at);
 
-		if (target.apiLevel() >= AST.JLS3) {
+		if (target.apiLevel() >= AST.JLS3_INTERNAL) {
 			SimpleType st = target.newSimpleType(qn);
 			QualifiedType qt = target.newQualifiedType(st, target.newSimpleName("x")); //$NON-NLS-1$
 			WildcardType wt = target.newWildcardType();
@@ -103,7 +103,7 @@ public class SampleASTs {
 		b.statements().add(expressionStatement);
 		ForStatement forStatement = target.newForStatement();
 		b.statements().add(forStatement);
-		if (target.apiLevel() >= AST.JLS3) {
+		if (target.apiLevel() >= AST.JLS3_INTERNAL) {
 			EnhancedForStatement foreachStatement = target.newEnhancedForStatement();
 			b.statements().add(foreachStatement);
 		}
@@ -201,7 +201,7 @@ public class SampleASTs {
 		z.add(variableDeclarationExpression);
 
 		// annotations
-		if (target.apiLevel() >= AST.JLS3) {
+		if (target.apiLevel() >= AST.JLS3_INTERNAL) {
 			AnnotationTypeDeclaration atd = target.newAnnotationTypeDeclaration();
 			cu.types().add(atd);
 			atd.bodyDeclarations().add(target.newAnnotationTypeMemberDeclaration());

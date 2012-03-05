@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -80,7 +80,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		public void reconcile(ReconcileContext context) {
 			this.delta = context.getDelta();
 			try {
-				this.ast = context.getAST3();
+				this.ast = context.internalGetAST3();
 			} catch (JavaModelException e) {
 				assertNull("Unexpected exception", e);
 			}
@@ -99,7 +99,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		public void reconcile(ReconcileContext context) {
 			this.delta = context.getDelta();
 			try {
-				this.ast = context.getAST3();
+				this.ast = context.internalGetAST3();
 				assertTrue("Context should have statement recovery enabled", (context.getReconcileFlags() & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 				assertTrue("Context should have ignore method body enabled", (context.getReconcileFlags() & ICompilationUnit.IGNORE_METHOD_BODIES) != 0);
 			} catch (JavaModelException e) {
@@ -120,7 +120,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		public void reconcile(ReconcileContext context) {
 			this.delta = context.getDelta();
 			try {
-				this.ast = context.getAST3();
+				this.ast = context.internalGetAST3();
 				assertFalse("Context should have statement recovery enabled", (context.getReconcileFlags() & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 				assertTrue("Context should have ignore method body enabled", (context.getReconcileFlags() & ICompilationUnit.IGNORE_METHOD_BODIES) != 0);
 			} catch (JavaModelException e) {
@@ -171,7 +171,7 @@ protected void assertNoProblem(char[] source, ICompilationUnit unit) throws Inte
 		// Reconcile again to see if error goes away
 		this.problemRequestor.initialize(source);
 		unit.getBuffer().setContents(source); // need to set contents again to be sure that following reconcile will be really done
-		unit.reconcile(AST.JLS3,
+		unit.reconcile(AST.JLS3_INTERNAL,
 			true, // force problem detection to see errors if any
 			null,	// do not use working copy owner to not use working copies in name lookup
 			null);
@@ -782,7 +782,7 @@ public void testBroadcastAST1() throws JavaModelException {
 		"import p2.*;\n" +
 		"public class X {\n" +
 		"}");
-	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
+	this.workingCopy.reconcile(AST.JLS3_INTERNAL, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
 	assertASTNodeEquals(
 		"Unexpected ast",
 		"package p1;\n" +
@@ -796,7 +796,7 @@ public void testBroadcastAST1() throws JavaModelException {
  * (case of a working copy being reconciled with NO changes, creating AST and forcing problem detection)
  */
 public void testBroadcastAST2() throws JavaModelException {
-	this.workingCopy.reconcile(AST.JLS3, true/*force problem detection*/, null/*primary owner*/, null/*no progress*/);
+	this.workingCopy.reconcile(AST.JLS3_INTERNAL, true/*force problem detection*/, null/*primary owner*/, null/*no progress*/);
 	assertASTNodeEquals(
 		"Unexpected ast",
 		"package p1;\n" +
@@ -812,7 +812,7 @@ public void testBroadcastAST2() throws JavaModelException {
  * has NO changes and NO problem detection is requested)
  */
 public void testBroadcastAST3() throws JavaModelException {
-	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
+	this.workingCopy.reconcile(AST.JLS3_INTERNAL, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
 	assertASTNodeEquals(
 		"Unexpected ast",
 		"null",
@@ -826,13 +826,13 @@ public void testBroadcastAST4() throws CoreException {
 	JavaCore.run(
 		new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
-				ReconcilerTests.this.workingCopy.reconcile(AST.JLS3, true/*force problem detection*/, null/*primary owner*/, monitor);
+				ReconcilerTests.this.workingCopy.reconcile(AST.JLS3_INTERNAL, true/*force problem detection*/, null/*primary owner*/, monitor);
 				setWorkingCopyContents(
 					"package p1;\n" +
 					"import p2.*;\n" +
 					"public class X {\n" +
 					"}");
-				ReconcilerTests.this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, monitor);
+				ReconcilerTests.this.workingCopy.reconcile(AST.JLS3_INTERNAL, false/*don't force problem detection*/, null/*primary owner*/, monitor);
 			}
 		},
 		null/*no progress*/);
@@ -854,7 +854,7 @@ public void testBroadcastAST5() throws JavaModelException {
 		"import p2.*;\n" +
 		"public class X {\n" +
 		"}");
-	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
+	this.workingCopy.reconcile(AST.JLS3_INTERNAL, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
 	org.eclipse.jdt.core.dom.CompilationUnit compilationUnit = this.deltaListener.getCompilationUnitAST(this.workingCopy);
 	String newContents =
 		"package p1;\n" +
@@ -2913,7 +2913,7 @@ public void testReconcileParticipant04() throws CoreException {
 		"  }\n" +
 		"}"
 	);
-	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, false, null, null);
+	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3_INTERNAL, false, null, null);
 	assertSame(
 		"Unexpected participant ast",
 		participant.ast,
@@ -3105,7 +3105,7 @@ public void testReconcileParticipant11() throws CoreException {
 		"  }\n" +
 		"}"
 	);
-	this.workingCopy.reconcile(AST.JLS3, true/*force problem detection*/, null, null);
+	this.workingCopy.reconcile(AST.JLS3_INTERNAL, true/*force problem detection*/, null, null);
 	assertWorkingCopyDeltas(
 		"Unexpected delta",
 		"X[*]: {CHILDREN | FINE GRAINED}\n" +
@@ -3758,7 +3758,7 @@ public void testBug114338() throws CoreException {
 		"		return false;\n" +
 		"	}\n" +
 		"}");
-	this.workingCopy.reconcile(AST.JLS3, true, this.wcOwner, null);
+	this.workingCopy.reconcile(AST.JLS3_INTERNAL, true, this.wcOwner, null);
 	assertProblems(
 		"Unexpected problems",
 		"----------\n" +
@@ -3777,7 +3777,7 @@ public void testBug114338() throws CoreException {
 		"	}\n" +
 		"}";
 	setWorkingCopyContents(contents);
-	this.workingCopy.reconcile(AST.JLS3, true, this.wcOwner, null);
+	this.workingCopy.reconcile(AST.JLS3_INTERNAL, true, this.wcOwner, null);
 	assertProblems(
 		"Unexpected problems",
 		"----------\n" +
@@ -3813,7 +3813,7 @@ public void testBug36032a() throws CoreException, InterruptedException {
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(this.wcOwner, null);
 		this.workingCopy.getBuffer().setContents(source);
-		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		this.workingCopy.reconcile(AST.JLS3_INTERNAL, true, null, null);
 		assertNoProblem(sourceChars, this.workingCopy);
 
 		// Add new secondary type
@@ -3833,7 +3833,7 @@ public void testBug36032a() throws CoreException, InterruptedException {
 		sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopy.getBuffer().setContents(source);
-		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		this.workingCopy.reconcile(AST.JLS3_INTERNAL, true, null, null);
 		assertNoProblem(sourceChars, this.workingCopy);
 	} finally {
 		deleteProject("P");
@@ -3868,14 +3868,14 @@ public void testBug36032b() throws CoreException, InterruptedException {
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopy = getCompilationUnit("/P/Test.java").getWorkingCopy(this.wcOwner, null);
 		this.workingCopy.getBuffer().setContents(source);
-		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		this.workingCopy.reconcile(AST.JLS3_INTERNAL, true, null, null);
 		assertNoProblem(sourceChars, this.workingCopy);
 
 		// Delete secondary type => should get a problem
 		waitUntilIndexesReady();
 		deleteFile("/P/Bar.java");
 		this.problemRequestor.initialize(source.toCharArray());
-		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		this.workingCopy.reconcile(AST.JLS3_INTERNAL, true, null, null);
 		assertEquals("Working copy should not find secondary type 'Bar'!", 1, this.problemRequestor.problemCount);
 		assertProblems("Working copy should have problem!",
 			"----------\n" +
@@ -3896,7 +3896,7 @@ public void testBug36032b() throws CoreException, InterruptedException {
 		sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopy.getBuffer().setContents(source);
-		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		this.workingCopy.reconcile(AST.JLS3_INTERNAL, true, null, null);
 		assertNoProblem(sourceChars, this.workingCopy);
 	} finally {
 		deleteProject("P");
@@ -3943,7 +3943,7 @@ public void testBug36032c() throws CoreException, InterruptedException {
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopy = getCompilationUnit("/P2/test/Test2.java").getWorkingCopy(this.wcOwner, null);
 		this.workingCopy.getBuffer().setContents(source);
-		this.workingCopy.reconcile(AST.JLS3, true, null, null);
+		this.workingCopy.reconcile(AST.JLS3_INTERNAL, true, null, null);
 		assertNoProblem(sourceChars, this.workingCopy);
 	} finally {
 		deleteProject("P1");
@@ -4015,7 +4015,7 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 		sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0].getBuffer().setContents(source1);
-		this.workingCopies[0].reconcile(AST.JLS3,
+		this.workingCopies[0].reconcile(AST.JLS3_INTERNAL,
 			true, // force problem detection to see errors if any
 			null,	// do not use working copy owner to not use working copies in name lookup
 			null);
@@ -4025,7 +4025,7 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 		sourceChars = source2.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[1].getBuffer().setContents(source2);
-		this.workingCopies[1].reconcile(AST.JLS3,
+		this.workingCopies[1].reconcile(AST.JLS3_INTERNAL,
 			true, // force problem detection to see errors if any
 			null,	// do not use working copy owner to not use working copies in name lookup
 			null);
@@ -4082,7 +4082,7 @@ public void testBug118823b() throws CoreException, InterruptedException {
 		sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0].getBuffer().setContents(source1);
-		this.workingCopies[0].reconcile(AST.JLS3,
+		this.workingCopies[0].reconcile(AST.JLS3_INTERNAL,
 			true, // force problem detection to see errors if any
 			null,	// do not use working copy owner to not use working copies in name lookup
 			null);
@@ -4093,7 +4093,7 @@ public void testBug118823b() throws CoreException, InterruptedException {
 		sourceChars = source2.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[1].getBuffer().setContents(source2);
-		this.workingCopies[1].reconcile(AST.JLS3,
+		this.workingCopies[1].reconcile(AST.JLS3_INTERNAL,
 			true, // force problem detection to see errors if any
 			null,	// do not use working copy owner to not use working copies in name lookup
 			null);
@@ -4157,7 +4157,7 @@ public void testBug118823c() throws CoreException, InterruptedException {
 		sourceChars = source1.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0].getBuffer().setContents(source1);
-		this.workingCopies[0].reconcile(AST.JLS3,
+		this.workingCopies[0].reconcile(AST.JLS3_INTERNAL,
 			true, // force problem detection to see errors if any
 			null,	// do not use working copy owner to not use working copies in name lookup
 			null);
@@ -4168,7 +4168,7 @@ public void testBug118823c() throws CoreException, InterruptedException {
 		sourceChars = source2.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[1].getBuffer().setContents(source2);
-		this.workingCopies[1].reconcile(AST.JLS3,
+		this.workingCopies[1].reconcile(AST.JLS3_INTERNAL,
 			true, // force problem detection to see errors if any
 			null,	// do not use working copy owner to not use working copies in name lookup
 			null);
@@ -4378,7 +4378,7 @@ public void testIgnoreMethodBodies1() throws CoreException {
 		"    int i = 0;\n" + 
 		"  }\n" +
 		"}");
-	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, ICompilationUnit.IGNORE_METHOD_BODIES, null, null);
+	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3_INTERNAL, ICompilationUnit.IGNORE_METHOD_BODIES, null, null);
 	// X.foo() not returning any value should not be reported
 	assertProblems("Working copy should have problems:",
 			"----------\n" +
@@ -4414,7 +4414,7 @@ public void testIgnoreMethodBodies2() throws CoreException {
 		"    }/*end*/;" +
 		"  }\n" +
 		"}");
-	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3, ICompilationUnit.IGNORE_METHOD_BODIES, null, null);
+	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3_INTERNAL, ICompilationUnit.IGNORE_METHOD_BODIES, null, null);
 	// methods with anonymous classes should have their statements intact
 	assertASTNodeEquals(
 			"Unexpected ast",
@@ -4446,7 +4446,7 @@ public void testIgnoreMethodBodies3() throws CoreException {
 		"  }\n" +
 		"}");
 	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(
-			AST.JLS3,
+			AST.JLS3_INTERNAL,
 			ICompilationUnit.IGNORE_METHOD_BODIES | ICompilationUnit.ENABLE_STATEMENTS_RECOVERY,
 			null,
 			null);
@@ -4481,7 +4481,7 @@ public void testIgnoreMethodBodies4() throws CoreException {
 		"  }\n" +
 		"}");
 	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(
-			AST.JLS3,
+			AST.JLS3_INTERNAL,
 			ICompilationUnit.IGNORE_METHOD_BODIES,
 			null,
 			null);

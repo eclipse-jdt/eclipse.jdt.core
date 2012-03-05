@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1155,7 +1155,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		String sourceLevel = null;
 		String complianceLevel = null;
 		if (this.currentProject != null) {
-			if (this.astLevel == AST.JLS3) {
+			if (this.astLevel == AST.JLS3_INTERNAL) {
 				complianceLevel = this.currentProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 				sourceLevel = this.currentProject.getOption(JavaCore.COMPILER_SOURCE, true);
 				this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
@@ -2074,7 +2074,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug70892_JLS3() throws JavaModelException {
 		int level = this.astLevel;
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		verifyComments("testBug70892");
 		this.astLevel = level;
 	}
@@ -2109,7 +2109,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug79809() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79809/Test.java",
 			"package javadoc.b79809;\n" +
 			"/**\n" +
@@ -2127,7 +2127,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug79809b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79809/Test.java",
 			"package javadoc.b79809;\n" +
 			"\n" +
@@ -2149,7 +2149,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug79904() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b79904/Test.java",
 			"package javadoc.b79904;\n" +
 			"/**\n" +
@@ -2172,7 +2172,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug80221() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter/src/javadoc/b80221/Test.java",
 			"package javadoc.b80221;\n" +
 			"public class Test {\n" +
@@ -2193,7 +2193,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug80257() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b80257/Test.java",
 			"package javadoc.b80257;\n" +
 			"import java.util.*;\n" +
@@ -2250,14 +2250,14 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
 	 */
 	public void testBug83804() throws CoreException, JavaModelException {
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getCompilationUnit("Converter15", "src", "javadoc.b83804", "package-info.java");
 		this.workingCopies[1] = getCompilationUnit("Converter15", "src", "javadoc.b83804", "Test.java");
 		verifyWorkingCopiesComments();
 	}
 	public void testBug83804a() throws CoreException, JavaModelException {
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getCompilationUnit("Converter15", "src", "javadoc.b83804a", "package-info.java");
 		this.workingCopies[1] = getCompilationUnit("Converter15", "src", "javadoc.b83804a", "Test.java");
@@ -2270,7 +2270,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug84049() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b84049/Test.java",
 			"package javadoc.b84049;\n" +
 			"public class Test {\n" +
@@ -2306,7 +2306,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug87845() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b87845/Test.java",
 			"package javadoc.b87845;\n" +
 			"public class Test {\n" +
@@ -2381,7 +2381,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug93880_15a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/Test.java",
 			"/**\n" +
 			" * Javadoc\n" +
@@ -2405,7 +2405,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_15b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/**\n" +
 			" * Javadoc for all package\n" +
@@ -2427,7 +2427,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_15c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/**\n" +
 			" * Javadoc for all package\n" +
@@ -2449,7 +2449,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_15d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/**\n" +
 			" * Javadoc for all package\n" +
@@ -2473,7 +2473,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_15e() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/* (non-javadoc)\n" +
 			" * No comment\n" +
@@ -2497,7 +2497,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_14a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/Test.java",
 			"/**\n" +
 			" * Javadoc\n" +
@@ -2518,7 +2518,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_14b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/**\n" +
 			" * Javadoc for all package\n" +
@@ -2537,7 +2537,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_14c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/**\n" +
 			" * Javadoc for all package\n" +
@@ -2556,7 +2556,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_14d() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/**\n" +
 			" * Javadoc for all package\n" +
@@ -2577,7 +2577,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug93880_14e() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
 			"/* (non-javadoc)\n" +
 			" * No comment\n" +
@@ -2603,7 +2603,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug94150() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b94150/Category.java",
 			"package javadoc.b94150;\n" +
 			"public enum Category {\n" +
@@ -2654,7 +2654,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug99507b() throws JavaModelException {
         String source = "/**\n@param country*/";
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(source.toCharArray());
 		parser.createAST(null);
@@ -2873,7 +2873,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug106581() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b106581/A.java",
 			"package javadoc.b106581;\n" +
 			"public class A {\n" +
@@ -2908,7 +2908,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug108622() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b108622/Test.java",
 			"package javadoc.b108622;\n" +
 			"/**\n" +
@@ -2957,7 +2957,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug113108a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
 			"package javadoc.b113108;\n" +
 			"/** C0 */\n" +
@@ -2994,7 +2994,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug113108b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
 			"package javadoc.b113108;\n" +
 			"/** C0 */\n" +
@@ -3031,7 +3031,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	public void testBug113108c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b113108/Test.java",
 			"package javadoc.b113108;\n" +
 			"/** C0 */\n" +
@@ -3073,7 +3073,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug125676() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[3];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b125676/A.java",
 			"package javadoc.b125676;\n" +
 			"public class A {\n" +
@@ -3136,7 +3136,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 */
 	public void testBug125903() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.astLevel = AST.JLS3;
+		this.astLevel = AST.JLS3_INTERNAL;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b125903/Test.java",
 			"package javadoc.b125903;\n" +
 			"/**\n" +
@@ -3244,7 +3244,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			"	String b = \"b\"; //$NON-NLS-1$\n" +
 			"}\n"
 		);
-		CompilationUnit compilUnit = (CompilationUnit) runConversion(AST.JLS3, this.workingCopies[0], true);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(AST.JLS3_INTERNAL, this.workingCopies[0], true);
 		verifyWorkingCopiesComments();
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
 			// Verify comment type
