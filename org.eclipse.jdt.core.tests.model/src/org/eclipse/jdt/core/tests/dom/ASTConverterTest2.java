@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5239,7 +5239,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"}";
 			addLibrary(p, "test0571.jar", "test0571.zip", new String[] {"X.java", source	}, "1.4");
 			IClassFile classFile = getClassFile("P", "/P/test0571.jar", "", "X$Y.class");
-			CompilationUnit unit = (CompilationUnit) runConversion(AST.JLS3, classFile, 0, true);
+			CompilationUnit unit = (CompilationUnit) runConversion(AST.JLS3_INTERNAL, classFile, 0, true);
 			IProblem[] problems = unit.getProblems();
 			StringBuffer buffer = new StringBuffer();
 			for (int i = 0, length = problems.length; i < length; i++)
@@ -5530,7 +5530,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"        }\n" +
 				"}"
 			);
-			ASTNode cu = workingCopy.reconcile(AST.JLS3, true, true, null, null);
+			ASTNode cu = workingCopy.reconcile(AST.JLS3_INTERNAL, true, true, null, null);
 			assertNotNull("Should get an AST", cu);
 		} finally {
 			if (workingCopy != null)
@@ -5555,7 +5555,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			);
 			
 			// Create parser
-			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 			parser.setSource(workingCopy);
 			parser.setFocalPosition(0);
 			parser.setResolveBindings(true);

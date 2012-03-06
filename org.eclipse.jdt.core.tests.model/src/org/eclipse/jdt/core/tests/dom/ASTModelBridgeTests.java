@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 IBM Corporation and others.
+ * Copyright (c) 2004, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,7 +83,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	private IBinding[] createBindings(String contents, IJavaElement element) throws JavaModelException {
 		this.workingCopy.getBuffer().setContents(contents);
 		this.workingCopy.makeConsistent(null);
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setProject(getJavaProject("P"));
 		IJavaElement[] elements = new IJavaElement[] {element};
 		return parser.createBindings(elements, null);
@@ -91,7 +91,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 
 	private IBinding[] createBinaryBindings(String contents, IJavaElement element) throws CoreException {
 		createClassFile("/P/lib", "A.class", contents);
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setProject(getJavaProject("P"));
 		IJavaElement[] elements = new IJavaElement[] {element};
 		return parser.createBindings(elements, null);
@@ -732,7 +732,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * (test several kinds of elements)
 	 */
 	public void testCreateBindings01() throws JavaModelException {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(getJavaProject("P"));
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
@@ -783,7 +783,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=297757
 	 */
 	public void testCreateBindings23() throws JavaModelException {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setProject(getJavaProject("P"));
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		this.workingCopies = new ICompilationUnit[3];

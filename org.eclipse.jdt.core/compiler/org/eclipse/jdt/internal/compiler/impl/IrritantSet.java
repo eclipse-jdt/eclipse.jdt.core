@@ -11,6 +11,7 @@
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
+ *								bug 265744 - Enum switch should warn about missing default
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.impl;
@@ -101,7 +102,8 @@ public class IrritantSet {
 				| CompilerOptions.UnusedLabel
 				| CompilerOptions.UnusedTypeArguments
 				| CompilerOptions.UnusedWarningToken
-				| CompilerOptions.ComparingIdentical)
+				| CompilerOptions.ComparingIdentical
+				| CompilerOptions.IncompleteEnumSwitch)
 			// group-2 warnings enabled by default
 			.set(
 				CompilerOptions.DeadCode

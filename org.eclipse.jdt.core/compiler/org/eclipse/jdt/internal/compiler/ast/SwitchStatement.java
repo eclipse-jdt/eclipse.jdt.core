@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for 
  *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 265744 - Enum switch should warn about missing default
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -538,6 +539,11 @@ public class SwitchStatement extends Statement {
 			// for enum switch, check if all constants are accounted for (if no default)
 			if (isEnumSwitch && this.defaultCase == null
 					&& upperScope.compilerOptions().getSeverity(CompilerOptions.IncompleteEnumSwitch) != ProblemSeverities.Ignore) {
+				// JLS recommends a default case for every enum switch
+				if (upperScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5) { // report only if enum is legal in the first place
+					upperScope.problemReporter().missingEnumDefaultCase(this, expressionType);
+				}
+
 				int constantCount = this.constants == null ? 0 : this.constants.length; // could be null if no case statement
 				if (constantCount == this.caseCount
 						&& this.caseCount != ((ReferenceBinding)expressionType).enumConstantCount()) {

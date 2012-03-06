@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -695,7 +695,7 @@ public void testPerfReconcile() throws CoreException {
 		workingCopy = PARSER_WORKING_COPY.getWorkingCopy(owner, null);
 		int warmup = WARMUP_COUNT / 5;
 		for (int i=0; i<warmup; i++) {
-			CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
+			CompilationUnit unit = workingCopy.reconcile(AST.JLS3_INTERNAL, true, null, null);
 			assertNotNull("Compilation Unit should not be null!", unit);
 			assertNotNull("Bindings were not resolved!", unit.getPackage().resolveBinding());
 		}
@@ -707,7 +707,7 @@ public void testPerfReconcile() throws CoreException {
 			runGc();
 			startMeasuring();
 			for (int n=0; n<iterations; n++) {
-				workingCopy.reconcile(AST.JLS3, true, null, null);
+				workingCopy.reconcile(AST.JLS3_INTERNAL, true, null, null);
 			}
 			stopMeasuring();
 		}
@@ -770,7 +770,7 @@ public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException 
 		int warmup = WARMUP_COUNT / 10;
 		for (int i=0; i<warmup; i++) {
 			workingCopy.getBuffer().setContents(bigContents.append("a").toString());
-			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
+			workingCopy.reconcile(AST.JLS3_INTERNAL, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
 		}
 
 		// Measures
@@ -779,7 +779,7 @@ public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException 
 			workingCopy.getBuffer().setContents(bigContents.append("a").toString());
 			runGc();
 			startMeasuring();
-			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
+			workingCopy.reconcile(AST.JLS3_INTERNAL, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
 			stopMeasuring();
 		}
 
@@ -820,7 +820,7 @@ public void testReconcileDuplicates() throws JavaModelException {
 		int warmup = WARMUP_COUNT / 10;
 		for (int i=0; i<warmup; i++) {
 			workingCopy.getBuffer().setContents(contents.append('a').toString());
-			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
+			workingCopy.reconcile(AST.JLS3_INTERNAL, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
 		}
 
 		// Measures
@@ -829,7 +829,7 @@ public void testReconcileDuplicates() throws JavaModelException {
 			workingCopy.getBuffer().setContents(contents.append('a').toString());
 			runGc();
 			startMeasuring();
-			workingCopy.reconcile(AST.JLS3, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
+			workingCopy.reconcile(AST.JLS3_INTERNAL, false/*no pb detection*/, null/*no owner*/, null/*no progress*/);
 			stopMeasuring();
 		}
 
@@ -877,10 +877,10 @@ public void testPerfBatchCreatePackageAndReconcile() throws CoreException {
 			IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
 				public void run(IProgressMonitor monitor) throws CoreException {
 					root.createPackageFragment("p2", false/*don't force*/, monitor);
-					copy.reconcile(AST.JLS3, true, null, monitor);
+					copy.reconcile(AST.JLS3_INTERNAL, true, null, monitor);
 					int warmup = WARMUP_COUNT / 5;
 					for (int i=0; i<warmup; i++) {
-						copy.reconcile(AST.JLS3, true, null, monitor);
+						copy.reconcile(AST.JLS3_INTERNAL, true, null, monitor);
 					}
 				}
 			};
@@ -895,11 +895,11 @@ public void testPerfBatchCreatePackageAndReconcile() throws CoreException {
 			runnable = new IWorkspaceRunnable(){
 				public void run(IProgressMonitor monitor) throws CoreException {
 					root.createPackageFragment("p2", false/*don't force*/, monitor);
-					copy.reconcile(AST.JLS3, true, null, monitor);
+					copy.reconcile(AST.JLS3_INTERNAL, true, null, monitor);
 					int iterations = 10;
 					startMeasuring();
 					for (int n=0; n<iterations; n++) {
-						copy.reconcile(AST.JLS3, true, null, monitor);
+						copy.reconcile(AST.JLS3_INTERNAL, true, null, monitor);
 					}
 					stopMeasuring();
 				}
@@ -951,7 +951,7 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 		int warmup = WARMUP_COUNT / 5;
 		for (int i=0; i<warmup; i++) {
 			searchAllTypeNames(scope);
-			CompilationUnit unit = workingCopy.reconcile(AST.JLS3, true, null, null);
+			CompilationUnit unit = workingCopy.reconcile(AST.JLS3_INTERNAL, true, null, null);
 			if (i == 0) {
 				assertNotNull("Compilation Unit should not be null!", unit);
 				assertNotNull("Bindings were not resolved!", unit.getPackage().resolveBinding());
@@ -966,7 +966,7 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 			startMeasuring();
 			for (int n=0; n<iterations; n++) {
 				searchAllTypeNames(scope);
-				workingCopy.reconcile(AST.JLS3, true, null, null);
+				workingCopy.reconcile(AST.JLS3_INTERNAL, true, null, null);
 			}
 			stopMeasuring();
 		}

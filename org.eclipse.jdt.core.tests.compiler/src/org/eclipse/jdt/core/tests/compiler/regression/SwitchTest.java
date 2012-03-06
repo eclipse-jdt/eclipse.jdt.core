@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 IBM Corporation and others.
+ * Copyright (c) 2005, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1028,12 +1028,17 @@ public void testCaseTypeMismatch3() {
 		"	     ^^^\n" + 
 		"Type mismatch: cannot convert from String to int\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	switch(Days.Sunday) {\n" + 
+		"	       ^^^^^^^^^^^\n" + 
+		"The switch on the enum type Days should have a default case\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
 		"	case \"Sunday\": break;\n" + 
 		"	     ^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from String to Days\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 13)\n" + 
+		"4. ERROR in X.java (at line 13)\n" + 
 		"	case \"0\": break;\n" + 
 		"	     ^^^\n" + 
 		"Type mismatch: cannot convert from String to Integer\n" + 

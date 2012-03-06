@@ -7,6 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Terry Parker <tparker@google.com> 
+ *           - Contribution for https://bugs.eclipse.org/bugs/show_bug.cgi?id=372418
+ *           -  Another problem with inner classes referenced from jars or class folders: "The type ... cannot be resolved"
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
@@ -271,7 +274,13 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		// if an additional source file is waiting to be compiled, answer it BUT not if this is a secondary type search
 		// if we answer X.java & it no longer defines Y then the binary type looking for Y will think the class path is wrong
 		// let the recompile loop fix up dependents when the secondary type Y has been deleted from X.java
-		SourceFile unit = (SourceFile) this.additionalUnits.get(qualifiedTypeName); // doesn't have file extension
+		// Only enclosing type names are present in the additional units table, so strip off inner class specifications
+		// when doing the lookup (https://bugs.eclipse.org/372418)
+		String enclosingTypeName = qualifiedTypeName;
+		int index = enclosingTypeName.indexOf('$');
+		if (index > 0)
+			enclosingTypeName = enclosingTypeName.substring(0, index);		
+		SourceFile unit = (SourceFile) this.additionalUnits.get(enclosingTypeName); // doesn't have file extension
 		if (unit != null)
 			return new NameEnvironmentAnswer(unit, null /*no access restriction*/);
 	}

@@ -137,8 +137,16 @@ public final class AST {
      * </p>
      *
 	 * @since 3.1
+	 * @deprecated Clients should use the {@link #JLS4} AST API instead.
 	 */
 	public static final int JLS3 = 3;
+	
+	/**
+	 * Internal synonym for {@link #JLS3}. Use to alleviate
+	 * deprecation warnings.
+	 * @since 3.8
+	 */
+	public static final int JLS3_INTERNAL = JLS3;
 
 	/**
 	 * Constant for indicating the AST API that handles JLS4 (aka JLS7).
@@ -626,8 +634,8 @@ public final class AST {
 	 * Creates a new, empty abstract syntax tree using default options.
 	 *
 	 * @see JavaCore#getDefaultOptions()
-	 * @deprecated Clients should port their code to use the new JLS3 AST API and call
-	 *    {@link #newAST(int) AST.newAST(AST.JLS3)} instead of using this constructor.
+	 * @deprecated Clients should port their code to use the new JLS4 AST API and call
+	 *    {@link #newAST(int) AST.newAST(AST.JLS4)} instead of using this constructor.
 	 */
 	public AST() {
 		this(JavaCore.getDefaultOptions());
@@ -643,7 +651,7 @@ public final class AST {
 	private AST(int level) {
 		switch(level) {
 			case JLS2_INTERNAL :
-			case JLS3 :
+			case JLS3_INTERNAL :
 				this.apiLevel = level;
 				// initialize a scanner
 				this.scanner = new Scanner(
@@ -686,6 +694,7 @@ public final class AST {
 	 *    (<code>"assert"</code> is now a keyword);
 	 *    <code>"1.5"</code> means the source code is as per JDK 1.5
 	 *    (<code>"enum"</code> is now a keyword);
+	 *    <code>"1.7"</code> means the source code is as per JDK 1.7;
 	 *    additional legal values may be added later. </li>
 	 * </ul>
 	 * Options other than the above are ignored.
@@ -694,8 +703,8 @@ public final class AST {
 	 * @param options the table of options (key type: <code>String</code>;
 	 *    value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
-	 * @deprecated Clients should port their code to use the new JLS3 AST API and call
-	 *    {@link #newAST(int) AST.newAST(AST.JLS3)} instead of using this constructor.
+	 * @deprecated Clients should port their code to use the new JLS4 AST API and call
+	 *    {@link #newAST(int) AST.newAST(AST.JLS4)} instead of using this constructor.
 	 */
 	public AST(Map options) {
 		this(JLS2);

@@ -1342,6 +1342,8 @@ void setSourceStart(int sourceStart);
 	int EnumConstantCannotDefineAbstractMethod = MethodRelated + 764;
 	/** @since 3.5 */
 	int AbstractMethodInEnum = MethodRelated + 765;
+	/** @since 3.8 */
+	int MissingEnumDefaultCase = Internal + 766;
 
 	/**
 	 * Var args

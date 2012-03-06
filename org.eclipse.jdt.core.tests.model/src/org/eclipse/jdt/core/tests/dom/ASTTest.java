@@ -736,7 +736,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
 				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS2));
-				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS3));
+				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS3_INTERNAL));
 				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS4));
 			}
 		}
@@ -769,7 +769,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			case AST.JLS2:
 				name = "JLS2 - " + name;
 				break;
-			case AST.JLS3:
+			case AST.JLS3_INTERNAL:
 				name = "JLS3 - " + name;
 				break;
 		}
@@ -1280,7 +1280,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	public void testAST() {
 
 		assertSame(AST.JLS2, 2);
-		assertSame(AST.JLS3, 3);
+		assertSame(AST.JLS3_INTERNAL, 3);
 
 		AST a0 = new AST(); // deprecated, but still 2.0
 		assertTrue(a0.apiLevel() == AST.JLS2);
@@ -1288,8 +1288,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(a1.apiLevel() == AST.JLS2);
 		AST a2 = AST.newAST(AST.JLS2);
 		assertTrue(a2.apiLevel() == AST.JLS2);
-		AST a3 = AST.newAST(AST.JLS3);
-		assertTrue(a3.apiLevel() == AST.JLS3);
+		AST a3 = AST.newAST(AST.JLS3_INTERNAL);
+		assertTrue(a3.apiLevel() == AST.JLS3_INTERNAL);
 
 		// modification count is always non-negative
 		assertTrue(this.ast.modificationCount() >= 0);
@@ -1484,7 +1484,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		fd.setName(this.ast.newSimpleName("b")); //$NON-NLS-1$
 		assertTrue(x.isDeclaration() == false);
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			AnnotationTypeDeclaration atd = this.ast.newAnnotationTypeDeclaration();
 			atd.setName(x);
 			assertTrue(x.isDeclaration() == true);
@@ -1492,7 +1492,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertTrue(x.isDeclaration() == false);
 		}
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			AnnotationTypeMemberDeclaration atmd = this.ast.newAnnotationTypeMemberDeclaration();
 			atmd.setName(x);
 			assertTrue(x.isDeclaration() == true);
@@ -2365,7 +2365,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = this.ast.modificationCount();
 		assertTrue(x.getAST() == this.ast);
 		assertTrue(x.getParent() == null);
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			assertTrue(x.getJavadoc() == null);
 			assertTrue(x.annotations().isEmpty());
 		}
@@ -2375,7 +2375,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		// make sure that reading did not change modification count
 		assertTrue(this.ast.modificationCount() == previousCount);
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyTest(x, new Property("Javadoc", false, Javadoc.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					Javadoc result = targetAst.newJavadoc();
@@ -2429,7 +2429,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getAST() == this.ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.isOnDemand() == false);
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			assertTrue(x.isStatic() == false);
 		}
 		assertTrue(x.getName().getParent() == x);
@@ -2463,7 +2463,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(this.ast.modificationCount() > previousCount);
 		assertTrue(x.isOnDemand() == true);
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			x.setStatic(true);
 			assertTrue(this.ast.modificationCount() > previousCount);
 			assertTrue(x.isStatic() == true);
@@ -2659,7 +2659,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyListTest(x, x.typeParameters(),
 			  new Property("TypeParameters", true, TypeParameter.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
@@ -2703,7 +2703,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			});
 		}
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyTest(x, new Property("SuperclassType", false, Type.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					SimpleType result = targetAst.newSimpleType(targetAst.newSimpleName("foo")); //$NON-NLS-1$
@@ -2721,7 +2721,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			});
 		}
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyListTest(x, x.superInterfaceTypes(),
 			  new Property("SuperInterfaceTypes", true, Type.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
@@ -2767,7 +2767,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		EnumConstantDeclaration c1 = null;
 		EnumConstantDeclaration c2 = null;
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			c1 = this.ast.newEnumConstantDeclaration();
 			c2 = this.ast.newEnumConstantDeclaration();
 			x.bodyDeclarations().add(c1);
@@ -3156,7 +3156,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(this.ast.modificationCount() > previousCount);
 		assertTrue(x.getExtraDimensions() == 0);
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			previousCount = this.ast.modificationCount();
 			x.setVarargs(true);
 			assertTrue(this.ast.modificationCount() > previousCount);
@@ -3168,7 +3168,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertTrue(x.isVarargs() == false);
 		}
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyListTest(x, x.modifiers(), new Property("Modifiers", true, IExtendedModifier.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					Modifier result = targetAst.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
@@ -3443,7 +3443,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		tJavadocComment(x);
 		tModifiers(x);
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyListTest(x, x.typeParameters(),
 			  new Property("TypeParameters", true, TypeParameter.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
@@ -3491,7 +3491,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			});
 		}
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyTest(x, new Property("ReturnType2", false, Type.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					SimpleType result = targetAst.newSimpleType(
@@ -3575,7 +3575,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			// check isVariableArity convenience method
 			x.parameters().clear();
 			assertTrue(!x.isVarargs()); // 0 params
@@ -4085,7 +4085,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getNodeType() == ASTNode.METHOD_REF_PARAMETER);
 		assertTrue(x.getType().getParent() == x);
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			assertTrue(x.isVarargs() == false);
 		}
 		assertTrue(x.getName() == null);
@@ -4094,7 +4094,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		// make sure that reading did not change modification count
 		assertTrue(this.ast.modificationCount() == previousCount);
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			previousCount = this.ast.modificationCount();
 			x.setVarargs(true);
 			assertTrue(this.ast.modificationCount() > previousCount);
@@ -4186,7 +4186,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = this.ast.modificationCount();
 		assertTrue(x.getAST() == this.ast);
 		assertTrue(x.getParent() == null);
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			assertTrue(x.typeArguments().isEmpty());
 		}
 		assertTrue(x.getName().getParent() == x);
@@ -4224,7 +4224,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyListTest(x, x.typeArguments(),
 			  new Property("TypeArguments", true, Type.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
@@ -4368,7 +4368,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertTrue(x.getModifiers() == Modifier.NONE);
 		}
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyListTest(x, x.modifiers(), new Property("Modifiers", true, IExtendedModifier.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					Modifier result = targetAst.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
@@ -4527,7 +4527,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			});
 		}
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyTest(x, new Property("Declaration", true, AbstractTypeDeclaration.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					AbstractTypeDeclaration result = targetAst.newTypeDeclaration();
@@ -4599,7 +4599,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertTrue(x.getModifiers() == Modifier.NONE);
 		}
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyListTest(x, x.modifiers(), new Property("Modifiers", true, IExtendedModifier.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					Modifier result = targetAst.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
@@ -5265,7 +5265,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	 * @deprecated (Uses getLeadingComment() which is deprecated)
 	 */
 	public void testTryStatement() {
-		if (this.ast.apiLevel() <= AST.JLS3) {
+		if (this.ast.apiLevel() <= AST.JLS3_INTERNAL) {
 			// node type introduced in 4.0 API
 			try {
 				final TryStatement x = this.ast.newTryStatement();
@@ -6571,7 +6571,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = this.ast.modificationCount();
 		assertTrue(x.getAST() == this.ast);
 		assertTrue(x.getParent() == null);
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			assertTrue(x.typeArguments().isEmpty());
 		}
 		assertTrue(x.arguments().isEmpty());
@@ -6581,7 +6581,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		// make sure that reading did not change modification count
 		assertTrue(this.ast.modificationCount() == previousCount);
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyListTest(x, x.typeArguments(),
 			  new Property("TypeArguments", true, Type.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
@@ -6630,7 +6630,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getAST() == this.ast);
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression() == null);
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			assertTrue(x.typeArguments().isEmpty());
 		}
 		assertTrue(x.arguments().isEmpty());
@@ -6672,7 +6672,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyListTest(x, x.typeArguments(),
 			  new Property("TypeArguments", true, Type.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
@@ -6861,7 +6861,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = this.ast.modificationCount();
 		assertTrue(x.getAST() == this.ast);
 		assertTrue(x.getParent() == null);
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			assertTrue(x.typeArguments().isEmpty());
 		}
 		assertTrue(x.getName().getParent() == x);
@@ -6891,7 +6891,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyListTest(x, x.typeArguments(),
 			  new Property("TypeArguments", true, Type.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
@@ -7671,7 +7671,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyListTest(x, x.typeArguments(),
 			  new Property("TypeArguments", true, Type.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
@@ -7702,7 +7702,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			});
 		}
 
-		if (this.ast.apiLevel() >= AST.JLS3) {
+		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
 			genericPropertyTest(x, new Property("Type", true, Type.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					SimpleType result = targetAst.newSimpleType(targetAst.newSimpleName("foo")); //$NON-NLS-1$

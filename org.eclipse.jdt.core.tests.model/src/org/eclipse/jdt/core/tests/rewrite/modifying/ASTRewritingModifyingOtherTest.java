@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -198,7 +198,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 		buf.append("@A(X.class) public class C {}");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, true, AST.JLS3);
+		CompilationUnit astRoot= createCU(cu, true, AST.JLS3_INTERNAL);
 		astRoot.recordModifications();
 		{
 			// change to interface
@@ -224,7 +224,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 		buf.append("public @A(X.class) class C {}");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, true, AST.JLS3);
+		CompilationUnit astRoot= createCU(cu, true, AST.JLS3_INTERNAL);
 		astRoot.recordModifications();
 		{
 			// change to interface

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -514,7 +514,7 @@ public void testDeprecatedFlag10() throws CoreException {
 				"public class D extends p2.C {}\n");
 		ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
 		
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setProject(this.testProject);
 		parser.setSource(cuD);
 		parser.setResolveBindings(true);
@@ -565,7 +565,7 @@ public void testDeprecatedFlag11() throws CoreException {
 				"public class D extends p2.C {}\n");
 		ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
 
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setWorkingCopyOwner(myWCOwner);
 		parser.setProject(this.testProject);
 		parser.setSource(cuD);

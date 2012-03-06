@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 IBM Corporation and others.
+ * Copyright (c) 2004, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -205,7 +205,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	private void createASTs(ICompilationUnit[] cus, TestASTRequestor requestor) {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.createASTs(cus, new String[] {}, requestor, null);
 	}
 
@@ -1736,7 +1736,7 @@ public void test073() throws CoreException, IOException {
 			"    return this.m.equals(p);\n" +
 			"  }\n" +
 			"}");
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(project);
 		class Requestor extends ASTRequestor {
@@ -1883,7 +1883,7 @@ public void test078() throws CoreException, IOException {
 			"            }\n" +
 			"        }\n" +
 			"}");
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(project);
        	final IBinding[] bindings = new IBinding[1];
@@ -1939,7 +1939,7 @@ public void test079() throws CoreException, IOException {
 				"}");
 		ICompilationUnit compilationUnits[] = new ICompilationUnit[1];
 		compilationUnits[0] = getCompilationUnit("P079", "src", "test", "Test.java");
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(project);
 		final IBinding[] bindings = new IBinding[1];
@@ -1997,7 +1997,7 @@ public void test080() throws CoreException, IOException {
 				"}");
 		ICompilationUnit compilationUnits[] = new ICompilationUnit[1];
 		compilationUnits[0] = getCompilationUnit(projectName, "src", "test", "Test.java");
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(project);
        	final IBinding[] bindings = new IBinding[1];
@@ -2045,7 +2045,7 @@ public void test081() throws CoreException, IOException {
 			BindingKey.createTypeBindingKey(typeName)
 		};
 		final BindingRequestor requestor = new BindingRequestor();
-		final ASTParser parser = ASTParser.newParser(AST.JLS3);
+		final ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(javaProject);
 		// this doesn't really do a parse; it's a type lookup
@@ -2074,7 +2074,7 @@ public void test082() throws CoreException, IOException {
 			BindingKey.createTypeBindingKey(typeName)
 		};
 		final BindingRequestor requestor = new BindingRequestor();
-		final ASTParser parser = ASTParser.newParser(AST.JLS3);
+		final ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(javaProject);
 		// this doesn't really do a parse; it's a type lookup
@@ -2225,7 +2225,7 @@ public void test082() throws CoreException, IOException {
 				"}",
 			});
 			TestASTRequestor requestor = new TestASTRequestor();
-			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 			parser.setIgnoreMethodBodies(true);
 			parser.createASTs(this.workingCopies, new String[] {}, requestor, null);
 			// statement declaring i should not be in the AST
@@ -2257,7 +2257,7 @@ public void test082() throws CoreException, IOException {
 				"}",
 			});
 			TestASTRequestor requestor = new TestASTRequestor();
-			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 			parser.setIgnoreMethodBodies(true);
 			parser.setResolveBindings(true);
 			parser.setProject(getJavaProject("P"));

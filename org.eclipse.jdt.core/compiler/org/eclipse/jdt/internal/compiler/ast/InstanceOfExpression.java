@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,9 +37,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			unconditionalInits();
 		FlowInfo initsWhenTrue = flowInfo.copy();
 		initsWhenTrue.markAsComparedEqualToNonNull(local);
-		if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
-			initsWhenTrue.markedAsNullOrNonNullInAssertExpression(local);
-		}
 		flowContext.recordUsingNullReference(currentScope, local,
 				this.expression, FlowContext.CAN_ONLY_NULL | FlowContext.IN_INSTANCEOF, flowInfo);
 		// no impact upon enclosing try context

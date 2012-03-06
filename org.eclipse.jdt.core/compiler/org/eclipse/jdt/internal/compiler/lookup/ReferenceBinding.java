@@ -675,12 +675,12 @@ public void computeId() {
 			}
 			break;
 		case 5 :
-			if (!CharOperation.equals(TypeConstants.JAVA, this.compoundName[0]))
+			if (!CharOperation.equals(TypeConstants.JAVA, this.compoundName[0]) && !CharOperation.equals(TypeConstants.ORG, this.compoundName[0]))
 				return;
 			packageName = this.compoundName[1];
 			if (packageName.length == 0) return; // just to be safe
 
-			if (CharOperation.equals(TypeConstants.LANG, packageName)) {
+			if (CharOperation.equals(TypeConstants.LANG, packageName) || CharOperation.equals(TypeConstants.ECLIPSE, packageName)) {
 				packageName = this.compoundName[2];
 				if (packageName.length == 0) return; // just to be safe
 				switch (packageName[0]) {
@@ -695,6 +695,21 @@ public void computeId() {
 									if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_POLYMORPHICSIGNATURE[3])
 											&& CharOperation.equals(memberTypeName, TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE_POLYMORPHICSIGNATURE[4]))
 										this.id = TypeIds.T_JavaLangInvokeMethodHandlePolymorphicSignature;
+									return;
+							}
+						}
+						return;
+					case 'c' :
+						if (CharOperation.equals(packageName, TypeConstants.CORE)) { 
+							typeName = this.compoundName[3];
+							if (typeName.length == 0) return; // just to be safe
+							switch (typeName[0]) {
+								case 'r' :
+									char[] memberTypeName = this.compoundName[4];
+									if (memberTypeName.length == 0) return; // just to be safe
+									if (CharOperation.equals(typeName, TypeConstants.ORG_ECLIPSE_CORE_RUNTIME_ASSERT[3])
+											&& CharOperation.equals(memberTypeName, TypeConstants.ORG_ECLIPSE_CORE_RUNTIME_ASSERT[4]))
+										this.id = TypeIds.T_OrgEclipseCoreRuntimeAssert;
 									return;
 							}
 						}

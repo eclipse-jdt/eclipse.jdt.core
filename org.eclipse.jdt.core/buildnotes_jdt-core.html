@@ -42,11 +42,60 @@
 	</td>
   </tr>
 </table>
+<a name="v_C37"></a>
+<hr><h1>
+Eclipse Platform Build Notes<br>
+Java development tools core</h1>
+Eclipse SDK 3.8.0 - March 6, 2012 - 3.8.0 M6
+<br>
+<h2>What's new in this drop</h2>
+
+<ul>
+<li> New IProblems for reporting if an enum switch lacks a default cause (recommended by the JLS).
+<pre>
+	/** @since 3.8 */
+	int MissingEnumDefaultCase = Internal + 766;
+</pre>
+</li>
+<li>Adjusted the specification of the corresponding constant in JavaCore:
+<pre>
+	/**
+	 * Compiler option ID: Reporting Incomplete Enum Switch.
+	 *    
+	 * When enabled, the compiler will issue an error or a warning whenever
+	 * an enum switch statement lacks a default case.
+	 * If no default case is given, additionally one error or warning is issued
+	 * regarding each enum constant for which a corresponding case label is lacking.
+	 * 
+	 * Option id: "org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"
+	 * Possible values: { "error", "warning", "ignore" }
+	 * Default: "warning"
+	 * @since 3.1
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_INCOMPLETE_ENUM_SWITCH = PLUGIN_ID + ".compiler.problem.incompleteEnumSwitch"; //$NON-NLS-1$
+</pre>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=371732">371732</a>
+Deprecate AST.JLS3
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=372909">372909</a>
+message verbiage for instanceof erasure
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=347386">347386</a>
+Cannot delete package from java project (two source and output folders)
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=372011">372011</a>
+[compiler][null] Restore behaviour of null defaults for binary types
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575">127575</a>
+Null reference checks don't handle Assert
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=265744">265744</a>
+Enum switch should warn about missing default
+
 <a name="v_C36"></a>
 <hr><h1>
 Eclipse Platform Build Notes<br>
 Java development tools core</h1>
-Eclipse SDK 3.8.0 - February 28, 2012 - 3.8.0 M6
+Eclipse SDK 3.8.0 - February 28, 2012
 <br>
 <h2>What's new in this drop</h2>
 

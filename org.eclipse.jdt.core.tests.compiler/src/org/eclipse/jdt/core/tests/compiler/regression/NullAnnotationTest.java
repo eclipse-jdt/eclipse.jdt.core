@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_message_send_in_control_structure_02" };
+//		TESTS_NAMES = new String[] { "testBug372011" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -3473,5 +3473,57 @@ public void test_options_03() {
 		"	^^^^^^^^^^^^\n" + 
 		"Dead code\n" + 
 		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372011
+// Test whether @NonNullByDefault on a binary package or an enclosing type is respected from enclosed elements.
+public void testBug372011() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test372011.jar";
+	String[] libs = new String[this.LIBS.length + 1];
+	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
+	libs[this.LIBS.length] = path;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			  "import p11.T11;\n" +
+			  "import p12.T12;\n" + 
+			  "import p12.T12a;\n" +
+			  "import p12.Public;\n" +
+			  "public class X {\n" +
+			  "	  void foo() {\n" +
+			  "     new T11().t11foo(null);\n" +
+			  "     new T12().new T122().foo122(null);\n" +
+			  "   }\n" +
+			  "	  void trigger1 (Public o){\n" +
+			  "			o.bar(null);\n" +
+			  "	  }\n" +
+			  "	  @org.eclipse.jdt.annotation.NonNull Object foo2() {\n" +
+			  "		new T12a().foo12a(new Object());\n" +  // don't complain
+			  "     new T12().new T122().new T1222().foo1222(null);\n" +
+			  "     return new T11().retSomething();\n" +  // don't complain
+			  "   }\n" +
+			  "}\n"},
+	    "----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	new T11().t11foo(null);\n" + 
+		"	                 ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	new T12().new T122().foo122(null);\n" + 
+		"	                            ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	o.bar(null);\n" + 
+		"	      ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 15)\n" + 
+		"	new T12().new T122().new T1222().foo1222(null);\n" + 
+		"	                                         ^^^^\n" + 
+		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n",
+		libs,
+		true /* shouldFlush*/);
 }
 }

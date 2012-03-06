@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1802,7 +1802,12 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	              ^^^^^^^^^^^^^^^^^^^^\n" +
 			"The import sample.X.TestEnum.V2 is never used\n" +
 			"----------\n" +
-			"3. ERROR in sample\\X.java (at line 22)\n" +
+			"3. WARNING in sample\\X.java (at line 12)\n" +
+			"	switch (value) {\n" +
+			"	        ^^^^^\n" +
+			"The switch on the enum type X.TestEnum should have a default case\n" +
+			"----------\n" +
+			"4. ERROR in sample\\X.java (at line 22)\n" +
 			"	i++;\n" +
 			"	^\n" +
 			"The local variable i may not have been initialized\n" +
@@ -1843,8 +1848,13 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	import static sample.X.TestEnum.*;\n" +
 			"	              ^^^^^^^^^^^^^^^^^\n" +
 			"The import sample.X.TestEnum is never used\n" +
+			"----------\n" + 
+			"2. WARNING in sample\\X.java (at line 11)\n" + 
+			"	switch (value) {\n" + 
+			"	        ^^^^^\n" + 
+			"The switch on the enum type X.TestEnum should have a default case\n" + 
 			"----------\n" +
-			"2. ERROR in sample\\X.java (at line 21)\n" +
+			"3. ERROR in sample\\X.java (at line 21)\n" +
 			"	i++;\n" +
 			"	^\n" +
 			"The local variable i may not have been initialized\n" +

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5328,7 +5328,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. ERROR in X.java (at line 10)\n" + 
 			"	} else 	if (t instanceof T) {\n" + 
 			"	       	    ^^^^^^^^^^^^^^\n" + 
-			"Cannot perform instanceof check against type parameter T. Use instead its erasure Object instead since further generic type information will be erased at runtime\n" + 
+			"Cannot perform instanceof check against type parameter T. Use its erasure Object instead since further generic type information will be erased at runtime\n" + 
 			"----------\n",
 			null,
 			true,
@@ -26055,7 +26055,7 @@ public void test0814() {
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o instanceof E[]) { //incorrect: cannot test non-reifiable type\n" + 
 		"	    ^^^^^^^^^^^^^^^^\n" + 
-		"Cannot perform instanceof check against type parameter E[]. Use instead its erasure Object[] instead since further generic type information will be erased at runtime\n" + 
+		"Cannot perform instanceof check against type parameter E[]. Use its erasure Object[] instead since further generic type information will be erased at runtime\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 5)\n" + 
 		"	E[] es = (E[]) o;\n" + 
@@ -49095,7 +49095,7 @@ public void test1426() {
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	return null instanceof T;\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Cannot perform instanceof check against type parameter T. Use instead its erasure List<?> instead since further generic type information will be erased at runtime\n" + 
+			"Cannot perform instanceof check against type parameter T. Use its erasure List<?> instead since further generic type information will be erased at runtime\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 10)\n" + 
 			"	return null instanceof Map<Object,String>;\n" + 
@@ -49105,7 +49105,7 @@ public void test1426() {
 			"4. ERROR in X.java (at line 13)\n" + 
 			"	return null instanceof T;\n" + 
 			"	       ^^^^^^^^^^^^^^^^^\n" + 
-			"Cannot perform instanceof check against type parameter T. Use instead its erasure Map<?,?> instead since further generic type information will be erased at runtime\n" + 
+			"Cannot perform instanceof check against type parameter T. Use its erasure Map<?,?> instead since further generic type information will be erased at runtime\n" + 
 			"----------\n");
 }
 public void test1427() {

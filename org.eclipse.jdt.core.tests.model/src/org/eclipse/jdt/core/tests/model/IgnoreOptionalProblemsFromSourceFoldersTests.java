@@ -318,7 +318,7 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 					"}");
 			ICompilationUnit unit = (ICompilationUnit) JavaCore.create(file);
 			
-			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 			parser.setProject(project);
 			parser.setSource(unit);
 			parser.setResolveBindings(true);

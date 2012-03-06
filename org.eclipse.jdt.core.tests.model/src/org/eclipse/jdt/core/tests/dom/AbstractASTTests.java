@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2011 IBM Corporation and others.
+ * Copyright (c) 2004, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -300,7 +300,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	 * and returns the AST node that was delimited by the astStart and astEnd of the marker info.
 	 */
 	protected ASTNode buildAST(MarkerInfo markerInfo, IClassFile classFile, boolean reportErrors) throws JavaModelException {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setSource(classFile);
 		parser.setResolveBindings(true);
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
@@ -373,13 +373,13 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		CompilationUnit unit;
 		if (cu.isWorkingCopy()) {
 			cu.getBuffer().setContents(newContents);
-			unit = cu.reconcile(AST.JLS3, flags, null, null);
+			unit = cu.reconcile(AST.JLS3_INTERNAL, flags, null, null);
 		} else {
 			IBuffer buffer = cu.getBuffer();
 			buffer.setContents(newContents);
 			buffer.save(null, false);
 
-			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 			parser.setSource(cu);
 			parser.setResolveBindings(true);
 			parser.setStatementsRecovery((flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
@@ -461,7 +461,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
 		String option = cu.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
 		long jdkLevel = CompilerOptions.versionToJdkLevel(option);
-		int JLSLevel = AST.JLS3;
+		int JLSLevel = AST.JLS3_INTERNAL;
 		if (jdkLevel >= ClassFileConstants.JDK1_7) {
 			JLSLevel = AST.JLS4;
 		}
@@ -654,7 +654,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	}
 
 	protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequestor requestor, IJavaProject project, WorkingCopyOwner owner) {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(project);
 		parser.setWorkingCopyOwner(owner);

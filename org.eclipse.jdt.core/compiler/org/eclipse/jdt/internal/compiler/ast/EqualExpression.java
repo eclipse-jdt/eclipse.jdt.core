@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,18 +62,12 @@ public class EqualExpression extends BinaryExpression {
 					initsWhenTrue.markAsComparedEqualToNonNull(local); // from thereon it is set
 					initsWhenFalse.markAsComparedEqualToNull(local); // from thereon it is set
 				}
-				if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
-					flowInfo.markedAsNullOrNonNullInAssertExpression(local);
-				}
 				break;
 			case FlowInfo.NON_NULL :
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
 					flowContext.recordUsingNullReference(scope, local, reference,
 							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
 					initsWhenTrue.markAsComparedEqualToNonNull(local); // from thereon it is set
-					if ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
-						initsWhenTrue.markedAsNullOrNonNullInAssertExpression(local);
-					}
 				} else {
 					flowContext.recordUsingNullReference(scope, local, reference,
 							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);

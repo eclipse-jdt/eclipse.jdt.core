@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -616,7 +616,7 @@ public void testBug214002b() throws CoreException, IOException {
 			);
 			ICompilationUnit cuA = getCompilationUnit("P/A.java");
 			try {
-				runConversion(AST.JLS3, cuA, true, true, true);
+				runConversion(AST.JLS3_INTERNAL, cuA, true, true, true);
 			} catch(IllegalArgumentException e) {
 				assertTrue("Unexpected IllegalArgumentException", false);
 			}

@@ -219,7 +219,7 @@ public class ASTParser {
 	ASTParser(int level) {
 		switch(level) {
 			case AST.JLS2_INTERNAL:
-			case AST.JLS3:
+			case AST.JLS3_INTERNAL:
 			case AST.JLS4:
 				break;
 			default:

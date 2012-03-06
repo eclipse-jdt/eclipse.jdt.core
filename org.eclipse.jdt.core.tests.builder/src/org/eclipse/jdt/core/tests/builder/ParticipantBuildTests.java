@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,7 +70,7 @@ public class ParticipantBuildTests extends BuilderTests {
 
 	CompilationUnit buildCompilationUnit(BuildContext file) {
 		IJavaProject javaProject = JavaCore.create(file.getFile().getProject());
-		ASTParser p = ASTParser.newParser(AST.JLS3);
+		ASTParser p = ASTParser.newParser(AST.JLS3_INTERNAL);
 		p.setProject(javaProject);
 		p.setSource(file.getContents());
 		p.setResolveBindings(true);

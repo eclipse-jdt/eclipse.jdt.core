@@ -210,6 +210,12 @@ public interface TypeConstants {
 		"CharArrayWriter".toCharArray(), //$NON-NLS-1$
 		"StringBufferInputStream".toCharArray(), //$NON-NLS-1$
 	};
+	
+	char[] ORG = "org".toCharArray(); //$NON-NLS-1$
+	char[] ECLIPSE = "eclipse".toCharArray(); //$NON-NLS-1$
+	char[] CORE = "core".toCharArray(); //$NON-NLS-1$
+	char[] RUNTIME = "runtime".toCharArray(); //$NON-NLS-1$
+	char[][] ORG_ECLIPSE_CORE_RUNTIME_ASSERT = new char[][] { ORG, ECLIPSE, CORE, RUNTIME, "Assert".toCharArray()}; //$NON-NLS-1$
 
 	// Constraints for generic type argument inference
 	int CONSTRAINT_EQUAL = 0;		// Actual = Formal

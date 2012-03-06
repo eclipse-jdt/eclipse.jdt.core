@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,7 +90,6 @@ public class UnconditionalFlowInfo extends FlowInfo {
 
 	// Constants
 	public static final int BitCacheSize = 64; // 64 bits in a long.
-	public int[] nullStatusChangedInAssert; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
 
 public FlowInfo addInitializationsFrom(FlowInfo inits) {
 	return addInfoFrom(inits, true);
@@ -302,7 +301,6 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 			}
 		}
 	}
-	combineNullStatusChangeInAssertInfo(otherInits);
 	return this;
 }
 
@@ -510,7 +508,6 @@ public UnconditionalFlowInfo addPotentialNullInfoFrom(
 			}
 		}
 	}
-	combineNullStatusChangeInAssertInfo(otherInits);
 	if (thisHasNulls) {
 		this.tagBits |= NULL_FLAG_MASK;
 	}
@@ -642,7 +639,6 @@ public FlowInfo copy() {
 			}
 		}
 	}
-	copy.nullStatusChangedInAssert = this.nullStatusChangedInAssert;
 	return copy;
 }
 
@@ -1593,7 +1589,6 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 				throw new AssertionFailedException("COVERAGE 28"); //$NON-NLS-1$
 			}
 		}
-		combineNullStatusChangeInAssertInfo(otherInits);
 		return this;
 	}
 	if ((this.tagBits & UNREACHABLE_OR_DEAD) != 0) {
@@ -1602,7 +1597,6 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 				throw new AssertionFailedException("COVERAGE 29"); //$NON-NLS-1$
 			}
 		}
-		otherInits.combineNullStatusChangeInAssertInfo(this);
 		return (UnconditionalFlowInfo) otherInits.copy(); // make sure otherInits won't be affected
 	}
 
@@ -1868,7 +1862,6 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 			}
 		}
 	}
-	combineNullStatusChangeInAssertInfo(otherInits);
 	if (thisHasNulls) {
 		this.tagBits |= NULL_FLAG_MASK;
 	}
@@ -1900,7 +1893,6 @@ public UnconditionalFlowInfo nullInfoLessUnconditionalCopy() {
 	copy.potentialInits = this.potentialInits;
 	copy.tagBits = this.tagBits & ~NULL_FLAG_MASK;
 	copy.maxFieldCount = this.maxFieldCount;
-	copy.nullStatusChangedInAssert = this.nullStatusChangedInAssert;
 	if (this.extra != null) {
 		int length;
 		copy.extra = new long[extraLength][];
@@ -2033,7 +2025,6 @@ public UnconditionalFlowInfo unconditionalFieldLessCopy() {
 		copy.nullBit3 = this.nullBit3 & mask;
 		copy.nullBit4 = this.nullBit4 & mask;
 	}
-	copy.nullStatusChangedInAssert = this.nullStatusChangedInAssert;
 	// use extra vector
 	if (this.extra == null) {
 		return copy; // if vector not yet allocated, then not initialized
@@ -2075,61 +2066,6 @@ public UnconditionalFlowInfo unconditionalInits() {
 
 public UnconditionalFlowInfo unconditionalInitsWithoutSideEffect() {
 	return this;
-}
-
-public void markedAsNullOrNonNullInAssertExpression(LocalVariableBinding local) {
-	int position = local.id + this.maxFieldCount;
-	int oldLength;
-	if (this.nullStatusChangedInAssert == null) {
-		this.nullStatusChangedInAssert = new int[position + 1];
-	}
-	else {
-		if(position >= (oldLength = this.nullStatusChangedInAssert.length)) {
-			System.arraycopy(this.nullStatusChangedInAssert, 0, (this.nullStatusChangedInAssert = new int[position + 1]), 0, oldLength); 
-		}
-	}
-	this.nullStatusChangedInAssert[position] = 1;
-}
-
-public boolean isMarkedAsNullOrNonNullInAssertExpression(LocalVariableBinding local) {
-	int position = local.id + this.maxFieldCount;
-	if(this.nullStatusChangedInAssert == null || position >= this.nullStatusChangedInAssert.length) {
-		return false;
-	}
-	if(this.nullStatusChangedInAssert[position] == 1) {
-		return true;
-	}
-	return false;
-}
-
-/**
- * Combine the null status changes in assert expressions info
- * @param otherInits
- */
-// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=303448
-private void combineNullStatusChangeInAssertInfo(UnconditionalFlowInfo otherInits) {
-	if (this.nullStatusChangedInAssert != null || otherInits.nullStatusChangedInAssert != null) {
-		int mergedLength, length;
-		if (this.nullStatusChangedInAssert != null) {
-			if (otherInits.nullStatusChangedInAssert != null) {
-				if(otherInits.nullStatusChangedInAssert.length > this.nullStatusChangedInAssert.length) {
-					mergedLength = otherInits.nullStatusChangedInAssert.length;
-					length = this.nullStatusChangedInAssert.length;
-					System.arraycopy(this.nullStatusChangedInAssert, 0, (this.nullStatusChangedInAssert = new int[mergedLength]), 0, length);
-					for(int i = 0; i < length; i ++) {
-						this.nullStatusChangedInAssert[i] |= otherInits.nullStatusChangedInAssert[i];
-					}
-					System.arraycopy(otherInits.nullStatusChangedInAssert, length, this.nullStatusChangedInAssert, length, mergedLength - length);
-				} else {
-					for(int i = 0; i < otherInits.nullStatusChangedInAssert.length; i ++) {
-						this.nullStatusChangedInAssert[i] |= otherInits.nullStatusChangedInAssert[i];
-					}
-				}
-			}
-		} else if (otherInits.nullStatusChangedInAssert != null) {
-			this.nullStatusChangedInAssert = otherInits.nullStatusChangedInAssert;
-		}
-	}
 }
 
 public void resetAssignmentInfo(LocalVariableBinding local) {

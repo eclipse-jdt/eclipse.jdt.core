@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2255,6 +2255,7 @@ public void testSuperTypeHierarchyWithMissingBinary() throws JavaModelException 
 		assertHierarchyEquals(
 				"Focus: Z [in Z.java [in q3 [in src [in TypeHierarchy]]]]\n" +
 				"Super types:\n" +
+				"  Y49809 [in Y49809.class [in p49809 [in test49809.jar [in TypeHierarchy]]]]\n" +
 				"Sub types:\n",
 			hierarchy
 		);

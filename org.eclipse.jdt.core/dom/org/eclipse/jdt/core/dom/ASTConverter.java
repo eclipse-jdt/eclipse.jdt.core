@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2547,7 +2547,7 @@ class ASTConverter {
 		if (resourcesLength > 0) {
 			switch(this.ast.apiLevel) {
 				case AST.JLS2_INTERNAL :
-				case AST.JLS3 :
+				case AST.JLS3_INTERNAL :
 					// convert it to a simple try statement tagged as MALFORMED
 					tryStatement.setFlags(tryStatement.getFlags() | ASTNode.MALFORMED);
 					break;
@@ -3291,7 +3291,7 @@ class ASTConverter {
 				TypeReference[] typeReferences = ((org.eclipse.jdt.internal.compiler.ast.UnionTypeReference) typeReference).typeReferences;
 				switch(this.ast.apiLevel) {
 					case AST.JLS2_INTERNAL :
-					case AST.JLS3 :
+					case AST.JLS3_INTERNAL :
 						// recovery
 						type = this.convertType(typeReferences[0]);
 						int start = typeReference.sourceStart;
@@ -3360,7 +3360,7 @@ class ASTConverter {
 		if (sawDiamond) {
 			switch(this.ast.apiLevel) {
 				case AST.JLS2_INTERNAL :
-				case AST.JLS3 :
+				case AST.JLS3_INTERNAL :
 					type.setFlags(type.getFlags() | ASTNode.MALFORMED);
 			}
 		}
@@ -3782,7 +3782,7 @@ class ASTConverter {
 						if (expression instanceof JavadocArgumentExpression) {
 							JavadocArgumentExpression argExpr = (JavadocArgumentExpression) expression;
 							org.eclipse.jdt.internal.compiler.ast.TypeReference typeRef = argExpr.argument.type;
-							if (this.ast.apiLevel >= AST.JLS3) {
+							if (this.ast.apiLevel >= AST.JLS3_INTERNAL) {
 								param.setVarargs(argExpr.argument.isVarArgs());
 							}
 							recordNodes(param.getType(), typeRef);
