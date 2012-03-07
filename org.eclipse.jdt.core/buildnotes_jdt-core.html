@@ -50,9 +50,45 @@ Eclipse SDK 3.8.0 - %date% - 3.8.0 M6
 <br>Project org.eclipse.jdt.core v_C38
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C38">cvs</a>).
 <h2>What's new in this drop</h2>
+<ul>
+<li> New IProblems for reporting missing NonNullByDefault annotation on package/type.
+<pre>
+	/** @since 3.8 */
+	int MissingNonNullByDefaultAnnotationOnPackage = Internal + 913;
+	
+	/** @since 3.8 */
+	int MissingNonNullByDefaultAnnotationOnType = Internal + 930;
+</pre>
+</li>
+<li>Added new option in JavaCore to control warning for missing default nullness annotation:
+<pre>
+	/**
+	 * Compiler option ID: Reporting missing default nullness annotation.
+	 * 
+	 * When enabled, the compiler will issue an error or a warning in the following cases:
+	 * 
+	 * 1. When a package does not contain a default nullness annotation, as a result of missing package-info.java 
+	 * or missing default nullness annotation in package-info.java.
+	 * 2. When a type inside a default package does not contain a default nullness annotation.
+	 * 
+	 * This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.
+	 * 
+	 * Option id:"org.eclipse.jdt.core.compiler.annotation.missingNonNullByDefaultAnnotation"
+	 * Possible values:{ "error", "warning", "ignore" }
+	 * Default:"ignore"
+	 * 
+	 * @since 3.8
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION = PLUGIN_ID + ".compiler.annotation.missingNonNullByDefaultAnnotation"
+</pre>
+</li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012">372012</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=368646">368646</a>
+[rename] rejects LocalVariable with initializer
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012">372012</a>
 [compiler][null] Warn when defaults not specified
 
 <a name="v_C37"></a>
