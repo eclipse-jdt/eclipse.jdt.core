@@ -762,8 +762,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 			allValues[index++] = problem.isError() ? S_ERROR : S_WARNING; // severity
 			allValues[index++] = new Integer(id); // ID
 			allValues[index++] = new Integer(problem.getSourceStart()); // start
-			int end = problem.getSourceEnd();
-			allValues[index++] = new Integer(end > 0 ? end + 1 : end); // end
+			allValues[index++] = new Integer(problem.getSourceEnd() + 1); // end
 			allValues[index++] = new Integer(problem.getSourceLineNumber()); // line
 			allValues[index++] = Util.getProblemArgumentsForMarker(problem.getArguments()); // arguments
 			allValues[index++] = new Integer(problem.getCategoryID()); // category ID

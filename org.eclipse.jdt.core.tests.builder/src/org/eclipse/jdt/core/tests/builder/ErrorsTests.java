@@ -230,7 +230,7 @@ public void test0104() throws JavaModelException {
 	fullBuild();
 	Problem[] prob1 = env.getProblemsFor(classTest1);
 	expectingSpecificProblemFor(classTest1,
-		new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, 0, 0, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
+		new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, 0, 1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
 	assertEquals(JavaBuilder.SOURCE_ID, prob1[0].getSourceId());
 }
 

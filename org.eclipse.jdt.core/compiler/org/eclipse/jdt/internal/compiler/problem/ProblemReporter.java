@@ -1775,12 +1775,16 @@ public void duplicateTypeParameterInType(TypeParameter typeParameter) {
 public void duplicateTypes(CompilationUnitDeclaration compUnitDecl, TypeDeclaration typeDecl) {
 	String[] arguments = new String[] {new String(compUnitDecl.getFileName()), new String(typeDecl.name)};
 	this.referenceContext = typeDecl; // report the problem against the type not the entire compilation unit
+	int end = typeDecl.sourceEnd;
+	if (end <= 0) {
+		end = -1;
+	}
 	this.handle(
 		IProblem.DuplicateTypes,
 		arguments,
 		arguments,
 		typeDecl.sourceStart,
-		typeDecl.sourceEnd,
+		end,
 		compUnitDecl.compilationResult);
 }
 public void emptyControlFlowStatement(int sourceStart, int sourceEnd) {
@@ -5972,16 +5976,23 @@ public void packageCollidesWithType(CompilationUnitDeclaration compUnitDecl) {
 		compUnitDecl.currentPackage.sourceEnd);
 }
 public void packageIsNotExpectedPackage(CompilationUnitDeclaration compUnitDecl) {
+	boolean hasPackageDeclaration = compUnitDecl.currentPackage == null;
 	String[] arguments = new String[] {
 		CharOperation.toString(compUnitDecl.compilationResult.compilationUnit.getPackageName()),
-		compUnitDecl.currentPackage == null ? "" : CharOperation.toString(compUnitDecl.currentPackage.tokens), //$NON-NLS-1$
+		hasPackageDeclaration ? "" : CharOperation.toString(compUnitDecl.currentPackage.tokens), //$NON-NLS-1$
 	};
+	int end;
+	if (compUnitDecl.sourceEnd <= 0) {
+		end = -1;
+	} else {
+		end = hasPackageDeclaration ? 0 : compUnitDecl.currentPackage.sourceEnd;
+	}	
 	this.handle(
 		IProblem.PackageIsNotExpectedPackage,
 		arguments,
 		arguments,
-		compUnitDecl.currentPackage == null ? 0 : compUnitDecl.currentPackage.sourceStart,
-		compUnitDecl.currentPackage == null ? 0 : compUnitDecl.currentPackage.sourceEnd);
+		hasPackageDeclaration ? 0 : compUnitDecl.currentPackage.sourceStart,
+		end);
 }
 public void parameterAssignment(LocalVariableBinding local, ASTNode location) {
 	int severity = computeSeverity(IProblem.ParameterAssignment);

@@ -513,6 +513,30 @@ public void testBug372012c() throws JavaModelException, IOException {
 	expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test1$Test1Inner", "p1.Test2", "p1.package-info" });
 }
 
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=367836
+ */
+public void testBug367836() throws JavaModelException {
+	IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+	IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+	env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+	env.addClass(src, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+		"package p;\n"+ //$NON-NLS-1$
+		"public class A {}" //$NON-NLS-1$
+	);
+
+	IPath bPath = env.addClass(src, "p", "package-info", //$NON-NLS-1$ //$NON-NLS-2$
+		"" //$NON-NLS-1$
+	);
+
+	fullBuild();
+	expectingOnlySpecificProblemFor(bPath,
+		new Problem("", "The declared package \"\" does not match the expected package \"p\"", bPath, 0, 0, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+}
+
 void setupProjectForNullAnnotations(IPath projectPath) throws IOException, JavaModelException {
 	// add the org.eclipse.jdt.annotation library (bin/ folder or jar) to the project:
 	File bundleFile = FileLocator.getBundleFile(Platform.getBundle("org.eclipse.jdt.annotation"));
