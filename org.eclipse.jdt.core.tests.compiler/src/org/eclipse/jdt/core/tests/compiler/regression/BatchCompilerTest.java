@@ -79,7 +79,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 			"}\n";
 
 	static {
-//		TESTS_NAMES = new String[] { "test31" };
+		TESTS_NAMES = new String[] { "test315_warn_options_a" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -1644,9 +1644,8 @@ public void test012(){
         "    -enableJavadoc     consider references in javadoc\n" +
         "    -Xemacs            used to enable emacs-style output in the console.\n" +
         "                       It does not affect the xml log output\n" +
-        "    -nonNullByDefault  for annotation based null analysis assume nonnull\n" + 
-        "                       as the global default\n" + 
-        " \n" +
+        "    -missingNullDefault  report missing default nullness annotation\n" + 
+        " \n" + 
         "    -? -help           print this help message\n" +
         "    -v -version        print compiler version\n" +
         "    -showversion       print compiler version and continue\n" +
@@ -1838,9 +1837,9 @@ public void test012b(){
 			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---\"/>\n" + 
 			"	</command_line>\n" + 
 			"	<options>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.missingNonNullByDefaultAnnotation\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nonnull\" value=\"org.eclipse.jdt.annotation.NonNull\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nonnullbydefault\" value=\"org.eclipse.jdt.annotation.NonNullByDefault\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nonnullisdefault\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullable\" value=\"org.eclipse.jdt.annotation.Nullable\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullanalysis\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode\" value=\"disabled\"/>\n" + 
@@ -12597,32 +12596,28 @@ public void test314_warn_options() {
 		true);
 }
 
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
-// -warn option - regression tests to check option nullAnnot
-// Null warnings because of annotations, global nonNullByDefault
-// DISABLED due to dysfunctional global default after Bug 366063 - Compiler should not add synthetic @NonNull annotations
-public void _test315_warn_options() {
+// -warn option - regression tests to check option nullAnnot and missingNullDefault
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
+public void test315_warn_options() {
 	this.runConformTest(
 		new String[] {
+				"p/package-info.java",
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+				"package p;\n",
 				"p/X.java",
 				"package p;\n" +
-				"import org.eclipse.jdt.annotation.*;\n" +
-				"@SuppressWarnings(\"unused\")\n" +
 				"public class X {\n" +
-				"  Object foo(@Nullable Object o, Object o2) {\n" +
-				"    if (o.toString() == \"\"){ return null;}\n" +
-				"    if (o2 == null) {}\n" +
-				"    goo(null).toString();\n" +
-				"	 return null;\n" +
-				"  }\n" +
-				"  @Nullable Object goo(Object o2) {\n" +
-				"    return new Object();\n" +
-				"  }\n" +
-				"  @NonNullByDefault Object hoo(Object o2) {\n" + // redundant
-				"    if (o2 == null)\n" +
-				"	    return null;\n" +
-				"    return this;\n" +
-				"  }\n" +
+				"}\n",
+				"p1/X1.java",
+				"package p1;\n" +
+				"public class X1 {\n" +
+				"}\n",
+				"p1/X1a.java",
+				"package p1;\n" +
+				"public class X1a {\n" +
+				"}\n",
+				"Default1.java",
+				"public class Default1 {\n" +
 				"}\n",
 				"org/eclipse/jdt/annotation/NonNull.java",
 				NONNULL_ANNOTATION_CONTENT,
@@ -12634,50 +12629,77 @@ public void _test315_warn_options() {
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
-		+ " -warn:+nullAnnot -warn:+null -nonNullByDefault -proc:none -d \"" + OUTPUT_DIR + "\"",
+		+ " -warn:+nullAnnot -warn:+null -missingNullDefault -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+
+// -warn option - regression tests to check option nullAnnot and missingNullDefault
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
+public void test315_warn_options_a() {
+	this.runConformTest(
+		new String[] {
+				"p1/X1.java",
+				"package p1;\n" +
+				"public class X1 {\n" +
+				"   class Inner{};\n" +
+				"}\n",
+				"org/eclipse/jdt/annotation/NonNull.java",
+				NONNULL_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/Nullable.java",
+				NULLABLE_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/NonNullByDefault.java",				
+				NONNULL_BY_DEFAULT_ANNOTATION_CONTENT
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p1" + File.separator + "X1.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -warn:+nullAnnot -warn:+null -missingNullDefault -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)\n" + 
-		"	if (o.toString() == \"\"){ return null;}\n" + 
-		"	    ^\n" + 
-		"Potential null pointer access: The variable o may be null at this location\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p1/X1.java (at line 1)\n" + 
+		"	package p1;\n" + 
+		"	        ^^\n" + 
+		"A default nullness annotation has not been specified for the package p1\n" + 
 		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)\n" + 
-		"	if (o.toString() == \"\"){ return null;}\n" + 
-		"	                                ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"1 problem (1 warning)", 
+		true);
+}
+
+// -warn option - regression tests to check option nullAnnot and missingNullDefault
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
+public void test315_warn_options_b() {
+	this.runNegativeTest(
+		new String[] {
+				"X1.java",
+				"public class X1 {\n" +
+				"	Zork;\n" +
+				"}\n",
+				"org/eclipse/jdt/annotation/NonNull.java",
+				NONNULL_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/Nullable.java",
+				NULLABLE_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/NonNullByDefault.java",				
+				NONNULL_BY_DEFAULT_ANNOTATION_CONTENT
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X1.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -warn:+nullAnnot -warn:+null -missingNullDefault -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
 		"----------\n" + 
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 7)\n" + 
-		"	if (o2 == null) {}\n" + 
-		"	    ^^\n" + 
-		"Null comparison always yields false: The variable o2 cannot be null at this location\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X1.java (at line 1)\n" + 
+		"	public class X1 {\n" + 
+		"	             ^^\n" + 
+		"A default nullness annotation has not been specified for the type X1\n" + 
 		"----------\n" + 
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" + 
-		"	goo(null).toString();\n" + 
-		"	^^^^^^^^^\n" + 
-		"Potential null pointer access: The method goo(Object) may return null\n" + 
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X1.java (at line 2)\n" + 
+		"	Zork;\n" + 
+		"	^^^^\n" + 
+		"Syntax error on token \"Zork\", VariableDeclarator expected after this token\n" + 
 		"----------\n" + 
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" + 
-		"	goo(null).toString();\n" + 
-		"	    ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
-		"	return null;\n" + 
-		"	       ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 14)\n" + 
-		"	@NonNullByDefault Object hoo(Object o2) {\n" + 
-		"	^^^^^^^^^^^^^^^^^\n" + 
-		"Nullness default is redundant with the global default\n" + 
-		"----------\n" + 
-		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 15)\n" + 
-		"	if (o2 == null)\n" + 
-		"	    ^^\n" + 
-		"Null comparison always yields false: The variable o2 cannot be null at this location\n" + 
-		"----------\n" + 
-		"8 problems (8 warnings)", 
+		"2 problems (1 error, 1 warning)", 
 		true);
 }
 

@@ -1444,7 +1444,8 @@ void setSourceStart(int sourceStart);
 	int RequiredNonNullButProvidedPotentialNull = TypeRelated + 911;
 	/** @since 3.8 */
 	int RequiredNonNullButProvidedUnknown = TypeRelated + 912;
-	// removed during 3.8 M6: ImportRelated + 913 
+	/** @since 3.8 */
+	int MissingNonNullByDefaultAnnotationOnPackage = Internal + 913; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
 	/** @since 3.8 */
 	int IllegalReturnNullityRedefinition = MethodRelated + 914;
 	/** @since 3.8 */
@@ -1475,6 +1476,8 @@ void setSourceStart(int sourceStart);
 	int RedundantNullDefaultAnnotationMethod = Internal + 928;
 	/** @since 3.8 */
 	int ContradictoryNullAnnotations = Internal + 929;
+	/** @since 3.8 */
+	int MissingNonNullByDefaultAnnotationOnType = Internal + 930; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
 
 	/**
 	 * External problems -- These are problems defined by other plugins

@@ -2412,8 +2412,8 @@ public void configure(String[] argv) {
 					mode = INSIDE_WARNINGS_PROPERTIES;
 					continue;
 				}
-				if (currentArg.equals("-nonNullByDefault")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_NonNullIsDefault, CompilerOptions.ENABLED);
+				if (currentArg.equals("-missingNullDefault")) { //$NON-NLS-1$
+					this.options.put(CompilerOptions.OPTION_ReportMissingNonNullByDefaultAnnotation, CompilerOptions.WARNING);
 					continue;
 				}
 				break;

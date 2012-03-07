@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "testBug372011" };
+//		TESTS_NAMES = new String[] { "test_missing_default_annotation_03" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -1914,29 +1914,6 @@ public void test_annotation_import_006() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
-// using nullness defaulting to nonnull, missing annotation types, no longer a problem
-public void test_annotation_import_007() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.MayBeNull");
-	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.MustNotBeNull");
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
-	runConformTestWithLibs(
-		new String[] {
-			"Lib.java",
-			"public class Lib {\n" +
-			"    Object getObject() { return new Object(); }\n" +
-			"}\n",
-			"X.java",
-			"public class X {\n" +
-			"    Object getObject(Lib l) {\n" +
-			"        return l.getObject();\n" +
-			"    }\n" +
-			"}\n"
-		},
-		customOptions,
-		"");
-}
 
 // a null annotation is illegally used on a class:
 public void test_illegal_annotation_001() {
@@ -2409,7 +2386,7 @@ public void test_default_nullness_006() {
 public void _test_default_nullness_007() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
+//	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
@@ -2860,48 +2837,75 @@ public void test_redundant_annotation_02g() {
 		"----------\n");
 }
 
-// redundant default annotations - package / class / method vs global default
-// DISABLED due to dysfunctional global default after Bug 366063 - Compiler should not add synthetic @NonNull annotations
-public void _test_redundant_annotation_03() {
+// test missing default nullness annotation for types in default package
+public void test_missing_default_annotation_01() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
-	runConformTestWithLibs(
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
+	runNegativeTestWithLibs(
 		new String[] {
+			"Lib.java",
+			"public class Lib {\n" +
+			"    Object getObject() { return new Object(); }\n" +
+			"}\n",
+			"X.java",
+			"public class X {\n" +
+			"	 class XInner{}\n" +  // don't warn for inner types
+			"    Object getObject(Lib l) {\n" +
+			"        return l.getObject();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		customOptions,
+		"----------\n" + 
+		"1. ERROR in Lib.java (at line 1)\n" + 
+		"	public class Lib {\n" + 
+		"	             ^^^\n" + 
+		"A default nullness annotation has not been specified for the type Lib\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X {\n" + 
+		"	             ^\n" + 
+		"A default nullness annotation has not been specified for the type X\n" + 
+		"----------\n");
+}
+
+// test missing default nullness annotation for a package with package-info
+public void test_missing_default_annotation_02() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
+	runNegativeTestWithLibs(
+		new String[] {
+			"p2/package-info.java",
+			"package p2;\n",
 			"p2/Y.java",
 			"package p2;\n" +
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"@NonNullByDefault\n" +
 			"public class Y {\n" +
-			"    @NonNullByDefault void foo() {}\n" +
-			"}\n" +
-			"class Z {\n" +
-			"    @NonNullByDefault void bar() {}\n" +
+			"   void foo() {}\n" +
 			"}\n",
 			"p3/package-info.java",
-			"@org.eclipse.jdt.annotation.NonNullByDefault package p3;\n"
+			"@org.eclipse.jdt.annotation.NonNullByDefault package p3;\n",
+			"p3/Z.java",
+			"package p3;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Z {\n" +
+			"    @NonNullByDefault void bar() {}\n" +
+			"}\n",
 		},
 		customOptions,
 		"----------\n" + 
-		"1. WARNING in p2\\Y.java (at line 3)\n" +
-		"	@NonNullByDefault\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Nullness default is redundant with the global default\n" +
-		"----------\n" +
-		"2. WARNING in p2\\Y.java (at line 5)\n" +
-		"	@NonNullByDefault void foo() {}\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Nullness default is redundant with a default specified for the enclosing type Y\n" +
-		"----------\n" +
-		"3. WARNING in p2\\Y.java (at line 8)\n" +
-		"	@NonNullByDefault void bar() {}\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Nullness default is redundant with the global default\n" +
-		"----------\n" +
-		"----------\n" +
-		"1. WARNING in p3\\package-info.java (at line 1)\n" +
-		"	@org.eclipse.jdt.annotation.NonNullByDefault package p3;\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Nullness default is redundant with the global default\n" +
+		"1. ERROR in p2\\package-info.java (at line 1)\n" + 
+		"	package p2;\n" + 
+		"	        ^^\n" + 
+		"A default nullness annotation has not been specified for the package p2\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in p3\\Z.java (at line 4)\n" + 
+		"	@NonNullByDefault void bar() {}\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing package p3\n" + 
 		"----------\n");
 }
 
@@ -3090,8 +3094,6 @@ public void test_nonnull_var_in_constrol_structure_2() {
 // a nonnull variable is dereferenced in a finally block inside a loop
 public void test_nonnull_var_in_constrol_structure_3() {
 	Map customOptions = getCompilerOptions();
-//	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 	customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.IGNORE);
 	runNegativeTestWithLibs(
 		new String[] {
@@ -3271,8 +3273,6 @@ public void test_message_send_in_control_structure_03() {
 }
 public void test_assignment_expression_1() {
 	Map customOptions = getCompilerOptions();
-//	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 	customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
 	runConformTestWithLibs(
 		new String[] {

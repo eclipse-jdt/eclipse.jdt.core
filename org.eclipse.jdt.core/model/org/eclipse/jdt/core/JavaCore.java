@@ -1494,9 +1494,7 @@ public final class JavaCore extends Plugin {
 	 *    within the annotated element will be treated as if they were specified with the non-null annotation
 	 *    (see {@link #COMPILER_NONNULL_ANNOTATION_NAME}).</p>
 	 * <p>If the annotation is applied with the constant <code>false</code> as its argument
-	 *    all corresponding defaults at outer scopes will be canceled for the annotated element.
-	 *    This includes defaults specified using this annotation type or a default defined using
-	 *    the compiler option {@link #COMPILER_NONNULL_IS_DEFAULT}.</p>
+	 *    all corresponding defaults at outer scopes will be canceled for the annotated element.</p>
 	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnullbydefault"</code></dd>
@@ -1509,19 +1507,23 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nonnullbydefault"; //$NON-NLS-1$
 	/**
-	 * Compiler option ID: Globally specify non-null as the assumed default for unannotated types.
-	 * <p>When enabled, this option globally achieves the same effect 
-	 *    as specifying {@link #COMPILER_NONNULL_ANNOTATION_NAME} does for individual elements.</p>
+	 * Compiler option ID: Reporting missing default nullness annotation.
+	 * <p>When enabled, the compiler will issue an error or a warning in the following cases:</p>
+	 * <ul>
+	 * <li> When a package does not contain a default nullness annotation, as a result of missing package-info.java 
+	 * or missing default nullness annotation in package-info.java.</li>
+	 * <li> When a type inside a default package does not contain a default nullness annotation.</li>
+	 * </ul>
 	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnullisdefault"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "disabled", "enabled" }</code>.</dd>
-	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.missingNonNullByDefaultAnnotation"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code>.</dd>
+	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.8
 	 * @category CompilerOptionID
 	 */
-	public static final String COMPILER_NONNULL_IS_DEFAULT = PLUGIN_ID + ".compiler.annotation.nonnullisdefault"; //$NON-NLS-1$
+	public static final String COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION = PLUGIN_ID + ".compiler.annotation.missingNonNullByDefaultAnnotation"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Violations of Null Specifications.
 	 * <p>Depending on this option, the compiler will issue either an error or a warning
@@ -1623,8 +1625,7 @@ public final class JavaCore extends Plugin {
 	 * <p>When enabled, the compiler will issue an error or a warning when a non-null annotation
 	 *    (see {@link #COMPILER_NONNULL_ANNOTATION_NAME})
 	 *    is applied although the same effect is already achieved by a default applicable at the
-	 *    current location. Such a default may be set by enabling the option
-	 *    {@link #COMPILER_NONNULL_IS_DEFAULT} or by using the annotation specified by the option
+	 *    current location. Such a default may be set by using the annotation specified by the option
 	 *    {@link #COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME}.
 	 * </p>
 	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>

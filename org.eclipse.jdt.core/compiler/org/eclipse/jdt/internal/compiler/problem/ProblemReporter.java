@@ -469,6 +469,10 @@ public static int getIrritant(int problemID) {
 				
 		case IProblem.RedundantSpecificationOfTypeArguments:
 			return CompilerOptions.RedundantSpecificationOfTypeArguments;
+			
+		case IProblem.MissingNonNullByDefaultAnnotationOnPackage:
+		case IProblem.MissingNonNullByDefaultAnnotationOnType:
+			return CompilerOptions.MissingNonNullByDefaultAnnotation;
 	}
 	return 0;
 }
@@ -574,6 +578,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.NullSpecViolation :
 			case CompilerOptions.PotentialNullSpecViolation :
 			case CompilerOptions.NullSpecInsufficientInfo :
+			case CompilerOptions.MissingNonNullByDefaultAnnotation:
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			case CompilerOptions.RedundantNullAnnotation :
 				return CategorizedProblem.CAT_UNNECESSARY_CODE;
@@ -8180,9 +8185,7 @@ public void parameterLackingNullAnnotation(Argument argument, ReferenceBinding d
 		argument.type.sourceStart,
 		argument.type.sourceEnd);
 }
-public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDecl,
-									  MethodBinding inheritedMethod, char[][] nonNullAnnotationName)
-{
+public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDecl, MethodBinding inheritedMethod, char[][] nonNullAnnotationName) {
 	MethodDeclaration methodDecl = (MethodDeclaration) abstractMethodDecl;
 	StringBuffer methodSignature = new StringBuffer();
 	methodSignature
@@ -8327,5 +8330,35 @@ private Annotation findAnnotation(Annotation[] annotations, int typeId) {
 		}
 	}
 	return null;
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
+public void missingNonNullByDefaultAnnotation(TypeDeclaration type) {
+	int severity;
+	CompilationUnitDeclaration compUnitDecl = type.getCompilationUnitDeclaration();
+	String[] arguments;
+	if (compUnitDecl.currentPackage == null) {
+		severity = computeSeverity(IProblem.MissingNonNullByDefaultAnnotationOnType);
+		if (severity == ProblemSeverities.Ignore) return;
+		// Default package
+		TypeBinding binding = type.binding;
+		this.handle(
+				IProblem.MissingNonNullByDefaultAnnotationOnType,
+				new String[] {new String(binding.readableName()), },
+				new String[] {new String(binding.shortReadableName()),},
+				severity,
+				type.sourceStart,
+				type.sourceEnd);
+	} else {
+		severity = computeSeverity(IProblem.MissingNonNullByDefaultAnnotationOnPackage);
+		if (severity == ProblemSeverities.Ignore) return;
+		arguments = new String[] {CharOperation.toString(compUnitDecl.currentPackage.tokens)};
+		this.handle(
+			IProblem.MissingNonNullByDefaultAnnotationOnPackage,
+			arguments,
+			arguments,
+			severity,
+			compUnitDecl.currentPackage.sourceStart,
+			compUnitDecl.currentPackage.sourceEnd);
+	}
 }
 }

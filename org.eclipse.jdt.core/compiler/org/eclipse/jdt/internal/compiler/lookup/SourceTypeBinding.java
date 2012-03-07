@@ -1633,6 +1633,26 @@ private void createArgumentBindings(MethodBinding method) {
 private void evaluateNullAnnotations(long annotationTagBits) {
 	if (this.nullnessDefaultInitialized > 0 || !this.scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
 		return;
+	boolean isPackageInfo = CharOperation.equals(this.sourceName, TypeConstants.PACKAGE_INFO_NAME);
+	PackageBinding pkg = getPackage();
+	boolean isInDefaultPkg = (pkg.compoundName == CharOperation.NO_CHAR_CHAR);
+	if (!isPackageInfo) {
+		boolean isInNullnessAnnotationPackage = 
+				pkg == this.scope.environment().nonnullAnnotationPackage
+				|| pkg == this.scope.environment().nullableAnnotationPackage
+				|| pkg == this.scope.environment().nonnullByDefaultAnnotationPackage;
+		if (pkg.defaultNullness == NO_NULL_DEFAULT && !isInDefaultPkg && !isInNullnessAnnotationPackage && !(this instanceof NestedTypeBinding)) {
+			ReferenceBinding packageInfo = pkg.getType(TypeConstants.PACKAGE_INFO_NAME);
+			if (packageInfo == null) {
+				// no pkgInfo - complain
+				this.scope.problemReporter().missingNonNullByDefaultAnnotation(this.scope.referenceContext);
+				pkg.defaultNullness = NULL_UNSPECIFIED_BY_DEFAULT;
+			} else {
+				// if pkgInfo has no default annot. - complain
+				packageInfo.getAnnotationTagBits();
+			}
+		}
+	}
 	this.nullnessDefaultInitialized = 1;
 	// transfer nullness info from tagBits to this.nullnessDefaultAnnotation
 	int newDefaultNullness = NO_NULL_DEFAULT;
@@ -1641,14 +1661,18 @@ private void evaluateNullAnnotations(long annotationTagBits) {
 	else if ((annotationTagBits & TagBits.AnnotationNonNullByDefault) != 0)
 		newDefaultNullness = NONNULL_BY_DEFAULT;
 	if (newDefaultNullness != NO_NULL_DEFAULT) {
-		if (CharOperation.equals(this.sourceName, TypeConstants.PACKAGE_INFO_NAME)) {
-			getPackage().defaultNullness = newDefaultNullness;
+		if (isPackageInfo) {
+			pkg.defaultNullness = newDefaultNullness;
 		} else {
 			this.defaultNullness = newDefaultNullness;
 			TypeDeclaration typeDecl = this.scope.referenceContext;
 			long nullDefaultBits = annotationTagBits & (TagBits.AnnotationNullUnspecifiedByDefault|TagBits.AnnotationNonNullByDefault);
 			checkRedundantNullnessDefaultRecurse(typeDecl, typeDecl.annotations, nullDefaultBits);
 		}
+	} else if (isPackageInfo || (isInDefaultPkg && !(this instanceof NestedTypeBinding))) {
+		this.scope.problemReporter().missingNonNullByDefaultAnnotation(this.scope.referenceContext);
+		if (!isInDefaultPkg)
+			pkg.defaultNullness = NULL_UNSPECIFIED_BY_DEFAULT;
 	}
 }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -673,7 +674,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 
 	IResource resource = sourceFile.resource;
 	HashSet managedMarkerTypes = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes();
-	for (int i = 0, l = problems.length; i < l; i++) {
+	problems: for (int i = 0, l = problems.length; i < l; i++) {
 		CategorizedProblem problem = problems[i];
 		int id = problem.getID();
 
@@ -706,6 +707,38 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 		boolean managedProblem = false;
 		if (IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER.equals(markerType)
 				|| (managedProblem = managedMarkerTypes.contains(markerType))) {
+			if (id == IProblem.MissingNonNullByDefaultAnnotationOnPackage && !(CharOperation.equals(sourceFile.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME))) {
+				// for this kind of problem, marker needs to be created on the package instead of on the source file
+				// see bug 372012
+				char[] fileName = sourceFile.getFileName();
+				int pkgEnd = CharOperation.lastIndexOf('/', fileName);
+				if (pkgEnd == -1)
+					pkgEnd = CharOperation.lastIndexOf(File.separatorChar, fileName);
+				PackageFragment pkg = null;
+				if (pkgEnd != -1)
+					pkg = (PackageFragment) Util.getPackageFragment(sourceFile.getFileName(), pkgEnd, -1 /*no jar separator for java files*/);
+				
+				if (pkg != null) {
+					try {
+						IMarker[] existingMarkers = pkg.resource().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+						int len = existingMarkers.length;
+						for (int j=0; j < len; j++) {
+							if (((Integer)existingMarkers[j].getAttribute(IJavaModelMarker.ID)).intValue() == IProblem.MissingNonNullByDefaultAnnotationOnPackage) {
+								continue problems; // marker already present
+							}
+						}
+					} catch (CoreException e) {
+						// marker retrieval failed, cannot do much
+						if (JavaModelManager.VERBOSE) {
+							e.printStackTrace();
+						}
+					}
+					IResource tempRes = pkg.resource();
+					if (tempRes != null) {
+						resource = tempRes;
+					}
+				}
+			}
 			IMarker marker = resource.createMarker(markerType);
 
 			String[] attributeNames = JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES;
