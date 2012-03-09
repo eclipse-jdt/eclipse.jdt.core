@@ -1507,4 +1507,54 @@ public class AnnotationDependencyTests extends BuilderTests {
 		// verify that Test1 was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2" });
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=373571
+	// incremental build that uses binary type for Test1 should not report spurious null errors.
+	public void testReturnAnnotationDependency02() throws JavaModelException, IOException {
+		// prepare the project:
+		setupProjectForNullAnnotations();
+
+		String test1Code = "package p1;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"@NonNullByDefault\n" +
+			"public class Test1 {\n" +
+			"    public void doStuff(int i) {\n" +
+			"    }\n" +
+			"}";
+		env.addClass( this.srcRoot, "p1", "Test1", test1Code );
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+
+		// add Test2
+		String test2Code = "package p1;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"@NonNullByDefault\n" +
+			"public class Test2 extends Test1{\n" +
+			"	@Override\n" +
+			"    public void doStuff(int i) {\n" +
+			"		 super.doStuff(i);\n" +
+			"    }\n" +
+			"}";
+		env.addClass( this.srcRoot, "p1", "Test2", test2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+
+		// verify that Test2 only was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.Test2" });
+
+		// edit Test2 to delete annotation
+		test2Code = "package p1;\n" +
+			"public class Test2 extends Test1{\n" +
+			"	@Override\n" +
+			"    public void doStuff(int i) {\n" +
+			"		 super.doStuff(i);\n" +
+			"    }\n" +
+			"}";
+		env.addClass( this.srcRoot, "p1", "Test2", test2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+
+		// verify that Test2 only was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.Test2" });
+	}
 }
