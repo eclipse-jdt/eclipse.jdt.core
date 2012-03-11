@@ -51,6 +51,18 @@ Eclipse SDK 3.8.0 - %date% - 3.8.0 M6
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_C38">cvs</a>).
 <h2>What's new in this drop</h2>
 <ul>
+<li> New IProblems for distinguishing null warnings based on flow analysis vs. null annotations.
+<pre>
+	/** @since 3.8 */
+	int RedundantNullCheckOnSpecdNonNullLocalVariable = Internal + 931;
+
+	/** @since 3.8 */
+	int SpecdNonNullLocalVariableComparisonYieldsFalse = Internal + 932;
+
+	/** @since 3.8 */
+	int RequiredNonNullButProvidedSpecdNullable = Internal + 933;
+</pre>
+</li>
 <li> New IProblems for reporting missing NonNullByDefault annotation on package/type.
 <pre>
 	/** @since 3.8 */
@@ -86,7 +98,9 @@ Eclipse SDK 3.8.0 - %date% - 3.8.0 M6
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=373571">373571</a>
+<a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=365859">365859</a>
+[compiler][null] distinguish warnings based on flow analysis vs. null annotations
+<br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=373571">373571</a>
 [null][regression] Incorrect application of null annotations to primitive types
 <br><a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=367836">367836</a>
 Inconsistent source range for error from build and reconciler (declared package does not match expected)

@@ -11,6 +11,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
+ *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -93,7 +94,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 		for (int i = 0; i < this.nullCount; i++) {
 			if ((this.nullCheckTypes[i] & ~HIDE_NULL_COMPARISON_WARNING_MASK) == ASSIGN_TO_NONNULL)
 				this.parent.recordNullityMismatch(scope, (Expression)this.nullReferences[i],
-						flowInfo.nullStatus(this.nullLocals[i]), this.expectedTypes[i]);
+						this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], flowInfo.nullStatus(this.nullLocals[i]));
 			else
 				this.parent.recordUsingNullReference(scope, this.nullLocals[i],
 						this.nullReferences[i],	this.nullCheckTypes[i], flowInfo);
@@ -181,7 +182,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					int nullStatus = flowInfo.nullStatus(local);
 					if (nullStatus != FlowInfo.NON_NULL) {
 						char[][] annotationName = scope.environment().getNonNullAnnotationName();
-						scope.problemReporter().nullityMismatch((Expression) location, this.expectedTypes[i], nullStatus, annotationName);
+						scope.problemReporter().nullityMismatch((Expression) location, this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], nullStatus, annotationName);
 					}
 					break;
 				default:
@@ -434,11 +435,11 @@ protected void recordNullReference(LocalVariableBinding local,
 	this.nullReferences[this.nullCount] = expression;
 	this.nullCheckTypes[this.nullCount++] = status;
 }
-protected boolean internalRecordNullityMismatch(Expression expression, int nullStatus, TypeBinding expectedType, int checkType) {
+protected boolean internalRecordNullityMismatch(Expression expression, TypeBinding providedType, int nullStatus, TypeBinding expectedType, int checkType) {
 	// cf. decision structure inside FinallyFlowContext.recordUsingNullReference(..)
 	if (nullStatus == FlowInfo.UNKNOWN ||
 			((this.tagBits & FlowContext.DEFER_NULL_DIAGNOSTIC) != 0 && nullStatus != FlowInfo.NULL)) {
-		recordExpectedType(expectedType, this.nullCount);
+		recordProvidedExpectedTypes(providedType, expectedType, this.nullCount);
 		recordNullReference(expression.localVariableBinding(), expression, checkType);
 		return true;
 	}

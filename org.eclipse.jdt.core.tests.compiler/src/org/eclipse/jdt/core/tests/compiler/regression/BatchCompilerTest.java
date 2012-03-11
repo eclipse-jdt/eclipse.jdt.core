@@ -17,6 +17,7 @@
  *     							bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365208 - [compiler][batch] command line options for annotation based null analysis
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
+ *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -79,7 +80,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 			"}\n";
 
 	static {
-		TESTS_NAMES = new String[] { "test315_warn_options_a" };
+//		TESTS_NAMES = new String[] { "test315_warn_options_a" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -12462,12 +12463,12 @@ public void test312_warn_options() {
 		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" + 
 		"	if (o.toString() == \"\"){ return null;}\n" + 
 		"	                                ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
 		"	if (o2 == null) {}\n" + 
 		"	    ^^\n" + 
-		"Null comparison always yields false: The variable o2 cannot be null at this location\n" + 
+		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" + 
 		"----------\n" + 
 		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" + 
 		"	goo(null).toString();\n" + 
@@ -12477,22 +12478,22 @@ public void test312_warn_options() {
 		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" + 
 		"	goo(null).toString();\n" + 
 		"	    ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 13)\n" + 
 		"	return null;\n" + 
 		"	       ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 19)\n" + 
 		"	if (o2 == null){}\n" + 
 		"	    ^^\n" + 
-		"Null comparison always yields false: The variable o2 cannot be null at this location\n" + 
+		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" + 
 		"----------\n" + 
 		"9. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 20)\n" + 
 		"	if (o2 == null){\n" + 
 		"	    ^^\n" + 
-		"Null comparison always yields false: The variable o2 cannot be null at this location\n" + 
+		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" + 
 		"----------\n" + 
 		"9 problems (9 warnings)", 
 		true);

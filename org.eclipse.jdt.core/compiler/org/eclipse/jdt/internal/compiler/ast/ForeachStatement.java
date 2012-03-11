@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 370930 - NonNull annotation not considered for enhanced for loops
+ *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -103,7 +104,7 @@ public class ForeachStatement extends Statement {
 		if (currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
 			// this currently produces an unavoidable warning against all @NonNull element vars:
 			int nullStatus = this.elementVariable.checkAssignmentAgainstNullAnnotation(currentScope, flowContext, 
-															elementVarBinding, FlowInfo.UNKNOWN, this.collection);
+															elementVarBinding, FlowInfo.UNKNOWN, this.collection, this.collectionElementType);
 			// TODO (stephan): 	once we have JSR 308 fetch nullStatus from the collection element type
 			//              	and feed the result into the above check (instead of FlowInfo.UNKNOWN)
 			if ((elementVarBinding.type.tagBits & TagBits.IsBaseType) == 0) {

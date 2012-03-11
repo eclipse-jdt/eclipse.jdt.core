@@ -15,6 +15,7 @@
  *							bug 186342 - [compiler][null] Using annotations for null checking
  *							bug 358903 - Filter practically unimportant resource leak warnings
  *							bug 370639 - [compiler][resource] restore the default for resource leak warnings
+ *							bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -104,7 +105,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this.bits &= ~FirstAssignmentToLocal;  // int i = (i = 0);
 	}
 	flowInfo.markAsDefinitelyAssigned(this.binding);
-	nullStatus = checkAssignmentAgainstNullAnnotation(currentScope, flowContext, this.binding, nullStatus, this.initialization);
+	nullStatus = checkAssignmentAgainstNullAnnotation(currentScope, flowContext, this.binding, nullStatus, this.initialization, this.initialization.resolvedType);
 	if ((this.binding.type.tagBits & TagBits.IsBaseType) == 0) {
 		flowInfo.markNullStatus(this.binding, nullStatus);
 		// no need to inform enclosing try block since its locals won't get

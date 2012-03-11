@@ -17,6 +17,7 @@
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
+ *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -150,7 +151,7 @@ void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, int n
 			return;			
 		}
 		if ((tagBits & TagBits.AnnotationNonNull) != 0) {
-			flowContext.recordNullityMismatch(scope, this.expression, nullStatus, methodBinding.returnType);
+			flowContext.recordNullityMismatch(scope, this.expression, this.expression.resolvedType, methodBinding.returnType, nullStatus);
 		}
 	}
 }

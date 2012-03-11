@@ -113,7 +113,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"1. WARNING in /P/p2/C2.java (at line 8)\n" +
 					"	return arg == null ? null : arg.toString();\n" +
 					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Potential type mismatch: required \'@NonNull String\' but nullness of the provided value is unknown\n" +
+					"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" +
 					"----------\n");
     	} finally {
     		deleteProject("P");
@@ -155,7 +155,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"1. WARNING in /P/p2/C2.java (at line 8)\n" +
 					"	return arg == null ? null : arg.toString();\n" +
 					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Potential type mismatch: required \'@NonNull String\' but nullness of the provided value is unknown\n" +
+					"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" +
 					"----------\n");
     	} finally {
     		deleteProject("P");
