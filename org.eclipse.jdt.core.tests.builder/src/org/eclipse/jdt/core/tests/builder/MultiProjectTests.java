@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1600,7 +1600,7 @@ public void test103_missing_required_binaries() throws JavaModelException {
 					p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
 				new Problem("p3",
 					"The type I cannot be resolved. It is indirectly referenced from required .class files",
-					y, 0, 0, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
+					y, 0, 1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
 		});
 	} finally {
 		env.setBuildOrder(null);

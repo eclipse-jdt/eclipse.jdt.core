@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -158,7 +157,7 @@ public class CompilerOptions {
 	static final char[][] DEFAULT_NULLABLE_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.Nullable".toCharArray()); //$NON-NLS-1$
 	static final char[][] DEFAULT_NONNULL_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.NonNull".toCharArray()); //$NON-NLS-1$
 	static final char[][] DEFAULT_NONNULLBYDEFAULT_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.NonNullByDefault".toCharArray()); //$NON-NLS-1$
-	public static final String OPTION_NonNullIsDefault = "org.eclipse.jdt.core.compiler.annotation.nonnullisdefault";  //$NON-NLS-1$
+	public static final String OPTION_ReportMissingNonNullByDefaultAnnotation = "org.eclipse.jdt.core.compiler.annotation.missingNonNullByDefaultAnnotation";  //$NON-NLS-1$
 	/**
 	 * Possible values for configurable options
 	 */
@@ -269,6 +268,7 @@ public class CompilerOptions {
 	public static final int PotentialNullSpecViolation = IrritantSet.GROUP2 | ASTNode.Bit12;
 	public static final int NullSpecInsufficientInfo = IrritantSet.GROUP2 | ASTNode.Bit13;
 	public static final int RedundantNullAnnotation = IrritantSet.GROUP2 | ASTNode.Bit14;
+	public static final int MissingNonNullByDefaultAnnotation = IrritantSet.GROUP2 | ASTNode.Bit15;
 
 	// Severity level for handlers
 	/** 
@@ -598,6 +598,8 @@ public class CompilerOptions {
 				return OPTION_ReportMethodCanBeStatic;
 			case MethodCanBePotentiallyStatic :
 				return OPTION_ReportMethodCanBePotentiallyStatic;
+			case MissingNonNullByDefaultAnnotation :
+				return OPTION_ReportMissingNonNullByDefaultAnnotation;
 			case RedundantSpecificationOfTypeArguments :
 				return OPTION_ReportRedundantSpecificationOfTypeArguments;
 			case UnclosedCloseable :
@@ -784,7 +786,7 @@ public class CompilerOptions {
 			OPTION_NonNullAnnotationName,
 			OPTION_NullableAnnotationName,
 			OPTION_NonNullByDefaultAnnotationName,
-			OPTION_NonNullIsDefault,
+			OPTION_ReportMissingNonNullByDefaultAnnotation,
 			OPTION_ReportNullSpecViolation,
 			OPTION_ReportPotentialNullSpecViolation,
 			OPTION_ReportNullSpecInsufficientInfo,
@@ -855,6 +857,7 @@ public class CompilerOptions {
 			case PotentialNullSpecViolation :
 			case NullSpecInsufficientInfo :
 			case RedundantNullAnnotation :
+			case MissingNonNullByDefaultAnnotation:
 				return "null"; //$NON-NLS-1$
 			case FallthroughCase :
 				return "fallthrough"; //$NON-NLS-1$
@@ -1080,10 +1083,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_NullableAnnotationName, String.valueOf(CharOperation.concatWith(this.nullableAnnotationName, '.')));
 		optionsMap.put(OPTION_NonNullAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullAnnotationName, '.')));
 		optionsMap.put(OPTION_NonNullByDefaultAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullByDefaultAnnotationName, '.')));
-		if (this.intendedDefaultNonNullness == TagBits.AnnotationNonNull)
-			optionsMap.put(OPTION_NonNullIsDefault, CompilerOptions.ENABLED);
-		else
-			optionsMap.put(OPTION_NonNullIsDefault, CompilerOptions.DISABLED);
+		optionsMap.put(OPTION_ReportMissingNonNullByDefaultAnnotation, getSeverityString(MissingNonNullByDefaultAnnotation));
 		return optionsMap;
 	}
 
@@ -1560,12 +1560,7 @@ public class CompilerOptions {
 			if ((optionValue = optionsMap.get(OPTION_NonNullByDefaultAnnotationName)) != null) {
 				this.nonNullByDefaultAnnotationName = CharOperation.splitAndTrimOn('.', ((String)optionValue).toCharArray());
 			}
-			if ((optionValue = optionsMap.get(OPTION_NonNullIsDefault)) != null) {
-				if (CompilerOptions.ENABLED.equals(optionValue))
-					this.intendedDefaultNonNullness = TagBits.AnnotationNonNull;
-				else if (CompilerOptions.DISABLED.equals(optionValue))
-					this.intendedDefaultNonNullness = 0;
-			}
+			if ((optionValue = optionsMap.get(OPTION_ReportMissingNonNullByDefaultAnnotation)) != null) updateSeverity(MissingNonNullByDefaultAnnotation, optionValue);
 		}
 
 		// Javadoc options

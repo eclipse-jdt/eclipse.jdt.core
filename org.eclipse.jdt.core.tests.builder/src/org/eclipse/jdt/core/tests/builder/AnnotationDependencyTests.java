@@ -1428,7 +1428,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "Test2", test2CodeB );
 		incrementalBuild( this.projectPath );
 		expectingProblemsFor(test1Path, 
-				"Problem : Type mismatch: required \'@NonNull String\' but the provided value is null [ resource : </Project/src/p1/Test1.java> range : <81,85> category : <90> severity : <2>]");
+				"Problem : Null type mismatch: required \'@NonNull String\' but the provided value is null [ resource : </Project/src/p1/Test1.java> range : <81,85> category : <90> severity : <2>]");
 
 		// verify that Test1 was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2" });
@@ -1481,7 +1481,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "Test2", test2CodeB );
 		incrementalBuild( this.projectPath );
 		expectingProblemsFor(test1Path, 
-			"Problem : Type mismatch: required \'@NonNull Object\' but the provided value can be null [ resource : </Project/src/p1/Test1.java> range : <126,143> category : <90> severity : <2>]");
+			"Problem : Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable [ resource : </Project/src/p1/Test1.java> range : <126,143> category : <90> severity : <2>]");
 
 		// verify that Test1 was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2" });
@@ -1494,7 +1494,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "Test2", test2CodeC );
 		incrementalBuild( this.projectPath );
 		expectingProblemsFor(test1Path, 
-			"Problem : Potential type mismatch: required \'@NonNull Object\' but nullness of the provided value is unknown [ resource : </Project/src/p1/Test1.java> range : <126,143> category : <90> severity : <1>]");
+			"Problem : Null type safety: The expression of type Object needs unchecked conversion to conform to \'@NonNull Object\' [ resource : </Project/src/p1/Test1.java> range : <126,143> category : <90> severity : <1>]");
 
 		// verify that Test1 was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2" });
@@ -1506,5 +1506,55 @@ public class AnnotationDependencyTests extends BuilderTests {
 
 		// verify that Test1 was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2" });
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=373571
+	// incremental build that uses binary type for Test1 should not report spurious null errors.
+	public void testReturnAnnotationDependency02() throws JavaModelException, IOException {
+		// prepare the project:
+		setupProjectForNullAnnotations();
+
+		String test1Code = "package p1;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"@NonNullByDefault\n" +
+			"public class Test1 {\n" +
+			"    public void doStuff(int i) {\n" +
+			"    }\n" +
+			"}";
+		env.addClass( this.srcRoot, "p1", "Test1", test1Code );
+		fullBuild( this.projectPath );
+		expectingNoProblems();
+
+		// add Test2
+		String test2Code = "package p1;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"@NonNullByDefault\n" +
+			"public class Test2 extends Test1{\n" +
+			"	@Override\n" +
+			"    public void doStuff(int i) {\n" +
+			"		 super.doStuff(i);\n" +
+			"    }\n" +
+			"}";
+		env.addClass( this.srcRoot, "p1", "Test2", test2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+
+		// verify that Test2 only was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.Test2" });
+
+		// edit Test2 to delete annotation
+		test2Code = "package p1;\n" +
+			"public class Test2 extends Test1{\n" +
+			"	@Override\n" +
+			"    public void doStuff(int i) {\n" +
+			"		 super.doStuff(i);\n" +
+			"    }\n" +
+			"}";
+		env.addClass( this.srcRoot, "p1", "Test2", test2Code );
+		incrementalBuild( this.projectPath );
+		expectingNoProblems();
+
+		// verify that Test2 only was recompiled
+		expectingUniqueCompiledClasses(new String[] { "p1.Test2" });
 	}
 }

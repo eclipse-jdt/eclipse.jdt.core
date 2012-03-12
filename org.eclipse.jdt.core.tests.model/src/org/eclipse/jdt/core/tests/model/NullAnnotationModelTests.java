@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -53,7 +54,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	}
 
 	static {
-//		TESTS_NAMES = new String[] { "testMissingAnnotation5" };
+//		TESTS_NAMES = new String[] { "testConvertedSourceType1" };
 	}
 
 	public void setUp() throws Exception {
@@ -67,18 +68,17 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 		return FileLocator.toFileURL(libEntry).getPath();
 	}
 
-	// DISABLED due to dysfunctional global default after Bug 366063 - Compiler should not add synthetic @NonNull annotations
-	public void _testConvertedSourceType1() throws CoreException, InterruptedException {
+	public void testConvertedSourceType1() throws CoreException, InterruptedException {
     	try {
 			// Resources creation
 			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
 			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-			p.setOption(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 
 			this.createFolder("/P/p1");
 			String c1SourceString =
 				"package p1;\n" +
 				"import org.eclipse.jdt.annotation.*;\n" +
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 				"public class C1 {\n" +
 				"	 public String foo(@Nullable Object arg) {\n" + // this is consumed via SourceTypeConverter
 				"		return arg == null ? \"\" : arg.toString();\n" +
@@ -91,6 +91,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			this.createFolder("/P/p2");
 			String c2SourceString =
 				"package p2;\n" +
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 				"public class C2 {\n" +
 				"	 String bar(p1.C1 c, C2 c2) {;\n" +
 				"        return c.foo(null);\n" + // don't complain despite default nonnull, foo has explicit @Nullable
@@ -109,31 +110,30 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			getCompilationUnit("/P/p2/C2.java").getWorkingCopy(this.wcOwner, null);
 
 			assertProblems("Unexpected problems", "----------\n" +
-					"1. WARNING in /P/p2/C2.java (at line 7)\n" +
+					"1. WARNING in /P/p2/C2.java (at line 8)\n" +
 					"	return arg == null ? null : arg.toString();\n" +
 					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Potential type mismatch: required \'@NonNull String\' but nullness of the provided value is unknown\n" +
+					"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" +
 					"----------\n");
     	} finally {
     		deleteProject("P");
     	}
     }
 
-	// DISABLED due to dysfunctional global default after Bug 366063 - Compiler should not add synthetic @NonNull annotations
-	public void _testBinaryType1() throws CoreException, InterruptedException, IOException {
+	public void testBinaryType1() throws CoreException, InterruptedException, IOException {
     	try {
 			// Resources creation
 			IJavaProject p = createJavaProject("P", new String[] {""},
 											   new String[] {"JCL15_LIB", this.ANNOTATION_LIB, testJarPath("example.jar")},
 											   "bin", "1.5");
 			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-			p.setOption(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 
 			// example.jar contains p1/C1.java just like testConvertedSourceType1()
 
 			this.createFolder("/P/p2");
 			String c2SourceString =
 				"package p2;\n" +
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 				"public class C2 {\n" +
 				"	 String bar(p1.C1 c) {;\n" +
 				"        return c.foo(null);\n" + // don't complain despite default nonnull, foo has explicit @Nullable
@@ -152,10 +152,10 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			getCompilationUnit("/P/p2/C2.java").getWorkingCopy(this.wcOwner, null);
 
 			assertProblems("Unexpected problems", "----------\n" +
-					"1. WARNING in /P/p2/C2.java (at line 7)\n" +
+					"1. WARNING in /P/p2/C2.java (at line 8)\n" +
 					"	return arg == null ? null : arg.toString();\n" +
 					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"Potential type mismatch: required \'@NonNull String\' but nullness of the provided value is unknown\n" +
+					"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" +
 					"----------\n");
     	} finally {
     		deleteProject("P");
@@ -482,6 +482,30 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			assertEquals("Method should have exactly two modifiers", 2, modifiers.size());
 			assertEquals("Unexpected modifier #1 for method", "public", ((Modifier)modifiers.get(0)).toString());
 			assertEquals("Unexpected modifier #2 for method", "@Annot", ((MarkerAnnotation)modifiers.get(1)).toString());
+    	} finally {
+    		deleteProject("P");
+    	}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
+	// no problem should be created for a compilation unit in a package missing package-info when the warning is enabled
+	public void testBug372012() throws JavaModelException, IOException, CoreException, InterruptedException {
+		try {
+			// Resources creation
+			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");
+			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+			p.setOption(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "in.valid");
+			p.setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
+
+			this.createFolder("/P/p1");
+			String c1SourceString =
+				"package p1;\n" +
+				"public class C1 {\n" +
+				"	 public String foo(Object arg) {\n" +
+				"		return arg == null ? \"\" : arg.toString();\n" +
+				"	 }\n" +
+				"}\n";
+
+			assertNoProblem(c1SourceString.toCharArray(), getCompilationUnit("/P/p1/C1.java"));
     	} finally {
     		deleteProject("P");
     	}

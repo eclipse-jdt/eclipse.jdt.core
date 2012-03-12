@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -108,7 +108,7 @@ public class PackageTests extends BuilderTests {
 		expectingOnlySpecificProblemFor(aPath,
 			new Problem("", "The type A collides with a package", aPath, 24, 25, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingOnlySpecificProblemFor(bPath,
-			new Problem("", "The declared package \"\" does not match the expected package \"p.A\"", bPath, 0, 0, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+			new Problem("", "The declared package \"\" does not match the expected package \"p.A\"", bPath, 0, 1, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=117092

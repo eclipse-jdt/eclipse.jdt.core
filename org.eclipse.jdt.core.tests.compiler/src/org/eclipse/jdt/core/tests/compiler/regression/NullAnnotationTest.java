@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "testBug372011" };
+//		TESTS_NAMES = new String[] { "test_missing_default_annotation_03" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -206,7 +206,7 @@ public void test_nonnull_parameter_001() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	if (o != null)\n" +
 		"	    ^\n" +
-		"Redundant null check: The variable o cannot be null at this location\n" +
+		"Redundant null check: The variable o is specified as @NonNull\n" +
 		"----------\n",
 		this.LIBS,
 		true /* shouldFlush*/);
@@ -255,7 +255,7 @@ public void test_nonnull_parameter_003() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	foo(null);\n" +
 		"	    ^^^^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n",
 		this.LIBS,
 		true /* shouldFlush*/);
@@ -288,7 +288,7 @@ public void test_nonnull_parameter_004() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	l.setObject(o);\n" +
 		"	            ^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" +
 		"----------\n");
 }
 // passing unknown value to nonnull parameter  - target method is consumed from .class
@@ -317,7 +317,7 @@ public void test_nonnull_parameter_005() {
 		"1. WARNING in X.java (at line 3)\n" +
 		"	l.setObject(o);\n" +
 		"	            ^\n" +
-		"Potential type mismatch: required \'@NonNull Object\' but nullness of the provided value is unknown\n" +
+		"Null type safety: The expression of type Object needs unchecked conversion to conform to \'@NonNull Object\'\n" +
 		"----------\n");
 }
 // a ternary non-null expression is passed to a nonnull parameter
@@ -362,7 +362,7 @@ public void test_nonnull_parameter_007() {
 		"1. ERROR in XSub.java (at line 4)\n" +
 		"	super(b);\n" +
 		"	      ^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" +
 		"----------\n");
 }
 // a nullable value is passed to a non-null parameter in an allocation expression
@@ -384,7 +384,7 @@ public void test_nonnull_parameter_008() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	return new X(b);\n" +
 		"	             ^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" +
 		"----------\n"  /* compiler output */);
 }
 // a nullable value is passed to a non-null parameter in a qualified allocation expression
@@ -408,7 +408,7 @@ public void test_nonnull_parameter_009() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	return this.new Local(b);\n" +
 		"	                      ^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" +
 		"----------\n"  /* compiler output */);
 }
 // null is passed to a non-null parameter in a qualified allocation expression, across CUs
@@ -438,12 +438,12 @@ public void test_nonnull_parameter_010() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	ContainingInner2 container = new ContainingInner2(null);\n" + 
 		"	                                                  ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	ContainingInner2.Inner inner = container.new Inner(null);\n" + 
 		"	                                                   ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n"  /* compiler output */);
 }
 // null is passed to a non-null parameter in a qualified allocation expression, target class read from .class
@@ -479,12 +479,12 @@ public void test_nonnull_parameter_011() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	ContainingInner2 container = new ContainingInner2(null);\n" + 
 		"	                                                  ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	ContainingInner2.Inner inner = container.new Inner(null);\n" + 
 		"	                                                   ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n"  /* compiler output */);
 }
 // null is passed to a non-null parameter in a qualified allocation expression, generic constructor, target class read from .class
@@ -520,12 +520,12 @@ public void test_nonnull_parameter_012() {
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	ContainingInner2 container = new ContainingInner2(null);\n" + 
 		"	                                                  ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 4)\n" + 
 		"	ContainingInner2.Inner inner = container.new Inner(null);\n" + 
 		"	                                                   ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n"  /* compiler output */);
 }
 // a method of a local class has a non-null parameter, client passes null
@@ -548,7 +548,7 @@ public void test_nonnull_parameter_013() {
 		"1. ERROR in B.java (at line 8)\n" + 
 		"	l.callMe(null);\n" + 
 		"	         ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n");
 }
 // non-null varargs (message send)
@@ -584,12 +584,12 @@ public void test_nonnull_parameter_015() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	if (o != null)\n" + 
 			"	    ^\n" + 
-			"Redundant null check: The variable o cannot be null at this location\n" + 
+			"Redundant null check: The variable o is specified as @NonNull\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 14)\n" + 
 			"	foo(objs);\n" + 
 			"	    ^^^^\n" + 
-			"Type mismatch: required \'@NonNull Object[]\' but the provided value is null\n" + 
+			"Null type mismatch: required \'@NonNull Object[]\' but the provided value is null\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 18)\n" + 
 			"	foo2(2, null);\n" + 
@@ -599,7 +599,7 @@ public void test_nonnull_parameter_015() {
 			"4. ERROR in X.java (at line 18)\n" + 
 			"	foo2(2, null);\n" + 
 			"	        ^^^^\n" + 
-			"Type mismatch: required \'@NonNull Object[]\' but the provided value is null\n" + 
+			"Null type mismatch: required \'@NonNull Object[]\' but the provided value is null\n" + 
 			"----------\n",
 		this.LIBS,
 		true /* shouldFlush*/);
@@ -640,17 +640,17 @@ public void test_nonnull_parameter_016() {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	if (o != null)\n" +
 			"	    ^\n" +
-			"Redundant null check: The variable o cannot be null at this location\n" +
+			"Redundant null check: The variable o is specified as @NonNull\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 16)\n" +
 			"	new X((Object[])null);\n" +
 			"	      ^^^^^^^^^^^^^^\n" +
-			"Type mismatch: required \'@NonNull Object[]\' but the provided value is null\n" +
+			"Null type mismatch: required \'@NonNull Object[]\' but the provided value is null\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 21)\n" +
 			"	this.new Y(2, (Object[])null);\n" +
 			"	              ^^^^^^^^^^^^^^\n" +
-			"Type mismatch: required \'@NonNull Object[]\' but the provided value is null\n" +
+			"Null type mismatch: required \'@NonNull Object[]\' but the provided value is null\n" +
 			"----------\n",
 		this.LIBS,
 		true /* shouldFlush*/);
@@ -674,12 +674,12 @@ public void test_nonnull_argument_001() {
 			"1. ERROR in ShowNPE2.java (at line 5)\n" + 
 			"	o1 = null;   // expect NPE error\n" + 
 			"	     ^^^^\n" + 
-			"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 			"----------\n" + 
 			"2. ERROR in ShowNPE2.java (at line 7)\n" + 
 			"	return null;  // expect NPE error\n" + 
 			"	       ^^^^\n" + 
-			"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 			"----------\n");
 }
 // Bug 367203 - [compiler][null] detect assigning null to nonnull argument
@@ -701,7 +701,7 @@ public void test_nonnull_argument_002() {
 			"1. ERROR in ShowNPE2.java (at line 6)\n" + 
 			"	return null;  // expect NPE error\n" + 
 			"	       ^^^^\n" + 
-			"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 			"----------\n");
 }
 // a method of a local class has a non-null parameter, client passes potential null (msg send)
@@ -725,7 +725,7 @@ public void test_nonnull_parameter_014() {
 		"1. ERROR in B.java (at line 8)\n" + 
 		"	l.callMe(getNull());\n" + 
 		"	         ^^^^^^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
 		"----------\n");
 }
 // assigning potential null to a nonnull local variable
@@ -746,17 +746,17 @@ public void test_nonnull_local_001() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	@NonNull Object o1 = b ? null : new Object();\n" +
 		"	                     ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 6)\n" +
 		"	o2 = null;\n" +
 		"	     ^^^^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 7)\n" +
 		"	@NonNull Object o3 = p;\n" +
 		"	                     ^\n" +
-		"Potential type mismatch: required \'@NonNull Object\' but nullness of the provided value is unknown\n" +
+		"Null type safety: The expression of type Object needs unchecked conversion to conform to \'@NonNull Object\'\n" +
 		"----------\n",
 		this.LIBS,
 		true /* shouldFlush*/);
@@ -783,17 +783,17 @@ public void test_nonnull_local_002() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	o1 = b ? null : new Object();\n" +
 		"	     ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 8)\n" +
 		"	o2 = null;\n" +
 		"	     ^^^^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 10)\n" +
 		"	o3 = p;\n" +
 		"	     ^\n" +
-		"Potential type mismatch: required \'@NonNull Object\' but nullness of the provided value is unknown\n" +
+		"Null type safety: The expression of type Object needs unchecked conversion to conform to \'@NonNull Object\'\n" +
 		"----------\n",
 		this.LIBS,
 		true /* shouldFlush*/);
@@ -1027,7 +1027,7 @@ public void test_parameter_specification_inheritance_007a() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	@NonNull Object getObject() { return null; }\n" +
 		"	                                     ^^^^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // a client potentially violates the inherited null specification, super interface declares @NonNull parameter
@@ -1071,7 +1071,7 @@ public void test_parameter_specification_inheritance_008() {
 		"1. ERROR in M.java (at line 3)\n" +
 		"	x.printObject(o);\n" +
 		"	              ^\n" +
-		"Potential type mismatch: required \'@NonNull Object\' but nullness of the provided value is unknown\n" +
+		"Null type safety: The expression of type Object needs unchecked conversion to conform to \'@NonNull Object\'\n" +
 		"----------\n");
 }
 // a static method has a more relaxed null contract than a like method in the super class, but no overriding.
@@ -1156,7 +1156,7 @@ public void test_parameter_specification_inheritance_011() {
 		"1. ERROR in p1\\Y.java (at line 7)\n" +
 		"	return super.getString(null);\n" +
 		"	                       ^^^^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 		"----------\n");
 }
 // methods from two super types have different null contracts.
@@ -1418,7 +1418,7 @@ public void test_nonnull_return_003() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	return null;\n" +
 		"	       ^^^^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // a non-null method potentially returns null
@@ -1438,7 +1438,7 @@ public void test_nonnull_return_004() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	return o;\n" +
 		"	       ^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is specified as @Nullable\n" +
 		"----------\n");
 }
 // a non-null method returns its non-null argument
@@ -1472,7 +1472,7 @@ public void test_nonnull_return_006() {
 		"1. WARNING in X.java (at line 4)\n" +
 		"	return o;\n" +
 		"	       ^\n" +
-		"Potential type mismatch: required \'@NonNull Object\' but nullness of the provided value is unknown\n" +
+		"Null type safety: The expression of type Object needs unchecked conversion to conform to \'@NonNull Object\'\n" +
 		"----------\n");
 }
 // a result from a nullable method is directly dereferenced
@@ -1669,7 +1669,7 @@ public void test_nonnull_return_011() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	if (dubious == null)\n" +
 		"	    ^^^^^^^\n" +
-		"Null comparison always yields false: The variable dubious cannot be null at this location\n" +
+		"Null comparison always yields false: The variable dubious is specified as @NonNull\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 6)\n" +
 		"	return dubious;\n" +
@@ -1704,7 +1704,7 @@ public void _test_nonnull_return_012() {
 		"2. ERROR in X.java (at line 5)\n" +
 		"	return dubious == null ? dubious : null;\n" +
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // don't apply any default annotations to return void
@@ -1753,15 +1753,15 @@ public void test_nonnull_return_014() {
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	local = x;  // error\n" + 
 		"	        ^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 10)\n" + 
 		"	return x;   // only a warning.\n" + 
 		"	       ^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
 		"----------\n");
 }
-//suppress an error regarding null-spec violation
+// suppress an error regarding null-spec violation
 public void test_suppress_001() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
@@ -1875,7 +1875,7 @@ public void test_annotation_import_005() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	return l.getObject();\n" +
 		"	       ^^^^^^^^^^^^^\n" +
-		"Potential type mismatch: required \'@MustNotBeNull Object\' but nullness of the provided value is unknown\n" +
+		"Null type safety: The expression of type Object needs unchecked conversion to conform to \'@MustNotBeNull Object\'\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -1913,29 +1913,6 @@ public void test_annotation_import_006() {
 		"MustNotBeNull cannot be resolved to a type\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
-}
-// using nullness defaulting to nonnull, missing annotation types, no longer a problem
-public void test_annotation_import_007() {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.MayBeNull");
-	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.MustNotBeNull");
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
-	runConformTestWithLibs(
-		new String[] {
-			"Lib.java",
-			"public class Lib {\n" +
-			"    Object getObject() { return new Object(); }\n" +
-			"}\n",
-			"X.java",
-			"public class X {\n" +
-			"    Object getObject(Lib l) {\n" +
-			"        return l.getObject();\n" +
-			"    }\n" +
-			"}\n"
-		},
-		customOptions,
-		"");
 }
 
 // a null annotation is illegally used on a class:
@@ -2191,7 +2168,7 @@ public void test_default_nullness_003() {
 		"2. ERROR in p2\\Y.java (at line 6)\n" +
 		"	bar(o);\n" +
 		"	    ^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is specified as @Nullable\n" +
 		"----------\n");
 }
 // package level default is consumed from package-info.class, similarly for type level default
@@ -2243,12 +2220,12 @@ public void test_default_nullness_003a() {
 		"2. ERROR in p2\\Y.java (at line 6)\n" +
 		"	bar(o);\n" +
 		"	    ^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is specified as @Nullable\n" +
 		"----------\n" +
 		"3. ERROR in p2\\Y.java (at line 7)\n" +
 		"	accept(o);\n" +
 		"	       ^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is specified as @Nullable\n" +
 		"----------\n");
 }
 // same as test_default_nullness_003a, but default-induced annotations are combined with explicit ones (not null related)
@@ -2306,12 +2283,12 @@ public void test_default_nullness_003b() {
 		"2. ERROR in p2\\Y.java (at line 6)\n" +
 		"	bar(o);\n" +
 		"	    ^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is specified as @Nullable\n" +
 		"----------\n" +
 		"3. ERROR in p2\\Y.java (at line 7)\n" +
 		"	accept(o);\n" +
 		"	       ^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is specified as @Nullable\n" +
 		"----------\n");
 }
 // don't apply type-level default to non-reference type
@@ -2370,7 +2347,7 @@ public void test_default_nullness_005() {
 		"1. ERROR in p1\\X.java (at line 4)\n" +
 		"	return null;\n" +
 		"	       ^^^^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // package default is non-null, package-info.java read before the annotation type
@@ -2401,7 +2378,7 @@ public void test_default_nullness_006() {
 		"1. ERROR in p1\\X.java (at line 4)\n" +
 		"	return null;\n" +
 		"	       ^^^^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // global default nonnull, but return may be null
@@ -2409,7 +2386,7 @@ public void test_default_nullness_006() {
 public void _test_default_nullness_007() {
 	Map customOptions = getCompilerOptions();
 //	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
+//	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
@@ -2429,7 +2406,7 @@ public void _test_default_nullness_007() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	return dangerous();\n" +
 		"	       ^^^^^^^^^^^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" +
 		"----------\n");
 }
 
@@ -2504,7 +2481,7 @@ public void test_default_nullness_009() {
 		"1. ERROR in p2\\Y.java (at line 11)\n" +
 		"	bar(o); // error: arg is declared @NonNull\n" +
 		"	    ^\n" +
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // non-null declarations are redundant within a default scope.
@@ -2564,12 +2541,12 @@ public void test_default_nullness_011() {
 		"1. ERROR in Main.java (at line 4)\n" + 
 		"	o = null;\n" + 
 		"	    ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"2. ERROR in Main.java (at line 5)\n" + 
 		"	new C(null);\n" + 
 		"	      ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"----------\n" + 
 		"1. WARNING in p1\\C.java (at line 2)\n" + 
@@ -2601,7 +2578,7 @@ public void test_default_nullness_012() {
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	new local().zoo(null); // defaults applying from foo\n" + 
 		"	                ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n");
 }
 // Bug 365836 - [compiler][null] Incomplete propagation of null defaults.
@@ -2630,7 +2607,7 @@ public void test_default_nullness_013() {
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	return null; // defaults applying from foo\n" + 
 		"	       ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n");
 }
 // bug 367154 - [compiler][null] Problem in propagating null defaults.
@@ -2660,7 +2637,7 @@ public void test_default_nullness_014() {
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	return null;  // expect error here\n" + 
 		"	       ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n");
 }
 // bug 367154 - [compiler][null] Problem in propagating null defaults.
@@ -2690,7 +2667,7 @@ public void test_default_nullness_015() {
 		"1. ERROR in X.java (at line 11)\n" + 
 		"	return null;  // expect error here\n" + 
 		"	       ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n");
 }
 
@@ -2860,48 +2837,75 @@ public void test_redundant_annotation_02g() {
 		"----------\n");
 }
 
-// redundant default annotations - package / class / method vs global default
-// DISABLED due to dysfunctional global default after Bug 366063 - Compiler should not add synthetic @NonNull annotations
-public void _test_redundant_annotation_03() {
+// test missing default nullness annotation for types in default package
+public void test_missing_default_annotation_01() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
-	runConformTestWithLibs(
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
+	runNegativeTestWithLibs(
 		new String[] {
+			"Lib.java",
+			"public class Lib {\n" +
+			"    Object getObject() { return new Object(); }\n" +
+			"}\n",
+			"X.java",
+			"public class X {\n" +
+			"	 class XInner{}\n" +  // don't warn for inner types
+			"    Object getObject(Lib l) {\n" +
+			"        return l.getObject();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		customOptions,
+		"----------\n" + 
+		"1. ERROR in Lib.java (at line 1)\n" + 
+		"	public class Lib {\n" + 
+		"	             ^^^\n" + 
+		"A default nullness annotation has not been specified for the type Lib\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X {\n" + 
+		"	             ^\n" + 
+		"A default nullness annotation has not been specified for the type X\n" + 
+		"----------\n");
+}
+
+// test missing default nullness annotation for a package with package-info
+public void test_missing_default_annotation_02() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
+	runNegativeTestWithLibs(
+		new String[] {
+			"p2/package-info.java",
+			"package p2;\n",
 			"p2/Y.java",
 			"package p2;\n" +
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"@NonNullByDefault\n" +
 			"public class Y {\n" +
-			"    @NonNullByDefault void foo() {}\n" +
-			"}\n" +
-			"class Z {\n" +
-			"    @NonNullByDefault void bar() {}\n" +
+			"   void foo() {}\n" +
 			"}\n",
 			"p3/package-info.java",
-			"@org.eclipse.jdt.annotation.NonNullByDefault package p3;\n"
+			"@org.eclipse.jdt.annotation.NonNullByDefault package p3;\n",
+			"p3/Z.java",
+			"package p3;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Z {\n" +
+			"    @NonNullByDefault void bar() {}\n" +
+			"}\n",
 		},
 		customOptions,
 		"----------\n" + 
-		"1. WARNING in p2\\Y.java (at line 3)\n" +
-		"	@NonNullByDefault\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Nullness default is redundant with the global default\n" +
-		"----------\n" +
-		"2. WARNING in p2\\Y.java (at line 5)\n" +
-		"	@NonNullByDefault void foo() {}\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Nullness default is redundant with a default specified for the enclosing type Y\n" +
-		"----------\n" +
-		"3. WARNING in p2\\Y.java (at line 8)\n" +
-		"	@NonNullByDefault void bar() {}\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Nullness default is redundant with the global default\n" +
-		"----------\n" +
-		"----------\n" +
-		"1. WARNING in p3\\package-info.java (at line 1)\n" +
-		"	@org.eclipse.jdt.annotation.NonNullByDefault package p3;\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Nullness default is redundant with the global default\n" +
+		"1. ERROR in p2\\package-info.java (at line 1)\n" + 
+		"	package p2;\n" + 
+		"	        ^^\n" + 
+		"A default nullness annotation has not been specified for the package p2\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. WARNING in p3\\Z.java (at line 4)\n" + 
+		"	@NonNullByDefault void bar() {}\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing package p3\n" + 
 		"----------\n");
 }
 
@@ -3027,12 +3031,12 @@ public void test_nonnull_var_in_constrol_structure_1() {
 		"2. ERROR in X.java (at line 10)\n" +
 		"	print(s);\n" +
 		"	      ^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 15)\n" +
 		"	print(s);\n" +
 		"	      ^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is inferred as @Nullable\n" +
 		"----------\n" +
 		"4. WARNING in X.java (at line 17)\n" +
 		"	void print(@NonNull String s) {\n" +
@@ -3079,19 +3083,17 @@ public void test_nonnull_var_in_constrol_structure_2() {
 		"1. ERROR in X.java (at line 10)\n" +
 		"	print(s);\n" +
 		"	      ^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 16)\n" +
 		"	print(s);\n" +
 		"	      ^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is inferred as @Nullable\n" +
 		"----------\n");
 }
 // a nonnull variable is dereferenced in a finally block inside a loop
 public void test_nonnull_var_in_constrol_structure_3() {
 	Map customOptions = getCompilerOptions();
-//	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 	customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.IGNORE);
 	runNegativeTestWithLibs(
 		new String[] {
@@ -3128,12 +3130,12 @@ public void test_nonnull_var_in_constrol_structure_3() {
 		"1. ERROR in X.java (at line 12)\n" +
 		"	print(s);\n" +
 		"	      ^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 19)\n" +
 		"	print(s);\n" +
 		"	      ^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is inferred as @Nullable\n" +
 		"----------\n");
 }
 // witness for an AIOOBE in FlowContext.recordExpectedType()
@@ -3242,7 +3244,30 @@ public void test_message_send_in_control_structure_02() {
 		"1. WARNING in Bug370930.java (at line 5)\n" + 
 		"	for(@NonNull String s: list) { // warning here: insufficient info on elements\n" + 
 		"	                       ^^^^\n" + 
-		"Potential type mismatch: required \'@NonNull String\' but nullness of the provided value is unknown\n" + 
+		"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" + 
+		"----------\n");
+}
+//Bug 370930 - NonNull annotation not considered for enhanced for loops over array
+public void test_message_send_in_control_structure_02a() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Bug370930.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Bug370930 {\n" +
+			"	void loop(String[] array) {\n" + 
+			"		for(@NonNull String s: array) { // warning here: insufficient info on elements\n" + 
+			"			expectNonNull(s); // no warning here\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	void expectNonNull(@NonNull String s) {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in Bug370930.java (at line 4)\n" + 
+		"	for(@NonNull String s: array) { // warning here: insufficient info on elements\n" + 
+		"	                       ^^^^^\n" + 
+		"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" + 
 		"----------\n");
 }
 //Bug 370930 - NonNull annotation not considered for enhanced for loops
@@ -3266,13 +3291,11 @@ public void test_message_send_in_control_structure_03() {
 		"1. ERROR in Bug370930.java (at line 6)\n" + 
 		"	expectNonNull(s); // warning here\n" + 
 		"	              ^\n" + 
-		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" + 
 		"----------\n");
 }
 public void test_assignment_expression_1() {
 	Map customOptions = getCompilerOptions();
-//	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_NONNULL_IS_DEFAULT, JavaCore.ENABLED);
 	customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
 	runConformTestWithLibs(
 		new String[] {
@@ -3347,12 +3370,12 @@ public void test_nesting_1() {
 		"1. ERROR in X.java (at line 16)\n" +
 		"	print(s2);\n" +
 		"	      ^^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 25)\n" +
 		"	@NonNull String s3R = s3;\n" +
 		"	                      ^^\n" +
-		"Type mismatch: required \'@NonNull String\' but the provided value can be null\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is inferred as @Nullable\n" +
 		"----------\n");
 }
 // Test a regression incurred to the OT/J based implementation
@@ -3427,7 +3450,7 @@ public void test_options_02() {
 		"1. ERROR in Test.java (at line 3)\n" + 
 		"	o = null;\n" + 
 		"	    ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"2. ERROR in Test.java (at line 5)\n" + 
 		"	if (p == null)\n" + 
@@ -3461,7 +3484,7 @@ public void test_options_03() {
 		"1. WARNING in Test.java (at line 3)\n" + 
 		"	o = null;\n" + 
 		"	    ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"2. ERROR in Test.java (at line 5)\n" + 
 		"	if (p == null)\n" + 
@@ -3506,22 +3529,22 @@ public void testBug372011() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	new T11().t11foo(null);\n" + 
 		"	                 ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	new T12().new T122().foo122(null);\n" + 
 		"	                            ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 11)\n" + 
 		"	o.bar(null);\n" + 
 		"	      ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 15)\n" + 
 		"	new T12().new T122().new T1222().foo1222(null);\n" + 
 		"	                                         ^^^^\n" + 
-		"Type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n",
 		libs,
 		true /* shouldFlush*/);

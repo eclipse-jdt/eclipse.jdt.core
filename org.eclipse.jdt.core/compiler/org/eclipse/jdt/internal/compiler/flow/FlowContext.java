@@ -11,6 +11,7 @@
  *     							bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
+ *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -57,8 +58,8 @@ public class FlowContext implements TypeConstants {
 
 	public int tagBits;
 
-	// array to store the expected type from the potential error location (for display in error messages):
-	public TypeBinding[] expectedTypes = null;
+	// array to store the provided and expected types from the potential error location (for display in error messages):
+	public TypeBinding[][] providedExpectedTypes = null;
 
 	public static final int DEFER_NULL_DIAGNOSTIC = 0x1;
 	public static final int PREEMPT_NULL_DIAGNOSTIC = 0x2;
@@ -573,20 +574,20 @@ public boolean recordExitAgainstResource(BlockScope scope, FlowInfo flowInfo, Fa
 	return false; // not handled
 }
 
-protected void recordExpectedType(TypeBinding expectedType, int nullCount) {
+protected void recordProvidedExpectedTypes(TypeBinding providedType, TypeBinding expectedType, int nullCount) {
 	if (nullCount == 0) {
-		this.expectedTypes = new TypeBinding[5];
-	} else if (this.expectedTypes == null) {
+		this.providedExpectedTypes = new TypeBinding[5][];
+	} else if (this.providedExpectedTypes == null) {
 		int size = 5;
 		while (size <= nullCount) size *= 2;
-		this.expectedTypes = new TypeBinding[size];
+		this.providedExpectedTypes = new TypeBinding[size][];
 	}
-	else if (nullCount >= this.expectedTypes.length) {
-		int oldLen = this.expectedTypes.length;
-		System.arraycopy(this.expectedTypes, 0,
-			this.expectedTypes = new TypeBinding[nullCount * 2], 0, oldLen);
+	else if (nullCount >= this.providedExpectedTypes.length) {
+		int oldLen = this.providedExpectedTypes.length;
+		System.arraycopy(this.providedExpectedTypes, 0,
+			this.providedExpectedTypes = new TypeBinding[nullCount * 2][], 0, oldLen);
 	}
-	this.expectedTypes[nullCount] = expectedType;
+	this.providedExpectedTypes[nullCount] = new TypeBinding[]{providedType, expectedType};
 }
 
 protected boolean recordFinalAssignment(VariableBinding variable, Reference finalReference) {
@@ -790,10 +791,14 @@ public String toString() {
  * Record that a nullity mismatch was detected against an annotated type reference.
  * @param currentScope scope for error reporting
  * @param expression the expression violating the specification
- * @param nullStatus the null status of expression at the current location
+ * @param providedType the type of the provided value, i.e., either expression or an element thereof (in ForeachStatements)
  * @param expectedType the declared type of the spec'ed variable, for error reporting.
+ * @param nullStatus the null status of expression at the current location
  */
-public void recordNullityMismatch(BlockScope currentScope, Expression expression, int nullStatus, TypeBinding expectedType) {
+public void recordNullityMismatch(BlockScope currentScope, Expression expression, TypeBinding providedType, TypeBinding expectedType, int nullStatus) {
+	if (providedType == null) {
+		return; // assume type error was already reported
+	}
 	if (expression.localVariableBinding() != null) { // flowContext cannot yet handle non-localvar expressions (e.g., fields)
 		// find the inner-most flowContext that might need deferred handling:
 		FlowContext currentContext = this;
@@ -803,16 +808,16 @@ public void recordNullityMismatch(BlockScope currentScope, Expression expression
 			if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
 				isInsideAssert = FlowContext.HIDE_NULL_COMPARISON_WARNING;
 			}
-			if (currentContext.internalRecordNullityMismatch(expression, nullStatus, expectedType, ASSIGN_TO_NONNULL | isInsideAssert))
+			if (currentContext.internalRecordNullityMismatch(expression, providedType, nullStatus, expectedType, ASSIGN_TO_NONNULL | isInsideAssert))
 				return;
 			currentContext = currentContext.parent;
 		}
 	}
 	// no reason to defer, so report now:
 	char[][] annotationName = currentScope.environment().getNonNullAnnotationName();
-	currentScope.problemReporter().nullityMismatch(expression, expectedType, nullStatus, annotationName);
+	currentScope.problemReporter().nullityMismatch(expression, providedType, expectedType, nullStatus, annotationName);
 }
-protected boolean internalRecordNullityMismatch(Expression expression, int nullStatus, TypeBinding expectedType, int checkType) {
+protected boolean internalRecordNullityMismatch(Expression expression, TypeBinding providedType, int nullStatus, TypeBinding expectedType, int checkType) {
 	// nop, to be overridden in subclasses
 	return false; // not recorded
 }

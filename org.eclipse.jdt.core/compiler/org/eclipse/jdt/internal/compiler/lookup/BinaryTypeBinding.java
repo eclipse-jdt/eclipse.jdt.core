@@ -1192,7 +1192,9 @@ void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBindi
 			}
 		}
 	}
-	if (!explicitNullness && currentDefault == NONNULL_BY_DEFAULT) {
+	if (!explicitNullness 
+			&& (methodBinding.returnType != null && !methodBinding.returnType.isBaseType()) 
+			&& currentDefault == NONNULL_BY_DEFAULT) {
 		methodBinding.tagBits |= TagBits.AnnotationNonNull;
 	}
 
@@ -1231,7 +1233,9 @@ void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBindi
 			if (!explicitNullness && currentDefault == NONNULL_BY_DEFAULT) {
 				if (methodBinding.parameterNonNullness == null)
 					methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
-				methodBinding.parameterNonNullness[j] = Boolean.TRUE;
+				if (methodBinding.parameters[j]!= null && !methodBinding.parameters[j].isBaseType()) {
+					methodBinding.parameterNonNullness[j] = Boolean.TRUE;
+				}
 			}
 		}
 	}

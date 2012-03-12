@@ -16,6 +16,7 @@
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
+ *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -303,9 +304,12 @@ public static int getIrritant(int problemID) {
 		case IProblem.NullLocalVariableComparisonYieldsFalse:
 		case IProblem.NullLocalVariableInstanceofYieldsFalse:
 		case IProblem.RedundantNullCheckOnNonNullMessageSend:
+		case IProblem.RedundantNullCheckOnSpecdNonNullLocalVariable:
+		case IProblem.SpecdNonNullLocalVariableComparisonYieldsFalse:
 			return CompilerOptions.RedundantNullCheck;
 
 		case IProblem.RequiredNonNullButProvidedNull:
+		case IProblem.RequiredNonNullButProvidedSpecdNullable:
 		case IProblem.IllegalReturnNullityRedefinition:
 		case IProblem.IllegalRedefinitionToNonNullParameter:
 		case IProblem.IllegalDefinitionToNonNullParameter:
@@ -469,6 +473,10 @@ public static int getIrritant(int problemID) {
 				
 		case IProblem.RedundantSpecificationOfTypeArguments:
 			return CompilerOptions.RedundantSpecificationOfTypeArguments;
+			
+		case IProblem.MissingNonNullByDefaultAnnotationOnPackage:
+		case IProblem.MissingNonNullByDefaultAnnotationOnType:
+			return CompilerOptions.MissingNonNullByDefaultAnnotation;
 	}
 	return 0;
 }
@@ -574,6 +582,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.NullSpecViolation :
 			case CompilerOptions.PotentialNullSpecViolation :
 			case CompilerOptions.NullSpecInsufficientInfo :
+			case CompilerOptions.MissingNonNullByDefaultAnnotation:
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			case CompilerOptions.RedundantNullAnnotation :
 				return CategorizedProblem.CAT_UNNECESSARY_CODE;
@@ -1770,12 +1779,16 @@ public void duplicateTypeParameterInType(TypeParameter typeParameter) {
 public void duplicateTypes(CompilationUnitDeclaration compUnitDecl, TypeDeclaration typeDecl) {
 	String[] arguments = new String[] {new String(compUnitDecl.getFileName()), new String(typeDecl.name)};
 	this.referenceContext = typeDecl; // report the problem against the type not the entire compilation unit
+	int end = typeDecl.sourceEnd;
+	if (end <= 0) {
+		end = -1;
+	}
 	this.handle(
 		IProblem.DuplicateTypes,
 		arguments,
 		arguments,
 		typeDecl.sourceStart,
-		typeDecl.sourceEnd,
+		end,
 		compUnitDecl.compilationResult);
 }
 public void emptyControlFlowStatement(int sourceStart, int sourceEnd) {
@@ -5083,9 +5096,18 @@ public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, 
 public void localVariableNonNullComparedToNull(LocalVariableBinding local, ASTNode location) {
 	int severity = computeSeverity(IProblem.NonNullLocalVariableComparisonYieldsFalse);
 	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(local.name)  };
+	String[] arguments;
+	int problemId;
+	if (local.isNonNull()) {
+		char[][] annotationName = this.options.nonNullAnnotationName; // cannot be null if local is declared @NonNull
+		arguments = new String[] {new String(local.name), new String(annotationName[annotationName.length-1])  };
+		problemId = IProblem.SpecdNonNullLocalVariableComparisonYieldsFalse;
+	} else {
+		arguments = new String[] {new String(local.name)  };
+		problemId = IProblem.NonNullLocalVariableComparisonYieldsFalse; 
+	}
 	this.handle(
-		IProblem.NonNullLocalVariableComparisonYieldsFalse,
+		problemId,
 		arguments,
 		arguments,
 		severity,
@@ -5148,9 +5170,18 @@ public void localVariablePotentialNullReference(LocalVariableBinding local, ASTN
 public void localVariableRedundantCheckOnNonNull(LocalVariableBinding local, ASTNode location) {
 	int severity = computeSeverity(IProblem.RedundantNullCheckOnNonNullLocalVariable);
 	if (severity == ProblemSeverities.Ignore) return;
-	String[] arguments = new String[] {new String(local.name)  };
+	String[] arguments;
+	int problemId;
+	if (local.isNonNull()) {
+		char[][] annotationName = this.options.nonNullAnnotationName; // cannot be null if local is declared @NonNull
+		arguments = new String[] {new String(local.name), new String(annotationName[annotationName.length-1])  };
+		problemId = IProblem.RedundantNullCheckOnSpecdNonNullLocalVariable;
+	} else {
+		arguments = new String[] {new String(local.name)  };
+		problemId = IProblem.RedundantNullCheckOnNonNullLocalVariable; 
+	}
 	this.handle(
-		IProblem.RedundantNullCheckOnNonNullLocalVariable,
+		problemId, 
 		arguments,
 		arguments,
 		severity,
@@ -5967,16 +5998,23 @@ public void packageCollidesWithType(CompilationUnitDeclaration compUnitDecl) {
 		compUnitDecl.currentPackage.sourceEnd);
 }
 public void packageIsNotExpectedPackage(CompilationUnitDeclaration compUnitDecl) {
+	boolean hasPackageDeclaration = compUnitDecl.currentPackage == null;
 	String[] arguments = new String[] {
 		CharOperation.toString(compUnitDecl.compilationResult.compilationUnit.getPackageName()),
-		compUnitDecl.currentPackage == null ? "" : CharOperation.toString(compUnitDecl.currentPackage.tokens), //$NON-NLS-1$
+		hasPackageDeclaration ? "" : CharOperation.toString(compUnitDecl.currentPackage.tokens), //$NON-NLS-1$
 	};
+	int end;
+	if (compUnitDecl.sourceEnd <= 0) {
+		end = -1;
+	} else {
+		end = hasPackageDeclaration ? 0 : compUnitDecl.currentPackage.sourceEnd;
+	}	
 	this.handle(
 		IProblem.PackageIsNotExpectedPackage,
 		arguments,
 		arguments,
-		compUnitDecl.currentPackage == null ? 0 : compUnitDecl.currentPackage.sourceStart,
-		compUnitDecl.currentPackage == null ? 0 : compUnitDecl.currentPackage.sourceEnd);
+		hasPackageDeclaration ? 0 : compUnitDecl.currentPackage.sourceStart,
+		end);
 }
 public void parameterAssignment(LocalVariableBinding local, ASTNode location) {
 	int severity = computeSeverity(IProblem.ParameterAssignment);
@@ -8122,12 +8160,28 @@ public void explicitlyClosedAutoCloseable(FakedTrackingVariable trackVar) {
 		trackVar.sourceEnd);	
 }
 
-public void nullityMismatch(Expression expression, TypeBinding requiredType, int nullStatus, char[][] annotationName) {
-	int problemId = IProblem.RequiredNonNullButProvidedUnknown;
-	if ((nullStatus & FlowInfo.NULL) != 0)
-		problemId = IProblem.RequiredNonNullButProvidedNull;
-	if ((nullStatus & FlowInfo.POTENTIALLY_NULL) != 0)
-		problemId = IProblem.RequiredNonNullButProvidedPotentialNull;
+public void nullityMismatch(Expression expression, TypeBinding providedType, TypeBinding requiredType, int nullStatus, char[][] annotationName) {
+	if ((nullStatus & FlowInfo.NULL) != 0) {
+		nullityMismatchIsNull(expression, requiredType, annotationName);
+		return;
+	}
+	if ((nullStatus & FlowInfo.POTENTIALLY_NULL) != 0) {
+		if (expression instanceof SingleNameReference) {
+			SingleNameReference snr = (SingleNameReference) expression;
+			if (snr.binding instanceof LocalVariableBinding) {
+				if (((LocalVariableBinding)snr.binding).isNullable()) {
+					nullityMismatchSpecdNullable(expression, requiredType, annotationName);
+					return;
+				}
+			}
+		}
+		nullityMismatchPotentiallyNull(expression, requiredType, annotationName);
+		return;
+	}
+	nullityMismatchIsUnknown(expression, providedType, requiredType, annotationName);
+}
+public void nullityMismatchIsNull(Expression expression, TypeBinding requiredType, char[][] annotationName) {
+	int problemId = IProblem.RequiredNonNullButProvidedNull;
 	String[] arguments = new String[] {
 			String.valueOf(CharOperation.concatWith(annotationName, '.')),
 			String.valueOf(requiredType.readableName())
@@ -8136,12 +8190,51 @@ public void nullityMismatch(Expression expression, TypeBinding requiredType, int
 			String.valueOf(annotationName[annotationName.length-1]),
 			String.valueOf(requiredType.shortReadableName())
 	};
-	this.handle(
-		problemId,
-		arguments,
-		argumentsShort,
-		expression.sourceStart,
-		expression.sourceEnd);
+	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
+}
+public void nullityMismatchSpecdNullable(Expression expression, TypeBinding requiredType, char[][] annotationName) {
+	int problemId = IProblem.RequiredNonNullButProvidedSpecdNullable;
+	char[][] nullableName = this.options.nullableAnnotationName;
+	String[] arguments = new String[] {
+			String.valueOf(CharOperation.concatWith(annotationName, '.')),
+			String.valueOf(requiredType.readableName()),
+			String.valueOf(CharOperation.concatWith(nullableName, '.'))
+	};
+	String[] argumentsShort = new String[] {
+			String.valueOf(annotationName[annotationName.length-1]),
+			String.valueOf(requiredType.shortReadableName()),
+			String.valueOf(nullableName[nullableName.length-1])
+	};
+	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
+}
+public void nullityMismatchPotentiallyNull(Expression expression, TypeBinding requiredType, char[][] annotationName) {
+	int problemId = IProblem.RequiredNonNullButProvidedPotentialNull;
+	char[][] nullableName = this.options.nullableAnnotationName;
+	String[] arguments = new String[] {
+			String.valueOf(CharOperation.concatWith(annotationName, '.')),
+			String.valueOf(requiredType.readableName()),
+			String.valueOf(CharOperation.concatWith(nullableName, '.'))
+	};
+	String[] argumentsShort = new String[] {
+			String.valueOf(annotationName[annotationName.length-1]),
+			String.valueOf(requiredType.shortReadableName()),
+			String.valueOf(nullableName[nullableName.length-1])
+	};
+	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
+}
+public void nullityMismatchIsUnknown(Expression expression, TypeBinding providedType, TypeBinding requiredType, char[][] annotationName) {
+	int problemId = IProblem.RequiredNonNullButProvidedUnknown;
+	String[] arguments = new String[] {
+			String.valueOf(providedType.readableName()),
+			String.valueOf(CharOperation.concatWith(annotationName, '.')),
+			String.valueOf(requiredType.readableName())
+	};
+	String[] argumentsShort = new String[] {
+			String.valueOf(providedType.shortReadableName()),
+			String.valueOf(annotationName[annotationName.length-1]),
+			String.valueOf(requiredType.shortReadableName())
+	};
+	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
 }
 public void illegalRedefinitionToNonNullParameter(Argument argument, ReferenceBinding declaringClass, char[][] inheritedAnnotationName) {
 	int sourceStart = argument.type.sourceStart;
@@ -8180,9 +8273,7 @@ public void parameterLackingNullAnnotation(Argument argument, ReferenceBinding d
 		argument.type.sourceStart,
 		argument.type.sourceEnd);
 }
-public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDecl,
-									  MethodBinding inheritedMethod, char[][] nonNullAnnotationName)
-{
+public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDecl, MethodBinding inheritedMethod, char[][] nonNullAnnotationName) {
 	MethodDeclaration methodDecl = (MethodDeclaration) abstractMethodDecl;
 	StringBuffer methodSignature = new StringBuffer();
 	methodSignature
@@ -8327,5 +8418,35 @@ private Annotation findAnnotation(Annotation[] annotations, int typeId) {
 		}
 	}
 	return null;
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
+public void missingNonNullByDefaultAnnotation(TypeDeclaration type) {
+	int severity;
+	CompilationUnitDeclaration compUnitDecl = type.getCompilationUnitDeclaration();
+	String[] arguments;
+	if (compUnitDecl.currentPackage == null) {
+		severity = computeSeverity(IProblem.MissingNonNullByDefaultAnnotationOnType);
+		if (severity == ProblemSeverities.Ignore) return;
+		// Default package
+		TypeBinding binding = type.binding;
+		this.handle(
+				IProblem.MissingNonNullByDefaultAnnotationOnType,
+				new String[] {new String(binding.readableName()), },
+				new String[] {new String(binding.shortReadableName()),},
+				severity,
+				type.sourceStart,
+				type.sourceEnd);
+	} else {
+		severity = computeSeverity(IProblem.MissingNonNullByDefaultAnnotationOnPackage);
+		if (severity == ProblemSeverities.Ignore) return;
+		arguments = new String[] {CharOperation.toString(compUnitDecl.currentPackage.tokens)};
+		this.handle(
+			IProblem.MissingNonNullByDefaultAnnotationOnPackage,
+			arguments,
+			arguments,
+			severity,
+			compUnitDecl.currentPackage.sourceStart,
+			compUnitDecl.currentPackage.sourceEnd);
+	}
 }
 }

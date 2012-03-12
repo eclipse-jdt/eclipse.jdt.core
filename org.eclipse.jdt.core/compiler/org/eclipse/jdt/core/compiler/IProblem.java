@@ -140,6 +140,10 @@
  *									RedundantNullDefaultAnnotationType
  *									RedundantNullDefaultAnnotationMethod
  *									ContradictoryNullAnnotations
+ *									IllegalAnnotationForBaseType
+ *									RedundantNullCheckOnSpecdNonNullLocalVariable
+ *									SpecdNonNullLocalVariableComparisonYieldsFalse
+ *									RequiredNonNullButProvidedSpecdNullable
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -1444,7 +1448,8 @@ void setSourceStart(int sourceStart);
 	int RequiredNonNullButProvidedPotentialNull = TypeRelated + 911;
 	/** @since 3.8 */
 	int RequiredNonNullButProvidedUnknown = TypeRelated + 912;
-	// removed during 3.8 M6: ImportRelated + 913 
+	/** @since 3.8 */
+	int MissingNonNullByDefaultAnnotationOnPackage = Internal + 913; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
 	/** @since 3.8 */
 	int IllegalReturnNullityRedefinition = MethodRelated + 914;
 	/** @since 3.8 */
@@ -1466,7 +1471,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.8 */
 	int IllegalAnnotationForBaseType = TypeRelated + 923;
 	/** @since 3.8 */
-	int RedundantNullDefaultAnnotation = Internal + 925;
+	int RedundantNullDefaultAnnotation = Internal + 925; // shouldn't actually occur any more after bug 366063
 	/** @since 3.8 */
 	int RedundantNullDefaultAnnotationPackage = Internal + 926;
 	/** @since 3.8 */
@@ -1475,6 +1480,14 @@ void setSourceStart(int sourceStart);
 	int RedundantNullDefaultAnnotationMethod = Internal + 928;
 	/** @since 3.8 */
 	int ContradictoryNullAnnotations = Internal + 929;
+	/** @since 3.8 */
+	int MissingNonNullByDefaultAnnotationOnType = Internal + 930; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
+	/** @since 3.8 */
+	int RedundantNullCheckOnSpecdNonNullLocalVariable = Internal + 931;
+	/** @since 3.8 */
+	int SpecdNonNullLocalVariableComparisonYieldsFalse = Internal + 932;
+	/** @since 3.8 */
+	int RequiredNonNullButProvidedSpecdNullable = Internal + 933;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

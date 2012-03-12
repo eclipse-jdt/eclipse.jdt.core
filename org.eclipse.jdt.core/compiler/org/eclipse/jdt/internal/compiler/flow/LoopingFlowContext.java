@@ -12,6 +12,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
+ *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -250,7 +251,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 					}
 					break;
 				case ASSIGN_TO_NONNULL:
-					this.parent.recordNullityMismatch(scope, (Expression)location, flowInfo.nullStatus(local), this.expectedTypes[i]);
+					this.parent.recordNullityMismatch(scope, (Expression)location, this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], flowInfo.nullStatus(local));
 					break;
 				case EXIT_RESOURCE:
 						FakedTrackingVariable trackingVar = local.closeTracker;
@@ -361,7 +362,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 					int nullStatus = flowInfo.nullStatus(local);
 					if (nullStatus != FlowInfo.NON_NULL) {
 						char[][] annotationName = scope.environment().getNonNullAnnotationName();
-						scope.problemReporter().nullityMismatch((Expression) location, this.expectedTypes[i], nullStatus, annotationName);
+						scope.problemReporter().nullityMismatch((Expression) location, this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], nullStatus, annotationName);
 					}
 					break;
 				case EXIT_RESOURCE:
@@ -707,8 +708,8 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 		return this.escapingExceptionCatchSites != null;
 	}
 
-	protected boolean internalRecordNullityMismatch(Expression expression, int nullStatus, TypeBinding expectedType, int checkType) {
-		recordExpectedType(expectedType, this.nullCount);
+	protected boolean internalRecordNullityMismatch(Expression expression, TypeBinding providedType, int nullStatus, TypeBinding expectedType, int checkType) {
+		recordProvidedExpectedTypes(providedType, expectedType, this.nullCount);
 		recordNullReference(expression.localVariableBinding(), expression, checkType);
 		return true;
 	}
