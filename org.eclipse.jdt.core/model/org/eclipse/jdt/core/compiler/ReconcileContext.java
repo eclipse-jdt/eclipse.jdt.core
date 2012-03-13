@@ -102,14 +102,6 @@ public org.eclipse.jdt.core.dom.CompilationUnit getAST3() throws JavaModelExcept
 	return this.operation.makeConsistent(this.workingCopy);
 }
 /**
- * Internal synonym for deprecated method. Use to alleviate
- * deprecation warnings.
- * @since 3.8
- */
-public org.eclipse.jdt.core.dom.CompilationUnit internalGetAST3() throws JavaModelException {
-	return getAST3();
-}
-/**
  * Returns a resolved AST with {@link AST#JLS4 JLS4} level.
  * It is created from the current state of the working copy.
  * Creates one if none exists yet.
