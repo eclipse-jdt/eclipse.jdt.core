@@ -1507,8 +1507,8 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ReferenceToForwardField", SKIP);
 		expectedProblemAttributes.put("ReferenceToForwardTypeVariable", SKIP);
 		expectedProblemAttributes.put("RequiredNonNullButProvidedNull", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
-		expectedProblemAttributes.put("RequiredNonNullButProvidedPotentialNull", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIAL_NULL_SPECIFICATION_VIOLATION));
-		expectedProblemAttributes.put("RequiredNonNullButProvidedUnknown", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO));
+		expectedProblemAttributes.put("RequiredNonNullButProvidedPotentialNull", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_ANNOTATION_INFERENCE_CONFLICT));
+		expectedProblemAttributes.put("RequiredNonNullButProvidedUnknown", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedSpecdNullable", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("ResourceHasToImplementAutoCloseable", SKIP);
 		expectedProblemAttributes.put("ReturnTypeAmbiguous", SKIP);

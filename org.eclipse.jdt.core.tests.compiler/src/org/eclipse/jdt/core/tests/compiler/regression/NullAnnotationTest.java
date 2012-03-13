@@ -323,7 +323,7 @@ public void test_nonnull_parameter_005() {
 // a ternary non-null expression is passed to a nonnull parameter
 public void test_nonnull_parameter_006() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runConformTestWithLibs(
 		new String[] {
 			"X.java",
@@ -340,7 +340,7 @@ public void test_nonnull_parameter_006() {
 // nullable value passed to a non-null parameter in a super-call
 public void test_nonnull_parameter_007() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runNegativeTestWithLibs(
 		new String[] {
 			"XSub.java",
@@ -368,7 +368,7 @@ public void test_nonnull_parameter_007() {
 // a nullable value is passed to a non-null parameter in an allocation expression
 public void test_nonnull_parameter_008() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
@@ -390,7 +390,7 @@ public void test_nonnull_parameter_008() {
 // a nullable value is passed to a non-null parameter in a qualified allocation expression
 public void test_nonnull_parameter_009() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
@@ -414,7 +414,7 @@ public void test_nonnull_parameter_009() {
 // null is passed to a non-null parameter in a qualified allocation expression, across CUs
 public void test_nonnull_parameter_010() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runNegativeTestWithLibs(
 		new String[] {
 			"ContainingInner2.java",
@@ -449,7 +449,7 @@ public void test_nonnull_parameter_010() {
 // null is passed to a non-null parameter in a qualified allocation expression, target class read from .class
 public void test_nonnull_parameter_011() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runConformTestWithLibs(
 			new String[] {
 				"ContainingInner2.java",
@@ -490,7 +490,7 @@ public void test_nonnull_parameter_011() {
 // null is passed to a non-null parameter in a qualified allocation expression, generic constructor, target class read from .class
 public void test_nonnull_parameter_012() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runConformTestWithLibs(
 			new String[] {
 				"ContainingInner2.java",
@@ -1033,7 +1033,7 @@ public void test_parameter_specification_inheritance_007a() {
 // a client potentially violates the inherited null specification, super interface declares @NonNull parameter
 public void test_parameter_specification_inheritance_008() {
 	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	options.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runConformTestWithLibs(
 		new String[] {
 			"IX.java",
@@ -1095,7 +1095,7 @@ public void test_parameter_specification_inheritance_009() {
 // class default is nonnull, method and its super both use the default
 public void test_parameter_specification_inheritance_010() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runConformTestWithLibs(
 		new String[] {
 	"p1/X.java",
@@ -1126,7 +1126,7 @@ public void test_parameter_specification_inheritance_010() {
 // class default is nonnull, method and its super both use the default, super-call passes null
 public void test_parameter_specification_inheritance_011() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runNegativeTestWithLibs(
 		new String[] {
 	"p1/X.java",
@@ -1163,7 +1163,7 @@ public void test_parameter_specification_inheritance_011() {
 // sub-class merges both using the weakest common contract
 public void test_parameter_specification_inheritance_012() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runConformTestWithLibs(
 		new String[] {
 	"p1/X.java",
@@ -1197,7 +1197,7 @@ public void test_parameter_specification_inheritance_012() {
 // sub-class overrides this method in non-conforming ways
 public void test_parameter_specification_inheritance_013() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runNegativeTestWithLibs(
 		new String[] {
 	"p1/X.java",
@@ -1251,7 +1251,7 @@ public void test_parameter_specification_inheritance_013() {
 // sub-class does not override, but should to bridge the incompatibility
 public void test_parameter_specification_inheritance_014() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runNegativeTestWithLibs(
 		new String[] {
 	"p1/IY.java",
@@ -1650,7 +1650,7 @@ public void test_nonnull_return_010() {
 // a non-null method returns a checked-for null value, but that branch is dead code
 public void test_nonnull_return_011() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
@@ -1682,7 +1682,7 @@ public void test_nonnull_return_011() {
 // TODO(SH): ENABLE!
 public void _test_nonnull_return_012() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
@@ -1710,7 +1710,7 @@ public void _test_nonnull_return_012() {
 // don't apply any default annotations to return void
 public void test_nonnull_return_013() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runConformTestWithLibs(
 		new String[] {
 			"X.java",
@@ -1838,7 +1838,7 @@ public void test_annotation_import_002() {
 // using a Lib without null specifications
 public void test_annotation_import_005() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.MayBeNull");
 	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.MustNotBeNull");
 	runNegativeTest(
@@ -1882,7 +1882,7 @@ public void test_annotation_import_005() {
 // a non-null method returns a value obtained from an unannotated method, missing annotation types
 public void test_annotation_import_006() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.MayBeNull");
 	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.MustNotBeNull");
 	runNegativeTest(
@@ -3141,7 +3141,7 @@ public void test_nonnull_var_in_constrol_structure_3() {
 // witness for an AIOOBE in FlowContext.recordExpectedType()
 public void test_message_send_in_control_structure_01() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.IGNORE);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.IGNORE);
 	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.WARNING);
 	runNegativeTestWithLibs(
 		new String[] {
@@ -3400,7 +3400,7 @@ public void test_constructor_with_nested_class() {
 // test analysis disablement, binary type contains annotation
 public void test_options_01() {
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runConformTestWithLibs(
 			new String[] {
 				"ContainingInner2.java",

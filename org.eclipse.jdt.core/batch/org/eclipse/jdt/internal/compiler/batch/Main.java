@@ -3498,8 +3498,8 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 						CompilerOptions.OPTION_AnnotationBasedNullAnalysis,
 						isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 				setSeverity(CompilerOptions.OPTION_ReportNullSpecViolation, severity, isEnabling);
-				setSeverity(CompilerOptions.OPTION_ReportPotentialNullSpecViolation, severity, isEnabling);
-				setSeverity(CompilerOptions.OPTION_ReportNullSpecInsufficientInfo, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportNullAnnotationInferenceConflict, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportNullUncheckedConversion, severity, isEnabling);
 				setSeverity(CompilerOptions.OPTION_ReportRedundantNullAnnotation, severity, isEnabling);
 				return;
 			}

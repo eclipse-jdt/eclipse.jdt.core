@@ -1901,15 +1901,15 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullAnnotationInferenceConflict\" value=\"error\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullReference\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullSpecInsufficientInfo\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullSpecViolation\" value=\"error\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullUncheckedConversion\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.parameterAssignment\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentialNullReference\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentialNullSpecViolation\" value=\"error\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentiallyUnclosedCloseable\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantNullAnnotation\" value=\"warning\"/>\n" + 
@@ -1953,7 +1953,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.source\" value=\"1.5\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskCaseSensitive\" value=\"enabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.taskPriorities\" value=\"\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.taskTags\" value=\"\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.taskTags\" value=\"\"/>\n" + 
 			"	</options>\n" + 
 			"	<classpaths>NORMALIZED SECTION</classpaths>\n" + 
 			"	<sources>\n" + 

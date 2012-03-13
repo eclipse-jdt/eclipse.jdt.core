@@ -109,12 +109,12 @@ public class IrritantSet {
 				CompilerOptions.DeadCode
 				|CompilerOptions.Tasks
 				|CompilerOptions.UnclosedCloseable
-				|CompilerOptions.NullSpecInsufficientInfo
+				|CompilerOptions.NullUncheckedConversion
 				|CompilerOptions.RedundantNullAnnotation);
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation
-				|CompilerOptions.PotentialNullSpecViolation);
+				|CompilerOptions.NullAnnotationInferenceConflict);
 
 		ALL.setAll();
 		HIDING
@@ -125,8 +125,8 @@ public class IrritantSet {
 			.set(CompilerOptions.PotentialNullReference)
 			.set(CompilerOptions.RedundantNullCheck)
 			.set(CompilerOptions.NullSpecViolation)
-			.set(CompilerOptions.PotentialNullSpecViolation)
-			.set(CompilerOptions.NullSpecInsufficientInfo)
+			.set(CompilerOptions.NullAnnotationInferenceConflict)
+			.set(CompilerOptions.NullUncheckedConversion)
 			.set(CompilerOptions.RedundantNullAnnotation);
 
 		RESTRICTION.set(CompilerOptions.DiscouragedReference);
