@@ -319,9 +319,9 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.NullSpecViolation;
 
 		case IProblem.RequiredNonNullButProvidedPotentialNull:
-			return CompilerOptions.PotentialNullSpecViolation;
+			return CompilerOptions.NullAnnotationInferenceConflict;
 		case IProblem.RequiredNonNullButProvidedUnknown:
-			return CompilerOptions.NullSpecInsufficientInfo;
+			return CompilerOptions.NullUncheckedConversion;
 		case IProblem.RedundantNullAnnotation:
 		case IProblem.RedundantNullDefaultAnnotation:
 		case IProblem.RedundantNullDefaultAnnotationPackage:
@@ -580,8 +580,8 @@ public static int getProblemCategory(int severity, int problemID) {
 				return CategorizedProblem.CAT_RESTRICTION;
 
 			case CompilerOptions.NullSpecViolation :
-			case CompilerOptions.PotentialNullSpecViolation :
-			case CompilerOptions.NullSpecInsufficientInfo :
+			case CompilerOptions.NullAnnotationInferenceConflict :
+			case CompilerOptions.NullUncheckedConversion :
 			case CompilerOptions.MissingNonNullByDefaultAnnotation:
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			case CompilerOptions.RedundantNullAnnotation :

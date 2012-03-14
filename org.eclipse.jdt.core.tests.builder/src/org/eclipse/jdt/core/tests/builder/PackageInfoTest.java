@@ -38,7 +38,7 @@ public PackageInfoTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...
 static {
-//	TESTS_NAMES = new String[] { "testBug372012" };
+//	TESTS_NAMES = new String[] { "testBug374063" };
 //	TESTS_NUMBERS = new int[] { 3 };
 //	TESTS_RANGE = new int[] { 21, 50 };
 }
@@ -535,6 +535,52 @@ public void testBug367836() throws JavaModelException {
 	fullBuild();
 	expectingOnlySpecificProblemFor(bPath,
 		new Problem("", "The declared package \"\" does not match the expected package \"p\"", bPath, 0, 0, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=374063
+// verify that markers are created on the correct resource
+public void testBug374063() throws JavaModelException, IOException {
+	
+	IPath projectPath = env.addProject("Project", "1.5"); 
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	fullBuild(projectPath);
+
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(projectPath, ""); 
+
+	IPath srcRoot = env.addPackageFragmentRoot(projectPath, "src");
+	env.setOutputFolder(projectPath, "bin"); 
+	// prepare the project:
+	setupProjectForNullAnnotations(projectPath);
+	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
+	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.ERROR);
+	String test1Code = "package p1;\n"	+
+		"public class Test1 {\n" +
+		"    public String output(List<Integer> integers) {\n" +
+		"        return \"\";\n" +
+		"    }\n" +
+		"	 public void output(List<Double> doubles) {}\n" +
+		"}";
+
+	env.addClass(srcRoot, "p1", "Test1", test1Code);
+	
+	fullBuild(projectPath);
+	// resource for compile errors should be Test1 and not p1
+	expectingProblemsFor(projectPath, 
+			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1> range : <8,10> category : <90> severity : <2>]\n" + 
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" + 
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]");
+
+	// add package-info.java with default annotation
+	String packageInfoCode = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+		"package p1;\n";
+	env.addClass(srcRoot, "p1", "package-info", packageInfoCode);
+	incrementalBuild(projectPath);
+	expectingProblemsFor(projectPath,
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" + 
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]");
+
+	// verify that all package CU's were recompiled
+	expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.package-info" });
 }
 
 void setupProjectForNullAnnotations(IPath projectPath) throws IOException, JavaModelException {

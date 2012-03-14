@@ -35,7 +35,7 @@ public NullReferenceTestAsserts(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug127575o" };
+//		TESTS_NAMES = new String[] { "testBug373953" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -708,5 +708,47 @@ public void testBug127575o() {
 			this.assertLib,
 			true);
 	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=373953
+public void testBug373953() throws IOException {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  void foo(Object o) {\n" +
+				"    boolean b = o != null;\n" + // sheds doubts upon o
+				"    java.eclipse.core.runtime.Assert.isLegal(o != null);\n" + 	// bogus Assert
+				"    o.toString();\n" + 		// warn
+				"  }\n" +
+				"  void foo1(Object o) {\n" +
+				"    boolean b = o != null;\n" + // sheds doubts upon o
+				"    org.lang.core.runtime.Assert.isLegal(o != null);\n" + 	// bogus Assert
+				"    o.toString();\n" + 		// warn
+				"  }\n" +
+				"}\n",
+				"java.eclipse.core.runtime/Assert.java",
+				"package java.eclipse.core.runtime;\n" +
+				"public class Assert {\n" +
+				"  public static void isLegal(boolean b) {\n" +
+				"  }\n" +
+				"}\n",
+				"org.lang.core.runtime/Assert.java",
+				"package org.lang.core.runtime;\n" +
+				"public class Assert {\n" +
+				"  public static void isLegal(boolean b) {\n" +
+				"  }\n" +
+				"}\n"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	o.toString();\n" + 
+			"	^\n" + 
+			"Potential null pointer access: The variable o may be null at this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	o.toString();\n" + 
+			"	^\n" + 
+			"Potential null pointer access: The variable o may be null at this location\n" + 
+			"----------\n");
 }
 }

@@ -80,7 +80,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		public void reconcile(ReconcileContext context) {
 			this.delta = context.getDelta();
 			try {
-				this.ast = context.internalGetAST3();
+				this.ast = context.getAST4();
 			} catch (JavaModelException e) {
 				assertNull("Unexpected exception", e);
 			}
@@ -99,7 +99,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		public void reconcile(ReconcileContext context) {
 			this.delta = context.getDelta();
 			try {
-				this.ast = context.internalGetAST3();
+				this.ast = context.getAST4();
 				assertTrue("Context should have statement recovery enabled", (context.getReconcileFlags() & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 				assertTrue("Context should have ignore method body enabled", (context.getReconcileFlags() & ICompilationUnit.IGNORE_METHOD_BODIES) != 0);
 			} catch (JavaModelException e) {
@@ -120,7 +120,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		public void reconcile(ReconcileContext context) {
 			this.delta = context.getDelta();
 			try {
-				this.ast = context.internalGetAST3();
+				this.ast = context.getAST4();
 				assertFalse("Context should have statement recovery enabled", (context.getReconcileFlags() & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 				assertTrue("Context should have ignore method body enabled", (context.getReconcileFlags() & ICompilationUnit.IGNORE_METHOD_BODIES) != 0);
 			} catch (JavaModelException e) {
@@ -2913,7 +2913,7 @@ public void testReconcileParticipant04() throws CoreException {
 		"  }\n" +
 		"}"
 	);
-	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3_INTERNAL, false, null, null);
+	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(AST.JLS4, false, null, null);
 	assertSame(
 		"Unexpected participant ast",
 		participant.ast,

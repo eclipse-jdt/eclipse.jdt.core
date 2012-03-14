@@ -672,12 +672,14 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 	// but still try to compile as many source files as possible to help the case when the base libraries are in source
 	if (!this.keepStoringProblemMarkers) return; // only want the one error recorded on this source file
 
-	IResource resource = sourceFile.resource;
 	HashSet managedMarkerTypes = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes();
 	problems: for (int i = 0, l = problems.length; i < l; i++) {
 		CategorizedProblem problem = problems[i];
 		int id = problem.getID();
-
+		// we may use a different resource for certain problems such as IProblem.MissingNonNullByDefaultAnnotationOnPackage
+		// but at the start of the next problem we should reset it to the source file's resource
+		IResource resource = sourceFile.resource;
+		
 		// handle missing classfile situation
 		if (id == IProblem.IsClassPathCorrect) {
 			String missingClassfileName = problem.getArguments()[0];
