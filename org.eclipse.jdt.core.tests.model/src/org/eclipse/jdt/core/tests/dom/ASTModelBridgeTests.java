@@ -33,6 +33,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 
 	ICompilationUnit workingCopy;
 
+	/**
+	 * Internal synonynm for deprecated constant AST.JSL3
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+	
 	protected void checkSourceRange(int start, int length, String expectedContents, String source) {
 		assertTrue("length == 0", length != 0); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue("start == -1", start != -1); //$NON-NLS-1$
@@ -91,7 +98,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	private IBinding[] createBindings(String contents, IJavaElement element) throws JavaModelException {
 		this.workingCopy.getBuffer().setContents(contents);
 		this.workingCopy.makeConsistent(null);
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setProject(getJavaProject("P"));
 		IJavaElement[] elements = new IJavaElement[] {element};
 		return parser.createBindings(elements, null);
@@ -99,7 +106,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 
 	private IBinding[] createBinaryBindings(String contents, IJavaElement element) throws CoreException {
 		createClassFile("/P/lib", "A.class", contents);
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setProject(getJavaProject("P"));
 		IJavaElement[] elements = new IJavaElement[] {element};
 		return parser.createBindings(elements, null);
@@ -740,7 +747,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * (test several kinds of elements)
 	 */
 	public void testCreateBindings01() throws JavaModelException {
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(getJavaProject("P"));
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
@@ -791,7 +798,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=297757
 	 */
 	public void testCreateBindings23() throws JavaModelException {
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setProject(getJavaProject("P"));
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		this.workingCopies = new ICompilationUnit[3];

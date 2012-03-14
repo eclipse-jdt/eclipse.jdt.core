@@ -27,7 +27,7 @@ public class ASTNodeFinderTest extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(AST.JLS3_INTERNAL);
+		this.ast = AST.newAST(getJLS3());
 	}
 
 	public ASTNodeFinderTest(String name) {

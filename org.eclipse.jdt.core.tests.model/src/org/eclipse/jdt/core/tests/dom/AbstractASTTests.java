@@ -61,6 +61,12 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 
 	/** @deprecated Using deprecated code */
 	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
+	/**
+	 * Internal synonynm for deprecated constant AST.JSL3
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int AST_INTERNAL_JLS3 = AST.JLS3;
 	public static final int astInternalJLS2() {
 		return AST_INTERNAL_JLS2;
 	}
@@ -300,7 +306,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	 * and returns the AST node that was delimited by the astStart and astEnd of the marker info.
 	 */
 	protected ASTNode buildAST(MarkerInfo markerInfo, IClassFile classFile, boolean reportErrors) throws JavaModelException {
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS3);
 		parser.setSource(classFile);
 		parser.setResolveBindings(true);
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
@@ -373,13 +379,13 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		CompilationUnit unit;
 		if (cu.isWorkingCopy()) {
 			cu.getBuffer().setContents(newContents);
-			unit = cu.reconcile(AST.JLS3_INTERNAL, flags, null, null);
+			unit = cu.reconcile(AST_INTERNAL_JLS3, flags, null, null);
 		} else {
 			IBuffer buffer = cu.getBuffer();
 			buffer.setContents(newContents);
 			buffer.save(null, false);
 
-			ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS3);
 			parser.setSource(cu);
 			parser.setResolveBindings(true);
 			parser.setStatementsRecovery((flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
@@ -461,7 +467,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
 		String option = cu.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
 		long jdkLevel = CompilerOptions.versionToJdkLevel(option);
-		int JLSLevel = AST.JLS3_INTERNAL;
+		int JLSLevel = AST_INTERNAL_JLS3;
 		if (jdkLevel >= ClassFileConstants.JDK1_7) {
 			JLSLevel = AST.JLS4;
 		}
@@ -654,7 +660,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	}
 
 	protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequestor requestor, IJavaProject project, WorkingCopyOwner owner) {
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS3);
 		parser.setResolveBindings(true);
 		parser.setProject(project);
 		parser.setWorkingCopyOwner(owner);

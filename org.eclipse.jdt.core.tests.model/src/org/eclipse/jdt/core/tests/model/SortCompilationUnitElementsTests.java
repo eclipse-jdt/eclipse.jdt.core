@@ -64,6 +64,14 @@ private void sortUnit(ICompilationUnit unit, String expectedResult, boolean test
 private void sortUnit(int apiLevel, ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
 	this.sortUnit(apiLevel, unit, expectedResult, testPositions, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9));
 }
+
+/**
+ * Internal synonynm for deprecated constant AST.JSL3
+ * to alleviate deprecation warnings.
+ * @deprecated
+ */
+/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+
 /** @deprecated */
 private void oldAPISortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions, Comparator comparator) throws CoreException {
 	String initialSource = unit.getSource();
@@ -1223,7 +1231,7 @@ public void test019() throws CoreException {
 			"public enum X {\n" +
 			"	A, B, C, Z;\n" +
 			"}";
-		sortUnit(AST.JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -1253,7 +1261,7 @@ public void test020() throws CoreException {
 			"		\n" +
 			"	}\n" +
 			"}";
-		sortUnit(AST.JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -1299,7 +1307,7 @@ public void test021() throws CoreException {
 			"	\n" +
 			"	public void method2() { }\n" +
 			"}";
-		sortUnit(AST.JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -1671,7 +1679,7 @@ public void test023() throws CoreException {
 			"	int id() default 0;\n" +
 			"	String name();\n" +
 			"}";
-		sortUnit(AST.JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -1705,7 +1713,7 @@ public void test024() throws CoreException {
 			"		}\n" +
 			"	}\n" +
 			"}";
-		sortUnit(AST.JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -1757,7 +1765,7 @@ public void test025() throws CoreException {
 			"		return null;\n" +
 			"	}\n" +
 			"}";
-		sortUnit(AST.JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -1895,7 +1903,7 @@ public void test029() throws CoreException {
 			"public enum X {\n" +
 			"	Z, A, C, B;\n" +
 			"}";
-		sortUnit(AST.JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
+		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
 			public int compare(Object o1, Object o2) {
 				BodyDeclaration bodyDeclaration1 = (BodyDeclaration) o1;
 				BodyDeclaration bodyDeclaration2 = (BodyDeclaration) o2;
@@ -1933,7 +1941,7 @@ public void test030() throws CoreException {
 			"	public <K> I<K<K,T> bar3(C<T,K> c);\n" +
 			"	public <K,E> I<K<K,E> bar3(C<T,K> c, C<T,E> c2);\n" +
 			"}";
-		sortUnit(AST.JLS3_INTERNAL, this.getCompilationUnit("/P/src/I.java"), expectedResult);
+		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/I.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/I.java");
 	}
@@ -1963,7 +1971,7 @@ public void test031() throws CoreException {
 			"	public <S> I<S> foo3(C<T,I<S>> c);\n" +
 			"	public I<T> foo(A<T> A);\n" +
 			"}";
-		sortUnit(AST.JLS3_INTERNAL, this.getCompilationUnit("/P/src/I.java"), expectedResult);
+		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/I.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/I.java");
 	}
@@ -1985,7 +1993,7 @@ public void test032() throws CoreException {
 			"	<K> List<Map<K,T> foo(Map<T,K> m);\n" +
 			"	<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);\n" +
 			"}";
-		sortUnit(AST.JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
@@ -2010,7 +2018,7 @@ public void test033() throws CoreException {
 		String source = unit.getSource();
 		Document document = new Document(source);
 		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setCompilerOptions(options.getMap());
 		parser.setSource(unit);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -2061,7 +2069,7 @@ public void test034() throws CoreException {
 		unit = this.getCompilationUnit("/P/src/X.java");
 		unit.becomeWorkingCopy(null);
 		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setCompilerOptions(options.getMap());
 		parser.setSource(unit);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);

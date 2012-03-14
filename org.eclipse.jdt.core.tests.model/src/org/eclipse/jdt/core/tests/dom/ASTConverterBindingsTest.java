@@ -77,7 +77,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class ASTConverterBindingsTest extends ConverterTestSetup {
 	private static final boolean DEBUG = false;
-
+	
 	static class BindingsCollector extends ASTVisitor {
 
 		public ArrayList arrayList;
@@ -473,7 +473,7 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(AST.JLS3_INTERNAL);
+		this.ast = AST.newAST(getJLS3());
 	}
 
 	public ASTConverterBindingsTest(String name) {
@@ -509,10 +509,10 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 		compilationUnitscollector.toArray(units);
 		for (int j = 0; j < length; j++) {
 			ICompilationUnit currentUnit = units[j];
-			ASTNode result = runConversion(AST.JLS3_INTERNAL, currentUnit, true);
+			ASTNode result = runConversion(getJLS3(), currentUnit, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
 			CompilationUnit unit = (CompilationUnit) result;
-			result = runConversion(AST.JLS3_INTERNAL, currentUnit, true);
+			result = runConversion(getJLS3(), currentUnit, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
 			if (DEBUG) {
 				if (unit.types().size() > 0 ) {

@@ -424,7 +424,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 				"}");
 		ICompilationUnit cu = pack1.createCompilationUnit("Test.java", buf.toString(), false, null);
 
-		ASTParser astParser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser astParser = ASTParser.newParser(getJLS3());
 		astParser.setSource(cu);
 		ASTNode root = astParser.createAST(new NullProgressMonitor());
 		AST ast = root.getAST();

@@ -10595,7 +10595,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			TryStatement statement = (TryStatement) buildAST(
-				AST.JLS3_INTERNAL,
+				getJLS3(),
 				contents,
 				workingCopy,
 				false,
@@ -10628,7 +10628,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			TryStatement statement = (TryStatement) buildAST(
-				AST.JLS3_INTERNAL,
+				getJLS3(),
 				contents,
 				workingCopy,
 				false,
@@ -10695,7 +10695,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 				"public class one {}";
 			workingCopy = getWorkingCopy("/Converter/src/one/two/one.java", true/*resolve*/);
 			CompilationUnit unit = (CompilationUnit) buildAST(
-				AST.JLS3_INTERNAL,
+				getJLS3(),
 				contents,
 				workingCopy,
 				true,

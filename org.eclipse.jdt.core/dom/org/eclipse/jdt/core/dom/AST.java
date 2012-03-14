@@ -146,7 +146,7 @@ public final class AST {
 	 * deprecation warnings.
 	 * @since 3.8
 	 */
-	public static final int JLS3_INTERNAL = JLS3;
+	/*package*/ static final int JLS3_INTERNAL = JLS3;
 
 	/**
 	 * Constant for indicating the AST API that handles JLS4 (aka JLS7).

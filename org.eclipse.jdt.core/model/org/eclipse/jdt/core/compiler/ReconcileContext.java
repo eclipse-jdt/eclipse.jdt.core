@@ -87,9 +87,9 @@ public ReconcileContext(ReconcileWorkingCopyOperation operation, CompilationUnit
  * with JLS4 level.
  */
 public org.eclipse.jdt.core.dom.CompilationUnit getAST3() throws JavaModelException {
-	if (this.operation.astLevel != AST.JLS3_INTERNAL || !this.operation.resolveBindings) {
+	if (this.operation.astLevel != AST.JLS3 || !this.operation.resolveBindings) {
 		// create AST (optionally resolving bindings)
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setCompilerOptions(this.workingCopy.getJavaProject().getOptions(true));
 		if (JavaProject.hasJavaNature(this.workingCopy.getJavaProject().getProject()))
 			parser.setResolveBindings(true);

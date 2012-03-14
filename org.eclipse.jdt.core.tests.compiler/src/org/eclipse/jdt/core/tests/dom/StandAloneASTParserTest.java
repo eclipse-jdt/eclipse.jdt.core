@@ -42,6 +42,13 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	public StandAloneASTParserTest(String name) {
 		super(name);
 	}
+	/**
+	 * Internal synonynm for deprecated constant AST.JSL3
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+
 	public ASTNode runConversion(
 			int astLevel,
 			String source,
@@ -70,7 +77,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 				"		System.out.println(length);\n" + 
 				"	}\n" + 
 				"}";
-		ASTNode node = runConversion(AST.JLS3_INTERNAL, contents, true, true, true, "p/X.java");
+		ASTNode node = runConversion(JLS3_INTERNAL, contents, true, true, true, "p/X.java");
 		assertTrue("Should be a compilation unit", node instanceof CompilationUnit);
 		CompilationUnit unit = (CompilationUnit) node;
 		List types = unit.types();
@@ -103,7 +110,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	}
 
 	public void test2() {
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setEnvironment(null, null, null, true);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
@@ -132,7 +139,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 
 	public void test3() throws IOException {
 		File rootDir = new File(System.getProperty("java.io.tmpdir"));
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setEnvironment(null, null, null, true);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
@@ -222,7 +229,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	}
 
 	public void test4() {
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		try {
 			parser.setEnvironment(null, null, new String[] {"UTF-8"}, true);
 			assertTrue("Should have failed", false);
@@ -232,7 +239,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	}
 
 	public void test5() {
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		try {
 			parser.setEnvironment(null, new String[] {}, new String[] {"UTF-8"}, true);
 			assertTrue("Should have failed", false);
@@ -243,7 +250,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 
 	public void test6() throws IOException {
 		File rootDir = new File(System.getProperty("java.io.tmpdir"));
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setEnvironment(null, null, null, true);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);

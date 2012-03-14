@@ -17,6 +17,13 @@ import org.eclipse.jdt.core.dom.*;
 
 public class SampleASTs {
 	/**
+	 * Internal synonynm for deprecated constant AST.JSL3
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+	
+	/**
 	 * Returns a subtree of sample of AST nodes. The sample includes
 	 * one of each kind (except for BlockComment and LineComment,
      * which cannot be connected directly to a CompilationUnit),
@@ -50,7 +57,7 @@ public class SampleASTs {
 		Initializer in = target.newInitializer();
 		td.bodyDeclarations().add(in);
 
-		if (target.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (target.apiLevel() >= JLS3_INTERNAL) {
 			EnumDeclaration ed = target.newEnumDeclaration();
 			td.bodyDeclarations().add(ed);
 			EnumConstantDeclaration ec = target.newEnumConstantDeclaration();
@@ -70,7 +77,7 @@ public class SampleASTs {
 		ArrayType at = target.newArrayType(pt);
 		fd.setType(at);
 
-		if (target.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (target.apiLevel() >= JLS3_INTERNAL) {
 			SimpleType st = target.newSimpleType(qn);
 			QualifiedType qt = target.newQualifiedType(st, target.newSimpleName("x")); //$NON-NLS-1$
 			WildcardType wt = target.newWildcardType();
@@ -103,7 +110,7 @@ public class SampleASTs {
 		b.statements().add(expressionStatement);
 		ForStatement forStatement = target.newForStatement();
 		b.statements().add(forStatement);
-		if (target.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (target.apiLevel() >= JLS3_INTERNAL) {
 			EnhancedForStatement foreachStatement = target.newEnhancedForStatement();
 			b.statements().add(foreachStatement);
 		}
@@ -201,7 +208,7 @@ public class SampleASTs {
 		z.add(variableDeclarationExpression);
 
 		// annotations
-		if (target.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (target.apiLevel() >= JLS3_INTERNAL) {
 			AnnotationTypeDeclaration atd = target.newAnnotationTypeDeclaration();
 			cu.types().add(atd);
 			atd.bodyDeclarations().add(target.newAnnotationTypeMemberDeclaration());
