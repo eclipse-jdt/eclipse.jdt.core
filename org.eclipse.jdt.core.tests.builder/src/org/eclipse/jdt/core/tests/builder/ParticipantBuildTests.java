@@ -23,6 +23,13 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class ParticipantBuildTests extends BuilderTests {
+	/**
+	 * Internal synonynm for deprecated constant AST.JSL3
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+	
 	public ParticipantBuildTests(String name) {
 		super(name);
 	}
@@ -70,7 +77,7 @@ public class ParticipantBuildTests extends BuilderTests {
 
 	CompilationUnit buildCompilationUnit(BuildContext file) {
 		IJavaProject javaProject = JavaCore.create(file.getFile().getProject());
-		ASTParser p = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser p = ASTParser.newParser(JLS3_INTERNAL);
 		p.setProject(javaProject);
 		p.setSource(file.getContents());
 		p.setResolveBindings(true);

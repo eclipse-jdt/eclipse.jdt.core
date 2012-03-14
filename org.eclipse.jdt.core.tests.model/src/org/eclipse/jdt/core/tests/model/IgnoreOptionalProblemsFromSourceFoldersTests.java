@@ -37,6 +37,13 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 	public IgnoreOptionalProblemsFromSourceFoldersTests(String name) {
 		super(name);
 	}
+	
+	/**
+	 * Internal synonynm for deprecated constant AST.JSL3
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
 
 	// ignore optional errors
 	public void test001() throws CoreException {
@@ -318,7 +325,7 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 					"}");
 			ICompilationUnit unit = (ICompilationUnit) JavaCore.create(file);
 			
-			ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+			ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 			parser.setProject(project);
 			parser.setSource(unit);
 			parser.setResolveBindings(true);

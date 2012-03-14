@@ -5239,7 +5239,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"}";
 			addLibrary(p, "test0571.jar", "test0571.zip", new String[] {"X.java", source	}, "1.4");
 			IClassFile classFile = getClassFile("P", "/P/test0571.jar", "", "X$Y.class");
-			CompilationUnit unit = (CompilationUnit) runConversion(AST.JLS3_INTERNAL, classFile, 0, true);
+			CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), classFile, 0, true);
 			IProblem[] problems = unit.getProblems();
 			StringBuffer buffer = new StringBuffer();
 			for (int i = 0, length = problems.length; i < length; i++)
@@ -5530,7 +5530,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"        }\n" +
 				"}"
 			);
-			ASTNode cu = workingCopy.reconcile(AST.JLS3_INTERNAL, true, true, null, null);
+			ASTNode cu = workingCopy.reconcile(getJLS3(), true, true, null, null);
 			assertNotNull("Should get an AST", cu);
 		} finally {
 			if (workingCopy != null)
@@ -5555,7 +5555,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			);
 			
 			// Create parser
-			ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+			ASTParser parser = ASTParser.newParser(getJLS3());
 			parser.setSource(workingCopy);
 			parser.setFocalPosition(0);
 			parser.setResolveBindings(true);

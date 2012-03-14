@@ -17,7 +17,6 @@ import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
 
 /**
  * Test suite to verify that DOM/AST bugs are fixed.
@@ -30,7 +29,7 @@ public class ASTConverterBugsTestJLS3 extends ASTConverterBugsTest {
 
 public ASTConverterBugsTestJLS3(String name) {
     super(name);
-    this.testLevel = AST.JLS3_INTERNAL;
+    this.testLevel = getJLS3();
 }
 
 public static Test suite() {

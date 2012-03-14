@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,6 +40,13 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 
 	/** @deprecated using deprecated code */
 	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
+	
+	/**
+	 * Internal synonynm for deprecated constant AST.JSL3
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
 
 	protected IJavaProject javaProject;
 	protected IPackageFragmentRoot sourceFolder;
@@ -211,5 +218,9 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		}
 		buffer.append("\");");
 		return buffer.toString();
+	}
+	
+	static int getJLS3() {
+		return JLS3_INTERNAL;
 	}
 }

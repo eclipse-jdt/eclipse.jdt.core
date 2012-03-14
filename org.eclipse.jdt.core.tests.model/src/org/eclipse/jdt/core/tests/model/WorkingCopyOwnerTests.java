@@ -29,6 +29,13 @@ import junit.framework.Test;
  */
 public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
+	/**
+	 * Internal synonynm for deprecated constant AST.JSL3
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+	
 	ICompilationUnit workingCopy = null;
 
 	public class TestWorkingCopyOwner extends WorkingCopyOwner {
@@ -81,7 +88,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 	private void assertProblems(String expectedProblems, String path, String source, WorkingCopyOwner owner) throws JavaModelException {
 		this.workingCopy = getWorkingCopy(path, source);
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setSource(this.workingCopy);
 		parser.setResolveBindings(true);
 		parser.setWorkingCopyOwner(owner);
@@ -1058,7 +1065,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			"  int field;\n" +
 			"}"
 		);
-		CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3_INTERNAL, false, null, null);
+		CompilationUnit ast = this.workingCopy.reconcile(JLS3_INTERNAL, false, null, null);
 		assertASTNodeEquals(
 			"Unexpected AST",
 			"public class X {\n" +
@@ -1081,7 +1088,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			"  int field;\n" +
 			"}"
 		);
-		CompilationUnit ast = this.workingCopy.reconcile(AST.JLS3_INTERNAL, true/*force resolution*/, null, null);
+		CompilationUnit ast = this.workingCopy.reconcile(JLS3_INTERNAL, true/*force resolution*/, null, null);
 		TypeDeclaration type = (TypeDeclaration) ast.types().get(0);
 		assertNull("Unexpected binding", type.resolveBinding());
 	}

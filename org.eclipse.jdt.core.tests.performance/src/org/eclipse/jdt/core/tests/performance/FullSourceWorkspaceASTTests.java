@@ -27,7 +27,13 @@ import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 /**
  */
 public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
-
+	/**
+	 * Internal synonynm for deprecated constant AST.JSL3
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+	
     // Tests counter
     private static int TESTS_COUNT = 0;
 	private final static int ITERATIONS_COUNT = 10;
@@ -599,7 +605,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		tagAsSummary("DOM AST tree for one file using JLS3", false); // do NOT put in fingerprint
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
-		createAST(unit, AST.JLS3_INTERNAL);
+		createAST(unit, JLS3_INTERNAL);
 	}
 
 	/*
@@ -664,7 +670,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	 */
 	private void runAstCreation(IJavaProject javaProject) throws JavaModelException {
 		if (DEBUG) System.out.println("Creating AST for project" + javaProject.getElementName());
-		ASTParser parser = ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setResolveBindings(true);
 		parser.setProject(javaProject);
 

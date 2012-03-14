@@ -54,6 +54,13 @@ public static Test suite() {
 	return suite;
 }
 
+/**
+ * Internal synonynm for deprecated constant AST.JSL3
+ * to alleviate deprecation warnings.
+ * @deprecated
+ */
+/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#setUp()
  */
@@ -1210,7 +1217,7 @@ public void testBug152841() throws Exception{
 		"}";
 		ICompilationUnit cu= pack.createCompilationUnit("Test.java", source, true, null);
 
-		ASTParser parser= ASTParser.newParser(AST.JLS3_INTERNAL);
+		ASTParser parser= ASTParser.newParser(JLS3_INTERNAL);
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.createAST(null);

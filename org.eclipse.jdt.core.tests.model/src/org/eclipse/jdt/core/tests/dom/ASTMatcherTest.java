@@ -15,13 +15,19 @@ import java.lang.reflect.Method;
 
 import junit.framework.Test;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.ASTNode;
 
 /**
  * Test suite for <code>ASTMatcher</code> and <code>ASTNode.subtreeMatch</code>.
  */
 public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
+	/**
+	 * Internal synonynm for deprecated constant AST.JSL3
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+	
 	/** @deprecated using deprecated code */
 	public static Test suite() {
 		// TODO (frederic) use buildList + setAstLevel(init) instead...
@@ -32,7 +38,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
 				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS2));
-				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS3_INTERNAL));
+				suite.addTest(new ASTMatcherTest(methods[i].getName(), JLS3_INTERNAL));
 			}
 		}
 		return suite;
@@ -183,7 +189,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.MPARM1 = this.ast.newMethodRefParameter();
 		this.MPARM1.setType(this.ast.newPrimitiveType(PrimitiveType.CHAR));
 
-		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			this.PT1 = this.ast.newParameterizedType(this.ast.newSimpleType(this.ast.newSimpleName("Z"))); //$NON-NLS-1$
 			this.PT1S = "[(tM[(tS[(nSZZnS)]tS)]tM)]"; //$NON-NLS-1$
 
@@ -234,7 +240,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			case AST.JLS2:
 				name = "JLS2 - " + name;
 				break;
-			case AST.JLS3_INTERNAL:
+			case JLS3_INTERNAL:
 				name = "JLS3 - " + name;
 				break;
 		}
@@ -805,7 +811,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testConstructorInvocation() {
 		ConstructorInvocation x1 = this.ast.newConstructorInvocation();
-		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			x1.typeArguments().add(this.PT1);
 		}
 		x1.arguments().add(this.E1);
@@ -885,7 +891,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testFieldDeclaration() {
 		FieldDeclaration x1 = this.ast.newFieldDeclaration(this.W1);
 		x1.setJavadoc(this.JD1);
-		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			x1.modifiers().add(this.MOD1);
 			x1.modifiers().add(this.MOD2);
 		}
@@ -927,7 +933,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testInitializer() {
 		Initializer x1 = this.ast.newInitializer();
 		x1.setJavadoc(this.JD1);
-		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			x1.modifiers().add(this.MOD1);
 			x1.modifiers().add(this.MOD2);
 		}
@@ -992,7 +998,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testMethodInvocation() {
 		MethodInvocation x1 = this.ast.newMethodInvocation();
 		x1.setExpression(this.N1);
-		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			x1.typeArguments().add(this.PT1);
 		}
 		x1.setName(this.N2);
@@ -1025,7 +1031,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testPackageDeclaration() {
 		PackageDeclaration x1 = this.ast.newPackageDeclaration();
-		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			x1.setJavadoc(this.JD1);
 			x1.annotations().add(this.ANO1);
 			x1.annotations().add(this.ANO2);
@@ -1055,7 +1061,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testSingleVariableDeclaration() {
 		SingleVariableDeclaration x1 = this.ast.newSingleVariableDeclaration();
-		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			x1.modifiers().add(this.MOD1);
 			x1.modifiers().add(this.MOD2);
 		}
@@ -1072,7 +1078,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testSuperConstructorInvocation() {
 		SuperConstructorInvocation x1 = this.ast.newSuperConstructorInvocation();
 		x1.setExpression(this.N1);
-		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			x1.typeArguments().add(this.PT1);
 		}
 		x1.arguments().add(this.E1);
@@ -1088,7 +1094,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testSuperMethodInvocation() {
 		SuperMethodInvocation x1 = this.ast.newSuperMethodInvocation();
 		x1.setQualifier(this.N1);
-		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			x1.typeArguments().add(this.PT1);
 		}
 		x1.setName(this.N2);
@@ -1225,7 +1231,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testVariableDeclarationExpression() {
 		VariableDeclarationExpression x1 = this.ast.newVariableDeclarationExpression(this.W1);
-		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			x1.modifiers().add(this.MOD1);
 			x1.modifiers().add(this.MOD2);
 		}
@@ -1235,7 +1241,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testVariableDeclarationStatement() {
 		VariableDeclarationStatement x1 = this.ast.newVariableDeclarationStatement(this.W1);
-		if (this.ast.apiLevel() >= AST.JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			x1.modifiers().add(this.MOD1);
 			x1.modifiers().add(this.MOD2);
 		}
