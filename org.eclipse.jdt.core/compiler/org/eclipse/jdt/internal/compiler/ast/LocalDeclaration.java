@@ -80,8 +80,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	FlowInfo preInitInfo = null;
 	boolean shouldAnalyseResource = this.binding != null 
 			&& flowInfo.reachMode() == FlowInfo.REACHABLE
-			&& FakedTrackingVariable.isAnyCloseable(this.initialization.resolvedType)
-			&& currentScope.compilerOptions().analyseResourceLeaks;
+			&& currentScope.compilerOptions().analyseResourceLeaks
+			&& FakedTrackingVariable.isAnyCloseable(this.initialization.resolvedType);
 	if (shouldAnalyseResource) {
 		preInitInfo = flowInfo.unconditionalCopy();
 		// analysis of resource leaks needs additional context while analyzing the RHS:

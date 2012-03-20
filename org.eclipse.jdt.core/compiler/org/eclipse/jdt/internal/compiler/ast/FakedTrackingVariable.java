@@ -60,6 +60,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	private static final int REPORTED_POTENTIAL_LEAK = 32;
 	// a location independent definitive problem has been reported against this resource:
 	private static final int REPORTED_DEFINITIVE_LEAK = 64;
+	
+	public static boolean TEST_372319 = false; // see https://bugs.eclipse.org/372319
 
 	/**
 	 * Bitset of {@link #CLOSE_SEEN}, {@link #SHARED_WITH_OUTSIDE}, {@link #OWNED_BY_OUTSIDE}, {@link #CLOSED_IN_NESTED_METHOD}, {@link #REPORTED_EXPLICIT_CLOSE}, {@link #REPORTED_POTENTIAL_LEAK} and {@link #REPORTED_DEFINITIVE_LEAK}.
@@ -528,6 +530,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 * @return one of the constants FlowInfo.{NULL,POTENTIALLY_NULL,POTENTIALLY_NON_NULL,NON_NULL}.
 	 */
 	private int getNullStatusAggressively(LocalVariableBinding local, FlowInfo flowInfo) {
+		if (flowInfo == FlowInfo.DEAD_END) {
+			return FlowInfo.UNKNOWN;
+		}
 		int reachMode = flowInfo.reachMode();
 		int status = 0;
 		try {
@@ -535,6 +540,11 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			if (reachMode != FlowInfo.REACHABLE)
 				flowInfo.tagBits &= ~FlowInfo.UNREACHABLE;
 			status = flowInfo.nullStatus(local);
+			if (TEST_372319) { // see https://bugs.eclipse.org/372319
+				try {
+					Thread.sleep(5); // increase probability of concurrency bug
+				} catch (InterruptedException e) { /* nop */ }
+			}
 		} finally {
 			// reset
 			flowInfo.tagBits |= reachMode;
