@@ -96,6 +96,7 @@ public static Test suite() {
 	since_1_5.add(InternalHexFloatTest.class);
 	since_1_5.add(JavadocTest_1_5.class);
 	since_1_5.add(BatchCompilerTest.class);
+	since_1_5.add(ConcurrentBatchCompilerTest.class);
 	since_1_5.add(ExternalizeStringLiterals15Test.class);
 	since_1_5.add(Deprecated15Test.class);
 	since_1_5.add(InnerEmulationTest_1_5.class);

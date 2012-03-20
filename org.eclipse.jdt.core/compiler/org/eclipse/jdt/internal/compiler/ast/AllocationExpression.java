@@ -84,7 +84,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 
 	// after having analysed exceptions above start tracking newly allocated resource:
-	if (FakedTrackingVariable.isAnyCloseable(this.resolvedType) && currentScope.compilerOptions().analyseResourceLeaks)
+	if (currentScope.compilerOptions().analyseResourceLeaks && FakedTrackingVariable.isAnyCloseable(this.resolvedType))
 		FakedTrackingVariable.analyseCloseableAllocation(currentScope, flowInfo, this);
 
 	if (this.binding.declaringClass.isMemberType() && !this.binding.declaringClass.isStatic()) {
