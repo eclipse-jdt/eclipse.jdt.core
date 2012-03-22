@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
+ *    akurtakov@gmail.com - fix compilation with Java 7
  *    
  *******************************************************************************/
 
@@ -918,15 +919,15 @@ public class ElementProc extends BaseProcessor {
 			reportError("examineGetAnnotation: annoArrayType.value() should have thrown a MirroredTypesException but instead returned " + contents);
 			return false;
 		}
+		catch (MirroredTypeException mte) {
+			// ignore, because javac incorrectly throws this; see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6519115
+		}
 		catch (MirroredTypesException mte) {
 			List<? extends TypeMirror> clazzMirrors = mte.getTypeMirrors();
 			if (null == clazzMirrors || clazzMirrors.size() != 2) {
 				reportError("examineGetAnnotation: annoArrayType.value() returned an incorrect mirror list");
 				return false;
 			}
-		}
-		catch (MirroredTypeException mte) {
-			// ignore, because javac incorrectly throws this; see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6519115
 		}
 		return true;
 	}
