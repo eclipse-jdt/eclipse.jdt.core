@@ -3626,6 +3626,77 @@ public void test060() {
 		"X::~X\n" + 
 		"true");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248 (AIOOB with try with resources)
+public void _test375248() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"import java.io.InputStream;\n" +
+			"import java.net.MalformedURLException;\n" +
+			"import java.net.URL;\n" +
+			"\n" +
+			"public class X {\n" +
+			"public static void main(String[] args) throws Exception {\n" +
+			"  System.out.println(\"Done\");\n" +
+			"}\n" +
+			"    public void foo() throws MalformedURLException {\n" +
+			"        URL url = new URL(\"dummy\"); //$NON-NLS-1$\n" +
+			"        try (InputStream is = url.openStream()) {\n" +
+			"        } catch (IOException e) {\n" +
+			"             return;\n" +
+			"        } finally {\n" +
+			"            try {\n" +
+			"                java.nio.file.Files.delete(null);\n" +
+			"            } catch (IOException e1) {\n" +
+			"            }\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"Done");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248 (AIOOB with try with resources)
+public void _test375248b() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.File;\n" +
+			"import java.io.IOException;\n" +
+			"import java.io.InputStream;\n" +
+			"import java.net.MalformedURLException;\n" +
+			"import java.net.URL;\n" +
+			"import java.nio.file.Path;\n" +
+			"import java.nio.file.StandardCopyOption;\n" +
+			"\n" +
+			"public class X {\n" +
+			"    public static void main(String[] args) throws Exception {\n" +
+			"      System.out.println(\"Done\");\n" +
+			"    }\n" +
+			"    public void executeImports() throws MalformedURLException {\n" +
+			"        for (int i = 0; i < 3; i++) {\n" +
+			"            URL url = new URL(\"dummy\"); //$NON-NLS-1$\n" +
+			"            if (url != null) {\n" +
+			"                Path target = new File(\"dummy\").toPath();\n" +
+			"                try (InputStream is = url.openStream()) {\n" +
+			"                    java.nio.file.Files.copy(is, target,\n" +
+			"                            StandardCopyOption.REPLACE_EXISTING);\n" +
+			"                } catch (IOException e) {\n" +
+			"                     break;\n" +
+			"                } finally {\n" +
+			"                    try {\n" +
+			"                        java.nio.file.Files.delete(target);\n" +
+			"                    } catch (IOException e1) {\n" +
+			"\n" +
+			"                    }\n" +
+			"                }\n" +
+			"            }\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"Done");
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }
