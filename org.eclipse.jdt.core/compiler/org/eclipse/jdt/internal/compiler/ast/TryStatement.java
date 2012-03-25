@@ -586,6 +586,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		}
 	} finally {
 		this.declaredExceptionLabels = null;
+		this.resourceExceptionLabels = null;  // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248
 	}
 	boolean tryBlockHasSomeCode = codeStream.position != pc;
 	// flag telling if some bytecodes were issued inside the try block
@@ -835,7 +836,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream codeStream, Object targetLocation, int stateIndex, LocalVariableBinding secretLocal) {
 
 	int resourceCount = this.resources.length;
-	if (resourceCount > 0) {
+	if (resourceCount > 0 && this.resourceExceptionLabels != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248
 		for (int i = resourceCount; i > 0; --i) {
 			// Disarm the handlers and take care of resource closure.
 			this.resourceExceptionLabels[i].placeEnd();
