@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2012 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *   wharley@bea.com - initial API and implementation
+ *   IBM Corporation - modified to fix https://bugs.eclipse.org/bugs/show_bug.cgi?id=185601
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.core.internal.generatedfile;
@@ -50,6 +51,10 @@ import org.eclipse.jdt.core.JavaModelException;
  * We attempt to change the classpath entry and the folder on disk whenever
  * the enabled/disabled state or the folder name change.  These changes are
  * discovered via the preferenceChanged() method. 
+ * <p>
+ * We attempt to update the classpath with an entry for the generated source
+ * folder if APT is enabled and there is no entry for this folder present
+ * on the classpath.
  * <p>
  * GeneratedSourceFolderManager is responsible only for the folder itself, not
  * its contents.  Contents are managed by @see GeneratedFileManager.
@@ -161,7 +166,9 @@ public class GeneratedSourceFolderManager {
 	/**
 	 * Creates the generated source folder if necessary.  This should be called just
 	 * before doing a build.
-	 * No changes to the classpath will be made.
+	 * 
+	 * Classpath will be updated with an entry for the generated source folder
+	 * if it is not already added to the classpath. See bug 185601.
 	 */
 	public void ensureFolderExists(){
 		// If APT is disabled, do nothing.
@@ -182,7 +189,7 @@ public class GeneratedSourceFolderManager {
 		}
 		
 		if (createOnDisk(srcFolder)) {
-			if (isOnClasspath(srcFolder)) {
+			if (addToClasspath(srcFolder)) {
 				synchronized (this) {
 					// Only set _generatedSourceFolder if folder is on disk and on classpath.
 					_generatedSourceFolder = srcFolder;
