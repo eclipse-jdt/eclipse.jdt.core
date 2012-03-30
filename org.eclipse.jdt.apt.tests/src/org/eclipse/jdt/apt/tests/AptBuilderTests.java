@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2012 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    mkaufman@bea.com - initial API and implementation
- *    
+ *    IBM Corporation - updated test to reflect changes for https://bugs.eclipse.org/bugs/show_bug.cgi?id=185601
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests;
@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
-import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotationProcessor;
 import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotationProcessor;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -625,6 +624,9 @@ public class AptBuilderTests extends APTTestBase
 		expectingNoProblems();
 	}
 	
+	// After fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=185601,
+	// the config marker 'Generated source folder * is not in classpath'
+	// is not easy to simulate. So, this test doesn't really do anything
 	public void testConfigMarker() throws Exception{
 		final String projectName = "ConfigMarkerTestProject";	
 		final IJavaProject javaProj = createJavaProject( projectName );
@@ -651,10 +653,9 @@ public class AptBuilderTests extends APTTestBase
 		javaProj.setRawClasspath(cp, null);
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		// make sure we post the marker about the incorrect classpath
-		expectingMarkers(new String[]{"Generated source folder '" + 
-				AptPreferenceConstants.DEFAULT_GENERATED_SOURCE_FOLDER_NAME + 
-				"' is missing from classpath"} );
+		// classpath should be updated with an entry for the source folder
+		// make sure we do not post the marker about the incorrect classpath
+		expectingNoMarkers();
 		
 		// take out the annotation and no type generation will occur.
 		code = "package pkg;\n"
