@@ -2,13 +2,13 @@
     <resource path="META-INF/MANIFEST.MF">
         <filter comment="Adding Java 7 support for 3.6.2+" id="924844039">
             <message_arguments>
-                <message_argument value="3.6.50"/>
+                <message_argument value="3.6.51"/>
                 <message_argument value="3.6.2"/>
             </message_arguments>
         </filter>
         <filter comment="Adding Java 7 support on top of 3.6.2+" id="924844039">
             <message_arguments>
-                <message_argument value="3.6.50.qualifier"/>
+                <message_argument value="3.6.51.qualifier"/>
                 <message_argument value="3.6.2.v_A76_R36x"/>
             </message_arguments>
         </filter>
