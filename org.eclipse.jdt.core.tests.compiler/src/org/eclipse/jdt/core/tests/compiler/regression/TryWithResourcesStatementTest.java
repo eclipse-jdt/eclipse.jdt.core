@@ -3602,7 +3602,193 @@ public void test060() {
 		"X::~X\n" + 
 		"true");
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248 (AIOOB with try with resources)
+public void test375248() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"import java.io.InputStream;\n" +
+			"import java.net.MalformedURLException;\n" +
+			"import java.net.URL;\n" +
+			"\n" +
+			"public class X {\n" +
+			"    public static void main(String[] args) throws Exception {\n" +
+			"      System.out.println(\"Done\");\n" +
+			"    }\n" +
+			"    public void foo() throws MalformedURLException {\n" +
+			"        URL url = new URL(\"dummy\"); //$NON-NLS-1$\n" +
+			"        try (InputStream is = url.openStream()) {\n" +
+			"        } catch (IOException e) {\n" +
+			"             return;\n" +
+			"        } finally {\n" +
+			"            try {\n" +
+			"                java.nio.file.Files.delete(null);\n" +
+			"            } catch (IOException e1) {\n" +
+			"            }\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"Done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248 (AIOOB with try with resources)
+public void test375248a() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.File;\n" +
+			"import java.io.IOException;\n" +
+			"import java.io.InputStream;\n" +
+			"import java.net.MalformedURLException;\n" +
+			"import java.net.URL;\n" +
+			"import java.nio.file.Path;\n" +
+			"import java.nio.file.StandardCopyOption;\n" +
+			"\n" +
+			"public class X {\n" +
+			"    public static void main(String[] args) throws Exception {\n" +
+			"      System.out.println(\"Done\");\n" +
+			"    }\n" +
+			"    public void executeImports() throws MalformedURLException {\n" +
+			"        for (int i = 0; i < 3; i++) {\n" +
+			"            URL url = new URL(\"dummy\"); //$NON-NLS-1$\n" +
+			"            if (url != null) {\n" +
+			"                Path target = new File(\"dummy\").toPath();\n" +
+			"                try (InputStream is = url.openStream()) {\n" +
+			"                    java.nio.file.Files.copy(is, target,\n" +
+			"                            StandardCopyOption.REPLACE_EXISTING);\n" +
+			"                } catch (IOException e) {\n" +
+			"                     break;\n" +
+			"                } finally {\n" +
+			"                    try {\n" +
+			"                        java.nio.file.Files.delete(target);\n" +
+			"                    } catch (IOException e1) {\n" +
+			"\n" +
+			"                    }\n" +
+			"                }\n" +
+			"            }\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"Done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248 (AIOOB with try with resources)
+public void test375248b() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.File;\n" +
+			"import java.io.IOException;\n" +
+			"import java.io.InputStream;\n" +
+			"import java.net.MalformedURLException;\n" +
+			"import java.net.URL;\n" +
+			"import java.nio.file.Path;\n" +
+			"import java.nio.file.StandardCopyOption;\n" +
+			"\n" +
+			"public class X {\n" +
+			"    public static void main(String[] args) throws Exception {\n" +
+			"      System.out.println(\"Done\");\n" +
+			"    }\n" +
+			"    public void executeImports() throws MalformedURLException {\n" +
+			"        for (int i = 0; i < 3; i++) {\n" +
+			"            URL url = new URL(\"dummy\"); //$NON-NLS-1$\n" +
+			"            if (url != null) {\n" +
+			"                Path target = new File(\"dummy\").toPath();\n" +
+			"                try (InputStream is = url.openStream()) {\n" +
+			"                    java.nio.file.Files.copy(is, target,\n" +
+			"                            StandardCopyOption.REPLACE_EXISTING);\n" +
+			"                } catch (IOException e) {\n" +
+			"                     continue;\n" +
+			"                } finally {\n" +
+			"                    try {\n" +
+			"                        java.nio.file.Files.delete(target);\n" +
+			"                    } catch (IOException e1) {\n" +
+			"\n" +
+			"                    }\n" +
+			"                }\n" +
+			"            }\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"Done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248 (AIOOB with try with resources)
+public void test375248c() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.File;\n" +
+			"import java.io.IOException;\n" +
+			"import java.io.InputStream;\n" +
+			"import java.net.MalformedURLException;\n" +
+			"import java.net.URL;\n" +
+			"import java.nio.file.Path;\n" +
+			"import java.nio.file.StandardCopyOption;\n" +
+			"\n" +
+			"public class X implements AutoCloseable {\n" +
+			"	public void foo()  {\n" +
+			"        try (X x = new X()) {\n" +
+			"	     System.out.println(\"Try\");\n" +
+			"	     throw new Exception();\n" +
+			"        } catch (Exception e) {\n" +
+			"	     System.out.println(\"Catch\");\n"+ 
+			"             return;\n" +
+			"        } finally {\n" +
+			"        	System.out.println(\"Finally\");\n" +
+			"        }\n" +
+			"    }\n" +
+			"	public void close() {\n" +
+			"		System.out.println(\"Close\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().foo();\n" +
+			"	}\n" +
+			"}\n" 
+		},
+		"Try\n" + 
+		"Close\n" + 
+		"Catch\n" + 
+		"Finally");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=375248 (AIOOB with try with resources)
+public void test375248d() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.File;\n" +
+			"import java.io.IOException;\n" +
+			"import java.io.InputStream;\n" +
+			"import java.net.MalformedURLException;\n" +
+			"import java.net.URL;\n" +
+			"import java.nio.file.Path;\n" +
+			"import java.nio.file.StandardCopyOption;\n" +
+			"\n" +
+			"public class X implements AutoCloseable {\n" +
+			"	public void foo()  {\n" +
+			"        try (X x = new X()) {\n" +
+			"	     System.out.println(\"Try\");\n" +
+			"        } catch (Exception e) {\n" +
+			"	     System.out.println(\"Catch\");\n"+ 
+			"             return;\n" +
+			"        } finally {\n" +
+			"        	System.out.println(\"Finally\");\n" +
+			"           return;\n" +
+			"        }\n" +
+			"    }\n" +
+			"	public void close() {\n" +
+			"		System.out.println(\"Close\");\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().foo();\n" +
+			"	}\n" +
+			"}\n" 
+		},
+		"Try\n" + 
+		"Close\n" + 
+		"Finally");
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }
