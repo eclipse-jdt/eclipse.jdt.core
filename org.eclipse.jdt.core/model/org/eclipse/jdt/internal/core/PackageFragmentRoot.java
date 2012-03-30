@@ -489,7 +489,7 @@ int internalKind() throws JavaModelException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	PackageFragmentRootInfo info = (PackageFragmentRootInfo) manager.peekAtInfo(this);
 	if (info == null) {
-		info = (PackageFragmentRootInfo) openWhenClosed(createElementInfo(), null);
+		info = (PackageFragmentRootInfo) openWhenClosed(createElementInfo(), false, null);
 	}
 	return info.getRootKind();
 }

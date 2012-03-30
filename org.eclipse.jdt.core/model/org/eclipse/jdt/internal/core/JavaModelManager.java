@@ -3603,9 +3603,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Puts the infos in the given map (keys are IJavaElements and values are JavaElementInfos)
 	 * in the Java model cache in an atomic way.
 	 */
-	protected synchronized void putInfos(IJavaElement openedElement, Map newElements) {
+	protected synchronized Object putInfos(IJavaElement openedElement, Object newInfo, boolean forceAdd, Map newElements) {
 		// remove existing children as the are replaced with the new children contained in newElements
 		Object existingInfo = this.cache.peekAtInfo(openedElement);
+		if (existingInfo != null && !forceAdd) {
+			// If forceAdd is false, then it could mean that the particular element 
+			// wasn't in cache at that point of time, but would have got added through 
+			// another thread. In that case, we better use the other thread's info
+			// rather than removing it's children and creating one another. 
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372687
+			return existingInfo;
+		}
 		if (openedElement instanceof IParent) {
 			closeChildren(existingInfo);
 		}
@@ -3635,6 +3643,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			Map.Entry entry = (Map.Entry) iterator.next();
 			this.cache.putInfo((IJavaElement) entry.getKey(), entry.getValue());
 		}
+		return newInfo;
 	}
 
 	private void closeChildren(Object info) {
