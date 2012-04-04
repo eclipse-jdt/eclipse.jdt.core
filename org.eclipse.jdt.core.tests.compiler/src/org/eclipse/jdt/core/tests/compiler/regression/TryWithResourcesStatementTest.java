@@ -3813,6 +3813,271 @@ public void test375248d() {
 		"Close\n" + 
 		"Finally");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+public void test375326() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		HasAutoCloseable a;\n" + 
+			"		try(AutoCloseable b=(a=new HasAutoCloseable()).a) {\n" + 
+			"		}\n" + 
+			"		System.out.println(a);\n" + 
+			"	}\n" +
+			"	public static class AutoCloseableA implements AutoCloseable {\n" + 
+			"		@Override\n" + 
+			"		public void close() {\n" + 
+			"			// TODO Auto-generated method stub\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static class HasAutoCloseable {\n" + 
+			"		AutoCloseable a = new AutoCloseableA();\n" + 
+			"		public String toString() {\n" + 
+			"			return \"SUCCESS\";\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}" 
+		},
+		"SUCCESS");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+public void test375326a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String [] args) throws Exception {\n" +
+			"        HasAutoCloseable aLocal;\n" +
+			"        try(AutoCloseable b=(new HasAutoCloseable()).a){\n" +
+			"        	aLocal = new HasAutoCloseable();\n" +
+			"        }\n" +
+			"        catch (Throwable e) {\n" +
+			"        }\n" +
+			"       System.out.println(aLocal.toString());       \n" +
+			"    } \n" +
+			"    public static class AutoCloseableA implements AutoCloseable{\n" +
+			"        @Override\n" +
+			"        public void close() {\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static class HasAutoCloseable{\n" +
+			"        AutoCloseable a=new AutoCloseableA(); \n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	System.out.println(aLocal.toString());       \n" + 
+		"	                   ^^^^^^\n" + 
+		"The local variable aLocal may not have been initialized\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+public void test375326b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String [] args) throws Exception {\n" +
+			"        HasAutoCloseable aLocal;\n" +
+			"        try(AutoCloseable b=(aLocal = new HasAutoCloseable()).a){\n" +
+			"        	\n" +
+			"        }\n" +
+			"        catch (Throwable e) {\n" +
+			"        }\n" +
+			"       System.out.println(aLocal.toString());       \n" +
+			"    } \n" +
+			"    public static class AutoCloseableA implements AutoCloseable{\n" +
+			"        @Override\n" +
+			"        public void close() {\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static class HasAutoCloseable{\n" +
+			"        AutoCloseable a=new AutoCloseableA(); \n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	System.out.println(aLocal.toString());       \n" + 
+		"	                   ^^^^^^\n" + 
+		"The local variable aLocal may not have been initialized\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+public void test375326c() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		HasAutoCloseable a;\n" + 
+			"		try(AutoCloseable b=(a=new HasAutoCloseable()).a) {\n" + 
+			"       } finally {\n" +
+			"            System.out.println(\"Finally\");\n" +
+			"        }\n" +
+			"		System.out.println(a);\n" + 
+			"	}\n" +
+			"	public static class AutoCloseableA implements AutoCloseable {\n" + 
+			"		@Override\n" + 
+			"		public void close() {\n" + 
+			"			// TODO Auto-generated method stub\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static class HasAutoCloseable {\n" + 
+			"		AutoCloseable a = new AutoCloseableA();\n" + 
+			"		public String toString() {\n" + 
+			"			return \"SUCCESS\";\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}" 
+		},
+		"Finally\n" + 
+		"SUCCESS");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+public void test375326d() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String [] args) throws Exception {\n" +
+			"        HasAutoCloseable aLocal;\n" +
+			"        try(AutoCloseable b=(new HasAutoCloseable()).a){\n" +
+			"        	aLocal = new HasAutoCloseable();\n" +
+			"        }\n" +
+			"        catch (Throwable e) {\n" +
+			"        } finally {\n" +
+			"            System.out.println(\"Finally\");\n" +
+			"        }\n" +
+			"       System.out.println(aLocal.toString());       \n" +
+			"    } \n" +
+			"    public static class AutoCloseableA implements AutoCloseable{\n" +
+			"        @Override\n" +
+			"        public void close() {\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static class HasAutoCloseable{\n" +
+			"        AutoCloseable a=new AutoCloseableA(); \n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	System.out.println(aLocal.toString());       \n" + 
+		"	                   ^^^^^^\n" + 
+		"The local variable aLocal may not have been initialized\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+public void test375326e() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String [] args) throws Exception {\n" +
+			"        HasAutoCloseable aLocal;\n" +
+			"        try(AutoCloseable b=(aLocal = new HasAutoCloseable()).a){\n" +
+			"        	\n" +
+			"        }\n" +
+			"        catch (Throwable e) {\n" +
+			"        } finally {\n" +
+			"            System.out.println(\"Finally\");\n" +
+			"        }\n" +
+			"       System.out.println(aLocal.toString());       \n" +
+			"    } \n" +
+			"    public static class AutoCloseableA implements AutoCloseable{\n" +
+			"        @Override\n" +
+			"        public void close() {\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static class HasAutoCloseable{\n" +
+			"        AutoCloseable a=new AutoCloseableA(); \n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	System.out.println(aLocal.toString());       \n" + 
+		"	                   ^^^^^^\n" + 
+		"The local variable aLocal may not have been initialized\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+public void test375326f() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public void testWithResourcesAssignment() throws Exception{\n" +
+			"        HasAutoCloseable a;\n" +
+			"        try(AutoCloseable b=(a=new HasAutoCloseable()).a){\n" +
+			"        } finally {\n" +
+			"        	System.out.println(a);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public class AutoCloseableA implements AutoCloseable{\n" +
+			"        @Override\n" +
+			"        public void close() {\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public class HasAutoCloseable{\n" +
+			"        AutoCloseable a=new AutoCloseableA();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	System.out.println(a);\n" + 
+		"	                   ^\n" + 
+		"The local variable a may not have been initialized\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375326
+public void test375326g() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class CheckedException extends Throwable {}\n" +
+			"public class X {\n" +
+			"    public void testWithResourcesAssignment() throws Exception{\n" +
+			"        HasAutoCloseable a;\n" +
+			"        try(AutoCloseable b=(a=new HasAutoCloseable()).a){\n" +
+			"            throw new CheckedException();\n" +
+			"        } catch (CheckedException e) {\n" +
+			"            System.out.println(a);\n" +
+			"        } finally {\n" +
+			"        	System.out.println(a);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public class AutoCloseableA implements AutoCloseable{\n" +
+			"        @Override\n" +
+			"        public void close() {\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public class HasAutoCloseable{\n" +
+			"        AutoCloseable a=new AutoCloseableA();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	class CheckedException extends Throwable {}\n" + 
+		"	      ^^^^^^^^^^^^^^^^\n" + 
+		"The serializable class CheckedException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	System.out.println(a);\n" + 
+		"	                   ^\n" + 
+		"The local variable a may not have been initialized\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
+		"	System.out.println(a);\n" + 
+		"	                   ^\n" + 
+		"The local variable a may not have been initialized\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }
