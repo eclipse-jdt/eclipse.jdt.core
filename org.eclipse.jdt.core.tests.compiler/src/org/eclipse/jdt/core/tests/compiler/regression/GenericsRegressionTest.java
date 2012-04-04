@@ -2549,4 +2549,23 @@ public void test366131b() {
 		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=375394
+public void test375394() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collection;\n" +
+			"public class X {\n" +
+			"    static <C1,C2 extends Collection<Object>> boolean foo(C1 c, C2 c2) {\n" +
+			"        return foo(c2,c); \n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	return foo(c2,c); \n" + 
+		"	       ^^^\n" + 
+		"Bound mismatch: The generic method foo(C1, C2) of type X is not applicable for the arguments (C2, C1). The inferred type C1 is not a valid substitute for the bounded parameter <C2 extends Collection<Object>>\n" + 
+		"----------\n");
+}
 }
