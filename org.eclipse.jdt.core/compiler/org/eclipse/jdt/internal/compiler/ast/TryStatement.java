@@ -127,10 +127,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// only try blocks initialize that member - may consider creating a
 		// separate class if needed
 
-		FlowInfo preTryBodyFlowInfo = flowInfo.copy();
+		FlowInfo tryInfo = flowInfo.copy();
 		for (int i = 0; i < resourcesLength; i++) {
-			preTryBodyFlowInfo = this.resources[i].analyseCode(currentScope, handlingContext, preTryBodyFlowInfo);
-			this.postResourcesInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(preTryBodyFlowInfo);
+			tryInfo = this.resources[i].analyseCode(currentScope, handlingContext, tryInfo);
+			this.postResourcesInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(tryInfo);
 			LocalVariableBinding resourceBinding = this.resources[i].binding;
 			resourceBinding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
 			if (resourceBinding.closeTracker != null) {
@@ -145,16 +145,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				if (closeMethod != null && closeMethod.returnType.id == TypeIds.T_void) {
 					ReferenceBinding[] thrownExceptions = closeMethod.thrownExceptions;
 					for (int j = 0, length = thrownExceptions.length; j < length; j++) {
-						handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[i], preTryBodyFlowInfo, currentScope, true);
+						handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[i], tryInfo, currentScope, true);
 					}
 				}
 			}
 		}
-		FlowInfo tryInfo;
-		if (this.tryBlock.isEmptyBlock()) {
-			tryInfo = preTryBodyFlowInfo;
-		} else {
-			tryInfo = this.tryBlock.analyseCode(currentScope, handlingContext, preTryBodyFlowInfo);
+		if (!this.tryBlock.isEmptyBlock()) {
+			tryInfo = this.tryBlock.analyseCode(currentScope, handlingContext, tryInfo);
 			if ((tryInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 				this.bits |= ASTNode.IsTryBlockExiting;
 		}
@@ -270,10 +267,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// only try blocks initialize that member - may consider creating a
 		// separate class if needed
 
-		FlowInfo preTryBlockFlowInfo = flowInfo.copy();
+		FlowInfo tryInfo = flowInfo.copy();
 		for (int i = 0; i < resourcesLength; i++) {
-			preTryBlockFlowInfo = this.resources[i].analyseCode(currentScope, handlingContext, preTryBlockFlowInfo);
-			this.postResourcesInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(preTryBlockFlowInfo);
+			tryInfo = this.resources[i].analyseCode(currentScope, handlingContext, tryInfo);
+			this.postResourcesInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(tryInfo);
 			LocalVariableBinding resourceBinding = this.resources[i].binding;
 			resourceBinding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
 			if (resourceBinding.closeTracker != null) {
@@ -288,16 +285,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				if (closeMethod != null && closeMethod.returnType.id == TypeIds.T_void) {
 					ReferenceBinding[] thrownExceptions = closeMethod.thrownExceptions;
 					for (int j = 0, length = thrownExceptions.length; j < length; j++) {
-						handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[i], preTryBlockFlowInfo, currentScope, true);
+						handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[i], tryInfo, currentScope, true);
 					}
 				}
 			}
 		}
-		FlowInfo tryInfo;
-		if (this.tryBlock.isEmptyBlock()) {
-			tryInfo = preTryBlockFlowInfo;
-		} else {
-			tryInfo = this.tryBlock.analyseCode(currentScope, handlingContext, preTryBlockFlowInfo);
+		if (!this.tryBlock.isEmptyBlock()) {
+			tryInfo = this.tryBlock.analyseCode(currentScope, handlingContext, tryInfo);
 			if ((tryInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 				this.bits |= ASTNode.IsTryBlockExiting;
 		}
