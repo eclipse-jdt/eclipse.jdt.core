@@ -27,6 +27,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
@@ -37,7 +40,7 @@ public JavaProjectTests(String name) {
 	super(name);
 }
 static {
-//	TESTS_NAMES = new String[] { "testBug360164" };
+//	TESTS_NAMES = new String[] { "testBug351697" };
 }
 public static Test suite() {
 	TestSuite suite = (TestSuite) buildModelTestSuite(JavaProjectTests.class);
@@ -2526,6 +2529,56 @@ public void testBug347386() throws CoreException {
 		proj.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 		waitForAutoBuild();
 		assertFalse("Folder is not removed", toDelete.exists());
+	} finally {
+		this.deleteProject("P");
+	}
+}
+/**
+ * @bug 351697: java.lang.ClassCastException
+ * @test Verify that ClassCastException is not thrown when a .class file is copied to a wrong source package.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=351697"
+ */
+public void testBug351697() throws Exception {
+	try {
+		IJavaProject proj = this.createJavaProject("P", new String[] {"src"}, "bin");
+		proj.getProject().open(null);
+		createFolder("/P/src/p");
+		createFolder("/P/src/q");
+		createFolder("/P/temp_folder");
+
+		IFile toEdit = createFile("/P/src/p/P.java",
+				"package p;" +
+				"public class P {" +
+				"	Q b = new Q();" +
+				"	public void foo() {" +
+				"	}");
+
+		IFile toDelete = createFile("/P/src/q/Q.java",
+				"package q;" +
+				"public class Q {" +
+				"}");
+		proj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+		moveFile("/P/bin/q/Q.class", "/P/temp_folder/Q.class");
+		deleteResource(toDelete);
+		proj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(toEdit);
+		unit.open(null);
+		moveFile( "/P/temp_folder/Q.class", "/P/src/p/Q.class/");
+		proj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+		try {
+			ASTParser parser= ASTParser.newParser(AST.JLS4);
+			parser.setSource(unit);
+			parser.setResolveBindings(true);
+			ASTNode node = parser.createAST(null);
+			assertNotNull("ASTNode should not be null", node);
+		}
+		catch(ClassCastException cce) {
+			fail("ClassCastException:" + cce.getMessage());
+		}
+
 	} finally {
 		this.deleteProject("P");
 	}
