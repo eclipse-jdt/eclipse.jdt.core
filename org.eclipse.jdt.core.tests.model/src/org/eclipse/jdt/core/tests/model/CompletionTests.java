@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24839,9 +24839,9 @@ public void testBug350652d() throws JavaModelException {
 			"      }\n" +
 			"   }" +
 			"}\n" +
-			"public class IZZException extends Exception {\n" +
+			"class IZZException extends Exception {\n" +
 			"}\n" +
-			"public class IZZAException extends IZZException {\n" +
+			"class IZZAException extends IZZException {\n" +
 			"}\n");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -24968,9 +24968,9 @@ public void testBug350652g() throws JavaModelException {
 			"      }\n" +
 			"   }" +
 			"}\n" +
-			"public class IZZException extends Exception {\n" +
+			"class IZZException extends Exception {\n" +
 			"}\n" +
-			"public class IZZAException extends IZZException {\n" +
+			"class IZZAException extends IZZException {\n" +
 			"}\n");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -25093,10 +25093,7 @@ public void testBug350652j() throws JavaModelException {
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
-// superclass exception type not allowed in multi-catch
-// Test filtration of supertype from expected types when no prefix before caret (IZZException is expected here because of the 
-// throw, yet is not a valid proposal anymore since a child, IZZAException is present in the same multi-catch).
-// types in same CU
+// according to comment 5, supertypes of exceptions should also be proposed
 public void testBug350652k() throws JavaModelException {
 	Map options = COMPLETION_PROJECT.getOptions(true);
 	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
@@ -25106,7 +25103,7 @@ public void testBug350652k() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
-			"package test;"+
+			"package test;\n"+
 			"public class Test {\n" +
 			"	public void foo() {\n" +
 			"      try {\n" +
@@ -25116,19 +25113,20 @@ public void testBug350652k() throws JavaModelException {
 			"      }\n" +
 			"   }" +
 			"}\n" +
-			"public class IZZException extends Exception {\n" +
+			"class IZZException extends Exception {\n" +
 			"}\n" +
-			"public class IZZAException extends IZZException {\n" +
+			"class IZZAException extends IZZException {\n" +
 			"}\n");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
-		String completeBehind = "IZZException |";
+		String completeBehind = "catch (IZZAException |";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		
 		assertResults(
-			"",
+			"Exception[TYPE_REF]{Exception, java.lang, Ljava.lang.Exception;, null, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + R_RESOLVED + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}\n" +
+			"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -25137,11 +25135,7 @@ public void testBug350652k() throws JavaModelException {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
-// subclass exception type not allowed in multi-catch
-// Test relevance of sub-type from expected types when no prefix before caret (IZZAException is expected here because of the 
-// throw, yet is a less relevant proposal since a child, IZZException is present in the same multi-catch).
-// Also, sub-type should not be an expected type.
-// types in same CU
+// according to comment 5, subtypes of exceptions should also be proposed
 public void testBug350652l() throws JavaModelException {
 	Map options = COMPLETION_PROJECT.getOptions(true);
 	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
@@ -25161,9 +25155,9 @@ public void testBug350652l() throws JavaModelException {
 			"      }\n" +
 			"   }" +
 			"}\n" +
-			"public class IZZException extends Exception {\n" +
+			"class IZZException extends Exception {\n" +
 			"}\n" +
-			"public class IZZAException extends IZZException {\n" +
+			"class IZZAException extends IZZException {\n" +
 			"}\n");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);

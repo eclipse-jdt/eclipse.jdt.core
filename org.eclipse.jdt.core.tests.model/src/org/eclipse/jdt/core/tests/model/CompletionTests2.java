@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,7 +48,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 public class CompletionTests2 extends ModifyingResourceTests implements RelevanceConstants {
 	
 	static {
-//		TESTS_NAMES = new String[]{"testBug340945"};
+//		TESTS_NAMES = new String[]{"testBug326610"};
 	}
 
 	public static class CompletionContainerInitializer implements ContainerInitializer.ITestInitializer {
@@ -5851,5 +5851,47 @@ public void testBug340945d() throws JavaModelException {
 	assertResults(
 			"static void foo() \n",			
 			requestor.getVisibleMethods());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=326610
+// Test if annotations can be added on package declaration in package-info
+public void testBug326610() throws Exception {
+	try {
+		// create P1
+		IFile f = getFile("/Completion/org.eclipse.jdt.annotation_1.0.0.v20120312-1601.jar");
+		IJavaProject p = this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			 "bin",
+			 "1.5");
+
+		this.createFolder("/P1/src/p");
+		this.createFile("/P1/lib.jar", f.getContents());
+		this.addLibraryEntry(p, "/P1/lib.jar", true);
+
+		this.createFile(
+			"/P1/src/p/package-info.java",
+			"@No\n" +
+			"package p;\n");
+
+		waitUntilIndexesReady();
+
+		// do completion
+		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+		ICompilationUnit cu= getCompilationUnit("P1", "src", "p", "package-info.java");
+
+		String str = cu.getSource();
+		String completeBehind = "@No";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertEquals(
+			"element:NonNullByDefault    completion:org.eclipse.jdt.annotation.NonNullByDefault    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE + R_QUALIFIED + R_EXACT_NAME + R_NON_RESTRICTED + R_ANNOTATION),
+			requestor.getResults());
+
+		
+	} finally {
+		this.deleteProject("P1");
+	}
 }
 }
