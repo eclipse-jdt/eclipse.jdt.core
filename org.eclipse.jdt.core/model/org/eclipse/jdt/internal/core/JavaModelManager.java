@@ -3601,7 +3601,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 	/*
 	 * Puts the infos in the given map (keys are IJavaElements and values are JavaElementInfos)
-	 * in the Java model cache in an atomic way.
+	 * in the Java model cache in an atomic way if the info is not already present in the cache. 
+	 * If the info is already present in the cache, it depends upon the forceAdd parameter.
+	 * If forceAdd is false it just returns the existing info and if true, this element and it's children are closed and then 
+	 * this particular info is added to the cache.
 	 */
 	protected synchronized Object putInfos(IJavaElement openedElement, Object newInfo, boolean forceAdd, Map newElements) {
 		// remove existing children as the are replaced with the new children contained in newElements
@@ -3609,8 +3612,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (existingInfo != null && !forceAdd) {
 			// If forceAdd is false, then it could mean that the particular element 
 			// wasn't in cache at that point of time, but would have got added through 
-			// another thread. In that case, we better use the other thread's info
-			// rather than removing it's children and creating one another. 
+			// another thread. In that case, removing the children could remove it's own
+			// children. So, we should not remove the children but return the already existing 
+			// info.
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372687
 			return existingInfo;
 		}
