@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1543,5 +1543,46 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 		assertStringsEqual("Type parameter bounds signatures", 
 							"TT;\n", typeParam.getBoundsSignatures());
 	}
-
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=372687
+	 * Ensures that if more than one thread try to open a class file at the same time, the children are correct.
+	 */
+	public void testBug372687() throws CoreException {
+		String expected = "X.class\n" + 
+						  "  class X\n" + 
+						  "    X()\n" + 
+						  "    void foo()";
+		class GetClassThread extends Thread {
+			public String childString;
+			public void run(){
+				IClassFile clazz = ClassFileTests.this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+				try {
+					this.childString = expandAll(clazz);
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		for (int i = 0; i < 10; i++) {
+			GetClassThread th1 = new GetClassThread();
+			GetClassThread th2 = new GetClassThread();
+			GetClassThread th3 = new GetClassThread();
+			th1.start();
+			th2.start();
+			th3.start();
+			try {
+				th1.join();
+				th2.join();
+				th3.join();
+			} catch (InterruptedException e) {
+				// ignore
+			}
+			assertEquals("Unexpected children", expected, th1.childString);
+			assertEquals("Unexpected children", expected, th2.childString);
+			assertEquals("Unexpected children", expected, th3.childString);
+			IClassFile clazz = ClassFileTests.this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+			clazz.close();
+		}
+	}
 }
