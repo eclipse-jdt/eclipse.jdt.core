@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2012 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *    IBM Corporation - fixed a resource leak warning
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests;
@@ -69,8 +69,9 @@ public class FileManagerTests extends TestCase {
 				}
 			}
 		}
+		StandardJavaFileManager fileManager = null;
 		try {
-			StandardJavaFileManager fileManager = new EclipseFileManager(Locale.getDefault(), Charset.defaultCharset());
+			fileManager = new EclipseFileManager(Locale.getDefault(), Charset.defaultCharset());
 	
 			List<File> fins = new ArrayList<File>();
 			fins.add(dir);
@@ -95,6 +96,12 @@ public class FileManagerTests extends TestCase {
 			assertEquals("Wrong contents", "X.java", String.valueOf(builder));
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				fileManager.close();
+			} catch (IOException e) {
+				//ignore the exception
+			}
 		}
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
