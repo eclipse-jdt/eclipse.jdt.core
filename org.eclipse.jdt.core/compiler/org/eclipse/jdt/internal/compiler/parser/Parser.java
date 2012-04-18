@@ -17,9 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.util.Properties;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -78,8 +76,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	public static char nasr[] = null;
 	public static char non_terminal_index[] = null;
 	private final static String READABLE_NAMES_FILE = "readableNames"; //$NON-NLS-1$
-	private final static String READABLE_NAMES_FILE_NAME =
-		"org.eclipse.jdt.internal.compiler.parser." + READABLE_NAMES_FILE; //$NON-NLS-1$
+
 	public static String readableName[] = null;
 
 	public static byte rhs[] = null;
@@ -516,7 +513,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 		}
 	
 		buildFileForCompliance(prefix + (++i) + ".rsc", newRhs.length, tokens);//$NON-NLS-1$
-		buildFileForReadableName(READABLE_NAMES_FILE+".properties", newLhs, newNonTerminalIndex, newName, tokens);//$NON-NLS-1$
+		buildFileForReadableName(READABLE_NAMES_FILE+".props", newLhs, newNonTerminalIndex, newName, tokens);//$NON-NLS-1$
 	
 		buildFilesForRecoveryTemplates(
 				prefix + (++i) + ".rsc", //$NON-NLS-1$
@@ -602,7 +599,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	
 		rules_compliance = readLongTable(prefix + (++i) + ".rsc"); //$NON-NLS-1$
 	
-		readableName = readReadableNameTable(READABLE_NAMES_FILE_NAME);
+		readableName = readReadableNameTable(READABLE_NAMES_FILE + ".props"); //$NON-NLS-1$
 	
 		reverse_index = computeReverseTable(terminal_index, non_terminal_index, name);
 	
@@ -703,28 +700,25 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	
 		return result;
 	}
-	protected static String[] readReadableNameTable(String filename) {
+	protected static String[] readReadableNameTable(String filename){
 		String[] result = new String[name.length];
-	
-		ResourceBundle bundle;
+		
+		InputStream is = Parser.class.getResourceAsStream(filename);
+		Properties props = new Properties();
 		try {
-			bundle = ResourceBundle.getBundle(filename, Locale.getDefault());
-		} catch(MissingResourceException e) {
-			System.out.println("Missing resource : " + filename.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
-			throw e;
+			props.load(is);
+		} catch (IOException e) {
+			result = name;
+			return result;
 		}
 		for (int i = 0; i < NT_OFFSET + 1; i++) {
 			result[i] = name[i];
 		}
 		for (int i = NT_OFFSET; i < name.length; i++) {
-			try {
-				String n = bundle.getString(name[i]);
-				if(n != null && n.length() > 0) {
-					result[i] = n;
-				} else {
-					result[i] = name[i];
-				}
-			} catch(MissingResourceException e) {
+			String n = props.getProperty(name[i]);
+			if (n != null && n.length() > 0) {
+				result[i] = n;
+			} else {
 				result[i] = name[i];
 			}
 		}
