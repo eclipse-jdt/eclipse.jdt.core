@@ -18,6 +18,7 @@
  *								bug 365208 - [compiler][batch] command line options for annotation based null analysis
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
+ *								bug 374605 - Unreasonable warning for enum-based switch statements
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1717,6 +1718,8 @@ public void test012b(){
         "      emptyBlock           undocumented empty block\n" + 
         "      enumIdentifier       ''enum'' used as identifier\n" + 
         "      enumSwitch           incomplete enum switch\n" + 
+        "      enumSwitchPedantic + report missing enum switch cases even\n" + 
+        "                           in the presence of a default case\n" + 
         "      fallthrough          possible fall-through case\n" + 
         "      fieldHiding          field hiding another variable\n" + 
         "      finalBound           type parameter with final bound\n" + 
@@ -1755,7 +1758,8 @@ public void test012b(){
         "      super                overriding a method without making a super invocation\n" + 
         "      suppress           + enable @SuppressWarnings\n" + 
         "                           When used with -err:, it can also silent optional\n" + 
-        "                           errors and warnings\n" + 
+        "                           errors and warnings\n" +
+        "      switchDefault      + switch statement lacking a default case\n" + 
         "      syncOverride         missing synchronized in synchr. method override\n" + 
         "      syntheticAccess      synthetic access for innerclass\n" + 
         "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" + 
@@ -1884,7 +1888,9 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility\" value=\"public\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.localVariableHiding\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingDefaultCase\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingEnumCaseDespiteDefault\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocComments\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding\" value=\"disabled\"/>\n" + 
@@ -12728,6 +12734,103 @@ public void test316_warn_options() {
 		+ " -warn:+nullAnnot(foo|bar) -warn:+null -nonNullByDefault -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"Token nullAnnot(foo|bar) is not in the expected format \"nullAnnot(<non null annotation name> | <nullable annotation name> | <non-null by default annotation name>)\"\n", 
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
+// -warn/-error option : enumSwitchPedantic 
+public void test317_warn_options() {
+	this.runConformTest(
+		new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"enum Color { RED, GREEN };\n" +
+				"public class X {\n" +
+				"     int getVal(Color c) {\n" +
+				"         switch (c) {\n" +
+				"             case RED: return 1;\n" +
+				"             default : return 0;\n" +
+				"         }\n" +
+				"     }\n" +
+				"}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -warn:+enumSwitchPedantic -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" +
+		"1. WARNING in " + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java (at line 5)\n" +
+		"	switch (c) {\n" +
+		"	        ^\n" +
+		"The enum constant GREEN should have a corresponding case label in this enum switch on Color. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" +
+		"----------\n" +
+		"1 problem (1 warning)",
+		true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
+// -warn/-error option : enumSwitchPedantic: increase severity to ERROR
+public void test318_warn_options() {
+	this.runNegativeTest(
+			new String[] {
+					"p/X.java",
+					"package p;\n" +
+					"enum Color { RED, GREEN };\n" +
+					"public class X {\n" +
+					"     int getVal(Color c) {\n" +
+					"         switch (c) {\n" +
+					"             case RED: return 1;\n" +
+					"             default : return 0;\n" +
+					"         }\n" +
+					"     }\n" +
+					"}\n"
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+			+ " -sourcepath \"" + OUTPUT_DIR + "\""
+			+ " -1.5"
+			+ " -err:+enumSwitchPedantic -proc:none -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"----------\n" +
+			"1. ERROR in " + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java (at line 5)\n" +
+			"	switch (c) {\n" +
+			"	        ^\n" +
+			"The enum constant GREEN should have a corresponding case label in this enum switch on Color. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" +
+			"----------\n" +
+			"1 problem (1 error)",
+			true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
+// -warn/-error option : switchDefault
+public void test319_warn_options() {
+	this.runConformTest(
+		new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"enum Color { RED, GREEN };\n" +
+				"public class X {\n" +
+				"     int getVal(Color c) {\n" +
+				"         switch (c) {\n" +
+				"             case RED: return 1;\n" +
+				"             case GREEN : return 2;\n" +
+				"         }\n" +
+				"         return 0;\n" +
+				"     }\n" +
+				"}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -warn:+switchDefault -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" +
+		"1. WARNING in " + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java (at line 5)\n" +
+		"	switch (c) {\n" +
+		"	        ^\n" +
+		"The switch over the enum type Color should have a default case\n" +
+		"----------\n" +
+		"1 problem (1 warning)",
 		true);
 }
 

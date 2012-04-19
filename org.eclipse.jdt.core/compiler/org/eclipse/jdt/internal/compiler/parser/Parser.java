@@ -8,7 +8,9 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - patch for readTable(String) as described in http://bugs.eclipse.org/bugs/show_bug.cgi?id=32196
- *     Stephan Herrmann - Contribution for Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
+ *     Stephan Herrmann - Contributions for 
+ *								bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
+ *								bug 374605 - Unreasonable warning for enum-based switch statements
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -47,6 +49,7 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 	protected static final int THIS_CALL = ExplicitConstructorCall.This;
 	protected static final int SUPER_CALL = ExplicitConstructorCall.Super;
 	public static final char[] FALL_THROUGH_TAG = "$FALL-THROUGH$".toCharArray(); //$NON-NLS-1$
+	public static final char[] CASES_OMITTED_TAG = "$CASES-OMITTED$".toCharArray(); //$NON-NLS-1$
 	
 	public static char asb[] = null;
 	public static char asr[] = null;
@@ -2846,10 +2849,13 @@ protected void consumeCreateInitializer() {
 protected void consumeDefaultLabel() {
 	// SwitchLabel ::= 'default' ':'
 	CaseStatement defaultStatement = new CaseStatement(null, this.intStack[this.intPtr--], this.intStack[this.intPtr--]);
-	// Look for $fall-through$ tag in leading comment for case statement
+	// Look for $fall-through$ and $CASES-OMITTED$ tags in leading comment for case statement
 	if (hasLeadingTagComment(FALL_THROUGH_TAG, defaultStatement.sourceStart)) {
 		defaultStatement.bits |= ASTNode.DocumentedFallthrough;
-	}	
+	}
+	if (hasLeadingTagComment(CASES_OMITTED_TAG, defaultStatement.sourceStart)) {
+		defaultStatement.bits |= ASTNode.DocumentedCasesOmitted;
+	}
 	pushOnAstStack(defaultStatement);
 }
 protected void consumeDefaultModifiers() {
@@ -9189,8 +9195,14 @@ public boolean hasLeadingTagComment(char[] commentPrefixTag, int rangeEnd) {
 			}
 		}
 		for (int iTag = 0, length = commentPrefixTag.length; iTag < length; iTag++, charPos++) {
-			if (charPos >= rangeEnd) return false; // comment is too small to host tag
-			if (source[charPos] != commentPrefixTag[iTag]) return false;
+			if (charPos >= rangeEnd // comment is too small to host tag
+					|| source[charPos] != commentPrefixTag[iTag]) {
+				if (iTag == 0) {
+					return false; // didn't even match leading '$' -> not a tag comment
+				} else {
+					continue previousComment; // accept as tag comment -> skip it and keep searching backwards
+				}
+			}
 		}
 		return true;
 	}

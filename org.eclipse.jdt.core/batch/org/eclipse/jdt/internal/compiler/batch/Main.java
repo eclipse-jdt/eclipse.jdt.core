@@ -15,6 +15,7 @@
  *     							bug 295551 - Add option to automatically promote all warnings to errors
  *     							bug 359721 - [options] add command line option for new warning token "resource"
  *								bug 365208 - [compiler][batch] command line options for annotation based null analysis
+ *								bug 374605 - Unreasonable warning for enum-based switch statements
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -3369,9 +3370,25 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			}
 			break;
 		case 'e' :
-			if (token.equals("enumSwitch") //$NON-NLS-1$
-					|| token.equals("incomplete-switch")) { //$NON-NLS-1$
+			if (token.equals("enumSwitch")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, severity, isEnabling);
+				return;
+			} else if (token.equals("enumSwitchPedantic")) { //$NON-NLS-1$
+				if (isEnabling) {
+					switch (severity) {
+						case ProblemSeverities.Error:
+							setSeverity(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, severity, isEnabling);
+							break;
+						case ProblemSeverities.Warning:
+							if (CompilerOptions.IGNORE.equals(this.options.get(CompilerOptions.OPTION_ReportIncompleteEnumSwitch))) {
+								setSeverity(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, severity, isEnabling);
+							}
+							break;
+						default: // no severity update
+					}
+				}
+				this.options.put(CompilerOptions.OPTION_ReportMissingEnumCaseDespiteDefault, 
+								 isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 				return;
 			} else if (token.equals("emptyBlock")) {//$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, severity, isEnabling);
@@ -3589,6 +3606,9 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				return;
 			} else if (token.equals("static-method")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportMethodCanBeStatic, severity, isEnabling);
+				return;
+			} else if (token.equals("switchDefault")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportMissingDefaultCase, severity, isEnabling);
 				return;
 			}
 			break;

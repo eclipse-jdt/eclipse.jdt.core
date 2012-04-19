@@ -17,6 +17,7 @@
  *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
+ *								bug 374605 - Unreasonable warning for enum-based switch statements
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -99,6 +100,7 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
@@ -334,8 +336,12 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.AutoBoxing;
 
 		case IProblem.MissingEnumConstantCase :
+		case IProblem.MissingEnumConstantCaseDespiteDefault :	// this one is further protected by CompilerOptions.reportMissingEnumCaseDespiteDefault
+			return CompilerOptions.MissingEnumConstantCase;
+
+		case IProblem.MissingDefaultCase :
 		case IProblem.MissingEnumDefaultCase :
-			return CompilerOptions.IncompleteEnumSwitch;
+			return CompilerOptions.MissingDefaultCase;
 
 		case IProblem.AnnotationTypeUsedAsSuperInterface :
 			return CompilerOptions.AnnotationSuperInterface;
@@ -523,7 +529,8 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.NullReference :
 			case CompilerOptions.PotentialNullReference :
 			case CompilerOptions.RedundantNullCheck :
-			case CompilerOptions.IncompleteEnumSwitch :
+			case CompilerOptions.MissingEnumConstantCase :
+			case CompilerOptions.MissingDefaultCase :
 			case CompilerOptions.FallthroughCase :
 			case CompilerOptions.OverridingMethodWithoutSuperInvocation :
 			case CompilerOptions.ComparingIdentical :
@@ -5379,19 +5386,20 @@ public void missingDeprecatedAnnotationForType(TypeDeclaration type) {
 }
 public void missingEnumConstantCase(SwitchStatement switchStatement, FieldBinding enumConstant) {
 	this.handle(
-		IProblem.MissingEnumConstantCase,
+		switchStatement.defaultCase == null ? IProblem.MissingEnumConstantCase : IProblem.MissingEnumConstantCaseDespiteDefault,
 		new String[] {new String(enumConstant.declaringClass.readableName()), new String(enumConstant.name) },
 		new String[] {new String(enumConstant.declaringClass.shortReadableName()), new String(enumConstant.name) },
 		switchStatement.expression.sourceStart,
 		switchStatement.expression.sourceEnd);
 }
-public void missingEnumDefaultCase(SwitchStatement switchStatement, TypeBinding enumType) {
+public void missingDefaultCase(SwitchStatement switchStatement, boolean isEnumSwitch, TypeBinding expressionType) {
 	this.handle(
-		IProblem.MissingEnumDefaultCase,
-		new String[] {new String(enumType.readableName())},
-		new String[] {new String(enumType.shortReadableName())},
+		isEnumSwitch ? IProblem.MissingEnumDefaultCase : IProblem.MissingDefaultCase,
+		new String[] {new String(expressionType.readableName())},
+		new String[] {new String(expressionType.shortReadableName())},
 		switchStatement.expression.sourceStart,
 		switchStatement.expression.sourceEnd);
+
 }
 public void missingOverrideAnnotation(AbstractMethodDeclaration method) {
 	int severity = computeSeverity(IProblem.MissingOverrideAnnotation);
@@ -6655,7 +6663,7 @@ public void shouldImplementHashcode(SourceTypeBinding type) {
 }
 public void shouldReturn(TypeBinding returnType, ASTNode location) {
 	this.handle(
-		IProblem.ShouldReturnValue,
+		methodHasMissingSwitchDefault() ? IProblem.ShouldReturnValueHintMissingDefault : IProblem.ShouldReturnValue,
 		new String[] { new String (returnType.readableName())},
 		new String[] { new String (returnType.shortReadableName())},
 		location.sourceStart,
@@ -7182,7 +7190,7 @@ public void unhandledWarningToken(Expression token) {
 public void uninitializedBlankFinalField(FieldBinding field, ASTNode location) {
 	String[] arguments = new String[] {new String(field.readableName())};
 	this.handle(
-		IProblem.UninitializedBlankFinalField,
+		methodHasMissingSwitchDefault() ? IProblem.UninitializedBlankFinalFieldHintMissingDefault : IProblem.UninitializedBlankFinalField,
 		arguments,
 		arguments,
 		nodeSourceStart(field, location),
@@ -7192,11 +7200,20 @@ public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode loc
 	binding.tagBits |= TagBits.NotInitialized;
 	String[] arguments = new String[] {new String(binding.readableName())};
 	this.handle(
-		IProblem.UninitializedLocalVariable,
+		methodHasMissingSwitchDefault() ? IProblem.UninitializedLocalVariableHintMissingDefault : IProblem.UninitializedLocalVariable,
 		arguments,
 		arguments,
 		nodeSourceStart(binding, location),
 		nodeSourceEnd(binding, location));
+}
+private boolean methodHasMissingSwitchDefault() {
+	MethodScope methodScope = null;
+	if (this.referenceContext instanceof Block) {
+		methodScope = ((Block)this.referenceContext).scope.methodScope();
+	} else if (this.referenceContext instanceof AbstractMethodDeclaration) {
+		methodScope = ((AbstractMethodDeclaration)this.referenceContext).scope;
+	}
+	return methodScope != null && methodScope.hasMissingSwitchDefault;	
 }
 public void unmatchedBracket(int position, ReferenceContext context, CompilationResult compilationResult) {
 	this.handle(

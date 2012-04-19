@@ -14,6 +14,7 @@
  *     							bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
+ *								bug 374605 - Unreasonable warning for enum-based switch statements
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -695,9 +696,11 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MethodReturnsVoid", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MethodVarargsArgumentNeedCast", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MissingArgumentsForParameterizedMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("MissingDefaultCase", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MissingEnclosingInstance", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("MissingEnclosingInstanceForConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("MissingEnumConstantCase", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("MissingEnumConstantCaseDespiteDefault", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MissingEnumDefaultCase", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MissingNonNullByDefaultAnnotationOnPackage", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MissingNonNullByDefaultAnnotationOnType", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -821,6 +824,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("SafeVarargsOnNonFinalInstanceMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ShouldReturnValue", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("ShouldReturnValueHintMissingDefault", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("SpecdNonNullLocalVariableComparisonYieldsFalse", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("StaticInheritedMethodConflicts", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("StaticMemberOfParameterizedType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -883,7 +887,9 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UnhandledExceptionOnAutoClose", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("UnhandledWarningToken", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UninitializedBlankFinalField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("UninitializedBlankFinalFieldHintMissingDefault", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("UninitializedLocalVariable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("UninitializedLocalVariableHintMissingDefault", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("UnmatchedBracket", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("UnnecessaryArgumentCast", DEPRECATED);
 		expectedProblemAttributes.put("UnnecessaryCast", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
@@ -1395,10 +1401,12 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MethodReturnsVoid", SKIP);
 		expectedProblemAttributes.put("MethodVarargsArgumentNeedCast", new ProblemAttributes(JavaCore.COMPILER_PB_VARARGS_ARGUMENT_NEED_CAST));
 		expectedProblemAttributes.put("MissingArgumentsForParameterizedMemberType", SKIP);
+		expectedProblemAttributes.put("MissingDefaultCase", new ProblemAttributes(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE));
 		expectedProblemAttributes.put("MissingEnclosingInstance", SKIP);
 		expectedProblemAttributes.put("MissingEnclosingInstanceForConstructorCall", SKIP);
 		expectedProblemAttributes.put("MissingEnumConstantCase", new ProblemAttributes(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH));
-		expectedProblemAttributes.put("MissingEnumDefaultCase", new ProblemAttributes(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH));
+		expectedProblemAttributes.put("MissingEnumConstantCaseDespiteDefault", new ProblemAttributes(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH));
+		expectedProblemAttributes.put("MissingEnumDefaultCase", new ProblemAttributes(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE));
 		expectedProblemAttributes.put("MissingNonNullByDefaultAnnotationOnPackage", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION));
 		expectedProblemAttributes.put("MissingNonNullByDefaultAnnotationOnType", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION));
 		expectedProblemAttributes.put("MissingOverrideAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION));
@@ -1521,6 +1529,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("SafeVarargsOnNonFinalInstanceMethod", SKIP);
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_HASHCODE_METHOD));
 		expectedProblemAttributes.put("ShouldReturnValue", SKIP);
+		expectedProblemAttributes.put("ShouldReturnValueHintMissingDefault", SKIP);
 		expectedProblemAttributes.put("SpecdNonNullLocalVariableComparisonYieldsFalse", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
 		expectedProblemAttributes.put("StaticInheritedMethodConflicts", SKIP);
 		expectedProblemAttributes.put("StaticMemberOfParameterizedType", SKIP);
@@ -1583,7 +1592,9 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UnhandledExceptionOnAutoClose", SKIP);
 		expectedProblemAttributes.put("UnhandledWarningToken", new ProblemAttributes(JavaCore.COMPILER_PB_UNHANDLED_WARNING_TOKEN));
 		expectedProblemAttributes.put("UninitializedBlankFinalField", SKIP);
+		expectedProblemAttributes.put("UninitializedBlankFinalFieldHintMissingDefault", SKIP);
 		expectedProblemAttributes.put("UninitializedLocalVariable", SKIP);
+		expectedProblemAttributes.put("UninitializedLocalVariableHintMissingDefault", SKIP);
 		expectedProblemAttributes.put("UnmatchedBracket", SKIP);
 		expectedProblemAttributes.put("UnnecessaryArgumentCast", SKIP);
 		expectedProblemAttributes.put("UnnecessaryCast", new ProblemAttributes(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK));

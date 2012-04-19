@@ -10,6 +10,7 @@
  *		Stephan Herrmann - Contributions for
  *								Bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								Bug 265744 - Enum switch should warn about missing default
+ *								Bug 374605 - Unreasonable warning for enum-based switch statements
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -36,7 +37,7 @@ public class EnumTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test146" };
+//		TESTS_NAMES = new String[] { "test187" };
 //		TESTS_NUMBERS = new int[] { 185 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
@@ -735,22 +736,17 @@ public void test022() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 6)\n" + 
-		"	switch(e) {\n" + 
-		"	       ^\n" + 
-		"The switch on the enum type X.MX should have a default case\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
 		"	case MX.BLEU : break;\n" + 
 		"	     ^^^^^^^\n" + 
 		"The qualified case label X.MX.BLEU must be replaced with the unqualified enum constant BLEU\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 8)\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
 		"	case MX.BLANC : break;\n" + 
 		"	     ^^^^^^^^\n" + 
 		"The qualified case label X.MX.BLANC must be replaced with the unqualified enum constant BLANC\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 9)\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
 		"	case MX.ROUGE : break;\n" + 
 		"	     ^^^^^^^^\n" + 
 		"The qualified case label X.MX.ROUGE must be replaced with the unqualified enum constant ROUGE\n" + 
@@ -1818,24 +1814,19 @@ public void test061() {
 		"1. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The switch on the enum type X should have a default case\n" +
+		"The enum constant A needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The enum constant A needs a corresponding case label in this enum switch on X\n" +
+		"The enum constant B needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The enum constant B needs a corresponding case label in this enum switch on X\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 8)\n" +
-		"	switch (x) {\n" +
-		"	        ^\n" +
 		"The enum constant C needs a corresponding case label in this enum switch on X\n" +
 		"----------\n" +
-		"5. ERROR in X.java (at line 9)\n" +
+		"4. ERROR in X.java (at line 9)\n" +
 		"	case D:\n" +
 		"	     ^\n" +
 		"The field X.D cannot be referenced from an enum case label; only enum constants can be used in enum switch\n" +
@@ -1846,6 +1837,8 @@ public void test061() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82217 - variation with qualified name
  */
 public void test062() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.WARNING);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -1866,7 +1859,7 @@ public void test062() {
 		"1. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The switch on the enum type X should have a default case\n" +
+		"The switch over the enum type X should have a default case\n" + 
 		"----------\n" +
 		"2. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
@@ -1887,7 +1880,10 @@ public void test062() {
 		"	case X.D:\n" +
 		"	       ^\n" +
 		"The field X.D cannot be referenced from an enum case label; only enum constants can be used in enum switch\n" +
-		"----------\n");
+		"----------\n",
+		null, // classlibs
+		true, // flush
+		options);
 }
 
 /**
@@ -3141,24 +3137,19 @@ public void test098() {
 		"1. WARNING in E.java (at line 5)\n" +
 		"	switch (color) {\n" +
 		"	        ^^^^^\n" +
-		"The switch on the enum type Colors should have a default case\n" +
+		"The enum constant BLACK needs a corresponding case label in this enum switch on Colors\n" +
 		"----------\n" +
 		"2. WARNING in E.java (at line 5)\n" +
 		"	switch (color) {\n" +
 		"	        ^^^^^\n" +
-		"The enum constant BLACK needs a corresponding case label in this enum switch on Colors\n" +
+		"The enum constant RED needs a corresponding case label in this enum switch on Colors\n" +
 		"----------\n" +
 		"3. WARNING in E.java (at line 5)\n" +
 		"	switch (color) {\n" +
 		"	        ^^^^^\n" +
-		"The enum constant RED needs a corresponding case label in this enum switch on Colors\n" +
-		"----------\n" +
-		"4. WARNING in E.java (at line 5)\n" +
-		"	switch (color) {\n" +
-		"	        ^^^^^\n" +
 		"The enum constant WHITE needs a corresponding case label in this enum switch on Colors\n" +
 		"----------\n" +
-		"5. ERROR in E.java (at line 16)\n" +
+		"4. ERROR in E.java (at line 16)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
@@ -4759,15 +4750,10 @@ public void test135() {
 			"}",
         },
         "----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	switch (e) {\n" + 
-		"	        ^\n" + 
-		"The switch on the enum type E should have a default case\n" + 
-		"----------\n" +
-		"2. ERROR in X.java (at line 12)\n" +
+		"1. ERROR in X.java (at line 12)\n" +
 		"	return b;\n" +
 		"	       ^\n" +
-		"The local variable b may not have been initialized\n" +
+		"The local variable b may not have been initialized. Note that a problem regarding missing 'default:' on 'switch' has been suppressed, which is perhaps related to this problem\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=151368
@@ -5179,13 +5165,48 @@ public void test146() {
 		"1. ERROR in X.java (at line 6)\n" +
 		"	public X(MyEnum e) { // error\n" +
 		"	       ^^^^^^^^^^^\n" +
-		"The blank final field test may not have been initialized\n" +
-		"----------\n" + 
-		"2. WARNING in X.java (at line 7)\n" + 
-		"	switch (e) {\n" + 
-		"	        ^\n" + 
-		"The switch on the enum type X.MyEnum should have a default case\n" + 
+		"The blank final field test may not have been initialized. Note that a problem regarding missing 'default:' on 'switch' has been suppressed, which is perhaps related to this problem\n" +
 		"----------\n");
+}
+// normal error when other warning is enabled
+public void test146b() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.WARNING);
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	enum MyEnum {\n" +
+				"		A, B\n" +
+				"	}\n" +
+				"	final String test;\n" +
+				"	public X(MyEnum e) { // error\n" +
+				"		switch (e) {\n" +
+				"			case A:\n" +
+				"				test = \"a\";\n" +
+				"				break;\n" +
+				"			case B:\n" +
+				"				test = \"a\";\n" +
+				"				break;\n" +
+				"			// default: test = \"unknown\"; // enabling this line fixes above error\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	public X(MyEnum e) { // error\n" +
+		"	       ^^^^^^^^^^^\n" +
+		"The blank final field test may not have been initialized\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 7)\n" +
+		"	switch (e) {\n" +
+		"	        ^\n" +
+		"The switch over the enum type X.MyEnum should have a default case\n" +
+		"----------\n",
+		null,
+		true,
+		options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502
 public void test147() {
@@ -6838,5 +6859,177 @@ public void test185() {
 		"	   ^\n" + 
 		"Unhandled exception type Exception\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
+public void test186() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_MISSING_ENUM_CASE_DESPITE_DEFAULT, JavaCore.ENABLED);
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"enum X {\n" + 
+			"  A, B;\n" + 
+			"}\n" +
+			"public class Y {\n" +
+			"    void test(X x) {\n" +
+			"        switch (x) {\n" +
+			"			case A: System.out.println(\"A\"); break;\n" +
+			" 			default : System.out.println(\"unknown\"); break;\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in Y.java (at line 6)\n" + 
+		"	switch (x) {\n" + 
+		"	        ^\n" + 
+		"The enum constant B should have a corresponding case label in this enum switch on X. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" + 
+		"----------\n",
+		null, // classlibs
+		true, // flush
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
+public void test187() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_MISSING_ENUM_CASE_DESPITE_DEFAULT, JavaCore.ENABLED);
+	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.ERROR);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"enum X {\n" + 
+			"  A, B;\n" + 
+			"}\n" +
+			"public class Y {\n" +
+			"    void test(X x) {\n" +
+			"        switch (x) {\n" +
+			"			case A: System.out.println(\"A\");\n" +
+			"           //$FALL-THROUGH$\n" +
+			"           //$CASES-OMITTED$\n" +
+			" 			default : System.out.println(\"unknown\"); break;\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"",
+		null, // classlibs
+		true, // flush
+		null, // vmArgs
+		options,
+		null /*requestor*/);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
+public void test187a() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_MISSING_ENUM_CASE_DESPITE_DEFAULT, JavaCore.ENABLED);
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"enum X {\n" + 
+			"  A, B;\n" + 
+			"}\n" +
+			"public class Y {\n" +
+			"    void test(X x) {\n" +
+			"        switch (x) {\n" +
+			"			case A: System.out.println(\"A\"); break;\n" +
+			"           //$CASES-OMITTED$\n" + // not strong enough to suppress the warning if default: is missing
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in Y.java (at line 6)\n" + 
+		"	switch (x) {\n" + 
+		"	        ^\n" + 
+		"The enum constant B needs a corresponding case label in this enum switch on X\n" + 
+		"----------\n",
+		null, // classlibs
+		true, // flush
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
+public void test187b() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.ERROR);
+	options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"enum X {\n" + 
+			"  A, B;\n" + 
+			"}\n" +
+			"public class Y {\n" +
+			"    @SuppressWarnings(\"incomplete-switch\")\n" +
+			"    void test(X x) {\n" +
+			"        switch (x) {\n" +
+			"			case A: System.out.println(\"A\"); break;\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"",
+		null, // classlibs
+		true, // flush
+		null, // vmArgs
+		options,
+		null /*requestor*/);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
+public void test188() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.WARNING);
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"enum X {\n" + 
+			"  A, B;\n" + 
+			"}\n" +
+			"public class Y {\n" +
+			"    void test(X x) {\n" +
+			"        switch (x) {\n" +
+			"			case A: System.out.println(\"A\"); break;\n" +
+			"			case B: System.out.println(\"B\"); break;\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in Y.java (at line 6)\n" + 
+		"	switch (x) {\n" + 
+		"	        ^\n" + 
+		"The switch over the enum type X should have a default case\n" + 
+		"----------\n",
+		null, // classlibs
+		true, // flush
+		options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
+public void test189() {
+	Map options = getCompilerOptions();
+	//options.put(JavaCore.COMPILER_PB_MISSING_DEFAULT_CASE, JavaCore.WARNING);
+	this.runNegativeTest(
+		new String[] {
+			"Y.java",
+			"enum X {\n" + 
+			"  A, B;\n" + 
+			"}\n" +
+			"public class Y {\n" +
+			"    int test(X x) {\n" +
+			"        switch (x) {\n" +
+			"			case A: return 1;\n" +
+			"			case B: return 2;\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in Y.java (at line 5)\n" + 
+		"	int test(X x) {\n" + 
+		"	    ^^^^^^^^^\n" + 
+		"This method must return a result of type int. Note that a problem regarding missing 'default:' on 'switch' has been suppressed, which is perhaps related to this problem\n" + 
+		"----------\n",
+		null, // classlibs
+		true, // flush
+		options);
 }
 }

@@ -93,6 +93,8 @@
  *     								COMPILER_PB_NULL_SPECIFICATION_VIOLATION
  *     								COMPILER_PB_POTENTIAL_NULL_SPECIFICATION_VIOLATION
  *     								COMPILER_PB_NULL_SPECIFICATION_INSUFFICIENT_INFO
+ *									COMPILER_PB_MISSING_ENUM_CASE_DESPITE_DEFAULT
+ *									COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE
  *******************************************************************************/
 
 package org.eclipse.jdt.core;
@@ -1074,10 +1076,9 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_DEAD_CODE_IN_TRIVIAL_IF_STATEMENT = PLUGIN_ID + ".compiler.problem.deadCodeInTrivialIfStatement"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Incomplete Enum Switch.
-	 * <p>When enabled, the compiler will issue an error or a warning whenever
-	 *    an enum switch statement lacks a default case.
-	 *    If no default case is given, additionally one error or warning is issued
-	 *    regarding each enum constant for which a corresponding case label is lacking.
+	 * <p>When enabled, the compiler will issue an error or a warning
+	 * 		regarding each enum constant for which a corresponding case label is lacking.
+	 * 		Reporting is further controlled by the option {@link #COMPILER_PB_MISSING_ENUM_CASE_DESPITE_DEFAULT}.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
@@ -1087,6 +1088,37 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_INCOMPLETE_ENUM_SWITCH = PLUGIN_ID + ".compiler.problem.incompleteEnumSwitch"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Reporting Missing Enum Case In Switch Despite An Existing Default Case.
+	 * <p>This option further controls the option {@link #COMPILER_PB_INCOMPLETE_ENUM_SWITCH}:
+	 * 	<ul>
+	 * 	<li>If enabled the compiler will report problems about missing enum constants even if a default case exists
+	 * 		in the same switch statement.</li>
+	 *  <li>If disabled existence of a default case is considered as sufficient to make a switch statement complete.</li>
+	 *  </ul>
+	 *  This option has no effect if {@link #COMPILER_PB_INCOMPLETE_ENUM_SWITCH} is set to <code>"ignore"</code>.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingEnumCaseDespiteDefault"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * </dl>
+	 * @since 3.8
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_MISSING_ENUM_CASE_DESPITE_DEFAULT = PLUGIN_ID + ".compiler.problem.missingEnumCaseDespiteDefault"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Reporting Missing Default Case In Switch.
+	 * <p>When enabled, the compiler will issue an error or a warning 
+	 * 		against each switch statement that lacks a default case.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingDefaultCase"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
+	 * </dl>
+	 * @since 3.8
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE = PLUGIN_ID + ".compiler.problem.missingDefaultCase"; //$NON-NLS-1$
 	/**
 	 * @since 3.1
 	 * @deprecated Use {@link #COMPILER_PB_NULL_REFERENCE} instead.

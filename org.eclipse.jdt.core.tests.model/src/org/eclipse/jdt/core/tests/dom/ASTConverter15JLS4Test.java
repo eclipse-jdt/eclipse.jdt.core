@@ -4767,7 +4767,6 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
     		"	RED, GREEN(), BLUE(17);\n" +
     		"	X() {}\n" +
     		"	X(int i) {}\n" +
-    		"   @SuppressWarnings(\"incomplete-switch\")\n" +
     		"	public static void main(String[] args) {\n" +
     		"		for (X x : X.values()) {\n" +
     		"			switch(x) {\n" +

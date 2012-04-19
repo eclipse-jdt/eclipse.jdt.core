@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 374605 - Unreasonable warning for enum-based switch statements
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -15,6 +16,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -1028,17 +1030,12 @@ public void testCaseTypeMismatch3() {
 		"	     ^^^\n" + 
 		"Type mismatch: cannot convert from String to int\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 9)\n" + 
-		"	switch(Days.Sunday) {\n" + 
-		"	       ^^^^^^^^^^^\n" + 
-		"The switch on the enum type Days should have a default case\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 10)\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
 		"	case \"Sunday\": break;\n" + 
 		"	     ^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from String to Days\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 13)\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
 		"	case \"0\": break;\n" + 
 		"	     ^^^\n" + 
 		"Type mismatch: cannot convert from String to Integer\n" + 
@@ -2137,6 +2134,35 @@ public void testFor356002_3() {
 	} else {
 		this.runConformTest(sourceFiles, "DONE");
 	}
+}
+public void testBug374605() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"class X {\n" +
+				"  void v(int i) {\n" +
+				"    switch (i) {\n" +
+				"      case 1 :\n" +
+				"        break;\n" +
+				"      case 2 :\n" +
+				"        break;\n" +
+				"    }\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in p\\X.java (at line 4)\n" +
+			"	switch (i) {\n" +
+			"	        ^\n" +
+			"The switch over the type int should have a default case\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);	
 }
 public static Class testClass() {
 	return SwitchTest.class;

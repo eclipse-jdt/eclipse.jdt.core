@@ -144,6 +144,11 @@
  *									RedundantNullCheckOnSpecdNonNullLocalVariable
  *									SpecdNonNullLocalVariableComparisonYieldsFalse
  *									RequiredNonNullButProvidedSpecdNullable
+ *									MissingDefaultCase
+ *									MissingEnumConstantCaseDespiteDefault
+ *									UninitializedLocalVariableHintMissingDefault
+ *									UninitializedBlankFinalFieldHintMissingDefault
+ *									ShouldReturnValueHintMissingDefault
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -1348,6 +1353,16 @@ void setSourceStart(int sourceStart);
 	int AbstractMethodInEnum = MethodRelated + 765;
 	/** @since 3.8 */
 	int MissingEnumDefaultCase = Internal + 766;
+	/** @since 3.8 */
+	int MissingDefaultCase = Internal + 767;
+	/** @since 3.8 */
+	int MissingEnumConstantCaseDespiteDefault = FieldRelated + 768;
+	/** @since 3.8 */
+	int UninitializedLocalVariableHintMissingDefault = Internal + 769;
+	/** @since 3.8 */
+	int UninitializedBlankFinalFieldHintMissingDefault = FieldRelated + 770;
+	/** @since 3.8 */
+	int ShouldReturnValueHintMissingDefault = MethodRelated + 771;
 
 	/**
 	 * Var args

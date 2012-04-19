@@ -12,6 +12,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *								bug 265744 - Enum switch should warn about missing default
+ *								bug 374605 - Unreasonable warning for enum-based switch statements
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.impl;
@@ -49,7 +50,7 @@ public class IrritantSet {
 	public static final IrritantSet FALLTHROUGH = new IrritantSet(CompilerOptions.FallthroughCase);
 	public static final IrritantSet FINALLY = new IrritantSet(CompilerOptions.FinallyBlockNotCompleting);
 	public static final IrritantSet HIDING = new IrritantSet(CompilerOptions.MaskedCatchBlock);
-	public static final IrritantSet INCOMPLETE_SWITCH = new IrritantSet(CompilerOptions.IncompleteEnumSwitch);
+	public static final IrritantSet INCOMPLETE_SWITCH = new IrritantSet(CompilerOptions.MissingEnumConstantCase);
 	public static final IrritantSet NLS = new IrritantSet(CompilerOptions.NonExternalizedString);
 	public static final IrritantSet NULL = new IrritantSet(CompilerOptions.NullReference);
 	public static final IrritantSet RAW = new IrritantSet(CompilerOptions.RawTypeReference);
@@ -103,7 +104,7 @@ public class IrritantSet {
 				| CompilerOptions.UnusedTypeArguments
 				| CompilerOptions.UnusedWarningToken
 				| CompilerOptions.ComparingIdentical
-				| CompilerOptions.IncompleteEnumSwitch)
+				| CompilerOptions.MissingEnumConstantCase)
 			// group-2 warnings enabled by default
 			.set(
 				CompilerOptions.DeadCode
@@ -147,6 +148,7 @@ public class IrritantSet {
 		RESOURCE
 			.set(CompilerOptions.PotentiallyUnclosedCloseable)
 			.set(CompilerOptions.ExplicitlyClosedAutoCloseable);
+		INCOMPLETE_SWITCH.set(CompilerOptions.MissingDefaultCase);
 		String suppressRawWhenUnchecked = System.getProperty("suppressRawWhenUnchecked"); //$NON-NLS-1$
 		if (suppressRawWhenUnchecked != null && "true".equalsIgnoreCase(suppressRawWhenUnchecked)) { //$NON-NLS-1$
 			UNCHECKED.set(CompilerOptions.RawTypeReference);
