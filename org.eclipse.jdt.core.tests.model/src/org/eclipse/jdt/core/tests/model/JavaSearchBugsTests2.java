@@ -12,11 +12,13 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -37,7 +39,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	
 	static {
-		//TESTS_NAMES = new String[] {"testBug123836"};
+		//TESTS_NAMES = new String[] {"testBug123836j", "testBug376673"};
 	}
 
 	public static Test suite() {
@@ -480,5 +482,126 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		} finally {
 			deleteProject("P");
 		}
+	}
+	
+	/**
+	 * @bug 376673: DBCS4.2 Can not rename the class names when DBCS (Surrogate e.g. U+20B9F) is in it 
+	 * @test Search for DBCS type should report the match
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=376673"
+	 */
+	public void testBug376673a() throws CoreException {
+		try {
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
+			String content = "package pkg;\n" + 
+					"class 𠮟1 {}\n";
+			createFolder("/P/pkg");
+			try {
+				IFile file = createFile("/P/pkg/𠮟1.java", content, "UTF-8");
+				file.setCharset("UTF-8", null);
+			} catch (UnsupportedEncodingException e) {
+				System.out.println("unsupported encoding");
+			}
+			waitUntilIndexesReady();
+			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
+					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			search("𠮟1", TYPE, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+			assertSearchResults("pkg/𠮟1.java pkg.𠮟1 [𠮟1] EXACT_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	// Search for DBCS method should report the match
+	public void testBug376673b() throws CoreException {
+		try {
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
+			String content = "package pkg;\n" + 
+					"class 𠮟1 {" +
+					"	public void 𠮟m() {}\n" +
+					"}\n";
+			createFolder("/P/pkg");
+			try {
+				IFile file = createFile("/P/pkg/𠮟1.java", content, "UTF-8");
+				file.setCharset("UTF-8", null);
+			} catch (UnsupportedEncodingException e) {
+				System.out.println("unsupported encoding");
+			}
+			waitUntilIndexesReady();
+			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
+					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			search("𠮟m", METHOD, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+			assertSearchResults("pkg/𠮟1.java void pkg.𠮟1.𠮟m() [𠮟m] EXACT_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	// Search for DBCS constructor should report the match
+	public void testBug376673c() throws CoreException {
+		try {
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
+			String content = "package pkg;\n" + 
+					"class 𠮟1 {" +
+					"	public 𠮟1() {}\n" +
+					"}\n";
+			createFolder("/P/pkg");
+			try {
+				IFile file = createFile("/P/pkg/𠮟1.java", content, "UTF-8");
+				file.setCharset("UTF-8", null);
+			} catch (UnsupportedEncodingException e) {
+				System.out.println("unsupported encoding");
+			}
+			waitUntilIndexesReady();
+			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
+					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			search("𠮟1", CONSTRUCTOR, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+			assertSearchResults("pkg/𠮟1.java pkg.𠮟1() [𠮟1] EXACT_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	// Search for DBCS field should report the match
+	public void testBug376673d() throws CoreException {
+		try {
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
+			String content = "package pkg;\n" + 
+					"class 𠮟1 {" +
+					"	public int 𠮟f;\n" +
+					"}\n";
+			createFolder("/P/pkg");
+			try {
+				IFile file = createFile("/P/pkg/𠮟1.java", content, "UTF-8");
+				file.setCharset("UTF-8", null);
+			} catch (UnsupportedEncodingException e) {
+				System.out.println("unsupported encoding");
+			}
+			waitUntilIndexesReady();
+			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
+					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			search("𠮟f", FIELD, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+			assertSearchResults("pkg/𠮟1.java pkg.𠮟1.𠮟f [𠮟f] EXACT_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	// Search for DBCS package name from a jar also should report the match
+	public void testBug376673e() throws CoreException, IOException {
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib376673.jar", "JCL17_LIB" }, "", "1.7");
+		
+		org.eclipse.jdt.core.tests.util.Util.createJar(
+						new String[] {
+						"p𠮟/i𠮟/Test.java",
+						"package p𠮟.i𠮟;\n" +
+						"public class Test{}\n" },
+						p.getProject().getLocation().append("lib376673.jar").toOSString(),
+						"1.7");
+		refresh(p);
+		waitUntilIndexesReady();
+		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES;
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, mask);
+		search("Test", TYPE, DECLARATIONS, scope, this.resultCollector);
+		assertSearchResults("lib376673.jar p𠮟.i𠮟.Test [No source] EXACT_MATCH");
+	} finally {
+		deleteProject("P");
+	}
 	}
 }

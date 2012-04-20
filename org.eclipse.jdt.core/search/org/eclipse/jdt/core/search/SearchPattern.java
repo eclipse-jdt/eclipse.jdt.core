@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -862,8 +862,9 @@ public static SearchPattern createAndPattern(SearchPattern leftPattern, SearchPa
 }
 
 private static SearchPattern createFieldPattern(String patternString, int limitTo, int matchRule) {
-
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+	// use 1.7 as the source level as there are more valid tokens in 1.7 mode
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376673
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_7/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 	scanner.setSource(patternString.toCharArray());
 	final int InsideDeclaringPart = 1;
 	final int InsideType = 2;
@@ -978,8 +979,9 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 }
 
 private static SearchPattern createMethodOrConstructorPattern(String patternString, int limitTo, int matchRule, boolean isConstructor) {
-
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+	// use 1.7 as the source level as there are more valid tokens in 1.7 mode
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376673
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_7/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 	scanner.setSource(patternString.toCharArray());
 	final int InsideSelector = 1;
 	final int InsideTypeArguments = 2;
@@ -2144,8 +2146,9 @@ private static SearchPattern createTypePattern(char[] simpleName, char[] package
 }
 
 private static SearchPattern createTypePattern(String patternString, int limitTo, int matchRule, char indexSuffix) {
-
-	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+	// use 1.7 as the source level as there are more valid tokens in 1.7 mode
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376673
+	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_7/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 	scanner.setSource(patternString.toCharArray());
 	String type = null;
 	int token;
