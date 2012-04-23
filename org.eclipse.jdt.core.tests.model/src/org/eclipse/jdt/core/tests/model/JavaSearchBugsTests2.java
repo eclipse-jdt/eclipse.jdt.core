@@ -604,4 +604,295 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		deleteProject("P");
 	}
 	}
+	/**
+	 * @bug 357547: [search] Search for method references is returning methods as overriden even if the superclass's method is only package-visible
+	 * @test Search for a non-overriden method because of package visibility should not be found
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=357547"
+	 */
+	public void testBug357547a() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			project = createJavaProject("P");
+			createFolder("/P/p1");
+			createFile("/P/p1/B.java",
+					"package p1;\n" +
+					"import p2.*;\n" +
+					"public class B extends A {\n" +
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+					"}\n");
+			createFolder("/P/p2");
+			createFile("/P/p2/A.java",
+					"package p2;\n" +
+					"public class A {\n" +
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+			  		"public long m(){\n"+
+			  		"return new A().k();\n" +
+			  		"}\n"+
+					"}\n");
+			IType type = getCompilationUnit("/P/p1/B.java").getType("B");
+			IMethod method = type.getMethod("k", new String[]{});
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Should not get any results", "", this.resultCollector);
+		} finally {
+			deleteProject(project);
+		}
+	}
+	
+	// search for the method name should also not return matches if not-overriden because of package-visible
+	public void testBug357547b() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			project = createJavaProject("P");
+			createFolder("/P/p1");
+			createFile("/P/p1/B.java",
+					"package p1;\n" +
+					"import p2.*;\n" +
+					"public class B extends A {\n" +
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+					"}\n");
+			createFolder("/P/p2");
+			createFile("/P/p2/A.java",
+					"package p2;\n" +
+					"public class A {\n" +
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+			  		"public long m(){\n"+
+			  		"return new A().k();\n" +
+			  		"}\n"+
+					"}\n");
+			waitUntilIndexesReady();
+			// search
+			SearchPattern pattern = SearchPattern.createPattern("p*.B.k()", METHOD, REFERENCES , 0 );
+			search(pattern, SearchEngine.createJavaSearchScope(new IJavaElement[] { project }), this.resultCollector);
+			assertSearchResults("Should not get any results", "", this.resultCollector);
+		} finally {
+			deleteProject(project);
+		}
+	}
+	
+	// search for the method name should return the match if same package 
+	public void testBug357547c() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			project = createJavaProject("P");
+			createFolder("/P/p2");
+			createFile("/P/p2/B.java",
+					"package p2;\n" +
+					"public class B extends A {\n" +
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+					"}\n");
+			createFile("/P/p2/A.java",
+					"package p2;\n" +
+					"public class A {\n" +
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+			  		"public long m(){\n"+
+			  		"return new A().k();\n" +
+			  		"}\n"+
+					"}\n");
+			waitUntilIndexesReady();
+			// search
+			SearchPattern pattern = SearchPattern.createPattern("B.k()", METHOD, REFERENCES, EXACT_RULE);
+			search(pattern, SearchEngine.createJavaSearchScope(new IJavaElement[] { project }), this.resultCollector);
+			assertSearchResults("Wrong results", "p2/A.java long p2.A.m() [k()] EXACT_MATCH", this.resultCollector);
+		} finally {
+			deleteProject(project);
+		}
+	}
+	
+	
+	public void testBug357547d() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			project = createJavaProject("P");
+			createFolder("/P/p1");
+			createFile("/P/p1/B.java",
+					"package p1;\n" +
+					"import p2.*;\n" +
+					"public class B extends A {\n" +
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+					"}\n");
+			createFolder("/P/p2");
+			createFile("/P/p2/A.java",
+					"package p2;\n" +
+					"public class A{ \n" +
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+			  		"public long m(){\n"+
+			  		"return new A().k();\n" +
+			  		"}\n"+
+					"}\n");
+			createFile("/P/p2/B.java",
+					"package p2;\n" +
+					"public class B {\n" +
+					"}\n");
+			waitUntilIndexesReady();
+			// search
+			SearchPattern pattern = SearchPattern.createPattern("B.k()", METHOD, REFERENCES, EXACT_RULE);
+			search(pattern, SearchEngine.createJavaSearchScope(new IJavaElement[] { project }), this.resultCollector);
+			assertSearchResults("Should not get any results", "", this.resultCollector);
+		} finally {
+			deleteProject(project);
+		}
+	}
+	// search for the method name should also not return matches if not-overriden because of package-visible
+	// even if they are in jars
+	public void testBug357547e() throws CoreException, IOException {
+		IJavaProject project = null;
+		try
+		{
+			project = createJavaProject("P", new String[] {""}, new String[] { "/P/lib357547.jar", "JCL15_LIB" }, "", "1.5");
+			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+					"p2/A.java",
+					"package p2;\n" + 
+					"public class A{}\n" }, 
+					project.getProject().getLocation().append("libStuff.jar").toOSString(), "1.5");
+			
+			org.eclipse.jdt.core.tests.util.Util.createJar(
+					new String[] {
+						"p1/B.java",
+						"package p1;\n"+
+						"import p2.*;\n"+
+						"public class B extends A {\n" +
+						"long k(){\n" +
+						"return 0;\n" +
+						"}\n" + 
+						"}\n"},
+					null,
+					project.getProject().getLocation().append("lib357547.jar").toOSString(),
+					new String[] { project.getProject().getLocation().append("libStuff.jar").toOSString() },
+					"1.5");
+			refresh(project);
+			createFolder("/P/p2");
+			createFile("/P/p2/A.java",
+					"package p2;\n" +
+					"public class A {\n" +
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+			  		"public long m(){\n"+
+			  		"return new A().k();\n" +
+			  		"}\n"+
+					"}\n");
+			waitUntilIndexesReady();
+			// search
+			SearchPattern pattern = SearchPattern.createPattern("B.k()", METHOD, REFERENCES, EXACT_RULE);
+			search(pattern, SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES), this.resultCollector);
+			assertSearchResults("Wrong results", "", this.resultCollector);
+		} finally {
+			deleteProject(project);
+		}
+	}
+	// search for the method name should also not return matches if not-overriden because of package-visible
+	// even if they are in jars
+	public void testBug357547f() throws CoreException, IOException {
+		IJavaProject project = null;
+		try
+		{
+			project = createJavaProject("P", new String[] {""}, new String[] { "/P/lib357547.jar", "JCL15_LIB" }, "", "1.5");
+			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+					"p2/A.java",
+					"package p2;\n" + 
+					"public class A{}\n" }, 
+					project.getProject().getLocation().append("libStuff.jar").toOSString(), "1.5");
+			
+			org.eclipse.jdt.core.tests.util.Util.createJar(
+					new String[] {
+						"p2/B.java",
+						"package p2;\n" +
+						"import p2.*;\n" +
+						"public class B extends A {\n" +
+						"long k(){\n" +
+						"return 0;\n" +
+						"}\n" + 
+						"}\n"},
+					null,
+					project.getProject().getLocation().append("lib357547.jar").toOSString(),
+					new String[] { project.getProject().getLocation().append("libStuff.jar").toOSString() },
+					"1.5");
+			refresh(project);
+			createFolder("/P/p2");
+			createFile("/P/p2/A.java",
+					"package p2;\n" +
+					"public class A {\n" +
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+			  		"public long m(){\n"+
+			  		"return new A().k();\n" +
+			  		"}\n"+
+					"}\n");
+			waitUntilIndexesReady();
+			// search
+			SearchPattern pattern = SearchPattern.createPattern("B.k()", METHOD, REFERENCES, EXACT_RULE);
+			search(pattern, SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES), this.resultCollector);
+			assertSearchResults("Wrong results", "p2/A.java long p2.A.m() [k()] EXACT_MATCH", this.resultCollector);
+		} finally {
+			deleteProject(project);
+		}
+	}
+	
+	// search for declarations also should take care of default
+	public void testBug357547g() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			project = createJavaProject("P");
+			createFolder("/P/p1");
+			createFile("/P/p1/B.java",
+					"package p1;\n" +
+					"import p2.*;\n" +
+					"public class B extends A {\n" +
+					"long k(int a){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+					"}\n");
+			createFile("/P/p1/C.java",
+					"package p1;\n" +
+					"public class C extends B {\n" +
+					"long k(int a){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+					"}\n");
+			createFolder("/P/p2");
+			createFile("/P/p2/A.java",
+					"package p2;\n" +
+					"public class A{ \n" +
+					"long k(int a){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+			  		"public long m(){\n"+
+			  		"return new A().k(0);\n" +
+			  		"}\n"+
+					"}\n");
+			createFile("/P/p2/B.java",
+					"package p2;\n" +
+					"public class B {\n" +
+					"}\n");
+			waitUntilIndexesReady();
+			// search
+			SearchPattern pattern = SearchPattern.createPattern("A.k(int)", METHOD, DECLARATIONS, EXACT_RULE);
+			search(pattern, SearchEngine.createJavaSearchScope(new IJavaElement[] { project }), this.resultCollector);
+			assertSearchResults("Wrong results", "p2/A.java long p2.A.k(int) [k] EXACT_MATCH", this.resultCollector);
+		} finally {
+			deleteProject(project);
+		}
+	}
 }
