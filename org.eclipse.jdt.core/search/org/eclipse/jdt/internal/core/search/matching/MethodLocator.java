@@ -7,6 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Samrat Dhillon samrat.dhillon@gmail.com - Search for method references is
+ *           returning methods as overriden even if the superclass's method is 
+ *           only package-visible - https://bugs.eclipse.org/357547
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
@@ -109,7 +112,9 @@ private boolean isTypeInSuperDeclaringTypeNames(char[][] typeName) {
  * this message send or not.
  */
 protected boolean isVirtualInvoke(MethodBinding method, MessageSend messageSend) {
-	return !method.isStatic() && !method.isPrivate() && !messageSend.isSuperAccess();
+	return !method.isStatic() && !method.isPrivate() && !messageSend.isSuperAccess()
+			&& !(method.isDefault() && this.pattern.focus != null 
+			&& !CharOperation.equals(this.pattern.declaringQualification, method.declaringClass.qualifiedPackageName()));
 }
 public int match(ASTNode node, MatchingNodeSet nodeSet) {
 	int declarationsLevel = IMPOSSIBLE_MATCH;
