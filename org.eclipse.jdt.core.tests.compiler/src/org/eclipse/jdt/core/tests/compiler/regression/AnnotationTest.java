@@ -47,7 +47,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug365437" };
+//		TESTS_NAMES = new String[] { "testBug376429" };
 //		TESTS_NUMBERS = new int[] { 297 };
 //		TESTS_RANGE = new int[] { 294, -1 };
 	}
@@ -10516,5 +10516,63 @@ public void testBug365437f() {
 		"The type E3.E33 is never used locally\n" + 
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+public void testBug376429a() {
+	this.runNegativeTest(
+			new String[] {
+				"Try.java",
+				"public @interface Try { \n" +
+				"	byte[] value(); \n" +
+				"	@Try t();\n"+
+				"	@Try u();\n"+
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in Try.java (at line 3)\n" + 
+			"	@Try t();\n" + 
+			"	^^^^\n" + 
+			"The annotation @Try must define the attribute value\n" + 
+			"----------\n" + 
+			"2. ERROR in Try.java (at line 3)\n" + 
+			"	@Try t();\n" + 
+			"	     ^^^\n" + 
+			"Return type for the method is missing\n" + 
+			"----------\n" + 
+			"3. ERROR in Try.java (at line 3)\n" + 
+			"	@Try t();\n" + 
+			"	     ^^^\n" + 
+			"Return type for the method is missing\n" + 
+			"----------\n" + 
+			"4. ERROR in Try.java (at line 4)\n" + 
+			"	@Try u();\n" + 
+			"	^^^^\n" + 
+			"The annotation @Try must define the attribute value\n" + 
+			"----------\n" + 
+			"5. ERROR in Try.java (at line 4)\n" + 
+			"	@Try u();\n" + 
+			"	     ^^^\n" + 
+			"Return type for the method is missing\n" + 
+			"----------\n");
+}
+public void testBug376429b() {
+	this.runNegativeTest(
+			new String[] {
+				"Try.java",
+				"public @interface Try { \n" +
+				"	@Try t();\n"+
+				"	byte[] value(); \n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in Try.java (at line 2)\n" + 
+			"	@Try t();\n" + 
+			"	^^^^\n" + 
+			"The annotation @Try must define the attribute value\n" + 
+			"----------\n" + 
+			"2. ERROR in Try.java (at line 2)\n" + 
+			"	@Try t();\n" + 
+			"	     ^^^\n" + 
+			"Return type for the method is missing\n" + 
+			"----------\n");
 }
 }

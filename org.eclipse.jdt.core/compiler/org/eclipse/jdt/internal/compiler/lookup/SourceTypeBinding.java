@@ -1192,6 +1192,11 @@ public MethodBinding[] methods() {
 	MethodBinding[] resolvedMethods = this.methods;
 	try {
 		for (int i = 0, length = this.methods.length; i < length; i++) {
+			if ((this.tagBits & TagBits.AreMethodsComplete) != 0) {
+				// recursive call to methods() from resolveTypesFor(..) resolved the methods
+				return this.methods;
+			}
+
 			if (resolveTypesFor(this.methods[i]) == null) {
 				// do not alter original method array until resolution is over, due to reentrance (143259)
 				if (resolvedMethods == this.methods) {
@@ -1360,6 +1365,10 @@ public MethodBinding[] methods() {
 			}
 		}
 	} finally {
+		if ((this.tagBits & TagBits.AreMethodsComplete) != 0) {
+			// recursive call to methods() from resolveTypesFor(..) resolved the methods
+			return this.methods;
+		}
 		if (failed > 0) {
 			int newSize = resolvedMethods.length - failed;
 			if (newSize == 0) {
