@@ -12760,7 +12760,7 @@ public void test317_warn_options() {
 		+ " -warn:+enumSwitchPedantic -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
-		"1. WARNING in " + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java (at line 5)\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)\n" +
 		"	switch (c) {\n" +
 		"	        ^\n" +
 		"The enum constant GREEN should have a corresponding case label in this enum switch on Color. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" +
@@ -12792,7 +12792,7 @@ public void test318_warn_options() {
 			+ " -err:+enumSwitchPedantic -proc:none -d \"" + OUTPUT_DIR + "\"",
 			"",
 			"----------\n" +
-			"1. ERROR in " + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java (at line 5)\n" +
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)\n" +
 			"	switch (c) {\n" +
 			"	        ^\n" +
 			"The enum constant GREEN should have a corresponding case label in this enum switch on Color. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" +
@@ -12825,7 +12825,7 @@ public void test319_warn_options() {
 		+ " -warn:+switchDefault -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" +
-		"1. WARNING in " + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java (at line 5)\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)\n" +
 		"	switch (c) {\n" +
 		"	        ^\n" +
 		"The switch over the enum type Color should have a default case\n" +
