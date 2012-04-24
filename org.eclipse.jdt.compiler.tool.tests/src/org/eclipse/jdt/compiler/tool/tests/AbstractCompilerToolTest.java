@@ -96,8 +96,10 @@ public class AbstractCompilerToolTest extends BatchCompilerTest {
 			TestCompilationProgress compilationProgress) {
 		CompilerInvocationTestsArguments arguments = (CompilerInvocationTestsArguments) extraArguments;
 		StandardJavaFileManager manager = arguments.standardJavaFileManager;
+		boolean ownsManager = false;
 		if (manager == null) {
 			manager = COMPILER.getStandardFileManager(null, null, null); // will pick defaults up
+			ownsManager = true;
 		}
 		try {
 			List<File> files = new ArrayList<File>();
@@ -113,7 +115,8 @@ public class AbstractCompilerToolTest extends BatchCompilerTest {
 			return task.call();
 		} finally {
 			try {
-				manager.close();
+				if (ownsManager)
+					manager.close();
 			} catch (IOException e) {
 				// nop
 			}
