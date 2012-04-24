@@ -646,6 +646,62 @@ public class IncrementalTests extends BuilderTests {
 		expectingNoProblems();
 	}
 
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=377401
+	public void test$InTypeName() throws JavaModelException {
+		IPath projectPath1 = env.addProject("Project1", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		env.addExternalJars(projectPath1, Util.getJavaClassLibs());
+		
+		IPath projectPath2 = env.addProject("Project2", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		env.addExternalJars(projectPath2, Util.getJavaClassLibs());
+	
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath1, ""); //$NON-NLS-1$
+
+		IPath root1 = env.addPackageFragmentRoot(projectPath1, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath1, "bin"); //$NON-NLS-1$
+		
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath2, ""); //$NON-NLS-1$
+
+		IPath root2 = env.addPackageFragmentRoot(projectPath2, "src"); //$NON-NLS-1$
+		IPath output2 = env.setOutputFolder(projectPath2, "bin"); //$NON-NLS-1$
+		
+		env.addClassFolder(projectPath1, output2, true);
+		env.addRequiredProject(projectPath2, projectPath1);
+
+		env.addClass(root1, "pB", "Builder$a", //$NON-NLS-1$ //$NON-NLS-2$
+			"package pB; \n"+ //$NON-NLS-1$
+			"public class Builder$a<T> {\n" + //$NON-NLS-1$
+			"    public Builder$a(T t) {\n" + //$NON-NLS-1$
+			"    }\n" + //$NON-NLS-1$
+			"}\n");//$NON-NLS-1$
+		
+		env.addClass(root1, "pR", "ReferencingClass", //$NON-NLS-1$ //$NON-NLS-2$
+				"package pR; \n"+ //$NON-NLS-1$
+				"import pD.DerivedClass$a;\n"+ //$NON-NLS-1$
+				"public class ReferencingClass {\n" + //$NON-NLS-1$
+				"   DerivedClass$a<String> builder = new DerivedClass$a<String>(null);\n" + //$NON-NLS-1$
+				"}\n"); //$NON-NLS-1$
+		
+		env.addClass(root2, "pD", "DerivedClass$a", //$NON-NLS-1$ //$NON-NLS-2$
+				"package pD; \n"+ //$NON-NLS-1$
+				"public class DerivedClass$a<T> extends pB.Builder$a<T> {\n" + //$NON-NLS-1$
+				"    public DerivedClass$a(T t) {\n" + //$NON-NLS-1$
+				"		super(t);\n" + //$NON-NLS-1$
+				"    }\n" + //$NON-NLS-1$
+				"}\n"); //$NON-NLS-1$
+
+		int previous = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
+		fullBuild();
+		org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 1; // reduce the lot size
+		cleanBuild();
+		fullBuild();
+		cleanBuild("Project1"); //$NON-NLS-1$
+		fullBuild(projectPath1);
+		org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = previous;
+		expectingNoProblems();
+	}
+
 	// http://dev.eclipse.org/bugs/show_bug.cgi?id=27658
 	public void testObjectWithSuperInterfaces() throws JavaModelException {
 		try {
