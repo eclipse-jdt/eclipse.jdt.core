@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2011 GK Software AG and others.
+ * Copyright (c) 2010, 2012 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_missing_default_annotation_03" };
+//		TESTS_NAMES = new String[] { "testBug374129" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -3546,6 +3546,118 @@ public void testBug372011() {
 		"	                                         ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n",
+		libs,
+		true /* shouldFlush*/);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=374129  - more tests for bug 372011
+// Test whether @NonNullByDefault on a binary package or an enclosing type is respected from enclosed elements.
+public void testBug374129() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test374129.jar";
+	/* content of Test372129.jar:
+	 	p1bin/package-info.java:
+	 		@org.eclipse.jdt.annotation.NonNullByDefault
+			package p1bin;
+		p1bin/C1bin.java:
+			package p1bin;
+			import org.eclipse.jdt.annotation.Nullable;
+			public class C1bin {
+				public String getId(String id, @Nullable String n) {
+					return id;
+				}
+				public static class C1binInner {
+					public String getId(String id, @Nullable String n) {
+						return id;
+					}		
+				}
+			}
+		p2bin/C2bin.java:
+			package p2bin;
+			import org.eclipse.jdt.annotation.NonNullByDefault;
+			import org.eclipse.jdt.annotation.Nullable;
+			@NonNullByDefault
+			public class C2bin {
+				public String getId(String id, @Nullable String n) {
+					return id;
+				}
+				@NonNullByDefault(false)
+				public static class C2binInner {
+					public String getId(String id, @Nullable String n) {
+						return id;
+					}		
+				}
+			}
+		p2bin/C3bin.java:
+			package p2bin;
+			import org.eclipse.jdt.annotation.NonNullByDefault;
+			import org.eclipse.jdt.annotation.Nullable;
+			public class C3bin {
+				@NonNullByDefault public String getId(String id, @Nullable String n) {
+					return id;
+				}			
+			}
+	 */
+	String[] libs = new String[this.LIBS.length + 1];
+	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
+	libs[this.LIBS.length] = path;
+	runNegativeTest(
+		new String[] {
+			"bug374129/Test.java",
+				"package bug374129;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+				"\n" + 
+				"import p1bin.C1bin;\n" + 
+				"import p1bin.C1bin.C1binInner;\n" + 
+				"import p2bin.C2bin;\n" + 
+				"import p2bin.C2bin.C2binInner;\n" + 
+				"import p2bin.C3bin;\n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"	static C1bin c1 = new C1bin();\n" + 
+				"	static C1binInner c1i = new C1binInner();\n" + 
+				"	static C2bin c2 = new C2bin();\n" + 
+				"	static C2binInner c2i = new C2binInner();\n" + 
+				"	static C3bin c3 = new C3bin();\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		@Nullable String n = getN();\n" + 
+				"		@NonNull String s;\n" + 
+				"		s = c1.getId(n, n); // error on first arg (package default)\n" + 
+				"		s = c1i.getId(n, n); // error on first arg (package default propagated into inner)\n" + 
+				"		s = c2.getId(n, n); // error on first arg (type default)\n" + 
+				"		s = c2i.getId(n, n); // no arg error (canceled default), return requires unchecked conversion\n" + 
+				"		s = c3.getId(n, n); // error on first arg (method default)\n" + 
+				"	}\n" + 
+				"	static String getN() { return null; }\n" + 
+				"}\n" + 
+				"\n"},
+			"----------\n" + 
+			"1. ERROR in bug374129\\Test.java (at line 22)\n" + 
+			"	s = c1.getId(n, n); // error on first arg (package default)\n" + 
+			"	             ^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" + 
+			"----------\n" + 
+			"2. ERROR in bug374129\\Test.java (at line 23)\n" + 
+			"	s = c1i.getId(n, n); // error on first arg (package default propagated into inner)\n" + 
+			"	              ^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" + 
+			"----------\n" + 
+			"3. ERROR in bug374129\\Test.java (at line 24)\n" + 
+			"	s = c2.getId(n, n); // error on first arg (type default)\n" + 
+			"	             ^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" + 
+			"----------\n" + 
+			"4. WARNING in bug374129\\Test.java (at line 25)\n" + 
+			"	s = c2i.getId(n, n); // no arg error (canceled default), return requires unchecked conversion\n" + 
+			"	    ^^^^^^^^^^^^^^^\n" + 
+			"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" + 
+			"----------\n" + 
+			"5. ERROR in bug374129\\Test.java (at line 26)\n" + 
+			"	s = c3.getId(n, n); // error on first arg (method default)\n" + 
+			"	             ^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" + 
+			"----------\n",
 		libs,
 		true /* shouldFlush*/);
 }

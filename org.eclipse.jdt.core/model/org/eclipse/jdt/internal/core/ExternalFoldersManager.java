@@ -51,13 +51,17 @@ public class ExternalFoldersManager {
 	private Set pendingFolders; // subset of keys of 'folders', for which linked folders haven't been created yet.
 	private int counter = 0;
 	/* Singleton instance */
-	private static ExternalFoldersManager MANAGER = new ExternalFoldersManager();
+	private static ExternalFoldersManager MANAGER;
 
 	private ExternalFoldersManager() {
 		// Prevent instantiation
+		getFolders();
 	}
 	
-	public static ExternalFoldersManager getExternalFoldersManager() {
+	public static synchronized ExternalFoldersManager getExternalFoldersManager() {
+		if (MANAGER == null) {
+			 MANAGER = new ExternalFoldersManager();
+		}
 		return MANAGER;
 	}
 	
@@ -123,8 +127,10 @@ public class ExternalFoldersManager {
 			result = externalFoldersProject.getFolder(LINKED_FOLDER_NAME + this.counter++);
 		} while (result.exists());
 		if (scheduleForCreation) {
-			if (this.pendingFolders == null)
-				this.pendingFolders = Collections.synchronizedSet(new HashSet());
+			synchronized(this) {
+				if (this.pendingFolders == null)
+					this.pendingFolders = Collections.synchronizedSet(new HashSet());
+			}
 			this.pendingFolders.add(externalFolderPath);
 		}
 		knownFolders.put(externalFolderPath, result);
@@ -136,7 +142,7 @@ public class ExternalFoldersManager {
 	 * @param externalPath to link to
 	 * @return true if the argument was found in the list of pending folders and could be removed from it.
 	 */
-	public boolean removePendingFolder(Object externalPath) {
+	public synchronized boolean removePendingFolder(Object externalPath) {
 		if (this.pendingFolders == null)
 			return false;
 		return this.pendingFolders.remove(externalPath);
@@ -195,7 +201,9 @@ public class ExternalFoldersManager {
 	}
 
 	public void createPendingFolders(IProgressMonitor monitor) throws JavaModelException{
-		if (this.pendingFolders == null || this.pendingFolders.isEmpty()) return;
+		synchronized (this) {
+			if (this.pendingFolders == null || this.pendingFolders.isEmpty()) return;
+		}
 		
 		IProject externalFoldersProject = null;
 		try {
