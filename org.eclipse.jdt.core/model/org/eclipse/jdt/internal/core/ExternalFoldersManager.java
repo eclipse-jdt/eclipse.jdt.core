@@ -36,6 +36,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -55,7 +56,10 @@ public class ExternalFoldersManager {
 
 	private ExternalFoldersManager() {
 		// Prevent instantiation
-		getFolders();
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=377806
+		if (Platform.isRunning()) {
+			getFolders();
+		}
 	}
 	
 	public static synchronized ExternalFoldersManager getExternalFoldersManager() {
