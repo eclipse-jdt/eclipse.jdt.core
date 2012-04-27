@@ -77,7 +77,7 @@ public abstract class SearchPattern {
 
 	/**
 	 * Match rule: The search pattern contains a regular expression.
-	 * @deprecated Note that the support for this rule is not yet implemented
+	 * <p><b>Warning:</b> The support for this rule is <b>not yet implemented</b></p>
 	 */
 	public static final int R_REGEXP_MATCH = 0x0004;
 
