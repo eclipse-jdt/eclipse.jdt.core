@@ -77,6 +77,7 @@ public abstract class SearchPattern {
 
 	/**
 	 * Match rule: The search pattern contains a regular expression.
+	 * Note that the support for this rule is not yet implemented
 	 */
 	public static final int R_REGEXP_MATCH = 0x0004;
 
@@ -1551,7 +1552,6 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  * 		<li>{@link #R_EXACT_MATCH}</li>
  * 		<li>{@link #R_PREFIX_MATCH}</li>
  * 		<li>{@link #R_PATTERN_MATCH}</li>
- * 		<li>{@link #R_REGEXP_MATCH}</li>
  * 		<li>{@link #R_CAMELCASE_MATCH}</li>
  * 		<li>{@link #R_CAMELCASE_SAME_PART_COUNT_MATCH}</li>
  * 	</ul>
@@ -1838,7 +1838,6 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
  * 		<li>{@link #R_EXACT_MATCH}</li>
  * 		<li>{@link #R_PREFIX_MATCH}</li>
  * 		<li>{@link #R_PATTERN_MATCH}</li>
- * 		<li>{@link #R_REGEXP_MATCH}</li>
  * 		<li>{@link #R_CAMELCASE_MATCH}</li>
  * 		<li>{@link #R_CAMELCASE_SAME_PART_COUNT_MATCH}</li>
  * 	</ul>
