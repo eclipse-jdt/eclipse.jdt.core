@@ -162,10 +162,11 @@ public void handle(
 
 	switch (severity & ProblemSeverities.Error) {
 		case ProblemSeverities.Error :
-			record(problem, unitResult, referenceContext);
+			boolean mandatory = ((severity & ProblemSeverities.Optional) == 0);
+			record(problem, unitResult, referenceContext, mandatory);
 			if ((severity & ProblemSeverities.Fatal) != 0) {
 				// don't abort or tag as error if the error is suppressed
-				if (!referenceContext.hasErrors() && (severity & ProblemSeverities.Optional) != 0 && this.options.suppressOptionalErrors) {
+				if (!referenceContext.hasErrors() && !mandatory && this.options.suppressOptionalErrors) {
 					CompilationUnitDeclaration unitDecl = referenceContext.getCompilationUnitDeclaration();
 					if (unitDecl != null && unitDecl.isSuppressed(problem)) {
 						return;
@@ -180,7 +181,7 @@ public void handle(
 			}
 			break;
 		case ProblemSeverities.Warning :
-			record(problem, unitResult, referenceContext);
+			record(problem, unitResult, referenceContext, false);
 			break;
 	}
 }
@@ -208,7 +209,7 @@ public void handle(
 		referenceContext,
 		unitResult);
 }
-public void record(CategorizedProblem problem, CompilationResult unitResult, ReferenceContext referenceContext) {
-	unitResult.record(problem, referenceContext);
+public void record(CategorizedProblem problem, CompilationResult unitResult, ReferenceContext referenceContext, boolean optionalError) {
+	unitResult.record(problem, referenceContext, optionalError);
 }
 }

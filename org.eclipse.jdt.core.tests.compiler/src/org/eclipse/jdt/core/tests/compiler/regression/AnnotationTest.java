@@ -10575,4 +10575,37 @@ public void testBug376429b() {
 			"Return type for the method is missing\n" + 
 			"----------\n");
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=371832
+//Unused imports should be reported even if other errors are suppressed.
+public void testBug371832() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.ERROR);
+	String testFiles [] = new String[] {
+			"A.java",
+			"import java.util.List;\n"+
+			"@SuppressWarnings(\"serial\")\n" +
+			"public class A implements java.io.Serializable {\n" +
+			"	void foo() { \n" +
+			"	}\n"+
+			"}\n"
+			};
+	String expectedErrorString = 
+			"----------\n" + 
+			"1. ERROR in A.java (at line 1)\n" + 
+			"	import java.util.List;\n" + 
+			"	       ^^^^^^^^^^^^^^\n" + 
+			"The import java.util.List is never used\n" + 
+			"----------\n";
+	runNegativeTest(
+			true,
+			testFiles,
+			null, 
+			customOptions,
+			expectedErrorString,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
 }

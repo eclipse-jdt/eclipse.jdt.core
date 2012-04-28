@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4916,13 +4916,23 @@ public void testBug103304b() {
 			"Javadoc: Invalid member type qualification\n" +
 			"----------\n" +
 			"----------\n" +
-			"1. ERROR in boden\\TestInvalid3.java (at line 5)\n" +
+			"1. ERROR in boden\\TestInvalid3.java (at line 2)\n"+
+			"	import boden.IAFAState.ValidationException;\n"+
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The import boden.IAFAState.ValidationException is never used\n"+
+			"----------\n"+
+			"2. ERROR in boden\\TestInvalid3.java (at line 5)\n" +
 			"	* @see IAFAState.ValidationException#IAFA.State.ValidationException(String, IAFAState)\n" +
 			"	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Javadoc: Invalid member type qualification\n" +
 			"----------\n" +
 			"----------\n" +
-			"1. ERROR in boden\\TestInvalid4.java (at line 5)\n" +
+			"1. ERROR in boden\\TestInvalid4.java (at line 2)\n"+
+			"	import boden.IAFAState.ValidationException;\n"+
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The import boden.IAFAState.ValidationException is never used\n"+
+			"----------\n"+
+			"2. ERROR in boden\\TestInvalid4.java (at line 5)\n" +
 			"	* @see IAFAState.ValidationException#IAFAState .ValidationException(String, IAFAState)\n" +
 			"	                                     ^^^^^^^^^\n" +
 			"Javadoc: IAFAState cannot be resolved or is not a field\n" +
@@ -4934,13 +4944,23 @@ public void testBug103304b() {
 			//boden\TestInvalid3.java:6: warning - Tag @see: can't find IAFA.State.ValidationException(String, IAFAState) in boden.IAFAState.ValidationException
 			//boden\TestInvalid4.java:6: warning - Tag @see: can't find IAFAState in boden.IAFAState.ValidationException
 			"----------\n" +
-			"1. ERROR in boden\\TestInvalid3.java (at line 5)\n" +
+			"1. ERROR in boden\\TestInvalid3.java (at line 2)\n"+
+			"	import boden.IAFAState.ValidationException;\n"+
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The import boden.IAFAState.ValidationException is never used\n"+
+			"----------\n"+
+			"2. ERROR in boden\\TestInvalid3.java (at line 5)\n" +
 			"	* @see IAFAState.ValidationException#IAFA.State.ValidationException(String, IAFAState)\n" +
 			"	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Javadoc: Invalid member type qualification\n" +
 			"----------\n" +
 			"----------\n" +
-			"1. ERROR in boden\\TestInvalid4.java (at line 5)\n" +
+			"1. ERROR in boden\\TestInvalid4.java (at line 2)\n"+
+			"	import boden.IAFAState.ValidationException;\n"+
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The import boden.IAFAState.ValidationException is never used\n"+
+			"----------\n"+
+			"2. ERROR in boden\\TestInvalid4.java (at line 5)\n" +
 			"	* @see IAFAState.ValidationException#IAFAState .ValidationException(String, IAFAState)\n" +
 			"	                                     ^^^^^^^^^\n" +
 			"Javadoc: IAFAState cannot be resolved or is not a field\n" +
@@ -6966,7 +6986,12 @@ public void testBug176027h_public() {
 		"Javadoc: Invalid member type qualification\n" +
 		"----------\n" +
 		"----------\n" +
-		"1. ERROR in pkg3\\Invalid3.java (at line 6)\n" +
+		"1. ERROR in pkg3\\Invalid3.java (at line 2)\n" +
+		"	import mainpkg.Outer.*;\n"+
+		"	       ^^^^^^^^^^^^^\n"+
+		"The import mainpkg.Outer is never used\n" +
+		"----------\n" +
+		"2. ERROR in pkg3\\Invalid3.java (at line 6)\n" +
 		"	* {@link MostInner} -- error/warning  \n" +
 		"	         ^^^^^^^^^\n" +
 		"Javadoc: MostInner cannot be resolved to a type\n" +
@@ -6975,7 +7000,12 @@ public void testBug176027h_public() {
 	String error50 = new String (
 			//pkg3\Invalid3.java:12: warning - Tag @link: reference not found: MostInner
 			"----------\n" +
-			"1. ERROR in pkg3\\Invalid3.java (at line 6)\n" +
+			"1. ERROR in pkg3\\Invalid3.java (at line 2)\n" +
+			"	import mainpkg.Outer.*;\n"+
+			"	       ^^^^^^^^^^^^^\n"+
+			"The import mainpkg.Outer is never used\n" +
+			"----------\n" +		
+			"2. ERROR in pkg3\\Invalid3.java (at line 6)\n" +
 			"	* {@link MostInner} -- error/warning  \n" +
 			"	         ^^^^^^^^^\n" +
 			"Javadoc: MostInner cannot be resolved to a type\n" +
@@ -7070,7 +7100,12 @@ public void testBug176027h_private() {
 			"Javadoc: Invalid member type qualification\n" +
 			"----------\n" +
 			"----------\n" +
-			"1. ERROR in pkg3\\Invalid3.java (at line 6)\n" +
+			"1. ERROR in pkg3\\Invalid3.java (at line 2)\n" +
+			"	import mainpkg.Outer.*;\n"+
+			"	       ^^^^^^^^^^^^^\n"+
+			"The import mainpkg.Outer is never used\n" +
+			"----------\n" +
+			"2. ERROR in pkg3\\Invalid3.java (at line 6)\n" +
 			"	* {@link MostInner} -- error/warning  \n" +
 			"	         ^^^^^^^^^\n" +
 			"Javadoc: MostInner cannot be resolved to a type\n" +
@@ -7079,7 +7114,12 @@ public void testBug176027h_private() {
 	String error50 = new String(
 			//pkg3\Invalid3.java:12: warning - Tag @link: reference not found: MostInner
 			"----------\n" +
-			"1. ERROR in pkg3\\Invalid3.java (at line 6)\n" +
+			"1. ERROR in pkg3\\Invalid3.java (at line 2)\n" +
+			"	import mainpkg.Outer.*;\n"+
+			"	       ^^^^^^^^^^^^^\n"+
+			"The import mainpkg.Outer is never used\n" +
+			"----------\n" +
+			"2. ERROR in pkg3\\Invalid3.java (at line 6)\n" +
 			"	* {@link MostInner} -- error/warning  \n" +
 			"	         ^^^^^^^^^\n" +
 			"Javadoc: MostInner cannot be resolved to a type\n" +

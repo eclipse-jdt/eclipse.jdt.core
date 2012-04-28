@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -73,6 +73,7 @@ public class CompilationResult {
 	public char[][] packageName;
 	public boolean checkSecondaryTypes = false; // check for secondary types which were created after the initial buildTypeBindings call
 	private int numberOfErrors;
+	private boolean hasMandatoryErrors;
 
 	private static final int[] EMPTY_LINE_ENDS = Util.EMPTY_INT_ARRAY;
 	private static final Comparator PROBLEM_COMPARATOR = new Comparator() {
@@ -274,6 +275,10 @@ public boolean hasErrors() {
 	return this.numberOfErrors != 0;
 }
 
+public boolean hasMandatoryErrors() {
+	return this.hasMandatoryErrors;
+}
+
 public boolean hasProblems() {
 	return this.problemCount != 0;
 }
@@ -324,6 +329,11 @@ public void recordPackageName(char[][] packName) {
 }
 
 public void record(CategorizedProblem newProblem, ReferenceContext referenceContext) {
+	record(newProblem, referenceContext, true);
+	return;
+}
+
+public void record(CategorizedProblem newProblem, ReferenceContext referenceContext, boolean mandatoryError) {
 	//new Exception("VERBOSE PROBLEM REPORTING").printStackTrace();
 	if(newProblem.getID() == IProblem.Task) {
 		recordTask(newProblem);
@@ -343,6 +353,7 @@ public void record(CategorizedProblem newProblem, ReferenceContext referenceCont
 	}
 	if (newProblem.isError()) {
 		this.numberOfErrors++;
+		if (mandatoryError) this.hasMandatoryErrors = true;
 		if ((newProblem.getID() & IProblem.Syntax) != 0) {
 			this.hasSyntaxError = true;
 		}
