@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc.
+ * Copyright (c) 2005, 2012 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    tyeung@bea.com - initial API and implementation
+ *    IBM Corporation - Fixed https://bugs.eclipse.org/bugs/show_bug.cgi?id=352949
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.core.internal.util;
@@ -107,7 +108,12 @@ public class Factory
             if( declaringType != null && declaringType.isAnnotation() )
                 return new AnnotationElementDeclarationImpl(method, env);
             else
-                return new MethodDeclarationImpl(method, env);             
+                return new MethodDeclarationImpl(method, env);
+        case IBinding.PACKAGE:
+            // https://bugs.eclipse.org/bugs/show_bug.cgi?id=352949
+            // Don't throw an exception, but just return null. 
+        	// apt also doesn't return a value
+        	return null;
         default:
             throw new IllegalStateException("failed to create declaration from " + binding); //$NON-NLS-1$
         }     

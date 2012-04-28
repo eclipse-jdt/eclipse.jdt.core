@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc. and others
+ * Copyright (c) 2005, 2012 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,11 +7,12 @@
  *
  * Contributors:
  *    sbandow@bea.com - initial API and implementation
- *    
+ *    IBM Corporation - Added test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=352949
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests;
 
+import java.util.Collection;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -262,6 +263,31 @@ public class MirrorDeclarationTests extends APTTestBase {
 		assertTrue("Processor not invoked", p.called);
 	}
 	
+	public void testPackageInfo() {
+		PackageInfoProc p = new PackageInfoProc(); 
+		GenericFactory.setProcessor(p);
+		
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+		IPath pkg = env.addPackage(srcRoot, "pkg");
+		String contents = "@PkgAnnotation\n" +
+						  "@GenericAnnotation\n" +
+						  "package pkg;\n" +
+						  "import org.eclipse.jdt.apt.tests.annotations.generic.*;";
+		env.addFile(pkg, "package-info.java", contents);
+		String annContents =
+				"package pkg;\n" +
+				"\n" +
+				"@interface PkgAnnotation {\n" +
+				"    String value() default \"def\";\n" +
+				"}\n";
+		env.addClass(srcRoot, "pkg", "pkgAnnotation", annContents);
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		
+		assertTrue("Processor not invoked", p.called);
+	}
+	
 	static class TestLocationProc extends AbstractGenericProcessor {
 
 		boolean called;
@@ -284,7 +310,7 @@ public class MirrorDeclarationTests extends APTTestBase {
 		
 		public void _process() {
 			called = true;
-			TypeDeclaration tdCode = env.getTypeDeclaration(SourceMirrorCodeExample.CODE_PACKAGE + "." + SourceMirrorCodeExample.ANNO_CODE_CLASS_NAME);
+			TypeDeclaration tdCode = env.getTypeDeclaration(SourceMirrorCodeExample.CODE_PACKAGE + "." + SourceMirrorCodeExample.CODE_CLASS_NAME);
 			for (AnnotationMirror am : tdCode.getAnnotationMirrors()) {
 				if ("GenericAnnotation".equals(am.getAnnotationType().getDeclaration().getSimpleName())) {
 					continue;
@@ -297,6 +323,36 @@ public class MirrorDeclarationTests extends APTTestBase {
 					assertNotNull(entry.getKey().getDefaultValue().getPosition());
 				}
 			}
+		}
+	}
+	
+	static class PackageInfoProc extends AbstractGenericProcessor {
+		
+		boolean called;
+		
+		public void _process() {
+			called = true;
+			AnnotationTypeDeclaration annoDecl = (AnnotationTypeDeclaration)env.getTypeDeclaration("pkg.PkgAnnotation");
+			assertTrue(null != annoDecl);			
+			// get the annotated declarations
+			Collection<Declaration> annotatedDecls = env.getDeclarationsAnnotatedWith(annoDecl);
+			// don't return the package declaration - well, apt is doing that.. 
+			assertTrue(annotatedDecls == null  || annotatedDecls.size() == 0); 
+			
+			//TODO: test to support package annotation
+			// PackageDeclaration pdCode = env.getPackage("pkg");
+			// for (AnnotationMirror am : pdCode.getAnnotationMirrors()) {
+			//	if ("GenericAnnotation".equals(am.getAnnotationType().getDeclaration().getSimpleName())) {
+			//		continue;
+			//	}
+			//	assertTrue(null != am.getPosition());
+			//	AnnotationTypeDeclaration atd = am.getAnnotationType().getDeclaration();
+			//	assertTrue(null != atd.getPosition());
+			//	for (Map.Entry<AnnotationTypeElementDeclaration, AnnotationValue> entry : am.getElementValues().entrySet()) {
+			//		assertNotNull(entry.getKey().getPosition());
+			//		assertNotNull(entry.getKey().getDefaultValue().getPosition());
+			//	}
+			// }
 		}
 	}
 	
