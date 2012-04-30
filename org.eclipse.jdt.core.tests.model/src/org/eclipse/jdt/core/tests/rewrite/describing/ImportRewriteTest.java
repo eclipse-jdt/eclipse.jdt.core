@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1305,6 +1305,186 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("};\n");
 		buf.append("}\n");
 		assertEqualString(units[2].getSource(), buf.toString());
+	}
+
+	public void testAddImports_bug24804() throws Exception {
+
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.lang.String;\n");
+		buf.append("/** comment */\n");
+		buf.append("import java.lang.System;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "java" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, false);
+		imports.addImport("java.io.Exception");
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.io.Exception;\n");
+		buf.append("/** comment */\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
+
+	public void testAddImports_bug24804_2() throws Exception {
+
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.lang.AssertionError;//test\n");
+		buf.append("\n");
+		buf.append("/** comment2 */\n");
+		buf.append("\n");
+		buf.append("/** comment */\n");
+		buf.append("import java.lang.System;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "java" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, true);
+		imports.addImport("java.io.Exception");
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.io.Exception;\n");
+		buf.append("import java.lang.AssertionError;//test\n");
+		buf.append("\n");
+		buf.append("/** comment2 */\n");
+		buf.append("\n");
+		buf.append("/** comment */\n");
+		buf.append("import java.lang.System;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
+
+	public void testAddImports_bug24804_3() throws Exception {
+
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.lang.String;//test\n");
+		buf.append("/** comment */\n");
+		buf.append("import java.lang.System;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "java" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, false);
+		imports.addImport("java.io.Exception");
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.io.Exception;\n");
+		buf.append("//test\n");
+		buf.append("/** comment */\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
+
+	public void testAddImports_bug24804_4() throws Exception {
+
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.lang.AssertionError;//test\n");
+		buf.append("\n");
+		buf.append("/** comment2 */\n");
+		buf.append("\n");
+		buf.append("/** comment */\n");
+		buf.append("import java.lang.System; /** comment3 */\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "java" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, false);
+		imports.addImport("java.io.Exception");
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.io.Exception;\n");
+		buf.append("//test\n");
+		buf.append("/** comment2 */\n");
+		buf.append("/** comment */\n");
+		buf.append("/** comment3 */\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
+	}
+
+	public void testAddImports_bug24804_5() throws Exception {
+
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.lang.AssertionError; //test\n");
+		buf.append("\n");
+		buf.append("/** comment2 */\n");
+		buf.append("\n");
+		buf.append("/** comment */\n");
+		buf.append("import java.lang.System;\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String[] order= new String[] { "java" };
+
+		ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, false);
+		imports.addImport("java.io.Exception");
+
+		apply(imports);
+
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.io.*;\n");
+		buf.append("//test\n");
+		buf.append("/** comment2 */\n");
+		buf.append("/** comment */\n");
+		buf.append("\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
 	}
 
 	private void assertAddedAndRemoved(ImportRewrite imports, String[] expectedAdded, String[] expectedRemoved, String[] expectedAddedStatic, String[] expectedRemovedStatic) {
