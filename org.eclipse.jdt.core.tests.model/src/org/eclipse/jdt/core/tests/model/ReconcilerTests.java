@@ -146,7 +146,7 @@ static {
 //	JavaModelManager.VERBOSE = true;
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	TESTS_PREFIX = "testIgnoreIfBetterNonAccessibleRule";
-//	TESTS_NAMES = new String[] { "testIgnoreMethodBodies1", "testIgnoreMethodBodies2" };
+//	TESTS_NAMES = new String[] { "testBug374176" };
 //	TESTS_NUMBERS = new int[] { 118823 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -5301,6 +5301,99 @@ public void testGenericAPIUsageFromA14Project9() throws CoreException {
 	} finally {
 		if (project14 != null)
 			deleteProject(project14);
+		if (project15 != null)
+			deleteProject(project15);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=374176
+// verify that a reconcile does not result in errors for a CU whose package does not have
+// default null annotations
+public void testBug374176() throws CoreException, IOException, InterruptedException {
+	IJavaProject project15 = null;
+	try {
+		project15 = createJavaProject("TestAnnot", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		createFolder("/TestAnnot/src/p1");
+		String source = "package p1;\n" +
+				"public class Y {\n" +
+				"}\n;";
+		createFile(
+				"/TestAnnot/src/p1/Y.java",
+				source
+			);
+		createFolder("/TestAnnot/src/p2");
+		createFile(
+				"/TestAnnot/src/p2/Y2.java",
+				"package p2;\n" +
+				"public class Y2{\n" +
+				"}\n"
+			);
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
+		project15.setOption(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+		project15.setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
+		project15.setOption(JavaCore.COMPILER_PB_INCLUDE_ASSERTS_IN_NULL_ANALYSIS, JavaCore.ENABLED);
+		project15.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+		project15.setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
+
+		this.workingCopies = new ICompilationUnit[2];
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0] = getCompilationUnit("/TestAnnot/src/p1/Y.java").getWorkingCopy(this.wcOwner, null);
+		this.workingCopies[0].makeConsistent(null);
+		this.workingCopies[0].reconcile(ICompilationUnit.NO_AST, false, null, null);
+
+		assertNoProblem(sourceChars, this.workingCopies[0]);
+	} finally {
+		if (project15 != null)
+			deleteProject(project15);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=374176
+// verify that a reconcile DOES result in errors for package-info whose package does not have
+// default null annotations
+public void testBug374176b() throws CoreException, IOException, InterruptedException {
+	IJavaProject project15 = null;
+	try {
+		project15 = createJavaProject("TestAnnot", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		createFolder("/TestAnnot/src/p1");
+		String source = "package p1;\n";
+		createFile(
+				"/TestAnnot/src/p1/package-info.java",
+				source
+			);
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
+		project15.setOption(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+		project15.setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
+		project15.setOption(JavaCore.COMPILER_PB_INCLUDE_ASSERTS_IN_NULL_ANALYSIS, JavaCore.ENABLED);
+		project15.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+		project15.setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
+
+		this.workingCopies = new ICompilationUnit[1];
+		char[] sourceChars = source.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0] = getCompilationUnit("/TestAnnot/src/p1/package-info.java").getWorkingCopy(this.wcOwner, null);
+		this.workingCopies[0].makeConsistent(null);
+		this.workingCopies[0].reconcile(ICompilationUnit.NO_AST, false, null, null);
+
+		assertProblems("Unexpected problems",
+			"----------\n" + 
+			"1. ERROR in /TestAnnot/src/p1/package-info.java (at line 1)\n" + 
+			"	package p1;\n" + 
+			"	        ^^\n" + 
+			"A default nullness annotation has not been specified for the package p1\n" + 
+			"----------\n");
+		assertProblems("Unexpected problems",
+			"----------\n" + 
+			"1. ERROR in /TestAnnot/src/p1/package-info.java (at line 1)\n" + 
+			"	package p1;\n" + 
+			"	        ^^\n" + 
+			"A default nullness annotation has not been specified for the package p1\n" + 
+			"----------\n",
+			this.problemRequestor);
+	} finally {
 		if (project15 != null)
 			deleteProject(project15);
 	}

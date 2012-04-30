@@ -40,11 +40,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -236,6 +238,41 @@ public CategorizedProblem[] getProblems() {
 			System.arraycopy(this.problems, 0, (this.problems = new CategorizedProblem[this.problemCount]), 0, this.problemCount);
 		}
 
+		if (this.maxProblemPerUnit > 0 && this.problemCount > this.maxProblemPerUnit){
+			quickPrioritize(this.problems, 0, this.problemCount - 1);
+			this.problemCount = this.maxProblemPerUnit;
+			System.arraycopy(this.problems, 0, (this.problems = new CategorizedProblem[this.problemCount]), 0, this.problemCount);
+		}
+
+		// Stable sort problems per source positions.
+		Arrays.sort(this.problems, 0, this.problems.length, CompilationResult.PROBLEM_COMPARATOR);
+		//quickSort(problems, 0, problems.length-1);
+	}
+	return this.problems;
+}
+/**
+ * Same as getProblems() but don't answer problems that actually concern the enclosing package.
+ */
+public CategorizedProblem[] getCUProblems() {
+	// Re-adjust the size of the problems if necessary and filter package problems
+	if (this.problems != null) {
+		CategorizedProblem[] filteredProblems = new CategorizedProblem[this.problemCount];
+		int keep = 0;
+		for (int i=0; i< this.problemCount; i++) {
+			CategorizedProblem problem = this.problems[i];
+			if (problem.getID() != IProblem.MissingNonNullByDefaultAnnotationOnPackage) {
+				filteredProblems[keep++] = problem;
+			} else if (this.compilationUnit != null) {
+				if (CharOperation.equals(this.compilationUnit.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME)) {
+					filteredProblems[keep++] = problem;
+				}
+			}
+		}
+		if (keep < this.problemCount) {
+			System.arraycopy(filteredProblems, 0, filteredProblems = new CategorizedProblem[keep], 0, keep);
+			this.problemCount = keep;
+		}
+		this.problems = filteredProblems;
 		if (this.maxProblemPerUnit > 0 && this.problemCount > this.maxProblemPerUnit){
 			quickPrioritize(this.problems, 0, this.problemCount - 1);
 			this.problemCount = this.maxProblemPerUnit;
