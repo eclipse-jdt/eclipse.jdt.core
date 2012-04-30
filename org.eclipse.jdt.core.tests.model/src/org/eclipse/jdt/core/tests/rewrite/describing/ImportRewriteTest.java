@@ -1493,6 +1493,690 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("}\n");
 		assertEqualString(cu.getSource(), buf.toString());
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
+    public void testBug376930() throws Exception {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+        StringBuffer buf = new StringBuffer();
+        // 2 imports are in 1 group but third is separated by a comment
+        buf.append(
+                "package pack1;\n" + 
+                "\n" + 
+                "import java.util.*; // test\n" +
+                "import java.util.Map.Entry;\n" +
+                "//comment 2\n" +
+                "import java.util.Map.SomethingElse;\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+        String[] order = new String[] { "java", "java.util", "com", "pack" };
+
+        ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, true);
+        imports.setUseContextToFilterImplicitImports(true);
+        imports.addImport("java.io.PrintWriter");
+
+        apply(imports);
+
+        buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" + 
+                "import java.io.*;\n" + 
+                "\n" + 
+                "import java.util.*; // test\n" + 
+                "import java.util.Map.Entry;\n" + 
+                "//comment 2\n" +
+                "import java.util.Map.SomethingElse;\n" +
+                "// commen 3\n" +
+                "\n" +  
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        assertEqualString(cu.getSource(), buf.toString());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
+    public void testBug376930_2() throws Exception {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+        StringBuffer buf = new StringBuffer();
+        // all imports are in same group
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" + 
+                "import java.util.*; // test\n" +
+                "import java.util.Map.Entry; // test2\n" +
+                "import java.util.Map.SomethingElse;\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+        String[] order = new String[] { "java", "java.util", "com", "pack" };
+
+        ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, true);
+        imports.setUseContextToFilterImplicitImports(true);
+        imports.addImport("java.io.PrintWriter");
+
+        apply(imports);
+
+        buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" + 
+                "// comment 1\n" + 
+                "import java.io.*;\n" + 
+                "\n" + 
+                "import java.util.*; // test\n" +
+                "import java.util.Map.Entry; // test2\n" +
+                "import java.util.Map.SomethingElse;\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        assertEqualString(cu.getSource(), buf.toString());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
+    public void testBug376930_3() throws Exception {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+        StringBuffer buf = new StringBuffer();
+        // all imports are in same group
+        // leading and trailing comments
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" + 
+                "/* lead 1*/ import java.util.*; // test1\n" +
+                "/* lead 2*/import java.util.Map.Entry; // test2\n" +
+                "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+        String[] order = new String[] { "java", "java.util", "com", "pack" };
+
+        ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, true);
+        imports.setUseContextToFilterImplicitImports(true);
+        imports.addImport("java.io.PrintWriter");
+
+        apply(imports);
+
+        buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" + 
+                "// comment 1\n" + 
+                "/* lead 1*/ import java.io.*;\n" + 
+                "\n" + 
+                "import java.util.*; // test1\n" +
+                "/* lead 2*/import java.util.Map.Entry; // test2\n" +
+                "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
+                "// commen 3\n" +  
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        assertEqualString(cu.getSource(), buf.toString());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
+    // remove imports, preserve all comments
+    public void testBug376930_3a() throws Exception {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+        StringBuffer buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" + 
+                "/* lead 1*/ import java.util.*; // test1\n" +
+                "/* lead 2*/import java.util.Map.Entry; // test2\n" +
+                "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+        String[] order = new String[] { "java", "java.util", "com", "pack" };
+
+        ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, false);
+        imports.setUseContextToFilterImplicitImports(true);
+        imports.addImport("java.io.PrintWriter");
+
+        apply(imports);
+
+        buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" + 
+                "// comment 1\n" +
+				"/* lead 1*/ " +
+				"import java.io.*;\n" + 
+				"// test1\n" +
+				"/* lead 2*/\n" +
+				"// test2\n" +
+				"/* lead 3*/ \n" +
+				"// test3\n" +
+				"// commen 3\n" +
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        assertEqualString(cu.getSource(), buf.toString());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
+    public void testBug376930_4() throws Exception {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+        StringBuffer buf = new StringBuffer();
+        // all imports are in same group
+        // leading and trailing comments
+        // two on demand imports in the group
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" + 
+                "/* lead 1*/ import java.util.*; // test1\n" +
+                "/* lead 2*/import java.util.Map.*; // test2\n" +
+                "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+        String[] order = new String[] { "java", "java.util", "com", "pack" };
+
+        ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, true);
+        imports.setUseContextToFilterImplicitImports(true);
+        imports.addImport("java.io.PrintWriter");
+
+        apply(imports);
+
+        buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" + 
+                "// comment 1\n" + 
+                "/* lead 1*/ import java.io.*;\n" + 
+                "\n" +  
+                "import java.util.*; // test1\n" +
+                "/* lead 2*/import java.util.Map.*; // test2\n" +
+                "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        assertEqualString(cu.getSource(), buf.toString());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
+    // remove imports, preserve all comments
+    public void testBug376930_4a() throws Exception {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+        StringBuffer buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" + 
+                "/* lead 1*/ import java.util.HashMap; // test1\n" +
+                "/* lead 2*/import java.util.Map.*; // test2\n" +
+                "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+        String[] order = new String[] { "java", "java.util", "com", "pack" };
+
+        ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, false);
+        imports.setUseContextToFilterImplicitImports(true);
+        imports.addImport("java.io.PrintWriter");
+
+        apply(imports);
+
+        buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" +
+				"/* lead 1*/ " +
+				"import java.io.*;\n" + 
+				"// test1\n" +
+				"/* lead 2*/\n" +
+				"// test2\n" +
+				"/* lead 3*/ \n" +
+				"// test3\n" +
+				"// commen 3\n" +
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        assertEqualString(cu.getSource(), buf.toString());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
+    public void testBug376930_5() throws Exception {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+        StringBuffer buf = new StringBuffer();
+        // all imports of same group are scattered around
+        // leading and trailing comments
+        // adding an on-demand import belonging to a group
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" + 
+                "/* lead 1*/ import java.util.*; // test1\n" +
+                "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
+                "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+        String[] order = new String[] { "java", "java.util", "com", "pack" };
+
+        ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, true);
+        imports.setUseContextToFilterImplicitImports(true);
+        imports.addImport("java.util.Map.*");
+
+        apply(imports);
+
+        buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" + 
+                "// comment 1\n" + 
+                "/* lead 1*/ import java.util.*; // test1\n" +
+                "import java.util.Map.*;\n" +
+                "\n" +
+                "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
+                "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        assertEqualString(cu.getSource(), buf.toString());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
+    public void testBug376930_5a() throws Exception {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+        StringBuffer buf = new StringBuffer();
+        // all imports are in same group
+        // leading and trailing comments
+        // adding an on-demand import belonging to a group
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" +
+                "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
+                "/* lead 1*/ import java.util.*; // test1\n" +
+                "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+        String[] order = new String[] { "java", "java.util", "com", "pack" };
+
+        ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, true);
+        imports.setUseContextToFilterImplicitImports(true);
+        imports.addImport("java.util.Map.*");
+
+        apply(imports);
+
+        buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" + 
+                "// comment 1\n" + 
+                "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
+                "/* lead 1*/ import java.util.*; // test1\n" +
+                "import java.util.Map.*;\n" +
+                "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        assertEqualString(cu.getSource(), buf.toString());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
+    // added import should get folded into existing *, without touching comments
+    public void testBug376930_5b() throws Exception {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+        StringBuffer buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" +
+                "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
+                "/* lead 1*/ import java.util.*; // test1\n" +
+                "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+        String[] order = new String[] { "java", "java.util", "com", "pack" };
+
+        ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, false);
+        imports.setUseContextToFilterImplicitImports(true);
+        imports.addImport("java.util.Map");
+
+        apply(imports);
+
+        buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" +
+				"/* lead 2*/" +
+				"import java.util.*;\n" + 
+				"// test2\n" +
+				"/* lead 1*/ \n" +
+				"// test1\n" +
+				"/* lead 3*/ \n" +
+				"// test3\n" +
+				"// commen 3\n" +
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        assertEqualString(cu.getSource(), buf.toString());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
+    // remove imports, preserve all comments
+    public void testBug376930_5c() throws Exception {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+        StringBuffer buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" + 
+                "/* lead 1*/ import java.util.*; // test1\n" +
+                "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
+                "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+        String[] order = new String[] { "java", "java.util", "com", "pack" };
+
+        ImportRewrite imports= newImportsRewrite(cu, order, 1, 1, false);
+        imports.setUseContextToFilterImplicitImports(true);
+        imports.addImport("java.util.Map.*");
+
+        apply(imports);
+
+        buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" + 
+                "// comment 1\n" +
+				"/* lead 1*/ " +
+				"import java.util.Map.*;\n" + 
+				"// test1\n" +
+				"/* lead 2*/\n" +
+				"// test2\n" +
+				"/* lead 3*/ \n" +
+				"// test3\n" +
+				"// commen 3\n" +
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        assertEqualString(cu.getSource(), buf.toString());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
+    // added import should get folded along with existing import into *, without deleting comments
+    public void testBug376930_5d() throws Exception {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+        StringBuffer buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" +
+                "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
+                "/* lead 1*/ import java.util.Map; // test1\n" +
+                "// commen 3\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+        String[] order = new String[] { "java", "java.util", "com", "pack" };
+
+        ImportRewrite imports= newImportsRewrite(cu, order, 2, 2, true);
+        imports.setUseContextToFilterImplicitImports(true);
+        imports.addImport("java.util.HashMap");
+
+        apply(imports);
+
+        buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "// comment 1\n" +
+                "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
+                "\n" +
+                "/* lead 1*/ \n" +
+                " // test1\n" +
+                "// commen 3\n" +
+                "import java.util.*;\n" + 
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
+                "        PrintWriter pw;\n" + 
+                "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        assertEqualString(cu.getSource(), buf.toString());
+    }
 
 	private void assertAddedAndRemoved(ImportRewrite imports, String[] expectedAdded, String[] expectedRemoved, String[] expectedAddedStatic, String[] expectedRemovedStatic) {
 		assertEqualStringsIgnoreOrder(imports.getAddedImports(), expectedAdded);
