@@ -2502,11 +2502,8 @@ public static int validateMatchRule(String stringPattern, int matchRule) {
 
 	// Verify Regexp match rule
 	if ((matchRule & R_REGEXP_MATCH) != 0) {
-		if ((matchRule & R_PATTERN_MATCH) != 0 || (matchRule & R_PREFIX_MATCH) != 0 ||
-			(matchRule & R_CAMELCASE_MATCH) != 0 || (matchRule & R_CAMELCASE_SAME_PART_COUNT_MATCH) != 0) {
-			// regexp is not supported yet
-			return -1;
-		}
+		// regexp is not supported yet
+		return -1;
 	}
 
 	// Verify Pattern match rule
