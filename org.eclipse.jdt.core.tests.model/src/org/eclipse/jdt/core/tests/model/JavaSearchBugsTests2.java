@@ -39,7 +39,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	
 	static {
-		//TESTS_NAMES = new String[] {"testBug123836j", "testBug376673"};
+		//TESTS_NAMES = new String[] {"testBug378390"};
 	}
 
 	public static Test suite() {
@@ -891,6 +891,45 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			SearchPattern pattern = SearchPattern.createPattern("A.k(int)", METHOD, DECLARATIONS, EXACT_RULE);
 			search(pattern, SearchEngine.createJavaSearchScope(new IJavaElement[] { project }), this.resultCollector);
 			assertSearchResults("Wrong results", "p2/A.java long p2.A.k(int) [k] EXACT_MATCH", this.resultCollector);
+		} finally {
+			deleteProject(project);
+		}
+	}
+	public void testBug378390() throws CoreException {
+		IJavaProject project = null;
+		try
+		{
+			project = createJavaProject("P");
+			createFolder("/P/p1");
+			createFile("/P/p1/B.java",
+					"package p1;\n" +
+					"import p2.*;\n" +
+					"public class B extends A {\n" +
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+					"}\n");
+			createFolder("/P/p2");
+			createFile("/P/p2/A.java",
+					"package p2;\n" +
+					"public class A {\n" +
+					"class B extends A {\n" +
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +	
+			  		"}\n" +	
+					"long k(){\n" +
+					"return 0;\n" +
+			  		"}\n" +
+			  		"public long m(){\n"+
+			  		"return new A().k();\n" +
+			  		"}\n"+
+					"}\n");
+			IType type = getCompilationUnit("/P/p2/A.java").getType("A");
+			type = type.getTypes()[0];
+			IMethod method = type.getMethod("k", new String[]{});
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Wrong results", "p2/A.java long p2.A.m() [k()] EXACT_MATCH", this.resultCollector);
 		} finally {
 			deleteProject(project);
 		}

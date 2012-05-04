@@ -124,7 +124,7 @@ private boolean isTypeInSuperDeclaringTypeNames(char[][] typeName) {
 protected boolean isVirtualInvoke(MethodBinding method, MessageSend messageSend) {
 		return !method.isStatic() && !method.isPrivate() && !messageSend.isSuperAccess()
 			&& !(method.isDefault() && this.pattern.focus != null 
-			&& !CharOperation.equals(this.pattern.declaringQualification, method.declaringClass.qualifiedPackageName()));
+			&& !CharOperation.equals(this.pattern.declaringPackageName, method.declaringClass.qualifiedPackageName()));
 }
 public int match(ASTNode node, MatchingNodeSet nodeSet) {
 	int declarationsLevel = IMPOSSIBLE_MATCH;
