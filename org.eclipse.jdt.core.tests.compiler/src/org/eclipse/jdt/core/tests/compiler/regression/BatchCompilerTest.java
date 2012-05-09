@@ -1593,7 +1593,7 @@ public void test012(){
         "                                      reported as errors\n" + 
         " \n" + 
         " Setting warning or error options using properties file:\n" + 
-        "    -properties: <file>   set warnings/errors option based on the properties\n" + 
+        "    -properties <file>   set warnings/errors option based on the properties\n" + 
         "                          file contents. This option can be used with -nowarn,\n" + 
         "                          -err:.. or -warn:.. options, but the last one on the\n" + 
         "                          command line sets the options to be used.\n" + 
