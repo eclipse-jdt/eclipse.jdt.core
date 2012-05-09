@@ -183,6 +183,7 @@ Eclipse SDK 3.8.0 - April 24, 2012 - April 10, 2012
 	int ShouldReturnValueHintMissingDefault = MethodRelated + 771;
 </pre>
 </li>
+</ul>
 
 <h3>Problem Reports Fixed</h3>
 <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=377401">377401</a>
@@ -1359,8 +1360,8 @@ Eclipse SDK 3.8.0 - October 3, 2011
 	 * Compiler option ID: Reporting a resource that is not closed properly.
 	 *
 	 * When enabled, the compiler will issue an error or a warning if
-	 * a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7) 
-	 * or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
+	 * a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance&gt;=1.7) 
+	 * or a value of type <code>java.io.Closeable</code> (compliance&lt;=1.6) and if
 	 * flow analysis shows that the method <code>close()</code> is not invoked locally on that value.
 	 * 
 	 * Option id: <code>"org.eclipse.jdt.core.compiler.problem.reportUnclosedCloseable"</code>
@@ -1381,8 +1382,8 @@ Eclipse SDK 3.8.0 - October 3, 2011
 	 * Compiler option ID: Reporting a resource that may not be closed properly.
 	 * 
 	 * When enabled, the compiler will issue an error or a warning if
-	 * a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7) 
-	 * or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
+	 * a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance&gt;=1.7) 
+	 * or a value of type <code>java.io.Closeable</code> (compliance&lt;=1.6) and if
 	 * flow analysis shows that the method <code>close()</code> is 
 	 * not invoked locally on that value for all execution paths.
 	 * 
