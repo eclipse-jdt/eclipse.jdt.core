@@ -493,10 +493,10 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try {
 			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
 			String content = "package pkg;\n" + 
-					"class 𠮟1 {}\n";
+					"class \uD842\uDF9F1 {}\n";
 			createFolder("/P/pkg");
 			try {
-				IFile file = createFile("/P/pkg/𠮟1.java", content, "UTF-8");
+				IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, "UTF-8");
 				file.setCharset("UTF-8", null);
 			} catch (UnsupportedEncodingException e) {
 				System.out.println("unsupported encoding");
@@ -504,8 +504,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
-			search("𠮟1", TYPE, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
-			assertSearchResults("pkg/𠮟1.java pkg.𠮟1 [𠮟1] EXACT_MATCH");
+			search("\uD842\uDF9F1", TYPE, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+			assertSearchResults("pkg/\uD842\uDF9F1.java pkg.\uD842\uDF9F1 [\uD842\uDF9F1] EXACT_MATCH");
 		} finally {
 			deleteProject("P");
 		}
@@ -515,12 +515,12 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try {
 			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
 			String content = "package pkg;\n" + 
-					"class 𠮟1 {" +
-					"	public void 𠮟m() {}\n" +
+					"class \uD842\uDF9F1 {" +
+					"	public void \uD842\uDF9Fm() {}\n" +
 					"}\n";
 			createFolder("/P/pkg");
 			try {
-				IFile file = createFile("/P/pkg/𠮟1.java", content, "UTF-8");
+				IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, "UTF-8");
 				file.setCharset("UTF-8", null);
 			} catch (UnsupportedEncodingException e) {
 				System.out.println("unsupported encoding");
@@ -528,8 +528,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
-			search("𠮟m", METHOD, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
-			assertSearchResults("pkg/𠮟1.java void pkg.𠮟1.𠮟m() [𠮟m] EXACT_MATCH");
+			search("\uD842\uDF9Fm", METHOD, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+			assertSearchResults("pkg/\uD842\uDF9F1.java void pkg.\uD842\uDF9F1.\uD842\uDF9Fm() [\uD842\uDF9Fm] EXACT_MATCH");
 		} finally {
 			deleteProject("P");
 		}
@@ -539,12 +539,12 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try {
 			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
 			String content = "package pkg;\n" + 
-					"class 𠮟1 {" +
-					"	public 𠮟1() {}\n" +
+					"class \uD842\uDF9F1 {" +
+					"	public \uD842\uDF9F1() {}\n" +
 					"}\n";
 			createFolder("/P/pkg");
 			try {
-				IFile file = createFile("/P/pkg/𠮟1.java", content, "UTF-8");
+				IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, "UTF-8");
 				file.setCharset("UTF-8", null);
 			} catch (UnsupportedEncodingException e) {
 				System.out.println("unsupported encoding");
@@ -552,8 +552,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
-			search("𠮟1", CONSTRUCTOR, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
-			assertSearchResults("pkg/𠮟1.java pkg.𠮟1() [𠮟1] EXACT_MATCH");
+			search("\uD842\uDF9F1", CONSTRUCTOR, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+			assertSearchResults("pkg/\uD842\uDF9F1.java pkg.\uD842\uDF9F1() [\uD842\uDF9F1] EXACT_MATCH");
 		} finally {
 			deleteProject("P");
 		}
@@ -563,12 +563,12 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try {
 			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
 			String content = "package pkg;\n" + 
-					"class 𠮟1 {" +
-					"	public int 𠮟f;\n" +
+					"class \uD842\uDF9F1 {" +
+					"	public int \uD842\uDF9Ff;\n" +
 					"}\n";
 			createFolder("/P/pkg");
 			try {
-				IFile file = createFile("/P/pkg/𠮟1.java", content, "UTF-8");
+				IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, "UTF-8");
 				file.setCharset("UTF-8", null);
 			} catch (UnsupportedEncodingException e) {
 				System.out.println("unsupported encoding");
@@ -576,8 +576,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
-			search("𠮟f", FIELD, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
-			assertSearchResults("pkg/𠮟1.java pkg.𠮟1.𠮟f [𠮟f] EXACT_MATCH");
+			search("\uD842\uDF9Ff", FIELD, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
+			assertSearchResults("pkg/\uD842\uDF9F1.java pkg.\uD842\uDF9F1.\uD842\uDF9Ff [\uD842\uDF9Ff] EXACT_MATCH");
 		} finally {
 			deleteProject("P");
 		}
@@ -589,8 +589,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		
 		org.eclipse.jdt.core.tests.util.Util.createJar(
 						new String[] {
-						"p𠮟/i𠮟/Test.java",
-						"package p𠮟.i𠮟;\n" +
+						"p\uD842\uDF9F/i\uD842\uDF9F/Test.java",
+						"package p\uD842\uDF9F.i\uD842\uDF9F;\n" +
 						"public class Test{}\n" },
 						p.getProject().getLocation().append("lib376673.jar").toOSString(),
 						"1.7");
@@ -599,7 +599,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, mask);
 		search("Test", TYPE, DECLARATIONS, scope, this.resultCollector);
-		assertSearchResults("lib376673.jar p𠮟.i𠮟.Test [No source] EXACT_MATCH");
+		assertSearchResults("lib376673.jar p\uD842\uDF9F.i\uD842\uDF9F.Test [No source] EXACT_MATCH");
 	} finally {
 		deleteProject("P");
 	}
