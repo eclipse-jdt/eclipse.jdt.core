@@ -16778,8 +16778,8 @@ public void testConstructor1() throws JavaModelException {
 
 	assertResults(
 			"TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=262932
@@ -16810,8 +16810,8 @@ public void testConstructor2() throws JavaModelException {
 
 	assertResults(
 			"TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=262932
@@ -16842,8 +16842,8 @@ public void testConstructor3() throws JavaModelException {
 
 	assertResults(
 			"TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=262932
@@ -16875,8 +16875,8 @@ public void testConstructor4() throws JavaModelException {
 
 	assertResults(
 			"TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=262932
@@ -16906,8 +16906,8 @@ public void testConstructor5() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 	assertResults(
-			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=262932
@@ -16937,8 +16937,8 @@ public void testConstructor6() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 	assertResults(
-			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 }
 public void testConstructor7() throws JavaModelException {
@@ -16967,8 +16967,8 @@ public void testConstructor7() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 	assertResults(
-			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, ([I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, ([I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
@@ -25273,10 +25273,10 @@ public void testBug351444() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 27}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 27}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), 27}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 27}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 30}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 30}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), 30}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 30}",
 				requestor.getResults());
 		assertEquals(true,
 			requestor.canUseDiamond(0));
@@ -25316,10 +25316,10 @@ public void testBug351444a() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 27}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 27}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), 27}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 27}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 30}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 30}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), 30}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 30}",
 				requestor.getResults());
 		assertEquals(false,
 			requestor.canUseDiamond(1));
@@ -25362,10 +25362,10 @@ public void testBug351444b() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 27}\n" +
-				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 27}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), 27}\n" +
-				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 27}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 30}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 30}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), 30}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 30}",
 				requestor.getResults());
 		assertEquals(true,
 			requestor.canUseDiamond(0));
@@ -25408,10 +25408,10 @@ public void testBug351444c() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 27}\n" +
-				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 27}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), 27}\n" +
-				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 27}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 30}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 30}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), 30}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 30}",
 				requestor.getResults());
 		assertEquals(false,
 			requestor.canUseDiamond(1));
@@ -25457,10 +25457,10 @@ public void testBug351444d() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (LNumber;)V, TXYU, (t), 57}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 57}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 57}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 57}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (LNumber;)V, TXYU, (t), 60}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 60}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 60}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 60}",
 				requestor.getResults());
 		assertEquals(false,
 			requestor.canUseDiamond(0));
@@ -25506,10 +25506,10 @@ public void testBug351444e() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (LNumber;)V, TXYU, (t), 57}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 57}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 57}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 57}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (LNumber;)V, TXYU, (t), 60}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 60}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 60}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 60}",
 				requestor.getResults());
 		assertEquals(true,
 			requestor.canUseDiamond(1));

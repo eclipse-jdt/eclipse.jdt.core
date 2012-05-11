@@ -48,7 +48,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 public class CompletionTests2 extends ModifyingResourceTests implements RelevanceConstants {
 	
 	static {
-//		TESTS_NAMES = new String[]{"testBug326610"};
+//		TESTS_NAMES = new String[]{"testBug373409"};
 	}
 
 	public static class CompletionContainerInitializer implements ContainerInitializer.ITestInitializer {
@@ -491,16 +491,16 @@ public void testBug6930_01() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors01[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors01;, ()V, AllConstructors01, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors01[TYPE_REF]{p6930.AllConstructors01, p6930, Lp6930.AllConstructors01;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors01[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors01;, (I)V, AllConstructors01, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors01[TYPE_REF]{p6930.AllConstructors01, p6930, Lp6930.AllConstructors01;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors01[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors01;, (Ljava.lang.Object;)V, AllConstructors01, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors01[TYPE_REF]{p6930.AllConstructors01, p6930, Lp6930.AllConstructors01;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors01[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors01;, (Ljava.lang.Object;Ljava.lang.String;)V, AllConstructors01, (o, s), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors01[TYPE_REF]{p6930.AllConstructors01, p6930, Lp6930.AllConstructors01;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors01b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors01b;, ()V, AllConstructors01b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors01b[TYPE_REF]{p6930.AllConstructors01b, p6930, Lp6930.AllConstructors01b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors01[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors01;, ()V, AllConstructors01, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors01[TYPE_REF]{p6930.AllConstructors01, p6930, Lp6930.AllConstructors01;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors01[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors01;, (I)V, AllConstructors01, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors01[TYPE_REF]{p6930.AllConstructors01, p6930, Lp6930.AllConstructors01;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors01[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors01;, (Ljava.lang.Object;)V, AllConstructors01, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors01[TYPE_REF]{p6930.AllConstructors01, p6930, Lp6930.AllConstructors01;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors01[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors01;, (Ljava.lang.Object;Ljava.lang.String;)V, AllConstructors01, (o, s), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors01[TYPE_REF]{p6930.AllConstructors01, p6930, Lp6930.AllConstructors01;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors01b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors01b;, ()V, AllConstructors01b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors01b[TYPE_REF]{p6930.AllConstructors01b, p6930, Lp6930.AllConstructors01b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -558,16 +558,16 @@ public void testBug6930_02() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors02[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors02;, ()V, AllConstructors02, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors02[TYPE_REF]{p6930.AllConstructors02, p6930, Lp6930.AllConstructors02;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors02[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors02;, (I)V, AllConstructors02, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors02[TYPE_REF]{p6930.AllConstructors02, p6930, Lp6930.AllConstructors02;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors02[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors02;, (Ljava.lang.Object;)V, AllConstructors02, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors02[TYPE_REF]{p6930.AllConstructors02, p6930, Lp6930.AllConstructors02;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors02[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors02;, (Ljava.lang.Object;Ljava.lang.String;)V, AllConstructors02, (o, s), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors02[TYPE_REF]{p6930.AllConstructors02, p6930, Lp6930.AllConstructors02;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors02b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors02b;, ()V, AllConstructors02b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors02b[TYPE_REF]{p6930.AllConstructors02b, p6930, Lp6930.AllConstructors02b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors02[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors02;, ()V, AllConstructors02, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors02[TYPE_REF]{p6930.AllConstructors02, p6930, Lp6930.AllConstructors02;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors02[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors02;, (I)V, AllConstructors02, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors02[TYPE_REF]{p6930.AllConstructors02, p6930, Lp6930.AllConstructors02;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors02[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors02;, (Ljava.lang.Object;)V, AllConstructors02, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors02[TYPE_REF]{p6930.AllConstructors02, p6930, Lp6930.AllConstructors02;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors02[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors02;, (Ljava.lang.Object;Ljava.lang.String;)V, AllConstructors02, (o, s), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors02[TYPE_REF]{p6930.AllConstructors02, p6930, Lp6930.AllConstructors02;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors02b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors02b;, ()V, AllConstructors02b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors02b[TYPE_REF]{p6930.AllConstructors02b, p6930, Lp6930.AllConstructors02b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -627,16 +627,16 @@ public void testBug6930_03() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors03[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors03;, ()V, AllConstructors03, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors03[TYPE_REF]{p6930.AllConstructors03, p6930, Lp6930.AllConstructors03;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors03[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors03;, (I)V, AllConstructors03, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors03[TYPE_REF]{p6930.AllConstructors03, p6930, Lp6930.AllConstructors03;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors03[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors03;, (Ljava.lang.Object;)V, AllConstructors03, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors03[TYPE_REF]{p6930.AllConstructors03, p6930, Lp6930.AllConstructors03;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors03[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors03;, (Ljava.lang.Object;Ljava.lang.String;)V, AllConstructors03, (o, s), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors03[TYPE_REF]{p6930.AllConstructors03, p6930, Lp6930.AllConstructors03;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors03b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors03b;, ()V, AllConstructors03b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors03b[TYPE_REF]{p6930.AllConstructors03b, p6930, Lp6930.AllConstructors03b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors03[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors03;, ()V, AllConstructors03, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors03[TYPE_REF]{p6930.AllConstructors03, p6930, Lp6930.AllConstructors03;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors03[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors03;, (I)V, AllConstructors03, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors03[TYPE_REF]{p6930.AllConstructors03, p6930, Lp6930.AllConstructors03;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors03[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors03;, (Ljava.lang.Object;)V, AllConstructors03, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors03[TYPE_REF]{p6930.AllConstructors03, p6930, Lp6930.AllConstructors03;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors03[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors03;, (Ljava.lang.Object;Ljava.lang.String;)V, AllConstructors03, (o, s), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors03[TYPE_REF]{p6930.AllConstructors03, p6930, Lp6930.AllConstructors03;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors03b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors03b;, ()V, AllConstructors03b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors03b[TYPE_REF]{p6930.AllConstructors03b, p6930, Lp6930.AllConstructors03b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -699,14 +699,14 @@ public void testBug6930_04() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors04a[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors04a;, ()V, AllConstructors04a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors04a[TYPE_REF]{AllConstructors04a, test, Ltest.AllConstructors04a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors04c[CONSTRUCTOR_INVOCATION]{(), Ltest.Test$AllConstructors04c;, ()V, AllConstructors04c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   Test.AllConstructors04c[TYPE_REF]{AllConstructors04c, test, Ltest.Test$AllConstructors04c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors04e[CONSTRUCTOR_INVOCATION]{(), LAllConstructors04e;, ()V, AllConstructors04e, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors04e[TYPE_REF]{AllConstructors04e, null, LAllConstructors04e;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors04g[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors04g;, ()V, AllConstructors04g, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors04g[TYPE_REF]{AllConstructors04g, test, Ltest.AllConstructors04g;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"AllConstructors04a[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors04a;, ()V, AllConstructors04a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors04a[TYPE_REF]{AllConstructors04a, test, Ltest.AllConstructors04a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors04c[CONSTRUCTOR_INVOCATION]{(), Ltest.Test$AllConstructors04c;, ()V, AllConstructors04c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Test.AllConstructors04c[TYPE_REF]{AllConstructors04c, test, Ltest.Test$AllConstructors04c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors04e[CONSTRUCTOR_INVOCATION]{(), LAllConstructors04e;, ()V, AllConstructors04e, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors04e[TYPE_REF]{AllConstructors04e, null, LAllConstructors04e;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors04g[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors04g;, ()V, AllConstructors04g, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors04g[TYPE_REF]{AllConstructors04g, test, Ltest.AllConstructors04g;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -766,14 +766,14 @@ public void testBug6930_05() throws Exception {
 	    
 	    assertResults(
 			"AllConstructors05a[TYPE_REF]{AllConstructors05a, test, Ltest.AllConstructors05a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors05a[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors05a;, ()V, AllConstructors05a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors05a[TYPE_REF]{AllConstructors05a, test, Ltest.AllConstructors05a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors05c[CONSTRUCTOR_INVOCATION]{(), Ltest.Test$AllConstructors05c;, ()V, AllConstructors05c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   Test.AllConstructors05c[TYPE_REF]{AllConstructors05c, test, Ltest.Test$AllConstructors05c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
 			"AllConstructors05g[TYPE_REF]{AllConstructors05g, test, Ltest.AllConstructors05g;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors05g[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors05g;, ()V, AllConstructors05g, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors05g[TYPE_REF]{AllConstructors05g, test, Ltest.AllConstructors05g;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"Test.AllConstructors05c[TYPE_REF]{AllConstructors05c, test, Ltest.Test$AllConstructors05c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"Test.AllConstructors05c[TYPE_REF]{AllConstructors05c, test, Ltest.Test$AllConstructors05c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"AllConstructors05a[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors05a;, ()V, AllConstructors05a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors05a[TYPE_REF]{AllConstructors05a, test, Ltest.AllConstructors05a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors05c[CONSTRUCTOR_INVOCATION]{(), Ltest.Test$AllConstructors05c;, ()V, AllConstructors05c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Test.AllConstructors05c[TYPE_REF]{AllConstructors05c, test, Ltest.Test$AllConstructors05c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors05g[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors05g;, ()V, AllConstructors05g, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors05g[TYPE_REF]{AllConstructors05g, test, Ltest.AllConstructors05g;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -840,12 +840,12 @@ public void testBug6930_06() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors06a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors06a;, ()V, AllConstructors06a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors06a[TYPE_REF]{AllConstructors06a, p6930, Lp6930.AllConstructors06a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors06b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors06b;, ()V, AllConstructors06b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors06b[TYPE_REF]{AllConstructors06b, p6930, Lp6930.AllConstructors06b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors06c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors06c;, ()V, AllConstructors06c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors06c[TYPE_REF]{AllConstructors06c, p6930, Lp6930.AllConstructors06c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"AllConstructors06a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors06a;, ()V, AllConstructors06a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors06a[TYPE_REF]{AllConstructors06a, p6930, Lp6930.AllConstructors06a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors06b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors06b;, ()V, AllConstructors06b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors06b[TYPE_REF]{AllConstructors06b, p6930, Lp6930.AllConstructors06b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors06c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors06c;, ()V, AllConstructors06c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors06c[TYPE_REF]{AllConstructors06c, p6930, Lp6930.AllConstructors06c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 
 	} finally {
@@ -912,12 +912,12 @@ public void testBug6930_07() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors07a[TYPE_REF]{AllConstructors07a, p6930, Lp6930.AllConstructors07a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors07a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors07a;, ()V, AllConstructors07a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors07a[TYPE_REF]{AllConstructors07a, p6930, Lp6930.AllConstructors07a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors07d[TYPE_REF]{AllConstructors07d, p6930, Lp6930.AllConstructors07d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors07d[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors07d;, ()V, AllConstructors07d, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors07d[TYPE_REF]{AllConstructors07d, p6930, Lp6930.AllConstructors07d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"AllConstructors07a[TYPE_REF]{p6930.AllConstructors07a, p6930, Lp6930.AllConstructors07a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"AllConstructors07d[TYPE_REF]{p6930.AllConstructors07d, p6930, Lp6930.AllConstructors07d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"AllConstructors07a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors07a;, ()V, AllConstructors07a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors07a[TYPE_REF]{p6930.AllConstructors07a, p6930, Lp6930.AllConstructors07a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors07d[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors07d;, ()V, AllConstructors07d, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors07d[TYPE_REF]{p6930.AllConstructors07d, p6930, Lp6930.AllConstructors07d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -984,11 +984,11 @@ public void testBug6930_08() throws Exception {
 	    
 	    assertResults(
 			"AllConstructors08d[TYPE_REF]{p6930.AllConstructors08d, p6930, Lp6930.AllConstructors08d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors08d[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors08d;, ()V, AllConstructors08d, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors08d[TYPE_REF]{p6930.AllConstructors08d, p6930, Lp6930.AllConstructors08d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors08a[TYPE_REF]{AllConstructors08a, p6930, Lp6930.AllConstructors08a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors08a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors08a;, ()V, AllConstructors08a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors08a[TYPE_REF]{AllConstructors08a, p6930, Lp6930.AllConstructors08a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+					"AllConstructors08a[TYPE_REF]{AllConstructors08a, p6930, Lp6930.AllConstructors08a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"AllConstructors08d[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors08d;, ()V, AllConstructors08d, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors08d[TYPE_REF]{p6930.AllConstructors08d, p6930, Lp6930.AllConstructors08d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors08a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors08a;, ()V, AllConstructors08a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors08a[TYPE_REF]{AllConstructors08a, p6930, Lp6930.AllConstructors08a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1059,14 +1059,14 @@ public void testBug6930_09() throws Exception {
 	    
 	    assertResults(
 			"AllConstructors09a[TYPE_REF]{p6930.AllConstructors09a, p6930, Lp6930.AllConstructors09a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors09a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors09a;, ()V, AllConstructors09a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors09a[TYPE_REF]{p6930.AllConstructors09a, p6930, Lp6930.AllConstructors09a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
 			"AllConstructors09d[TYPE_REF]{p6930.AllConstructors09d, p6930, Lp6930.AllConstructors09d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors09d[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors09d;, ()V, AllConstructors09d, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors09d[TYPE_REF]{p6930.AllConstructors09d, p6930, Lp6930.AllConstructors09d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"AllConstructors09a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors09a;, ()V, AllConstructors09a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors09a[TYPE_REF]{p6930.AllConstructors09a, p6930, Lp6930.AllConstructors09a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors09d[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors09d;, ()V, AllConstructors09d, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors09d[TYPE_REF]{p6930.AllConstructors09d, p6930, Lp6930.AllConstructors09d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
 			"AllConstructors09d.AllConstructors09f[TYPE_REF]{AllConstructors09f, p6930, Lp6930.AllConstructors09d$AllConstructors09f;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors09f[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors09d$AllConstructors09f;, ()V, AllConstructors09f, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors09d.AllConstructors09f[TYPE_REF]{AllConstructors09f, p6930, Lp6930.AllConstructors09d$AllConstructors09f;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"AllConstructors09f[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors09d$AllConstructors09f;, ()V, AllConstructors09f, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors09d.AllConstructors09f[TYPE_REF]{AllConstructors09f, p6930, Lp6930.AllConstructors09d$AllConstructors09f;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1144,17 +1144,17 @@ public void testBug6930_10() throws Exception {
 	    
 	    assertResults(
 			"AllConstructors10a[TYPE_REF]{p6930.AllConstructors10a, p6930, Lp6930.AllConstructors10a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors10a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors10a;, ()V, AllConstructors10a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors10a[TYPE_REF]{p6930.AllConstructors10a, p6930, Lp6930.AllConstructors10a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
 			"AllConstructors10d[TYPE_REF]{p6930.AllConstructors10d, p6930, Lp6930.AllConstructors10d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors10d[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors10d;, ()V, AllConstructors10d, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors10d[TYPE_REF]{p6930.AllConstructors10d, p6930, Lp6930.AllConstructors10d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"AllConstructors10a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors10a;, ()V, AllConstructors10a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors10a[TYPE_REF]{p6930.AllConstructors10a, p6930, Lp6930.AllConstructors10a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
 			"AllConstructors10a.AllConstructors10c[TYPE_REF]{AllConstructors10c, p6930, Lp6930.AllConstructors10a$AllConstructors10c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors10c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors10a$AllConstructors10c;, ()V, AllConstructors10c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors10a.AllConstructors10c[TYPE_REF]{AllConstructors10c, p6930, Lp6930.AllConstructors10a$AllConstructors10c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"AllConstructors10d[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors10d;, ()V, AllConstructors10d, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors10d[TYPE_REF]{p6930.AllConstructors10d, p6930, Lp6930.AllConstructors10d;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
 			"AllConstructors10d.AllConstructors10f[TYPE_REF]{AllConstructors10f, p6930, Lp6930.AllConstructors10d$AllConstructors10f;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors10f[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors10d$AllConstructors10f;, ()V, AllConstructors10f, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors10d.AllConstructors10f[TYPE_REF]{AllConstructors10f, p6930, Lp6930.AllConstructors10d$AllConstructors10f;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"AllConstructors10c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors10a$AllConstructors10c;, ()V, AllConstructors10c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors10a.AllConstructors10c[TYPE_REF]{AllConstructors10c, p6930, Lp6930.AllConstructors10a$AllConstructors10c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors10f[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors10d$AllConstructors10f;, ()V, AllConstructors10f, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors10d.AllConstructors10f[TYPE_REF]{AllConstructors10f, p6930, Lp6930.AllConstructors10d$AllConstructors10f;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1206,10 +1206,10 @@ public void testBug6930_11() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"Test[CONSTRUCTOR_INVOCATION]{(), Ltest.Test;, ()V, Test, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   Test[TYPE_REF]{Test, test, Ltest.Test;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors11a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors11a;, ()V, AllConstructors11a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors11a[TYPE_REF]{p6930.AllConstructors11a, p6930, Lp6930.AllConstructors11a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}",
+			"Test[CONSTRUCTOR_INVOCATION]{(), Ltest.Test;, ()V, Test, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Test[TYPE_REF]{Test, test, Ltest.Test;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors11a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors11a;, ()V, AllConstructors11a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors11a[TYPE_REF]{p6930.AllConstructors11a, p6930, Lp6930.AllConstructors11a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1262,11 +1262,11 @@ public void testBug6930_12() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"Test[CONSTRUCTOR_INVOCATION]{(), Ltest.Test;, ()V, Test, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   Test[TYPE_REF]{Test, test, Ltest.Test;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"Test[CONSTRUCTOR_INVOCATION]{(), Ltest.Test;, ()V, Test, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Test[TYPE_REF]{Test, test, Ltest.Test;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
 			"AllConstructors12a[TYPE_REF]{p6930.AllConstructors12a, p6930, Lp6930.AllConstructors12a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors12a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors12a;, ()V, AllConstructors12a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors12a[TYPE_REF]{p6930.AllConstructors12a, p6930, Lp6930.AllConstructors12a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}",
+			"AllConstructors12a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors12a;, ()V, AllConstructors12a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors12a[TYPE_REF]{p6930.AllConstructors12a, p6930, Lp6930.AllConstructors12a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1318,8 +1318,8 @@ public void testBug6930_13() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors13a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors13a;, ()V, AllConstructors13a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors13a[TYPE_REF]{p6930.AllConstructors13a, p6930, Lp6930.AllConstructors13a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}",
+			"AllConstructors13a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors13a;, ()V, AllConstructors13a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors13a[TYPE_REF]{p6930.AllConstructors13a, p6930, Lp6930.AllConstructors13a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1373,8 +1373,8 @@ public void testBug6930_14() throws Exception {
 	    
 	    assertResults(
 			"AllConstructors14a[TYPE_REF]{p6930.AllConstructors14a, p6930, Lp6930.AllConstructors14a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors14a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors14a;, ()V, AllConstructors14a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors14a[TYPE_REF]{p6930.AllConstructors14a, p6930, Lp6930.AllConstructors14a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}",
+			"AllConstructors14a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors14a;, ()V, AllConstructors14a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors14a[TYPE_REF]{p6930.AllConstructors14a, p6930, Lp6930.AllConstructors14a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1442,12 +1442,12 @@ public void testBug6930_15() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors15a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors15a;, ()V, AllConstructors15a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors15a[TYPE_REF]{p6930.AllConstructors15a, p6930, Lp6930.AllConstructors15a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors15b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors15b;, ()V, AllConstructors15b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors15b[TYPE_REF]{p6930.AllConstructors15b, p6930, Lp6930.AllConstructors15b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors15c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors15c;, ()V, AllConstructors15c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors15c[TYPE_REF]{p6930.AllConstructors15c, p6930, Lp6930.AllConstructors15c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors15a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors15a;, ()V, AllConstructors15a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors15a[TYPE_REF]{p6930.AllConstructors15a, p6930, Lp6930.AllConstructors15a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors15b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors15b;, ()V, AllConstructors15b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors15b[TYPE_REF]{p6930.AllConstructors15b, p6930, Lp6930.AllConstructors15b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors15c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors15c;, ()V, AllConstructors15c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors15c[TYPE_REF]{p6930.AllConstructors15c, p6930, Lp6930.AllConstructors15c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1518,12 +1518,12 @@ public void testBug6930_16() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors16a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors16a;, ()V, AllConstructors16a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors16a[TYPE_REF]{p6930.AllConstructors16a, p6930, Lp6930.AllConstructors16a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors16b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors16b;, ()V, AllConstructors16b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors16b[TYPE_REF]{p6930.AllConstructors16b, p6930, Lp6930.AllConstructors16b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors16c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors16c;, ()V, AllConstructors16c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors16c[TYPE_REF]{p6930.AllConstructors16c, p6930, Lp6930.AllConstructors16c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors16a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors16a;, ()V, AllConstructors16a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors16a[TYPE_REF]{p6930.AllConstructors16a, p6930, Lp6930.AllConstructors16a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors16b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors16b;, ()V, AllConstructors16b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors16b[TYPE_REF]{p6930.AllConstructors16b, p6930, Lp6930.AllConstructors16b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors16c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors16c;, ()V, AllConstructors16c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors16c[TYPE_REF]{p6930.AllConstructors16c, p6930, Lp6930.AllConstructors16c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1594,12 +1594,12 @@ public void testBug6930_17() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors17a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors17a;, (Ljava.util.Collection<Ljava.lang.Object;>;)V, AllConstructors17a, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors17a[TYPE_REF]{p6930.AllConstructors17a, p6930, Lp6930.AllConstructors17a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors17b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors17b;, (Ljava.util.Collection<Ljava.lang.Object;>;)V, AllConstructors17b, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors17b[TYPE_REF]{p6930.AllConstructors17b, p6930, Lp6930.AllConstructors17b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors17c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors17c;, (Ljava.util.Collection<Ljava.lang.Object;>;)V, AllConstructors17c, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors17c[TYPE_REF]{p6930.AllConstructors17c, p6930, Lp6930.AllConstructors17c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors17a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors17a;, (Ljava.util.Collection<Ljava.lang.Object;>;)V, AllConstructors17a, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors17a[TYPE_REF]{p6930.AllConstructors17a, p6930, Lp6930.AllConstructors17a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors17b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors17b;, (Ljava.util.Collection<Ljava.lang.Object;>;)V, AllConstructors17b, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors17b[TYPE_REF]{p6930.AllConstructors17b, p6930, Lp6930.AllConstructors17b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors17c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors17c;, (Ljava.util.Collection<Ljava.lang.Object;>;)V, AllConstructors17c, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors17c[TYPE_REF]{p6930.AllConstructors17c, p6930, Lp6930.AllConstructors17c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -1663,12 +1663,12 @@ public void testBug6930_18() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors18a[ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors18a;, ()V, AllConstructors18a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors18a[TYPE_REF]{p6930.AllConstructors18a, p6930, Lp6930.AllConstructors18a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors18b[ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors18b;, ()V, AllConstructors18b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors18b[TYPE_REF]{p6930.AllConstructors18b, p6930, Lp6930.AllConstructors18b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors18c[ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors18c;, ()V, AllConstructors18c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors18c[TYPE_REF]{p6930.AllConstructors18c, p6930, Lp6930.AllConstructors18c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors18a[ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors18a;, ()V, AllConstructors18a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors18a[TYPE_REF]{p6930.AllConstructors18a, p6930, Lp6930.AllConstructors18a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors18b[ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors18b;, ()V, AllConstructors18b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors18b[TYPE_REF]{p6930.AllConstructors18b, p6930, Lp6930.AllConstructors18b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors18c[ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors18c;, ()V, AllConstructors18c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors18c[TYPE_REF]{p6930.AllConstructors18c, p6930, Lp6930.AllConstructors18c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -2101,12 +2101,12 @@ public void testBug6930_24() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors24a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors24a;, ()V, AllConstructors24a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors24a[TYPE_REF]{p6930.AllConstructors24a, p6930, Lp6930.AllConstructors24a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors24b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors24b;, ()V, AllConstructors24b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors24b[TYPE_REF]{p6930.AllConstructors24b, p6930, Lp6930.AllConstructors24b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors24c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors24c;, ()V, AllConstructors24c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors24c[TYPE_REF]{p6930.AllConstructors24c, p6930, Lp6930.AllConstructors24c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors24a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors24a;, ()V, AllConstructors24a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors24a[TYPE_REF]{p6930.AllConstructors24a, p6930, Lp6930.AllConstructors24a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors24b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors24b;, ()V, AllConstructors24b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors24b[TYPE_REF]{p6930.AllConstructors24b, p6930, Lp6930.AllConstructors24b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors24c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors24c;, ()V, AllConstructors24c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors24c[TYPE_REF]{p6930.AllConstructors24c, p6930, Lp6930.AllConstructors24c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -2179,12 +2179,12 @@ public void testBug6930_25() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors25a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors25a;, ()V, AllConstructors25a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors25a[TYPE_REF]{AllConstructors25a, p6930, Lp6930.AllConstructors25a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors25b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors25b;, ()V, AllConstructors25b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors25b[TYPE_REF]{AllConstructors25b, p6930, Lp6930.AllConstructors25b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors25c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors25c;, ()V, AllConstructors25c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors25c[TYPE_REF]{AllConstructors25c, p6930, Lp6930.AllConstructors25c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"AllConstructors25a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors25a;, ()V, AllConstructors25a, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors25a[TYPE_REF]{AllConstructors25a, p6930, Lp6930.AllConstructors25a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors25b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors25b;, ()V, AllConstructors25b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors25b[TYPE_REF]{AllConstructors25b, p6930, Lp6930.AllConstructors25b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors25c[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors25c;, ()V, AllConstructors25c, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors25c[TYPE_REF]{AllConstructors25c, p6930, Lp6930.AllConstructors25c;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -2236,8 +2236,8 @@ public void testBug6930_26() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors26b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors26a$AllConstructors26b;, (I)V, AllConstructors26b, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors26a.AllConstructors26b[TYPE_REF]{AllConstructors26b, p6930, Lp6930.AllConstructors26a$AllConstructors26b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"AllConstructors26b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors26a$AllConstructors26b;, (I)V, AllConstructors26b, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors26a.AllConstructors26b[TYPE_REF]{AllConstructors26b, p6930, Lp6930.AllConstructors26a$AllConstructors26b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -2289,8 +2289,8 @@ public void testBug6930_27() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors27b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors27a$AllConstructors27b;, (I)V, AllConstructors27b, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors27a.AllConstructors27b[TYPE_REF]{AllConstructors27b, p6930, Lp6930.AllConstructors27a$AllConstructors27b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors27b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors27a$AllConstructors27b;, (I)V, AllConstructors27b, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors27a.AllConstructors27b[TYPE_REF]{AllConstructors27b, p6930, Lp6930.AllConstructors27a$AllConstructors27b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -2350,10 +2350,10 @@ public void testBug6930_28() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors28a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors28a;, (I)V, AllConstructors28a, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors28a[TYPE_REF]{AllConstructors28a, p6930, Lp6930.AllConstructors28a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors28b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors28b;, (I)V, AllConstructors28b, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors28b[TYPE_REF]{AllConstructors28b, p6930, Lp6930.AllConstructors28b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors28a[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors28a;, (I)V, AllConstructors28a, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors28a[TYPE_REF]{AllConstructors28a, p6930, Lp6930.AllConstructors28a;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors28b[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors28b;, (I)V, AllConstructors28b, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors28b[TYPE_REF]{AllConstructors28b, p6930, Lp6930.AllConstructors28b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -2406,12 +2406,12 @@ public void testBug6930_29() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors29[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors29;, ()V, AllConstructors29, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors29[TYPE_REF]{p6930.AllConstructors29, p6930, Lp6930.AllConstructors29;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors29[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors29;, (Ljava.lang.Object;)V, AllConstructors29, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors29[TYPE_REF]{p6930.AllConstructors29, p6930, Lp6930.AllConstructors29;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors29[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors29;, (Ljava.lang.Object;Ljava.lang.String;)V, AllConstructors29, (o, s), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors29[TYPE_REF]{p6930.AllConstructors29, p6930, Lp6930.AllConstructors29;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}",
+			"AllConstructors29[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors29;, ()V, AllConstructors29, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors29[TYPE_REF]{p6930.AllConstructors29, p6930, Lp6930.AllConstructors29;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors29[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors29;, (Ljava.lang.Object;)V, AllConstructors29, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors29[TYPE_REF]{p6930.AllConstructors29, p6930, Lp6930.AllConstructors29;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors29[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors29;, (Ljava.lang.Object;Ljava.lang.String;)V, AllConstructors29, (o, s), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors29[TYPE_REF]{p6930.AllConstructors29, p6930, Lp6930.AllConstructors29;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -2459,10 +2459,10 @@ public void testBug6930_30() throws Exception {
 	    
 	    assertResults(
 			"AllConstructors30[TYPE_REF]{AllConstructors30, test, Ltest.AllConstructors30;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors30[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors30;, ()V, AllConstructors30, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors30[TYPE_REF]{AllConstructors30, test, Ltest.AllConstructors30;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors30b[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors30b;, ()V, AllConstructors30b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors30b[TYPE_REF]{AllConstructors30b, test, Ltest.AllConstructors30b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"AllConstructors30[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors30;, ()V, AllConstructors30, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors30[TYPE_REF]{AllConstructors30, test, Ltest.AllConstructors30;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors30b[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors30b;, ()V, AllConstructors30b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors30b[TYPE_REF]{AllConstructors30b, test, Ltest.AllConstructors30b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -2511,10 +2511,10 @@ public void testBug6930_31() throws Exception {
 	    
 	    assertResults(
 			"AllConstructors31[TYPE_REF]{AllConstructors31, test, Ltest.AllConstructors31;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors31[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors31;, ()V, AllConstructors31, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors31[TYPE_REF]{AllConstructors31, test, Ltest.AllConstructors31;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors31b[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors31b;, ()V, AllConstructors31b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors31b[TYPE_REF]{AllConstructors31b, test, Ltest.AllConstructors31b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+			"AllConstructors31[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors31;, ()V, AllConstructors31, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors31[TYPE_REF]{AllConstructors31, test, Ltest.AllConstructors31;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors31b[CONSTRUCTOR_INVOCATION]{(), Ltest.AllConstructors31b;, ()V, AllConstructors31b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors31b[TYPE_REF]{AllConstructors31b, test, Ltest.AllConstructors31b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -2563,11 +2563,11 @@ public void testBug6930_32() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors32[CONSTRUCTOR_INVOCATION]{(), Ltest.Test$AllConstructors32;, ()V, AllConstructors32, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Test.AllConstructors32[TYPE_REF]{AllConstructors32, test, Ltest.Test$AllConstructors32;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors32b[CONSTRUCTOR_INVOCATION]{(), Ltest.Test$AllConstructors32b;, ()V, AllConstructors32b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Test.AllConstructors32b[TYPE_REF]{AllConstructors32b, test, Ltest.Test$AllConstructors32b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"Test.AllConstructors32[TYPE_REF]{AllConstructors32, test, Ltest.Test$AllConstructors32;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+	    	"Test.AllConstructors32[TYPE_REF]{AllConstructors32, test, Ltest.Test$AllConstructors32;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+			"AllConstructors32[CONSTRUCTOR_INVOCATION]{(), Ltest.Test$AllConstructors32;, ()V, AllConstructors32, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Test.AllConstructors32[TYPE_REF]{AllConstructors32, test, Ltest.Test$AllConstructors32;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors32b[CONSTRUCTOR_INVOCATION]{(), Ltest.Test$AllConstructors32b;, ()V, AllConstructors32b, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Test.AllConstructors32b[TYPE_REF]{AllConstructors32b, test, Ltest.Test$AllConstructors32b;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -2635,10 +2635,10 @@ public void testBug6930_33() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors33[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors33;, (Lp6930_1.ParamType;Lp6930_2.ParamType;)V, AllConstructors33, (p21, p22), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors33[TYPE_REF]{p6930.AllConstructors33, p6930, Lp6930.AllConstructors33;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"AllConstructors33[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors33;, (Lp6930_2.ParamType;Lp6930_2.ParamType;)V, AllConstructors33, (p11, p12), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors33[TYPE_REF]{p6930.AllConstructors33, p6930, Lp6930.AllConstructors33;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors33[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors33;, (Lp6930_1.ParamType;Lp6930_2.ParamType;)V, AllConstructors33, (p21, p22), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors33[TYPE_REF]{p6930.AllConstructors33, p6930, Lp6930.AllConstructors33;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"AllConstructors33[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors33;, (Lp6930_2.ParamType;Lp6930_2.ParamType;)V, AllConstructors33, (p11, p12), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors33[TYPE_REF]{p6930.AllConstructors33, p6930, Lp6930.AllConstructors33;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -2699,8 +2699,8 @@ public void testBug6930_34() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors34[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors34;, (Ljava.lang.Object;)V, AllConstructors34, (arg0), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors34[TYPE_REF]{p6930.AllConstructors34, p6930, Lp6930.AllConstructors34;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors34[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors34;, (Ljava.lang.Object;)V, AllConstructors34, (arg0), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors34[TYPE_REF]{p6930.AllConstructors34, p6930, Lp6930.AllConstructors34;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -2765,8 +2765,8 @@ public void testBug6930_35() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors35[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors35;, (Ljava.lang.Object;)V, AllConstructors35, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors35[TYPE_REF]{p6930.AllConstructors35, p6930, Lp6930.AllConstructors35;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors35[CONSTRUCTOR_INVOCATION]{(), Lp6930.AllConstructors35;, (Ljava.lang.Object;)V, AllConstructors35, (o), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors35[TYPE_REF]{p6930.AllConstructors35, p6930, Lp6930.AllConstructors35;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -4659,14 +4659,14 @@ public void testBug276890_01() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, ()V, Stuff, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Ljava.lang.Object;Ljava.lang.Object;)V, Stuff, (o, o2), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Lp276890.Stuff<TE;>;)V, Stuff, (ees), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (TE;)V, Stuff, (e), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, ()V, Stuff, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Ljava.lang.Object;Ljava.lang.Object;)V, Stuff, (o, o2), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Lp276890.Stuff<TE;>;)V, Stuff, (ees), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (TE;)V, Stuff, (e), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -4722,14 +4722,14 @@ public void testBug276890_02() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, ()V, Stuff, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Ljava.lang.Object;Ljava.lang.Object;)V, Stuff, (o, o2), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Lp276890.Stuff<TE;>;)V, Stuff, (ees), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (TE;)V, Stuff, (e), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, ()V, Stuff, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Ljava.lang.Object;Ljava.lang.Object;)V, Stuff, (o, o2), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Lp276890.Stuff<TE;>;)V, Stuff, (ees), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (TE;)V, Stuff, (e), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -4790,14 +4790,14 @@ public void testBug276890_03() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, ()V, Stuff, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Ljava.lang.Object;Ljava.lang.Object;)V, Stuff, (o, o2), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Lp276890.Stuff<TE;>;)V, Stuff, (ees), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (TE;)V, Stuff, (e), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, ()V, Stuff, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Ljava.lang.Object;Ljava.lang.Object;)V, Stuff, (o, o2), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (Lp276890.Stuff<TE;>;)V, Stuff, (ees), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"Stuff[CONSTRUCTOR_INVOCATION]{(), Lp276890.Stuff;, (TE;)V, Stuff, (e), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   Stuff[TYPE_REF]{p276890.Stuff, p276890, Lp276890.Stuff;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -5143,8 +5143,8 @@ public void testBug270113_01() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"AllConstructors01[ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION]{(), Lp270113.AllConstructors01;, (I)V, AllConstructors01, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"   AllConstructors01[TYPE_REF]{p270113.AllConstructors01, p270113, Lp270113.AllConstructors01;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			"AllConstructors01[ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION]{(), Lp270113.AllConstructors01;, (I)V, AllConstructors01, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+			"   AllConstructors01[TYPE_REF]{p270113.AllConstructors01, p270113, Lp270113.AllConstructors01;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -5236,7 +5236,7 @@ public void testBug281598b() throws Exception {
 	    
 	    assertResults(
 			"String[CONSTRUCTOR_INVOCATION]{(), Ljava.lang.String;, ()V, String, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_EXACT_NAME+R_UNQUALIFIED+R_NON_RESTRICTED)+"}\n" +
-			"   String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_EXACT_NAME+R_UNQUALIFIED+R_NON_RESTRICTED)+"}",
+			"   String[TYPE_REF]{java.lang.String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_EXACT_NAME+R_UNQUALIFIED+R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -5401,8 +5401,8 @@ public void testBug151500b() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-	    		"Bar[CONSTRUCTOR_INVOCATION]{(), Lfoo.Foo$Bar;, (II)V, Bar, (a, b), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}\n" +
-	    		"   Foo.Bar[TYPE_REF]{Bar, foo, Lfoo.Foo$Bar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+	    		"Bar[CONSTRUCTOR_INVOCATION]{(), Lfoo.Foo$Bar;, (II)V, Bar, (a, b), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED + R_CONSTRUCTOR) + "}\n" +
+	    		"   Foo.Bar[TYPE_REF]{Bar, foo, Lfoo.Foo$Bar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED + R_CONSTRUCTOR) + "}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -5460,8 +5460,8 @@ public void testBug151500c() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-	    		"Bar[CONSTRUCTOR_INVOCATION]{(), Lfoo.Foo$Bar;, (II)V, Bar, (a, b), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-	    		"   Foo.Bar[TYPE_REF]{Bar, foo, Lfoo.Foo$Bar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+	    		"Bar[CONSTRUCTOR_INVOCATION]{(), Lfoo.Foo$Bar;, (II)V, Bar, (a, b), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
+	    		"   Foo.Bar[TYPE_REF]{Bar, foo, Lfoo.Foo$Bar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -5892,6 +5892,93 @@ public void testBug326610() throws Exception {
 		
 	} finally {
 		this.deleteProject("P1");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=373409
+// Test (1) a type does not get priority over a constructor and
+// (2) that a type coming from an on-demand import does not have the R_UNQUALIFIED relevance set
+public void testBug373409() throws Exception {
+	try {
+		// Create project and jar
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+		refresh(p);
+		
+		createFolder("/P/src/java/llang");
+		
+		createFile(
+				"/P/src/java/llang/Thread.java",
+				"package java.llang;\n"+
+				"public class Thread {\n" +
+				"  public Thread() {\n" +
+				"  }\n" +
+				"  public Thread(String s) {\n" +
+				"  }\n" +
+				"  public Thread(String s, int i) {\n" +
+				"  }\n" +
+				"}");
+		
+		createFile(
+				"/P/src/java/llang/ThreadLocal.java",
+				"package java.llang;\n"+
+				"public class ThreadLocal {\n" +
+				"	 static class ThreadLocalMap {}\n" + // non private static member class necessary for ThreadLocal to be proposed as a type
+				"}");
+		
+		createFile(
+				"/P/src/java/llang/ThreadGroup.java",
+				"package java.llang;\n"+
+				"public class ThreadGroup {\n" +
+				"   public ThreadGroup() {\n" +
+				"  }\n" +
+				"   public ThreadGroup(String s) {\n" +
+				"  }\n" +
+				"}");
+		
+		refresh(p);
+		
+		waitUntilIndexesReady();
+
+		// Create working copy
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/test/Test.java",
+				"package test;\n" +
+				"import java.llang.*;\n"+
+				"public class Test {\n" +
+				"  void foo() {\n" +
+				"    new Threa\n" +
+				"  }\n" +
+				"}");
+		
+		
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "Threa";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+	    	"ThreadLocal[TYPE_REF]{java.llang.ThreadLocal, java.llang, Ljava.llang.ThreadLocal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"Thread[CONSTRUCTOR_INVOCATION]{(), Ljava.llang.Thread;, ()V, Thread, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
+			"   Thread[TYPE_REF]{java.llang.Thread, java.llang, Ljava.llang.Thread;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
+			"Thread[CONSTRUCTOR_INVOCATION]{(), Ljava.llang.Thread;, (Ljava.lang.String;)V, Thread, (s), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
+			"   Thread[TYPE_REF]{java.llang.Thread, java.llang, Ljava.llang.Thread;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
+			"Thread[CONSTRUCTOR_INVOCATION]{(), Ljava.llang.Thread;, (Ljava.lang.String;I)V, Thread, (s, i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
+			"   Thread[TYPE_REF]{java.llang.Thread, java.llang, Ljava.llang.Thread;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
+			"ThreadGroup[CONSTRUCTOR_INVOCATION]{(), Ljava.llang.ThreadGroup;, ()V, ThreadGroup, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
+			"   ThreadGroup[TYPE_REF]{java.llang.ThreadGroup, java.llang, Ljava.llang.ThreadGroup;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
+			"ThreadGroup[CONSTRUCTOR_INVOCATION]{(), Ljava.llang.ThreadGroup;, (Ljava.lang.String;)V, ThreadGroup, (s), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
+			"   ThreadGroup[TYPE_REF]{java.llang.ThreadGroup, java.llang, Ljava.llang.ThreadGroup;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
+			"ThreadLocal[CONSTRUCTOR_INVOCATION]{(), Ljava.llang.ThreadLocal;, ()V, ThreadLocal, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
+			"   ThreadLocal[TYPE_REF]{java.llang.ThreadLocal, java.llang, Ljava.llang.ThreadLocal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
 	}
 }
 }
