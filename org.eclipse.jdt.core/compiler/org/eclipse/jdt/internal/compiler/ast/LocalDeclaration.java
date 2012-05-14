@@ -47,13 +47,21 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this.bits |= ASTNode.IsLocalDeclarationReachable; // only set if actually reached
 	}
 	if (this.binding != null && this.type.resolvedType instanceof TypeVariableBinding) {
+		TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.type.resolvedType;
 		MethodScope methodScope= this.binding.declaringScope.methodScope();
+		if (methodScope != null && methodScope.referenceContext instanceof TypeDeclaration) {
+			// initialization scope
+			methodScope = methodScope.enclosingMethodScope();
+		}
 		AbstractMethodDeclaration methodDeclaration = methodScope.referenceMethod();
-		if (methodDeclaration != null && ((methodDeclaration.bits & ASTNode.CanBeStatic) != 0) && methodDeclaration.binding != null) {
+		if (methodDeclaration != null && methodDeclaration.binding != null) {
 			TypeVariableBinding[] typeVariables = methodDeclaration.binding.typeVariables();
 			if (typeVariables == Binding.NO_TYPE_VARIABLES) {
 				// Method declares no type variables.
-				currentScope.resetEnclosingMethodStaticFlag();
+				if (typeVariableBinding.declaringElement instanceof TypeBinding)
+					currentScope.resetDeclaringClassMethodStaticFlag((TypeBinding) typeVariableBinding.declaringElement);
+				else
+					currentScope.resetEnclosingMethodStaticFlag();
 			} else {
 				// to check whether the resolved type for this is declared by enclosing method as a type variable
 				boolean usesEnclosingTypeVar = false; 
@@ -65,7 +73,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				}
 				if (!usesEnclosingTypeVar) {
 					// uses a type variable not declared by enclosing method
-					currentScope.resetEnclosingMethodStaticFlag();
+					if (typeVariableBinding.declaringElement instanceof TypeBinding)
+						currentScope.resetDeclaringClassMethodStaticFlag((TypeBinding) typeVariableBinding.declaringElement);
+					else
+						currentScope.resetEnclosingMethodStaticFlag();
 				}
 			}
 		}

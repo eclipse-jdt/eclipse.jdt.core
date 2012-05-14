@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -111,12 +111,12 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 	if (!this.binding.isStatic()) {
 		if (this.receiver.isThis()) {
-			currentScope.resetEnclosingMethodStaticFlag();
+			currentScope.resetDeclaringClassMethodStaticFlag(this.binding.declaringClass);
 		}
 	} else if (this.receiver.isThis()) {
 		if ((this.receiver.bits & ASTNode.IsImplicitThis) == 0) {
 			// explicit this, not allowed in static context
-			currentScope.resetEnclosingMethodStaticFlag();
+			currentScope.resetDeclaringClassMethodStaticFlag(this.binding.declaringClass);
 		}
 	}
 	return flowInfo;
@@ -133,7 +133,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this.receiver.checkNPE(currentScope, flowContext, flowInfo);
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 		if (this.receiver.isThis()) {
-			currentScope.resetEnclosingMethodStaticFlag();
+			currentScope.resetDeclaringClassMethodStaticFlag(this.binding.declaringClass);
 		}
 	} else if (this.receiver.isThis()) {
 		if ((this.receiver.bits & ASTNode.IsImplicitThis) == 0) {

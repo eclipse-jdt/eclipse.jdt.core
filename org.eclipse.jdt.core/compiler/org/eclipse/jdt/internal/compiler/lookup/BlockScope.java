@@ -957,16 +957,49 @@ public String toString(int tab) {
 	return s;
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
+/**
+ * This method is used to reset the CanBeStatic the enclosing method of the current block
+ */
 public void resetEnclosingMethodStaticFlag() {
 	MethodScope methodScope = methodScope();
+	if (methodScope != null) {
+		if (methodScope.referenceContext instanceof MethodDeclaration) {
+			MethodDeclaration methodDeclaration = (MethodDeclaration) methodScope.referenceContext;
+			methodDeclaration.bits &= ~ASTNode.CanBeStatic;
+		} else if (methodScope.referenceContext instanceof TypeDeclaration) {
+			// anonymous type, find enclosing method
+			methodScope = methodScope.enclosingMethodScope();
+			if (methodScope != null && methodScope.referenceContext instanceof MethodDeclaration) {
+				MethodDeclaration methodDeclaration = (MethodDeclaration) methodScope.referenceContext;
+				methodDeclaration.bits &= ~ASTNode.CanBeStatic;
+			}
+		}
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
+/**
+ * This method is used to reset the CanBeStatic on all enclosing methods until the method 
+ * belonging to the declaringClass
+ * @param declaringClass
+ */
+public void resetDeclaringClassMethodStaticFlag(TypeBinding declaringClass) {
+	MethodScope methodScope = methodScope();
+	if (methodScope != null && methodScope.referenceContext instanceof TypeDeclaration) {
+		// anonymous type, find enclosing method
+		methodScope = methodScope.enclosingMethodScope();
+	}
 	while (methodScope != null && methodScope.referenceContext instanceof MethodDeclaration) {
-		MethodDeclaration methodDeclaration= (MethodDeclaration) methodScope.referenceContext;
+		MethodDeclaration methodDeclaration = (MethodDeclaration) methodScope.referenceContext;
 		methodDeclaration.bits &= ~ASTNode.CanBeStatic;
 		ClassScope enclosingClassScope = methodScope.enclosingClassScope();
 		if (enclosingClassScope != null) {
-			methodScope = enclosingClassScope.methodScope();
-		} else {
-			break;
+			TypeDeclaration type = enclosingClassScope.referenceContext;
+			if (type.binding != null && declaringClass != null && type.binding != declaringClass.original()) {
+				methodScope = enclosingClassScope.enclosingMethodScope();
+			} else {
+				break;
+			}
 		}
 	}
 }

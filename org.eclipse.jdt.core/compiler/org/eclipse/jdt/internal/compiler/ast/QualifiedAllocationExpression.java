@@ -67,7 +67,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		} else {
 			if (this.binding.declaringClass.superclass().isMemberType() && !this.binding.declaringClass.superclass().isStatic()) {
 				// creating an anonymous type of a non-static member type without an enclosing instance of parent type
-				currentScope.resetEnclosingMethodStaticFlag();
+				currentScope.resetDeclaringClassMethodStaticFlag(this.binding.declaringClass.superclass().enclosingType());
 			}
 		}
 

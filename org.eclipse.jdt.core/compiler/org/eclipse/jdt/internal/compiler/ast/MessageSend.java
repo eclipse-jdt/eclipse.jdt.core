@@ -86,7 +86,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 		if (this.receiver.isThis()) {
 			// accessing non-static method without an object
-			currentScope.resetEnclosingMethodStaticFlag();
+			currentScope.resetDeclaringClassMethodStaticFlag(this.binding.declaringClass);
 		}
 	} else if (this.receiver.isThis()) {
 		if ((this.receiver.bits & ASTNode.IsImplicitThis) == 0) {
