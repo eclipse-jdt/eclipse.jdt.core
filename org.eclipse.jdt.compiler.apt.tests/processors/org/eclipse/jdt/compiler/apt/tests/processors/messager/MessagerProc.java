@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2012 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -208,6 +208,9 @@ public class MessagerProc extends AbstractProcessor {
 					if ("j".equals(name) && _variableElement == null) {
 						_variableElement = variableElement;
 					}
+					break;
+				default:
+					break;
 			}
 		}
 
@@ -295,6 +298,10 @@ public class MessagerProc extends AbstractProcessor {
 						System.out.print(" type = " + typeMirror);
 						System.out.println(" type kind = " + typeMirror.getKind());
 					}
+					break;
+				default:
+					System.out.println(element.getKind() + ": " + element.getSimpleName());
+					break;
 			}
 		}
 	}

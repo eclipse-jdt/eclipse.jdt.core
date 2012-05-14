@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2012 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,6 +66,8 @@ public class TypesImpl implements Types {
             case DECLARED :
             case TYPEVAR :
                 return _env.getFactory().newElement(((TypeMirrorImpl)t).binding());
+            default:
+            	break;
         }
         return null;
     }
@@ -75,7 +77,6 @@ public class TypesImpl implements Types {
      */
     @Override
     public TypeMirror asMemberOf(DeclaredType containing, Element element) {
-        // TODO Auto-generated method stub
 //        throw new UnsupportedOperationException("NYI: TypesImpl.asMemberOf(" + containing + ", " + element + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     	ElementImpl elementImpl = (ElementImpl) element;
     	DeclaredTypeImpl declaredTypeImpl = (DeclaredTypeImpl) containing;
@@ -120,6 +121,8 @@ public class TypesImpl implements Types {
     				}
     			}
     			break;
+    		default:
+    			break;
     	}
 		throw new IllegalArgumentException("element is not valid for the containing declared type: element kind " + element.getKind()); //$NON-NLS-1$
     }
@@ -140,7 +143,6 @@ public class TypesImpl implements Types {
      */
     @Override
     public TypeMirror capture(TypeMirror t) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("NYI: TypesImpl.capture(...)"); //$NON-NLS-1$
     }
 
@@ -153,13 +155,16 @@ public class TypesImpl implements Types {
     		case EXECUTABLE :
     		case PACKAGE :
     			throw new IllegalArgumentException("Executable and package are illegal argument for Types.contains(..)"); //$NON-NLS-1$
+    		default:
+    			break;
     	}
     	switch(t2.getKind()) {
     		case EXECUTABLE :
     		case PACKAGE :
     			throw new IllegalArgumentException("Executable and package are illegal argument for Types.contains(..)"); //$NON-NLS-1$
+    		default:
+    			break;
     	}
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("NYI: TypesImpl.contains(" + t1 + ", " + t2 + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
@@ -171,7 +176,9 @@ public class TypesImpl implements Types {
         switch(t.getKind()) {
             case PACKAGE :
             case EXECUTABLE :
-                throw new IllegalArgumentException("Invalid type mirror for directSypertypes"); //$NON-NLS-1$
+                throw new IllegalArgumentException("Invalid type mirror for directSupertypes"); //$NON-NLS-1$
+            default:
+                break;
         }
         TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
         Binding binding = typeMirrorImpl._binding;
