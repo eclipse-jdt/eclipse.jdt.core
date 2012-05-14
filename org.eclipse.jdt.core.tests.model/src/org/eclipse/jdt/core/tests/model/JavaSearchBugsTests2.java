@@ -20,6 +20,7 @@ import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -932,6 +933,279 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			assertSearchResults("Wrong results", "p2/A.java long p2.A.m() [k()] EXACT_MATCH", this.resultCollector);
 		} finally {
 			deleteProject(project);
+		}
+	}
+	/**
+	 * @bug 375971: [search] Not finding method references with generics
+	 * @test TODO
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=375971"
+	 */
+	public void testBug375971a() throws CoreException {
+		try {
+			createJavaProject("P");
+			createFile("/P/InterfaceI.java",
+				"public interface InterfaceI <K, V>{\n"+
+				" public void addListener();\n"+
+				"}\n");
+			createFile("/P/ClassA.java",
+				"public class ClassA <K, V, B> implements InterfaceI<K, V>{\n"+
+					" public void addListener() {\n" +
+					"}\n" +
+					"}\n");
+			createFile("/P/ClassB.java",
+					"public class ClassB extends ClassA<String, String, String>{\n"+
+						" public void doSomething() {" +
+						"   addListener();\n"+
+						"}\n" +
+						"}\n");
+			waitUntilIndexesReady();
+			// search
+			IType type = getCompilationUnit("/P/InterfaceI.java").getType("InterfaceI");
+			IMethod method = type.getMethod("addListener", new String[]{});
+			this.resultCollector.showRule();
+			search(method, REFERENCES, ERASURE_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("ClassB.java void ClassB.doSomething() [addListener()] ERASURE_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug375971b() throws CoreException {
+		try {
+			createJavaProject("P");
+			createFile("/P/InterfaceI.java",
+				"public interface InterfaceI <K, V>{\n"+
+				" public void addListener();\n"+
+				"}\n");
+			createFile("/P/ClassA.java",
+				"public class ClassA <K, V, B> {\n"+
+					" public void addListener() {\n" +
+					"}\n" +
+					"}\n");
+			createFile("/P/ClassB.java",
+					"public class ClassB extends ClassA<String, String, String> implements InterfaceI<String, String>{\n"+
+						" public void doSomething() {" +
+						"   addListener();\n"+
+						"}\n" +
+						"}\n");
+			waitUntilIndexesReady();
+			// search
+			IType type = getCompilationUnit("/P/InterfaceI.java").getType("InterfaceI");
+			IMethod method = type.getMethod("addListener", new String[]{});
+			this.resultCollector.showRule();
+			search(method, REFERENCES, ERASURE_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("ClassB.java void ClassB.doSomething() [addListener()] ERASURE_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug375971c() throws CoreException {
+		try {
+			createJavaProject("P");
+			createFile("/P/InterfaceI.java",
+				"public interface InterfaceI <K, V>{\n"+
+				" public void addListener();\n"+
+				"}\n");
+			createFile("/P/ClassA.java",
+				"public class ClassA <K, V, B> {\n"+
+					" public void addListener() {\n" +
+					"}\n" +
+					"}\n");
+			createFile("/P/ClassB.java",
+					"public class ClassB extends ClassA<String, String, String> implements InterfaceI<String, String>{\n"+
+						" public void doSomething() {" +
+						"   addListener();\n"+
+						"}\n" +
+						"}\n");
+			waitUntilIndexesReady();
+			// search
+			IType type = getCompilationUnit("/P/ClassA.java").getType("ClassA");
+			IMethod method = type.getMethod("addListener", new String[]{});
+			this.resultCollector.showRule();
+			search(method, REFERENCES, ERASURE_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("ClassB.java void ClassB.doSomething() [addListener()] ERASURE_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug375971d() throws CoreException {
+		try {
+			createJavaProject("P");
+			createFile("/P/InterfaceI.java",
+					"public interface InterfaceI <K, V>{\n"+
+					" public void addListener();\n"+
+					"}\n");
+			createFile("/P/ClassA.java",
+				"public class ClassA <K, V, B> implements InterfaceI<K, V>{\n"+
+					" public void addListener() {\n" +
+					"}\n" +
+					"}\n");
+			createFile("/P/ClassB.java",
+					"public class ClassB {\n"+
+						" public void doSomething(ClassA a) {" +
+						"   a.addListener();\n"+
+						"}\n" +
+						"}\n");
+			waitUntilIndexesReady();
+			// search
+			IType type = getCompilationUnit("/P/InterfaceI.java").getType("InterfaceI");
+			IMethod method = type.getMethod("addListener", new String[]{});
+			this.resultCollector.showRule();
+			search(method, REFERENCES, ERASURE_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("ClassB.java void ClassB.doSomething(ClassA) [addListener()] ERASURE_RAW_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug375971e() throws CoreException {
+		try {
+			createJavaProject("P");
+			createFile("/P/InterfaceI.java",
+				"public interface InterfaceI <K, V>{\n"+
+				" public void addListener();\n"+
+				"}\n");
+			createFile("/P/ClassA.java",
+				"public class ClassA <K, V, B> implements InterfaceI<K, V> {\n"+
+					" public void addListener() {\n" +
+					"}\n" +
+					"}\n");
+			createFile("/P/ClassB.java",
+					"public class ClassB implements InterfaceI<String, String> {\n"+
+						" public void doSomething() {" +
+						"   addListener();\n"+
+						"}\n" +
+						"}\n");
+			createFile("/P/ClassC.java",
+					"public class ClassC extends ClassA<Integer, String, String> {\n"+
+						" public void doSomething() {" +
+						"   addListener();\n"+
+						"}\n" +
+						"}\n");
+			waitUntilIndexesReady();
+			// search
+			ICompilationUnit unit = getCompilationUnit("/P/ClassB.java");
+			IMethod method = selectMethod(unit, "addListener");
+			this.resultCollector.showRule();
+			search(method, REFERENCES, ERASURE_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("ClassB.java void ClassB.doSomething() [addListener()] EXACT_MATCH\n" + 
+								"ClassC.java void ClassC.doSomething() [addListener()] ERASURE_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug375971f() throws CoreException {
+		try {
+			createJavaProject("P");
+			createFile("/P/InterfaceI.java",
+				"public interface InterfaceI {\n"+
+				" public void addListener();\n"+
+				"}\n");
+			createFile("/P/ClassA.java",
+				"public class ClassA <K, V, B> implements InterfaceI{\n"+
+					" public void addListener() {\n" +
+					"}\n" +
+					"}\n");
+			createFile("/P/ClassB.java",
+					"public class ClassB extends ClassA<String, String, String>{\n"+
+						" public void doSomething() {" +
+						"   addListener();\n"+
+						"}\n" +
+						"}\n");
+			waitUntilIndexesReady();
+			// search
+			IType type = getCompilationUnit("/P/InterfaceI.java").getType("InterfaceI");
+			IMethod method = type.getMethod("addListener", new String[]{});
+			this.resultCollector.showRule();
+			search(method, REFERENCES, ERASURE_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("ClassB.java void ClassB.doSomething() [addListener()] EXACT_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug375971g() throws CoreException {
+		try {
+			createJavaProject("P");
+			createFile("/P/InterfaceI.java",
+				"public interface InterfaceI {\n"+
+				" public void addListener();\n"+
+				"}\n");
+			createFile("/P/ClassA.java",
+				"public class ClassA <K, V, B> implements InterfaceI{\n"+
+					" public void addListener() {\n" +
+					"}\n" +
+					"}\n");
+			createFile("/P/ClassB.java",
+					"public class ClassB<K, V, B> extends ClassA<K, V, B>{\n"+
+						" public void doSomething() {" +
+						"   addListener();\n"+
+						"}\n" +
+						"}\n");
+			waitUntilIndexesReady();
+			// search
+			IType type = getCompilationUnit("/P/InterfaceI.java").getType("InterfaceI");
+			IMethod method = type.getMethod("addListener", new String[]{});
+			this.resultCollector.showRule();
+			search(method, REFERENCES, ERASURE_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("ClassB.java void ClassB.doSomething() [addListener()] EXACT_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug375971h() throws CoreException {
+		try {
+			createJavaProject("P");
+			createFile("/P/InterfaceI.java",
+				"public interface InterfaceI<K,V> {\n"+
+				" public void addListener();\n"+
+				"}\n");
+			createFile("/P/ClassA.java",
+				"public class ClassA <K, V, B> implements InterfaceI<K, V>{\n"+
+					" public void addListener() {\n" +
+					"}\n" +
+					"}\n");
+			createFile("/P/ClassB.java",
+					"public class ClassB<K, V, B> extends ClassA<K, V, B>{\n"+
+						" public void doSomething(InterfaceI<String, String> i) {" +
+						"   i.addListener();\n"+
+						"}\n" +
+						"}\n");
+			waitUntilIndexesReady();
+			// search
+			IType type = getCompilationUnit("/P/ClassA.java").getType("ClassA");
+			IMethod method = type.getMethod("addListener", new String[]{});
+			this.resultCollector.showRule();
+			search(method, REFERENCES, ERASURE_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("ClassB.java void ClassB.doSomething(InterfaceI<String,String>) [addListener()] EXACT_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug375971i() throws CoreException {
+		try {
+			createJavaProject("P");
+			createFile("/P/InterfaceI.java",
+				"public interface InterfaceI<K,V> {\n"+
+				" public void addListener(K k);\n"+
+				"}\n");
+			createFile("/P/ClassA.java",
+				"public class ClassA <K, V, B> implements InterfaceI<K, V>{\n"+
+					"public void addListener(K k) {\n" +
+					"}\n" +
+					"}\n");
+			createFile("/P/ClassB.java",
+					"public class ClassB<K, V, B> extends ClassA<K, V, B>{\n"+
+						" public void doSomething(K k) {" +
+						"   addListener(k);\n"+
+						"}\n" +
+						"}\n");
+			waitUntilIndexesReady();
+			// search
+			IType type = getCompilationUnit("/P/InterfaceI.java").getType("InterfaceI");
+			IMethod method = type.getMethods()[0];
+			this.resultCollector.showRule();
+			search(method, REFERENCES, ERASURE_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("ClassB.java void ClassB.doSomething(K) [addListener(k)] ERASURE_MATCH");
+		} finally {
+			deleteProject("P");
 		}
 	}
 }

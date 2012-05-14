@@ -62,6 +62,28 @@ protected int fineGrain() {
 	return this.pattern.fineGrain;
 }
 
+private ReferenceBinding getMatchingSuper(ReferenceBinding binding) {
+	if (binding == null) return null;
+	ReferenceBinding superBinding = binding.superclass();
+	int level = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, superBinding);
+	if (level != IMPOSSIBLE_MATCH) return superBinding;
+	// matches superclass
+	if (!binding.isInterface() && !CharOperation.equals(binding.compoundName, TypeConstants.JAVA_LANG_OBJECT)) {
+		superBinding = getMatchingSuper(superBinding);
+		if (superBinding != null) return superBinding;
+	}
+	// matches interfaces
+	ReferenceBinding[] interfaces = binding.superInterfaces();
+	if (interfaces == null) return null;
+	for (int i = 0; i < interfaces.length; i++) {
+		level = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, interfaces[i]);
+		if (level != IMPOSSIBLE_MATCH) return interfaces[i];
+		superBinding = getMatchingSuper(interfaces[i]);
+		if (superBinding != null) return superBinding;
+	}
+	return null;
+}
+
 private MethodBinding getMethodBinding(ReferenceBinding type, char[] methodName, TypeBinding[] argumentTypes) {
 	MethodBinding[] methods = type.getMethods(methodName);
 	MethodBinding method = null;
@@ -400,7 +422,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 					}
 				}
 			}
-			matchReportReference((MessageSend)reference, locator, ((MessageSend)reference).binding);
+			matchReportReference((MessageSend)reference, locator, accuracy, ((MessageSend)reference).binding);
 		} else {
 			if (reference instanceof SingleMemberAnnotation) {
 				reference = ((SingleMemberAnnotation)reference).memberValuePairs()[0];
@@ -414,7 +436,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 		}
 	}
 }
-void matchReportReference(MessageSend messageSend, MatchLocator locator, MethodBinding methodBinding) throws CoreException {
+void matchReportReference(MessageSend messageSend, MatchLocator locator, int accuracy, MethodBinding methodBinding) throws CoreException {
 
 	// Look if there's a need to special report for parameterized type
 	boolean isParameterized = false;
@@ -455,7 +477,18 @@ void matchReportReference(MessageSend messageSend, MatchLocator locator, MethodB
 		if (methodBinding.declaringClass.isParameterizedType() || methodBinding.declaringClass.isRawType()) {
 			ParameterizedTypeBinding parameterizedBinding = (ParameterizedTypeBinding)methodBinding.declaringClass;
 			if (!parameterizedBinding.isParameterizedWithOwnVariables()) {
-				updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
+				if ((accuracy & (SUB_INVOCATION_FLAVOR | OVERRIDDEN_METHOD_FLAVOR)) != 0) {
+					// type parameters need to be compared with the class that is really being searched
+					// https://bugs.eclipse.org/375971
+					ReferenceBinding refBinding = getMatchingSuper(((ReferenceBinding)messageSend.actualReceiverType));
+					if (refBinding instanceof ParameterizedTypeBinding) {
+						parameterizedBinding = ((ParameterizedTypeBinding)refBinding);
+					}
+				}
+				if ((accuracy & SUPER_INVOCATION_FLAVOR) == 0) {
+					// not able to get the type parameters if the match is super
+					updateMatch(parameterizedBinding, this.pattern.getTypeArguments(), this.pattern.hasTypeParameters(), 0, locator);
+				}
 			}
 		} else if (this.pattern.hasTypeArguments()) {
 			this.match.setRule(SearchPattern.R_ERASURE_MATCH);
