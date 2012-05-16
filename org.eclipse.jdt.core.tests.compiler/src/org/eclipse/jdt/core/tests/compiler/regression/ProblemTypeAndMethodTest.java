@@ -7949,4 +7949,31 @@ public void test376550_12() {
 		compilerOptions /* custom options */
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=379530
+public void test379530() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+				"X.java", 
+				"public class X<S> {\n" +
+				"   S s;\n" +
+				"	{\n" +
+				"		 S /*[*/s/*]*/;\n" +
+				"		 s= X.this.s;" +
+				"	}\n" +
+				"}"
+		},
+		"",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null,
+		compilerOptions /* custom options */,
+		null
+	);
+}
 }

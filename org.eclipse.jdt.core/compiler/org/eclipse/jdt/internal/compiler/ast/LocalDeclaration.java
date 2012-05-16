@@ -53,12 +53,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			// initialization scope
 			methodScope = methodScope.enclosingMethodScope();
 		}
-		AbstractMethodDeclaration methodDeclaration = methodScope.referenceMethod();
+		AbstractMethodDeclaration methodDeclaration = (methodScope != null) ? methodScope.referenceMethod() : null;
 		if (methodDeclaration != null && methodDeclaration.binding != null) {
 			TypeVariableBinding[] typeVariables = methodDeclaration.binding.typeVariables();
+			if (typeVariables == null) typeVariables = Binding.NO_TYPE_VARIABLES;
 			if (typeVariables == Binding.NO_TYPE_VARIABLES) {
 				// Method declares no type variables.
-				if (typeVariableBinding.declaringElement instanceof TypeBinding)
+				if (typeVariableBinding != null && typeVariableBinding.declaringElement instanceof TypeBinding)
 					currentScope.resetDeclaringClassMethodStaticFlag((TypeBinding) typeVariableBinding.declaringElement);
 				else
 					currentScope.resetEnclosingMethodStaticFlag();
@@ -73,7 +74,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				}
 				if (!usesEnclosingTypeVar) {
 					// uses a type variable not declared by enclosing method
-					if (typeVariableBinding.declaringElement instanceof TypeBinding)
+					if (typeVariableBinding != null && typeVariableBinding.declaringElement instanceof TypeBinding)
 						currentScope.resetDeclaringClassMethodStaticFlag((TypeBinding) typeVariableBinding.declaringElement);
 					else
 						currentScope.resetEnclosingMethodStaticFlag();

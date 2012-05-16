@@ -995,11 +995,13 @@ public void resetDeclaringClassMethodStaticFlag(TypeBinding declaringClass) {
 		ClassScope enclosingClassScope = methodScope.enclosingClassScope();
 		if (enclosingClassScope != null) {
 			TypeDeclaration type = enclosingClassScope.referenceContext;
-			if (type.binding != null && declaringClass != null && type.binding != declaringClass.original()) {
+			if (type != null && type.binding != null && declaringClass != null && type.binding != declaringClass.original()) {
 				methodScope = enclosingClassScope.enclosingMethodScope();
 			} else {
 				break;
 			}
+		} else {
+			break;
 		}
 	}
 }
