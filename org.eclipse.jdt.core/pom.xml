@@ -44,6 +44,7 @@
                   <directory>${project.build.directory}/jdtCompilerAdapter.jar-classes</directory>
                   <excludes>
                     <exclude>org/eclipse/jdt/core/CheckDebugAttributes*.*</exclude>
+                    <exclude>org/eclipse/jdt/core/BuildJarIndex*.*</exclude>
                   </excludes>
                 </fileSet>
               </fileSets>
