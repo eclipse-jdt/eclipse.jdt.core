@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2012 Eclipse Foundation.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Distribution License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/org/documents/edl-v10.php
+ 
+  Contributors:
+     Igor Fedorenko - initial implementation
+-->
+
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>eclipse.jdt.core</artifactId>
+    <groupId>eclipse.jdt.core</groupId>
+    <version>3.8.0-SNAPSHOT</version>
+  </parent>
+  <groupId>eclipse.jdt.core</groupId>
+  <artifactId>org.eclipse.jdt.core</artifactId>
+  <version>3.8.1-SNAPSHOT</version>
+  <packaging>eclipse-plugin</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho.extras</groupId>
+        <artifactId>tycho-custom-bundle-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>antadapter</id>
+            <phase>package</phase>
+            <goals>
+              <goal>custom-bundle</goal>
+            </goals>
+            <configuration>
+              <bundleLocation>${project.basedir}/scripts/antadapter</bundleLocation>
+              <classifier>antadapter</classifier>
+              <fileSets>
+                <fileSet>
+                  <directory>${project.build.directory}/jdtCompilerAdapter.jar-classes</directory>
+                  <excludes>
+                    <exclude>org/eclipse/jdt/core/CheckDebugAttributes*.*</exclude>
+                  </excludes>
+                </fileSet>
+              </fileSets>
+            </configuration>
+          </execution>
+          <execution>
+            <id>batch-compiler</id>
+            <phase>package</phase>
+            <goals>
+              <goal>custom-bundle</goal>
+            </goals>
+            <configuration>
+              <bundleLocation>${project.basedir}/scripts/binary</bundleLocation>
+              <classifier>batch-compiler</classifier>
+              <fileSets>
+                <fileSet>
+                  <directory>${project.build.directory}/classes</directory>
+                  <includes>
+                    <include>org/eclipse/jdt/internal/compiler/**</include>
+                    <include>org/eclipse/jdt/core/compiler/**</include>
+                  </includes>
+                  <excludes>
+                    <exclude>**/package.htm*</exclude>
+                    <exclude>org/eclipse/jdt/core/compiler/CompilationParticipant*.class</exclude>
+                    <exclude>org/eclipse/jdt/core/compiler/BuildContext.class</exclude>
+                    <exclude>org/eclipse/jdt/core/compiler/IScanner.class</exclude>
+                    <exclude>org/eclipse/jdt/core/compiler/ITerminalSymbols*.class</exclude>
+                    <exclude>org/eclipse/jdt/core/compiler/ReconcileContext*.class</exclude>
+                    <exclude>org/eclipse/jdt/internal/compiler/DocumentElementParser*.class</exclude>
+                    <exclude>org/eclipse/jdt/internal/compiler/IDocumentElementRequestor.class</exclude>
+                    <exclude>org/eclipse/jdt/internal/compiler/ISourceElementRequestor*.class</exclude>
+                    <exclude>org/eclipse/jdt/internal/compiler/SourceElementParser*.class</exclude>
+                    <exclude>org/eclipse/jdt/internal/compiler/SourceElementRequestorAdapter*.class</exclude>
+                    <exclude>org/eclipse/jdt/internal/compiler/SourceJavadocParser*.class</exclude>
+                    <exclude>org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class</exclude>
+                  </excludes>
+                </fileSet>
+              </fileSets>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-plugin</artifactId>
+        <version>${tycho.version}</version>
+        <executions>
+          <execution>
+            <id>attached-p2-metadata</id>
+            <phase>package</phase>
+            <goals>
+              <goal>p2-metadata</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
