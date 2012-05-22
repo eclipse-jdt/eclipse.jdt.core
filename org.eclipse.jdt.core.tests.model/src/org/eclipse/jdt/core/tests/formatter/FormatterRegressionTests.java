@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12877,6 +12877,65 @@ public void test783() throws Exception {
 		"		System.out.println(x);\n" + 
 		"	}\n" + 
 		"}"
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=379793
+// To verify that the whitespace options for resources in try statement work correctly
+public void testBug379793() throws Exception {
+	this.formatterPrefs = null;
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "80");
+	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_TRY, JavaCore.INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_SEMICOLON_IN_TRY_RESOURCES, JavaCore.INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION, "1");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "2");
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, "2");
+	this.formatterOptions.put(
+			DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY,
+			DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT));
+	String source =
+		"package test;\n" +
+		"\n" +
+		"public class FormatterError {\n" +
+		"  void jbtnJDBCTest_actionPerformed(final ActionEvent e) {\n" +
+		"    if ((driverClasses != null) && (JDBCURL != null)) {\n" +
+		"      if (test == true) {\n" +
+		"        try (final Connection connection = DriverManager.getConnection(JDBCURL);) {\n" +
+		"          test = (connection != null);\n" +
+		"          if (test == true) {\n" +
+		"            jTextArea1.setText(\"The test was completeted successfully!\");\n" +
+		"          }\n" +
+		"        } catch (final SQLException sx) {\n" +
+		"          jTextArea1\n" +
+		"            .setText(\"\");\n" +
+		"        }\n" +
+		"      }\n" +
+		"    }\n" +
+		"  }\n" +
+		"}\n";
+	formatSource(source,
+		"package test;\n" + 
+		"\n" + 
+		"public class FormatterError {\n" + 
+		"  void jbtnJDBCTest_actionPerformed(final ActionEvent e) {\n" + 
+		"    if ((driverClasses != null) && (JDBCURL != null)) {\n" + 
+		"      if (test == true) {\n" + 
+		"        try (final Connection connection = DriverManager.getConnection(JDBCURL);) {\n" + 
+		"          test = (connection != null);\n" + 
+		"          if (test == true) {\n" + 
+		"            jTextArea1.setText(\"The test was completeted successfully!\");\n" + 
+		"          }\n" + 
+		"        } catch (final SQLException sx) {\n" + 
+		"          jTextArea1.setText(\"\");\n" + 
+		"        }\n" + 
+		"      }\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n"
 	);
 }
 }
