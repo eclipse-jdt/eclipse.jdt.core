@@ -258,7 +258,7 @@ public static Test suite() {
 	suite.addTest(new ClasspathTests("testInvalidInternalJar1"));
 	suite.addTest(new ClasspathTests("testInvalidInternalJar2"));
 	suite.addTest(new ClasspathTests("testInvalidSourceFolder"));
-	suite.addTest(new ClasspathTests("testMissingClasspath"));
+//	suite.addTest(new ClasspathTests("testMissingClasspath"));
 	suite.addTest(new ClasspathTests("testMissingPrereq1"));
 	suite.addTest(new ClasspathTests("testMissingPrereq2"));
 	suite.addTest(new ClasspathTests("testMissingPrereq3"));
