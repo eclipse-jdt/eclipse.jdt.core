@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -22,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class TryWithResourcesStatementTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test061m"};
+//	TESTS_NAMES = new String[] { "test380112e"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -4077,6 +4078,119 @@ public void test375326g() {
 		"	                   ^\n" + 
 		"The local variable a may not have been initialized\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
+public void test380112a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.*;\n" +
+				"interface I extends Closeable, Serializable {}\n" +
+				"public class X {\n"+
+				"    public static void main(String [] args) {\n" +
+				"        try (I i = getX()) {\n" +
+				"        } catch (IOException x) {\n" +
+				"        }\n"+
+				"        System.out.println(\"Done\");\n" +
+				"    }\n" +
+				"    public static I getX() { return null;}\n"+
+				"    public X(){}\n" +
+				"}\n"
+			}, 
+			"Done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
+//variant with finally
+public void test380112b() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.*;\n" +
+				"interface I extends Closeable, Serializable {}\n" +
+				"public class X {\n"+
+				"    public static void main(String [] args) {\n" +
+				"        try (I i = getX()) {\n" +
+				"        } catch (IOException x) {\n" +
+				"        } finally {\n"+
+				"          System.out.println(\"Done\");\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static I getX() { return null;}\n"+
+				"    public X(){}\n" +
+				"}\n"
+			}, 
+			"Done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
+//variant with two methods throwing different Exceptions (one subtype of other)
+//subtype should be the one to be caught
+public void test380112c() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.*;\n" +
+				"interface I2 { public void close() throws FileNotFoundException; }\n"+
+				"interface I extends Closeable, I2 {}\n" +
+				"public class X {\n"+
+				"    public static void main(String [] args) {\n" +
+				"        try (I i = getX()) {\n" +
+				"        } catch (FileNotFoundException x) {\n" +
+				"        }\n"+
+				"        System.out.println(\"Done\");\n" +
+				"    }\n" +
+				"    public static I getX() { return null;}\n"+
+				"    public X(){}\n" +
+				"}\n"
+			}, 
+			"Done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
+//test380112c's variant with finally
+public void test380112d() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.*;\n" +
+				"interface I2 { public void close() throws FileNotFoundException; }\n"+
+				"interface I extends Closeable, I2 {}\n" +
+				"public class X {\n"+
+				"    public static void main(String [] args) {\n" +
+				"        try (I i = getX()) {\n" +
+				"        } catch (FileNotFoundException x) {\n" +
+				"        } finally {\n"+
+				"          System.out.println(\"Done\");\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static I getX() { return null;}\n"+
+				"    public X(){}\n" +
+				"}\n"
+			}, 
+			"Done");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
+//test380112a variant moving the Interface into a binary
+public void test380112e() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test380112.jar";
+	String[] defaultLibs = getDefaultClassPaths();
+	String[] libs = new String[defaultLibs.length + 1];
+	System.arraycopy(defaultLibs, 0, libs, 0, defaultLibs.length);
+	libs[defaultLibs.length] = path;
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.*;\n" +
+				"import pkg380112.I;\n" +
+				"public class X {\n"+
+				"    public static void main(String [] args) {\n" +
+				"        try (I i = getX()) {\n" +
+				"        } catch (IOException x) {\n" +
+				"        }\n"+
+				"        System.out.println(\"Done\");\n" +
+				"    }\n" +
+				"    public static I getX() { return null;}\n"+
+				"    public X(){}\n" +
+				"}\n"
+			}, "Done", libs, true, new String[] {"-cp", path});
 }
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;

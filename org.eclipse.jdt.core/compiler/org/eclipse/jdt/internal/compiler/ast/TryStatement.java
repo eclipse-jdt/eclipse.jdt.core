@@ -129,9 +129,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		FlowInfo tryInfo = flowInfo.copy();
 		for (int i = 0; i < resourcesLength; i++) {
-			tryInfo = this.resources[i].analyseCode(currentScope, handlingContext, tryInfo);
+			final LocalDeclaration resource = this.resources[i];
+			tryInfo = resource.analyseCode(currentScope, handlingContext, tryInfo);
 			this.postResourcesInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(tryInfo);
-			LocalVariableBinding resourceBinding = this.resources[i].binding;
+			LocalVariableBinding resourceBinding = resource.binding;
 			resourceBinding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
 			if (resourceBinding.closeTracker != null) {
 				// this was false alarm, we don't need to track the resource
@@ -142,7 +143,24 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (type != null && type.isValidBinding()) {
 				ReferenceBinding binding = (ReferenceBinding) type;
 				MethodBinding closeMethod = binding.getExactMethod(ConstantPool.Close, new TypeBinding [0], this.scope.compilationUnitScope()); // scope needs to be tighter
-				if (closeMethod != null && closeMethod.returnType.id == TypeIds.T_void) {
+				if(closeMethod == null) {
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
+					// closeMethod could be null if the binding is from an interface
+					// extending from multiple interfaces.					
+					InvocationSite site = new InvocationSite() {
+						public TypeBinding[] genericTypeArguments() { return null;}
+						public boolean isSuperAccess() {return false;}
+						public boolean isTypeAccess() {return false;}
+						public void setActualReceiverType(ReferenceBinding receiverType) {/* empty */}
+						public void setDepth(int depth) {/* empty */ }
+						public void setFieldIndex(int depth) {/* empty */ }
+						public int sourceEnd() {return resource.sourceEnd(); }
+						public int sourceStart() {return resource.sourceStart(); }
+						public TypeBinding expectedType() { return null; }
+					};
+					closeMethod = this.scope.compilationUnitScope().findMethod(binding, ConstantPool.Close, new TypeBinding[0], site, false);
+				}
+				if (closeMethod != null && closeMethod.isValidBinding() && closeMethod.returnType.id == TypeIds.T_void) {
 					ReferenceBinding[] thrownExceptions = closeMethod.thrownExceptions;
 					for (int j = 0, length = thrownExceptions.length; j < length; j++) {
 						handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[i], tryInfo, currentScope, true);
@@ -269,9 +287,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		FlowInfo tryInfo = flowInfo.copy();
 		for (int i = 0; i < resourcesLength; i++) {
-			tryInfo = this.resources[i].analyseCode(currentScope, handlingContext, tryInfo);
+			final LocalDeclaration resource = this.resources[i];
+			tryInfo = resource.analyseCode(currentScope, handlingContext, tryInfo);
 			this.postResourcesInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(tryInfo);
-			LocalVariableBinding resourceBinding = this.resources[i].binding;
+			LocalVariableBinding resourceBinding = resource.binding;
 			resourceBinding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
 			if (resourceBinding.closeTracker != null) {
 				// this was false alarm, we don't need to track the resource
@@ -282,7 +301,24 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (type != null && type.isValidBinding()) {
 				ReferenceBinding binding = (ReferenceBinding) type;
 				MethodBinding closeMethod = binding.getExactMethod(ConstantPool.Close, new TypeBinding [0], this.scope.compilationUnitScope()); // scope needs to be tighter
-				if (closeMethod != null && closeMethod.returnType.id == TypeIds.T_void) {
+				if(closeMethod == null) {
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
+					// closeMethod could be null if the binding is from an interface
+					// extending from multiple interfaces.
+					InvocationSite site = new InvocationSite() {
+						public TypeBinding[] genericTypeArguments() { return null;}
+						public boolean isSuperAccess() {return false;}
+						public boolean isTypeAccess() {return false;}
+						public void setActualReceiverType(ReferenceBinding receiverType) {/* empty */}
+						public void setDepth(int depth) {/* empty */ }
+						public void setFieldIndex(int depth) {/* empty */ }
+						public int sourceEnd() {return resource.sourceEnd(); }
+						public int sourceStart() {return resource.sourceStart(); }
+						public TypeBinding expectedType() { return null; }
+					};
+					closeMethod = this.scope.compilationUnitScope().findMethod(binding, ConstantPool.Close, new TypeBinding[0], site, false);
+				}
+				if (closeMethod != null && closeMethod.isValidBinding() && closeMethod.returnType.id == TypeIds.T_void) {
 					ReferenceBinding[] thrownExceptions = closeMethod.thrownExceptions;
 					for (int j = 0, length = thrownExceptions.length; j < length; j++) {
 						handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[i], tryInfo, currentScope, true);
