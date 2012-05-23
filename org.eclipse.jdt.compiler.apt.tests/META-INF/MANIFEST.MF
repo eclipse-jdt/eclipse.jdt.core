@@ -19,3 +19,4 @@ Export-Package: org.eclipse.jdt.compiler.apt.tests,
  org.eclipse.jdt.compiler.apt.tests.processors.genclass,
  org.eclipse.jdt.compiler.apt.tests.processors.visitors
 Import-Package: org.eclipse.jdt.internal.compiler.tool;resolution:=optional
+Eclipse-BundleShape: dir

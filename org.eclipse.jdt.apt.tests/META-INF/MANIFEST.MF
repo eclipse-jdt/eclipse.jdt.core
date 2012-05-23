@@ -41,3 +41,4 @@ Require-Bundle: org.junit,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: %providerName
+Eclipse-BundleShape: dir
