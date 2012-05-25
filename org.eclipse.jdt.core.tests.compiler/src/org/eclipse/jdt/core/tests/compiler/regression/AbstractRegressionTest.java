@@ -489,7 +489,10 @@ protected static class JavacTestOptions {
 		}
 		Excuse excuseFor(JavacCompiler compiler) {
 			if (this.minorsFixed != null) {
-				if (compiler.compliance == ClassFileConstants.JDK1_7) {
+				if (compiler.compliance == ClassFileConstants.JDK1_8) {
+					return this.minorsFixed[5] > compiler.minor || this.minorsFixed[5] < 0 ?
+							this : null;
+				} else if (compiler.compliance == ClassFileConstants.JDK1_7) {
 					return this.minorsFixed[4] > compiler.minor || this.minorsFixed[4] < 0 ?
 							this : null;
 				} else if (compiler.compliance == ClassFileConstants.JDK1_6) {
@@ -841,6 +844,8 @@ protected static class JavacTestOptions {
 			buffer.append("\" -1.6 -proc:none");
 		} else if (this.complianceLevel == ClassFileConstants.JDK1_7) {
 			buffer.append("\" -1.7 -proc:none");
+		} else if (this.complianceLevel == ClassFileConstants.JDK1_8) {
+			buffer.append("\" -1.8 -proc:none");
 		}
 		buffer
 			.append(" -preserveAllLocals -nowarn -g -classpath \"")

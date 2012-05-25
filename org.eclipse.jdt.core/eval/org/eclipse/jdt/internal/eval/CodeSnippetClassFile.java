@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -56,6 +60,12 @@ public CodeSnippetClassFile(
 	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 
 	long targetVersion = this.targetJDK = this.referenceBinding.scope.compilerOptions().targetJDK;
+	if (this.targetJDK == ClassFileConstants.JDK1_8) {
+		//TODO JAVA8: Version number is not yet updated in the java8 beta...
+		//Remove this after it is upgraded
+		targetVersion = this.targetJDK = ClassFileConstants.JDK1_7;
+	}
+	//TODO: Might have to update even for CLDC_1_1
 	this.header[this.headerOffset++] = (byte) (targetVersion >> 8); // minor high
 	this.header[this.headerOffset++] = (byte) (targetVersion >> 0); // minor low
 	this.header[this.headerOffset++] = (byte) (targetVersion >> 24); // major high
