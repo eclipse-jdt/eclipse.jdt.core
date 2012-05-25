@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -108,6 +112,17 @@ public static Test suite() {
 	ArrayList since_1_6 = new ArrayList();
 	since_1_6.add(StackMapAttributeTest.class);
 	since_1_6.add(Compliance_1_6.class);
+	
+	ArrayList since_1_7 = new ArrayList();
+	since_1_7.add(AssignmentTest_1_7.class);
+	since_1_7.add(BinaryLiteralTest.class);
+	since_1_7.add(UnderscoresInLiteralsTest.class);
+	since_1_7.add(TryStatement17Test.class);
+	since_1_7.add(TryWithResourcesStatementTest.class);
+	since_1_7.add(GenericsRegressionTest_1_7.class);
+	since_1_7.add(PolymorphicSignatureTest.class);
+	since_1_7.add(Compliance_1_7.class);
+	
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
@@ -170,14 +185,7 @@ public static Test suite() {
 		tests_1_7.addAll(since_1_4);
 		tests_1_7.addAll(since_1_5);
 		tests_1_7.addAll(since_1_6);
-		tests_1_7.add(AssignmentTest_1_7.class);
-		tests_1_7.add(BinaryLiteralTest.class);
-		tests_1_7.add(UnderscoresInLiteralsTest.class);
-		tests_1_7.add(TryStatement17Test.class);
-		tests_1_7.add(TryWithResourcesStatementTest.class);
-		tests_1_7.add(GenericsRegressionTest_1_7.class);
-		tests_1_7.add(PolymorphicSignatureTest.class);
-		tests_1_7.add(Compliance_1_7.class);
+		tests_1_7.addAll(since_1_7);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
@@ -185,6 +193,20 @@ public static Test suite() {
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_7, tests_1_7));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_8) != 0) {
+		ArrayList tests_1_8 = (ArrayList)standardTests.clone();
+		tests_1_8.addAll(since_1_4);
+		tests_1_8.addAll(since_1_5);
+		tests_1_8.addAll(since_1_6);
+		tests_1_8.addAll(since_1_7);
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_8, tests_1_8));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;
