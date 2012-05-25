@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -36,6 +40,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_1_5 = 0x04;
 	public static final int F_1_6 = 0x08;
 	public static final int F_1_7 = 0x10;
+	public static final int F_1_8 = 0x20;
 
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	private static final int UNINITIALIZED = -1;
@@ -74,6 +79,9 @@ public class AbstractCompilerTest extends TestCase {
 		if ((complianceLevels & AbstractCompilerTest.F_1_7) != 0) {
 			suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_7));
 		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_8) != 0) {
+			suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_8));
+		}
 	}
 
 	/**
@@ -103,6 +111,9 @@ public class AbstractCompilerTest extends TestCase {
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_7) != 0) {
 			suite.addTest(buildComplianceTestSuite(testClasses, setupClass, ClassFileConstants.JDK1_7));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_8) != 0) {
+			suite.addTest(buildComplianceTestSuite(testClasses, setupClass, ClassFileConstants.JDK1_8));
 		}
 		return suite;
 	}
@@ -215,6 +226,14 @@ public class AbstractCompilerTest extends TestCase {
 				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_7));
 			}
 		}
+		int level18 = complianceLevels & AbstractCompilerTest.F_1_8;
+		if (level18 != 0) {
+			if (level18 < minimalCompliance) {
+				System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+CompilerOptions.versionFromJdkLevel(ClassFileConstants.JDK1_8)+"!");
+			} else {
+				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_8));
+			}
+		}
 		return suite;
 	}
 
@@ -259,6 +278,9 @@ public class AbstractCompilerTest extends TestCase {
 	 */
 	public static long highestComplianceLevels() {
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		if ((complianceLevels & AbstractCompilerTest.F_1_8) != 0) {
+			return ClassFileConstants.JDK1_8;
+		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_7) != 0) {
 			return ClassFileConstants.JDK1_7;
 		}
@@ -291,6 +313,8 @@ public class AbstractCompilerTest extends TestCase {
 					possibleComplianceLevels = F_1_6;
 				} else if (CompilerOptions.VERSION_1_7.equals(compliance)) {
 					possibleComplianceLevels = F_1_7;
+				} else if (CompilerOptions.VERSION_1_8.equals(compliance)) {
+					possibleComplianceLevels = F_1_8;
 				} else {
 					System.out.println("Invalid compliance specified (" + compliance + ")");
 					System.out.print("Use one of ");
@@ -298,7 +322,8 @@ public class AbstractCompilerTest extends TestCase {
 					System.out.print(CompilerOptions.VERSION_1_4 + ", ");
 					System.out.print(CompilerOptions.VERSION_1_5 + ", ");
 					System.out.print(CompilerOptions.VERSION_1_6 + ", ");
-					System.out.println(CompilerOptions.VERSION_1_7);
+					System.out.print(CompilerOptions.VERSION_1_7 + ", ");
+					System.out.println(CompilerOptions.VERSION_1_8);
 					System.out.println("Defaulting to all possible compliances");
 				}
 			}
@@ -325,6 +350,10 @@ public class AbstractCompilerTest extends TestCase {
 					if (canRun1_7) {
 						possibleComplianceLevels |= F_1_7;
 					}
+					boolean canRun1_8 = canRun1_7 && !CompilerOptions.VERSION_1_7.equals(specVersion);
+					if (canRun1_8) {
+						possibleComplianceLevels |= F_1_8;
+					}
 				} else if ("1.0".equals(specVersion)
 							|| CompilerOptions.VERSION_1_1.equals(specVersion)
 							|| CompilerOptions.VERSION_1_2.equals(specVersion)
@@ -337,6 +366,9 @@ public class AbstractCompilerTest extends TestCase {
 						possibleComplianceLevels |= F_1_6;
 						if (!CompilerOptions.VERSION_1_6.equals(specVersion)) {
 							possibleComplianceLevels |= F_1_7;
+							if (!CompilerOptions.VERSION_1_7.equals(specVersion)) {
+								possibleComplianceLevels |= F_1_8;
+							}
 						}
 					}
 				}
@@ -465,6 +497,10 @@ public class AbstractCompilerTest extends TestCase {
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+		} else if (this.complianceLevel == ClassFileConstants.JDK1_8) {
+			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 		}
 		return options;
 	}

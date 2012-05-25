@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -177,6 +181,7 @@ public class CompilerOptions {
 	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
 	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$
 	public static final String VERSION_1_7 = "1.7"; //$NON-NLS-1$
+	public static final String VERSION_1_8 = "1.8"; //$NON-NLS-1$
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String IGNORE = "ignore"; //$NON-NLS-1$
@@ -658,6 +663,10 @@ public class CompilerOptions {
 				if (jdkLevel == ClassFileConstants.JDK1_7)
 					return VERSION_1_7;
 				break;
+			case ClassFileConstants.MAJOR_VERSION_1_8 :
+				if (jdkLevel == ClassFileConstants.JDK1_8)
+					return VERSION_1_8;
+				break;
 		}
 		return Util.EMPTY_STRING; // unknown version
 	}
@@ -682,6 +691,8 @@ public class CompilerOptions {
 						return ClassFileConstants.JDK1_6;
 					case '7':
 						return ClassFileConstants.JDK1_7;
+					case '8':
+						return ClassFileConstants.JDK1_8;
 					default:
 						return 0; // unknown
 				}
