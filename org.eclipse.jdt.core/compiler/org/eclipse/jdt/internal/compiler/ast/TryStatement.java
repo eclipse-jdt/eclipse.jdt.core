@@ -175,6 +175,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		if (resourcesLength > 0) { 
 			this.postTryInitStateIndex = currentScope.methodScope().recordInitializationStates(tryInfo);
+			// the resources are not in scope after the try block, so remove their assignment info
+			// to avoid polluting the state indices. However, do this after the postTryInitStateIndex is calculated since
+			// it is used to add or remove assigned resources during code gen
+			for (int i = 0; i < resourcesLength; i++) {
+				tryInfo.resetAssignmentInfo(this.resources[i].binding);
+			}
 		}
 		// check unreachable catch blocks
 		handlingContext.complainIfUnusedExceptionHandlers(this.scope, this);
@@ -333,6 +339,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		if (resourcesLength > 0) {
 			this.postTryInitStateIndex = currentScope.methodScope().recordInitializationStates(tryInfo);
+			// the resources are not in scope after the try block, so remove their assignment info
+			// to avoid polluting the state indices. However, do this after the postTryInitStateIndex is calculated since
+			// it is used to add or remove assigned resources during code gen
+			for (int i = 0; i < resourcesLength; i++) {
+				tryInfo.resetAssignmentInfo(this.resources[i].binding);
+			}
 		}
 		// check unreachable catch blocks
 		handlingContext.complainIfUnusedExceptionHandlers(this.scope, this);

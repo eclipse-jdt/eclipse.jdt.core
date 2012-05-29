@@ -39,8 +39,18 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			flowInfo = stat.analyseCode(this.scope, flowContext, flowInfo);
 		}
 	}
-	if (this.explicitDeclarations > 0) // if block has its own scope analyze tracking vars now:
+	if (this.explicitDeclarations > 0) {
+		// if block has its own scope analyze tracking vars now:
 		this.scope.checkUnclosedCloseables(flowInfo, flowContext, null, null);
+		// cleanup assignment info for locals that are scoped to this block:
+		LocalVariableBinding[] locals = this.scope.locals;
+		if (locals != null) {
+			int numLocals = this.scope.localIndex;
+			for (int i = 0; i < numLocals; i++) {
+				flowInfo.resetAssignmentInfo(locals[i]);
+			}
+		}
+	}
 	return flowInfo;
 }
 /**

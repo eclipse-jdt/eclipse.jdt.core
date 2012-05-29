@@ -31,8 +31,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class FlowAnalysisTest extends AbstractRegressionTest {
 static {
-//	TESTS_NAMES = new String[] { "testLocalClassInInitializer1" };
-//	TESTS_NUMBERS = new int[] { 69 };
+//	TESTS_NAMES = new String[] { "testBug380313" };
+//	TESTS_NUMBERS = new int[] { 43 };
 }
 public FlowAnalysisTest(String name) {
 	super(name);
@@ -2495,6 +2495,89 @@ public void testLocalClassInInitializer2() {
 			"	     ^^^^^^^^^\n" + 
 			"continue cannot be used outside of a loop\n" + 
 			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380313
+// Verify that the code runs fine with all compliance levels.
+public void testBug380313() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"public void foo() throws Exception {\n" + 
+				"        int i = 1;\n" + 
+				"        int j = 2;\n" + 
+				"        try {\n" + 
+				"            if ((bar() == 1)) {\n" + 
+				"                if ((i == 1)) {\n" + 
+				"                    int n = bar();\n" + 
+				"                    if (n == 35) {\n" + 
+				"                        j = 2;\n" + 
+				"                    } else {\n" + 
+				"                        if (bar() > 0)\n" + 
+				"                            return;\n" + 
+				"                    }\n" + 
+				"                } else {\n" + 
+				"                    throw new Exception();\n" + 
+				"                }\n" + 
+				"            } else {\n" + 
+				"                throw new Exception();\n" + 
+				"            }\n" + 
+				"            if (bar() == 0)\n" + 
+				"                return;\n" + 
+				"        } finally {\n" + 
+				"            bar();\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private int bar() {\n" + 
+				"        return 0;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"    }\n" +
+				"}\n"
+			}, 
+			"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380313
+// try with resources
+// Verify that the code runs fine with all compliance levels.
+public void testBug380313b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.FileInputStream;\n" +
+				"import java.io.IOException;\n" +
+				"public class X {\n" +
+				"public void foo() throws Exception {\n" + 
+				"        int i = 1;\n" + 
+				"        try {\n" + 
+				"            try (FileInputStream fis = new FileInputStream(\"\")) {\n" +
+				"				 if (i == 2)" + 
+				"                	return;\n" + 
+				" 			 }\n" + 
+				"            if (i == 35) \n" + 
+				"                return;\n" + 
+				"        } catch(IOException e) {\n" + 
+				"            bar();\n" + 
+				"        } finally {\n" + 
+				"            bar();\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private int bar() {\n" + 
+				"        return 0;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"    }\n" +
+				"}\n"
+			}, 
+			"");
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;
