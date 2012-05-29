@@ -105,7 +105,7 @@ public class ForeachStatement extends Statement {
 
 			// code generation can be optimized when no need to continue in the loop
 			exitBranch = flowInfo.unconditionalCopy().
-					addNullInfoFrom(condInfo.initsWhenFalse());
+					addInitializationsFrom(condInfo.initsWhenFalse());
 			// TODO (maxime) no need to test when false: can optimize (same for action being unreachable above)
 			if ((actionInfo.tagBits & loopingContext.initsOnContinue.tagBits &
 					FlowInfo.UNREACHABLE_OR_DEAD) != 0) {
@@ -153,6 +153,7 @@ public class ForeachStatement extends Statement {
 									exitBranch,
 									false,
 									true /*for(;;){}while(true); unreachable(); */);
+		mergedInfo.resetAssignmentInfo(this.elementVariable.binding);
 		this.mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		return mergedInfo;
 	}
