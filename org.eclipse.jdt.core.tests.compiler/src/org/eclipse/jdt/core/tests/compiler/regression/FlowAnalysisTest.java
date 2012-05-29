@@ -2579,6 +2579,29 @@ public void testBug380313b() {
 			}, 
 			"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380750
+// verify that s0 is not reported as uninitialized
+public void testBug380750() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(String[] args) {\n" + 
+				"		String s0;\n" + 
+				"		for(String s : singleton(s0=\"\")) {\n" + 
+				"			System.out.println(s);\n" + 
+				"		}\n" + 
+				"		System.out.println(s0);\n" + 
+				"	}\n" + 
+				"	String[] singleton(String s) {\n" + 
+				"		return new String[] {s};\n" + 
+				"	}\n" + 
+				"}\n"
+			}, 
+			"");
+}
 public static Class testClass() {
 	return FlowAnalysisTest.class;
 }
