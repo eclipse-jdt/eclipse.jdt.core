@@ -34,7 +34,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "testBug95521";
-//		TESTS_NAMES = new String[] { "testBug359495" };
+//		TESTS_NAMES = new String[] { "testBug380313" };
 //		TESTS_NUMBERS = new int[] { 53 };
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
@@ -7615,5 +7615,301 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"}\n"
 				},
 				"SUCCESS");
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380313
+	// Verify the generated code does not have same branch target for the 2 return statements
+	public void testBug380313() throws Exception {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"public void foo() throws Exception {\n" + 
+						"        int i = 1;\n" + 
+						"        try {\n" + 
+						"            if (i == 1) {\n" + 
+						"                int n = bar();\n" + 
+						"                if (n == 35)\n" + 
+						"                   return;\n" + 
+						"            } else {\n" + 
+						"                throw new Exception();\n" + 
+						"            }\n" + 
+						"            if (i == 0)\n" + 
+						"               return;\n" + 
+						"        } finally {\n" + 
+						"            bar();\n" + 
+						"        }\n" + 
+						"    }\n" + 
+						"\n" + 
+						"    private int bar() {\n" + 
+						"        return 0;\n" + 
+						"    }\n" + 
+						"\n" + 
+						"    public static void main(String[] args) {\n" +
+						"		System.out.println(\"SUCCESS\");\n" + 
+						"    }\n" +
+						"}\n"
+				},
+				"SUCCESS");
+
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);
+
+			String expectedOutput =
+					"  // Method descriptor #6 ()V\n" + 
+					"  // Stack: 2, Locals: 4\n" + 
+					"  public void foo() throws java.lang.Exception;\n" + 
+					"     0  iconst_1\n" + 
+					"     1  istore_1 [i]\n" + 
+					"     2  iload_1 [i]\n" + 
+					"     3  iconst_1\n" + 
+					"     4  if_icmpne 24\n" + 
+					"     7  aload_0 [this]\n" + 
+					"     8  invokespecial X.bar() : int [18]\n" + 
+					"    11  istore_2 [n]\n" + 
+					"    12  iload_2 [n]\n" + 
+					"    13  bipush 35\n" + 
+					"    15  if_icmpne 32\n" + 
+					"    18  aload_0 [this]\n" + 
+					"    19  invokespecial X.bar() : int [18]\n" + 
+					"    22  pop\n" + 
+					"    23  return\n" + 
+					"    24  new java.lang.Exception [16]\n" + 
+					"    27  dup\n" + 
+					"    28  invokespecial java.lang.Exception() [22]\n" + 
+					"    31  athrow\n" + 
+					"    32  iload_1 [i]\n" + 
+					"    33  ifne 50\n" + 
+					"    36  aload_0 [this]\n" + 
+					"    37  invokespecial X.bar() : int [18]\n" + 
+					"    40  pop\n" + 
+					"    41  return\n" + 
+					"    42  astore_3\n" + 
+					"    43  aload_0 [this]\n" + 
+					"    44  invokespecial X.bar() : int [18]\n" + 
+					"    47  pop\n" + 
+					"    48  aload_3\n" + 
+					"    49  athrow\n" + 
+					"    50  aload_0 [this]\n" + 
+					"    51  invokespecial X.bar() : int [18]\n" + 
+					"    54  pop\n" + 
+					"    55  return\n" + 
+					"      Exception Table:\n" + 
+					"        [pc: 2, pc: 18] -> 42 when : any\n" + 
+					"        [pc: 24, pc: 36] -> 42 when : any\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 3]\n" + 
+					"        [pc: 2, line: 5]\n" + 
+					"        [pc: 7, line: 6]\n" + 
+					"        [pc: 12, line: 7]\n" + 
+					"        [pc: 18, line: 15]\n" + 
+					"        [pc: 23, line: 8]\n" + 
+					"        [pc: 24, line: 10]\n" + 
+					"        [pc: 32, line: 12]\n" + 
+					"        [pc: 36, line: 15]\n" + 
+					"        [pc: 41, line: 13]\n" + 
+					"        [pc: 42, line: 14]\n" + 
+					"        [pc: 43, line: 15]\n" + 
+					"        [pc: 48, line: 16]\n" + 
+					"        [pc: 50, line: 15]\n" + 
+					"        [pc: 55, line: 17]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 56] local: this index: 0 type: X\n" + 
+					"        [pc: 2, pc: 56] local: i index: 1 type: int\n" + 
+					"        [pc: 12, pc: 24] local: n index: 2 type: int\n" + 
+					"      Stack map table: number of frames 4\n" + 
+					"        [pc: 24, append: {int}]\n" + 
+					"        [pc: 32, same]\n" + 
+					"        [pc: 42, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" + 
+					"        [pc: 50, same]\n";
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380313
+	// Verify the generated code does not have same branch target for the 2 return statements
+	public void testBug380313b() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK1_7)
+			return;
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"import java.io.FileInputStream;\n" +
+						"import java.io.IOException;\n" +
+						"public class X {\n" +
+						"public void foo() throws Exception {\n" + 
+						"        int i = 1;\n" + 
+						"        try {\n" + 
+						"            try (FileInputStream fis = new FileInputStream(\"\")) {\n" +
+						"				 if (i == 2)" + 
+						"                	return;\n" + 
+						" 			 }\n" + 
+						"            if (i == 35) \n" + 
+						"                return;\n" + 
+						"        } catch(IOException e) {\n" + 
+						"            bar();\n" + 
+						"        } finally {\n" + 
+						"            bar();\n" + 
+						"        }\n" + 
+						"    }\n" + 
+						"\n" + 
+						"    private int bar() {\n" + 
+						"        return 0;\n" + 
+						"    }\n" + 
+						"\n" + 
+						"    public static void main(String[] args) {\n" +
+						"		System.out.println(\"SUCCESS\");\n" + 
+						"    }\n" +
+						"}\n"
+					}, 
+				"SUCCESS");
+
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);
+
+			String expectedOutput =
+					"  // Method descriptor #6 ()V\n" + 
+					"  // Stack: 3, Locals: 6\n" + 
+					"  public void foo() throws java.lang.Exception;\n" + 
+					"      0  iconst_1\n" + 
+					"      1  istore_1 [i]\n" + 
+					"      2  aconst_null\n" + 
+					"      3  astore_2\n" + 
+					"      4  aconst_null\n" + 
+					"      5  astore_3\n" + 
+					"      6  new java.io.FileInputStream [18]\n" + 
+					"      9  dup\n" + 
+					"     10  ldc <String \"\"> [20]\n" + 
+					"     12  invokespecial java.io.FileInputStream(java.lang.String) [22]\n" + 
+					"     15  astore 4 [fis]\n" + 
+					"     17  iload_1 [i]\n" + 
+					"     18  iconst_2\n" + 
+					"     19  if_icmpne 38\n" + 
+					"     22  aload 4 [fis]\n" + 
+					"     24  ifnull 32\n" + 
+					"     27  aload 4 [fis]\n" + 
+					"     29  invokevirtual java.io.FileInputStream.close() : void [25]\n" + 
+					"     32  aload_0 [this]\n" + // return 1
+					"     33  invokespecial X.bar() : int [28]\n" + 
+					"     36  pop\n" + 
+					"     37  return\n" + 
+					"     38  aload 4 [fis]\n" + 
+					"     40  ifnull 86\n" + 
+					"     43  aload 4 [fis]\n" + 
+					"     45  invokevirtual java.io.FileInputStream.close() : void [25]\n" + 
+					"     48  goto 86\n" + 
+					"     51  astore_2\n" + 
+					"     52  aload 4 [fis]\n" + 
+					"     54  ifnull 62\n" + 
+					"     57  aload 4 [fis]\n" + 
+					"     59  invokevirtual java.io.FileInputStream.close() : void [25]\n" + 
+					"     62  aload_2\n" + 
+					"     63  athrow\n" + 
+					"     64  astore_3\n" + 
+					"     65  aload_2\n" + 
+					"     66  ifnonnull 74\n" + 
+					"     69  aload_3\n" + 
+					"     70  astore_2\n" + 
+					"     71  goto 84\n" + 
+					"     74  aload_2\n" + 
+					"     75  aload_3\n" + 
+					"     76  if_acmpeq 84\n" + 
+					"     79  aload_2\n" + 
+					"     80  aload_3\n" + 
+					"     81  invokevirtual java.lang.Throwable.addSuppressed(java.lang.Throwable) : void [32]\n" + 
+					"     84  aload_2\n" + 
+					"     85  athrow\n" + 
+					"     86  iload_1 [i]\n" + 
+					"     87  bipush 35\n" + 
+					"     89  if_icmpne 122\n" + 
+					"     92  aload_0 [this]\n" + 	// return 2
+					"     93  invokespecial X.bar() : int [28]\n" + 
+					"     96  pop\n" + 
+					"     97  return\n" + 
+					"     98  astore_2 [e]\n" + 
+					"     99  aload_0 [this]\n" + 
+					"    100  invokespecial X.bar() : int [28]\n" + 
+					"    103  pop\n" + 
+					"    104  aload_0 [this]\n" + 
+					"    105  invokespecial X.bar() : int [28]\n" + 
+					"    108  pop\n" + 
+					"    109  goto 127\n" + 
+					"    112  astore 5\n" + 
+					"    114  aload_0 [this]\n" + 
+					"    115  invokespecial X.bar() : int [28]\n" + 
+					"    118  pop\n" + 
+					"    119  aload 5\n" + 
+					"    121  athrow\n" + 
+					"    122  aload_0 [this]\n" + 
+					"    123  invokespecial X.bar() : int [28]\n" + 
+					"    126  pop\n" + 
+					"    127  return\n" + 
+					"      Exception Table:\n" + 
+					"        [pc: 17, pc: 22] -> 51 when : any\n" + 
+					"        [pc: 32, pc: 38] -> 51 when : any\n" + 
+					"        [pc: 6, pc: 64] -> 64 when : any\n" + 
+					"        [pc: 2, pc: 32] -> 98 when : java.io.IOException\n" + 
+					"        [pc: 38, pc: 92] -> 98 when : java.io.IOException\n" + 
+					"        [pc: 2, pc: 32] -> 112 when : any\n" + 
+					"        [pc: 38, pc: 92] -> 112 when : any\n" + 
+					"        [pc: 98, pc: 104] -> 112 when : any\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 5]\n" + 
+					"        [pc: 2, line: 7]\n" + 
+					"        [pc: 17, line: 8]\n" + 
+					"        [pc: 22, line: 9]\n" + 
+					"        [pc: 32, line: 15]\n" + 
+					"        [pc: 37, line: 8]\n" + 
+					"        [pc: 38, line: 9]\n" + 
+					"        [pc: 86, line: 10]\n" + 
+					"        [pc: 92, line: 15]\n" + 
+					"        [pc: 97, line: 11]\n" + 
+					"        [pc: 98, line: 12]\n" + 
+					"        [pc: 99, line: 13]\n" + 
+					"        [pc: 104, line: 15]\n" + 
+					"        [pc: 112, line: 14]\n" + 
+					"        [pc: 114, line: 15]\n" + 
+					"        [pc: 119, line: 16]\n" + 
+					"        [pc: 122, line: 15]\n" + 
+					"        [pc: 127, line: 17]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 128] local: this index: 0 type: X\n" + 
+					"        [pc: 2, pc: 128] local: i index: 1 type: int\n" + 
+					"        [pc: 17, pc: 62] local: fis index: 4 type: java.io.FileInputStream\n" + 
+					"        [pc: 99, pc: 104] local: e index: 2 type: java.io.IOException\n" + 
+					"      Stack map table: number of frames 12\n" + 
+					"        [pc: 32, full, stack: {}, locals: {X, int, java.lang.Throwable, java.lang.Throwable, java.io.FileInputStream}]\n" + 
+					"        [pc: 38, same]\n" + 
+					"        [pc: 51, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" + 
+					"        [pc: 62, chop 1 local(s)]\n" + 
+					"        [pc: 64, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" + 
+					"        [pc: 74, same]\n" + 
+					"        [pc: 84, same]\n" + 
+					"        [pc: 86, chop 2 local(s)]\n" + 
+					"        [pc: 98, same_locals_1_stack_item, stack: {java.io.IOException}]\n" + 
+					"        [pc: 112, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" + 
+					"        [pc: 122, same]\n" + 
+					"        [pc: 127, same]\n";
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
 	}
 }
