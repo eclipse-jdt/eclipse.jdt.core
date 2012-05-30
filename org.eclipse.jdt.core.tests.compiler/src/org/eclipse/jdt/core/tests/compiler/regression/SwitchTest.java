@@ -2164,6 +2164,37 @@ public void testBug374605() {
 			options
 		);	
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+public void testBug380927() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
+		return;
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public final static Object f() {\n" +
+				"        final Object a = null;\n" +
+				"        Object b;\n" +
+				"        label: do {\n" +
+				"            switch (0) {\n" +
+				"            case 1: {\n" +
+				"                b = a;\n" +
+				"            }\n" +
+				"                break;\n" +
+				"            default:\n" +
+				"                break label;\n" +
+				"            }\n" +
+				"        } while (true);\n" +
+				"        return a;\n" +
+				"    }\n" +
+				"    public static void main(final String[] args) {\n" +
+				"        f();\n" +
+				"        System.out.println(\"Success\");\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"Success");	
+}
 public static Class testClass() {
 	return SwitchTest.class;
 }
