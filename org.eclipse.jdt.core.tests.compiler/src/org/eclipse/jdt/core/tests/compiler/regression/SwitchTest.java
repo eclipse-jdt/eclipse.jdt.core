@@ -2166,8 +2166,6 @@ public void testBug374605() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
 public void testBug380927() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
-		return;
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2194,6 +2192,209 @@ public void testBug380927() {
 				"}\n",
 			},
 			"Success");	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+public void testBug380927a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public final static Object f() {\n" +
+				"        final Object a = null;\n" +
+				"        Object b;\n" +
+				"        label: while (true) {\n" +
+				"            switch (0) {\n" +
+				"            case 1: {\n" +
+				"                b = a;\n" +
+				"            }\n" +
+				"                break;\n" +
+				"            default:\n" +
+				"                break label;\n" +
+				"            }\n" +
+				"        }\n" +
+				"        return a;\n" +
+				"    }\n" +
+				"    public static void main(final String[] args) {\n" +
+				"        f();\n" +
+				"        System.out.println(\"Success\");\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"Success");	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+public void testBug380927b() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public final static Object f() {\n" +
+				"        final Object a = null;\n" +
+				"        Object b;\n" +
+				"        label: for(;;) {\n" +
+				"            switch (0) {\n" +
+				"            case 1: {\n" +
+				"                b = a;\n" +
+				"            }\n" +
+				"                break;\n" +
+				"            default:\n" +
+				"                break label;\n" +
+				"            }\n" +
+				"        }\n" +
+				"        return a;\n" +
+				"    }\n" +
+				"    public static void main(final String[] args) {\n" +
+				"        f();\n" +
+				"        System.out.println(\"Success\");\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"Success");	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+public void testBug380927c() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public final static Object f() {\n" +
+				"        final Object a = null;\n" +
+				"        Object b;\n" +
+				"        label: for(int i : new int [] { 10 }) {\n" +
+				"            switch (0) {\n" +
+				"            case 1: {\n" +
+				"                b = a;\n" +
+				"            }\n" +
+				"                break;\n" +
+				"            default:\n" +
+				"                break label;\n" +
+				"            }\n" +
+				"        }\n" +
+				"        return a;\n" +
+				"    }\n" +
+				"    public static void main(final String[] args) {\n" +
+				"        f();\n" +
+				"        System.out.println(\"Success\");\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"Success");	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+public void testBug380927d() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String [] args) {\n" +
+				"        Object b;\n" +
+				"        label: do {\n" +
+				"            switch (0) {\n" +
+				"            case 1:\n" +
+				"                b = null;\n" +
+				"                break;\n" +
+				"            default:\n" +
+				"                break label;\n" +
+				"            }\n" +
+				"        } while (true);\n" +
+				"        System.out.println(b);\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	System.out.println(b);\n" + 
+			"	                   ^\n" + 
+			"The local variable b may not have been initialized\n" + 
+			"----------\n");	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+public void testBug380927e() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String [] args) {\n" +
+				"        Object b;\n" +
+				"        label: while (true) {\n" +
+				"            switch (0) {\n" +
+				"            case 1:\n" +
+				"                b = null;\n" +
+				"                break;\n" +
+				"            default:\n" +
+				"                break label;\n" +
+				"            }\n" +
+				"        }\n" +
+				"        System.out.println(b);\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	System.out.println(b);\n" + 
+			"	                   ^\n" + 
+			"The local variable b may not have been initialized\n" + 
+			"----------\n");	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+public void testBug380927f() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String [] args) {\n" +
+				"        Object b;\n" +
+				"        label: for(;;) {\n" +
+				"            switch (0) {\n" +
+				"            case 1:\n" +
+				"                b = null;\n" +
+				"                break;\n" +
+				"            default:\n" +
+				"                break label;\n" +
+				"            }\n" +
+				"        }\n" +
+				"        System.out.println(b);\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	System.out.println(b);\n" + 
+			"	                   ^\n" + 
+			"The local variable b may not have been initialized\n" + 
+			"----------\n");	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+public void testBug380927g() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String [] args) {\n" +
+				"        Object b;\n" +
+				"        label: for(int i : new int [] { 10 }) {\n" +
+				"            switch (0) {\n" +
+				"            case 1:\n" +
+				"                b = null;\n" +
+				"                break;\n" +
+				"            default:\n" +
+				"                break label;\n" +
+				"            }\n" +
+				"        }\n" +
+				"        System.out.println(b);\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	System.out.println(b);\n" + 
+			"	                   ^\n" + 
+			"The local variable b may not have been initialized\n" + 
+			"----------\n");	
 }
 public static Class testClass() {
 	return SwitchTest.class;
