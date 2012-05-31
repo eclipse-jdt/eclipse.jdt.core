@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added the following constants
@@ -1503,6 +1507,11 @@ void setSourceStart(int sourceStart);
 	int SpecdNonNullLocalVariableComparisonYieldsFalse = Internal + 932;
 	/** @since 3.8 */
 	int RequiredNonNullButProvidedSpecdNullable = Internal + 933;
+	
+	
+	// Java 8 work
+	/** @since 4.3 */
+	int IllegalModifiersForElidedType = Internal + 1001;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

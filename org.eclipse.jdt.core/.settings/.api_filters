@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><component id="org.eclipse.jdt.core" version="2">
+    <resource path="compiler/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="4.3"/>
+                <message_argument value="3.8"/>
+                <message_argument value="IllegalModifiersForElidedType"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="model/org/eclipse/jdt/core/IJavaModelMarker.java" type="org.eclipse.jdt.core.IJavaModelMarker">
         <filter id="1210056707">
             <message_arguments>

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -31,6 +35,15 @@ public class Argument extends LocalDeclaration {
 		this.modifiers = modifiers;
 		this.type = tr;
 		this.bits |= (IsLocalDeclarationReachable | IsArgument);
+	}
+
+	public Argument(char[] name, long posNom, TypeReference tr, int modifiers, boolean typeElided) {
+
+		super(name, (int) (posNom >>> 32), (int) posNom);
+		this.declarationSourceEnd = (int) posNom;
+		this.modifiers = modifiers;
+		this.type = tr;
+		this.bits |= (IsLocalDeclarationReachable | IsArgument | IsTypeElided);
 	}
 
 	public void createBinding(MethodScope scope, TypeBinding typeBinding) {

@@ -15,6 +15,11 @@
  *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *								bug 374605 - Unreasonable warning for enum-based switch statements
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -511,6 +516,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalModifierForMemberInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalModifierForMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifierForVariable", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("IllegalModifiersForElidedType", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("IllegalPrimitiveOrArrayTypeForEnclosingInstance", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalQualifiedEnumConstantLabel", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalQualifiedParameterizedTypeAllocation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1216,6 +1222,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalModifierForMemberInterface", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForMethod", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForVariable", SKIP);
+		expectedProblemAttributes.put("IllegalModifiersForElidedType", SKIP);
 		expectedProblemAttributes.put("IllegalPrimitiveOrArrayTypeForEnclosingInstance", SKIP);
 		expectedProblemAttributes.put("IllegalQualifiedEnumConstantLabel", SKIP);
 		expectedProblemAttributes.put("IllegalQualifiedParameterizedTypeAllocation", SKIP);

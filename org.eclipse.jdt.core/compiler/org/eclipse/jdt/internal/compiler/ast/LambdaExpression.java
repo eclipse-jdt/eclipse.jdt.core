@@ -4,36 +4,38 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *  
+ *
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.internal.compiler.parser;
+package org.eclipse.jdt.internal.compiler.ast;
 
-/*An interface that contains static declarations for some basic information
- about the parser such as the number of rules in the grammar, the starting state, etc...*/
-public interface ParserBasicInformation {
+public class LambdaExpression extends NullLiteral {  // For the time being.
+	Argument [] arguments;
+	Statement body;
+	
+	public LambdaExpression(Argument [] arguments, Statement body) {
+		super(0, 0);
+		this.arguments = arguments;
+		this.body = body;
+	}
+	
+	public StringBuffer print(int tab, StringBuffer output) {
 
-	int ERROR_SYMBOL = 115,
-		MAX_NAME_LENGTH = 41,
-		NUM_STATES = 1027,
-
-		NT_OFFSET = 115,
-		SCOPE_UBOUND = 143,
-		SCOPE_SIZE = 144,
-		LA_STATE_OFFSET = 13816,
-		MAX_LA = 1,
-		NUM_RULES = 746,
-		NUM_TERMINALS = 115,
-		NUM_NON_TERMINALS = 335,
-		NUM_SYMBOLS = 450,
-		START_STATE = 904,
-		EOFT_SYMBOL = 67,
-		EOLT_SYMBOL = 67,
-		ACCEPT_ACTION = 13815,
-		ERROR_ACTION = 13816;
+		printIndent(tab, output);
+		output.append('(');
+		if (this.arguments != null) {
+			for (int i = 0; i < this.arguments.length; i++) {
+				if (i > 0) output.append(", "); //$NON-NLS-1$
+				this.arguments[i].print(0, output);
+			}
+		}
+		output.append(") -> " ); //$NON-NLS-1$
+		this.body.print(tab, output);
+		return output;
+	}
 }
