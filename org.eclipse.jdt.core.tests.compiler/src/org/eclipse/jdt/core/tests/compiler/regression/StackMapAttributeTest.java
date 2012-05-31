@@ -7912,4 +7912,78 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				assertEquals("Wrong contents", expectedOutput, actualOutput);
 			}
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
+	// Verify the reduced range of locals.
+	public void testBug380927() throws Exception {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    public final static Object f() {\n" +
+						"        final Object a = null;\n" +
+						"        Object b;\n" +
+						"        label: do {\n" +
+						"            switch (0) {\n" +
+						"            case 1: {\n" +
+						"                b = a;\n" +
+						"            }\n" +
+						"                break;\n" +
+						"            default:\n" +
+						"                break label;\n" +
+						"            }\n" +
+						"        } while (true);\n" +
+						"        return a;\n" +
+						"    }\n" +
+						"    public static void main(final String[] args) {\n" +
+						"        f();\n" +
+						"        System.out.println(\"SUCCESS\");\n" +
+						"    }\n" +
+						"}\n"
+				},
+				"SUCCESS");
+
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			String actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);
+
+			String expectedOutput =
+					"  // Method descriptor #15 ()Ljava/lang/Object;\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  public static final java.lang.Object f();\n" + 
+					"     0  aconst_null\n" + 
+					"     1  astore_0 [a]\n" + 
+					"     2  iconst_0\n" + 
+					"     3  tableswitch default: 25\n" + 
+					"          case 1: 20\n" + 
+					"    20  aload_0 [a]\n" + 
+					"    21  astore_1 [b]\n" + 
+					"    22  goto 2\n" + 
+					"    25  aload_0 [a]\n" + 
+					"    26  areturn\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 3]\n" + 
+					"        [pc: 2, line: 6]\n" + 
+					"        [pc: 20, line: 8]\n" + 
+					"        [pc: 22, line: 10]\n" + 
+					"        [pc: 25, line: 15]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 2, pc: 27] local: a index: 0 type: java.lang.Object\n" + 
+					"        [pc: 22, pc: 25] local: b index: 1 type: java.lang.Object\n" + 
+					"      Stack map table: number of frames 3\n" + 
+					"        [pc: 2, append: {java.lang.Object}]\n" + 
+					"        [pc: 20, same]\n" + 
+					"        [pc: 25, same]\n" + 
+					"  \n"; 
+			int index = actualOutput.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(actualOutput, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, actualOutput);
+			}
+	}
 }
