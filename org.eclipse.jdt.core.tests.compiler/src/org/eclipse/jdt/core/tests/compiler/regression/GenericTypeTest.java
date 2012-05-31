@@ -5,6 +5,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -48337,18 +48342,13 @@ public void test1403()  throws Exception {
 		"----------\n" + 
 		"1. ERROR in A.java (at line 3)\n" + 
 		"	Class<?> c = A<?>.class; \n" + 
-		"	           ^\n" + 
-		"Syntax error on token \"=\", ( expected after this token\n" + 
+		"	             ^\n" + 
+		"Syntax error on token \"A\", . expected after this token\n" + 
 		"----------\n" + 
 		"2. ERROR in A.java (at line 3)\n" + 
 		"	Class<?> c = A<?>.class; \n" + 
 		"	              ^^^\n" + 
 		"Syntax error on token(s), misplaced construct(s)\n" + 
-		"----------\n" + 
-		"3. ERROR in A.java (at line 3)\n" + 
-		"	Class<?> c = A<?>.class; \n" + 
-		"	                  ^^^^^\n" + 
-		"Syntax error, insert \")\" to complete Expression\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=242159

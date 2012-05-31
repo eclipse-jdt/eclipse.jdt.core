@@ -96,7 +96,7 @@ public interface ClassFileConstants {
 	int MINOR_VERSION_3 = 3;
 	int MINOR_VERSION_4 = 4;
 
-	// JDK 1.1 -> 1.7, comparable value allowing to check both major/minor version at once 1.4.1 > 1.4.0
+	// JDK 1.1 -> 1.8, comparable value allowing to check both major/minor version at once 1.4.1 > 1.4.0
 	// 16 unsigned bits for major, then 16 bits for minor
 	long JDK1_1 = ((long)ClassFileConstants.MAJOR_VERSION_1_1 << 16) + ClassFileConstants.MINOR_VERSION_3; // 1.1. is 45.3
 	long JDK1_2 =  ((long)ClassFileConstants.MAJOR_VERSION_1_2 << 16) + ClassFileConstants.MINOR_VERSION_0;

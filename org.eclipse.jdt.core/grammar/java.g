@@ -105,11 +105,18 @@ $Terminals
 	EQUAL
 	AT
 	ELLIPSIS
+	ARROW
+	COLON_COLON
+	BeginLambda
+	BeginTypeArguments
+	ElidedSemicolonAndRightBrace
 
 --    BodyMarker
 
 $Alias
 
+	'::'   ::= COLON_COLON
+	'->'   ::= ARROW
 	'++'   ::= PLUS_PLUS
 	'--'   ::= MINUS_MINUS
 	'=='   ::= EQUAL_EQUAL
@@ -810,9 +817,17 @@ InterfaceMemberDeclaration ::= ';'
 /.$putCase consumeEmptyTypeDeclaration(); $break ./
 /:$readableName InterfaceMemberDeclaration:/
 
+PushDefault ::= $empty
+/.$putCase consumeInterfaceMethodDefault(); $break ./
+/:$readableName PushDefault:/
+/:$compliance 1.8:/
+
 InterfaceMemberDeclaration -> ConstantDeclaration
+InterfaceMemberDeclaration ::= MethodHeader 'default' PushDefault MethodBody
+/:$compliance 1.8:/
+/.$putCase consumeInterfaceMethodDeclaration(true); $break ./
 InterfaceMemberDeclaration ::= MethodHeader MethodBody
-/.$putCase consumeInvalidMethodDeclaration(); $break ./
+/.$putCase consumeInterfaceMethodDeclaration(false); $break ./
 /:$readableName InterfaceMemberDeclaration:/
 
 -- These rules are added to be able to parse constructors inside interface and then report a relevent error message
@@ -1223,7 +1238,90 @@ PrimaryNoNewArray ::= PrimitiveType '.' 'class'
 
 PrimaryNoNewArray -> MethodInvocation
 PrimaryNoNewArray -> ArrayAccess
+
+-----------------------------------------------------------------------
+--                   Start of rules for JSR 305
+-----------------------------------------------------------------------
+
+PrimaryNoNewArray -> LambdaExpression
+PrimaryNoNewArray -> ReferenceExpression
 /:$readableName Expression:/
+
+-- BeginTypeArguments is a synthetic token the scanner concocts to help disambiguate
+-- between '<' as an operator and '<' in '<' TypeArguments '>'
+OnlyTypeArgumentsForReferenceExpression -> BeginTypeArguments OnlyTypeArguments
+/:$readableName OnlyTypeArgumentsForReferenceExpression:/
+/:$compliance 1.8:/
+
+ReferenceExpression ::= Name '::' NonWildTypeArgumentsopt IdentifierOrNew
+/.$putCase consumeReferenceExpressionNameForm(); $break ./
+ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression '::' NonWildTypeArgumentsopt IdentifierOrNew
+/.$putCase consumeReferenceExpressionTypeForm(false); $break ./
+ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression '.' ClassOrInterfaceType '::' NonWildTypeArgumentsopt IdentifierOrNew
+/.$putCase consumeReferenceExpressionTypeForm(true); $break ./
+ReferenceExpression ::= Primary '::' NonWildTypeArgumentsopt Identifier
+/.$putCase consumeReferenceExpressionPrimaryForm(); $break ./
+/:$readableName ReferenceExpression:/
+/:$compliance 1.8:/
+
+NonWildTypeArgumentsopt ::= $empty
+/.$putCase consumeEmptyTypeArguments(); $break ./
+NonWildTypeArgumentsopt -> OnlyTypeArguments
+/:$readableName NonWildTypeArgumentsopt:/
+/:$compliance 1.8:/
+
+IdentifierOrNew ::= 'Identifier'
+/.$putCase consumeIdentifierOrNew(false); $break ./
+IdentifierOrNew ::= 'new'
+/.$putCase consumeIdentifierOrNew(true); $break ./
+/:$readableName IdentifierOrNew:/
+/:$compliance 1.8:/
+
+LambdaExpression ::= LambdaParameters '->' LambdaBody
+/.$putCase consumeLambdaExpression(); $break ./
+/:$readableName LambdaExpression:/
+/:$compliance 1.8:/
+
+LambdaParameters ::= Identifier
+/.$putCase consumeTypeElidedLambdaParameter(false); $break ./
+/:$readableName TypeElidedFormalParameter:/
+/:$compliance 1.8:/
+
+-- to make the grammar LALR(1), the scanner transforms the input string to
+-- contain synthetic tokens to signal start of lambda parameter list.
+LambdaParameters -> BeginLambda PushLPAREN FormalParameterListopt PushRPAREN
+LambdaParameters -> BeginLambda PushLPAREN TypeElidedFormalParameterList PushRPAREN
+/:$readableName LambdaParameters:/
+/:$compliance 1.8:/
+
+TypeElidedFormalParameterList -> TypeElidedFormalParameter
+TypeElidedFormalParameterList ::= TypeElidedFormalParameterList ',' TypeElidedFormalParameter
+/.$putCase consumeFormalParameterList(); $break ./
+/:$readableName TypeElidedFormalParameterList:/
+/:$compliance 1.8:/
+
+-- to work around a shift reduce conflict, we accept Modifiersopt prefixed
+-- identifier - downstream phases should reject input strings with modifiers.
+TypeElidedFormalParameter ::= Modifiersopt Identifier
+/.$putCase consumeTypeElidedLambdaParameter(true); $break ./
+/:$readableName TypeElidedFormalParameter:/
+/:$compliance 1.8:/
+
+-- A lambda body of the form x is really '{' return x; '}'
+LambdaBody -> ElidedLeftBraceAndReturn Expression ElidedSemicolonAndRightBrace
+LambdaBody -> Block
+/:$readableName LambdaBody:/
+/:$compliance 1.8:/
+
+ElidedLeftBraceAndReturn ::= $empty
+/.$putCase consumeElidedLeftBraceAndReturn(); $break ./
+/:$readableName ElidedLeftBraceAndReturn:/
+/:$compliance 1.8:/
+
+-----------------------------------------------------------------------
+--                   End of rules for JSR 305
+-----------------------------------------------------------------------
+
 --1.1 feature
 --
 -- In Java 1.0 a ClassBody could not appear at all in a
@@ -1558,7 +1656,10 @@ AssignmentOperator ::= '|='
 /:$readableName AssignmentOperator:/
 /:$recovery_template =:/
 
-Expression -> AssignmentExpression
+-- For handling lambda expressions, we need to know when a full Expression
+-- has been reduced.
+Expression ::= AssignmentExpression
+/.$putCase consumeExpression(); $break ./
 /:$readableName Expression:/
 /:$recovery_template Identifier:/
 

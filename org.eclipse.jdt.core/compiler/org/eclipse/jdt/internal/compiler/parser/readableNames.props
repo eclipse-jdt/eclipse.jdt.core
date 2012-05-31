@@ -5,6 +5,10 @@
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
 #
+# This is an implementation of an early-draft specification developed under the Java
+# Community Process (JCP) and is made available for testing and evaluation purposes
+# only. The code is not compatible with any specification of the JCP.
+#
 # Contributors:
 #     IBM Corporation - initial API and implementation
 ###############################################################################
@@ -103,6 +107,7 @@ Dims=Dimensions
 DimsLoop=Dimensions
 Dimsopt=Dimensions
 DoStatement=DoStatement
+ElidedLeftBraceAndReturn=ElidedLeftBraceAndReturn
 EmptyStatement=EmptyStatement
 EnhancedForStatement=EnhancedForStatement
 EnhancedForStatementHeader=EnhancedForStatementHeader
@@ -156,6 +161,7 @@ Goal=Goal
 Header1=Header1
 Header2=Header2
 Header=Header
+IdentifierOrNew=IdentifierOrNew
 IfThenElseStatement=IfStatement
 IfThenElseStatementNoShortIf=IfStatement
 IfThenStatement=IfStatement
@@ -189,6 +195,9 @@ InvalidInitializer=InvalidInitializer
 Label=Label
 LabeledStatement=LabeledStatement
 LabeledStatementNoShortIf=LabeledStatement
+LambdaBody=LambdaBody
+LambdaExpression=LambdaExpression
+LambdaParameters=TypeElidedFormalParameter
 Literal=Literal
 LocalVariableDeclaration=LocalVariableDeclaration
 LocalVariableDeclarationStatement=LocalVariableDeclarationStatement
@@ -216,12 +225,14 @@ MultiplicativeExpression_NotName=Expression
 Name=Name
 NestedMethod=NestedMethod
 NestedType=NestedType
+NonWildTypeArgumentsopt=NonWildTypeArgumentsopt
 NormalAnnotation=NormalAnnotation
 NumericType=NumericType
 OneDimLoop=Dimension
 OnlySynchronized=OnlySynchronized
 OnlyTypeArguments=TypeArguments
 OnlyTypeArgumentsForCastExpression=TypeArguments
+OnlyTypeArgumentsForReferenceExpression=OnlyTypeArgumentsForReferenceExpression
 OpenBlock=OpenBlock
 PackageComment=PackageComment
 PackageDeclaration=PackageDeclaration
@@ -235,6 +246,7 @@ PreIncrementExpression=PreIncrementExpression
 Primary=Expression
 PrimaryNoNewArray=Expression
 PrimitiveType=PrimitiveType
+PushDefault=PushDefault
 PushLPAREN=(
 PushLeftBrace=PushLeftBrace
 PushModifiers=PushModifiers
@@ -248,6 +260,7 @@ QualifiedName=QualifiedName
 RecoveryMethodHeader=MethodHeader
 RecoveryMethodHeaderName=MethodHeaderName
 ReduceImports=ReduceImports
+ReferenceExpression=ReferenceExpression
 ReferenceType1=ReferenceType1
 ReferenceType2=ReferenceType2
 ReferenceType3=ReferenceType3
@@ -301,6 +314,8 @@ TypeArgumentList=TypeArgumentList
 TypeArguments=TypeArguments
 TypeDeclaration=TypeDeclaration
 TypeDeclarations=TypeDeclarations
+TypeElidedFormalParameter=TypeElidedFormalParameter
+TypeElidedFormalParameterList=TypeElidedFormalParameterList
 TypeImportOnDemandDeclaration=TypeImportOnDemandDeclaration
 TypeImportOnDemandDeclarationName=TypeImportOnDemandDeclarationName
 TypeParameter1=TypeParameter1

@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -6816,6 +6820,7 @@ private void syntaxError(
 
 	String[] arguments;
 	if(expectedToken != null) {
+		expectedToken = replaceIfSynthetic(expectedToken);
 		arguments = new String[] {eTokenName, expectedToken};
 	} else {
 		arguments = new String[] {eTokenName};
@@ -6826,6 +6831,19 @@ private void syntaxError(
 		arguments,
 		startPosition,
 		endPosition);
+}
+private String replaceIfSynthetic(String token) {
+	/* Java 8 grammar changes use some synthetic tokens to make the grammar LALR(1). These tokens should not be exposed in messages
+	   as it would make no sense to the programmer whatsoever. Replace such artificial tokens with some "suitable"  alternative. At
+	   the moment, there are two synthetic tokens that need such massaging viz : "BeginLambda" and "BeginTypeArguments". There is a
+	   third synthetic token "ElidedSemicolonAndRightBrace" that we don't expect to show up in messages since it is manufactured by
+	   the parser automatically.
+	*/
+	if (token.equals("BeginTypeArguments")) //$NON-NLS-1$
+		return "."; //$NON-NLS-1$
+	if (token.equals("BeginLambda")) //$NON-NLS-1$
+		return "("; //$NON-NLS-1$
+	return token;
 }
 public void task(String tag, String message, String priority, int start, int end){
 	this.handle(
@@ -8465,5 +8483,14 @@ public void missingNonNullByDefaultAnnotation(TypeDeclaration type) {
 			compUnitDecl.currentPackage.sourceStart,
 			compUnitDecl.currentPackage.sourceEnd);
 	}
+}
+
+public void illegalModifiersForElidedType(Argument argument) {
+	this.handle(
+			IProblem.IllegalModifiersForElidedType,
+			NoArgument,
+			NoArgument,
+			argument.declarationSourceStart,
+			argument.declarationSourceEnd);
 }
 }
