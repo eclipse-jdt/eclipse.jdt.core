@@ -1510,7 +1510,7 @@ void setSourceStart(int sourceStart);
 	
 	
 	// Java 8 work
-	/** @since 4.3 */
+	/** @since 3.9 */
 	int IllegalModifiersForElidedType = Internal + 1001;
 
 	/**
