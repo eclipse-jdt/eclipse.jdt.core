@@ -1309,7 +1309,8 @@ TypeElidedFormalParameter ::= Modifiersopt Identifier
 
 -- A lambda body of the form x is really '{' return x; '}'
 LambdaBody -> ElidedLeftBraceAndReturn Expression ElidedSemicolonAndRightBrace
-LambdaBody -> Block
+LambdaBody ::= NestedType NestedMethod  '{' BlockStatementsopt '}'
+/.$putCase consumeBlock(); $break ./
 /:$readableName LambdaBody:/
 /:$compliance 1.8:/
 

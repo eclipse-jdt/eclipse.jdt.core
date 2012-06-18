@@ -123,6 +123,8 @@ public static Test suite() {
 	since_1_7.add(PolymorphicSignatureTest.class);
 	since_1_7.add(Compliance_1_7.class);
 	
+	ArrayList since_1_8 = new ArrayList();
+	since_1_8.add(LambdaExpressionsNegativeTest.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
@@ -200,6 +202,7 @@ public static Test suite() {
 		tests_1_8.addAll(since_1_5);
 		tests_1_8.addAll(since_1_6);
 		tests_1_8.addAll(since_1_7);
+		tests_1_8.addAll(since_1_8);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

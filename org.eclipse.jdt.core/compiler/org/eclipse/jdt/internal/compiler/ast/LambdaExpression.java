@@ -24,9 +24,8 @@ public class LambdaExpression extends NullLiteral {  // For the time being.
 		this.body = body;
 	}
 	
-	public StringBuffer print(int tab, StringBuffer output) {
+	public StringBuffer printExpression(int tab, StringBuffer output) {
 
-		printIndent(tab, output);
 		output.append('(');
 		if (this.arguments != null) {
 			for (int i = 0; i < this.arguments.length; i++) {

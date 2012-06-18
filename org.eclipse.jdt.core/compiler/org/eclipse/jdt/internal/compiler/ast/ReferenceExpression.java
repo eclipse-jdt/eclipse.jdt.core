@@ -60,8 +60,8 @@ public class ReferenceExpression extends NullLiteral { // For the time being.
 		this.method = null;
 	}
 	
-	public StringBuffer print(int tab, StringBuffer output) {
-		printIndent(tab, output);
+	public StringBuffer printExpression(int tab, StringBuffer output) {
+		
 		if (this.type != null) {
 			this.type.print(0, output);
 		} else if (this.name != null) {
