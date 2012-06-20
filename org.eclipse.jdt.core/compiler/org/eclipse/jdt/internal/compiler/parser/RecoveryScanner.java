@@ -208,7 +208,7 @@ public class RecoveryScanner extends Scanner {
 					this.data.removedTokenUsed[i] = true;
 					this.currentPosition = this.data.removedTokensEnd[i] + 1;
 					this.precededByRemoved = false;
-					return getNextToken();
+					return getNextToken0();
 				}
 			}
 		}

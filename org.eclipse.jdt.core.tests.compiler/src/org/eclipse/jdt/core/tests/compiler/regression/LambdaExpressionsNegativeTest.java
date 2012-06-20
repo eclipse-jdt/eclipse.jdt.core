@@ -105,6 +105,26 @@ public void test003() {
 			"Type mismatch: cannot convert from I to int\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383046, syntax error reported incorrectly on syntactically valid lambda expression
+public void test004() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface IX {\n" +
+				"    public void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"     IX i = () -> 42;\n" +
+				"     int\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	int\n" + 
+			"	^^^\n" + 
+			"Syntax error on token \"int\", delete this token\n" + 
+			"----------\n");
+}
 
 public static Class testClass() {
 	return LambdaExpressionsNegativeTest.class;

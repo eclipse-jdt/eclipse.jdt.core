@@ -192,6 +192,7 @@ public class Scanner implements TerminalTokens {
 	private int nextToken = TokenNameNotAToken; // allows for one token push back, only the most recent token can be reliably ungotten.
 	private final boolean scanningJava8Plus;
 	public boolean shouldDisambiguate;          // feedback from parser about need to disambiguate -- to lookahead only when absolutely necessary.
+	public boolean disambiguatedAlready;
 
 	public static final int RoundBracket = 0;
 	public static final int SquareBracket = 1;
@@ -1143,15 +1144,21 @@ public int getNextToken() throws InvalidInputException {
 	} else {
 		token = getNextToken0();
 	}
+	if (this.disambiguatedAlready) {
+		this.disambiguatedAlready = false;
+		return token;
+	}
 	if (this.scanningJava8Plus && this.shouldDisambiguate) {
 		if (token == TokenNameLPAREN) {
 			if(atLambdaParameterList()) {
 				this.nextToken = token;
+				this.disambiguatedAlready = true;
 				return TokenNameBeginLambda;
 			}
 		} else if (token == TokenNameLESS) {
 			if (atReferenceExpression()) {
 				this.nextToken = token;
+				this.disambiguatedAlready = true;
 				return TokenNameBeginTypeArguments;
 			}
 		}
