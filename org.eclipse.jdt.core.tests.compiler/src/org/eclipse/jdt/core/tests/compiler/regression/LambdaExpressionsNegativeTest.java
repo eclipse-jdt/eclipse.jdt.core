@@ -135,7 +135,7 @@ public void test005() {
 				"}\n" +
 				"public class X {\n" +
 				"	IX i = super::toString;\n" +
-				"       Zork z;\n" +
+				"   Zork z;\n" +
 				"}\n",
 			},
 			"----------\n" + 
@@ -143,6 +143,26 @@ public void test005() {
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383046, syntax error reported incorrectly on *syntactically* valid reference expression
+public void test006() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface IX{\n" +
+				"	public void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" +
+				"   int\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	int\n" + 
+			"	^^^\n" + 
+			"Syntax error on token \"int\", delete this token\n" + 
 			"----------\n");
 }
 

@@ -193,6 +193,7 @@ public class Scanner implements TerminalTokens {
 	private final boolean scanningJava8Plus;
 	public boolean shouldDisambiguate;          // feedback from parser about need to disambiguate -- to lookahead only when absolutely necessary.
 	public boolean disambiguatedAlready;
+	public boolean scanningHeadOfReferenceExpression = false;
 
 	public static final int RoundBracket = 0;
 	public static final int SquareBracket = 1;
@@ -1144,6 +1145,9 @@ public int getNextToken() throws InvalidInputException {
 	} else {
 		token = getNextToken0();
 	}
+	if (token == TokenNameCOLON_COLON) {
+		this.scanningHeadOfReferenceExpression = false;
+	}
 	if (this.disambiguatedAlready) {
 		this.disambiguatedAlready = false;
 		return token;
@@ -1155,10 +1159,11 @@ public int getNextToken() throws InvalidInputException {
 				this.disambiguatedAlready = true;
 				return TokenNameBeginLambda;
 			}
-		} else if (token == TokenNameLESS) {
+		} else if (token == TokenNameLESS && !this.scanningHeadOfReferenceExpression) {
 			if (atReferenceExpression()) {
 				this.nextToken = token;
 				this.disambiguatedAlready = true;
+				this.scanningHeadOfReferenceExpression = true;
 				return TokenNameBeginTypeArguments;
 			}
 		}
