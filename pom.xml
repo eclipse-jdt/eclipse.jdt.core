@@ -19,6 +19,7 @@
     <groupId>org.eclipse</groupId>
     <artifactId>eclipse-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../eclipse-parent</relativePath>
   </parent>
 
   <groupId>eclipse.jdt.core</groupId>
