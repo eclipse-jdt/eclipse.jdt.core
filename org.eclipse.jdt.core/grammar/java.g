@@ -1261,6 +1261,8 @@ ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression '.' ClassOr
 /.$putCase consumeReferenceExpressionTypeForm(true); $break ./
 ReferenceExpression ::= Primary '::' NonWildTypeArgumentsopt Identifier
 /.$putCase consumeReferenceExpressionPrimaryForm(); $break ./
+ReferenceExpression ::= 'super' '::' NonWildTypeArgumentsopt Identifier
+/.$putCase consumeReferenceExpressionSuperForm(); $break ./
 /:$readableName ReferenceExpression:/
 /:$compliance 1.8:/
 

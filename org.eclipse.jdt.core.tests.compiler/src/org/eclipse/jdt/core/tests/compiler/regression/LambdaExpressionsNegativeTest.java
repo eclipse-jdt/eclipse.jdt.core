@@ -125,6 +125,26 @@ public void test004() {
 			"Syntax error on token \"int\", delete this token\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383085 super::identifier not accepted.
+public void test005() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface IX{\n" +
+				"	public void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	IX i = super::toString;\n" +
+				"       Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
 
 public static Class testClass() {
 	return LambdaExpressionsNegativeTest.class;
