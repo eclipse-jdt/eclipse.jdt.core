@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -32,6 +36,8 @@ public abstract class Binding {
 	public static final int GENERIC_TYPE = TYPE | ASTNode.Bit12;
 	public static final int TYPE_PARAMETER = TYPE | ASTNode.Bit13;
 	public static final int INTERSECTION_TYPE = TYPE | ASTNode.Bit14;
+	// jsr 308
+	public static final int TYPE_USE = TYPE | ASTNode.Bit15;
 
 	// Shared binding collections
 	public static final TypeBinding[] NO_TYPES = new TypeBinding[0];

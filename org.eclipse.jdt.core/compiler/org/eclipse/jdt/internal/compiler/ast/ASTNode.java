@@ -253,6 +253,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int INVOCATION_ARGUMENT_UNCHECKED = 1;
 	public static final int INVOCATION_ARGUMENT_WILDCARD = 2;
 
+	// for all declarations that can contain type references that have type annotations
+	public static final int HasTypeAnnotations = Bit21;
+	
 	// for type reference (diamond case) - Java 7
 	public static final int IsUnionType = Bit30;
 	// Used to tag ParameterizedSingleTypeReference or ParameterizedQualifiedTypeReference when they are
@@ -528,8 +531,15 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static StringBuffer printAnnotations(Annotation[] annotations, StringBuffer output) {
 		int length = annotations.length;
 		for (int i = 0; i < length; i++) {
-			annotations[i].print(0, output);
-			output.append(" "); //$NON-NLS-1$
+			if (i > 0) {
+				output.append(" "); //$NON-NLS-1$
+			}
+			Annotation annotation2 = annotations[i];
+			if (annotation2 != null) {
+				annotation2.print(0, output);
+			} else {
+				output.append('?');
+			}
 		}
 		return output;
 	}
@@ -614,6 +624,25 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
 						local.setAnnotations(annotations, scope);
+					}
+					break;
+				case Binding.TYPE_PARAMETER :
+					// jsr308
+					ReferenceBinding typeVariableBinding = (ReferenceBinding) recipient;
+					if ((typeVariableBinding.tagBits & TagBits.AnnotationResolved) != 0) return;
+					typeVariableBinding.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+					if (length > 0) {
+						annotations = new AnnotationBinding[length];
+						typeVariableBinding.setAnnotations(annotations);
+					}
+					break;
+				case Binding.TYPE_USE :
+					ReferenceBinding typeUseBinding = (ReferenceBinding) recipient;
+					if ((typeUseBinding.tagBits & TagBits.AnnotationResolved) != 0) return;
+					typeUseBinding.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+					if (length > 0) {
+						annotations = new AnnotationBinding[length];
+						typeUseBinding.setAnnotations(annotations);
 					}
 					break;
 				default :
@@ -712,6 +741,122 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		}
 	}
 
+	/**
+	 * Resolve annotations, and check duplicates, answers combined tagBits
+	 * for recognized standard annotations
+	 */
+	public static void resolveAnnotations(ClassScope scope, Annotation[] sourceAnnotations, Binding recipient) {
+		AnnotationBinding[] annotations = null;
+		int length = sourceAnnotations == null ? 0 : sourceAnnotations.length;
+		if (recipient != null) {
+			switch (recipient.kind()) {
+				case Binding.PACKAGE :
+					PackageBinding packageBinding = (PackageBinding) recipient;
+					if ((packageBinding.tagBits & TagBits.AnnotationResolved) != 0) return;
+					packageBinding.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+					break;
+				case Binding.TYPE :
+				case Binding.GENERIC_TYPE :
+					ReferenceBinding type = (ReferenceBinding) recipient;
+					if ((type.tagBits & TagBits.AnnotationResolved) != 0) return;
+					type.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+					if (length > 0) {
+						annotations = new AnnotationBinding[length];
+						type.setAnnotations(annotations);
+					}
+					break;
+				case Binding.METHOD :
+					MethodBinding method = (MethodBinding) recipient;
+					if ((method.tagBits & TagBits.AnnotationResolved) != 0) return;
+					method.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+					if (length > 0) {
+						annotations = new AnnotationBinding[length];
+						method.setAnnotations(annotations);
+					}
+					break;
+				case Binding.FIELD :
+					FieldBinding field = (FieldBinding) recipient;
+					if ((field.tagBits & TagBits.AnnotationResolved) != 0) return;
+					field.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+					if (length > 0) {
+						annotations = new AnnotationBinding[length];
+						field.setAnnotations(annotations);
+					}
+					break;
+				case Binding.LOCAL :
+					LocalVariableBinding local = (LocalVariableBinding) recipient;
+					if ((local.tagBits & TagBits.AnnotationResolved) != 0) return;
+					local.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+					if (length > 0) {
+						annotations = new AnnotationBinding[length];
+						local.setAnnotations(annotations, scope);
+					}
+					break;
+				default :
+					return;
+			}
+		}
+		if (sourceAnnotations == null)
+			return;
+		for (int i = 0; i < length; i++) {
+			Annotation annotation = sourceAnnotations[i];
+			final Binding annotationRecipient = annotation.recipient;
+			if (annotationRecipient != null && recipient != null) {
+				// only local and field can share annnotations
+				switch (recipient.kind()) {
+					case Binding.FIELD :
+						FieldBinding field = (FieldBinding) recipient;
+						field.tagBits = ((FieldBinding) annotationRecipient).tagBits;
+						break;
+					case Binding.LOCAL :
+						LocalVariableBinding local = (LocalVariableBinding) recipient;
+						local.tagBits = ((LocalVariableBinding) annotationRecipient).tagBits;
+						break;
+				}
+				if (annotations != null) {
+					// need to fill the instances array
+					annotations[0] = annotation.getCompilerAnnotation();
+					for (int j = 1; j < length; j++) {
+						Annotation annot = sourceAnnotations[j];
+						annotations[j] = annot.getCompilerAnnotation();
+					}
+				}
+				return;
+			} else {
+				annotation.recipient = recipient;
+				annotation.resolveType(scope);
+				// null if receiver is a package binding
+				if (annotations != null) {
+					annotations[i] = annotation.getCompilerAnnotation();
+				}
+			}
+		}
+		// check duplicate annotations
+		if (annotations != null) {
+			AnnotationBinding[] distinctAnnotations = annotations; // only copy after 1st duplicate is detected
+			for (int i = 0; i < length; i++) {
+				AnnotationBinding annotation = distinctAnnotations[i];
+				if (annotation == null) continue;
+				TypeBinding annotationType = annotation.getAnnotationType();
+				boolean foundDuplicate = false;
+				for (int j = i+1; j < length; j++) {
+					AnnotationBinding otherAnnotation = distinctAnnotations[j];
+					if (otherAnnotation == null) continue;
+					if (otherAnnotation.getAnnotationType() == annotationType) {
+						foundDuplicate = true;
+						if (distinctAnnotations == annotations) {
+							System.arraycopy(distinctAnnotations, 0, distinctAnnotations = new AnnotationBinding[length], 0, length);
+						}
+						distinctAnnotations[j] = null; // report it only once
+						scope.problemReporter().duplicateAnnotation(sourceAnnotations[j]);
+					}
+				}
+				if (foundDuplicate) {
+					scope.problemReporter().duplicateAnnotation(sourceAnnotations[i]);
+				}
+			}
+		}
+	}
 /**
  * Figures if @Deprecated annotation is specified, do not resolve entire annotations.
  */

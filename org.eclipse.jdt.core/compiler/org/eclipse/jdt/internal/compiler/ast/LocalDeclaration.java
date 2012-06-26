@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -19,8 +23,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.List;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
@@ -189,11 +196,25 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		return LOCAL_VARIABLE;
 	}
 
+	// for local variables
+	public void getAllAnnotationContexts(int targetType, LocalVariableBinding localVariable, List allAnnotationContexts) {
+		AnnotationCollector collector = new AnnotationCollector(this, targetType, localVariable, allAnnotationContexts);
+		this.traverse(collector, (BlockScope) null);
+	}
+	// for arguments
+	public void getAllAnnotationContexts(int targetType, int parameterIndex, List allAnnotationContexts) {
+		AnnotationCollector collector = new AnnotationCollector(this, targetType, parameterIndex, allAnnotationContexts);
+		this.traverse(collector, (BlockScope) null);
+	}
+	public boolean isArgument() {
+		return false;
+	}
 	public void resolve(BlockScope scope) {
 
 		// create a binding and add it to the scope
 		TypeBinding variableType = this.type.resolveType(scope, true /* check bounds*/);
 
+		this.bits |= (this.type.bits & ASTNode.HasTypeAnnotations);
 		checkModifiers();
 		if (variableType != null) {
 			if (variableType == TypeBinding.VOID) {
@@ -282,6 +303,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		// only resolve annotation at the end, for constant to be positioned before (96991)
 		resolveAnnotations(scope, this.annotations, this.binding);
+		// jsr 308
+		Annotation[] typeAnnotations = this.type.annotations;
+		if (typeAnnotations != null) {
+			ASTNode.resolveAnnotations(scope, typeAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
+		}
 		scope.validateNullAnnotation(this.binding.tagBits, this.type, this.annotations);
 	}
 

@@ -2573,6 +2573,14 @@ public void illegalModifierForMethod(AbstractMethodDeclaration methodDecl) {
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+public void invalidLocationForModifiers(ASTNode location) {
+	this.handle(
+			IProblem.InvalidLocationForModifiers,
+			NoArgument,
+			NoArgument,
+			location.sourceStart,
+			location.sourceEnd);
+}
 public void illegalModifierForVariable(LocalDeclaration localDecl, boolean complainAsArgument) {
 	String[] arguments = new String[] {new String(localDecl.name)};
 	this.handle(
@@ -2640,6 +2648,15 @@ public void illegalVararg(Argument argType, AbstractMethodDeclaration methodDecl
 		arguments,
 		argType.sourceStart,
 		argType.sourceEnd);
+}
+public void illegalThis(Argument argument, AbstractMethodDeclaration method, long sourceLevel) {
+	String[] arguments = NoArgument;
+	this.handle(
+		sourceLevel <= ClassFileConstants.JDK1_7 ?  IProblem.ExplicitThisParameterNotBelow18 : IProblem.IllegalDeclarationOfThisParameter,
+		arguments,
+		arguments,
+		argument.sourceStart,
+		argument.sourceEnd);
 }
 public void illegalVisibilityModifierCombinationForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
 	String[] arguments = new String[] {new String(fieldDecl.name)};
@@ -4147,6 +4164,41 @@ public void invalidUsageOfVarargs(Argument argument) {
 		NoArgument,
 		argument.type.sourceStart,
 		argument.sourceEnd);
+}
+
+public void invalidUsageOfTypeAnnotations(Annotation annotation) {
+	this.handle(
+			IProblem.InvalidUsageOfTypeAnnotations,
+			NoArgument,
+			NoArgument,
+			annotation.sourceStart,
+			annotation.sourceEnd);
+}
+
+public void illegalReceiverAnnotations(Annotation first, Annotation last) {
+	this.handle(
+			IProblem.InvalidUsageOfReceiverAnnotations,
+			NoArgument,
+			NoArgument,
+			first.sourceStart,
+			last.sourceEnd);	
+}
+
+public void misplacedTypeAnnotations(Annotation first, Annotation last) {
+	this.handle(
+			IProblem.MisplacedTypeAnnotations,
+			NoArgument,
+			NoArgument,
+			first.sourceStart,
+			last.sourceEnd);	
+}
+public void illegalUsageOfTypeAnnotations(Annotation annotation) {
+	this.handle(
+			IProblem.IllegalUsageOfTypeAnnotations,
+			NoArgument,
+			NoArgument,
+			annotation.sourceStart,
+			annotation.sourceEnd);	
 }
 public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location) {
 	this.referenceContext = compUnitDecl;

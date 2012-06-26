@@ -5,14 +5,21 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
@@ -109,7 +116,13 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
-
+public void getAllAnnotationContexts(int targetType, List allAnnotationContexts) {
+	AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);
+	for (int i = 0, max = this.annotations.length; i < max; i++) {
+		Annotation annotation = this.annotations[i];
+		annotation.traverse(collector, (BlockScope) null);
+	}
+}
 /**
  * @see org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration#getKind()
  */

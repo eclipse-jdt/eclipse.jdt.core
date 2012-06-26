@@ -1291,6 +1291,20 @@ void setSourceStart(int sourceStart);
 	int UnusedWarningToken = Internal + 635;
 	/** @since 3.6 */
 	int MissingOverrideAnnotationForInterfaceMethodImplementation = MethodRelated + 636;
+	/** @since 3.9 */
+    int InvalidUsageOfTypeAnnotations = Syntax + Internal + 637;
+    /** @since 3.9 */
+    int InvalidUsageOfReceiverAnnotations = Syntax + Internal + 638;
+    /** @since 3.9 */
+    int MisplacedTypeAnnotations = Syntax + Internal + 639;
+    /** @since 3.9 */
+    int InvalidLocationForModifiers = Syntax + Internal + 640;
+    /** @since 3.9*/
+    int IllegalUsageOfTypeAnnotations = Internal + Syntax + 641;
+    /** @since 3.9*/
+    int IllegalDeclarationOfThisParameter = Internal + Syntax + 642;
+    /** @since 3.9*/
+    int ExplicitThisParameterNotBelow18 = Internal + Syntax + 643;
 
 	/**
 	 * More problems in generics

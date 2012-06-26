@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -606,10 +610,31 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			endOfEllipsis = this.intStack[this.intPtr--];
 		}
 		int firstDimensions = this.intStack[this.intPtr--];
-		final int typeDimensions = firstDimensions + extendedDimensions;
-		TypeReference type = getTypeReference(typeDimensions);
+		TypeReference type = getUnannotatedTypeReference(extendedDimensions);
+		Annotation [] varArgsAnnotations = null;
+		int length;
+		if ((length = this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr--]) != 0) {
+			System.arraycopy(
+				this.typeAnnotationStack,
+				(this.typeAnnotationPtr -= length) + 1,
+				varArgsAnnotations = new Annotation[length],
+				0,
+				length);
+		} 
+		final int typeDimensions = firstDimensions + extendedDimensions + (isVarArgs ? 1 : 0);
+		if (typeDimensions != extendedDimensions) {
+			// jsr308 type annotations management
+			Annotation [][] annotationsOnFirstDimensions = firstDimensions == 0 ? null : getAnnotationsOnDimensions(firstDimensions);
+			Annotation [][] annotationsOnExtendedDimensions = extendedDimensions == 0 ? null : type.getAnnotationsOnDimensions();
+			Annotation [][] annotationsOnAllDimensions = null;
+			if (annotationsOnFirstDimensions != null || annotationsOnExtendedDimensions != null || varArgsAnnotations != null) {
+				annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions, annotationsOnFirstDimensions, extendedDimensions, annotationsOnExtendedDimensions); 
+				annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions + extendedDimensions, annotationsOnAllDimensions, isVarArgs ? 1 : 0, isVarArgs ? new Annotation[][]{varArgsAnnotations} : null);
+			}
+			type = copyDims(type, typeDimensions, annotationsOnAllDimensions);
+			type.sourceEnd = type.isParameterizedTypeReference() ? this.endStatementPosition : this.endPosition;
+		}
 		if (isVarArgs) {
-			type = copyDims(type, typeDimensions + 1);
 			if (extendedDimensions == 0) {
 				type.sourceEnd = endOfEllipsis;
 			}
@@ -626,7 +651,6 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		arg.declarationSourceStart = modifierPositions;
 
 		// consume annotations
-		int length;
 		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
 			System.arraycopy(
 				this.expressionStack,

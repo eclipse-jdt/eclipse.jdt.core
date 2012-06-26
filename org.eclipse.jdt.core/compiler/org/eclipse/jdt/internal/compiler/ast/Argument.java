@@ -34,6 +34,9 @@ public class Argument extends LocalDeclaration {
 		this.declarationSourceEnd = (int) posNom;
 		this.modifiers = modifiers;
 		this.type = tr;
+		if (tr != null) {
+			this.bits |= (tr.bits & ASTNode.HasTypeAnnotations);
+		}
 		this.bits |= (IsLocalDeclarationReachable | IsArgument);
 	}
 
@@ -43,6 +46,9 @@ public class Argument extends LocalDeclaration {
 		this.declarationSourceEnd = (int) posNom;
 		this.modifiers = modifiers;
 		this.type = tr;
+		if (tr != null) {
+			this.bits |= (tr.bits & ASTNode.HasTypeAnnotations);
+		}
 		this.bits |= (IsLocalDeclarationReachable | IsArgument | IsTypeElided);
 	}
 
@@ -97,6 +103,10 @@ public class Argument extends LocalDeclaration {
 		return (this.bits & ASTNode.IsArgument) != 0 ? PARAMETER : LOCAL_VARIABLE;
 	}
 
+	public boolean isArgument() {
+		return true;
+	}
+
 	public boolean isVarArgs() {
 		return this.type != null &&  (this.type.bits & IsVarArgs) != 0;
 	}
@@ -105,7 +115,10 @@ public class Argument extends LocalDeclaration {
 
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);
-		if (this.annotations != null) printAnnotations(this.annotations, output);
+		if (this.annotations != null) {
+			printAnnotations(this.annotations, output);
+			output.append(' ');
+		}
 
 		if (this.type == null) {
 			output.append("<no type> "); //$NON-NLS-1$

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -14,6 +18,8 @@
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
+
+import java.util.List;
 
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
@@ -39,6 +45,8 @@ public abstract class AbstractMethodDeclaration
 	public int modifiers;
 	public int modifiersSourceStart;
 	public Annotation[] annotations;
+	// jsr 308
+	public Annotation[] receiverAnnotations;
 	public Argument[] arguments;
 	public TypeReference[] thrownExceptions;
 	public Statement[] statements;
@@ -301,6 +309,10 @@ public abstract class AbstractMethodDeclaration
 		classFile.completeMethodInfo(this.binding, methodAttributeOffset, attributeNumber);
 	}
 
+	public void getAllAnnotationContexts(int targetType, List allAnnotationContexts) {
+		// do nothing
+	}
+
 	private void checkArgumentsSize() {
 		TypeBinding[] parameters = this.binding.parameters;
 		int size = 1; // an abstract method or a native method cannot be static
@@ -396,7 +408,10 @@ public abstract class AbstractMethodDeclaration
 		}
 		printIndent(tab, output);
 		printModifiers(this.modifiers, output);
-		if (this.annotations != null) printAnnotations(this.annotations, output);
+		if (this.annotations != null) {
+			printAnnotations(this.annotations, output);
+			output.append(' ');
+		}
 
 		TypeParameter[] typeParams = typeParameters();
 		if (typeParams != null) {
@@ -418,6 +433,10 @@ public abstract class AbstractMethodDeclaration
 			}
 		}
 		output.append(')');
+		if (this.receiverAnnotations != null) {
+			output.append(" "); //$NON-NLS-1$
+			printAnnotations(this.receiverAnnotations, output);
+		}
 		if (this.thrownExceptions != null) {
 			output.append(" throws "); //$NON-NLS-1$
 			for (int i = 0; i < this.thrownExceptions.length; i++) {
@@ -462,6 +481,14 @@ public abstract class AbstractMethodDeclaration
 			bindThrownExceptions();
 			resolveJavadoc();
 			resolveAnnotations(this.scope, this.annotations, this.binding);
+			// jsr308
+			if (this.receiverAnnotations != null && this.scope.isStatic) {
+				int last = this.receiverAnnotations.length - 1;
+				this.scope.problemReporter().illegalReceiverAnnotations(this.receiverAnnotations[0],
+						                                                this.receiverAnnotations[last]);
+			}
+			// jsr 308
+			resolveAnnotations(this.scope, this.receiverAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 			validateNullAnnotations();
 			resolveStatements();
 			// check @Deprecated annotation presence

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -15,6 +19,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -24,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
@@ -35,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 
 public class MethodDeclaration extends AbstractMethodDeclaration {
 
@@ -88,6 +96,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 
 			if (this.arguments != null) {
 				for (int i = 0, count = this.arguments.length; i < count; i++) {
+					this.bits |= (this.arguments[i].bits & ASTNode.HasTypeAnnotations);
 					// if this method uses a type parameter declared by the declaring class,
 					// it can't be static. https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 					if (this.arguments[i].binding != null && (this.arguments[i].binding.type instanceof TypeVariableBinding)) {
@@ -146,6 +155,14 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 	}
 
+	public void getAllAnnotationContexts(int targetType, List allAnnotationContexts) {
+		AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);
+		for (int i = 0, max = this.annotations.length; i < max; i++) {
+			Annotation annotation = this.annotations[i];
+			annotation.traverse(collector, (BlockScope) null);
+		}
+	}
+
 	public boolean isMethod() {
 		return true;
 	}
@@ -163,6 +180,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	public void resolveStatements() {
 		// ========= abort on fatal error =============
 		if (this.returnType != null && this.binding != null) {
+			this.bits |= (this.returnType.bits & ASTNode.HasTypeAnnotations);
 			this.returnType.resolvedType = this.binding.returnType;
 			// record the return type binding
 		}
@@ -177,7 +195,10 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 		if (this.typeParameters != null) {
 			for (int i = 0, length = this.typeParameters.length; i < length; i++) {
-				this.typeParameters[i].resolve(this.scope);
+				TypeParameter typeParameter = this.typeParameters[i];
+				this.bits |= (typeParameter.bits & ASTNode.HasTypeAnnotations);
+				typeParameter.resolve(this.scope);
+				typeParameter.resolveAnnotations(this.scope);
 				if (returnsUndeclTypeVar && this.typeParameters[i].binding == this.returnType.resolvedType) {
 					returnsUndeclTypeVar = false;
 				}

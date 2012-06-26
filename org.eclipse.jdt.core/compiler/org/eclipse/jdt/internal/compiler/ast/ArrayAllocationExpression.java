@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
@@ -24,6 +28,7 @@ public class ArrayAllocationExpression extends Expression {
 	//dimensions.length gives the number of dimensions, but the
 	// last ones may be nulled as in new int[4][5][][]
 	public Expression[] dimensions;
+	public Annotation [][] annotationsOnDimensions; // jsr308 style annotations.
 	public ArrayInitializer initializer;
 
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -83,6 +88,11 @@ public class ArrayAllocationExpression extends Expression {
 		output.append("new "); //$NON-NLS-1$
 		this.type.print(0, output);
 		for (int i = 0; i < this.dimensions.length; i++) {
+			if (this.annotationsOnDimensions != null && this.annotationsOnDimensions[i] != null) {
+				output.append(' ');
+				printAnnotations(this.annotationsOnDimensions[i], output);
+				output.append(' ');
+			}
 			if (this.dimensions[i] == null)
 				output.append("[]"); //$NON-NLS-1$
 			else {
@@ -161,6 +171,12 @@ public class ArrayAllocationExpression extends Expression {
 			}
 			if ((referenceType.tagBits & TagBits.HasMissingType) != 0) {
 				return null;
+			}
+		}
+		if (this.annotationsOnDimensions != null) {
+			for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
+				Annotation[] annotations = this.annotationsOnDimensions[i];
+				resolveAnnotations(scope, annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 			}
 		}
 		return this.resolvedType;

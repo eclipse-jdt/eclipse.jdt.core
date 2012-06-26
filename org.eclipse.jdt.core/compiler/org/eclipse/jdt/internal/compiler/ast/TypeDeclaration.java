@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
@@ -906,7 +910,10 @@ public StringBuffer printBody(int indent, StringBuffer output) {
 
 public StringBuffer printHeader(int indent, StringBuffer output) {
 	printModifiers(this.modifiers, output);
-	if (this.annotations != null) printAnnotations(this.annotations, output);
+	if (this.annotations != null) {
+		printAnnotations(this.annotations, output);
+		output.append(' ');
+	}
 
 	switch (kind(this.modifiers)) {
 		case TypeDeclaration.CLASS_DECL :
@@ -971,6 +978,19 @@ public void resolve() {
 		try {
 			this.staticInitializerScope.insideTypeAnnotation = true;
 			resolveAnnotations(this.staticInitializerScope, this.annotations, sourceType);
+			if (this.superclass != null) {
+				this.superclass.resolveAnnotations(this.staticInitializerScope);
+			}
+			if (this.superInterfaces != null) {
+				for (int i = 0, max = this.superInterfaces.length; i < max; i++) {
+					this.superInterfaces[i].resolveAnnotations(this.staticInitializerScope);
+				}
+			}
+			if (this.typeParameters != null) {
+				for (int i = 0, count = this.typeParameters.length; i < count; i++) {
+					this.typeParameters[i].resolveAnnotations(this.staticInitializerScope);
+				}
+			}
 		} finally {
 			this.staticInitializerScope.insideTypeAnnotation = old;
 		}

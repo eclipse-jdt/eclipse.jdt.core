@@ -13,9 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
@@ -325,12 +327,33 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 
 	Argument[] argTypes = method.arguments;
 	int argLength = argTypes == null ? 0 : argTypes.length;
-	if (argLength > 0 && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-		if (argTypes[--argLength].isVarArgs())
+	long sourceLevel = compilerOptions().sourceLevel;
+	if (argLength > 0 && sourceLevel >= ClassFileConstants.JDK1_5) {
+		Argument argument = argTypes[--argLength];
+		if (argument.isVarArgs())
 			method.binding.modifiers |= ClassFileConstants.AccVarargs;
+		if (CharOperation.equals(argument.name, ConstantPool.This)) {
+			if (argLength != 0 || sourceLevel <= ClassFileConstants.JDK1_7) {
+				problemReporter().illegalThis(argument, method, sourceLevel);
+			}
+			if (argument.annotations != null) {
+				method.receiverAnnotations = argument.annotations;
+				method.bits |= ASTNode.HasTypeAnnotations;
+			}
+		}
 		while (--argLength >= 0) {
-			if (argTypes[argLength].isVarArgs())
-				problemReporter().illegalVararg(argTypes[argLength], method);
+			argument = argTypes[argLength];
+			if (argument.isVarArgs())
+				problemReporter().illegalVararg(argument, method);
+			if (CharOperation.equals(argument.name, ConstantPool.This)) {
+				if (argLength != 0 || sourceLevel <= ClassFileConstants.JDK1_7) {
+					problemReporter().illegalThis(argument, method, sourceLevel);
+				}
+				if (argument.annotations != null) {
+					method.receiverAnnotations = argument.annotations;
+					method.bits |= ASTNode.HasTypeAnnotations;
+				}
+			}	
 		}
 	}
 

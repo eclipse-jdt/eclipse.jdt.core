@@ -1,16 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.List;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -42,6 +50,36 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		}
 	}
 
+	public void getAllAnnotationContexts(int targetType, int typeParameterIndex, List allAnnotationContexts) {
+		AnnotationCollector collector = new AnnotationCollector(this, targetType, typeParameterIndex, allAnnotationContexts);
+		if (this.annotations != null) {
+			int annotationsLength = this.annotations.length;
+			for (int i = 0; i < annotationsLength; i++)
+				this.annotations[i].traverse(collector, (BlockScope) null);
+		}
+		switch(collector.targetType) {
+			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER :
+				collector.targetType = AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND;
+				break;
+			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER :
+				collector.targetType = AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND;
+		}
+		if (this.type != null && ((this.type.bits & ASTNode.HasTypeAnnotations) != 0)) {
+			collector.info2 = 0;
+			this.type.traverse(collector, (BlockScope) null);
+		}
+		if (this.bounds != null) {
+			int boundsLength = this.bounds.length;
+			for (int i = 0; i < boundsLength; i++) {
+				TypeReference bound = this.bounds[i];
+				if ((bound.bits & ASTNode.HasTypeAnnotations) == 0) {
+					continue;
+				}
+				collector.info2 = i + 1;
+				bound.traverse(collector, (BlockScope) null);
+			}
+		}
+	}
 	private void internalResolve(Scope scope, boolean staticContext) {
 	    // detect variable/type name collisions
 		if (this.binding != null) {
@@ -63,10 +101,27 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		internalResolve(scope, scope.enclosingSourceType().isStatic());
 	}
 
+	public void resolveAnnotations(BlockScope scope) {
+		if (this.annotations != null) {
+			resolveAnnotations(scope, this.annotations, new Annotation.TypeUseBinding(Binding.TYPE_PARAMETER));
+		}
+		if (this.type != null) {
+			this.type.resolveAnnotations(scope);
+		}
+		if (this.bounds != null) {
+			for (int i = 0, max = this.bounds.length; i < max; i++) {
+				this.bounds[i].resolveAnnotations(scope);
+			}
+		}
+	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#print(int, java.lang.StringBuffer)
 	 */
 	public StringBuffer printStatement(int indent, StringBuffer output) {
+		if (this.annotations != null) {
+			printAnnotations(this.annotations, output);
+			output.append(' ');
+		}
 		output.append(this.name);
 		if (this.type != null) {
 			output.append(" extends "); //$NON-NLS-1$
@@ -87,6 +142,11 @@ public class TypeParameter extends AbstractVariableDeclaration {
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
 			if (this.type != null) {
 				this.type.traverse(visitor, scope);
 			}
@@ -102,6 +162,11 @@ public class TypeParameter extends AbstractVariableDeclaration {
 
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
 			if (this.type != null) {
 				this.type.traverse(visitor, scope);
 			}

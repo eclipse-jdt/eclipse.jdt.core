@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.ParserBasicInformation;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -788,9 +789,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 			}
 	    }
 
-		//
-		// Next, try deletion of the error token.
-		//
+		/* Next, try deletion of the error token, preferring deletion as a criteria in
+		   case of identical, superfluous keyword tokens. See below.
+		*/
 		j = parseCheck(
 				stck,
 				stack_top,
@@ -806,6 +807,25 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 			repair.misspellIndex = k;
 			repair.code = DELETION_CODE;
 			repair.distance = j;
+		} else if (j == repair.distance) {
+			/* Handle some cases where deletion as a repair strategy is obviously superior to
+			   others. e.g: Object o = new new Object() {}; For some reason, with the new grammar
+			   rules to support type annotations in place, the scopeTrial's choice above wins out
+			   with the repair strategy being to insert a semicolon after the first new. That looks
+			   very suspicious. It is not clear if that is due to the bug in the implementation of
+			   scopeTrial or in the jikespg parser generator or in the grammar.
+			
+			   The current fix is a temporary point-fix to address this problem. It does make sense
+			   as a rule, but is a bit ad-hoc in nature and the reason why scopeTrial succeeds needs
+			   to be understood.
+			*/
+			LexStream.Token previousToken = this.lexStream.token(repair.bufferPosition + 1);
+			LexStream.Token curToken = this.lexStream.token(repair.bufferPosition + 2);
+			if (previousToken != null && curToken != null && previousToken.kind == curToken.kind && Scanner.isKeyword(curToken.kind)) {
+				repair.misspellIndex = k;
+				repair.code = DELETION_CODE;
+				repair.distance = j;
+			}
 		}
 
 		//

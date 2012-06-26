@@ -9,6 +9,10 @@
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -19,21 +23,21 @@ package org.eclipse.jdt.internal.compiler.parser;
 public interface ParserBasicInformation {
 
 	int ERROR_SYMBOL = 115,
-		MAX_NAME_LENGTH = 41,
-		NUM_STATES = 1033,
+		MAX_NAME_LENGTH = 50,
+		NUM_STATES = 1095,
 
 		NT_OFFSET = 115,
-		SCOPE_UBOUND = 144,
-		SCOPE_SIZE = 145,
-		LA_STATE_OFFSET = 13788,
+		SCOPE_UBOUND = 240,
+		SCOPE_SIZE = 241,
+		LA_STATE_OFFSET = 16594,
 		MAX_LA = 1,
-		NUM_RULES = 747,
+		NUM_RULES = 797,
 		NUM_TERMINALS = 115,
-		NUM_NON_TERMINALS = 335,
-		NUM_SYMBOLS = 450,
-		START_STATE = 939,
+		NUM_NON_TERMINALS = 357,
+		NUM_SYMBOLS = 472,
+		START_STATE = 864,
 		EOFT_SYMBOL = 67,
 		EOLT_SYMBOL = 67,
-		ACCEPT_ACTION = 13787,
-		ERROR_ACTION = 13788;
+		ACCEPT_ACTION = 16593,
+		ERROR_ACTION = 16594;
 }

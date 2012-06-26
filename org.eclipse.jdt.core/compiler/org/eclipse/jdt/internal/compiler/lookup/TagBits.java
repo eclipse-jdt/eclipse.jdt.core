@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
@@ -109,11 +113,14 @@ public interface TagBits {
 	long AnnotationForLocalVariable = ASTNode.Bit42L;
 	long AnnotationForAnnotationType = ASTNode.Bit43L;
 	long AnnotationForPackage = ASTNode.Bit44L;
+	long AnnotationForTypeUse = ASTNode.Bit54L;
+	long AnnotationForTypeParameter = ASTNode.Bit55L;
 	long AnnotationTargetMASK = AnnotationTarget
 				| AnnotationForType | AnnotationForField
 				| AnnotationForMethod | AnnotationForParameter
 				| AnnotationForConstructor | AnnotationForLocalVariable
-				| AnnotationForAnnotationType | AnnotationForPackage;
+				| AnnotationForAnnotationType | AnnotationForPackage
+				| AnnotationForTypeUse | AnnotationForTypeParameter;
 	// 2-bits for retention (should check (tagBits & RetentionMask) == RuntimeRetention
 	long AnnotationSourceRetention = ASTNode.Bit45L;
 	long AnnotationClassRetention = ASTNode.Bit46L;

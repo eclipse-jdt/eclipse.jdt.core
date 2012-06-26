@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -12682,7 +12686,7 @@ public void test315_warn_options_b() {
 		new String[] {
 				"X1.java",
 				"public class X1 {\n" +
-				"	Zork;\n" +
+				"	Zork z;\n" +
 				"}\n",
 				"org/eclipse/jdt/annotation/NonNull.java",
 				NONNULL_ANNOTATION_CONTENT,
@@ -12703,9 +12707,9 @@ public void test315_warn_options_b() {
 		"A default nullness annotation has not been specified for the type X1\n" + 
 		"----------\n" + 
 		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X1.java (at line 2)\n" + 
-		"	Zork;\n" + 
+		"	Zork z;\n" + 
 		"	^^^^\n" + 
-		"Syntax error on token \"Zork\", VariableDeclarator expected after this token\n" + 
+		"Zork cannot be resolved to a type\n" + 
 		"----------\n" + 
 		"2 problems (1 error, 1 warning)", 
 		true);

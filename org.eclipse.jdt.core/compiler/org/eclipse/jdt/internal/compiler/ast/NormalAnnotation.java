@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -59,6 +63,19 @@ public class NormalAnnotation extends Annotation {
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		if (visitor.visit(this, scope)) {
+			if (this.type != null) {
+				this.type.traverse(visitor, scope);
+			}
+			if (this.memberValuePairs != null) {
+				int memberValuePairsLength = this.memberValuePairs.length;
+				for (int i = 0; i < memberValuePairsLength; i++)
+					this.memberValuePairs[i].traverse(visitor, scope);
+			}
+		}
+		visitor.endVisit(this, scope);
+	}
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.type != null) {
 				this.type.traverse(visitor, scope);

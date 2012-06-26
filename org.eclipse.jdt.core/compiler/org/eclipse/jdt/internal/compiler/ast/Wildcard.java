@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -59,7 +63,7 @@ public class Wildcard extends SingleTypeReference {
 			boundType = scope.kind == Scope.CLASS_SCOPE
 					? this.bound.resolveType((ClassScope)scope)
 					: this.bound.resolveType((BlockScope)scope, true /* check bounds*/);
-
+			this.bits |= (this.bound.bits & ASTNode.HasTypeAnnotations);
 			if (boundType == null) {
 				return null;
 			}
@@ -89,6 +93,7 @@ public class Wildcard extends SingleTypeReference {
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 		if (this.bound != null) {
 			this.bound.resolveType(scope, checkBounds);
+			this.bits |= (this.bound.bits & ASTNode.HasTypeAnnotations);
 		}
 		return null;
 	}
@@ -96,6 +101,7 @@ public class Wildcard extends SingleTypeReference {
 	public TypeBinding resolveType(ClassScope scope) {
 		if (this.bound != null) {
 			this.bound.resolveType(scope);
+			this.bits |= (this.bound.bits & ASTNode.HasTypeAnnotations);
 		}
 		return null;
 	}

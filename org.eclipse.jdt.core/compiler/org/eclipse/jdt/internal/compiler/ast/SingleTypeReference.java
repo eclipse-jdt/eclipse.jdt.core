@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -33,6 +37,17 @@ public class SingleTypeReference extends TypeReference {
 
 		return new ArrayTypeReference(this.token, dim,(((long)this.sourceStart)<<32)+this.sourceEnd);
 	}
+	
+	public TypeReference copyDims(int dim, Annotation[][] annotationsOnDimensions){
+		//return a type reference copy of me with some dimensions
+		//warning : the new type ref has a null binding
+		ArrayTypeReference arrayTypeReference = new ArrayTypeReference(this.token, dim, annotationsOnDimensions, (((long)this.sourceStart)<<32)+this.sourceEnd);
+		arrayTypeReference.bits |= (this.bits & ASTNode.HasTypeAnnotations);
+		if (annotationsOnDimensions != null) {
+			arrayTypeReference.bits |= ASTNode.HasTypeAnnotations;
+		}
+		return arrayTypeReference;
+	}
 
 	public char[] getLastToken() {
 		return this.token;
@@ -54,7 +69,10 @@ public class SingleTypeReference extends TypeReference {
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output){
-
+		if (this.annotations != null) {
+			printAnnotations(this.annotations, output);
+			output.append(' ');
+		}
 		return output.append(this.token);
 	}
 
@@ -85,12 +103,24 @@ public class SingleTypeReference extends TypeReference {
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		visitor.visit(this, scope);
+		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
+		}
 		visitor.endVisit(this, scope);
 	}
 
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
-		visitor.visit(this, scope);
+		if (visitor.visit(this, scope)) {
+			if (this.annotations != null) {
+				int annotationsLength = this.annotations.length;
+				for (int i = 0; i < annotationsLength; i++)
+					this.annotations[i].traverse(visitor, scope);
+			}
+		}
 		visitor.endVisit(this, scope);
 	}
 }
