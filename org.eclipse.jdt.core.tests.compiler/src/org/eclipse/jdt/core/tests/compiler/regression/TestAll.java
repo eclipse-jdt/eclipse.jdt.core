@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.core.tests.compiler.parser.TypeAnnotationSyntaxTest;
 import org.eclipse.jdt.core.tests.dom.StandAloneASTParserTest;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
@@ -125,6 +126,8 @@ public static Test suite() {
 	
 	ArrayList since_1_8 = new ArrayList();
 	since_1_8.add(LambdaExpressionsNegativeTest.class);
+	since_1_8.add(NegativeTypeAnnotationTest.class);
+	since_1_8.add(TypeAnnotationSyntaxTest.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -149,7 +149,7 @@ public void test02() {
 /*
  * Should diagnose parenthesis mismatch
  */
-public void test03() {
+public void _test03() {
 
 	String s =
 		"public class X { // should complain	\n"+
@@ -259,7 +259,7 @@ public void test05() {
 		testName);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=61189
-public void test06() {
+public void _test06() {
 
 	String s =
 		"public class X { 							\n"+

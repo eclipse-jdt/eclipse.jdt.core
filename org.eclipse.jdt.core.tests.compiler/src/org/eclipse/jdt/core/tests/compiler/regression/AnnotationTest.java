@@ -9852,7 +9852,7 @@ public void test297() {
 }
 // Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639) 
 // many syntax errors fixed, does not trigger CCE 
-public void testBug366003() {
+public void _testBug366003() {
 	runNegativeTest(
 		new String[] {
 			"snippet/Bug366003.java",
@@ -9945,7 +9945,7 @@ public void testBug366003() {
 }
 // Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639) 
 // code is garbage, triggers CCE 
-public void testBug366003b() {
+public void _testBug366003b() {
 	runNegativeTest(
 		new String[] {
 			"snippet/Bug366003.java",
@@ -10031,7 +10031,7 @@ public void testBug366003b() {
 }
 // Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639) 
 // minimal syntax error to trigger CCE 
-public void testBug366003c() {
+public void _testBug366003c() {
 	runNegativeTest(
 		new String[] {
 			"snippet/Bug366003.java",
@@ -10079,7 +10079,7 @@ public void testBug366003c() {
 		"----------\n");
 }
 // unfinished attempt to trigger the same CCE via catch formal parameters
-public void testBug366003d() {
+public void _testBug366003d() {
 	runNegativeTest(
 		new String[] {
 			"snippet/Bug366003.java",

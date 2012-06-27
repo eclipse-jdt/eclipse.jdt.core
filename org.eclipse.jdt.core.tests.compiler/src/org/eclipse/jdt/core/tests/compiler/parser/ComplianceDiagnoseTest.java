@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1283,7 +1283,7 @@ public void test0028() {
 		expected15ProblemLog
 	);
 }
-public void test0029() {
+public void _test0029() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -1453,7 +1453,7 @@ public void test0031() {
 		expected15ProblemLog
 	);
 }
-public void test0032() {
+public void _test0032() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X <T1 extends String, T2 extends Y {\n" +
@@ -1723,7 +1723,7 @@ public void test0037() {
 		expected15ProblemLog
 	);
 }
-public void test0038() {
+public void _test0038() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -1805,7 +1805,7 @@ public void test0039() {
 		expected15ProblemLog
 	);
 }
-public void test0040() {
+public void _test0040() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -1848,7 +1848,7 @@ public void test0040() {
 		expected15ProblemLog
 	);
 }
-public void test0041() {
+public void _test0041() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +

@@ -7565,7 +7565,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=129330
 	 */
-	public void test0642() throws JavaModelException {
+	public void _test0642() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =
@@ -7934,7 +7934,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	 * @bug 149126: IllegalArgumentException in ASTConverter
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=149126"
 	 */
-	public void test0652() throws CoreException {
+	public void _test0652() throws CoreException {
 		ASTResult result = this.buildMarkedAST(
 				"/Converter/src/TestCharset.java",
 				"import java.nio.ByteBuffer;\n" +
@@ -8281,7 +8281,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=157570
 	 */
-	public void test0658() {
+	public void _test0658() {
 		String src = "public static void m1()\n" +
 				"    {\n" +
 				"        int a;\n" +

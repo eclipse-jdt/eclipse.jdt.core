@@ -106,7 +106,7 @@ public void test003() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383046, syntax error reported incorrectly on syntactically valid lambda expression
-public void test004() {
+public void _test004() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -146,7 +146,7 @@ public void test005() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383046, syntax error reported incorrectly on *syntactically* valid reference expression
-public void test006() {
+public void _test006() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",

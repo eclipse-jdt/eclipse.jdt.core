@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2496,7 +2496,7 @@ public void test31() {
  * Should recover from method with missing argument names
  */
 
-public void test32() {
+public void _test32() {
 
 	String s =
 		"public class WB2 {											\n"+
@@ -4576,7 +4576,7 @@ public void test74() {
  * Bunch of syntax errors
  */
 
-public void test75() {
+public void _test75() {
 
 	String s =
 		"package ZKentTest;\n"+
@@ -4772,7 +4772,7 @@ public void test76() {
  * Should not recover duplicate field numberOfDisks
  */
 
-public void test77() {
+public void _test77() {
 
 	String s =
 		"package p;															\n"+
@@ -5947,7 +5947,7 @@ public void test98() {
 		expectedCompletionDietUnitToString, testName);
 }
 
-public void test99() {
+public void _test99() {
 	String s =
 		"import ;\n"+
 		"class X {\n"+
@@ -7577,7 +7577,7 @@ public void test123() {
 		expectedCompletionDietUnitToString, testName);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=157570
-public void test124() {
+public void _test124() {
 	String s =
 		"public class Test {\n" +
 		"	void aMethod() {\n" +
