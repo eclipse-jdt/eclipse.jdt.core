@@ -174,6 +174,12 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Operator
 						compliance = ClassFileConstants.JDK1_4;
 					} else if("1.5".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK1_5;
+					} else if("1.6".equals(token)) { //$NON-NLS-1$
+						compliance = ClassFileConstants.JDK1_6;
+					} else if("1.7".equals(token)) { //$NON-NLS-1$
+						compliance = ClassFileConstants.JDK1_7;
+					} else if("1.8".equals(token)) { //$NON-NLS-1$
+						compliance = ClassFileConstants.JDK1_8;
 					} else if("recovery".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK_DEFERRED;
 					}
