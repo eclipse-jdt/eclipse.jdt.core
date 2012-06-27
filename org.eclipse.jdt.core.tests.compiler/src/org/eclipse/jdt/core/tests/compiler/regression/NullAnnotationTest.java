@@ -19,7 +19,6 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 // see bug 186342 - [compiler][null] Using annotations for null checking
 public class NullAnnotationTest extends AbstractComparableTest {
@@ -553,10 +552,6 @@ public void test_nonnull_parameter_013() {
 }
 // non-null varargs (message send)
 public void test_nonnull_parameter_015() {
-	if (this.complianceLevel > ClassFileConstants.JDK1_7) {
-		fail("Reminder: should check if JSR 308 mandates a change in handling vararg elements (see bug 365983).");
-		return;
-	}
 	runNegativeTest(
 		new String[] {
 			"X.java",
@@ -606,10 +601,6 @@ public void test_nonnull_parameter_015() {
 }
 // non-null varargs (allocation and explicit constructor calls)
 public void test_nonnull_parameter_016() {
-	if (this.complianceLevel > ClassFileConstants.JDK1_7) {
-		fail("Reminder: should check if JSR 308 mandates a change in handling vararg elements (see bug 365983).");
-		return;
-	}
 	runNegativeTest(
 		new String[] {
 			"X.java",
