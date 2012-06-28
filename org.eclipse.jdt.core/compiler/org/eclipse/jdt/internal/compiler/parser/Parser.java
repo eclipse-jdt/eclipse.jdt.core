@@ -4703,6 +4703,10 @@ protected void consumeInterfaceMethodDeclaration(boolean isDefault) {
 	MethodDeclaration md = (MethodDeclaration) this.astStack[this.astPtr];
 	md.bodyEnd = this.endPosition;
 	md.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
+	
+	if (isDefault && !this.parsingJava8Plus) {
+		problemReporter().defaultMethodsNotBelow18(md);
+	}
 
 	// report the problem and continue the parsing - narrowing the problem onto the method
 	if(!this.statementRecoveryActivated && !isDefault) problemReporter().abstractMethodNeedingNoBody(md);
@@ -7884,6 +7888,9 @@ protected void consumeLambdaExpression() {
 	lexp.sourceStart = this.intStack[this.intPtr--]; // '(' position or identifier position.
 	lexp.sourceEnd = body.sourceEnd;
 	pushOnExpressionStack(lexp);
+	if (!this.parsingJava8Plus) {
+		problemReporter().lambdaExpressionsNotBelow18(lexp);
+	}
 	this.listLength = 0; // reset this.listLength after having read all parameters
 }
 
@@ -7994,6 +8001,9 @@ protected void consumeReferenceExpressionNameForm() {
 		rexp = new ReferenceExpression(nameReference, typeArguments, methodReference); 
 	}
 	pushOnExpressionStack(rexp);
+	if (!this.parsingJava8Plus) {
+		problemReporter().referenceExpressionsNotBelow18(rexp);
+	}
 }
 protected void consumeReferenceExpressionPrimaryForm() {
 	// ReferenceExpression ::= Primary '::' NonWildTypeArgumentsopt Identifier
@@ -8014,6 +8024,9 @@ protected void consumeReferenceExpressionPrimaryForm() {
 	this.expressionLengthPtr--;
 	rexp = new ReferenceExpression(primary, typeArguments, methodReference);
 	pushOnExpressionStack(rexp);
+	if (!this.parsingJava8Plus) {
+		problemReporter().referenceExpressionsNotBelow18(rexp);
+	}
 }
 protected void consumeReferenceExpressionSuperForm() {
 	// ReferenceExpression ::= 'super' '::' NonWildTypeArgumentsopt Identifier
@@ -8033,6 +8046,9 @@ protected void consumeReferenceExpressionSuperForm() {
 	SuperReference superReference = new SuperReference(this.intStack[this.intPtr--], this.endPosition);
 	rexp = new ReferenceExpression(superReference, typeArguments, methodReference);
 	pushOnExpressionStack(rexp);
+	if (!this.parsingJava8Plus) {
+		problemReporter().referenceExpressionsNotBelow18(rexp);
+	}
 }
 protected void consumeReferenceExpressionTypeForm(boolean qualified) {
 	// ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression '::' NonWildTypeArgumentsopt IdentifierOrNew
@@ -8079,6 +8095,9 @@ protected void consumeReferenceExpressionTypeForm(boolean qualified) {
 		this.intPtr --; // pop '<' position
 	}
 	pushOnExpressionStack(rexp);
+	if (!this.parsingJava8Plus) {
+		problemReporter().referenceExpressionsNotBelow18(rexp);
+	}
 }
 protected void consumeInterfaceMethodDefault() {
 	// Shift method co-ordinates past the default keyword.

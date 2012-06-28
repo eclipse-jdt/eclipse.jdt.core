@@ -1305,6 +1305,14 @@ void setSourceStart(int sourceStart);
     int IllegalDeclarationOfThisParameter = Internal + Syntax + 642;
     /** @since 3.9*/
     int ExplicitThisParameterNotBelow18 = Internal + Syntax + 643;
+    /** @since 3.9*/
+    int DefaultMethodNotBelow18 = Internal + Syntax + 644;
+    /** @since 3.9*/
+    int LambdaExpressionNotBelow18 = Internal + Syntax + 645;
+    /** @since 3.9*/
+    int MethodReferenceNotBelow18 = Internal + Syntax + 646;
+    /** @since 3.9*/
+    int ConstructorReferenceNotBelow18 = Internal + Syntax + 647;
 
 	/**
 	 * More problems in generics

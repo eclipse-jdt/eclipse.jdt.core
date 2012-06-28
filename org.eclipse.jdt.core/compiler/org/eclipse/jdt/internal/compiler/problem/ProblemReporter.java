@@ -69,6 +69,7 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.LabeledStatement;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
@@ -81,6 +82,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
+import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
@@ -2657,6 +2659,30 @@ public void illegalThis(Argument argument, AbstractMethodDeclaration method, lon
 		arguments,
 		argument.sourceStart,
 		argument.sourceEnd);
+}
+public void defaultMethodsNotBelow18(MethodDeclaration md) {
+	this.handle(
+			IProblem.DefaultMethodNotBelow18,
+			NoArgument,
+			NoArgument,
+			md.bodyStart,
+			md.bodyEnd);
+}
+public void referenceExpressionsNotBelow18(ReferenceExpression rexp) {
+	this.handle(
+			rexp.isMethodReference() ? IProblem.MethodReferenceNotBelow18 : IProblem.ConstructorReferenceNotBelow18,
+			NoArgument,
+			NoArgument,
+			rexp.sourceStart,
+			rexp.sourceEnd);
+}
+public void lambdaExpressionsNotBelow18(LambdaExpression lexp) {
+	this.handle(
+			IProblem.LambdaExpressionNotBelow18,
+			NoArgument,
+			NoArgument,
+			lexp.sourceStart,
+			lexp.sourceEnd);
 }
 public void illegalVisibilityModifierCombinationForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
 	String[] arguments = new String[] {new String(fieldDecl.name)};

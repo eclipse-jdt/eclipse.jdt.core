@@ -87,4 +87,10 @@ public class ReferenceExpression extends NullLiteral { // For the time being.
 		}
 		return output;
 	}
+	public boolean isConstructorReference() {
+		return this.method == null;
+	}
+	public boolean isMethodReference() {
+		return this.method != null;
+	}
 }
