@@ -715,13 +715,18 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	/*
 	astStack :
 	identifierStack : type identifier
-	intStack : dim dim
+	intStack : dim dim 1||0  // 1 => normal parameter, 0 => this parameter
 	 ==>
 	astStack : Argument
 	identifierStack :
 	intStack :
 	*/
-
+	TypeReference qualifyingTypeReference = null;
+    boolean isReceiver = this.intStack[this.intPtr--] == 0;
+    if (isReceiver) {
+    	qualifyingTypeReference = (TypeReference) this.expressionStack[this.expressionPtr--];
+    	this.expressionLengthPtr --;
+    }
 	this.identifierLengthPtr--;
 	char[] parameterName = this.identifierStack[this.identifierPtr];
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];
@@ -762,12 +767,21 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		type.bits |= ASTNode.IsVarArgs; // set isVarArgs
 	}
 	this.intPtr -= 3;
-	Argument arg =
-		new Argument(
+	Argument arg;
+	if (isReceiver) {
+		arg = new Receiver(
+				parameterName, 
+				namePositions, 
+				type,
+				qualifyingTypeReference,
+				this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated);
+	} else {
+		arg = new Argument(
 			parameterName,
 			namePositions,
 			type,
 			this.intStack[this.intPtr + 1]);// modifiers
+	}
 	// consume annotations
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
 		System.arraycopy(

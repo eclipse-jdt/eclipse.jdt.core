@@ -3550,4 +3550,43 @@ public void test0135() throws IOException {
 		"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383600 -- Receiver annotation - new syntax.
+public void test0136() throws IOException {
+	String source =
+			"public class X<T> {\n" +
+			"  public class Y<K> {\n" +
+			"    void foo(@Marker X<T> this) {\n" +
+			"    }\n" +
+			"    public class Z {\n" +
+			"      Z(@D() @A(value = \"hello\") X<T>.Y<K> X.Y.this) {\n" +
+			"      }\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    new X<String>().new Y<Integer>().new Z();\n" +
+			"  }\n" +
+			"}\n";
+	String expectedUnitToString = 
+			"public class X<T> {\n" + 
+			"  public class Y<K> {\n" + 
+			"    public class Z {\n" + 
+			"      Z(@D() @A(value = \"hello\") X<T>.Y<K> X.Y.this) {\n" + 
+			"        super();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    public Y() {\n" + 
+			"      super();\n" + 
+			"    }\n" + 
+			"    void foo(@Marker X<T> this) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public X() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    new X<String>().new Y<Integer>().new Z();\n" + 
+			"  }\n" + 
+			"}\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
+}
 }

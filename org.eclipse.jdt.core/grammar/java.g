@@ -673,10 +673,14 @@ RestoreDiet ::= $empty
 /:$readableName RestoreDiet:/
 
 VariableDeclaratorIdOrThis ::= 'this'
-/.$putCase consumeExplicitThisParameter(); $break ./
-VariableDeclaratorIdOrThis -> VariableDeclaratorId
-/:$readableName VariableDeclaratorIdOrThis:/
+/.$putCase consumeExplicitThisParameter(false); $break ./
 /:$compliance 1.8:/
+VariableDeclaratorIdOrThis ::= Name '.' 'this'
+/.$putCase consumeExplicitThisParameter(true); $break ./
+/:$compliance 1.8:/
+VariableDeclaratorIdOrThis ::= VariableDeclaratorId
+/.$putCase consumeVariableDeclaratorIdParameter(); $break ./
+/:$readableName VariableDeclaratorIdOrThis:/
 
 VariableDeclaratorId ::= 'Identifier' Dimsopt
 /:$readableName VariableDeclaratorId:/

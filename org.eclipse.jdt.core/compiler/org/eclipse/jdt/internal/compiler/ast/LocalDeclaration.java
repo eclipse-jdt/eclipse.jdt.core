@@ -209,6 +209,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	public boolean isArgument() {
 		return false;
 	}
+	public boolean isReceiver() {
+		return false;
+	}
 	public void resolve(BlockScope scope) {
 
 		// create a binding and add it to the scope

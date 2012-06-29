@@ -601,6 +601,11 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			}
 		}
 	} else {
+		boolean isReceiver = this.intStack[this.intPtr--] == 0;
+	    if (isReceiver) {
+	    	this.expressionPtr--;
+	    	this.expressionLengthPtr --;
+	    }
 		this.identifierLengthPtr--;
 		char[] identifierName = this.identifierStack[this.identifierPtr];
 		long namePositions = this.identifierPositionStack[this.identifierPtr--];
