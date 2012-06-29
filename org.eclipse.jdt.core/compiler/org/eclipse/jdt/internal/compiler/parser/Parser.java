@@ -5664,8 +5664,7 @@ protected void consumePrimaryNoNewArrayNameSuper() {
 	// handle type arguments
 	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 	pushOnGenericsLengthStack(0);
-	pushOnTypeAnnotationLengthStack(0); // javac complains on annotations here.
-	TypeReference typeReference = getTypeReference(0);
+	TypeReference typeReference = getUnannotatedTypeReference(0);
 
 	pushOnExpressionStack(
 		new QualifiedSuperReference(
@@ -5678,8 +5677,7 @@ protected void consumePrimaryNoNewArrayNameThis() {
 	// handle type arguments
 	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 	pushOnGenericsLengthStack(0); // handle type arguments
-	pushOnTypeAnnotationLengthStack(0); // javac complains on annotations here.
-	TypeReference typeReference = getTypeReference(0);
+	TypeReference typeReference = getUnannotatedTypeReference(0);
 
 	pushOnExpressionStack(
 		new QualifiedThisReference(
