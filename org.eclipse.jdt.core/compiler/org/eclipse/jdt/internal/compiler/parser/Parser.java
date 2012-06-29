@@ -5643,9 +5643,19 @@ protected void consumePrimaryNoNewArrayArrayType() {
 
 	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 	pushOnGenericsLengthStack(0);
-
+	ClassLiteralAccess cla;
 	pushOnExpressionStack(
-		new ClassLiteralAccess(this.intStack[this.intPtr--], getUnannotatedTypeReference(this.intStack[this.intPtr--])));
+		cla = new ClassLiteralAccess(this.intStack[this.intPtr--], getUnannotatedTypeReference(this.intStack[this.intPtr--])));
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383884
+	Annotation [][] dimensionAnnotations = cla.type.getAnnotationsOnDimensions();
+	if (dimensionAnnotations != null) {
+		for (int i = 0, max = dimensionAnnotations.length; i < max; i++) {
+			Annotation [] annotations = dimensionAnnotations[i];
+			if (annotations != null) {
+				problemReporter().misplacedTypeAnnotations(annotations[0], annotations[annotations.length - 1]);
+			}
+		}
+	}
 }
 protected void consumePrimaryNoNewArrayName() {
 	// PrimaryNoNewArray ::= Name '.' 'class'
@@ -5688,8 +5698,19 @@ protected void consumePrimaryNoNewArrayNameThis() {
 protected void consumePrimaryNoNewArrayPrimitiveArrayType() {
 	// PrimaryNoNewArray ::= PrimitiveType Dims '.' 'class'
 	this.intPtr--; // remove the class start position
+	ClassLiteralAccess cla;
 	pushOnExpressionStack(
-		new ClassLiteralAccess(this.intStack[this.intPtr--], getUnannotatedTypeReference(this.intStack[this.intPtr--])));
+		cla = new ClassLiteralAccess(this.intStack[this.intPtr--], getUnannotatedTypeReference(this.intStack[this.intPtr--])));
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383884
+	Annotation [][] dimensionAnnotations = cla.type.getAnnotationsOnDimensions();
+	if (dimensionAnnotations != null) {
+		for (int i = 0, max = dimensionAnnotations.length; i < max; i++) {
+			Annotation [] annotations = dimensionAnnotations[i];
+			if (annotations != null) {
+				problemReporter().misplacedTypeAnnotations(annotations[0], annotations[annotations.length - 1]);
+			}
+		}
+	}
 }
 protected void consumePrimaryNoNewArrayPrimitiveType() {
 	// PrimaryNoNewArray ::= PrimitiveType '.' 'class'
