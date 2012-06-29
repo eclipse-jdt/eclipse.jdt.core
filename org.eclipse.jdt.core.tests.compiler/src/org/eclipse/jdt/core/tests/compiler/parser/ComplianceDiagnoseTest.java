@@ -1361,7 +1361,7 @@ public void _test0029() {
 		expected15ProblemLog
 	);
 }
-public void test0030() {
+public void _test0030() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +

@@ -680,7 +680,7 @@ VariableDeclaratorIdOrThis ::= Name '.' 'this'
 /:$compliance 1.8:/
 VariableDeclaratorIdOrThis ::= VariableDeclaratorId
 /.$putCase consumeVariableDeclaratorIdParameter(); $break ./
-/:$readableName VariableDeclaratorIdOrThis:/
+/:$readableName VariableDeclaratorId:/
 
 VariableDeclaratorId ::= 'Identifier' Dimsopt
 /:$readableName VariableDeclaratorId:/
