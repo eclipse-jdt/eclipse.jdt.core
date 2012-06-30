@@ -2660,6 +2660,15 @@ public void illegalThis(Argument argument, AbstractMethodDeclaration method, lon
 		argument.sourceStart,
 		argument.sourceEnd);
 }
+public void illegalThis(Argument argument) {
+	String[] arguments = NoArgument;
+	this.handle(
+		IProblem.ExplicitThisParameterNotInLambda,
+		arguments,
+		arguments,
+		argument.sourceStart,
+		argument.sourceEnd);
+}
 public void defaultMethodsNotBelow18(MethodDeclaration md) {
 	this.handle(
 			IProblem.DefaultMethodNotBelow18,

@@ -1313,7 +1313,9 @@ void setSourceStart(int sourceStart);
     int MethodReferenceNotBelow18 = Internal + Syntax + 646;
     /** @since 3.9*/
     int ConstructorReferenceNotBelow18 = Internal + Syntax + 647;
-
+    /** @since 3.9*/
+    int ExplicitThisParameterNotInLambda = Internal + Syntax + 648;
+    
 	/**
 	 * More problems in generics
 	 */

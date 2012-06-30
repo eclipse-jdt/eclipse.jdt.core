@@ -187,6 +187,28 @@ public void _test007() {
 			"----------\n" /* expected compiler log */,
 			true /* perform statement recovery */);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383949,  Explicit this parameter illegal in lambda expressions
+public void test008() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  int foo(X x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void main(String[] args) {\n" +
+					"    I i = (X this) -> 10;  \n" +
+					"  }\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	I i = (X this) -> 10;  \n" + 
+				"	         ^^^^\n" + 
+				"Lambda expressions cannot declare a this parameter\n" + 
+				"----------\n" /* expected compiler log */,
+			true /* perform statement recovery */);
+}
 
 public static Class testClass() {
 	return LambdaExpressionsNegativeTest.class;

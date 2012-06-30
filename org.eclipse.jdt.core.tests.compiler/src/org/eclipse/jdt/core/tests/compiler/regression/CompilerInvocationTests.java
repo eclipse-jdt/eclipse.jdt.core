@@ -455,6 +455,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ExceptionTypeInternalNameProvided", DEPRECATED);
 		expectedProblemAttributes.put("ExceptionTypeNotFound", DEPRECATED);
 		expectedProblemAttributes.put("ExceptionTypeNotVisible", DEPRECATED);
+		expectedProblemAttributes.put("ExplicitThisParameterNotInLambda", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ExplicitThisParameterNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ExplicitlyClosedAutoCloseable", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("ExpressionShouldBeAVariable", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
@@ -1172,6 +1173,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ExceptionTypeInternalNameProvided", SKIP);
 		expectedProblemAttributes.put("ExceptionTypeNotFound", SKIP);
 		expectedProblemAttributes.put("ExceptionTypeNotVisible", SKIP);
+		expectedProblemAttributes.put("ExplicitThisParameterNotInLambda", SKIP);
 		expectedProblemAttributes.put("ExplicitThisParameterNotBelow18", SKIP);
 		expectedProblemAttributes.put("ExplicitlyClosedAutoCloseable", new ProblemAttributes(JavaCore.COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE));
 		expectedProblemAttributes.put("ExpressionShouldBeAVariable", SKIP);

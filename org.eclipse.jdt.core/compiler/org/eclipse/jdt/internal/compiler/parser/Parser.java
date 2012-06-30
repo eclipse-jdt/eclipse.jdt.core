@@ -8032,6 +8032,11 @@ protected void consumeLambdaExpression() {
 			0,
 			length);
 	}
+	for (int i = 0; i < length; i++) {
+		if (arguments[i].isReceiver()) {
+			problemReporter().illegalThis(arguments[i]);
+		}
+	}
 	LambdaExpression lexp = new LambdaExpression(arguments, body);
 	this.intPtr--;  // ')' position, discard for now.
 	lexp.sourceStart = this.intStack[this.intPtr--]; // '(' position or identifier position.
