@@ -2524,8 +2524,10 @@ private final boolean atReferenceExpression() {
 	/* The cursor is at a '<' that figures just past the non terminal symbol `Name' and the parser is parsing a primary expression.
 	   Look ahead and answer true if we are at a method or constructor reference expression and false otherwise.
 
-	   ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression '::' NonWildTypeArgumentsopt IdentifierOrNew
-	   ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression '.' ClassOrInterfaceType '::' NonWildTypeArgumentsopt IdentifierOrNew 
+	   ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
+	   ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression '.' ClassOrInterfaceType Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
+	   
+	    Note: At this point, we don't handle annotations on dimensions, I think it is illegal, but needs to be verified.
 	*/ 
 	
 	int savedCurrentPosition = this.currentPosition;
@@ -2548,6 +2550,9 @@ private final boolean atReferenceExpression() {
 		done:
 			while (true) {
 				NextToken: switch (c) {
+					case '[' :
+					case ']' :
+						break NextToken; // good enough for now.
 					case '<' :
 						if (justPastIdentifier) {
 							jumpOver('<' , '>', typeArgumentsBlackList);

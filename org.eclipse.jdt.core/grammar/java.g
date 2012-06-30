@@ -1384,11 +1384,13 @@ OnlyTypeArgumentsForReferenceExpression -> BeginTypeArguments OnlyTypeArguments
 /:$readableName OnlyTypeArgumentsForReferenceExpression:/
 /:$compliance 1.8:/
 
-ReferenceExpression ::= Name '::' NonWildTypeArgumentsopt IdentifierOrNew
+ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
+/.$putCase consumeReferenceExpressionPrimitiveTypeForm(); $break ./
+ReferenceExpression ::= Name Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
 /.$putCase consumeReferenceExpressionNameForm(); $break ./
-ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression '::' NonWildTypeArgumentsopt IdentifierOrNew
+ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
 /.$putCase consumeReferenceExpressionTypeForm(false); $break ./
-ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression '.' ClassOrInterfaceType '::' NonWildTypeArgumentsopt IdentifierOrNew
+ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression '.' ClassOrInterfaceType Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
 /.$putCase consumeReferenceExpressionTypeForm(true); $break ./
 ReferenceExpression ::= Primary '::' NonWildTypeArgumentsopt Identifier
 /.$putCase consumeReferenceExpressionPrimaryForm(); $break ./
