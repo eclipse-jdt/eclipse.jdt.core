@@ -173,21 +173,44 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"	abstract void foo3() default {}\n" +
 			"	              ^^^^^^\n" +
 			"Abstract methods do not specify a body\n" +
-			"----------\n" + 
-			"3. ERROR in I.java (at line 6)\n" + 
-			"	void foo4() { }\n" + 
-			"	     ^^^^^^\n" + 
-			"Abstract methods do not specify a body\n" + 
-			"----------\n" + 
-			"4. ERROR in I.java (at line 7)\n" + 
-			"	abstract static void foo5() default {}\n" + 
-			"	                     ^^^^^^\n" + 
-			"Illegal modifier for the interface method foo5; only public, abstract, strictfp & synchronized are permitted\n" + 
+			"----------\n" +
+			"3. ERROR in I.java (at line 6)\n" +
+			"	void foo4() { }\n" +
+			"	     ^^^^^^\n" +
+			"Abstract methods do not specify a body\n" +
+			"----------\n" +
+			"4. ERROR in I.java (at line 7)\n" +
+			"	abstract static void foo5() default {}\n" +
+			"	                     ^^^^^^\n" +
+			"Illegal modifier for the interface method foo5; only public, abstract, strictfp & synchronized are permitted\n" +
 			"----------\n" +
 			"5. ERROR in I.java (at line 7)\n" +
-			"	abstract static void foo5() default {}\n" + 
-			"	                     ^^^^^^\n" + 
+			"	abstract static void foo5() default {}\n" +
+			"	                     ^^^^^^\n" +
 			"Abstract methods do not specify a body\n" +
+			"----------\n");
+	}
+
+	// default methods with various modifiers, simple syntax error blows the parser
+	public void testModifiers5() {
+// Inject an unrelated compile error to prevent class file verification. TODO revert
+//		runConformTest(
+		runNegativeTest(
+			new String[] {
+				"I.java",
+				"public interface I {\n" +
+				"    void foo() default {}\n" +
+				"}\n",
+				"C.java",
+				"public class C implements I {}\n" +
+// TODO remove me:
+				"public class Wrong{}\n"
+			},
+			"----------\n" +
+			"1. ERROR in C.java (at line 2)\n" +
+			"	public class Wrong{}\n" +
+			"	             ^^^^^\n" +
+			"The public type Wrong must be defined in its own file\n" +
 			"----------\n");
 	}
 }
