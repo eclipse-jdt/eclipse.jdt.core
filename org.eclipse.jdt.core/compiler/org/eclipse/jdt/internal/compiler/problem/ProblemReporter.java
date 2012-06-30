@@ -8573,10 +8573,11 @@ public void missingNonNullByDefaultAnnotation(TypeDeclaration type) {
 }
 
 public void illegalModifiersForElidedType(Argument argument) {
+	String[] arg = new String[] {new String(argument.name)};
 	this.handle(
 			IProblem.IllegalModifiersForElidedType,
-			NoArgument,
-			NoArgument,
+			arg,
+			arg,
 			argument.declarationSourceStart,
 			argument.declarationSourceEnd);
 }

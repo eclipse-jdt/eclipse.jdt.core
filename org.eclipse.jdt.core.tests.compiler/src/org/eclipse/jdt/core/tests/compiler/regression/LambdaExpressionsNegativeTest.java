@@ -206,8 +206,40 @@ public void test008() {
 				"	I i = (X this) -> 10;  \n" + 
 				"	         ^^^^\n" + 
 				"Lambda expressions cannot declare a this parameter\n" + 
-				"----------\n" /* expected compiler log */,
-			true /* perform statement recovery */);
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383949,  Explicit this parameter illegal in lambda expressions
+public void test009() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.awt.event.ActionListener;\n" +
+					"interface I {\n" +
+					"    void doit(String s1, String s2);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public void test1(int x) {\n" +
+					"    ActionListener al = (public xyz) -> System.out.println(e); \n" +
+					"    I f = (abstract final s, @Nullable t) -> System.out.println(s + t); \n" +
+					"  }\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	ActionListener al = (public xyz) -> System.out.println(e); \n" + 
+				"	                            ^^^\n" + 
+				"Syntax error, modifiers and annotations are not allowed for the lambda parameter xyz as its type is elided\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	I f = (abstract final s, @Nullable t) -> System.out.println(s + t); \n" + 
+				"	                      ^\n" + 
+				"Syntax error, modifiers and annotations are not allowed for the lambda parameter s as its type is elided\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	I f = (abstract final s, @Nullable t) -> System.out.println(s + t); \n" + 
+				"	                                   ^\n" + 
+				"Syntax error, modifiers and annotations are not allowed for the lambda parameter t as its type is elided\n" + 
+				"----------\n");
 }
 
 public static Class testClass() {

@@ -8075,11 +8075,11 @@ protected void consumeTypeElidedLambdaParameter(boolean parenthesized) {
 			null, // elided type
 			ClassFileConstants.AccDefault,
 			true);
+	arg.declarationSourceStart = (int) (namePositions >>> 32);
 	if (modifier != ClassFileConstants.AccDefault || annotationLength != 0) {
+		problemReporter().illegalModifiersForElidedType(arg);
 		arg.declarationSourceStart = modifiersStart;
-	} else {
-		arg.declarationSourceStart = (int) (namePositions >>> 32);	
-	}
+	} 
 	pushOnAstStack(arg);
 	if (!parenthesized) { // in the absence of '(' and ')', record positions.
 		pushOnIntStack(arg.declarationSourceStart);
@@ -8088,9 +8088,6 @@ protected void consumeTypeElidedLambdaParameter(boolean parenthesized) {
 	/* if incomplete method header, this.listLength counter will not have been reset,
 		indicating that some arguments are available on the stack */
 	this.listLength++;
-	if (modifier != ClassFileConstants.AccDefault || annotationLength != 0) {
-		problemReporter().illegalModifiersForElidedType(arg);
-	}
 }
 protected void consumeElidedLeftBraceAndReturn() {
 	/* ElidedLeftBraceAndReturn ::= $empty
