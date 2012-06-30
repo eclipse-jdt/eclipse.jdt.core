@@ -121,8 +121,6 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 		runNegativeTest(
 		new String[] {
 			"I.java",
-			"import java.lang.annotation.*;\n" +
-			"@Target(ElementType.METHOD) @interface Annot{}\n" +
 			"public interface I {\n" +
 			"    native void foo1();\n" +
 			"    static void foo2();\n" +
@@ -130,25 +128,66 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"    static void foo4() default {}\n" +
 			"}\n"},
 			"----------\n" +
-			"1. ERROR in I.java (at line 4)\n" +
+			"1. ERROR in I.java (at line 2)\n" +
 			"	native void foo1();\n" +
 			"	            ^^^^^^\n" +
 			"Illegal modifier for the interface method foo1; only public & abstract are permitted\n" +
 			"----------\n" +
-			"2. ERROR in I.java (at line 5)\n" +
+			"2. ERROR in I.java (at line 3)\n" +
 			"	static void foo2();\n" +
 			"	            ^^^^^^\n" +
 			"Illegal modifier for the interface method foo2; only public & abstract are permitted\n" +
 			"----------\n" +
-			"3. ERROR in I.java (at line 6)\n" +
+			"3. ERROR in I.java (at line 4)\n" +
 			"	native void foo3() default {}\n" +
 			"	            ^^^^^^\n" +
 			"Illegal modifier for the interface method foo3; only public, abstract, strictfp & synchronized are permitted\n" +
 			"----------\n" +
-			"4. ERROR in I.java (at line 7)\n" +
+			"4. ERROR in I.java (at line 5)\n" +
 			"	static void foo4() default {}\n" +
 			"	            ^^^^^^\n" +
 			"Illegal modifier for the interface method foo4; only public, abstract, strictfp & synchronized are permitted\n" +
+			"----------\n");
+	}
+
+	// if an interface methods is explicitly "abstract" it cannot have a (default) body
+	public void testModifiers4() {
+		runNegativeTest(
+		new String[] {
+			"I.java",
+			"import java.lang.annotation.*;\n" +
+			"public interface I {\n" +
+			"    abstract void foo1();\n" + // OK
+			"    public abstract void foo2() default {}\n" +
+			"    abstract void foo3() default {}\n" +
+			"    void foo4() { }\n" + // implicit "abstract" without "default" doesn't allow a body, either
+			"    abstract static void foo5() default {}\n" + // double fault
+			"}\n"},
+			"----------\n" +
+			"1. ERROR in I.java (at line 4)\n" +
+			"	public abstract void foo2() default {}\n" +
+			"	                     ^^^^^^\n" +
+			"Abstract methods do not specify a body\n" +
+			"----------\n" +
+			"2. ERROR in I.java (at line 5)\n" +
+			"	abstract void foo3() default {}\n" +
+			"	              ^^^^^^\n" +
+			"Abstract methods do not specify a body\n" +
+			"----------\n" + 
+			"3. ERROR in I.java (at line 6)\n" + 
+			"	void foo4() { }\n" + 
+			"	     ^^^^^^\n" + 
+			"Abstract methods do not specify a body\n" + 
+			"----------\n" + 
+			"4. ERROR in I.java (at line 7)\n" + 
+			"	abstract static void foo5() default {}\n" + 
+			"	                     ^^^^^^\n" + 
+			"Illegal modifier for the interface method foo5; only public, abstract, strictfp & synchronized are permitted\n" + 
+			"----------\n" +
+			"5. ERROR in I.java (at line 7)\n" +
+			"	abstract static void foo5() default {}\n" + 
+			"	                     ^^^^^^\n" + 
+			"Abstract methods do not specify a body\n" +
 			"----------\n");
 	}
 }

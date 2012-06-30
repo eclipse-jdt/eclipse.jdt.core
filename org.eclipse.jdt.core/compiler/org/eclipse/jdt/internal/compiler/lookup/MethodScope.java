@@ -180,6 +180,9 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 			else
 				problemReporter().illegalModifierForInterfaceMethod((AbstractMethodDeclaration) this.referenceContext, isDefaultMethod);
 		}
+		if (isDefaultMethod && (modifiers & ClassFileConstants.AccAbstract) != 0) {
+			problemReporter().abstractMethodNeedingNoBody((AbstractMethodDeclaration) this.referenceContext);
+		}
 		return;
 	}
 
