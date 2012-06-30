@@ -168,11 +168,17 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 
 	// set the requested modifiers for a method in an interface/annotation
 	if (declaringClass.isInterface()) {
-		if ((realModifiers & ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract)) != 0) {
+		int expectedModifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
+		// 9.4 got updated for JSR 335 (default methods):
+		boolean isDefaultMethod = (modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0; // no need to check validity, is done by the parser
+		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8 && isDefaultMethod) {
+			expectedModifiers |= (ClassFileConstants.AccSynchronized | ClassFileConstants.AccStrictfp);
+		}
+		if ((realModifiers & ~expectedModifiers) != 0) {
 			if ((declaringClass.modifiers & ClassFileConstants.AccAnnotation) != 0)
 				problemReporter().illegalModifierForAnnotationMember((AbstractMethodDeclaration) this.referenceContext);
 			else
-				problemReporter().illegalModifierForInterfaceMethod((AbstractMethodDeclaration) this.referenceContext);
+				problemReporter().illegalModifierForInterfaceMethod((AbstractMethodDeclaration) this.referenceContext, isDefaultMethod);
 		}
 		return;
 	}
@@ -317,8 +323,13 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 		method.binding = new MethodBinding(modifiers, null, null, declaringClass);
 		checkAndSetModifiersForConstructor(method.binding);
 	} else {
-		if (declaringClass.isInterface()) // interface or annotation type
-			modifiers |= ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
+		if (declaringClass.isInterface()) {// interface or annotation type
+			if (method.isDefaultMethod()) {
+				modifiers |= ClassFileConstants.AccPublic; // default method is not abstract
+			} else {
+				modifiers |= ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
+			}
+		}
 		method.binding =
 			new MethodBinding(modifiers, method.selector, null, null, null, declaringClass);
 		checkAndSetModifiersForMethod(method.binding);

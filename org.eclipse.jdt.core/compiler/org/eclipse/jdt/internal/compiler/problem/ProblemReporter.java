@@ -2511,11 +2511,13 @@ public void illegalModifierForInterfaceField(FieldDeclaration fieldDecl) {
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
-public void illegalModifierForInterfaceMethod(AbstractMethodDeclaration methodDecl) {
+public void illegalModifierForInterfaceMethod(AbstractMethodDeclaration methodDecl, boolean isDefaultMethod) {
 	// cannot include parameter types since they are not resolved yet
 	// and the error message would be too long
 	this.handle(
-		IProblem.IllegalModifierForInterfaceMethod,
+		isDefaultMethod 
+			? IProblem.IllegalModifierForInterfaceDefaultMethod 
+			: IProblem.IllegalModifierForInterfaceMethod,
 		new String[] {
 			new String(methodDecl.selector)
 		},

@@ -163,6 +163,10 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 	}
 
+	public boolean isDefaultMethod() {
+		return (this.modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0;
+	}
+
 	public boolean isMethod() {
 		return true;
 	}

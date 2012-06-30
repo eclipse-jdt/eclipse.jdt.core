@@ -370,6 +370,10 @@ public abstract class AbstractMethodDeclaration
 		return false;
 	}
 
+	public boolean isDefaultMethod() {
+		return false;
+	}
+
 	public boolean isInitializationMethod() {
 
 		return false;

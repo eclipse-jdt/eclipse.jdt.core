@@ -1537,6 +1537,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.9 */
 	int IllegalModifiersForElidedType = Internal + 1001;
 
+	// default methods:
+	int IllegalModifierForInterfaceDefaultMethod = MethodRelated + 1050;
+
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */

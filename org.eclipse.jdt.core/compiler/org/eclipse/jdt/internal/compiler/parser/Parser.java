@@ -4813,8 +4813,12 @@ protected void consumeInterfaceMethodDeclaration(boolean isDefault) {
 	md.bodyEnd = this.endPosition;
 	md.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 	
-	if (isDefault && !this.parsingJava8Plus) {
-		problemReporter().defaultMethodsNotBelow18(md);
+	if (isDefault) {
+		if (this.parsingJava8Plus) {
+			md.modifiers |= ExtraCompilerModifiers.AccDefaultMethod;
+		} else {
+			problemReporter().defaultMethodsNotBelow18(md);
+		}
 	}
 
 	// report the problem and continue the parsing - narrowing the problem onto the method
