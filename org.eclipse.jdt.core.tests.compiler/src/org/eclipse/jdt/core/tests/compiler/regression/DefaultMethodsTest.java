@@ -195,7 +195,8 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 
-	// default methods with various modifiers, simple syntax error blows the parser
+	// class implements interface with default method. 
+	// - no need to implement this interface method as it is not abstract
 	public void testModifiers5() {
 // Inject an unrelated compile error to prevent class file verification. TODO revert
 //		runConformTest(
@@ -215,6 +216,27 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"	public class Wrong{}\n" +
 			"	             ^^^^^\n" +
 			"The public type Wrong must be defined in its own file\n" +
+			"----------\n");
+	}
+	
+	// class implements interface with default method. 
+	// - no need to implement this interface method as it is not abstract, but other abstract method exists
+	public void testModifiers6() {
+		runNegativeTest(
+			new String[] {
+				"I.java",
+				"public interface I {\n" +
+				"    void foo() default {}\n" +
+				"    void bar();\n" +
+				"}\n",
+				"C.java",
+				"public class C implements I {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in C.java (at line 1)\n" + 
+			"	public class C implements I {}\n" + 
+			"	             ^\n" + 
+			"The type C must implement the inherited abstract method I.bar()\n" + 
 			"----------\n");
 	}
 }
