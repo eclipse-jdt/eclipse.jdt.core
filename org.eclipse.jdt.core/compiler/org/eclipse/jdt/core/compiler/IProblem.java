@@ -1539,6 +1539,7 @@ void setSourceStart(int sourceStart);
 	int IllegalModifiersForElidedType = Internal + 1001;
 
 	// default methods:
+	/** @since 3.9 */
 	int IllegalModifierForInterfaceDefaultMethod = MethodRelated + 1050;
 
 	/**
