@@ -15,6 +15,7 @@
  *     Stephan Herrmann - Contributions for 
  *								bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
  *								bug 374605 - Unreasonable warning for enum-based switch statements
+ *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 

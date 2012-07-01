@@ -153,6 +153,7 @@
  *									UninitializedLocalVariableHintMissingDefault
  *									UninitializedBlankFinalFieldHintMissingDefault
  *									ShouldReturnValueHintMissingDefault
+ *									IllegalModifierForInterfaceDefaultMethod
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 

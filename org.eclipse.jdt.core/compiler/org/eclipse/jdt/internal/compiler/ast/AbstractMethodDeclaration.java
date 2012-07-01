@@ -16,6 +16,7 @@
  *								bug 367203 - [compiler][null] detect assigning null to nonnull argument
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
+ *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
