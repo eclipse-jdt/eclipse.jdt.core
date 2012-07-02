@@ -16,14 +16,14 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import junit.framework.Test;
-public class LambdaExpressionsNegativeTest extends AbstractRegressionTest {
+public class NegativeLambdaExpressionsTest extends AbstractRegressionTest {
 
 static {
 //	TESTS_NAMES = new String[] { "test380112e"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public LambdaExpressionsNegativeTest(String name) {
+public NegativeLambdaExpressionsTest(String name) {
 	super(name);
 }
 public static Test suite() {
@@ -265,6 +265,6 @@ public void test010() {
 				"----------\n");
 }
 public static Class testClass() {
-	return LambdaExpressionsNegativeTest.class;
+	return NegativeLambdaExpressionsTest.class;
 }
 }
