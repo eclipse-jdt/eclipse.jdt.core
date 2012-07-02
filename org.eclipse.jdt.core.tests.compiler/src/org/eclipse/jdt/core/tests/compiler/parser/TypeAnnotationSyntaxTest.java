@@ -14,13 +14,37 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 
-public class TypeAnnotationSyntaxTest extends AbstractTypeAnnotationSyntaxTest {
+public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 
+	private static String  jsr308TestScratchArea = "c:\\Jsr308TestScratchArea";
+	private static String referenceCompiler = "C:\\jdk-7-ea-bin-b75-windows-i586-30_oct_2009\\jdk7\\bin\\javac.exe";
+	
 	public static Class testClass() {
 		return TypeAnnotationSyntaxTest.class;
 	}
@@ -30,13 +54,174 @@ public class TypeAnnotationSyntaxTest extends AbstractTypeAnnotationSyntaxTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
+	
+	static final class LocationPrinterVisitor extends ASTVisitor {
+		Annotation[] primaryAnnotations;
+		TypeReference enclosingReference;
+		Map locations;
+
+		public LocationPrinterVisitor() {
+			this.locations = new HashMap();
+		}
+
+		public Map getLocations() {
+			return this.locations;
+		}
+		public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
+			Annotation[] annotations = fieldDeclaration.annotations;
+			this.enclosingReference = fieldDeclaration.type;
+			this.primaryAnnotations = annotations;
+			return true;
+		}
+		public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
+			this.primaryAnnotations = methodDeclaration.annotations;
+			TypeReference returnType = methodDeclaration.returnType;
+			if (returnType != null) {
+				this.enclosingReference = returnType;
+				returnType.traverse(this, scope);
+			}
+			if (methodDeclaration.thrownExceptions != null) {
+				int thrownExceptionsLength = methodDeclaration.thrownExceptions.length;
+				for (int i = 0; i < thrownExceptionsLength; i++) {
+					TypeReference typeReference = methodDeclaration.thrownExceptions[i];
+					this.enclosingReference = typeReference;
+					this.primaryAnnotations = null;
+					typeReference.traverse(this, scope);
+				}
+			}
+			return false;
+		}
+		public boolean visit(Argument argument, ClassScope scope) {
+			Annotation[] annotations = argument.annotations;
+			this.enclosingReference = argument.type;
+			this.primaryAnnotations = annotations;
+			return true;
+		}
+		public boolean visit(Argument argument, BlockScope scope) {
+			Annotation[] annotations = argument.annotations;
+			this.enclosingReference = argument.type;
+			this.primaryAnnotations = annotations;
+			return true;
+		}
+		public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
+			if (this.enclosingReference != null) {
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null));
+			}
+			return false;
+		}
+		public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
+			if (this.enclosingReference != null) {
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null));
+			}
+			return false;
+		}
+		public boolean visit(NormalAnnotation annotation, BlockScope scope) {
+			if (this.enclosingReference != null) {
+				storeLocations(annotation, Annotation.getLocations(this.enclosingReference, this.primaryAnnotations, annotation, null));
+			}
+			return false;
+		}
+		public void storeLocations(Annotation annotation, int[] tab) {
+			String key = String.valueOf(annotation);
+			if (this.locations.get(key) != null) {
+				return;
+			}
+			if (tab == null) {
+				this.locations.put(key, null);
+				return;
+			}
+			StringBuffer buffer = new StringBuffer("{");
+			for (int i = 0, max = tab.length; i < max; i++) {
+				if (i > 0) {
+					buffer.append(',');
+				}
+				buffer.append(tab[i]);
+			}
+			buffer.append('}');
+			this.locations.put(key, String.valueOf(buffer));
+		}
+
+		public boolean visit(ArrayTypeReference arrayReference, BlockScope scope) {
+			if (this.enclosingReference == null) return false;
+			return true;
+		}
+		public boolean visit(ParameterizedSingleTypeReference typeReference, BlockScope scope) {
+			if (this.enclosingReference == null) return false;
+			return true;
+		}
+		public boolean visit(SingleTypeReference typeReference, BlockScope scope) {
+			if (this.enclosingReference == null) return false;
+			return true;
+		}
+	}
 public TypeAnnotationSyntaxTest(String testName){
-	super(testName);
+	super(testName, referenceCompiler, jsr308TestScratchArea);
+	if (referenceCompiler != null) {
+		File f = new File(jsr308TestScratchArea);
+		if (!f.exists()) {
+			f.mkdir();
+		}
+		if (f.exists()) {
+			try {
+				OutputStreamWriter w = new OutputStreamWriter(new FileOutputStream(new File(jsr308TestScratchArea + File.separator + "Marker.java")));
+				w.write("@interface Marker {}\n".toCharArray());
+				w.close();
+				w = new OutputStreamWriter(new FileOutputStream(new File(jsr308TestScratchArea + File.separator + "Normal.java")));
+				w.write("@interface Normal {\n\tint value() default 10;\n}\n".toCharArray());
+				w.close();
+				w = new OutputStreamWriter(new FileOutputStream(new File(jsr308TestScratchArea + File.separator + "SingleMember.java")));
+				w.write("@interface SingleMember {\n\tint value() default 10;\n}\n".toCharArray());
+				w.close();
+				w = new OutputStreamWriter(new FileOutputStream(new File(jsr308TestScratchArea + File.separator + "Positive.java")));
+				w.write("@interface Positive {}\n".toCharArray());
+				w.close();
+				w = new OutputStreamWriter(new FileOutputStream(new File(jsr308TestScratchArea + File.separator + "Negative.java")));
+				w.write("@interface Negative{}\n".toCharArray());
+				w.close();
+				w = new OutputStreamWriter(new FileOutputStream(new File(jsr308TestScratchArea + File.separator + "Readonly.java")));
+				w.write("@interface Readonly {}\n".toCharArray());
+				w.close();
+				w = new OutputStreamWriter(new FileOutputStream(new File(jsr308TestScratchArea + File.separator + "NonNull.java")));
+				w.write("@interface NonNull {}\n".toCharArray());
+				w.close();
+				w = new OutputStreamWriter(new FileOutputStream(new File(jsr308TestScratchArea + File.separator + "HashMap.java")));
+				w.write("class HashMap<X,Y> {\n class Iterator {}; \n}\n".toCharArray());
+				w.close();
+				CHECK_ALL |= CHECK_JAVAC_PARSER;
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
 }
 
 static {
 //	TESTS_NAMES = new String[] { "test0038", "test0039", "test0040a" };
 //	TESTS_NUMBERS = new int[] { 133, 134, 135 };
+	if (!(new File(referenceCompiler).exists())) {
+		referenceCompiler = null;
+		jsr308TestScratchArea = null;
+	}
+}
+void traverse (File f) throws IOException {
+	if (f.isDirectory()) {
+		File [] files = f.listFiles();
+		for (int i = 0; i < files.length; i++) {
+			traverse(files[i]);
+		}
+	} else {
+		if (f.getName().endsWith(".java")) {
+			System.out.println(f.getCanonicalPath());
+			char [] contents = new char[(int) f.length()];
+			FileInputStream fs = new FileInputStream(f);
+			InputStreamReader isr = new InputStreamReader(fs);
+			isr.read(contents);
+			checkParse(contents, null, f.getCanonicalPath(), null);
+		}
+	}
+}
+public void _test000() throws IOException {
+	traverse(new File("C:\\jsr308tests"));
 }
 
 public void test0001() throws IOException {
