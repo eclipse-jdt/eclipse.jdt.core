@@ -130,6 +130,7 @@ public static Test suite() {
 	since_1_8.add(NegativeTypeAnnotationTest.class);
 	since_1_8.add(LambdaExpressionSyntaxTest.class);
 	since_1_8.add(NegativeLambdaExpressionsTest.class);
+	since_1_8.add(DefaultMethodsTest.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
