@@ -596,7 +596,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		try {
 			IClasspathEntry[] entries = this.project.getRawClasspath();
 			savedEntries = (IClasspathEntry[]) entries.clone();
-			final String path = "http://download.oracle.com/javase/6/docs/api/"; //$NON-NLS-1$
+			final String path = "http:/download.oracle.com/javase/6/docs/api/"; //$NON-NLS-1$
 			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, path);
 			for (int i = 0, max = entries.length; i < max; i++) {
 				final IClasspathEntry entry = entries[i];
