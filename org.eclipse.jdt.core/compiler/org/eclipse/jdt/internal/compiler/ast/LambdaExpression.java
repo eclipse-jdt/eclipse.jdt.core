@@ -25,7 +25,12 @@ public class LambdaExpression extends NullLiteral {  // For the time being.
 	}
 	
 	public StringBuffer printExpression(int tab, StringBuffer output) {
-
+		int parenthesesCount = (this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+		String suffix = ""; //$NON-NLS-1$
+		for(int i = 0; i < parenthesesCount; i++) {
+			output.append('(');
+			suffix += ')';
+		}
 		output.append('(');
 		if (this.arguments != null) {
 			for (int i = 0; i < this.arguments.length; i++) {
@@ -35,6 +40,6 @@ public class LambdaExpression extends NullLiteral {  // For the time being.
 		}
 		output.append(") -> " ); //$NON-NLS-1$
 		this.body.print(tab, output);
-		return output;
+		return output.append(suffix);
 	}
 }

@@ -2132,7 +2132,7 @@ public void test0085() throws IOException {
 		"  }\n" +
 		"  void foo(@Marker X this) {\n" +
 		"    ((this == null) ? t : t).run();\n" +
-		"    (@Marker V) t.run();\n" +
+		"    ((@Marker V) t).run();\n" +
 		"  }\n" +
 		"  public static void main(@Readonly String @Marker [] args) {\n" +
 		"    new @Marker X<@Marker A, @Negative A>(new @Marker A()).foo();\n" +

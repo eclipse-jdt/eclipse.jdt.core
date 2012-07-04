@@ -136,6 +136,8 @@ public static Test suite() {
 		ArrayList tests_1_8 = (ArrayList)testClasses.clone();
 		tests_1_8.addAll(TEST_CLASSES_1_5);
 		tests_1_8.add(ParserTest1_7.class);
+		tests_1_8.add(LambdaExpressionSyntaxTest.class);
+		tests_1_8.add(TypeAnnotationSyntaxTest.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

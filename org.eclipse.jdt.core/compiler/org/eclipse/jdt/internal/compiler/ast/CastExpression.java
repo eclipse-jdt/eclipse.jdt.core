@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -462,9 +466,15 @@ public Constant optimizedBooleanConstant() {
 }
 
 public StringBuffer printExpression(int indent, StringBuffer output) {
+	int parenthesesCount = (this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
+	String suffix = ""; //$NON-NLS-1$
+	for(int i = 0; i < parenthesesCount; i++) {
+		output.append('(');
+		suffix += ')';
+	}
 	output.append('(');
 	this.type.print(0, output).append(") "); //$NON-NLS-1$
-	return this.expression.printExpression(0, output);
+	return this.expression.printExpression(0, output).append(suffix);
 }
 
 public TypeBinding resolveType(BlockScope scope) {

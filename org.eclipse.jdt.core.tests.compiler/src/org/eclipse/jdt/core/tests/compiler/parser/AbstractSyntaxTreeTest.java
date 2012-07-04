@@ -52,10 +52,10 @@ public class AbstractSyntaxTreeTest extends AbstractCompilerTest implements IDoc
 	private String referenceCompiler;
 	private String referenceCompilerTestsScratchArea;
 
-	public AbstractSyntaxTreeTest(String name, String referenceCompiler, String jsr308TestScratchArea) {
+	public AbstractSyntaxTreeTest(String name, String referenceCompiler, String referenceCompilerTestsScratchArea) {
 		super(name);
 		this.referenceCompiler = referenceCompiler;
-		
+		this.referenceCompilerTestsScratchArea = referenceCompilerTestsScratchArea;
 	}
 
 	public void checkParse(int parserToCheck, char[] source, String expectedSyntaxErrorDiagnosis,
@@ -70,7 +70,7 @@ public class AbstractSyntaxTreeTest extends AbstractCompilerTest implements IDoc
 				CompilationResult compilationResult = null;
 				CompilationUnitDeclaration unit = null;
 			
-				if ((parserToCheck & CHECK_JAVAC_PARSER) != 0) {
+				if (this.referenceCompiler != null && (parserToCheck & CHECK_JAVAC_PARSER) != 0) {
 					String javaFilePath = this.referenceCompilerTestsScratchArea + "\\Xyz.java";
 					File f = new File(javaFilePath);
 					FileOutputStream o = new FileOutputStream(f);
