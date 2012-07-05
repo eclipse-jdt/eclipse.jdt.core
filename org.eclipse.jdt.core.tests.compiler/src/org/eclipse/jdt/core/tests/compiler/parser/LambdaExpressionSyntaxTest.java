@@ -1390,4 +1390,35 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0036", expectedUnitToString);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384320, syntax error while mixing 308 and 335.
+	public void test0037() throws IOException {
+		String source = 
+				"interface I {\n" +
+				"    void foo(X<String> s, int x);\n" +
+				"}\n" +
+				"public class X<T> {\n" +
+				"    I i = X<@Foo({\"hello\"}) String>::foo;\n" +
+				"    void foo(int x) {\n" +
+				"    }\n" +
+				"}\n" +
+				"@interface Foo {\n" +
+				"    String [] value();\n" +
+				"}\n";
+		String expectedUnitToString = 
+				"interface I {\n" + 
+				"  void foo(X<String> s, int x);\n" + 
+				"}\n" + 
+				"public class X<T> {\n" + 
+				"  I i = X<@Foo({\"hello\"}) String>::foo;\n" + 
+				"  public X() {\n" + 
+				"    super();\n" + 
+				"  }\n" + 
+				"  void foo(int x) {\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"@interface Foo {\n" + 
+				"  String[] value();\n" + 
+				"}\n";
+		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0037", expectedUnitToString);
+	}
 }
