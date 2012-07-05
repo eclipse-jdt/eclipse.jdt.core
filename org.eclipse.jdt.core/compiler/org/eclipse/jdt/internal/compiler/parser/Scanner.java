@@ -205,7 +205,7 @@ public class Scanner implements TerminalTokens {
 	public static final int HIGH_SURROGATE_MIN_VALUE = 0xD800;
 	public static final int HIGH_SURROGATE_MAX_VALUE = 0xDBFF;
 	public static final int LOW_SURROGATE_MAX_VALUE = 0xDFFF;
-	private static final char[] typeArgumentsBlackList = new char [] { ';' };
+	private static final char[] blackListedTokens = new char [] { ';' };
 
 public Scanner() {
 	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
@@ -2489,7 +2489,7 @@ private final boolean atLambdaParameterList() {
 	
 	try {
 		try {
-			jumpOver('(', ')', null);
+			jumpOver('(', ')', blackListedTokens);
 		} finally {
 			if (this.currentCharacter == ')') {
 				boolean whiteSpace;
@@ -2555,7 +2555,7 @@ private final boolean atReferenceExpression() {
 						break NextToken; // good enough for now.
 					case '<' :
 						if (justPastIdentifier) {
-							jumpOver('<' , '>', typeArgumentsBlackList);
+							jumpOver('<' , '>', blackListedTokens);
 							if (this.currentCharacter != '>')
 								throw new InvalidInputException();
 							justPastIdentifier = false;
