@@ -548,7 +548,7 @@ IMethod createBinaryMethodHandle(IType type, char[] methodSelector, char[][] arg
 }
 /*
  * Create method handle.
- * Store occurences for create handle to retrieve possible duplicate ones.
+ * Store occurrences for create handle to retrieve possible duplicate ones.
  */
 private IJavaElement createMethodHandle(IType type, String methodName, String[] parameterTypeSignatures) {
 	IMethod methodHandle = type.getMethod(methodName, parameterTypeSignatures);
