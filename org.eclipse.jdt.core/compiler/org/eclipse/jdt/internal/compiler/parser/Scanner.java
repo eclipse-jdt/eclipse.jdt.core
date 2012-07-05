@@ -4369,6 +4369,8 @@ public String toStringAction(int act) {
 			return "+="; //$NON-NLS-1$
 		case TokenNameMINUS_EQUAL :
 			return "-="; //$NON-NLS-1$
+		case TokenNameARROW :
+			return "->"; //$NON-NLS-1$
 		case TokenNameMULTIPLY_EQUAL :
 			return "*="; //$NON-NLS-1$
 		case TokenNameDIVIDE_EQUAL :
@@ -4433,6 +4435,8 @@ public String toStringAction(int act) {
 			return "?"; //$NON-NLS-1$
 		case TokenNameCOLON :
 			return ":"; //$NON-NLS-1$
+		case TokenNameCOLON_COLON :
+			return "::"; //$NON-NLS-1$
 		case TokenNameCOMMA :
 			return ","; //$NON-NLS-1$
 		case TokenNameDOT :

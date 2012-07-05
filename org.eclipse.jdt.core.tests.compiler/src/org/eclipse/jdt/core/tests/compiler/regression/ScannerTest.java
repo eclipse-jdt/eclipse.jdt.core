@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1305,5 +1309,33 @@ public class ScannerTest extends AbstractRegressionTest {
 			"	                                    ^^^^^^\n" + 
 			"Invalid unicode\n" + 
 			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383062
+	public void test061() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_4);
+		char[] source = "->".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int token = 0;
+		try {
+			token = scanner.getNextToken();
+		} catch (InvalidInputException e) {
+			// ignore ...
+		}
+		assertEquals("Expecting ->", ITerminalSymbols.TokenNameARROW, token);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383062
+	public void test062() {
+		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_4);
+		char[] source = "::".toCharArray(); //$NON-NLS-1$
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		int token = 0;
+		try {
+			token = scanner.getNextToken();
+		} catch (InvalidInputException e) {
+			// ignore.
+		}
+		assertEquals("Expecting ::", ITerminalSymbols.TokenNameCOLON_COLON, token);
 	}
 }
