@@ -1224,4 +1224,70 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject("P");
 		}
 	}
+	// search for constructor declarations in javadoc
+	public void testBug381567a() throws CoreException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" },
+					new String[] {"JCL_LIB"}, "bin");
+			createFolder("/P/src/b381567");
+			createFile("/P/src/b381567/A.java",
+					"package b381567;\n" +
+							"/**\n" +
+							"* {@link B#equals(java.lang.Object)}\n" +
+							"*/\n" +
+							"public class A {\n" +
+							"	A() {}\n" +
+							"}");
+			createFile("/P/src/b381567/B.java",
+					"package b381567;\n" +
+							"public class B {\n" +
+							"}");
+			waitUntilIndexesReady();
+			IJavaSearchScope scope = SearchEngine
+					.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES);
+			SearchPattern pattern = SearchPattern.createPattern("*", CONSTRUCTOR, DECLARATIONS, SearchPattern.R_PATTERN_MATCH);
+			this.resultCollector.showInsideDoc();
+
+			search(pattern, scope, this.resultCollector);
+
+			assertSearchResults("src/b381567/A.java b381567.A() [A] EXACT_MATCH OUTSIDE_JAVADOC");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	// search for all constructor occurrences (declarations and references) in javadoc
+	public void testBug381567b() throws CoreException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" },
+					new String[] {"JCL_LIB"}, "bin");
+			createFolder("/P/src/b381567");
+			createFile("/P/src/b381567/A.java",
+					"package b381567;\n" +
+							"class A {\n" +
+							"	A(Exception ex) {}\n" +
+							"	class B { \n" +
+							"		/**\n" +
+							"		 * Link {@link #A(Exception)} OK\n" +
+							"		 */\n" +
+							"		public B(String str) {}\n" +
+							"	}\n" +
+							"}"
+					);
+			waitUntilIndexesReady();
+			IMethod[] methods = getCompilationUnit("/P/src/b381567/A.java")
+					.getType("A").getMethods();
+			assertEquals("Invalid number of methods", 1, methods.length);
+			assertTrue(methods[0].isConstructor());
+			IJavaSearchScope scope = SearchEngine
+					.createJavaSearchScope(new IJavaElement[] { p });
+			this.resultCollector.showInsideDoc();
+
+			search(methods[0], ALL_OCCURRENCES, scope);
+
+			assertSearchResults("src/b381567/A.java b381567.A(Exception) [A] EXACT_MATCH OUTSIDE_JAVADOC\n"
+					+ "src/b381567/A.java b381567.A$B(String) [A(Exception)] EXACT_MATCH INSIDE_JAVADOC");
+		} finally {
+			deleteProject("P");
+		}
+	}
 }
