@@ -365,14 +365,13 @@ public void test012() throws Exception {
 		"        [pc: 4, line: 6]\n" +
 		"        [pc: 28, line: 8]\n" +
 		"        [pc: 31, line: 10]\n" +
-		"        [pc: 33, line: 12]\n" +
-		"        [pc: 36, line: 13]\n" +
+		"        [pc: 33, line: 13]\n" +
 		"        [pc: 37, line: 15]\n" +
 		"        [pc: 45, line: 16]\n" +
 		"      Local variable table:\n" +
 		"        [pc: 0, pc: 46] local: args index: 0 type: java.lang.String[]\n" +
 		"        [pc: 2, pc: 46] local: x index: 1 type: boolean\n" +
-		"        [pc: 4, pc: 36] local: i index: 2 type: int\n";
+		"        [pc: 4, pc: 33] local: i index: 2 type: int\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -484,6 +483,7 @@ public void test013() throws Exception {
 			"        [pc: 13, line: 8]\n" +
 			"        [pc: 21, line: 9]\n" +
 			"        [pc: 26, line: 10]\n" +
+			"        [pc: 34, line: 11]\n" +
 			"        [pc: 37, line: 12]\n" +
 			"        [pc: 39, line: 14]\n" +
 			"        [pc: 60, line: 16]\n" +
@@ -559,6 +559,7 @@ public void test013() throws Exception {
 			"        [pc: 13, line: 8]\n" +
 			"        [pc: 21, line: 9]\n" +
 			"        [pc: 26, line: 10]\n" +
+			"        [pc: 34, line: 11]\n" +
 			"        [pc: 37, line: 12]\n" +
 			"        [pc: 39, line: 14]\n" +
 			"        [pc: 60, line: 16]\n" +
@@ -2395,6 +2396,123 @@ public void testBug380927g() {
 			"	                   ^\n" + 
 			"The local variable b may not have been initialized\n" + 
 			"----------\n");	
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383629
+// To check that code gen is ok
+public void testBug383629() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	  public static void main(String[] args) {\n" +           
+			"	    char  chc;         \n" +
+			"	     do {      \n" +                   
+			"	        if (args == null) {      \n" +                                       
+			"	           switch ('a') {     \n" +                                        
+			"	           case '\\n':      \n" +            
+			"	                 chc = 'b';\n" +
+			"	           }               \n" +
+			"	        } else {            \n" +   
+			"	           switch ('a') {       \n" +           
+			"	              case '\\r':\n" +
+			"	           }          \n" +     
+			"	        }\n" +
+			"	     } while (false);\n" +
+			"	     System.out.println(\"Done\");\n" +
+			"	  }\n" +
+			"}",
+		}); // custom requestor
+	
+	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_6 ?
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 61] local: args index: 0 type: java.lang.String[]\n":
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 61] local: args index: 0 type: java.lang.String[]\n" + 
+				"      Stack map table: number of frames 4\n" + 
+				"        [pc: 24, same]\n" + 
+				"        [pc: 27, same]\n" + 
+				"        [pc: 30, same]\n" + 
+				"        [pc: 52, same]\n";
+	
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=381172
+// To check that code gen is ok
+public void testBug381172() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String[] args){\n" + 
+			"        System.out.println(\"Test\");\n" + 
+			"    }\n" + 
+			"    public void method() {\n" + 
+			"        try {\n" + 
+			"            int rc;\n" + 
+			"            switch ( 0 )\n" + 
+			"            {\n" + 
+			"                case 0:\n" + 
+			"                    rc = 0;\n" + 
+			"                    setRC( rc );\n" + 
+			"                    break;\n" + 
+			"                case 1:\n" + 
+			"                    rc = 1;\n" + 
+			"                    setRC( 0 );\n" + 
+			"                    break;\n" + 
+			"                case 2:\n" + 
+			"                    rc = 2;\n" + 
+			"                    setRC( 0 );\n" + 
+			"                    break;\n" + 
+			"                default:\n" + 
+			"                    break;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"        catch ( final Exception ex ) {}\n" + 
+			"    }\n" + 
+			"    private void setRC(int rc) {}\n" + 
+			"}",
+		}); // custom requestor
+	
+	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_6 ?
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 1] local: rc index: 1 type: int\n":
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 63] local: this index: 0 type: X\n" + 
+				"        [pc: 30, pc: 38] local: rc index: 1 type: int\n" + 
+				"        [pc: 40, pc: 48] local: rc index: 1 type: int\n" + 
+				"        [pc: 50, pc: 58] local: rc index: 1 type: int\n" + 
+				"      Stack map table: number of frames 6\n" + 
+				"        [pc: 28, same]\n" + 
+				"        [pc: 38, same]\n" + 
+				"        [pc: 48, same]\n" + 
+				"        [pc: 58, same]\n" + 
+				"        [pc: 61, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
+				"        [pc: 62, same]\n";
+	
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
 }
 public static Class testClass() {
 	return SwitchTest.class;

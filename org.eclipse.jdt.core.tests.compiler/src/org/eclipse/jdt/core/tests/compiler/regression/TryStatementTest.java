@@ -904,7 +904,7 @@ public void test026() throws Exception {
 
 	String expectedOutput =
 		"      Local variable table:\n" +
-		"        [pc: 6, pc: 21] local: i index: 0 type: int\n" +
+		"        [pc: 6, pc: 20] local: i index: 0 type: int\n" +
 		"        [pc: 16, pc: 20] local: e index: 1 type: java.lang.Throwable\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -956,7 +956,6 @@ public void test027() throws Exception {
 		"      Local variable table:\n" +
 		"        [pc: 0, pc: 20] local: this index: 0 type: X\n" +
 		"        [pc: 0, pc: 20] local: b index: 1 type: boolean\n" +
-		"        [pc: 6, pc: 9] local: i index: 2 type: int\n" +
 		"        [pc: 10, pc: 14] local: e index: 2 type: java.lang.Exception\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -3681,7 +3680,7 @@ public void test048() throws Exception {
 				"        [pc: 0, line: 50]\n" +
 				"        [pc: 7, line: 51]\n" +
 				"        [pc: 28, line: 52]\n" +
-				"        [pc: 29, line: 53]\n" +
+				"        [pc: 29, line: 55]\n" +
 				"        [pc: 32, line: 56]\n" +
 				"        [pc: 37, line: 58]\n" +
 				"      Local variable table:\n" +
@@ -3828,7 +3827,7 @@ public void test048() throws Exception {
 			"        [pc: 0, line: 50]\n" +
 			"        [pc: 7, line: 51]\n" +
 			"        [pc: 28, line: 52]\n" +
-			"        [pc: 29, line: 53]\n" +
+			"        [pc: 29, line: 55]\n" +
 			"        [pc: 32, line: 56]\n" +
 			"        [pc: 37, line: 58]\n" +
 			"      Local variable table:\n" +
@@ -4056,7 +4055,7 @@ public void test049() throws Exception {
 			"        [pc: 0, line: 46]\n" +
 			"        [pc: 7, line: 47]\n" +
 			"        [pc: 28, line: 48]\n" +
-			"        [pc: 36, line: 49]\n" +
+			"        [pc: 36, line: 51]\n" +
 			"        [pc: 39, line: 52]\n" +
 			"        [pc: 44, line: 54]\n" +
 			"      Local variable table:\n" +
@@ -4217,7 +4216,7 @@ public void test049() throws Exception {
 			"        [pc: 0, line: 46]\n" +
 			"        [pc: 7, line: 47]\n" +
 			"        [pc: 28, line: 48]\n" +
-			"        [pc: 36, line: 49]\n" +
+			"        [pc: 36, line: 51]\n" +
 			"        [pc: 39, line: 52]\n" +
 			"        [pc: 44, line: 54]\n" +
 			"      Local variable table:\n" +
@@ -4415,7 +4414,7 @@ public void test050() throws Exception {
 				"        [pc: 0, line: 46]\n" +
 				"        [pc: 7, line: 47]\n" +
 				"        [pc: 28, line: 48]\n" +
-				"        [pc: 31, line: 49]\n" +
+				"        [pc: 31, line: 51]\n" +
 				"        [pc: 34, line: 52]\n" +
 				"        [pc: 39, line: 54]\n" +
 				"      Local variable table:\n" +
@@ -4545,7 +4544,7 @@ public void test050() throws Exception {
 			"        [pc: 0, line: 46]\n" +
 			"        [pc: 7, line: 47]\n" +
 			"        [pc: 28, line: 48]\n" +
-			"        [pc: 31, line: 49]\n" +
+			"        [pc: 31, line: 51]\n" +
 			"        [pc: 34, line: 52]\n" +
 			"        [pc: 39, line: 54]\n" +
 			"      Local variable table:\n" +
@@ -4618,8 +4617,7 @@ public void test051() throws Exception {
 			"        [pc: 2, line: 8]\n" +
 			"        [pc: 4, line: 9]\n" +
 			"        [pc: 7, line: 10]\n" +
-			"        [pc: 16, line: 11]\n" +
-			"        [pc: 19, line: 13]\n" +
+			"        [pc: 16, line: 13]\n" +
 			"        [pc: 20, line: 15]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 2, pc: 22] local: count index: 0 type: int\n" +
@@ -4648,8 +4646,7 @@ public void test051() throws Exception {
 			"        [pc: 2, line: 8]\n" +
 			"        [pc: 4, line: 9]\n" +
 			"        [pc: 7, line: 10]\n" +
-			"        [pc: 16, line: 11]\n" +
-			"        [pc: 19, line: 13]\n" +
+			"        [pc: 16, line: 13]\n" +
 			"        [pc: 20, line: 15]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 2, pc: 22] local: count index: 0 type: int\n" +
@@ -4784,11 +4781,11 @@ public void test053() throws Exception {
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 5]\n" +
 			"        [pc: 7, line: 6]\n" +
-			"        [pc: 17, line: 7]\n" +
+			"        [pc: 14, line: 7]\n" +
 			"        [pc: 18, line: 9]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 19] local: args index: 0 type: java.lang.String[]\n" +
-			"        [pc: 3, pc: 17] local: val index: 1 type: int\n"
+			"        [pc: 3, pc: 14] local: val index: 1 type: int\n"
 		:
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
 			"  // Stack: 2, Locals: 2\n" +
@@ -4808,11 +4805,11 @@ public void test053() throws Exception {
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 5]\n" +
 			"        [pc: 7, line: 6]\n" +
-			"        [pc: 17, line: 7]\n" +
+			"        [pc: 14, line: 7]\n" +
 			"        [pc: 18, line: 9]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 19] local: args index: 0 type: java.lang.String[]\n" +
-			"        [pc: 3, pc: 17] local: val index: 1 type: int\n" +
+			"        [pc: 3, pc: 14] local: val index: 1 type: int\n" +
 			"      Stack map table: number of frames 3\n" +
 			"        [pc: 7, append: {int}]\n" +
 			"        [pc: 17, full, stack: {java.lang.Exception}, locals: {java.lang.String[]}]\n" +
@@ -5275,12 +5272,12 @@ public void test058() throws Exception {
 			"        [pc: 53, pc: 56] -> 34 when : any\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 5]\n" +
-			"        [pc: 11, line: 6]\n" +
+			"        [pc: 8, line: 6]\n" +
 			"        [pc: 15, line: 8]\n" +
 			"        [pc: 17, line: 6]\n" +
 			"        [pc: 18, line: 7]\n" +
 			"        [pc: 26, line: 8]\n" +
-			"        [pc: 34, line: 9]\n" +
+			"        [pc: 31, line: 9]\n" +
 			"        [pc: 39, line: 11]\n" +
 			"        [pc: 42, line: 9]\n" +
 			"        [pc: 43, line: 10]\n" +
@@ -5321,11 +5318,11 @@ public void test058() throws Exception {
 			"        [pc: 0, pc: 33] -> 33 when : any\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 5]\n" +
-			"        [pc: 11, line: 6]\n" +
+			"        [pc: 8, line: 6]\n" +
 			"        [pc: 12, line: 7]\n" +
 			"        [pc: 20, line: 8]\n" +
 			"        [pc: 22, line: 7]\n" +
-			"        [pc: 33, line: 9]\n" +
+			"        [pc: 30, line: 9]\n" +
 			"        [pc: 34, line: 10]\n" +
 			"        [pc: 42, line: 11]\n" +
 			"        [pc: 44, line: 10]\n" +
