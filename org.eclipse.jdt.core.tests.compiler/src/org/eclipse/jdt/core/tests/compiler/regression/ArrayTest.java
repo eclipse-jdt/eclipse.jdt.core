@@ -127,8 +127,7 @@ public void test005() throws Exception {
 		"    4  putstatic X.X : java.lang.Object[] [9]\n" +
 		"    7  return\n" +
 		"      Line numbers:\n" +
-		"        [pc: 0, line: 2]\n" +
-		"        [pc: 7, line: 1]\n";
+		"        [pc: 0, line: 2]\n";
 
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -284,12 +283,12 @@ public void test011() throws Exception {
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 4]\n" +
 			"        [pc: 5, line: 5]\n" +
-			"        [pc: 15, line: 6]\n" +
+			"        [pc: 12, line: 6]\n" +
 			"        [pc: 16, line: 7]\n" +
 			"        [pc: 24, line: 9]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 25] local: args index: 0 type: java.lang.String[]\n" +
-			"        [pc: 5, pc: 15] local: all index: 1 type: java.lang.Object[][]\n" +
+			"        [pc: 5, pc: 12] local: all index: 1 type: java.lang.Object[][]\n" +
 			"        [pc: 16, pc: 24] local: e index: 1 type: java.lang.ArrayStoreException\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");

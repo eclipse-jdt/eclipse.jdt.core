@@ -35484,13 +35484,13 @@ public void test1058() throws Exception {
 		"        [pc: 0, line: 4]\n" +
 		"        [pc: 2, line: 5]\n" +
 		"        [pc: 5, line: 6]\n" +
-		"        [pc: 32, line: 7]\n" +
+		"        [pc: 29, line: 7]\n" +
 		"        [pc: 33, line: 8]\n" +
 		"        [pc: 41, line: 10]\n" +
 		"      Local variable table:\n" +
 		"        [pc: 0, pc: 42] local: args index: 0 type: java.lang.String[]\n" +
-		"        [pc: 2, pc: 32] local: foo index: 1 type: int\n" +
-		"        [pc: 5, pc: 32] local: bar index: 2 type: java.lang.String\n" +
+		"        [pc: 2, pc: 29] local: foo index: 1 type: int\n" +
+		"        [pc: 5, pc: 29] local: bar index: 2 type: java.lang.String\n" +
 		"        [pc: 33, pc: 41] local: e index: 1 type: java.lang.NullPointerException\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -36023,16 +36023,16 @@ public void test1066() throws Exception {
 				"        [pc: 27, line: 8]\n" +
 				"        [pc: 30, line: 9]\n" +
 				"        [pc: 36, line: 11]\n" +
-				"        [pc: 79, line: 12]\n" +
+				"        [pc: 76, line: 12]\n" +
 				"        [pc: 81, line: 13]\n" +
 				"        [pc: 115, line: 16]\n" +
-				"        [pc: 158, line: 17]\n" +
+				"        [pc: 155, line: 17]\n" +
 				"        [pc: 160, line: 18]\n" +
 				"        [pc: 194, line: 21]\n" +
-				"        [pc: 240, line: 22]\n" +
+				"        [pc: 237, line: 22]\n" +
 				"        [pc: 242, line: 23]\n" +
 				"        [pc: 276, line: 26]\n" +
-				"        [pc: 322, line: 27]\n" +
+				"        [pc: 319, line: 27]\n" +
 				"        [pc: 324, line: 28]\n" +
 				"        [pc: 358, line: 30]\n" +
 				"      Local variable table:\n" +
@@ -36205,16 +36205,16 @@ public void test1066() throws Exception {
 				"        [pc: 27, line: 8]\n" +
 				"        [pc: 30, line: 9]\n" +
 				"        [pc: 36, line: 11]\n" +
-				"        [pc: 79, line: 12]\n" +
+				"        [pc: 76, line: 12]\n" +
 				"        [pc: 81, line: 13]\n" +
 				"        [pc: 115, line: 16]\n" +
-				"        [pc: 158, line: 17]\n" +
+				"        [pc: 155, line: 17]\n" +
 				"        [pc: 160, line: 18]\n" +
 				"        [pc: 194, line: 21]\n" +
-				"        [pc: 240, line: 22]\n" +
+				"        [pc: 237, line: 22]\n" +
 				"        [pc: 242, line: 23]\n" +
 				"        [pc: 276, line: 26]\n" +
-				"        [pc: 322, line: 27]\n" +
+				"        [pc: 319, line: 27]\n" +
 				"        [pc: 324, line: 28]\n" +
 				"        [pc: 358, line: 30]\n" +
 				"      Local variable table:\n" +
