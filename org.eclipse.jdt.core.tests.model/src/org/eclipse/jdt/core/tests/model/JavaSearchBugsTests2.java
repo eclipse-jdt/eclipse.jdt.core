@@ -622,8 +622,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	}
 	/**
-	 * @bug 357547: [search] Search for method references is returning methods as overriden even if the superclass's method is only package-visible
-	 * @test Search for a non-overriden method because of package visibility should not be found
+	 * @bug 357547: [search] Search for method references is returning methods as overridden even if the superclass's method is only package-visible
+	 * @test Search for a non-overridden method because of package visibility should not be found
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=357547"
 	 */
 	public void testBug357547a() throws CoreException {
@@ -660,7 +660,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	
-	// search for the method name should also not return matches if not-overriden because of package-visible
+	// search for the method name should also not return matches if not-overridden because of package-visible
 	public void testBug357547b() throws CoreException {
 		IJavaProject project = null;
 		try
@@ -729,8 +729,6 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(project);
 		}
 	}
-	
-	
 	public void testBug357547d() throws CoreException {
 		IJavaProject project = null;
 		try
@@ -769,7 +767,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(project);
 		}
 	}
-	// search for the method name should also not return matches if not-overriden because of package-visible
+	// search for the method name should also not return matches if not-overridden because of package-visible
 	// even if they are in jars
 	public void testBug357547e() throws CoreException, IOException {
 		IJavaProject project = null;
@@ -817,7 +815,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(project);
 		}
 	}
-	// search for the method name should also not return matches if not-overriden because of package-visible
+	// search for the method name should also not return matches if not-overridden because of package-visible
 	// even if they are in jars
 	public void testBug357547f() throws CoreException, IOException {
 		IJavaProject project = null;
@@ -865,7 +863,6 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(project);
 		}
 	}
-	
 	// search for declarations also should take care of default
 	public void testBug357547g() throws CoreException {
 		IJavaProject project = null;
@@ -1220,6 +1217,58 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			this.resultCollector.showRule();
 			search(method, REFERENCES, ERASURE_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
 			assertSearchResults("ClassB.java void ClassB.doSomething(K) [addListener(k)] ERASURE_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug383315a() throws CoreException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "JCL15_LIB" }, "", "1.5");
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES);
+
+			search("java.lang.Object.hashCode()", METHOD, ALL_OCCURRENCES, scope, this.resultCollector);
+
+			assertSearchResults(""); // an NPE was thrown without the fix
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug383315b() throws CoreException {
+		try {
+			IJavaProject p = createJavaProject("P");
+			createFolder("/P/pkg");
+			createFile("/P/pkg/A.java",
+					"package pkg;\n"+
+					"public class A {\n"+
+					"	void a() {\n"+
+					"	}\n"+
+					"}");
+			createFile("/P/pkg/B.java",
+					"package pkg;\n"+
+					"public class B extends A {\n"+
+					"	void a() {\n"+
+					"	}\n"+
+					"}");
+			createFile("/P/pkg/C.java",
+					"package pkg;\n"+
+					"public class C extends B {\n"+
+					"	void a() {\n"+
+					"	}\n"+
+					"}");
+			createFile("/P/pkg/D.java",
+					"package pkg;\n"+
+					"public class D extends C {\n"+
+					"	void a() {\n"+
+					"	}\n"+
+					"	void d() {\n"+
+					"		new A().a();\n"+
+					"	}\n"+
+					"}");
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES);
+
+			search("C.a()", METHOD, REFERENCES, scope, this.resultCollector);
+
+			assertSearchResults("pkg/D.java void pkg.D.d() [a()] EXACT_MATCH");
 		} finally {
 			deleteProject("P");
 		}
