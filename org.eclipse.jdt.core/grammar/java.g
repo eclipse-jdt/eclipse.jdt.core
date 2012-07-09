@@ -233,7 +233,7 @@ Type ::= TypeInternal
 -- length of the type annotations 0 or otherwise.
 /.$putCase consumeUnannotatedType();  $break ./
 Type ::= TypeAnnotations TypeInternal
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /:$readableName Type:/
 
 -- Type0 is to be used in places where type annotations are legal
@@ -285,7 +285,7 @@ ReferenceType ::= ReferenceType0
 /.$putCase consumeUnannotatedType();  $break ./
 ReferenceType ::= Modifiers ReferenceType0
 /.$putCase consumeAnnotatedType();  $break ./
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /:$readableName ReferenceType:/
 
 ReferenceType0 ::= ClassOrInterfaceType0
@@ -296,7 +296,7 @@ ReferenceType0 -> ArrayType
 Annotationsopt ::= $empty
 /.$putCase consumeZeroTypeAnnotations(true); $break ./
 Annotationsopt -> TypeAnnotations
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /:$readableName Annotationsopt:/
 
 -- ClassOrInterfaceType has now been wrapped so that it automatically includes
@@ -1238,6 +1238,7 @@ TryStatement ::= 'try' TryBlock Catchesopt Finally
 
 TryStatementWithResources ::= 'try' ResourceSpecification TryBlock Catchesopt
 /.$putCase consumeStatementTry(false, true); $break ./
+/:$compliance 1.7:/
 TryStatementWithResources ::= 'try' ResourceSpecification TryBlock Catchesopt Finally
 /.$putCase consumeStatementTry(true, true); $break ./
 /:$readableName TryStatementWithResources:/
@@ -1250,6 +1251,7 @@ ResourceSpecification ::= '(' Resources ;opt ')'
 
 ;opt ::= $empty
 /.$putCase consumeResourceOptionalTrailingSemiColon(false); $break ./
+/:$compliance 1.7:/
 ;opt ::= ';'
 /.$putCase consumeResourceOptionalTrailingSemiColon(true); $break ./
 /:$readableName ;:/
@@ -1257,6 +1259,7 @@ ResourceSpecification ::= '(' Resources ;opt ')'
 
 Resources ::= Resource
 /.$putCase consumeSingleResource(); $break ./
+/:$compliance 1.7:/
 Resources ::= Resources TrailingSemiColon Resource
 /.$putCase consumeMultipleResources(); $break ./
 /:$readableName Resources:/
@@ -1551,12 +1554,12 @@ DimWithOrWithOutExprs ::= DimWithOrWithOutExprs DimWithOrWithOutExpr
 
 DimWithOrWithOutExpr ::= '[' PushZeroTypeAnnotations Expression ']'
 DimWithOrWithOutExpr ::= TypeAnnotations '[' Expression ']'
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 DimWithOrWithOutExpr ::= '[' PushZeroTypeAnnotations ']'
 /. $putCase consumeDimWithOrWithOutExpr(); $break ./
 DimWithOrWithOutExpr ::= TypeAnnotations '[' ']'
 /. $putCase consumeDimWithOrWithOutExpr(); $break ./
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /:$readableName Dimension:/
 -- -----------------------------------------------
 
@@ -1574,8 +1577,8 @@ DimsAnnotLoop ::= DimsAnnotLoop OneDimOrAnnot
 
 OneDimOrAnnot ::= Annotation
 /. $putCase consumeTypeAnnotation(true); $break ./
--- Complain if source level < 1.7
-/:$compliance 1.7:/
+-- Complain if source level < 1.8
+/:$compliance 1.8:/
 OneDimOrAnnot -> '[' ']'
 /. $putCase consumeOneDimLoop(true); $break ./
 -- Bump up dimensions && mark zero annotations.
@@ -1583,10 +1586,10 @@ OneDimOrAnnot -> '[' ']'
 
 TypeAnnotations ::= Annotation
 /. $putCase consumeTypeAnnotation(false); $break ./
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 TypeAnnotations ::= TypeAnnotations Annotation
 /. $putCase consumeOneMoreTypeAnnotation(); $break ./
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /:$readableName TypeAnnotations:/
 
 Dims ::= DimsLoop
@@ -1600,7 +1603,7 @@ OneDimLoop ::= '[' ']'
 -- Bump up dimensions && mark zero annotations.
 /:$readableName Dimension:/
 OneDimLoop ::= TypeAnnotations '[' ']'
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /. $putCase consumeOneDimLoopWithAnnotations(); $break ./
 -- Bump up dimensions
 /:$readableName DimensionWithAnnotations:/
@@ -1687,27 +1690,27 @@ UnaryExpressionNotPlusMinus -> CastExpression
 CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPARENForUnannotatedTypeCast InsideCastExpression UnaryExpression
 /.$putCase consumeCastExpressionWithPrimitiveType(); $break ./
 CastExpression ::= PushLPAREN Modifiers PrimitiveType Dimsopt PushRPARENForAnnotatedTypeCast InsideCastExpression UnaryExpression
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /.$putCase consumeCastExpressionWithPrimitiveTypeWithTypeAnnotations(); $break ./
 CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression Dimsopt PushRPARENForUnannotatedTypeCast InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithGenericsArray(); $break ./
 CastExpression ::= PushLPAREN Modifiers Name OnlyTypeArgumentsForCastExpression Dimsopt PushRPARENForAnnotatedTypeCast InsideCastExpression UnaryExpressionNotPlusMinus
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /.$putCase consumeCastExpressionWithGenericsArrayWithTypeAnnotations(); $break ./
 CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType0 Dimsopt PushRPARENForUnannotatedTypeCast InsideCastExpressionWithQualifiedGenerics UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithQualifiedGenericsArray(); $break ./
 CastExpression ::= PushLPAREN Modifiers Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType0 Dimsopt PushRPARENForAnnotatedTypeCast InsideCastExpressionWithAnnotatedQualifiedGenerics UnaryExpressionNotPlusMinus
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /.$putCase consumeCastExpressionWithQualifiedGenericsArrayWithTypeAnnotations(); $break ./
 CastExpression ::= PushLPAREN Name PushRPARENForNameUnannotatedTypeCast InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionLL1(); $break ./
 CastExpression ::= PushLPAREN Modifiers Name PushRPARENForNameAndAnnotatedTypeCast InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /.$putCase consumeCastExpressionLL1WithTypeAnnotations(); $break ./
 CastExpression ::= PushLPAREN Name Dims PushRPARENForUnannotatedTypeCast InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithNameArray(); $break ./
 CastExpression ::= PushLPAREN Modifiers Name Dims PushRPARENForAnnotatedTypeCast InsideCastExpression UnaryExpressionNotPlusMinus
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /.$putCase consumeCastExpressionWithNameArrayWithTypeAnnotations(); $break ./
 /:$readableName CastExpression:/
 
@@ -2115,7 +2118,7 @@ ReferenceType1 ::= ClassOrInterface '<' TypeArgumentList2
 /.$putCase consumeTypeArgumentReferenceType1(); $break ./
 /:$compliance 1.5:/
 ReferenceType1 ::= Modifiers ClassOrInterface '<' TypeArgumentList2
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /.$putCase consumeTypeArgumentReferenceType1WithTypeAnnotations(); $break ./
 /:$readableName ReferenceType1:/
 
@@ -2139,7 +2142,7 @@ ReferenceType2 ::= ClassOrInterface '<' TypeArgumentList3
 /.$putCase consumeTypeArgumentReferenceType2(); $break ./
 /:$compliance 1.5:/
 ReferenceType2 ::= Modifiers ClassOrInterface '<' TypeArgumentList3
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /.$putCase consumeTypeArgumentReferenceType2WithTypeAnnotations(); $break ./
 /:$readableName ReferenceType2:/
 
@@ -2231,7 +2234,7 @@ TypeParameterHeader ::= PushZeroTypeAnnotations Identifier
 /.$putCase consumeTypeParameterHeader(); $break ./
 /:$compliance 1.5:/
 TypeParameterHeader ::= TypeAnnotations Identifier
-/:$compliance 1.7:/
+/:$compliance 1.8:/
 /.$putCase consumeTypeParameterHeader(); $break ./
 /:$readableName TypeParameter:/
 
