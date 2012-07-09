@@ -15,6 +15,7 @@
 <project name="Eclipse Batch Compiler" default="export-all" basedir="..">
 	<target name="init">
 		<tstamp/>
+		<property name="buildLabel" value="head" />
 		<property name="ecj-temp-folder" value="${basedir}/ecj-temp-folder" />
 		<property name="ecj-temp-src-folder" value="${basedir}/ecj-temp-src-folder" />
 		<mkdir dir="${ecj-temp-src-folder}" />
@@ -43,6 +44,7 @@
 				<exclude name="org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class"/>
 			</fileset>
 		</copy>
+		<replace file="${ecj-temp-folder}/org/eclipse/jdt/internal/compiler/batch/messages.properties" token="build_qualifier" value="${buildLabel}"/>
 	</target>
 
 	<target name="extract-_jsr199" depends="init">
@@ -102,7 +104,12 @@
 		<replace file="${ecj-temp-src-folder}/META-INF/MANIFEST.MF" token="qualifier" value="${buildLabel}"/>
 		<zip zipfile="${dest}/ecjsrc-${buildLabel}.jar">
 			<zipfileset dir="ecj-temp-src-folder" />
-			<zipfileset dir="batch" />
+			<zipfileset dir="batch">
+				<exclude name="org/eclipse/jdt/internal/compiler/batch/messages.properties"/>
+			</zipfileset>
+			<fileset dir="${ecj-temp-folder}">
+							<include name="**/messages.properties"/>
+			</fileset>
 			<zipfileset dir="compiler" />
 			<zipfileset dir="antadapter">
 				<exclude name="org/eclipse/jdt/core/CheckDebugAttributes.java"/>
@@ -117,7 +124,6 @@
 	</target>
 
 	<target name="export_src_bin">
-		<property name="buildLabel" value="head" />
 		<property name="dest" value="../../ecj-export" />
 		<mkdir dir="${dest}" />
 		<echo message="UPDATE ecj_all.jar" />
