@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,10 +76,18 @@ public class TestCase extends PerformanceTestCase {
 						break;
 					case RANDOM_ORDER_JDT:
 						String version = new Main(null/*outWriter*/, null/*errWriter*/, false/*systemExit*/, null/*options*/, null/*progress*/).bind("compiler.version");
+						version = version.substring(0, version.indexOf(','));
 						try {
-							String v_number = version.substring(2, 5);
-							ordering = Long.parseLong(v_number);
-							System.err.println("Note that tests will be run in random order using seed="+v_number+" (ie. JDT/Core version)");
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384531
+							// compiler.version is a timestamp since the the above fix (of the format: v20120725-181921)
+							StringBuffer buffer = new StringBuffer();
+							for (int i = 0; i < version.length(); i++) {
+								if (Character.isDigit(version.charAt(i))) {
+									buffer.append(version.charAt(i));
+								}
+							}
+							ordering = Long.parseLong(buffer.toString());
+							System.err.println("Note that tests will be run in random order using seed="+ordering+" (ie. JDT/Core version)");
 						}
 						catch (NumberFormatException nfe) {
 							System.err.println("Cannot extract valid JDT/Core version number from 'compiler.version': "+version+" => no order will be finally used...");
