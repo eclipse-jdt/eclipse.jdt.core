@@ -4227,7 +4227,11 @@ public String toString() {
 	if (middleLength > -1) {
 		buffer.append(this.source, this.startPosition, middleLength);
 	}
-	buffer.append("<-- Ends here\n===============================\n"); //$NON-NLS-1$
+	if (this.nextToken != TerminalTokens.TokenNameNotAToken) {
+		buffer.append("<-- Ends here [in pipeline " + toStringAction(this.nextToken) + "]\n===============================\n"); //$NON-NLS-1$ //$NON-NLS-2$
+	} else {
+		buffer.append("<-- Ends here\n===============================\n"); //$NON-NLS-1$
+	}
 
 	buffer.append(this.source, (this.currentPosition - 1) + 1, this.eofPosition - (this.currentPosition - 1) - 1);
 

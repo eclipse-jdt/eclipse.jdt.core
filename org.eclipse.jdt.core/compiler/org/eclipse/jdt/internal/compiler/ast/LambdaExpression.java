@@ -39,7 +39,7 @@ public class LambdaExpression extends NullLiteral {  // For the time being.
 			}
 		}
 		output.append(") -> " ); //$NON-NLS-1$
-		this.body.print(tab, output);
+		this.body.print(this.body instanceof Block ? tab : 0, output);
 		return output.append(suffix);
 	}
 }
