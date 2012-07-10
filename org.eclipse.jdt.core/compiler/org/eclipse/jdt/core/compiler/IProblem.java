@@ -1316,6 +1316,8 @@ void setSourceStart(int sourceStart);
     int ConstructorReferenceNotBelow18 = Internal + Syntax + 647;
     /** @since 3.9*/
     int ExplicitThisParameterNotInLambda = Internal + Syntax + 648;
+    /** @since 3.9 */
+    int ExplicitAnnotationTargetRequired = TypeRelated + 649;
     
 	/**
 	 * More problems in generics

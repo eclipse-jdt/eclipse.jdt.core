@@ -838,28 +838,119 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 3)\n" + 
 		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+		"	                       ^^^^^^^^^\n" + 
+		"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
 		"	                                       ^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 3)\n" + 
+		"4. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+		"	                                       ^^^^^^^^^\n" + 
+		"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+		"	                                                 ^^^^^^\n" + 
+		"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 3)\n" + 
 		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
 		"	                                                              ^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 4)\n" + 
+		"7. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+		"	                                                              ^^^^^^^^^\n" + 
+		"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 4)\n" + 
 		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
 		"	                     ^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 4)\n" + 
+		"9. ERROR in X.java (at line 4)\n" + 
+		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+		"	                     ^^^^^^^^^\n" + 
+		"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 4)\n" + 
 		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
 		"	                                     ^^^^^^^^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"6. ERROR in X.java (at line 4)\n" + 
+		"11. ERROR in X.java (at line 4)\n" + 
+		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+		"	                                     ^^^^^^^^^\n" + 
+		"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 4)\n" + 
+		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+		"	                                               ^^^^^^\n" + 
+		"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
+		"----------\n" + 
+		"13. ERROR in X.java (at line 4)\n" + 
 		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
 		"	                                                            ^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
+		"----------\n" + 
+		"14. ERROR in X.java (at line 4)\n" + 
+		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+		"	                                                            ^^^^^^^^^\n" + 
+		"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
 		"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383950
+	// [1.8][compiler] Type annotations must have target type meta annotation TYPE_USE
+	public void test037() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"@interface Marker {}\n" +
+					"@Marker	// line 2: Don't complain \n" +
+					"public class X<@Marker T>  extends @Marker Object{		// 3: Complain \n" +
+					"	public @Marker Object foo(@Marker Object obj) {  // 4: Don't complain on both\n" +
+					"		return null;\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	public class X<@Marker T>  extends @Marker Object{		// 3: Complain \n" + 
+				"	               ^^^^^^^\n" + 
+				"Only annotation types that explicitly specify TYPE_PARAMETER as a possible target element type can be applied here\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	public class X<@Marker T>  extends @Marker Object{		// 3: Complain \n" + 
+				"	                                   ^^^^^^^\n" + 
+				"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383950
+	// [1.8][compiler] Type annotations must have target type meta annotation TYPE_USE
+	public void test038() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.Target;\n" + 
+						"import static java.lang.annotation.ElementType.*;\n" + 
+						"@Target({PACKAGE, TYPE, METHOD, FIELD, CONSTRUCTOR, PARAMETER, LOCAL_VARIABLE})\n" + 
+						"@interface Marker {}\n" +
+						"public class X<@Marker T>  extends @Marker Object{		// 3: Complain \n" +
+						"}\n",
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 5)\n" + 
+					"	public class X<@Marker T>  extends @Marker Object{		// 3: Complain \n" + 
+					"	               ^^^^^^^\n" + 
+					"The annotation @Marker is disallowed for this location\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 5)\n" + 
+					"	public class X<@Marker T>  extends @Marker Object{		// 3: Complain \n" + 
+					"	                                   ^^^^^^^\n" + 
+					"The annotation @Marker is disallowed for this location\n" + 
+					"----------\n");
 	}
 }

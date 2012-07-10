@@ -742,9 +742,10 @@ public abstract class Annotation extends Expression {
 		// record annotation positions in the compilation result
 		scope.referenceCompilationUnit().recordSuppressWarnings(IrritantSet.NLS, null, this.sourceStart, this.declarationSourceEnd);
 		if (this.recipient != null) {
+			int kind = this.recipient.kind();
 			if (tagBits != 0) {
 				// tag bits onto recipient
-				switch (this.recipient.kind()) {
+				switch (kind) {
 					case Binding.PACKAGE :
 						((PackageBinding)this.recipient).tagBits |= tagBits;
 						break;
@@ -808,11 +809,14 @@ public abstract class Annotation extends Expression {
 
 				long metaTagBits = annotationType.getAnnotationTagBits(); // could be forward reference
 				if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) {
-					// does not specify any target restriction - all locations are possible including type annotations
+					// does not specify any target restriction - all locations supported in Java 7 and before are possible
+					if (kind == Binding.TYPE_PARAMETER || kind == Binding.TYPE_USE) {
+						scope.problemReporter().explitAnnotationTargetRequired(this);
+					}
 					break checkTargetCompatibility;
 				}
 
-				switch (this.recipient.kind()) {
+				switch (kind) {
 					case Binding.PACKAGE :
 						if ((metaTagBits & TagBits.AnnotationForPackage) != 0)
 							break checkTargetCompatibility;
