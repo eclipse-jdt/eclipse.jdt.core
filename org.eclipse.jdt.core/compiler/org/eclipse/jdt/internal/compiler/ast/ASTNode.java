@@ -14,6 +14,7 @@
  *     							bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 374605 - Unreasonable warning for enum-based switch statements
+ *								bug 384870 - [compiler] @Deprecated annotation not detected if preceded by other annotation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -745,7 +746,7 @@ public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] a
 				for (int i = 0; i < length; i++) {
 					TypeReference annotationTypeRef = annotations[i].type;
 					// only resolve type name if 'Deprecated' last token
-					if (!CharOperation.equals(TypeConstants.JAVA_LANG_DEPRECATED[2], annotationTypeRef.getLastToken())) return;
+					if (!CharOperation.equals(TypeConstants.JAVA_LANG_DEPRECATED[2], annotationTypeRef.getLastToken())) continue;
 					TypeBinding annotationType = annotations[i].type.resolveType(scope);
 					if(annotationType != null && annotationType.isValidBinding() && annotationType.id == TypeIds.T_JavaLangDeprecated) {
 						switch (kind) {

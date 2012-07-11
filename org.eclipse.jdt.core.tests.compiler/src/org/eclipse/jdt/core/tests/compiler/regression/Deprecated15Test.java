@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for Bug 354536 - compiling package-info.java still depends on the order of compilation units
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *								bug 354536 - compiling package-info.java still depends on the order of compilation units
+ *								bug 384870 - [compiler] @Deprecated annotation not detected if preceded by other annotation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -263,6 +265,36 @@ public void test005() {
 		"	a.foo();\n" + 
 		"	  ^^^^^\n" + 
 		"The method foo() from the type X.Inner is deprecated\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/384870 - [compiler] @Deprecated annotation not detected if preceded by other annotation
+public void test006() {
+	Map customOptions = new HashMap();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		true,
+		new String[] {
+			"test1/E02.java",
+			"package test1;\n" +
+			"public class E02 {\n" +
+			"	public void foo(E01 arg) {\n" +
+			"		// nop\n" +
+			"	}\n" +
+			"}",
+			"test1/E01.java",
+			"package test1;\n" +
+			"@SuppressWarnings(\"all\") @Deprecated\n" +
+			"public class E01 {\n" +
+			"	public static int x = 5;\n" +
+			"}"
+		},
+		null, customOptions,
+		"----------\n" + 
+		"1. ERROR in test1\\E02.java (at line 3)\n" + 
+		"	public void foo(E01 arg) {\n" + 
+		"	                ^^^\n" + 
+		"The type E01 is deprecated\n" + 
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
