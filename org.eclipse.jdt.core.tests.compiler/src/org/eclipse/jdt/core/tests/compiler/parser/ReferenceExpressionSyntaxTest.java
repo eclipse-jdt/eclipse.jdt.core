@@ -835,4 +835,77 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0019", expectedUnitToString);
 	}
+
+	// Reference expression - Name::new forms, with/without type arguments.
+	public void test0020() throws IOException {
+		String source = 
+				"interface I {\n" +
+				"    Y foo(int x);\n" +
+				"}\n" +
+				"public class X  {\n" +
+				"    class Z extends Y {\n" +
+				"        public Z(int x) {\n" +
+				"            super(x);\n" +
+				"            System.out.println(\"Z\"+x);\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main(String [] args) {\n" +
+				"        Y y;\n" +
+				"        I i = Y::new;\n" +
+				"        y = i.foo(10); \n" +
+				"        i = X.Z::new;\n" +
+				"        y = i.foo(20); \n" +
+				"        i = W<Integer>::new;\n" +
+				"        y = i.foo(23);\n" +
+				"    }\n" +
+				"}\n" +
+				"class W<T> extends Y {\n" +
+				"    public W(T x) {\n" +
+				"        super(0);\n" +
+				"        System.out.println(x);\n" +
+				"    }\n" +
+				"}\n" +
+				"class Y {\n" +
+				"    public Y(int x) {\n" +
+				"        System.out.println(x);\n" +
+				"    }\n" +
+				"}\n";
+		String expectedUnitToString = 
+				"interface I {\n" +
+				"  Y foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  class Z extends Y {\n" +
+				"    public Z(int x) {\n" +
+				"      super(x);\n" +
+				"      System.out.println((\"Z\" + x));\n" +
+				"    }\n" +
+				"  }\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    Y y;\n" +
+				"    I i = Y::new;\n" +
+				"    y = i.foo(10);\n" +
+				"    i = X.Z::new;\n" +
+				"    y = i.foo(20);\n" +
+				"    i = W<Integer>::new;\n" +
+				"    y = i.foo(23);\n" +
+				"  }\n" +
+				"}\n" +
+				"class W<T> extends Y {\n" +
+				"  public W(T x) {\n" +
+				"    super(0);\n" +
+				"    System.out.println(x);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y {\n" +
+				"  public Y(int x) {\n" +
+				"    super();\n" +
+				"    System.out.println(x);\n" +
+				"  }\n" +
+				"}\n";
+		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0003", expectedUnitToString);
+	}
 }

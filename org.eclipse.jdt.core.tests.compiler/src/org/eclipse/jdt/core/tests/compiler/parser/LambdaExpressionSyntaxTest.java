@@ -641,4 +641,66 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0018", expectedUnitToString);
 	}
+
+	// like test0001() but body expression is an assignment
+	public void test0019() throws IOException {
+		String source = 
+				"interface I {\n" +
+						"    int square(int x);\n" +
+						"}\n" +
+						"public class X {\n" +
+						"    int y;\n" +
+						"    public static void main(String [] args) {\n" +
+						"        System.out.println(((I) x -> y = x * x ).square(10));\n" +
+						"    }\n" +
+						"}\n";
+		
+		String expectedUnitToString = 
+				"interface I {\n" + 
+						"  int square(int x);\n" + 
+						"}\n" + 
+						"public class X {\n" + 
+						"  int y;\n" +
+						"  public X() {\n" + 
+						"    super();\n" + 
+						"  }\n" + 
+						"  public static void main(String[] args) {\n" + 
+						"    System.out.println(((I) (<no type> x) -> y = (x * x)).square(10));\n" + 
+						"  }\n" + 
+						"}\n";
+		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0019", expectedUnitToString);
+	}
+	
+	// Coverage:  exercise this condition in Parser.consumeExpression():
+	//   if (this.valueLambdaNestDepth >= 0 && this.stateStackLengthStack[this.valueLambdaNestDepth] == this.stateStackTop - 1)
+	// make sure we see a (true && false) combination
+	public void testNestedLambda01() throws IOException {
+		String source = 
+				"public class C {\n" +
+				"	I foo() {\n" +
+				"		return (i1, i2) -> 	(String x1, String x2) -> { \n" +
+				"								return x1+x2; \n" + // here end-of-expression does not finish the type-eliding lambda (i1,i2)->...
+				"							};\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"interface I {\n" +
+				"	String doit(String s1, String s2);\n" +
+				"}\n";
+		String expectedUnitToString = 
+				"public class C {\n" +
+				"  public C() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  I foo() {\n" +
+				"    return (<no type> i1, <no type> i2) -> (String x1, String x2) -> {\n" +
+				"  return (x1 + x2);\n" +
+				"};\n" +
+				"  }\n" +
+				"}\n" +
+				"interface I {\n" +
+				"  String doit(String s1, String s2);\n" +
+				"}\n";
+		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "testNestedLambda01", expectedUnitToString);
+	}
 }
