@@ -2165,6 +2165,7 @@ protected void consumeBinaryExpressionWithName(int op) {
 }
 protected void consumeBlock() {
 	// Block ::= OpenBlock '{' BlockStatementsopt '}'
+	// LambdaBody ::= NestedType NestedMethod  '{' BlockStatementsopt '}'
 	// simpler action for empty blocks
 
 	int statementsLength = this.astLengthStack[this.astLengthPtr--];
@@ -4786,7 +4787,8 @@ protected void consumeInvalidInterfaceDeclaration() {
 	concatNodeLists();
 }
 protected void consumeInterfaceMethodDeclaration(boolean isDefault) {
-	// InterfaceMemberDeclaration ::= InvalidMethodDeclaration
+	// InterfaceMemberDeclaration ::= MethodHeader MethodBody
+	// InterfaceMemberDeclaration ::= MethodHeader 'default' PushDefault MethodBody
 
 	/*
 	this.astStack : modifiers arguments throws statements
@@ -8024,11 +8026,11 @@ protected void consumeLambdaExpression() {
 	
 	// LambdaExpression ::= LambdaParameters ARROW LambdaBody
 
-	this.astLengthPtr--;
+	this.astLengthPtr--; 	// pop length for LambdaBody (always 1)
 	Statement body = (Statement) this.astStack[this.astPtr--];
 	if (body instanceof Block) {
-		this.nestedType--;
-		this.intPtr--;
+		this.nestedType--; 	// matching NestedType in "LambdaBody ::= NestedType NestedMethod  '{' BlockStatementsopt '}'"
+		this.intPtr--; 		// position after '{' pushed during consumeNestedMethod()
 		if (this.options.ignoreMethodBodies) {
 			body = new Block(0);
 		}
