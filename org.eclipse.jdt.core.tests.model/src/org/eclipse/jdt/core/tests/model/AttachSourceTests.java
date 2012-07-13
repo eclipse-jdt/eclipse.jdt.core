@@ -608,8 +608,11 @@ public void testZIPArchive4() throws CoreException {
 		deleteProject("P2");
 	}
 }
+
 /*
- * Test that a path must have at least one segment
+ * Test that a source path must have at least one segment. Set source path
+ * to the current workspace location root. The test runs on Windows only, so
+ * the path is usually "C:\" or "D:\".
  */
 public void test264301() throws CoreException {
 	String os = Platform.getOS();
@@ -625,11 +628,12 @@ public void test264301() throws CoreException {
 			"\n" +
 			"public class Test {}");
 		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(getFile("/AttachSourceTests/test.jar"));
+		String dev = ResourcesPlugin.getWorkspace().getRoot().getLocation().getDevice() + IPath.SEPARATOR;
 		try {
-			attachSource(root, "C:/", null);
-			assertTrue("Should not be there", false);
+			attachSource(root, dev, null);
+			assertTrue("Should not be here", false);
 		} catch(JavaModelException e) {
-			// expected exception
+			// expected exception when source path overlaps with the current workspace location
 		}
 	} finally {
 		deleteProject("Test");
