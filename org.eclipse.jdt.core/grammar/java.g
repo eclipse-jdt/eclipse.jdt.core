@@ -202,6 +202,9 @@ Goal ::= '~' BlockStatementsopt
 Goal ::= '||' MemberValue
 -- syntax diagnosis
 Goal ::= '?' AnnotationTypeMemberDeclaration
+-- JSR 335 Reconnaissance missions.
+Goal ::= '->' ParenthesizedLambdaParameterList
+Goal ::= '::' ReferenceExpressionTypeArgumentsAndTrunk
 /:$readableName Goal:/
 
 RecoveryExitHeader ::= $empty
@@ -1381,20 +1384,23 @@ PrimaryNoNewArray -> LambdaExpression
 PrimaryNoNewArray -> ReferenceExpression
 /:$readableName Expression:/
 
--- BeginTypeArguments is a synthetic token the scanner concocts to help disambiguate
--- between '<' as an operator and '<' in '<' TypeArguments '>'
-OnlyTypeArgumentsForReferenceExpression -> BeginTypeArguments OnlyTypeArguments
-/:$readableName OnlyTypeArgumentsForReferenceExpression:/
+ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments Dimsopt 
+/.$putCase consumeReferenceExpressionTypeArgumentsAndTrunk(false); $break ./
+ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments '.' ClassOrInterfaceType Dimsopt 
+/.$putCase consumeReferenceExpressionTypeArgumentsAndTrunk(true); $break ./
+/:$readableName ReferenceExpressionTypeArgumentsAndTrunk:/
 /:$compliance 1.8:/
 
 ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
 /.$putCase consumeReferenceExpressionPrimitiveTypeForm(); $break ./
 ReferenceExpression ::= Name Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
 /.$putCase consumeReferenceExpressionNameForm(); $break ./
-ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
-/.$putCase consumeReferenceExpressionTypeForm(false); $break ./
-ReferenceExpression ::= Name OnlyTypeArgumentsForReferenceExpression '.' ClassOrInterfaceType Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
-/.$putCase consumeReferenceExpressionTypeForm(true); $break ./
+
+-- BeginTypeArguments is a synthetic token the scanner concocts to help disambiguate
+-- between '<' as an operator and '<' in '<' TypeArguments '>'
+ReferenceExpression ::= Name BeginTypeArguments ReferenceExpressionTypeArgumentsAndTrunk '::' NonWildTypeArgumentsopt IdentifierOrNew
+/.$putCase consumeReferenceExpressionTypeForm(); $break ./
+
 ReferenceExpression ::= Primary '::' NonWildTypeArgumentsopt Identifier
 /.$putCase consumeReferenceExpressionPrimaryForm(); $break ./
 ReferenceExpression ::= 'super' '::' NonWildTypeArgumentsopt Identifier
@@ -1427,9 +1433,13 @@ LambdaParameters ::= Identifier
 
 -- to make the grammar LALR(1), the scanner transforms the input string to
 -- contain synthetic tokens to signal start of lambda parameter list.
-LambdaParameters -> BeginLambda PushLPAREN FormalParameterListopt PushRPAREN
-LambdaParameters -> BeginLambda PushLPAREN TypeElidedFormalParameterList PushRPAREN
+LambdaParameters -> BeginLambda ParenthesizedLambdaParameterList
 /:$readableName LambdaParameters:/
+/:$compliance 1.8:/
+
+ParenthesizedLambdaParameterList -> PushLPAREN FormalParameterListopt PushRPAREN
+ParenthesizedLambdaParameterList -> PushLPAREN TypeElidedFormalParameterList PushRPAREN
+/:$readableName ParenthesizedLambdaParameterList:/
 /:$compliance 1.8:/
 
 TypeElidedFormalParameterList -> TypeElidedFormalParameter
