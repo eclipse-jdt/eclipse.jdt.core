@@ -115,7 +115,7 @@ public class SetClasspathOperation extends ChangeClasspathOperation {
 		if (!status.isOK())
 			return status;
 		this.project.flushClasspathProblemMarkers(false, false, true);
-		return ClasspathEntry.validateClasspath(	this.project, this.newRawClasspath, this.newOutputLocation);
+		return ClasspathEntry.validateClasspath(this.project, this.newRawClasspath, this.newOutputLocation);
 	}
 
 }

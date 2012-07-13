@@ -1108,7 +1108,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	/**
 	 * Creates an operation to delete the given element, asserts
-	 * the operation is successfull, and ensures the element is no
+	 * the operation is successful, and ensures the element is no
 	 * longer present in the model.
 	 */
 	public void assertDeletion(IJavaElement elementToDelete) throws JavaModelException {
