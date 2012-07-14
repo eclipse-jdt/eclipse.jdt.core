@@ -4306,10 +4306,10 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	this.identifierStack :
 	this.intStack :
 	*/
-	TypeReference qualifyingTypeReference = null;
+	NameReference qualifyingNameReference = null;
     boolean isReceiver = this.intStack[this.intPtr--] == 0;
     if (isReceiver) {
-    	qualifyingTypeReference = (TypeReference) this.expressionStack[this.expressionPtr--];
+    	qualifyingNameReference = (NameReference) this.expressionStack[this.expressionPtr--];
     	this.expressionLengthPtr --;
     }
 	this.identifierLengthPtr--;
@@ -4360,7 +4360,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 				identifierName, 
 				namePositions, 
 				type,
-				qualifyingTypeReference,
+				qualifyingNameReference,
 				this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated);
 	} else {
 		arg = new Argument(
@@ -7988,13 +7988,11 @@ protected void consumeExplicitThisParameter(boolean isQualified) {
 	// VariableDeclaratorIdOrThis ::= 'this'
 	// VariableDeclaratorIdOrThis ::= Name '.' 'this'
 
-	TypeReference qualifyingTypeReference = null;
+	NameReference qualifyingNameReference = null;
 	if (isQualified) {
-		pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
-		pushOnGenericsLengthStack(0); // handle type arguments
-		qualifyingTypeReference = getUnannotatedTypeReference(0);
+		qualifyingNameReference = getUnspecifiedReference();
 	}
-	pushOnExpressionStack(qualifyingTypeReference);
+	pushOnExpressionStack(qualifyingNameReference);
 
 	int stackLength = this.identifierStack.length;
 	if (++this.identifierPtr >= stackLength) {

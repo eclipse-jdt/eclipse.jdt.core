@@ -721,10 +721,10 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	identifierStack :
 	intStack :
 	*/
-	TypeReference qualifyingTypeReference = null;
+	NameReference qualifyingNameReference = null;
     boolean isReceiver = this.intStack[this.intPtr--] == 0;
     if (isReceiver) {
-    	qualifyingTypeReference = (TypeReference) this.expressionStack[this.expressionPtr--];
+    	qualifyingNameReference = (NameReference) this.expressionStack[this.expressionPtr--];
     	this.expressionLengthPtr --;
     }
 	this.identifierLengthPtr--;
@@ -773,7 +773,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 				parameterName, 
 				namePositions, 
 				type,
-				qualifyingTypeReference,
+				qualifyingNameReference,
 				this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated);
 	} else {
 		arg = new Argument(
