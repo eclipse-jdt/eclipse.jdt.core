@@ -10901,81 +10901,6 @@ protected void optimizedConcatNodeLists() {
 
 	this.astLengthStack[--this.astLengthPtr]++;
 }
-private boolean parserAtConflictScenario(int lastAction, int token) {
-	
-	/* Answer true if the parser is at a configuration where the scanner must look ahead and help disambiguate between (a) '<' as an operator and '<' as the
-	   start of <type argument> and (b) the use of '(' in '(' expression ')' and '( type ')' and '(' lambda formal parameters ')'. When requested thus,
-	   the scanner helps by fabricating synthetic tokens and injecting them into the stream ahead of the tokens that trigger conflicts in the absence
-	   of these artificial tokens. These manufactured token help transform the grammar into LALR(1) by splitting the states so that they have unambigious
-	   prefixes.
-	   
-	   We do this by claiming to the automaton that the next token seen is the (suitable) synthetic token and observing the response of the state machine. 
-	   Error signals we are NOT at a conflict site, while shift or shift/reduce signals that we are. Accept is impossible, while there may be intermediate
-	   reductions that are called for -- It is axiomatic of the push down automaton that corresponds to the LALR grammar that it will never shift on invalid
-	   input.
-	   
-	   Obviously, the dry runs should not alter the parser state in any way or otherwise cause side effects. Proof by argument that this is the case:
-	   
-	       - The only pieces of state needed to answer the question are: this.stack, this.stateStackTop and the last action variable `act`. None of the various
-	         and sundry stacks used in the AST constructions process are touched here.
-	       - As we reduce, we DON'T call the semantic action functions i.e the consume* method calls are skipped.
-	       - Lexer stream is left untouched.
-	       - this.stateStackTop and the last action variable `act` of the automaton are readily cloned, these being primitives and changes are to the replicas.
-	       - We never remove elements from the state stack here (or elsewhere for that matter). Pops are implemented by mere adjustments of the stack pointer.
-	       - During this algorithm, either the stack pointer monotonically decreases or stays fixed. (The only way for the stack pointer to increase would call
-	         for a shift or a shift/reduce at which point the algorithm is ready to terminate already.) This means that we don't have to replicate the stack. 
-	         Pushes can be mimiced by writing to a local stackTopState variable, leaving the original stack untouched.
-	         
-	    Though this code looks complex, we should exit early in most situations.     
-	 */
-
-	int stackTop = this.stateStackTop;        // local copy of stack pointer
-	int stackTopState = this.stack[stackTop]; // single cell non write through "alternate stack" - the automaton's stack pointer either stays fixed during this manoeuvre or monotonically decreases.
-	int highWaterMark = stackTop;
-	
-	token = token == TokenNameLPAREN ? TokenNameBeginLambda : TokenNameBeginTypeArguments;
-	
-	// A rotated version of the automaton - cf. parse()'s for(;;)
-	for (;;) {  
-		if (lastAction > ERROR_ACTION) {  /* shift-reduce on loop entry from above, reduce on loop back */
-			lastAction -= ERROR_ACTION;
-			do { /* reduce */
-				stackTop -= rhs[lastAction] - 1;
-				if (stackTop < highWaterMark) {
-					stackTopState = this.stack[highWaterMark = stackTop];
-				} // else stackTopState is upto date already.
-				lastAction = ntAction(stackTopState, lhs[lastAction]);
-			} while (lastAction <= NUM_RULES);
-		}
-		highWaterMark = ++stackTop;
-		stackTopState = lastAction; // "push"
-		lastAction = tAction(lastAction, token); // can be looked up from a precomputed cache.
-		if (lastAction <= NUM_RULES) {
-			stackTop --; 
-		    lastAction += ERROR_ACTION;
-			continue;
-		}
-		// Error => false, Shift, Shift/Reduce => true, Accept => impossible. 
-		return lastAction != ERROR_ACTION;
-	}
-}
-protected int getNextToken (int lastAction) throws InvalidInputException {
-	int token = this.scanner.getNextToken();
-	if (this.parsingJava8Plus) {
-		if (token == TokenNameLPAREN || token == TokenNameLESS) {
-			if (parserAtConflictScenario(lastAction, token)) { // Ask the lexer to double check if we at a lambda expression or a method/ctor reference expression ...
-				this.scanner.shouldDisambiguate = true;
-				try {
-					this.scanner.ungetToken(token);
-					token = this.scanner.getNextToken(); // Rescan
-				} finally {
-					this.scanner.shouldDisambiguate = false;
-				}
-			}
-		}
-	}
-	return token;
-}
 /*main loop of the automat
 When a rule is reduced, the method consumeRule(int) is called with the number
 of the consumed rule. When a terminal is consumed, the method consumeToken(int) is
@@ -11049,7 +10974,7 @@ protected void parse() {
 				this.recordStringLiterals = oldValue;
 			}
 			try {
-				this.currentToken = getNextToken(act);
+				this.currentToken = this.scanner.getNextToken();
 			} catch(InvalidInputException e){
 				if (!this.hasReportedError){
 					problemReporter().scannerError(this, e.getMessage());
@@ -11078,7 +11003,7 @@ protected void parse() {
 					this.recordStringLiterals = oldValue;
 				}
 				try{
-					this.currentToken = getNextToken(act);
+					this.currentToken = this.scanner.getNextToken();
 				} catch(InvalidInputException e){
 					if (!this.hasReportedError){
 						problemReporter().scannerError(this, e.getMessage());

@@ -191,12 +191,45 @@ public class Scanner implements TerminalTokens {
 	public boolean insideRecovery = false;
 	private int nextToken = TokenNameNotAToken; // allows for one token push back, only the most recent token can be reliably ungotten.
 	private final boolean scanningJava8Plus;
-	public boolean shouldDisambiguate;          // feedback from parser about need to disambiguate -- to lookahead only when absolutely necessary.
-	public boolean disambiguatedAlready;
-	public boolean scanningHeadOfReferenceExpression = false;
 	private VanguardScanner vanguardScanner;
 	private VanguardParser vanguardParser;
 
+	private int lookAheadState = START_STATE;
+	private static int[][] lookAheadTable;
+	
+	private static final int START_STATE = 0;
+	private static final int POST_LAMBDA_PREFIX = 1;
+	private static final int POST_IDENTIFIER = 2;
+	private static final int POST_BEGIN_TYPE_ARGUMENTS = 3;
+	private static final int TOTAL_LOOKAHEAD_STATES = 4;
+
+	static {
+		int maxTerminals = ParserBasicInformation.NUM_TERMINALS;
+		lookAheadTable = new int[TOTAL_LOOKAHEAD_STATES][maxTerminals];
+		
+		for (int i = 0; i <= POST_IDENTIFIER; i++) {
+			for (int j = 0; j < maxTerminals; j++) {
+				lookAheadTable[i][j] = START_STATE;
+			}	
+			lookAheadTable[i][TokenNameEQUAL] = POST_LAMBDA_PREFIX;
+			lookAheadTable[i][TokenNamereturn] = POST_LAMBDA_PREFIX;
+			lookAheadTable[i][TokenNameLPAREN] = POST_LAMBDA_PREFIX;
+			lookAheadTable[i][TokenNameRPAREN] = POST_LAMBDA_PREFIX;
+			lookAheadTable[i][TokenNameCOMMA] = POST_LAMBDA_PREFIX;
+			lookAheadTable[i][TokenNameARROW] = POST_LAMBDA_PREFIX;
+			lookAheadTable[i][TokenNameQUESTION] = POST_LAMBDA_PREFIX;
+			lookAheadTable[i][TokenNameCOLON] = POST_LAMBDA_PREFIX;
+			lookAheadTable[i][TokenNameIdentifier] = POST_IDENTIFIER;
+		}
+		
+		lookAheadTable[POST_IDENTIFIER][TokenNameBeginTypeArguments] = POST_BEGIN_TYPE_ARGUMENTS;
+
+		for (int i = 0; i < maxTerminals; i++) {
+			lookAheadTable[POST_BEGIN_TYPE_ARGUMENTS][i] = POST_BEGIN_TYPE_ARGUMENTS;  // be stuck here until "::", so we don't inject the
+		}
+		lookAheadTable[POST_BEGIN_TYPE_ARGUMENTS][TokenNameCOLON_COLON] = START_STATE; // synthetic token ahead of the second '<' in X<T>.Y<Q>::
+	}
+	
 	public static final int RoundBracket = 0;
 	public static final int SquareBracket = 1;
 	public static final int CurlyBracket = 2;
@@ -226,8 +259,9 @@ public Scanner(
 	this.tokenizeComments = tokenizeComments;
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.sourceLevel = sourceLevel;
-	this.scanningJava8Plus = sourceLevel >= ClassFileConstants.JDK1_8;
 	this.nextToken = TokenNameNotAToken;
+	this.scanningJava8Plus = sourceLevel >= ClassFileConstants.JDK1_8;
+	this.lookAheadState = START_STATE;
 	this.complianceLevel = complianceLevel;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
 	if (taskTags != null) {
@@ -1139,35 +1173,27 @@ public void ungetToken(int token) {
 }
 
 public int getNextToken() throws InvalidInputException {
-	int token;
-	if (this.nextToken != TokenNameNotAToken) {
-		token = this.nextToken;
-		this.nextToken = TokenNameNotAToken;
-	} else {
-		token = getNextToken0();
-	}
-	if (token == TokenNameCOLON_COLON) {
-		this.scanningHeadOfReferenceExpression = false;
-	}
-	if (this.disambiguatedAlready) {
-		this.disambiguatedAlready = false;
+	
+	int token = this.nextToken != TokenNameNotAToken ? this.nextToken : getNextToken0();
+	this.nextToken = TokenNameNotAToken;
+	
+	if (!this.scanningJava8Plus) {
 		return token;
 	}
-	if (this.scanningJava8Plus && this.shouldDisambiguate) {
-		if (token == TokenNameLPAREN) {
-			if(atLambdaParameterList()) {
-				this.nextToken = token;
-				this.disambiguatedAlready = true;
-				return TokenNameBeginLambda;
-			}
-		} else if (token == TokenNameLESS && !this.scanningHeadOfReferenceExpression) {
-			if (atReferenceExpression()) {
-				this.nextToken = token;
-				this.disambiguatedAlready = true;
-				this.scanningHeadOfReferenceExpression = true;
-				return TokenNameBeginTypeArguments;
-			}
+
+	if (token == TokenNameLPAREN && this.lookAheadState == POST_LAMBDA_PREFIX) {
+		if (atLambdaParameterList()) {
+			this.nextToken = token;
+			token = TokenNameBeginLambda;
 		}
+	} else if (token == TokenNameLESS && this.lookAheadState == POST_IDENTIFIER) {
+		if (atReferenceExpression()) {
+			this.nextToken = token;
+			token = TokenNameBeginTypeArguments;
+		}
+	}
+	if (token < ParserBasicInformation.NUM_TERMINALS) {
+		this.lookAheadState = lookAheadTable[this.lookAheadState][token];
 	}
 	return token;
 }
@@ -2748,6 +2774,7 @@ public void resetTo(int begin, int end) {
 	this.commentPtr = -1; // reset comment stack
 	this.foundTaskCount = 0;
 	this.nextToken = TokenNameNotAToken;
+	this.lookAheadState = START_STATE;
 }
 
 protected final void scanEscapeCharacter() throws InvalidInputException {

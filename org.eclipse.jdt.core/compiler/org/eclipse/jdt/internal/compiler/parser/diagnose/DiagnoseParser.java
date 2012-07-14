@@ -15,7 +15,6 @@
 package org.eclipse.jdt.internal.compiler.parser.diagnose;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.ParserBasicInformation;
@@ -198,9 +197,6 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		if(this.recoveryScanner != null) {
 			oldRecord = this.recoveryScanner.record;
 			this.recoveryScanner.record = record;
-		}
-		if (this.options.sourceLevel >= ClassFileConstants.JDK1_8) {
-			this.parser.scanner.shouldDisambiguate = true;
 		}
 		try {
 			this.lexStream.reset();
@@ -430,7 +426,6 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 			if(this.recoveryScanner != null) {
 				this.recoveryScanner.record = oldRecord;
 			}
-			this.parser.scanner.shouldDisambiguate = false;
 		}
 		return;
 	}
