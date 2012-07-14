@@ -145,7 +145,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class Parser implements  ParserBasicInformation, TerminalTokens, OperatorIds, TypeIds {
+public class Parser implements ConflictedParser, ParserBasicInformation, TerminalTokens, OperatorIds, TypeIds {
 	
 	protected static final int THIS_CALL = ExplicitConstructorCall.This;
 	protected static final int SUPER_CALL = ExplicitConstructorCall.Super;
@@ -998,6 +998,7 @@ private boolean shouldDeferRecovery = false; // https://bugs.eclipse.org/bugs/sh
 private int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
 private boolean parsingJava8Plus;
+private int unstackedAct = ERROR_ACTION;
 
 public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 
@@ -10901,6 +10902,67 @@ protected void optimizedConcatNodeLists() {
 
 	this.astLengthStack[--this.astLengthPtr]++;
 }
+public boolean atConflictScenario(int token) {
+	
+	/* Answer true if the parser is at a configuration where the scanner must look ahead and help disambiguate between (a) '<' as an operator and '<' as the
+	   start of <type argument> and (b) the use of '(' in '(' expression ')' and '( type ')' and '(' lambda formal parameters ')'. When requested thus,
+	   the scanner helps by fabricating synthetic tokens and injecting them into the stream ahead of the tokens that trigger conflicts in the absence
+	   of these artificial tokens. These manufactured token help transform the grammar into LALR(1) by splitting the states so that they have unambigious
+	   prefixes.
+	   
+	   We do this by claiming to the automaton that the next token seen is the (suitable) synthetic token and observing the response of the state machine. 
+	   Error signals we are NOT at a conflict site, while shift or shift/reduce signals that we are. Accept is impossible, while there may be intermediate
+	   reductions that are called for -- It is axiomatic of the push down automaton that corresponds to the LALR grammar that it will never shift on invalid
+	   input.
+	   
+	   Obviously, the dry runs should not alter the parser state in any way or otherwise cause side effects. Proof by argument that this is the case:
+	   
+	       - The only pieces of state needed to answer the question are: this.stack, this.stateStackTop and the last action variable `act`. None of the various
+	         and sundry stacks used in the AST constructions process are touched here.
+	       - As we reduce, we DON'T call the semantic action functions i.e the consume* method calls are skipped.
+	       - Lexer stream is left untouched.
+	       - this.stateStackTop and the last action variable `act` of the automaton are readily cloned, these being primitives and changes are to the replicas.
+	       - We never remove elements from the state stack here (or elsewhere for that matter). Pops are implemented by mere adjustments of the stack pointer.
+	       - During this algorithm, either the stack pointer monotonically decreases or stays fixed. (The only way for the stack pointer to increase would call
+	         for a shift or a shift/reduce at which point the algorithm is ready to terminate already.) This means that we don't have to replicate the stack. 
+	         Pushes can be mimiced by writing to a local stackTopState variable, leaving the original stack untouched.
+	         
+	    Though this code looks complex, we should exit early in most situations.     
+	 */
+	int lastAction = this.unstackedAct;
+	if (lastAction == ERROR_ACTION) { // automaton is not running.
+		return false;
+	}
+	int stackTop = this.stateStackTop;        // local copy of stack pointer
+	int stackTopState = this.stack[stackTop]; // single cell non write through "alternate stack" - the automaton's stack pointer either stays fixed during this manoeuvre or monotonically decreases.
+	int highWaterMark = stackTop;
+	
+	token = token == TokenNameLPAREN ? TokenNameBeginLambda : TokenNameBeginTypeArguments;
+	
+	// A rotated version of the automaton - cf. parse()'s for(;;)
+	for (;;) {  
+		if (lastAction > ERROR_ACTION) {  /* shift-reduce on loop entry from above, reduce on loop back */
+			lastAction -= ERROR_ACTION;
+			do { /* reduce */
+				stackTop -= rhs[lastAction] - 1;
+				if (stackTop < highWaterMark) {
+					stackTopState = this.stack[highWaterMark = stackTop];
+				} // else stackTopState is upto date already.
+				lastAction = ntAction(stackTopState, lhs[lastAction]);
+			} while (lastAction <= NUM_RULES);
+		}
+		highWaterMark = ++stackTop;
+		stackTopState = lastAction; // "push"
+		lastAction = tAction(lastAction, token); // can be looked up from a precomputed cache.
+		if (lastAction <= NUM_RULES) {
+			stackTop --; 
+		    lastAction += ERROR_ACTION;
+			continue;
+		}
+		// Error => false, Shift, Shift/Reduce => true, Accept => impossible. 
+		return lastAction != ERROR_ACTION;
+	}
+}
 /*main loop of the automat
 When a rule is reduced, the method consumeRule(int) is called with the number
 of the consumed rule. When a terminal is consumed, the method consumeToken(int) is
@@ -10922,6 +10984,9 @@ protected void parse() {
 	int act = START_STATE;
 	this.stateStackTop = -1;
 	this.currentToken = getFirstToken();
+	
+try {
+	this.scanner.setActiveParser(this);
 	ProcessTerminals : for (;;) {
 		int stackLength = this.stack.length;
 		if (++this.stateStackTop >= stackLength) {
@@ -10974,6 +11039,7 @@ protected void parse() {
 				this.recordStringLiterals = oldValue;
 			}
 			try {
+				this.unstackedAct = act;
 				this.currentToken = this.scanner.getNextToken();
 			} catch(InvalidInputException e){
 				if (!this.hasReportedError){
@@ -10983,6 +11049,8 @@ protected void parse() {
 				this.lastCheckPoint = this.scanner.currentPosition;
 				this.currentToken = 0;
 				this.restartRecovery = true;
+			} finally {
+				this.unstackedAct = ERROR_ACTION;
 			}
 			if(this.statementRecoveryActivated) {
 				jumpOverType();
@@ -11003,6 +11071,7 @@ protected void parse() {
 					this.recordStringLiterals = oldValue;
 				}
 				try{
+					this.unstackedAct = act;
 					this.currentToken = this.scanner.getNextToken();
 				} catch(InvalidInputException e){
 					if (!this.hasReportedError){
@@ -11012,6 +11081,8 @@ protected void parse() {
 					this.lastCheckPoint = this.scanner.currentPosition;
 					this.currentToken = 0;
 					this.restartRecovery = true;
+				} finally {
+					this.unstackedAct = ERROR_ACTION;
 				}
 				if(this.statementRecoveryActivated) {
 					jumpOverType();
@@ -11047,6 +11118,9 @@ protected void parse() {
 			System.out.println("----------------------------------------");  //$NON-NLS-1$
 		}
 	}
+} finally {
+	this.scanner.setActiveParser(null);
+}
 
 	if (DEBUG_AUTOMATON) {
 		System.out.println("- End ----------------------------------");  //$NON-NLS-1$

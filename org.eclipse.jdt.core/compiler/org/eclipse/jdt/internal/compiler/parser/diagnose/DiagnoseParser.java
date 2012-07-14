@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.compiler.parser.diagnose;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.parser.ConflictedParser;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.ParserBasicInformation;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
@@ -25,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
+public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, ConflictedParser {
 	private static final boolean DEBUG = false;
 	private boolean DEBUG_PARSECHECK = false;
 
@@ -198,6 +199,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 			oldRecord = this.recoveryScanner.record;
 			this.recoveryScanner.record = record;
 		}
+		this.parser.scanner.setActiveParser(this);
 		try {
 			this.lexStream.reset();
 
@@ -426,6 +428,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 			if(this.recoveryScanner != null) {
 				this.recoveryScanner.record = oldRecord;
 			}
+			this.parser.scanner.setActiveParser(null);
 		}
 		return;
 	}
@@ -2594,5 +2597,15 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 		res.append(this.lexStream.toString());
 
 		return res.toString();
+	}
+
+	public boolean atConflictScenario(int token) {
+		/* There is too much voodoo that goes on here in DiagnoseParser (multiple machines, lexer stream reset etc.)
+		   So we take a simple minded view that we will always ask for disambiguation, except there is one scenario 
+		   that needs special handling, we let the lexer stream deal with that: In X<String>.Y<Integer>:: the second
+		   '<' should not be tagged for disambiguation. If a synthetic token gets injected there, there will be syntax
+		   error. See that this is not a problem for the regular/normal parser.
+		*/ 
+		return this.lexStream.atConflictScenario(token);
 	}
 }

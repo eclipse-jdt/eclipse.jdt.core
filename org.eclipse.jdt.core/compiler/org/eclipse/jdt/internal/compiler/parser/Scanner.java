@@ -193,42 +193,7 @@ public class Scanner implements TerminalTokens {
 	private final boolean scanningJava8Plus;
 	private VanguardScanner vanguardScanner;
 	private VanguardParser vanguardParser;
-
-	private int lookAheadState = START_STATE;
-	private static int[][] lookAheadTable;
-	
-	private static final int START_STATE = 0;
-	private static final int POST_LAMBDA_PREFIX = 1;
-	private static final int POST_IDENTIFIER = 2;
-	private static final int POST_BEGIN_TYPE_ARGUMENTS = 3;
-	private static final int TOTAL_LOOKAHEAD_STATES = 4;
-
-	static {
-		int maxTerminals = ParserBasicInformation.NUM_TERMINALS;
-		lookAheadTable = new int[TOTAL_LOOKAHEAD_STATES][maxTerminals];
-		
-		for (int i = 0; i <= POST_IDENTIFIER; i++) {
-			for (int j = 0; j < maxTerminals; j++) {
-				lookAheadTable[i][j] = START_STATE;
-			}	
-			lookAheadTable[i][TokenNameEQUAL] = POST_LAMBDA_PREFIX;
-			lookAheadTable[i][TokenNamereturn] = POST_LAMBDA_PREFIX;
-			lookAheadTable[i][TokenNameLPAREN] = POST_LAMBDA_PREFIX;
-			lookAheadTable[i][TokenNameRPAREN] = POST_LAMBDA_PREFIX;
-			lookAheadTable[i][TokenNameCOMMA] = POST_LAMBDA_PREFIX;
-			lookAheadTable[i][TokenNameARROW] = POST_LAMBDA_PREFIX;
-			lookAheadTable[i][TokenNameQUESTION] = POST_LAMBDA_PREFIX;
-			lookAheadTable[i][TokenNameCOLON] = POST_LAMBDA_PREFIX;
-			lookAheadTable[i][TokenNameIdentifier] = POST_IDENTIFIER;
-		}
-		
-		lookAheadTable[POST_IDENTIFIER][TokenNameBeginTypeArguments] = POST_BEGIN_TYPE_ARGUMENTS;
-
-		for (int i = 0; i < maxTerminals; i++) {
-			lookAheadTable[POST_BEGIN_TYPE_ARGUMENTS][i] = POST_BEGIN_TYPE_ARGUMENTS;  // be stuck here until "::", so we don't inject the
-		}
-		lookAheadTable[POST_BEGIN_TYPE_ARGUMENTS][TokenNameCOLON_COLON] = START_STATE; // synthetic token ahead of the second '<' in X<T>.Y<Q>::
-	}
+	private ConflictedParser activeParser = null;
 	
 	public static final int RoundBracket = 0;
 	public static final int SquareBracket = 1;
@@ -261,7 +226,6 @@ public Scanner(
 	this.sourceLevel = sourceLevel;
 	this.nextToken = TokenNameNotAToken;
 	this.scanningJava8Plus = sourceLevel >= ClassFileConstants.JDK1_8;
-	this.lookAheadState = START_STATE;
 	this.complianceLevel = complianceLevel;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
 	if (taskTags != null) {
@@ -1165,35 +1129,37 @@ public int scanIdentifier() throws InvalidInputException {
 		return TokenNameERROR;
 	}
 }
-public void ungetToken(int token) {
+public void ungetToken(int unambiguousToken) {
 	if (this.nextToken != TokenNameNotAToken) {
 		throw new ArrayIndexOutOfBoundsException("Single cell array overflow"); //$NON-NLS-1$
 	}
-	this.nextToken = token;
+	this.nextToken = unambiguousToken;
 }
 
 public int getNextToken() throws InvalidInputException {
 	
-	int token = this.nextToken != TokenNameNotAToken ? this.nextToken : getNextToken0();
-	this.nextToken = TokenNameNotAToken;
+	int token;
+	if (this.nextToken != TokenNameNotAToken) {
+		token = this.nextToken;
+		this.nextToken = TokenNameNotAToken;
+		return token; // presumed to be unambiguous.
+	}
 	
-	if (!this.scanningJava8Plus) {
-		return token;
+	token = getNextToken0();
+	if (!this.scanningJava8Plus || this.activeParser == null) {
+		return token;  // no audience, no magic.
 	}
 
-	if (token == TokenNameLPAREN && this.lookAheadState == POST_LAMBDA_PREFIX) {
+	if (token == TokenNameLPAREN && this.activeParser.atConflictScenario(token)) {
 		if (atLambdaParameterList()) {
 			this.nextToken = token;
 			token = TokenNameBeginLambda;
 		}
-	} else if (token == TokenNameLESS && this.lookAheadState == POST_IDENTIFIER) {
+	} else if (token == TokenNameLESS && this.activeParser.atConflictScenario(token)) {
 		if (atReferenceExpression()) {
 			this.nextToken = token;
 			token = TokenNameBeginTypeArguments;
 		}
-	}
-	if (token < ParserBasicInformation.NUM_TERMINALS) {
-		this.lookAheadState = lookAheadTable[this.lookAheadState][token];
 	}
 	return token;
 }
@@ -2774,7 +2740,6 @@ public void resetTo(int begin, int end) {
 	this.commentPtr = -1; // reset comment stack
 	this.foundTaskCount = 0;
 	this.nextToken = TokenNameNotAToken;
-	this.lookAheadState = START_STATE;
 }
 
 protected final void scanEscapeCharacter() throws InvalidInputException {
@@ -4325,5 +4290,9 @@ private final boolean atLambdaParameterList() { // Did the '(' we saw just now h
 }
 private final boolean atReferenceExpression() { // Did the '<' we saw just now herald a reference expression ?
 	return getVanguardParser().parse(TokenNameCOLON_COLON);
+}
+
+public void setActiveParser(ConflictedParser parser) {
+	this.activeParser  = parser;
 }
 }
