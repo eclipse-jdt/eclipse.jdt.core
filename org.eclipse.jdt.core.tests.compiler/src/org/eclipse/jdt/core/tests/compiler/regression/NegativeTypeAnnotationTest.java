@@ -662,7 +662,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"The annotation @Marker is disallowed for this location\n" + 
 				"----------\n");
 	}
-	public void _test032() throws Exception {
+	public void test032() throws Exception {
 		this.runNegativeTest(
 				new String[] {
 					"Marker.java",
@@ -674,10 +674,10 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 1)\n" + 
 				"	public class X<@Marker T> {}\n" + 
 				"	               ^^^^^^^\n" + 
-				"The annotation @Marker is disallowed for this location\n" + 
+				"Only annotation types that explicitly specify TYPE_PARAMETER as a possible target element type can be applied here\n" + 
 				"----------\n");
 	}
-	public void _test033() throws Exception {
+	public void test033() throws Exception {
 		this.runNegativeTest(
 				new String[] {
 					"Marker.java",
@@ -691,7 +691,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 1)\n" + 
 				"	public class X extends @Marker Y {}\n" + 
 				"	                       ^^^^^^^\n" + 
-				"The annotation @Marker is disallowed for this location\n" + 
+				"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
 				"----------\n");
 	}
 	// check locations
