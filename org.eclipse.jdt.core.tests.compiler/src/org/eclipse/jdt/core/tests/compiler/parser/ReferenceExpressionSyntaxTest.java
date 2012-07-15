@@ -761,7 +761,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"    super();\n" + 
 				"  }\n" + 
 				"  public static void main(String[] args) {\n" + 
-				"    I i = X::<String>clone;\n" + 
+				"    I i = X[]::<String>clone;\n" + 
 				"    i.copy(new X[10]);\n" + 
 				"  }\n" + 
 				"}\n";
