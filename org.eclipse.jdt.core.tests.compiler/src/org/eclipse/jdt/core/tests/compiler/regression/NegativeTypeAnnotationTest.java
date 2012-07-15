@@ -644,7 +644,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Marker2 cannot be resolved to a type\n" + 
 				"----------\n");
 	}
-	public void _test031() throws Exception {
+	public void test031() throws Exception {
 		this.runNegativeTest(
 				new String[] {
 					"Marker.java",
@@ -655,6 +655,13 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"X.java",
 					"public class X<@Marker T> {}",
 				},
+				/* TODO(Srikanth/Jay) when JSR308 enabled runtime becomes available for testing, the first error message should be deleted. */
+				"----------\n" + 
+				"1. ERROR in Marker.java (at line 3)\n" + 
+				"	@Target(TYPE_USE)\n" + 
+				"	        ^^^^^^^^\n" + 
+				"TYPE_USE cannot be resolved to a variable\n" + 
+				"----------\n" + 
 				"----------\n" + 
 				"1. ERROR in X.java (at line 1)\n" + 
 				"	public class X<@Marker T> {}\n" + 
