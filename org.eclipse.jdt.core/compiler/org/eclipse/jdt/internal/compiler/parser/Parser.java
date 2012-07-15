@@ -6057,7 +6057,7 @@ protected void consumeRule(int act) {
 		    consumeClassOrInterface();   
 			break;
  
-    case 66 : if (DEBUG) { System.out.println("GenericType ::= ClassOrInterface LESS GREATER"); }  //$NON-NLS-1$
+    case 66 : if (DEBUG) { System.out.println("GenericType ::= ClassOrInterface LESS GREATER..."); }  //$NON-NLS-1$
 		    consumeGenericTypeWithDiamond();  
 			break;
  
@@ -6371,7 +6371,7 @@ protected void consumeRule(int act) {
 		    consumeCatchType();  
 			break;
  
-    case 212 : if (DEBUG) { System.out.println("UnionType ::= TypeInternal"); }  //$NON-NLS-1$
+    case 212 : if (DEBUG) { System.out.println("UnionType ::= Type0"); }  //$NON-NLS-1$
 		    consumeUnionTypeAsClassType();  
 			break;
  
@@ -6747,11 +6747,11 @@ protected void consumeRule(int act) {
 		    consumeResourceOptionalTrailingSemiColon(true);  
 			break;
  
-    case 367 : if (DEBUG) { System.out.println("Resource ::= TypeInternal PushModifiers..."); }  //$NON-NLS-1$
+    case 367 : if (DEBUG) { System.out.println("Resource ::= Type0 PushModifiers VariableDeclaratorId..."); }  //$NON-NLS-1$
 		    consumeResourceAsLocalVariableDeclaration();  
 			break;
  
-    case 368 : if (DEBUG) { System.out.println("Resource ::= Modifiers TypeInternal PushRealModifiers..."); }  //$NON-NLS-1$
+    case 368 : if (DEBUG) { System.out.println("Resource ::= Modifiers Type0 PushRealModifiers..."); }  //$NON-NLS-1$
 		    consumeResourceAsLocalVariableDeclaration();  
 			break;
  

@@ -953,4 +953,77 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"The annotation @Marker is disallowed for this location\n" + 
 					"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385111
+	// [1.8][compiler] Compiler fails to flag undefined annotation type. 
+	public void test0385111() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.util.ArrayList;\n" +
+						"import java.util.List;\n" +
+						"public class X {\n" +
+						"    public void foo(String fileName) {\n" +
+						"        List<String> l = new @MissingTypeNotIgnored ArrayList<String>();\n" +
+						"        List<String> l1 = new @MissingTypeIgnored ArrayList<>();\n" +
+						"    }\n" +
+						"}\n",
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 5)\n" + 
+					"	List<String> l = new @MissingTypeNotIgnored ArrayList<String>();\n" + 
+					"	                      ^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"MissingTypeNotIgnored cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 6)\n" + 
+					"	List<String> l1 = new @MissingTypeIgnored ArrayList<>();\n" + 
+					"	                       ^^^^^^^^^^^^^^^^^^\n" + 
+					"MissingTypeIgnored cannot be resolved to a type\n" + 
+					"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385111
+	// Test to exercise assorted cleanup along with bug fix. 
+	public void test0385111a() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    public void foo(String fileName) {\n" +
+						"        try (@Annot X x = null; @Annot X x2 = null) {\n"+
+						"        } catch (@Annot NullPointerException | @Annot UnsupportedOperationException e) {\n" +
+						"        }\n" +
+						"    }\n" +
+						"}\n",
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 3)\n" + 
+					"	try (@Annot X x = null; @Annot X x2 = null) {\n" + 
+					"	      ^^^^^\n" + 
+					"Annot cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 3)\n" + 
+					"	try (@Annot X x = null; @Annot X x2 = null) {\n" + 
+					"	            ^\n" + 
+					"The resource type X does not implement java.lang.AutoCloseable\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 3)\n" + 
+					"	try (@Annot X x = null; @Annot X x2 = null) {\n" + 
+					"	                         ^^^^^\n" + 
+					"Annot cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"4. ERROR in X.java (at line 3)\n" + 
+					"	try (@Annot X x = null; @Annot X x2 = null) {\n" + 
+					"	                               ^\n" + 
+					"The resource type X does not implement java.lang.AutoCloseable\n" + 
+					"----------\n" + 
+					"5. ERROR in X.java (at line 4)\n" + 
+					"	} catch (@Annot NullPointerException | @Annot UnsupportedOperationException e) {\n" + 
+					"	          ^^^^^\n" + 
+					"Annot cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"6. ERROR in X.java (at line 4)\n" + 
+					"	} catch (@Annot NullPointerException | @Annot UnsupportedOperationException e) {\n" + 
+					"	                                        ^^^^^\n" + 
+					"Annot cannot be resolved to a type\n" + 
+					"----------\n");
+	}
 }
