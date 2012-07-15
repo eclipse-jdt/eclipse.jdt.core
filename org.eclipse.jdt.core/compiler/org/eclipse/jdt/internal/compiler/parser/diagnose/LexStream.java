@@ -299,7 +299,7 @@ public class LexStream implements TerminalTokens {
 		return res.toString();
 	}
 
-	public boolean atConflictScenario(int token) {
-		return (token == TokenNameLPAREN || (token == TokenNameLESS && !this.awaitingColonColon));
+	public boolean awaitingColonColon() {
+		return this.awaitingColonColon;
 	}
 }

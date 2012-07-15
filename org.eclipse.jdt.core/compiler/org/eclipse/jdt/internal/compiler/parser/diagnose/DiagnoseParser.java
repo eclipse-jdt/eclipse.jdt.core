@@ -2606,6 +2606,6 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 		   '<' should not be tagged for disambiguation. If a synthetic token gets injected there, there will be syntax
 		   error. See that this is not a problem for the regular/normal parser.
 		*/ 
-		return this.lexStream.atConflictScenario(token);
+		return (token == TokenNameLPAREN || (token == TokenNameLESS && !this.lexStream.awaitingColonColon()));
 	}
 }

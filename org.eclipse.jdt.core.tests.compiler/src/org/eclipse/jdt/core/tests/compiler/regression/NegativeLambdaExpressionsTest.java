@@ -106,7 +106,7 @@ public void test003() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383046, syntax error reported incorrectly on syntactically valid lambda expression
-public void _test004() {
+public void test004() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -115,14 +115,14 @@ public void _test004() {
 				"}\n" +
 				"public class X {\n" +
 				"     IX i = () -> 42;\n" +
-				"     int\n" +
+				"     int x\n" +
 				"}\n",
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
-			"	int\n" + 
-			"	^^^\n" + 
-			"Syntax error on token \"int\", delete this token\n" + 
+			"	int x\n" + 
+			"	    ^\n" + 
+			"Syntax error, insert \";\" to complete FieldDeclaration\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383085 super::identifier not accepted.
@@ -146,7 +146,7 @@ public void test005() {
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383046, syntax error reported incorrectly on *syntactically* valid reference expression
-public void _test006() {
+public void test006() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -155,14 +155,14 @@ public void _test006() {
 				"}\n" +
 				"public class X {\n" +
 				"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" +
-				"   int\n" +
+				"   int x\n" +
 				"}\n",
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
-			"	int\n" + 
-			"	^^^\n" + 
-			"Syntax error on token \"int\", delete this token\n" + 
+			"	int x\n" + 
+			"	    ^\n" + 
+			"Syntax error, insert \";\" to complete FieldDeclaration\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383096, NullPointerException with a wrong lambda code snippet

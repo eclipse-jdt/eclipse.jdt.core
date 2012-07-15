@@ -10949,8 +10949,8 @@ public boolean atConflictScenario(int token) {
 	
 	// A rotated version of the automaton - cf. parse()'s for(;;)
 	for (;;) {  
-		if (lastAction > ERROR_ACTION) {  /* shift-reduce on loop entry from above, reduce on loop back */
-			lastAction -= ERROR_ACTION;
+		if (lastAction > ERROR_ACTION) {  
+			lastAction -= ERROR_ACTION;    /* shift-reduce on loop entry from above, reduce on loop back */
 			do { /* reduce */
 				stackTop -= rhs[lastAction] - 1;
 				if (stackTop < highWaterMark) {
