@@ -132,7 +132,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(project);
 		}
 	}
-	// Search for a non-overriden method with same name as which could have been overriden should
+	// Search for a non-overridden method with same name as which could have been overridden should
 	// not have results
 	public void testBug123836b() throws CoreException {
 		IJavaProject project = null;
@@ -1283,6 +1283,101 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 
 			assertSearchResults("src/b381567/A.java b381567.A(Exception) [A] EXACT_MATCH OUTSIDE_JAVADOC\n"
 					+ "src/b381567/A.java b381567.A$B(String) [A(Exception)] EXACT_MATCH INSIDE_JAVADOC");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382778, Call hierarchy missing valid callers probably because java search marks exact matches as potential
+	public void testBug382778() throws CoreException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" },
+					new String[] {"JCL_LIB"}, "bin");
+			createFolder("/P/src/b382778");
+			createFile("/P/src/b382778/Impl2.java",
+					"package b382778;\n" +
+							"public class Impl2 implements PublicInterface2 {\n" +
+							"	private final String name;\n" +
+							"	public Impl2(String name) {\n" +
+							"		this.name = name;\n" +
+							"	}\n" +
+							"	public String getName() {\n" +
+							"		return name;\n" +
+							"	}\n" +
+							"}\n"
+					);
+			createFile("/P/src/b382778/Main.java",
+					"package b382778;\n" +
+							"public class Main {\n" +
+							"	public static void main(String[] args) {\n" +
+							"		broken();\n" +
+							"		ok();\n" +
+							"	}\n" +
+							"	private static void broken() {\n" +
+							"		PublicInterface2 impl2 = new Impl2(\"Name Broken\");\n" +
+							"		Static.printIt(impl2.getName());\n" +
+							"	}\n" +
+							"	private static void ok() {\n" +
+							"		PublicInterface2 impl2 = new Impl2(\"Name OK\");\n" +
+							"		String name = impl2.getName();\n" +
+							"		Static.printIt(name);\n" +
+							"	}\n" +
+							"}\n"
+					);
+			createFile("/P/src/b382778/MainBroken.java",
+					"package b382778;\n" +
+							"public class MainBroken {\n" +
+							"	public static void main(String[] args) {\n" +
+							"		PublicInterface2 impl2 = new Impl2(\"Name Broken\");\n" +
+							"		Static.printIt(impl2.getName());\n" +
+							"	}\n" +
+							"}\n"
+					);
+			createFile("/P/src/b382778/MainOK.java",
+					"package b382778;\n" +
+							"public class MainOK {\n" +
+							"	public static void main(String[] args) {\n" +
+							"		PublicInterface2 impl2 = new Impl2(\"Name OK\");\n" +
+							"		String name = impl2.getName();\n" +
+							"		Static.printIt(name);\n" +
+							"	}\n" +
+							"}\n"
+					);
+			createFile("/P/src/b382778/PublicInterface1.java",
+					"package b382778;\n" +
+							"public interface PublicInterface1 extends PackageInterface1Getters {\n" +
+							"}\n" +
+							"/* package */interface PackageInterface1Getters {\n" +
+							"String getName();\n" +
+							"}"
+					);
+			createFile("/P/src/b382778/PublicInterface2.java",
+					"package b382778;\n" +
+							"public interface PublicInterface2 extends PackageInterface2Getters {\n" +
+							"}\n" +
+							"/* package */interface PackageInterface2Getters extends PackageInterface1Getters {\n" +
+							"}\n"
+					);
+			createFile("/P/src/b382778/Static.java",
+					"package b382778;\n" +
+							"public class Static {\n" +
+							"public static void printIt(String it) {\n" +
+							"System.out.println(it);\n" +
+							"}\n" +
+							"}"
+					);
+			waitUntilIndexesReady();
+			ICompilationUnit unit = getCompilationUnit("/P/src/b382778/Static.java");
+			IMethod method = unit.getType("Static").getMethod("printIt",
+					new String[] { "QString;" });
+			IJavaSearchScope scope = SearchEngine
+					.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES);
+
+			search(method, REFERENCES, scope, this.resultCollector);
+
+			assertSearchResults("src/b382778/Main.java void b382778.Main.broken() [printIt(impl2.getName())] EXACT_MATCH\n"
+					+ "src/b382778/Main.java void b382778.Main.ok() [printIt(name)] EXACT_MATCH\n"
+					+ "src/b382778/MainBroken.java void b382778.MainBroken.main(String[]) [printIt(impl2.getName())] EXACT_MATCH\n"
+					+ "src/b382778/MainOK.java void b382778.MainOK.main(String[]) [printIt(name)] EXACT_MATCH");
 		} finally {
 			deleteProject("P");
 		}
