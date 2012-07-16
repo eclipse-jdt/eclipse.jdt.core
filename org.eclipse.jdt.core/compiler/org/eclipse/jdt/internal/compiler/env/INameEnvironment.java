@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.compiler.env;
 /**
  * The name environment provides a callback API that the compiler
  * can use to look up types, compilation units, and packages in the
- * current environment.  The name environment is passed to the compiler
+ * current environment. The name environment is passed to the compiler
  * on creation.
  */
 public interface INameEnvironment {
@@ -60,7 +60,7 @@ NameEnvironmentAnswer findType(char[] typeName, char[][] packageName);
 boolean isPackage(char[][] parentPackageName, char[] packageName);
 
 /**
- * This method cleans the environment uo. It is responsible for releasing the memory
+ * This method cleans the environment. It is responsible for releasing the memory
  * and freeing resources. Passed that point, the name environment is no longer usable.
  *
  * A name environment can have a long life cycle, therefore it is the responsibility of

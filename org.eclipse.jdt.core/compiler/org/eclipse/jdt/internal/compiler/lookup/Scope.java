@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2450,7 +2450,7 @@ public abstract class Scope {
 	*/
 	// The return type of this method could be ReferenceBinding if we did not answer base types.
 	// NOTE: We could support looking for Base Types last in the search, however any code using
-	// this feature would be extraordinarily slow.  Therefore we don't do this
+	// this feature would be extraordinarily slow. Therefore we don't do this.
 	public final TypeBinding getType(char[] name) {
 		// Would like to remove this test and require senders to specially handle base types
 		TypeBinding binding = getBaseType(name);

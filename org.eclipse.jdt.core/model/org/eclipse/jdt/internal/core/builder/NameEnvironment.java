@@ -276,7 +276,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		// let the recompile loop fix up dependents when the secondary type Y has been deleted from X.java
 		// Only enclosing type names are present in the additional units table, so strip off inner class specifications
 		// when doing the lookup (https://bugs.eclipse.org/372418). 
-		// Also take care of $ in the name of the class (https://bugs.eclipse.org/Bug 377401)
+		// Also take care of $ in the name of the class (https://bugs.eclipse.org/377401)
 		int index = qualifiedTypeName.indexOf('$');
 		if (index > 0) {
 			String enclosingTypeName = qualifiedTypeName.substring(0, index);

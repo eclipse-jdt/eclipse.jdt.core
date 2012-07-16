@@ -104,7 +104,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 //	protected final static String JUNIT_PROJECT_NAME = "junit";
 //	protected static IJavaProject JUNIT_PROJECT;
 
-	// Compilaiton variable
+	// Compilation variable
 	public static final String COMPILER_OUTPUT_DIR;
 	static {
 		String outputDir = null;
@@ -185,7 +185,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	/**
 	 * Variable used for log files.
-	 * Log files are used in conjonction with {@link JdtCorePerformanceMeter} class.
+	 * Log files are used in conjunction with {@link JdtCorePerformanceMeter} class.
 	 * These are file where CPU times of each test of subclasses are stored.
 	 * This specific way to run performance tests is activated by specifying
 	 * following options:
