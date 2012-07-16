@@ -703,4 +703,17 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "testNestedLambda01", expectedUnitToString);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385132
+	public void test385132() throws IOException {
+		String source = "->";
+		String expectedErrorString = 
+				"----------\n" +
+				"1. ERROR in test385132 (at line 1)\n" +
+				"	->\n" +
+				"	^^\n" +
+				"Syntax error on token \"->\", delete this token\n" +
+				"----------\n";
+				
+		checkParse(CHECK_PARSER , source.toCharArray(), expectedErrorString, "test385132", null);
+	}
 }

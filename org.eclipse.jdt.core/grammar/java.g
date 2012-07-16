@@ -2732,6 +2732,8 @@ DOT ::=    '.'
 EQUAL ::=    '='    
 AT ::=    '@'    
 ELLIPSIS ::=    '...'    
+ARROW ::= '->'
+COLON_COLON ::= '::'
 
 $end
 -- need a carriage return after the $end
