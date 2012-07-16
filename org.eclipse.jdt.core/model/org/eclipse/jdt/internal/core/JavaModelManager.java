@@ -4370,14 +4370,18 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	/**
 	 * Get all secondary types for a project and store result in per project info cache.
-	 *
-	 * This cache is an Hashtable<String, HashMap<String, IType>>:
-	 * 	- key: package name
-	 * 	- value:
-	 * 		+ key: type name
-	 * 		+ value: java model handle for the secondary type
+	 * <p>
+	 * This cache is an <code>Hashtable&lt;String, HashMap&lt;String, IType&gt;&gt;</code>:
+	 *  <ul>
+	 * 	<li>key: package name
+	 * 	<li>value:
+	 * 		<ul>
+	 * 		<li>key: type name
+	 * 		<li>value: java model handle for the secondary type
+	 * 		</ul>
+	 * </ul>
 	 * Hashtable was used to protect callers from possible concurrent access.
-	 *
+	 * </p>
 	 * Note that this map may have a specific entry which key is {@link #INDEXED_SECONDARY_TYPES }
 	 * and value is a map containing all secondary types created during indexing.
 	 * When this key is in cache and indexing is finished, returned map is merged

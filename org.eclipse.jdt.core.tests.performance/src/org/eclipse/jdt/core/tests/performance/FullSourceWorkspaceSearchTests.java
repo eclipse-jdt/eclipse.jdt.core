@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -588,7 +588,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	}
 
 	/**
-	 * Performance tests for search: Constructors occruences.
+	 * Performance tests for search: Constructors occurrences.
 	 */
 	public void testSearchConstructor() throws CoreException {
 		tagAsSummary("Search constructor occurences", false); // do NOT put in fingerprint

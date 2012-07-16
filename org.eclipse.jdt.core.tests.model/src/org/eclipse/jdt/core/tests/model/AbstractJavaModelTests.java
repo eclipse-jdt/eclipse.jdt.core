@@ -2031,7 +2031,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * <code>null</code> if it does not exist.
 	 * If relative, the rootPath must be specified as a project relative path.
 	 * The empty path refers to the package fragment root that is the project
-	 * folder iteslf.
+	 * folder itself.
 	 * If absolute, the rootPath refers to either an external jar, or a resource
 	 * internal to the workspace
 	 */

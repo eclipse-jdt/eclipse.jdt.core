@@ -903,7 +903,7 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
 }
 
 public int hashCode() {
-	// ensure ReferenceBindings hash to the same posiiton as UnresolvedReferenceBindings so they can be replaced without rehashing
+	// ensure ReferenceBindings hash to the same position as UnresolvedReferenceBindings so they can be replaced without rehashing
 	// ALL ReferenceBindings are unique when created so equals() is the same as ==
 	return (this.compoundName == null || this.compoundName.length == 0)
 		? super.hashCode()

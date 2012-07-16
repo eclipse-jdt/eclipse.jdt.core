@@ -42,7 +42,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
 	
 	/**
-	 * Internal synonynm for deprecated constant AST.JSL3
+	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
 	 * @deprecated
 	 */

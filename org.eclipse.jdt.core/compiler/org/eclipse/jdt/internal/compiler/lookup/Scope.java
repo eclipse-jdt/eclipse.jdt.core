@@ -2473,7 +2473,7 @@ public abstract class Scope {
 	*/
 	// The return type of this method could be ReferenceBinding if we did not answer base types.
 	// NOTE: We could support looking for Base Types last in the search, however any code using
-	// this feature would be extraordinarily slow.  Therefore we don't do this
+	// this feature would be extraordinarily slow. Therefore we don't do this.
 	public final TypeBinding getType(char[] name) {
 		// Would like to remove this test and require senders to specially handle base types
 		TypeBinding binding = getBaseType(name);
