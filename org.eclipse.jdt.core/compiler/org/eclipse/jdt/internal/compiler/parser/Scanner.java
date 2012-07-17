@@ -189,8 +189,8 @@ public class Scanner implements TerminalTokens {
 		newEntry5 = 0,
 		newEntry6 = 0;
 	public boolean insideRecovery = false;
+	int lookBack[] = new int[2]; // fall back to spring forward.
 	private int nextToken = TokenNameNotAToken; // allows for one token push back, only the most recent token can be reliably ungotten.
-	private final boolean scanningJava8Plus;
 	private VanguardScanner vanguardScanner;
 	private VanguardParser vanguardParser;
 	private ConflictedParser activeParser = null;
@@ -224,8 +224,7 @@ public Scanner(
 	this.tokenizeComments = tokenizeComments;
 	this.tokenizeWhiteSpace = tokenizeWhiteSpace;
 	this.sourceLevel = sourceLevel;
-	this.nextToken = TokenNameNotAToken;
-	this.scanningJava8Plus = sourceLevel >= ClassFileConstants.JDK1_8;
+	this.lookBack[0] = this.lookBack[1] = this.nextToken = TokenNameNotAToken;
 	this.complianceLevel = complianceLevel;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
 	if (taskTags != null) {
@@ -1146,21 +1145,20 @@ public int getNextToken() throws InvalidInputException {
 	}
 	
 	token = getNextToken0();
-	if (!this.scanningJava8Plus || this.activeParser == null) {
-		return token;  // no audience, no magic.
+	if (this.activeParser == null) { // anybody interested in the grammatical structure of the program should have registered.
+		return token;
 	}
 
-	if (token == TokenNameLPAREN && this.activeParser.atConflictScenario(token)) {
-		if (atLambdaParameterList()) {
-			this.nextToken = token;
-			token = TokenNameBeginLambda;
-		}
-	} else if (token == TokenNameLESS && this.activeParser.atConflictScenario(token)) {
-		if (atReferenceExpression()) {
-			this.nextToken = token;
-			token = TokenNameBeginTypeArguments;
-		}
+	if (token == TokenNameLPAREN && atLambdaParameterList()) {
+		this.nextToken = token;
+		token = TokenNameBeginLambda;
+	} else if (token == TokenNameLESS && atReferenceExpression()) {
+		this.nextToken = token;
+		token = TokenNameBeginTypeArguments;
 	}
+
+	this.lookBack[0] = this.lookBack[1];
+	this.lookBack[1] = token;
 	return token;
 }
 protected int getNextToken0() throws InvalidInputException {
@@ -2739,7 +2737,7 @@ public void resetTo(int begin, int end) {
 	}
 	this.commentPtr = -1; // reset comment stack
 	this.foundTaskCount = 0;
-	this.nextToken = TokenNameNotAToken;
+	this.lookBack[0] = this.lookBack[1] = this.nextToken = TokenNameNotAToken;
 }
 
 protected final void scanEscapeCharacter() throws InvalidInputException {
@@ -4286,13 +4284,66 @@ private VanguardParser getVanguardParser() {
 	return this.vanguardParser;
 }
 private final boolean atLambdaParameterList() { // Did the '(' we saw just now herald a lambda parameter list ?
-	return getVanguardParser().parse(TokenNameARROW);
+
+	switch (this.lookBack[1]) {
+		case TokenNameEQUAL : 
+		case TokenNamereturn:
+		case TokenNameLPAREN:
+		case TokenNameRPAREN:
+		case TokenNameCOMMA:
+		case TokenNameARROW:
+		case TokenNameQUESTION:
+		case TokenNameCOLON:
+		case TokenNameLBRACE:
+		case TokenNameNotAToken: // Not kosher, don't touch.
+			break;
+		default:
+			return false; // Not a viable prefix for lambda.
+
+	}
+	return this.activeParser.atConflictScenario(TokenNameLPAREN) && getVanguardParser().parse(TokenNameARROW);
 }
 private final boolean atReferenceExpression() { // Did the '<' we saw just now herald a reference expression ?
-	return getVanguardParser().parse(TokenNameCOLON_COLON);
+	switch (this.lookBack[1]) {
+		case TokenNameIdentifier:
+			switch (this.lookBack[0]) {
+				case TokenNameSEMICOLON:  // for (int i = 0; i < 10; i++);
+				case TokenNameRBRACE:     // class X { void foo() {} X<String> x = null; }
+				case TokenNameclass:      // class X<T> {}
+				case TokenNameinterface:  // interface I<T> {}
+				case TokenNameenum:       // enum E<T> {}
+				case TokenNamefinal:      // final Collection<String>
+				case TokenNameLESS:       // Collection<IScalarData<AbstractData>>
+				case TokenNameGREATER:    // public <T> List<T> foo() { /* */ }
+				case TokenNameRIGHT_SHIFT:// static <T extends SelfType<T>> List<T> makeSingletonList(T t) { /* */ }
+				case TokenNamenew:        // new ArrayList<String>();
+				case TokenNamepublic:     // public List<String> foo() {}
+				case TokenNameabstract:   // abstract List<String> foo() {}
+				case TokenNameprivate:    // private List<String> foo() {}
+				case TokenNameprotected:  // protected List<String> foo() {}
+				case TokenNamestatic:     // public static List<String> foo() {}
+				case TokenNameextends:    // <T extends Y<Z>>
+				case TokenNamesuper:      // ? super Context<N>
+				case TokenNameAND:        // T extends Object & Comparable<? super T>
+				case TokenNameimplements: // class A implements I<Z>
+				case TokenNamethrows:     // throws Y<Z>
+				case TokenNameAT:         // @Deprecated <T> void foo() {} 
+				case TokenNameinstanceof: // if (o instanceof List<E>[])  
+					return false;
+				default:
+					break;
+			}
+			break;
+		case TokenNameNotAToken: // Not kosher, don't touch.
+			break;
+		default:
+			return false;
+	}
+	return this.activeParser.atConflictScenario(TokenNameLESS) && getVanguardParser().parse(TokenNameCOLON_COLON);
 }
 
 public void setActiveParser(ConflictedParser parser) {
 	this.activeParser  = parser;
+	this.lookBack[0] = this.lookBack[1] = TokenNameNotAToken;  // no hand me downs please.
 }
 }

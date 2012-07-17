@@ -10767,6 +10767,7 @@ protected boolean moveRecoveryCheckpoint() {
 	this.nextIgnoredToken = -1;
 	do {
 		try {
+			this.scanner.lookBack[0] = this.scanner.lookBack[1] = TokenNameNotAToken; // stay clear of the voodoo in the present method
 			this.nextIgnoredToken = this.scanner.getNextToken();
 			if(this.scanner.currentPosition == this.scanner.startPosition){
 				this.scanner.currentPosition++; // on fake completion identifier
@@ -10775,6 +10776,8 @@ protected boolean moveRecoveryCheckpoint() {
 
 		} catch(InvalidInputException e){
 			pos = this.scanner.currentPosition;
+		} finally {
+			this.scanner.lookBack[0] = this.scanner.lookBack[1] = TokenNameNotAToken; // steer clear of the voodoo in the present method
 		}
 	} while (this.nextIgnoredToken < 0);
 
