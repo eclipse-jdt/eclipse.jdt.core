@@ -4280,7 +4280,7 @@ private VanguardParser getVanguardParser() {
 		this.vanguardParser = new VanguardParser(this.vanguardScanner);
 	}
 	this.vanguardScanner.setSource(this.source);
-	this.vanguardScanner.resetTo(this.startPosition, this.eofPosition);
+	this.vanguardScanner.resetTo(this.startPosition, this.eofPosition - 1);
 	return this.vanguardParser;
 }
 private final boolean atLambdaParameterList() { // Did the '(' we saw just now herald a lambda parameter list ?
