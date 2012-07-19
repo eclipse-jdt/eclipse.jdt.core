@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
  * <dt>Nested defaults</dt>
  * <dd>If a <code>@NonNullByDefault</code>
  * annotation is used within the scope of another <code>@NonNullByDefault</code>
- * annotation or a project-wide default setting, the innermost annotation defines the
+ * annotation, the innermost annotation defines the
  * default applicable at any given position (depending on the parameter {@link #value()}).</dd>
  * </dl>
  * Note that for applying an annotation to a package, a file by the name
