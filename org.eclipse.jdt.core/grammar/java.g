@@ -1387,16 +1387,29 @@ PrimaryNoNewArray -> ReferenceExpression
 ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments Dimsopt 
 /.$putCase consumeReferenceExpressionTypeArgumentsAndTrunk(false); $break ./
 /:$compliance 1.8:/
-ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments '.' ClassOrInterfaceType Dimsopt 
+ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments '.' ClassOrInterfaceType0 Dimsopt 
 /.$putCase consumeReferenceExpressionTypeArgumentsAndTrunk(true); $break ./
 /:$readableName ReferenceExpressionTypeArgumentsAndTrunk:/
 /:$compliance 1.8:/
 
-ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
-/.$putCase consumeReferenceExpressionTypeForm(true); $break ./
+ReferenceExpression ::= PrimitiveType Dims PushModifiers '::' NonWildTypeArgumentsopt IdentifierOrNew
+/.$putCase consumeReferenceExpressionTypeForm(true, true); $break ./
 /:$compliance 1.8:/
-ReferenceExpression ::= Name Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
-/.$putCase consumeReferenceExpressionTypeForm(false); $break ./
+
+ReferenceExpression ::= Modifiers PrimitiveType Dims PushRealModifiers '::' NonWildTypeArgumentsopt IdentifierOrNew
+/.$putCase consumeReferenceExpressionTypeForm(true, true); $break ./
+/:$compliance 1.8:/
+
+ReferenceExpression ::= Name Dims PushModifiers '::' NonWildTypeArgumentsopt IdentifierOrNew
+/.$putCase consumeReferenceExpressionTypeForm(false, true); $break ./
+/:$compliance 1.8:/
+
+ReferenceExpression ::= Modifiers Name Dims PushRealModifiers '::' NonWildTypeArgumentsopt IdentifierOrNew
+/.$putCase consumeReferenceExpressionTypeForm(false, true); $break ./
+/:$compliance 1.8:/
+
+ReferenceExpression ::= Modifiers Name PushRealModifiers '::' NonWildTypeArgumentsopt IdentifierOrNew
+/.$putCase consumeReferenceExpressionTypeForm(false, false); $break ./
 /:$compliance 1.8:/
 
 ReferenceExpression ::= Name '::' NonWildTypeArgumentsopt IdentifierOrNew
@@ -1405,7 +1418,11 @@ ReferenceExpression ::= Name '::' NonWildTypeArgumentsopt IdentifierOrNew
 
 -- BeginTypeArguments is a synthetic token the scanner concocts to help disambiguate
 -- between '<' as an operator and '<' in '<' TypeArguments '>'
-ReferenceExpression ::= Name BeginTypeArguments ReferenceExpressionTypeArgumentsAndTrunk '::' NonWildTypeArgumentsopt IdentifierOrNew
+ReferenceExpression ::= Name PushModifiers BeginTypeArguments ReferenceExpressionTypeArgumentsAndTrunk '::' NonWildTypeArgumentsopt IdentifierOrNew
+/.$putCase consumeReferenceExpressionGenericTypeForm(); $break ./
+/:$compliance 1.8:/
+
+ReferenceExpression ::= Modifiers Name PushRealModifiers BeginTypeArguments ReferenceExpressionTypeArgumentsAndTrunk '::' NonWildTypeArgumentsopt IdentifierOrNew
 /.$putCase consumeReferenceExpressionGenericTypeForm(); $break ./
 /:$compliance 1.8:/
 

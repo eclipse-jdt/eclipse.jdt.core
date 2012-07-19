@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -766,7 +766,7 @@ public void testBug130778p() throws JavaModelException {
 			"No problem",
 			result);
 }
-public void testBug130778q() throws JavaModelException {
+public void _testBug130778q() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
 	this.workingCopies[0] = getWorkingCopy(

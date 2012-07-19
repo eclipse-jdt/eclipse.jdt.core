@@ -765,7 +765,7 @@ public void testBug130778p() throws JavaModelException {
 			"No problem",
 			result);
 }
-public void testBug130778q() throws JavaModelException {
+public void _testBug130778q() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
 
 	this.workingCopies[0] = getWorkingCopy(

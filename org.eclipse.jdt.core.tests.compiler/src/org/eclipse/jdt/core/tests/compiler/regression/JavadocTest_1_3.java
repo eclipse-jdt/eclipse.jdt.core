@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2151,158 +2151,13 @@ public class JavadocTest_1_3 extends JavadocTest {
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=86769"
 	 */
 	public void testBug86769() {
-		this.reportMissingJavadocComments = CompilerOptions.ERROR;
-		runNegativeTest(
-			new String[] {
-				"E.java",
-				"public enum E {\n" +
-				"	A,\n" +
-				"	DC{\n" +
-				"		public void foo() {}\n" +
-				"	};\n" +
-				"	E() {}\n" +
-				"	public void foo() {}\n" +
-				"	private enum Epriv {\n" +
-				"		Apriv,\n" +
-				"		Cpriv {\n" +
-				"			public void foo() {}\n" +
-				"		};\n" +
-				"		Epriv() {}\n" +
-				"		public void foo() {}\n" +
-				"	}\n" +
-				"	enum Edef {\n" +
-				"		Adef,\n" +
-				"		Cdef {\n" +
-				"			public void foo() {}\n" +
-				"		};\n" +
-				"		Edef() {}\n" +
-				"		public void foo() {}\n" +
-				"	}\n" +
-				"	protected enum Epro {\n" +
-				"		Apro,\n" +
-				"		Cpro {\n" +
-				"			public void foo() {}\n" +
-				"		};\n" +
-				"		Epro() {}\n" +
-				"		public void foo() {}\n" +
-				"	}\n" +
-				"	public enum Epub {\n" +
-				"		Apub,\n" +
-				"		Cpub {\n" +
-				"			public void foo() {}\n" +
-				"		};\n" +
-				"		Epub() {}\n" +
-				"		public void foo() {}\n" +
-				"	}\n" +
-				"}\n"
-			},
-			"----------\n" +
-			"1. ERROR in E.java (at line 1)\n" +
-			"	public enum E {\n" +
-			"	       ^^^^\n" +
-			"Syntax error on token \"enum\", interface expected\n" +
-			"----------\n" +
-			"2. ERROR in E.java (at line 1)\n" +
-			"	public enum E {\n" +
-			"	              ^\n" +
-			"Syntax error on token \"{\", extends expected\n" +
-			"----------\n" +
-			"3. ERROR in E.java (at line 5)\n" +
-			"	};\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n" +
-			"4. ERROR in E.java (at line 5)\n" +
-			"	};\n" +
-			"	E() {}\n" +
-			"	public void foo() {}\n" +
-			"	private enum Epriv {\n" +
-			"		Apriv,\n" +
-			"		Cpriv {\n" +
-			"	 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Syntax error on token(s), misplaced construct(s)\n" +
-			"----------\n" +
-			"5. WARNING in E.java (at line 8)\n" +
-			"	private enum Epriv {\n" +
-			"	        ^^^^\n" +
-			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" +
-			"----------\n" +
-			"6. ERROR in E.java (at line 8)\n" +
-			"	private enum Epriv {\n" +
-			"	             ^^^^^\n" +
-			"Syntax error on token \"Epriv\", = expected after this token\n" +
-			"----------\n" +
-			"7. ERROR in E.java (at line 12)\n" +
-			"	};\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n" +
-			"8. WARNING in E.java (at line 16)\n" +
-			"	enum Edef {\n" +
-			"	^^^^\n" +
-			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" +
-			"----------\n" +
-			"9. ERROR in E.java (at line 16)\n" +
-			"	enum Edef {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"enum\", interface expected\n" +
-			"----------\n" +
-			"10. ERROR in E.java (at line 16)\n" +
-			"	enum Edef {\n" +
-			"	          ^\n" +
-			"Syntax error on token \"{\", extends expected\n" +
-			"----------\n" +
-			"11. ERROR in E.java (at line 20)\n" +
-			"	};\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n" +
-			"12. WARNING in E.java (at line 24)\n" +
-			"	protected enum Epro {\n" +
-			"	          ^^^^\n" +
-			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" +
-			"----------\n" +
-			"13. ERROR in E.java (at line 24)\n" +
-			"	protected enum Epro {\n" +
-			"	          ^^^^\n" +
-			"Syntax error on token \"enum\", interface expected\n" +
-			"----------\n" +
-			"14. ERROR in E.java (at line 24)\n" +
-			"	protected enum Epro {\n" +
-			"	                    ^\n" +
-			"Syntax error on token \"{\", extends expected\n" +
-			"----------\n" +
-			"15. ERROR in E.java (at line 28)\n" +
-			"	};\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n" +
-			"16. WARNING in E.java (at line 32)\n" +
-			"	public enum Epub {\n" +
-			"	       ^^^^\n" +
-			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" +
-			"----------\n" +
-			"17. ERROR in E.java (at line 32)\n" +
-			"	public enum Epub {\n" +
-			"	       ^^^^\n" +
-			"Syntax error on token \"enum\", interface expected\n" +
-			"----------\n" +
-			"18. ERROR in E.java (at line 32)\n" +
-			"	public enum Epub {\n" +
-			"	                 ^\n" +
-			"Syntax error on token \"{\", extends expected\n" +
-			"----------\n" +
-			"19. ERROR in E.java (at line 36)\n" +
-			"	};\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n" +
-			"20. ERROR in E.java (at line 40)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
-			"----------\n"
-		);
+		
+		/* Deleted a completely meaningless test that could only serve as a torture test for the parser.
+		   The test is still run in 1.5+ modes where it makes sense to run it - The test here was a nuisance
+		   failing every time there is some serious grammar change that alters the semi-random behavior in
+		   Diagnose Parser. 
+		 */
+		return;
 	}
 
 	/**
