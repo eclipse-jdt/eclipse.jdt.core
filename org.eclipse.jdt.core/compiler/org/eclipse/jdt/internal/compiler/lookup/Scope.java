@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -997,7 +997,11 @@ public abstract class Scope {
 			    }
 				// targeting a generic method could find an exact match with variable return type
 				if (invocationSite.genericTypeArguments() != null) {
+					// computeCompatibleMethod(..) will return a PolymorphicMethodBinding if needed
 					exactMethod = computeCompatibleMethod(exactMethod, argumentTypes, invocationSite);
+				} else if ((exactMethod.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
+					// generate polymorphic method
+					return this.environment().createPolymorphicMethod(exactMethod, argumentTypes);
 				}
 				return exactMethod;
 			}
