@@ -1020,7 +1020,11 @@ public abstract class Scope {
 			    }
 				// targeting a generic method could find an exact match with variable return type
 				if (invocationSite.genericTypeArguments() != null) {
+					// computeCompatibleMethod(..) will return a PolymorphicMethodBinding if needed
 					exactMethod = computeCompatibleMethod(exactMethod, argumentTypes, invocationSite);
+				} else if ((exactMethod.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
+					// generate polymorphic method
+					return this.environment().createPolymorphicMethod(exactMethod, argumentTypes);
 				}
 				return exactMethod;
 			}

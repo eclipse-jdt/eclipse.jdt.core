@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation.
+ * Copyright (c) 2011, 2012 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,18 +27,34 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.invoke.*;  \n" +
+				"import java.lang.invoke.*;\n" +
 				"public class X {\n" +
 				"   public static void main(String[] args) throws Throwable{\n" +
 				"      MethodType mt; MethodHandle mh; \n" +
 				"      MethodHandles.Lookup lookup = MethodHandles.lookup();\n" +
 				"      mt = MethodType.methodType(String.class, char.class, char.class);\n"+
 				"      mh = lookup.findVirtual(String.class, \"replace\", mt);\n"+
-	    		"      String s = (String) mh.invokeExact(\"daddy\",'d','n');\n"+
+				"      String s = (String) mh.invokeExact(\"daddy\",'d','n');\n"+
 				"      System.out.println(s);\n"+
 				"   }\n" +
 				"}\n"
 			},
 			"nanny");
+	}
+	public void test0002() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static java.lang.invoke.MethodHandles.*; \n" + 
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) throws Throwable {\n" + 
+				"		MethodHandle mh = dropArguments(insertArguments(identity(int.class), 0, 42), 0, Object[].class);\n" + 
+				"		int value = (int)mh.invokeExact(new Object[0]);\n" +
+				"		System.out.println(value);\n"+
+				"	}\n" + 
+				"}"
+			},
+			"42");
 	}
 }
