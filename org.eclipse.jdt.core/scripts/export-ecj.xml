@@ -16,7 +16,6 @@
 	<target name="init">
 		<tstamp/>
 		<property name="buildLabel" value="head" />
-		<property name="qualifier" value="qualifier" />
 		<property name="ecj-temp-folder" value="${basedir}/ecj-temp-folder" />
 		<property name="ecj-temp-src-folder" value="${basedir}/ecj-temp-src-folder" />
 		<mkdir dir="${ecj-temp-src-folder}" />
@@ -45,7 +44,7 @@
 				<exclude name="org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class"/>
 			</fileset>
 		</copy>
-		<replace file="${ecj-temp-folder}/org/eclipse/jdt/internal/compiler/batch/messages.properties" token="build_qualifier" value="${qualifier}"/>
+		<replace file="${ecj-temp-folder}/org/eclipse/jdt/internal/compiler/batch/messages.properties" token="build_qualifier" value="${buildLabel}"/>
 	</target>
 
 	<target name="extract-_jsr199" depends="init">
@@ -81,14 +80,13 @@
 		<property name="buildLabel" value="head" />
 		<property name="dest" value="../../ecj-export" />
 		<mkdir dir="${dest}" />
-		<echoproperties/>
-		<echo message="UPDATE ecj-${qualifier}.jar" />
-		<delete file="${dest}/ecj-${qualifier}.jar" failonerror="false"/>
+		<echo message="UPDATE ecj-${buildLabel}.jar" />
+		<delete file="${dest}/ecj-${buildLabel}.jar" failonerror="false"/>
 		<copy todir="${ecj-temp-folder}">
 			<fileset dir="scripts/binary" />
 		</copy>
-		<replace file="${ecj-temp-folder}/META-INF/MANIFEST.MF" token="qualifier" value="${qualifier}"/>
-		<zip zipfile="${dest}/ecj-${qualifier}.jar">
+		<replace file="${ecj-temp-folder}/META-INF/MANIFEST.MF" token="qualifier" value="${buildLabel}"/>
+		<zip zipfile="${dest}/ecj-${buildLabel}.jar">
 			<fileset dir="${ecj-temp-folder}">
 				<include name="**/*"/>
 			</fileset>
@@ -98,13 +96,13 @@
 		</zip>
 
 
-		<echo message="UPDATE ecjsrc-${qualifier}.jar" />
-		<delete file="${dest}/ecjsrc-${qualifier}.jar" failonerror="false"/>
+		<echo message="UPDATE ecjsrc-${buildLabel}.jar" />
+		<delete file="${dest}/ecjsrc-${buildLabel}.jar" failonerror="false"/>
 		<copy todir="${ecj-temp-src-folder}">
 			<fileset dir="scripts/source" />
 		</copy>
-		<replace file="${ecj-temp-src-folder}/META-INF/MANIFEST.MF" token="qualifier" value="${qualifier}"/>
-		<zip zipfile="${dest}/ecjsrc-${qualifier}.jar">
+		<replace file="${ecj-temp-src-folder}/META-INF/MANIFEST.MF" token="qualifier" value="${buildLabel}"/>
+		<zip zipfile="${dest}/ecjsrc-${buildLabel}.jar">
 			<zipfileset dir="ecj-temp-src-folder" />
 			<zipfileset dir="batch">
 				<exclude name="org/eclipse/jdt/internal/compiler/batch/messages.properties"/>
@@ -134,7 +132,7 @@
 		<copy todir="${ecj-temp-folder}">
 			<fileset dir="scripts/binary" />
 		</copy>
-		<replace file="${ecj-temp-folder}/META-INF/MANIFEST.MF" token="qualifier" value="${qualifier}"/>
+		<replace file="${ecj-temp-folder}/META-INF/MANIFEST.MF" token="qualifier" value="${buildLabel}"/>
 
 		<copy todir="${ecj-temp-src-folder}/src">
 			<fileset dir="batch" />
