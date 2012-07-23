@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -718,8 +718,6 @@ public static int getFreePort() {
 /**
  * Search the user hard-drive for a Java class library.
  * Returns null if none could be found.
- *
- * Example of use: [org.eclipse.jdt.core.tests.util.Util.getJavaClassLib()]
 */
 public static String[] getJavaClassLibs() {
 	// check bootclasspath properties for Sun, JRockit and Harmony VMs
