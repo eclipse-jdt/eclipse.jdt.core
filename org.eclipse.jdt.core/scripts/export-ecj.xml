@@ -15,7 +15,7 @@
 <project name="Eclipse Batch Compiler" default="export-all" basedir="..">
 	<target name="init">
 		<tstamp/>
-		<property name="bundleVersion" value="3.8.0.Nxxxxx"/>
+		<property name="bundleVersion" value="3.8.0.qualifier"/>
 		<fail unless="bundleVersion" message="Property 'bundleVersion' must be provided by caller"/>
 		<condition property="bundleVersionOK">
 		<matches pattern="\d\.\d\.\d.*" string="${bundleVersion}"/>
@@ -93,13 +93,13 @@
 	<target name="export" depends="init">
 		<property name="dest" value="../../ecj-export" />
 		<mkdir dir="${dest}" />
-		<echo message="UPDATE ecj-${bundleVersion}.jar" />
-		<delete file="${dest}/ecj-${bundleVersion}.jar" failonerror="false"/>
+		<echo message="UPDATE ecj-${bundleVersionQualifer}.jar" />
+		<delete file="${dest}/ecj-${bundleVersionQualifer}.jar" failonerror="false"/>
 		<copy todir="${ecj-temp-folder}">
 			<fileset dir="scripts/binary" />
 		</copy>
 		<replace file="${ecj-temp-folder}/META-INF/MANIFEST.MF" token="qualifier" value="${bundleVersionQualifer}"/>
-		<zip zipfile="${dest}/ecj-${bundleVersion}.jar">
+		<zip zipfile="${dest}/ecj-${bundleVersionQualifer}.jar">
 			<fileset dir="${ecj-temp-folder}">
 				<include name="**/*"/>
 			</fileset>
@@ -109,13 +109,13 @@
 		</zip>
 
 
-		<echo message="UPDATE ecjsrc-${bundleVersion}.jar" />
-		<delete file="${dest}/ecjsrc-${bundleVersion}.jar" failonerror="false"/>
+		<echo message="UPDATE ecjsrc-${bundleVersionQualifer}.jar" />
+		<delete file="${dest}/ecjsrc-${bundleVersionQualifer}.jar" failonerror="false"/>
 		<copy todir="${ecj-temp-src-folder}">
 			<fileset dir="scripts/source" />
 		</copy>
 		<replace file="${ecj-temp-src-folder}/META-INF/MANIFEST.MF" token="qualifier" value="${bundleVersionQualifer}"/>
-		<zip zipfile="${dest}/ecjsrc-${bundleVersion}.jar">
+		<zip zipfile="${dest}/ecjsrc-${bundleVersionQualifer}.jar">
 			<zipfileset dir="ecj-temp-src-folder" />
 			<zipfileset dir="batch">
 				<exclude name="org/eclipse/jdt/internal/compiler/batch/messages.properties"/>
