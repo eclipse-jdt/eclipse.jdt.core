@@ -58,7 +58,7 @@
 				<exclude name="org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter*.class"/>
 			</fileset>
 		</copy>
-		<replace file="${ecj-temp-folder}/org/eclipse/jdt/internal/compiler/batch/messages.properties" token="bundle_version" value="${bundleVersion}"/>
+		<replace file="${ecj-temp-folder}/org/eclipse/jdt/internal/compiler/batch/messages.properties" token="bundle_qualifier" value="${bundleVersionQualifer}"/>
 	</target>
 
 	<target name="extract-_jsr199" depends="init">
@@ -91,15 +91,16 @@
 	</target>
 
 	<target name="export" depends="init">
+		<property name="buildLabel" value="head" />
 		<property name="dest" value="../../ecj-export" />
 		<mkdir dir="${dest}" />
-		<echo message="UPDATE ecj-${bundleVersionQualifer}.jar" />
-		<delete file="${dest}/ecj-${bundleVersionQualifer}.jar" failonerror="false"/>
+		<echo message="UPDATE ecj-${buildLabel}.jar" />
+		<delete file="${dest}/ecj-${buildLabel}.jar" failonerror="false"/>
 		<copy todir="${ecj-temp-folder}">
 			<fileset dir="scripts/binary" />
 		</copy>
 		<replace file="${ecj-temp-folder}/META-INF/MANIFEST.MF" token="qualifier" value="${bundleVersionQualifer}"/>
-		<zip zipfile="${dest}/ecj-${bundleVersionQualifer}.jar">
+		<zip zipfile="${dest}/ecj-${buildLabel}.jar">
 			<fileset dir="${ecj-temp-folder}">
 				<include name="**/*"/>
 			</fileset>
@@ -109,13 +110,13 @@
 		</zip>
 
 
-		<echo message="UPDATE ecjsrc-${bundleVersionQualifer}.jar" />
-		<delete file="${dest}/ecjsrc-${bundleVersionQualifer}.jar" failonerror="false"/>
+		<echo message="UPDATE ecjsrc-${buildLabel}.jar" />
+		<delete file="${dest}/ecjsrc-${buildLabel}.jar" failonerror="false"/>
 		<copy todir="${ecj-temp-src-folder}">
 			<fileset dir="scripts/source" />
 		</copy>
 		<replace file="${ecj-temp-src-folder}/META-INF/MANIFEST.MF" token="qualifier" value="${bundleVersionQualifer}"/>
-		<zip zipfile="${dest}/ecjsrc-${bundleVersionQualifer}.jar">
+		<zip zipfile="${dest}/ecjsrc-${buildLabel}.jar">
 			<zipfileset dir="ecj-temp-src-folder" />
 			<zipfileset dir="batch">
 				<exclude name="org/eclipse/jdt/internal/compiler/batch/messages.properties"/>
