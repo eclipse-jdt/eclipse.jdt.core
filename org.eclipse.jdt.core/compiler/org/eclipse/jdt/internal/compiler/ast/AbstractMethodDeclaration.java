@@ -483,15 +483,10 @@ public abstract class AbstractMethodDeclaration
 
 		try {
 			bindArguments();
+			resolveReceiver();
 			bindThrownExceptions();
 			resolveJavadoc();
 			resolveAnnotations(this.scope, this.annotations, this.binding);
-			// jsr308
-			if (this.receiverAnnotations != null && this.scope.isStatic) {
-				int last = this.receiverAnnotations.length - 1;
-				this.scope.problemReporter().illegalReceiverAnnotations(this.receiverAnnotations[0],
-						                                                this.receiverAnnotations[last]);
-			}
 			// jsr 308
 			resolveAnnotations(this.scope, this.receiverAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 			validateNullAnnotations();
@@ -509,6 +504,52 @@ public abstract class AbstractMethodDeclaration
 		}
 	}
 
+	public void resolveReceiver() {
+		if (this.arguments != null && this.arguments.length > 0) {
+			if (this.arguments[0].isReceiver()) {
+				Receiver receiver = (Receiver) this.arguments[0];
+
+				TypeBinding resolvedReceiverType = receiver.type.resolvedType;
+				if (this.binding == null || resolvedReceiverType == null || !resolvedReceiverType.isValidBinding())
+					return;
+
+				ReferenceBinding declaringClass = this.binding.declaringClass;
+				/* neither static methods nor methods in anonymous types can have explicit 'this' */
+				if (this.isStatic() || declaringClass.isAnonymousType()) {
+					this.scope.problemReporter().disallowedThisParameter(receiver);
+					return; // No need to do further validation
+				}
+
+				ReferenceBinding enclosingReceiver = this.scope.enclosingReceiverType();
+				if (this.isConstructor()) {
+					/* Only non static member types or local types can declare explicit 'this' params in constructors */
+					if (declaringClass.isStatic()
+							|| (declaringClass.tagBits & (TagBits.IsLocalType | TagBits.IsMemberType)) == 0) { /* neither member nor local type */
+						this.scope.problemReporter().disallowedThisParameter(receiver);
+						return; // No need to do further validation
+					}
+					enclosingReceiver = enclosingReceiver.enclosingType();
+				}
+
+				if (enclosingReceiver != resolvedReceiverType) {
+					this.scope.problemReporter().illegalTypeForExplicitThis(receiver, enclosingReceiver);
+				}
+
+				if ((receiver.qualifyingName == null) ? this.isConstructor() : !isQualifierValidForType(receiver.qualifyingName.getName(), enclosingReceiver)) {
+					this.scope.problemReporter().illegalQualifierForExplicitThis(receiver, enclosingReceiver);					
+				}
+			}
+		}
+	}
+	private boolean isQualifierValidForType(char[][] tokens, TypeBinding enclosingType) {
+		for(int index = tokens.length - 1; index >= 0 && enclosingType != null; index--) {
+			if (!CharOperation.equals(enclosingType.sourceName(), tokens[index])) {
+				return false;
+			}
+			enclosingType = enclosingType.enclosingType();
+		}
+		return true;
+	}
 	public void resolveJavadoc() {
 
 		if (this.binding == null) return;

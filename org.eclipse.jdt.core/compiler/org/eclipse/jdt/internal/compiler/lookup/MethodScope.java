@@ -348,9 +348,9 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 	Argument[] argTypes = method.arguments;
 	int argLength = argTypes == null ? 0 : argTypes.length;
 	long sourceLevel = compilerOptions().sourceLevel;
-	if (argLength > 0 && sourceLevel >= ClassFileConstants.JDK1_5) {
+	if (argLength > 0) {
 		Argument argument = argTypes[--argLength];
-		if (argument.isVarArgs())
+		if (argument.isVarArgs() && sourceLevel >= ClassFileConstants.JDK1_5)
 			method.binding.modifiers |= ClassFileConstants.AccVarargs;
 		if (CharOperation.equals(argument.name, ConstantPool.This)) {
 			if (argLength != 0 || sourceLevel <= ClassFileConstants.JDK1_7) {
@@ -363,7 +363,7 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 		}
 		while (--argLength >= 0) {
 			argument = argTypes[argLength];
-			if (argument.isVarArgs())
+			if (argument.isVarArgs() && sourceLevel >= ClassFileConstants.JDK1_5)
 				problemReporter().illegalVararg(argument, method);
 			if (CharOperation.equals(argument.name, ConstantPool.This)) {
 				if (argLength != 0 || sourceLevel <= ClassFileConstants.JDK1_7) {

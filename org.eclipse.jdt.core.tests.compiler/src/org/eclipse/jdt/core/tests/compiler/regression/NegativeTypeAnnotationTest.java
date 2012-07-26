@@ -1033,4 +1033,252 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"Annot cannot be resolved to a type\n" + 
 					"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383913
+	public void test0383913() {
+		this.runNegativeTest(
+				new String[]{
+						"X.java",
+						"public class X {\n" +
+						"	public void foo(Object obj, X this) {}\n" +
+						"	public void foo(Object obj1, X this, Object obj2) {}\n" +
+						"	public void foo(Object obj, Object obj2, Object obj3, X this) {}\n" +
+						"	class Y {\n" +
+						"		Y(Object obj, Y Y.this){}\n" +
+						"	}\n" +
+						"}"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	public void foo(Object obj, X this) {}\n" + 
+				"	                              ^^^^\n" + 
+				"Only the first formal parameter may be declared explicitly as 'this'\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	public void foo(Object obj1, X this, Object obj2) {}\n" + 
+				"	                               ^^^^\n" + 
+				"Only the first formal parameter may be declared explicitly as 'this'\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 4)\n" + 
+				"	public void foo(Object obj, Object obj2, Object obj3, X this) {}\n" + 
+				"	                                                        ^^^^\n" + 
+				"Only the first formal parameter may be declared explicitly as 'this'\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 6)\n" + 
+				"	Y(Object obj, Y Y.this){}\n" + 
+				"	                  ^^^^\n" + 
+				"Only the first formal parameter may be declared explicitly as 'this'\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383913
+	public void test0383913b() {
+		this.runNegativeTest(
+				new String[] {
+						"Outer.java",
+						"public class Outer {\n" +
+						"    Outer(Outer Outer.this) {}\n" +
+						"    Outer(Outer this, int i) {}\n" +
+						"    class Inner<K,V> {\n" +
+						"        class InnerMost<T> {\n" +
+						"            InnerMost(Outer.Inner this) {}\n" +
+						"            InnerMost(Outer.Inner Outer.Inner.this, int i, float f) {}\n" +
+						"            InnerMost(Outer Outer.this, float f) {}\n" +
+						"            InnerMost(Outer.Inner<K,V>.InnerMost<T> Outer.Inner.InnerMost.this) {}\n" +
+						"            InnerMost(Inner<K,V> Outer.Inner.InnerMost.this, int i) {}\n" +
+						"            InnerMost(Outer.Inner<K, V> this, float f) {}\n" +
+						"            InnerMost(Outer.Inner<K,V> Inner.this, long l) {}\n" +
+						"        }\n" +
+						"    }\n" +
+						"}\n"},
+						"----------\n" + 
+						"1. ERROR in Outer.java (at line 2)\n" + 
+						"	Outer(Outer Outer.this) {}\n" + 
+						"	                  ^^^^\n" + 
+						"Explicit 'this' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
+						"----------\n" + 
+						"2. ERROR in Outer.java (at line 3)\n" + 
+						"	Outer(Outer this, int i) {}\n" + 
+						"	            ^^^^\n" + 
+						"Explicit 'this' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
+						"----------\n" + 
+						"3. WARNING in Outer.java (at line 6)\n" + 
+						"	InnerMost(Outer.Inner this) {}\n" + 
+						"	          ^^^^^^^^^^^\n" + 
+						"Outer.Inner is a raw type. References to generic type Outer.Inner<K,V> should be parameterized\n" + 
+						"----------\n" + 
+						"4. ERROR in Outer.java (at line 6)\n" + 
+						"	InnerMost(Outer.Inner this) {}\n" + 
+						"	          ^^^^^^^^^^^\n" + 
+						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>\n" + 
+						"----------\n" + 
+						"5. ERROR in Outer.java (at line 6)\n" + 
+						"	InnerMost(Outer.Inner this) {}\n" + 
+						"	                      ^^^^\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
+						"----------\n" + 
+						"6. WARNING in Outer.java (at line 7)\n" + 
+						"	InnerMost(Outer.Inner Outer.Inner.this, int i, float f) {}\n" + 
+						"	          ^^^^^^^^^^^\n" + 
+						"Outer.Inner is a raw type. References to generic type Outer.Inner<K,V> should be parameterized\n" + 
+						"----------\n" + 
+						"7. ERROR in Outer.java (at line 7)\n" + 
+						"	InnerMost(Outer.Inner Outer.Inner.this, int i, float f) {}\n" + 
+						"	          ^^^^^^^^^^^\n" + 
+						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>\n" + 
+						"----------\n" + 
+						"8. ERROR in Outer.java (at line 8)\n" + 
+						"	InnerMost(Outer Outer.this, float f) {}\n" + 
+						"	          ^^^^^\n" + 
+						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>\n" + 
+						"----------\n" + 
+						"9. ERROR in Outer.java (at line 8)\n" + 
+						"	InnerMost(Outer Outer.this, float f) {}\n" + 
+						"	                      ^^^^\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
+						"----------\n" + 
+						"10. ERROR in Outer.java (at line 9)\n" + 
+						"	InnerMost(Outer.Inner<K,V>.InnerMost<T> Outer.Inner.InnerMost.this) {}\n" + 
+						"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>\n" + 
+						"----------\n" + 
+						"11. ERROR in Outer.java (at line 9)\n" + 
+						"	InnerMost(Outer.Inner<K,V>.InnerMost<T> Outer.Inner.InnerMost.this) {}\n" + 
+						"	                                                              ^^^^\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
+						"----------\n" + 
+						"12. ERROR in Outer.java (at line 10)\n" + 
+						"	InnerMost(Inner<K,V> Outer.Inner.InnerMost.this, int i) {}\n" + 
+						"	                                           ^^^^\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
+						"----------\n" + 
+						"13. ERROR in Outer.java (at line 11)\n" + 
+						"	InnerMost(Outer.Inner<K, V> this, float f) {}\n" + 
+						"	                            ^^^^\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
+						"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383913
+	public void test0383913c() {
+		this.runNegativeTest(
+				new String[] {
+						"Outer.java",
+						"public class Outer {\n" +
+						"    class Inner<K,V> {\n" +
+						"        class InnerMost<T> {\n" +
+						"            public void foo(Outer Outer.this) {}\n" +
+						"            public void foo(Inner<K,V> Inner.this, int i) {}\n" +
+						"            public void foo(InnerMost this) {}\n" +
+						"            public void foo(Inner.InnerMost<T> this, Object obj) {}\n" +
+						"            public void foo(InnerMost<T> this, int i) {}\n" +
+						"            public void foo(Inner<K,V>.InnerMost<T> this, long l) {}\n" +
+						"            public void foo(Outer.Inner<K,V>.InnerMost<T> this, float f) {}\n" +
+						"            public void foo(InnerMost<T> Outer.Inner.InnerMost.this, int i, float f) {}\n" +
+						"        }\n" +
+						"    }\n" +
+						"}\n"},
+						"----------\n" + 
+						"1. ERROR in Outer.java (at line 4)\n" + 
+						"	public void foo(Outer Outer.this) {}\n" + 
+						"	                ^^^^^\n" + 
+						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>.InnerMost<T>\n" + 
+						"----------\n" + 
+						"2. ERROR in Outer.java (at line 4)\n" + 
+						"	public void foo(Outer Outer.this) {}\n" + 
+						"	                            ^^^^\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Outer.Inner.InnerMost\n" + 
+						"----------\n" + 
+						"3. ERROR in Outer.java (at line 5)\n" + 
+						"	public void foo(Inner<K,V> Inner.this, int i) {}\n" + 
+						"	                ^^^^^\n" + 
+						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>.InnerMost<T>\n" + 
+						"----------\n" + 
+						"4. ERROR in Outer.java (at line 5)\n" + 
+						"	public void foo(Inner<K,V> Inner.this, int i) {}\n" + 
+						"	                                 ^^^^\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Outer.Inner.InnerMost\n" + 
+						"----------\n" + 
+						"5. WARNING in Outer.java (at line 6)\n" + 
+						"	public void foo(InnerMost this) {}\n" + 
+						"	                ^^^^^^^^^\n" + 
+						"Outer.Inner.InnerMost is a raw type. References to generic type Outer.Inner<K,V>.InnerMost<T> should be parameterized\n" + 
+						"----------\n" + 
+						"6. ERROR in Outer.java (at line 6)\n" + 
+						"	public void foo(InnerMost this) {}\n" + 
+						"	                ^^^^^^^^^\n" + 
+						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>.InnerMost<T>\n" + 
+						"----------\n" + 
+						"7. ERROR in Outer.java (at line 7)\n" + 
+						"	public void foo(Inner.InnerMost<T> this, Object obj) {}\n" + 
+						"	                ^^^^^^^^^^^^^^^\n" + 
+						"The member type Outer.Inner.InnerMost<T> must be qualified with a parameterized type, since it is not static\n" + 
+						"----------\n" + 
+						"8. ERROR in Outer.java (at line 7)\n" + 
+						"	public void foo(Inner.InnerMost<T> this, Object obj) {}\n" + 
+						"	                ^^^^^^^^^^^^^^^\n" + 
+						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>.InnerMost<T>\n" + 
+						"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383913
+	public void test0383913d() {
+		this.runNegativeTest(
+				new String[] {
+						"Outer.java",
+						"public class Outer {\n" +
+						"    class Inner<K,V> {\n" +
+						"		public Inner(@Missing Outer Outer.this) {}\n" +
+						"        class InnerMost<T> {\n" +
+						"            public void bar() {\n" +
+						"                new AnonymousInner() {\n" +
+						"                    public void foobar(AnonymousInner this) {}\n" +
+						"                };\n" +
+						"            }\n" +
+						"            void bar(int i) {\n" +
+						"                class Local {\n" +
+						"                    public int hashCode(Local this) { return 0; }\n" +
+						"                    public int hashCode(Outer.Local this) { return 0; }\n" +
+						"                }\n" +
+						"            }\n" +
+						"        }\n" +
+						"    }\n" +
+						"    static class StaticNested {\n" +
+						"        public StaticNested(@Marker Outer.StaticNested Outer.StaticNested.this) {}\n" +
+						"    }\n" +
+						"    public static void foo(@Marker Outer this) {}\n" +
+						"    public void foo(@Missing Outer this, int i) {}\n" +
+						"}\n" +
+						"interface AnonymousInner {\n" +
+						"    public void foobar(AnonymousInner this);\n" +
+						"}\n" +
+						"@interface Marker {}"},
+							"----------\n" + 
+							"1. ERROR in Outer.java (at line 3)\n" + 
+							"	public Inner(@Missing Outer Outer.this) {}\n" + 
+							"	              ^^^^^^^\n" + 
+							"Missing cannot be resolved to a type\n" + 
+							"----------\n" + 
+							"2. ERROR in Outer.java (at line 7)\n" + 
+							"	public void foobar(AnonymousInner this) {}\n" + 
+							"	                                  ^^^^\n" + 
+							"Explicit 'this' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
+							"----------\n" + 
+							"3. ERROR in Outer.java (at line 13)\n" + 
+							"	public int hashCode(Outer.Local this) { return 0; }\n" + 
+							"	                    ^^^^^^^^^^^\n" + 
+							"Outer.Local cannot be resolved to a type\n" + 
+							"----------\n" + 
+							"4. ERROR in Outer.java (at line 19)\n" + 
+							"	public StaticNested(@Marker Outer.StaticNested Outer.StaticNested.this) {}\n" + 
+							"	                                                                  ^^^^\n" + 
+							"Explicit 'this' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
+							"----------\n" + 
+							"5. ERROR in Outer.java (at line 21)\n" + 
+							"	public static void foo(@Marker Outer this) {}\n" + 
+							"	                                     ^^^^\n" + 
+							"Explicit 'this' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
+							"----------\n" + 
+							"6. ERROR in Outer.java (at line 22)\n" + 
+							"	public void foo(@Missing Outer this, int i) {}\n" + 
+							"	                 ^^^^^^^\n" + 
+							"Missing cannot be resolved to a type\n" + 
+							"----------\n");
+	}
 }

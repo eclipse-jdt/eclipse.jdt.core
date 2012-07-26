@@ -82,6 +82,7 @@ import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.Receiver;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
@@ -2680,6 +2681,31 @@ public void illegalThis(Argument argument, AbstractMethodDeclaration method, lon
 		argument.sourceStart,
 		argument.sourceEnd);
 }
+public void disallowedThisParameter(Receiver receiver) {
+	String[] arguments = NoArgument;
+	this.handle(
+		IProblem.DisallowedExplicitThisParameter,
+		arguments,
+		arguments,
+		receiver.sourceStart,
+		receiver.sourceEnd);
+}
+public void illegalQualifierForExplicitThis(Receiver receiver, TypeBinding expectedType) {
+	this.handle(
+		IProblem.IllegalQualifierForExplicitThis,
+		new String[] { new String(expectedType.readableName())},
+		new String[] { new String(expectedType.qualifiedSourceName())},
+		receiver.sourceStart,
+		receiver.sourceEnd);
+}
+public void illegalTypeForExplicitThis(Receiver receiver, TypeBinding expectedType) {
+	this.handle(
+		IProblem.IllegalTypeForExplicitThis,
+		new String[] { new String(expectedType.readableName())},
+		new String[] { new String(expectedType.shortReadableName())},
+		receiver.type.sourceStart,
+		receiver.type.sourceEnd);
+}
 public void illegalThis(Argument argument) {
 	String[] arguments = NoArgument;
 	this.handle(
@@ -4228,15 +4254,6 @@ public void invalidUsageOfTypeAnnotations(Annotation annotation) {
 			NoArgument,
 			annotation.sourceStart,
 			annotation.sourceEnd);
-}
-
-public void illegalReceiverAnnotations(Annotation first, Annotation last) {
-	this.handle(
-			IProblem.InvalidUsageOfReceiverAnnotations,
-			NoArgument,
-			NoArgument,
-			first.sourceStart,
-			last.sourceEnd);	
 }
 
 public void misplacedTypeAnnotations(Annotation first, Annotation last) {

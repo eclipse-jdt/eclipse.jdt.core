@@ -2881,4 +2881,31 @@ public void test0063() {
 		expectedProblemLog
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383913#c22
+public void test0064() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
+		return;
+	}
+	String[] source = new String[] {
+		"X.java",
+		"class X {\n" +
+		"	void foo(X this){}\n" +
+		"}"
+	};
+	String expectedProblemLog =
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	void foo(X this){}\n" +
+			"	           ^^^^\n" +
+			"Explicit declaration of 'this' parameter is allowed only at source level 1.8 or above\n" +
+			"----------\n";
+	runComplianceParserTest(
+			source,
+			expectedProblemLog,
+			expectedProblemLog,
+			expectedProblemLog,
+			expectedProblemLog,
+			expectedProblemLog
+		);
+}
 }
