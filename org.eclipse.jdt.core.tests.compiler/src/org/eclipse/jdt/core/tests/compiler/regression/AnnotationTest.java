@@ -11,6 +11,7 @@
  *								bug 295551 - Add option to automatically promote all warnings to error
  *								bug 185682 - Increment/decrement operators mark local variables as read
  *								bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
+ *								bug 384663 - Package Based Annotation Compilation Error in JDT 3.8/4.2 (works in 3.7.2) 
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -47,7 +48,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug376429" };
+//		TESTS_NAMES = new String[] { "testBug384663" };
 //		TESTS_NUMBERS = new int[] { 297 };
 //		TESTS_RANGE = new int[] { 294, -1 };
 	}
@@ -10607,5 +10608,33 @@ public void testBug371832() throws Exception {
 			customOptions,
 			expectedErrorString,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/384663
+// Package Based Annotation Compilation Error in JDT 3.8/4.2 (works in 3.7.2)
+public void testBug384663() {
+	String[] testFiles = {
+		"annotations/test/IExtendsInterface.java",
+		"package annotations.test;\n" +
+		"public interface IExtendsInterface extends Interface {}\n",
+
+		"annotations/test/Interface.java",
+		"package annotations.test;\n" +
+		"public interface Interface {}\n",
+
+		"annotations/test/package-info.java",
+		"@AnnotationDefinition(\"Test1\") \n" +
+		"package annotations.test;\n" +
+		"import annotations.AnnotationDefinition;",
+
+		"annotations/AnnotationDefinition.java",
+		"package annotations;\n" +
+		"import java.lang.annotation.*;\n" +
+		"@Retention(RetentionPolicy.RUNTIME)\n" +
+		"@Target(ElementType.PACKAGE)\n" +
+		"public @interface AnnotationDefinition {\n" +
+		"	String value();\n" + 
+		"}",
+	};
+	runConformTest(testFiles);
 }
 }
