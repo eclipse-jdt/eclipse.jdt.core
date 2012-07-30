@@ -1041,6 +1041,10 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testBug292087b"));
 	suite.addTest(new CompletionTests("testBug292087c"));
 	suite.addTest(new CompletionTests("testBug292087d"));
+	suite.addTest(new CompletionTests("testBug385858a"));
+	suite.addTest(new CompletionTests("testBug385858b"));
+	suite.addTest(new CompletionTests("testBug385858c"));
+	suite.addTest(new CompletionTests("testBug385858d"));
 	return suite;
 }
 public CompletionTests(String name) {
@@ -25654,5 +25658,122 @@ public void testBug292087d() throws JavaModelException {
 			"MyClassField[FIELD_REF]{MyClassField, Ltest.Try;, Ltest.MyClass;, MyClassField, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_EXACT_EXPECTED_TYPE) + "}\n" +
 			"MyClassMethod[METHOD_REF]{MyClassMethod(), Ltest.Try;, ()Ltest.MyClass;, MyClassMethod, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_EXACT_EXPECTED_TYPE) + "}",
 			requestor.getResults());
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=385858
+public void testBug385858a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Completion.java",
+		"package test;\n" +
+		"public class Completion {\n" +
+		"	void foo() {" +
+		"	Completion c = new C\n" +
+		"   }\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new C";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"completion offset=74\n" +
+			"completion range=[73, 73]\n" +
+			"completion token=\"C\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures={Ltest.Completion;}\n" +
+			"expectedTypesKeys={Ltest/Completion;}\n" +
+			"completion token location={CONSTRUCTOR_START}",
+			requestor.getContext());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385858
+public void testBug385858b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Completion.java",
+		"package test;\n" +
+		"public class Completion {\n" +
+		"	Completion c = new C\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new C";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"completion offset=61\n" +
+			"completion range=[60, 60]\n" +
+			"completion token=\"C\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures={Ltest.Completion;}\n" +
+			"expectedTypesKeys={Ltest/Completion;}\n" +
+			"completion token location={CONSTRUCTOR_START}",
+			requestor.getContext());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385858
+public void testBug385858c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Completion.java",
+		"package test;\n" +
+		"public class Completion {\n" +
+		"	static class Inner{}\n" +
+		"	void foo() {" +
+		"		Inner c = new Completion.\n" +
+		"   }\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new Completion.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"completion offset=102\n" +
+			"completion range=[102, 101]\n" +
+			"completion token=\"\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures={Ltest.Completion$Inner;}\n" +
+			"expectedTypesKeys={Ltest/Completion$Inner;}\n" +
+			"completion token location={CONSTRUCTOR_START}",
+			requestor.getContext());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385858
+public void testBug385858d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Completion.java",
+		"package test;\n" +
+		"public class Completion {\n" +
+		"	static class Inner{}\n" +
+		"	void foo() {" +
+		"		Inner c = new   \n" +
+		"   }\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, false, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new  ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+	assertResults(
+			"completion offset=92\n" +
+			"completion range=[92, 91]\n" +
+			"completion token=\"\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures={Ltest.Completion$Inner;}\n" +
+			"expectedTypesKeys={Ltest/Completion$Inner;}\n" +
+			"completion token location={CONSTRUCTOR_START}",
+			requestor.getContext());
 }
 }

@@ -52,6 +52,23 @@ public class CompletionContext {
 	 * @since 3.4
 	 */
 	public static final int TL_STATEMENT_START = 2;
+	
+	/**
+	 * The completed token is the first token of a constructor.<br>
+	 * e.g.
+	 * <pre>
+	 * public class X {
+	 *   public void bar() {
+	 *     new Foo| // completion occurs at |
+	 *   }
+	 * }
+	 * </pre>
+	 *
+	 * @see #getTokenLocation()
+	 *
+	 * @since 3.9
+	 */
+	public static final int TL_CONSTRUCTOR_START = 4;
 
 	/**
 	 * The completion token is unknown.

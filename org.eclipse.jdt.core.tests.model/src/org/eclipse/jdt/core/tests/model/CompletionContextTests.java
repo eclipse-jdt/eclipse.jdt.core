@@ -3014,7 +3014,7 @@ public void test0109() throws JavaModelException {
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={Ljava.lang.Object;}\n" +
 		"expectedTypesKeys={Ljava/lang/Object;}\n"+
-		"completion token location=UNKNOWN",
+		"completion token location={CONSTRUCTOR_START}",
 		result.context);
 }
 public void test0110() throws JavaModelException {
@@ -3040,7 +3040,7 @@ public void test0110() throws JavaModelException {
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={Ljava.lang.Object;}\n" +
 		"expectedTypesKeys={Ljava/lang/Object;}\n"+
-		"completion token location=UNKNOWN",
+		"completion token location={CONSTRUCTOR_START}",
 		result.context);
 }
 public void test0111() throws JavaModelException {
@@ -3066,7 +3066,7 @@ public void test0111() throws JavaModelException {
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={Ljava.lang.Object;}\n" +
 		"expectedTypesKeys={Ljava/lang/Object;}\n"+
-		"completion token location=UNKNOWN",
+		"completion token location={CONSTRUCTOR_START}",
 		result.context);
 }
 public void test0112() throws JavaModelException {
@@ -3092,7 +3092,7 @@ public void test0112() throws JavaModelException {
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures={Ljava.lang.Object;}\n" +
 		"expectedTypesKeys={Ljava/lang/Object;}\n"+
-		"completion token location=UNKNOWN",
+		"completion token location={CONSTRUCTOR_START}",
 		result.context);
 }
 public void test0113() throws JavaModelException {

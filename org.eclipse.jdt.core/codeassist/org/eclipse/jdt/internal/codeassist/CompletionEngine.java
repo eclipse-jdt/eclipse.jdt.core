@@ -1603,6 +1603,16 @@ public final class CompletionEngine
 					(method.annotations == null || method.annotations.length == 0)) {
 				context.setTokenLocation(CompletionContext.TL_MEMBER_START);
 			}
+		} else if (astNode instanceof CompletionOnSingleTypeReference) {
+			CompletionOnSingleTypeReference completionOnSingleTypeReference = (CompletionOnSingleTypeReference) astNode;
+			if (completionOnSingleTypeReference.isConstructorType) {
+						context.setTokenLocation(CompletionContext.TL_CONSTRUCTOR_START);
+			}
+		} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
+			CompletionOnQualifiedTypeReference completionOnQualifiedTypeReference = (CompletionOnQualifiedTypeReference) astNode;
+			if (completionOnQualifiedTypeReference.isConstructorType){
+						context.setTokenLocation(CompletionContext.TL_CONSTRUCTOR_START);
+			}
 		} else {
 			ReferenceContext referenceContext = scope.referenceContext();
 			if (referenceContext instanceof AbstractMethodDeclaration) {

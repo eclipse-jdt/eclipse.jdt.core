@@ -197,6 +197,11 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 					buffer.append("STATEMENT_START"); //$NON-NLS-1$
 					first = false;
 				}
+				if ((locationType & CompletionContext.TL_CONSTRUCTOR_START) != 0) {
+					if (!first) buffer.append(',');
+					buffer.append("CONSTRUCTOR_START"); //$NON-NLS-1$
+					first = false;
+				}
 				buffer.append('}');
 			}
 		}
