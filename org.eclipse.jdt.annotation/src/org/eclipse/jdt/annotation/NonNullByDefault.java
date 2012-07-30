@@ -23,8 +23,14 @@ import java.lang.annotation.Target;
  
 /**
  * This annotation can be applied to a package, type, method or constructor in order to 
- * define that all contained entities for which a null annotation is otherwise lacking
- * should be considered as {@link NonNull @NonNull}.
+ * define that contained entities for which a null annotation is otherwise lacking
+ * should be considered as {@link NonNull @NonNull}. Entities affected by
+ * <code>@NonNullByDefault</code> are:
+ * <ul>
+ * <li>method return values</li>
+ * <li>parameters of a method or constructor.</li>
+ * </ul>
+ * Local variables are <em>not</em> affected.
  * <dl>
  * <dt>Canceling a default</dt>
  * <dd>By using a <code>@NonNullByDefault</code> annotation with the argument <code>false</code>,
