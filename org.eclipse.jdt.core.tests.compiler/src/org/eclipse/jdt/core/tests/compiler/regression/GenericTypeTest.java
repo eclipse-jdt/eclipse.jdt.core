@@ -12,6 +12,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for bug 383690 - [compiler] location of error re uninitialized final field should be aligned
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -6674,9 +6675,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"G is a raw type. References to generic type G<E> should be parameterized\n" +
 			"----------\n" +
 			"----------\n" +
-			"1. ERROR in test\\cheetah\\G.java (at line 2)\n" +
-			"	public class G<E> {\n" +
-			"	             ^\n" +
+			"1. ERROR in test\\cheetah\\G.java (at line 3)\n" +
+			"	protected final Object o;\n" +
+			"	                       ^\n" +
 			"The blank final field o may not have been initialized\n" +
 			"----------\n");
 	}

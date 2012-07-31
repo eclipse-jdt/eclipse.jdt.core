@@ -11,6 +11,7 @@
  *     							bug 236385 - [compiler] Warn for potential programming problem if an object is created but not used
  *      						bug 349326 - [1.7] new warning for missing try-with-resources
  *      						bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
+ *								bug 383690 - [compiler] location of error re uninitialized final field should be aligned
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2320,9 +2321,9 @@ public void testBug338234c() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	public class X {\n" + 
-		"	             ^\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public final int field1;\n" + 
+		"	                 ^^^^^^\n" + 
 		"The blank final field field1 may not have been initialized\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 7)\n" + 
