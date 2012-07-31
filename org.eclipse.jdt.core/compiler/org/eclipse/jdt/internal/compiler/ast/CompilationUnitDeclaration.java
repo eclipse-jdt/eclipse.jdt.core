@@ -77,7 +77,7 @@ public class CompilationUnitDeclaration extends ASTNode implements ProblemSeveri
 	long[] suppressWarningScopePositions; // (start << 32) + end
 	int suppressWarningsCount;
 
-public CompilationUnitDeclaration(ProblemReporter problemReporter, CompilationResult compilationResult, 	int sourceLength) {
+public CompilationUnitDeclaration(ProblemReporter problemReporter, CompilationResult compilationResult, int sourceLength) {
 	this.problemReporter = problemReporter;
 	this.compilationResult = compilationResult;
 	//by definition of a compilation unit....

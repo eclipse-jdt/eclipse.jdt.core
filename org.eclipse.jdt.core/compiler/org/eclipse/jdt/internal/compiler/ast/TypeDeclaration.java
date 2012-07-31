@@ -1334,7 +1334,7 @@ public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
 }
 
 /**
- *	Iteration for a local innertype
+ *	Iteration for a local inner type
  */
 public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	try {
