@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - contribution for bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
+ *     Stephan Herrmann - contributions for
+ *								bug 324178 - [null] ConditionalExpression.nullStatus(..) doesn't take into account the analysis of condition itself
+ *								bug 383690 - [compiler] location of error re uninitialized final field should be aligned
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -462,6 +464,28 @@ public void testBug324178d() {
 		"	return b2;\n" + 
 		"	       ^^\n" + 
 		"The local variable b2 may not have been initialized\n" + 
+		"----------\n");
+}
+// Bug 383690 - [compiler] location of error re uninitialized final field should be aligned
+public void testBug383690() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	 final Object o; // report here!\n" +
+			"	 final static Object oStatic; // report here!\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	final Object o; // report here!\n" +
+		"	             ^\n" +
+		"The blank final field o may not have been initialized\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	final static Object oStatic; // report here!\n" +
+		"	                    ^^^^^^^\n" +
+		"The blank final field oStatic may not have been initialized\n" +
 		"----------\n");
 }
 public static Class testClass() {

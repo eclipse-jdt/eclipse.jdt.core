@@ -13,6 +13,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 361407 - Resource leak warning when resource is assigned to a field outside of constructor
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
+ *								bug 383690 - [compiler] location of error re uninitialized final field should be aligned
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -170,7 +171,9 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					&& (!flowInfo.isDefinitelyAssigned(fields[i]))) {
 					this.scope.problemReporter().uninitializedBlankFinalField(
 						field,
-						((this.bits & ASTNode.IsDefaultConstructor) != 0) ? (ASTNode) this.scope.referenceType() : this);
+						((this.bits & ASTNode.IsDefaultConstructor) != 0)
+								? (ASTNode) this.scope.referenceType().declarationOf(field.original())
+								: this);
 				}
 			}
 		}
