@@ -25,8 +25,8 @@ public abstract class NameReference extends Reference implements InvocationSite 
 	//the error printing
 	//some name reference are build as name reference but
 	//only used as type reference. When it happens, instead of
-	//creating a new objet (aTypeReference) we just flag a boolean
-	//This concesion is valuable while their are cases when the NameReference
+	//creating a new object (aTypeReference) we just flag a boolean
+	//This concesion is valuable while there are cases when the NameReference
 	//will be a TypeReference (static message sends.....) and there is
 	//no changeClass in java.
 public NameReference() {

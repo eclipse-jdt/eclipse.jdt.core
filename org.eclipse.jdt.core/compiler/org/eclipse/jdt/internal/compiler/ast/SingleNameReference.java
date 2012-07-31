@@ -986,7 +986,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				return this.resolvedType = type;
 		}
 	}
-	// error scenarii
+	// error scenario
 	return this.resolvedType = reportError(scope);
 }
 

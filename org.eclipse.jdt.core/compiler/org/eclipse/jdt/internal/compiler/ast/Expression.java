@@ -563,7 +563,7 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding compileTimeType) {
 	if (runtimeType == null || compileTimeType == null)
 		return;
-	if (this.implicitConversion != 0) return; // already set independantly
+	if (this.implicitConversion != 0) return; // already set independently
 
 	// it is possible for a Byte to be unboxed to a byte & then converted to an int
 	// but it is not possible for a byte to become Byte & then assigned to an Integer,

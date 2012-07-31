@@ -1141,11 +1141,11 @@ protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMa
 			process(possibleMatch, bindingsWereCreated);
 		} catch (AbortCompilation e) {
 			// problem with class path: it could not find base classes
-			// continue and try next matching openable reporting innacurate matches (since bindings will be null)
+			// continue and try next matching openable reporting inaccurate matches (since bindings will be null)
 			bindingsWereCreated = false;
 		} catch (JavaModelException e) {
 			// problem with class path: it could not find base classes
-			// continue and try next matching openable reporting innacurate matches (since bindings will be null)
+			// continue and try next matching openable reporting inaccurate matches (since bindings will be null)
 			bindingsWereCreated = false;
 		} finally {
 			if (this.progressMonitor != null) {

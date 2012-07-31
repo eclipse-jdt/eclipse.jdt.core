@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2417,15 +2417,14 @@ final static public char[] lastSegment(char[] array, char separator) {
 }
 
 /**
- * Answers true if the pattern matches the given name, false otherwise. This char[] pattern matching
- * accepts wild-cards '*' and '?'.
+ * <p>Answers true if the pattern matches the given name, false otherwise. This char[] pattern matching
+ * accepts wild-cards '*' and '?'.</p>
  *
- * When not case sensitive, the pattern is assumed to already be lowercased, the
- * name will be lowercased character per character as comparing.
- * If name is null, the answer is false.
+ * <p>When not case sensitive, the pattern is assumed to already be lowercased, the
+ * name will be lowercased character per character as comparing.<br>
+ * If name is null, the answer is false.<br>
  * If pattern is null, the answer is true if name is not null.
- * <br>
- * <br>
+ * </p>
  * For example:
  * <ol>
  * <li><pre>
