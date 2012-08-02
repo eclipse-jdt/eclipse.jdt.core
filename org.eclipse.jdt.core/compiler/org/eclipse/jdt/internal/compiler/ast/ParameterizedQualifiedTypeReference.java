@@ -330,13 +330,13 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-		if (this.annotations != null) {
-			output.append(" "); //$NON-NLS-1$
-			printAnnotations(this.annotations, output);
-			output.append(' ');
-		}
 		int length = this.tokens.length;
 		for (int i = 0; i < length - 1; i++) {
+			if (this.annotations != null && this.annotations[i] != null) {
+				output.append(" "); //$NON-NLS-1$
+				printAnnotations(this.annotations[i], output);
+				output.append(' ');
+			}
 			output.append(this.tokens[i]);
 			TypeReference[] typeArgument = this.typeArguments[i];
 			if (typeArgument != null) {
@@ -353,6 +353,11 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				output.append('>');
 			}
 			output.append('.');
+		}
+		if (this.annotations != null && this.annotations[length - 1] != null) {
+			output.append(" "); //$NON-NLS-1$
+			printAnnotations(this.annotations[length - 1], output);
+			output.append(' ');
 		}
 		output.append(this.tokens[length - 1]);
 		TypeReference[] typeArgument = this.typeArguments[length - 1];
@@ -406,9 +411,12 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.annotations != null) {
-				int annotationsLength = this.annotations.length;
-				for (int i = 0; i < annotationsLength; i++)
-					this.annotations[i].traverse(visitor, scope);
+				int annotationsLevels = this.annotations.length;
+				for (int i = 0; i < annotationsLevels; i++) {
+					int annotationsLength = this.annotations[i] == null ? 0 : this.annotations[i].length;
+					for (int j = 0; j < annotationsLength; j++)
+						this.annotations[i][j].traverse(visitor, scope);
+				}
 			}
 			if (this.annotationsOnDimensions != null) {
 				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
@@ -433,9 +441,12 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.annotations != null) {
-				int annotationsLength = this.annotations.length;
-				for (int i = 0; i < annotationsLength; i++)
-					this.annotations[i].traverse(visitor, scope);
+				int annotationsLevels = this.annotations.length;
+				for (int i = 0; i < annotationsLevels; i++) {
+					int annotationsLength = this.annotations[i] == null ? 0 : this.annotations[i].length;
+					for (int j = 0; j < annotationsLength; j++)
+						this.annotations[i][j].traverse(visitor, scope);
+				}
 			}
 			if (this.annotationsOnDimensions != null) {
 				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {

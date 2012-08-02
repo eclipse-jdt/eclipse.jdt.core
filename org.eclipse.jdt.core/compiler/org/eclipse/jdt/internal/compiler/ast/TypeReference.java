@@ -289,7 +289,7 @@ public static final TypeReference baseTypeReference(int baseType, int dim, Annot
 }
 
 // JSR308 type annotations...
-public Annotation[] annotations = null;
+public Annotation[][] annotations = null;
 
 // allows us to trap completion & selection nodes
 public void aboutToResolve(Scope scope) {
@@ -511,5 +511,8 @@ protected void resolveAnnotations(BlockScope scope) {
 	if (this.annotations != null) {
 		resolveAnnotations(scope, this.annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 	}
+}
+public int getAnnotatableLevels() {
+	return 1;
 }
 }

@@ -307,7 +307,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// only resolve annotation at the end, for constant to be positioned before (96991)
 		resolveAnnotations(scope, this.annotations, this.binding);
 		// jsr 308
-		Annotation[] typeAnnotations = this.type.annotations;
+		Annotation[][] typeAnnotations = this.type.annotations;
 		if (typeAnnotations != null) {
 			ASTNode.resolveAnnotations(scope, typeAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 		}
