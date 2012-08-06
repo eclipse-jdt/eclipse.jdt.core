@@ -44,7 +44,7 @@ public static Class javadocTestClass() {
 // All specified tests which does not belong to the class are skipped...
 static {
 //		TESTS_PREFIX = "testBug96237";
-//		TESTS_NAMES = new String[] { "testBug68017javadocWarning2" };
+//		TESTS_NAMES = new String[] { "testBug382606" };
 //		TESTS_NUMBERS = new int[] { 129241 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 }
@@ -8855,6 +8855,30 @@ public void testBug221539c() {
 			"}\n"
 		}
 	);
+}
+
+public void testBug382606() {
+	runConformTest(
+			new String[] {
+				"pack/A.java",
+				"package pack;\n" +
+				"/**\n"+
+				"* @see A\n" +
+				"*/\n" +
+				"public interface A {\n"+
+				"}\n"+
+				"/**\n"+
+				"* @see #B()\n"+
+				"*/\n"+
+				"class B {\n"+
+				" B() {}\n"+
+				"\n"+
+				" public void foo(){\n"+ 
+				"     new B();\n"+
+				" }\n"+
+				"}\n"
+			}
+		);
 }
 }
 
