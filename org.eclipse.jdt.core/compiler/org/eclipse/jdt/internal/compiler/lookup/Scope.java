@@ -556,9 +556,9 @@ public abstract class Scope {
 		if (argLength != paramLength)
 			if (!isVarArgs || argLength < paramLength - 1)
 				return null; // incompatible
-
+		CompilerOptions compilerOptions = this.compilerOptions();
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330435, inference should kick in only at source 1.5+
-		if (typeVariables != Binding.NO_TYPE_VARIABLES && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) { // generic method
+		if (typeVariables != Binding.NO_TYPE_VARIABLES && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_5) { // generic method
 			TypeBinding[] newArgs = null;
 			for (int i = 0; i < argLength; i++) {
 				TypeBinding param = i < paramLength ? parameters[i] : parameters[paramLength - 1];
@@ -575,7 +575,7 @@ public abstract class Scope {
 			method = ParameterizedGenericMethodBinding.computeCompatibleMethod(method, arguments, this, invocationSite);
 			if (method == null) return null; // incompatible
 			if (!method.isValidBinding()) return method; // bound check issue is taking precedence
-		} else if (genericTypeArguments != null && compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
+		} else if (genericTypeArguments != null && compilerOptions.complianceLevel < ClassFileConstants.JDK1_7) {
 			if (method instanceof ParameterizedGenericMethodBinding) {
 				if (!((ParameterizedGenericMethodBinding) method).wasInferred)
 					// attempt to invoke generic method of raw type with type hints <String>foo()
@@ -586,6 +586,10 @@ public abstract class Scope {
 		}
 
 		int compatibilityLevel;
+		if (tiebreakingVarargsMethods) {
+			if (CompilerOptions.tolerateIllegalAmbiguousVarargsInvocation && compilerOptions.complianceLevel < ClassFileConstants.JDK1_7)
+				tiebreakingVarargsMethods = false;
+		}
 		if ((compatibilityLevel = parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods)) > NOT_COMPATIBLE) {
 			if (compatibilityLevel == VARARGS_COMPATIBLE) {
 				TypeBinding varargsElementType = method.parameters[method.parameters.length - 1].leafComponentType();
@@ -3056,8 +3060,13 @@ public abstract class Scope {
 					if (i == oneParamsLength - 1 && one.isVarargs() && two.isVarargs()) {
 						TypeBinding oType = ((ArrayBinding) oneParam).elementsType();
 						TypeBinding eType = ((ArrayBinding) twoParam).elementsType();
-						if (oType == eType || oType.isCompatibleWith(eType))
-							return true; // special case to choose between 2 varargs methods when the last arg is Object[]
+						if (CompilerOptions.tolerateIllegalAmbiguousVarargsInvocation && this.compilerOptions().complianceLevel < ClassFileConstants.JDK1_7) {
+							if (oneParam == eType || oneParam.isCompatibleWith(eType))
+								return true; // special case to choose between 2 varargs methods when the last arg is Object[]
+						} else {
+							if (oType == eType || oType.isCompatibleWith(eType))
+								return true; // special case to choose between 2 varargs methods when the last arg is Object[]
+						}
 					}
 					return false;
 				}
@@ -3066,6 +3075,12 @@ public abstract class Scope {
 		}
 
 		if (one.isVarargs() && two.isVarargs()) {
+			if (CompilerOptions.tolerateIllegalAmbiguousVarargsInvocation && this.compilerOptions().complianceLevel < ClassFileConstants.JDK1_7 && 
+					oneParamsLength > twoParamsLength) {
+				// special case when autoboxing makes (int, int...) better than (Object...) but not (int...) or (Integer, int...)
+				if (((ArrayBinding) twoParams[twoParamsLength - 1]).elementsType().id != TypeIds.T_JavaLangObject)
+					return false;
+			}
 			// check that each parameter before the vararg parameters are compatible (no autoboxing allowed here)
 			for (int i = (oneParamsLength > twoParamsLength ? twoParamsLength : oneParamsLength) - 2; i >= 0; i--)
 				if (oneParams[i] != twoParams[i] && !oneParams[i].isCompatibleWith(twoParams[i]))
@@ -4050,7 +4065,8 @@ public abstract class Scope {
 		int paramLength = parameters.length;
 		int argLength = arguments.length;
 
-		if (compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) {
+		CompilerOptions compilerOptions = compilerOptions();
+		if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_5) {
 			if (paramLength != argLength)
 				return NOT_COMPATIBLE;
 			for (int i = 0; i < argLength; i++) {
@@ -4062,7 +4078,11 @@ public abstract class Scope {
 			}
 			return COMPATIBLE;
 		}
-
+	    if (tiebreakingVarargsMethods) {
+	        if (CompilerOptions.tolerateIllegalAmbiguousVarargsInvocation && compilerOptions.complianceLevel < ClassFileConstants.JDK1_7) {
+	            tiebreakingVarargsMethods = false;
+	        }
+	    }
 		int level = COMPATIBLE; // no autoboxing or varargs support needed
 		int lastIndex = argLength;
 		LookupEnvironment env = environment();
@@ -4119,7 +4139,7 @@ public abstract class Scope {
 		// only called if env.options.sourceLevel >= ClassFileConstants.JDK1_5
 		if (arg.isCompatibleWith(param))
 			return COMPATIBLE;
-		if (tieBreakingVarargsMethods) {
+		if (tieBreakingVarargsMethods && (this.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_7 || !CompilerOptions.tolerateIllegalAmbiguousVarargsInvocation)) {
 			/* 15.12.2.5 Choosing the Most Specific Method, ... One variable arity member method named m is more specific than
 			   another variable arity member method of the same name if either ... Only subtypes relationship should be used.
 			   Actually this is true even for fixed arity methods, but in practice is not an issue since we run the algorithm
