@@ -414,6 +414,15 @@ public class CompilerOptions {
 	public boolean analyseResourceLeaks;
 	/** Should missing enum cases be reported even if a default case exists in the same switch? */
 	public boolean reportMissingEnumCaseDespiteDefault;
+	
+	/** Should the compiler tolerate illegal ambiguous varargs invocation in compliance < 1.7 
+	 * to be bug compatible with javac? (bug 383780) */
+	public static boolean tolerateIllegalAmbiguousVarargsInvocation;
+	
+	{
+		String tolerateIllegalAmbiguousVarargs = System.getProperty("tolerateIllegalAmbiguousVarargsInvocation"); //$NON-NLS-1$
+		tolerateIllegalAmbiguousVarargsInvocation = tolerateIllegalAmbiguousVarargs != null && tolerateIllegalAmbiguousVarargs.equalsIgnoreCase("true"); //$NON-NLS-1$
+	}
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
