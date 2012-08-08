@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -29,6 +30,10 @@ public class MethodHandleTest extends AbstractRegressionTest {
 
 	public static Class testClass() {
 		return MethodHandleTest.class;
+	}
+	
+	static {
+//		TESTS_NAMES = new String [] { "test009" };
 	}
 
 	public void test001() {
@@ -302,5 +307,82 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			null,
 			true,
 			options);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=386259, wrong unnecessary cast warning.
+	public void test009() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+		runNegativeTest(
+				// test directory preparation
+				true /* flush output directory */,
+				new String[] { /* test files */
+						"X.java",
+						"import java.lang.invoke.MethodHandle;\n" +
+						"import java.lang.invoke.MethodHandles;\n" +
+						"import java.lang.invoke.MethodType;\n" +
+						"public class X {\n" +
+						"  public static void main(String[] args) throws Throwable {\n" +
+						"    String str = \"test\";\n" +
+						"    MethodHandle mh = MethodHandles.lookup().findVirtual(String.class, \"toString\", \n" +
+						"        MethodType.methodType(String.class));\n" +
+						"    String actual = (String) mh.invoke(str);\n" +
+						"    assert \"test\".equals(actual);\n" +
+						"    Zork z;\n" +
+						"  }\n" +
+						"}\n"
+				},
+				// compiler options
+				null /* no class libraries */,
+				customOptions /* custom options */,
+				// compiler results
+				"----------\n" + /* expected compiler log */
+				"1. ERROR in X.java (at line 11)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n",
+				// javac options
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=386259 variation.
+	public void test010() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+		runNegativeTest(
+				// test directory preparation
+				true /* flush output directory */,
+				new String[] { /* test files */
+						"X.java",
+						"import java.lang.invoke.MethodHandle;\n" +
+						"import java.lang.invoke.MethodHandles;\n" +
+						"import java.lang.invoke.MethodType;\n" +
+						"public class X {\n" +
+						"  public static void main(String[] args) throws Throwable {\n" +
+						"    String str = \"test\";\n" +
+						"    MethodHandle mh = MethodHandles.lookup().findVirtual(String.class, \"toString\", \n" +
+						"        MethodType.methodType(String.class));\n" +
+						"    Object actual = (Object) mh.invoke(str);\n" +
+						"    assert \"test\".equals(actual);\n" +
+						"    Zork z;\n" +
+						"  }\n" +
+						"}\n"
+				},
+				// compiler options
+				null /* no class libraries */,
+				customOptions /* custom options */,
+				// compiler results
+				"----------\n" + 
+				"1. ERROR in X.java (at line 9)\n" + 
+				"	Object actual = (Object) mh.invoke(str);\n" + 
+				"	                ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Unnecessary cast from Object to Object\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 11)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n",
+				// javac options
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 	}
 }
