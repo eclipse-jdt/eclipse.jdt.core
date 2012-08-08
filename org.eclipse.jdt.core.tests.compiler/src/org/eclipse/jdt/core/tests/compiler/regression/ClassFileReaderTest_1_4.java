@@ -1885,7 +1885,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 6]\n" +
 			"        [pc: 9, line: 7]\n" +
-			"        [pc: 14, line: 8]\n" +
+			"        [pc: 11, line: 8]\n" +
 			"        [pc: 18, line: 10]\n" +
 			"        [pc: 20, line: 8]\n" +
 			"        [pc: 21, line: 9]\n" +
