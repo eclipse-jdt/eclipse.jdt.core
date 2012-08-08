@@ -5393,13 +5393,21 @@ public void missingEnumConstantCase(SwitchStatement switchStatement, FieldBindin
 		switchStatement.expression.sourceEnd);
 }
 public void missingDefaultCase(SwitchStatement switchStatement, boolean isEnumSwitch, TypeBinding expressionType) {
-	this.handle(
-		isEnumSwitch ? IProblem.MissingEnumDefaultCase : IProblem.MissingDefaultCase,
-		new String[] {new String(expressionType.readableName())},
-		new String[] {new String(expressionType.shortReadableName())},
-		switchStatement.expression.sourceStart,
-		switchStatement.expression.sourceEnd);
-
+	if (isEnumSwitch) {
+		this.handle(
+				IProblem.MissingEnumDefaultCase,
+				new String[] {new String(expressionType.readableName())},
+				new String[] {new String(expressionType.shortReadableName())},
+				switchStatement.expression.sourceStart,
+				switchStatement.expression.sourceEnd);
+	} else {
+		this.handle(
+				IProblem.MissingDefaultCase,
+				NoArgument,
+				NoArgument,
+				switchStatement.expression.sourceStart,
+				switchStatement.expression.sourceEnd);
+	}
 }
 public void missingOverrideAnnotation(AbstractMethodDeclaration method) {
 	int severity = computeSeverity(IProblem.MissingOverrideAnnotation);

@@ -2158,7 +2158,7 @@ public void testBug374605() {
 			"1. WARNING in p\\X.java (at line 4)\n" +
 			"	switch (i) {\n" +
 			"	        ^\n" +
-			"The switch over the type int should have a default case\n" +
+			"The switch statement should have a default case\n" +
 			"----------\n",
 			null,
 			true,
@@ -2513,6 +2513,55 @@ public void testBug381172() throws Exception {
 	if (index == -1) {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383643, NPE in problem reporter.
+public void test383643() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.WARNING);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    void foo() {\n" +
+					"        String s;\n" +
+					"        switch (p) {\n" +
+					"            case ONE:\n" +
+					"                s= \"1\";\n" +
+					"                break;\n" +
+					"            case TWO:\n" +
+					"                s= \"2\";\n" +
+					"                break;\n" +
+					"        }\n" +
+					"\n" +
+					"        s.toString();\n" +
+					"    }\n" +
+					"}\n",
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	switch (p) {\n" + 
+			"	        ^\n" + 
+			"p cannot be resolved to a variable\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	switch (p) {\n" + 
+			"	        ^\n" + 
+			"The switch statement should have a default case\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	case ONE:\n" + 
+			"	     ^^^\n" + 
+			"ONE cannot be resolved to a variable\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 8)\n" + 
+			"	case TWO:\n" + 
+			"	     ^^^\n" + 
+			"TWO cannot be resolved to a variable\n" + 
+			"----------\n",
+			null,
+			true,
+			options
+		);	
 }
 public static Class testClass() {
 	return SwitchTest.class;
