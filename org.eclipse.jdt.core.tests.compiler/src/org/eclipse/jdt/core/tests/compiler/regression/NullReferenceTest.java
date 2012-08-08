@@ -11877,9 +11877,11 @@ public void testBug303448a() throws Exception {
 				"        [pc: 4, line: 7]\n" + 
 				"        [pc: 26, line: 8]\n" + 
 				"        [pc: 30, line: 9]\n" + 
+				"        [pc: 38, line: 10]\n" + 
 				"        [pc: 41, line: 11]\n" + 
 				"        [pc: 49, line: 13]\n" + 
 				"        [pc: 53, line: 14]\n" + 
+				"        [pc: 61, line: 15]\n" + 
 				"        [pc: 64, line: 16]\n" + 
 				"        [pc: 72, line: 19]\n" + 
 				"      Local variable table:\n" + 
@@ -11929,9 +11931,11 @@ public void testBug303448a() throws Exception {
 						"        [pc: 4, line: 7]\n" + 
 						"        [pc: 26, line: 8]\n" + 
 						"        [pc: 30, line: 9]\n" + 
+						"        [pc: 38, line: 10]\n" + 
 						"        [pc: 41, line: 11]\n" + 
 						"        [pc: 49, line: 13]\n" + 
 						"        [pc: 53, line: 14]\n" + 
+						"        [pc: 61, line: 15]\n" + 
 						"        [pc: 64, line: 16]\n" + 
 						"        [pc: 72, line: 19]\n" + 
 						"      Local variable table:\n" + 
@@ -11980,9 +11984,11 @@ public void testBug303448a() throws Exception {
 						"        [pc: 4, line: 7]\n" + 
 						"        [pc: 26, line: 8]\n" + 
 						"        [pc: 30, line: 9]\n" + 
+						"        [pc: 38, line: 10]\n" + 
 						"        [pc: 41, line: 11]\n" + 
 						"        [pc: 49, line: 13]\n" + 
 						"        [pc: 53, line: 14]\n" + 
+						"        [pc: 61, line: 15]\n" + 
 						"        [pc: 64, line: 16]\n" + 
 						"        [pc: 72, line: 19]\n" + 
 						"      Local variable table:\n" + 
