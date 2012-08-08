@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "testBug374129" };
+//		TESTS_NAMES = new String[] { "testBug385626" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -3660,5 +3660,59 @@ public void testBug374129() {
 			"----------\n",
 		libs,
 		true /* shouldFlush*/);
+}
+
+// Bug 385626 - @NonNull fails across loop boundaries
+public void testBug385626_1() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    void test() {\n" +
+			"        for (Integer i : new ArrayList<Integer>()) {\n" +
+			"            if (i != null) {\n" +
+			"                for (Integer j : new ArrayList<Integer>()) {\n" +
+			"                    if (j != null) {\n" +
+			"                        @NonNull Integer j1 = i; // bogus error was here\n" +
+			"                    }\n" +
+			"                }\n" + 
+			"            }\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null,//options
+		"");
+}
+
+// Bug 385626 - @NonNull fails across loop boundaries
+public void testBug385626_2() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    void test(Integer j) {\n" +
+			"        for (Integer i : new ArrayList<Integer>()) {\n" +
+			"            if (i != null) {\n" +
+			"                try {\n" +
+			"                    if (j != null) {\n" +
+			"                        @NonNull Integer j1 = i;\n" +
+			"                    }\n" +
+			"                } finally {\n" +
+			"                    if (j != null) {\n" +
+			"                        @NonNull Integer j1 = i; // bogus error was here\n" +
+			"                    }\n" +
+			"                }\n" + 
+			"            }\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null,//options
+		"");
 }
 }
