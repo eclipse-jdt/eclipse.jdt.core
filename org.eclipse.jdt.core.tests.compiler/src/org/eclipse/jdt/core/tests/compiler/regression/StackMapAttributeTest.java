@@ -112,7 +112,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"      Line numbers:\n" +
 				"        [pc: 0, line: 4]\n" +
 				"        [pc: 21, line: 6]\n" +
-				"        [pc: 32, line: 7]\n" +
+				"        [pc: 29, line: 7]\n" +
 				"        [pc: 33, line: 8]\n" +
 				"        [pc: 37, line: 10]\n" +
 				"      Local variable table:\n" +
@@ -293,7 +293,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 23, line: 11]\n" +
 				"        [pc: 26, line: 13]\n" +
 				"        [pc: 32, line: 15]\n" +
-				"        [pc: 40, line: 16]\n" +
+				"        [pc: 37, line: 16]\n" +
 				"        [pc: 42, line: 17]\n" +
 				"        [pc: 46, line: 19]\n" +
 				"        [pc: 51, line: 18]\n" +
@@ -310,7 +310,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 2, pc: 40] local: i index: 3 type: double\n" +
 				"        [pc: 46, pc: 51] local: i index: 3 type: double\n" +
 				"        [pc: 55, pc: 81] local: i index: 3 type: double\n" +
-				"        [pc: 12, pc: 40] local: j index: 5 type: int\n" +
+				"        [pc: 12, pc: 37] local: j index: 5 type: int\n" +
 				"        [pc: 19, pc: 32] local: d1 index: 6 type: double\n" +
 				"        [pc: 42, pc: 46] local: e index: 5 type: java.lang.NullPointerException\n" +
 				"        [pc: 66, pc: 81] local: j index: 5 type: long\n" +
@@ -412,7 +412,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 10, line: 6]\n" +
 				"        [pc: 13, line: 7]\n" +
 				"        [pc: 17, line: 8]\n" +
-				"        [pc: 24, line: 9]\n" +
+				"        [pc: 21, line: 9]\n" +
 				"        [pc: 25, line: 10]\n" +
 				"        [pc: 29, line: 12]\n" +
 				"        [pc: 40, line: 11]\n" +
@@ -423,7 +423,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"      Local variable table:\n" +
 				"        [pc: 0, pc: 60] local: b index: 0 type: boolean\n" +
 				"        [pc: 2, pc: 60] local: i index: 1 type: int\n" +
-				"        [pc: 17, pc: 24] local: j index: 2 type: int\n" +
+				"        [pc: 17, pc: 21] local: j index: 2 type: int\n" +
 				"        [pc: 25, pc: 29] local: e index: 2 type: java.lang.NullPointerException\n" +
 				"      Stack map table: number of frames 4\n" +
 				"        [pc: 24, full, stack: {java.lang.NullPointerException}, locals: {int, int}]\n" +
@@ -498,6 +498,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"      Line numbers:\n" +
 				"        [pc: 0, line: 4]\n" +
 				"        [pc: 4, line: 5]\n" +
+				"        [pc: 12, line: 6]\n" +
 				"        [pc: 15, line: 7]\n" +
 				"        [pc: 23, line: 9]\n" +
 				"        [pc: 29, line: 10]\n" +
@@ -945,6 +946,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 4, line: 4]\n" +
 				"        [pc: 6, line: 5]\n" +
 				"        [pc: 13, line: 6]\n" +
+				"        [pc: 21, line: 7]\n" +
 				"        [pc: 24, line: 8]\n" +
 				"        [pc: 32, line: 10]\n" +
 				"        [pc: 54, line: 11]\n" +
@@ -1138,6 +1140,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 11, line: 8]\n" +
 				"        [pc: 19, line: 9]\n" +
 				"        [pc: 24, line: 10]\n" +
+				"        [pc: 35, line: 11]\n" +
 				"        [pc: 38, line: 12]\n" +
 				"        [pc: 44, line: 14]\n" +
 				"        [pc: 64, line: 16]\n" +
@@ -1275,6 +1278,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 11, line: 7]\n" +
 				"        [pc: 19, line: 8]\n" +
 				"        [pc: 24, line: 9]\n" +
+				"        [pc: 32, line: 10]\n" +
 				"        [pc: 35, line: 11]\n" +
 				"        [pc: 37, line: 13]\n" +
 				"        [pc: 56, line: 15]\n" +
@@ -1371,7 +1375,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"        [pc: 0, line: 4]\n" +
 			"        [pc: 4, line: 5]\n" +
 			"        [pc: 6, line: 7]\n" +
-			"        [pc: 14, line: 8]\n" +
+			"        [pc: 11, line: 8]\n" +
 			"        [pc: 15, line: 4]\n" +
 			"        [pc: 23, line: 11]\n" +
 			"      Local variable table:\n" +
@@ -6473,8 +6477,10 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"    30  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 5]\n" + 
+			"        [pc: 3, line: 4]\n" + 
 			"        [pc: 6, line: 6]\n" + 
 			"        [pc: 11, line: 7]\n" + 
+			"        [pc: 19, line: 8]\n" + 
 			"        [pc: 22, line: 9]\n" + 
 			"        [pc: 30, line: 11]\n" + 
 			"      Local variable table:\n" + 

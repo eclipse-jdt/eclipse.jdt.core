@@ -105,12 +105,12 @@ public void test001() throws Exception {
 		"        [pc: 33, line: 15]\n" +
 		"        [pc: 36, line: 16]\n" +
 		"        [pc: 39, line: 17]\n" +
-		"        [pc: 46, line: 18]\n" +
+		"        [pc: 43, line: 18]\n" +
 		"        [pc: 47, line: 19]\n" +
 		"        [pc: 55, line: 21]\n" +
 		"      Local variable table:\n" +
 		"        [pc: 0, pc: 56] local: args index: 0 type: java.lang.String[]\n" +
-		"        [pc: 23, pc: 46] local: x index: 1 type: X\n" +
+		"        [pc: 23, pc: 43] local: x index: 1 type: X\n" +
 		"        [pc: 47, pc: 55] local: e index: 1 type: java.lang.NullPointerException\n";
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -196,7 +196,7 @@ public void test002() throws Exception {
 		"        [pc: 13, line: 23]\n" +
 		"        [pc: 16, line: 24]\n" +
 		"        [pc: 19, line: 25]\n" +
-		"        [pc: 26, line: 26]\n" +
+		"        [pc: 23, line: 26]\n" +
 		"        [pc: 27, line: 27]\n" +
 		"        [pc: 35, line: 29]\n" +
 		"      Local variable table:\n" +
