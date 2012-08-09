@@ -14,8 +14,8 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -985,11 +985,13 @@ protected static class JavacTestOptions {
 		return null;
 	}
 
-	protected INameEnvironment[] getClassLibs() {
+	protected INameEnvironment[] getClassLibs(boolean useDefaultClasspaths) {
 		String encoding = (String)getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
 		if ("".equals(encoding))
 			encoding = null;
-
+		if (useDefaultClasspaths && encoding == null)
+			return DefaultJavaRuntimeEnvironment.create(this.classpaths);
+		// fall back to FileSystem
 		INameEnvironment[] classLibs = new INameEnvironment[1];
 		classLibs[0] = new FileSystem(this.classpaths, new String[]{}, // ignore initial file names
 				encoding // default encoding
@@ -1012,7 +1014,7 @@ protected static class JavacTestOptions {
 	}
 
 	protected String[] getDefaultClassPaths() {
-		return Util.concatWithClassLibs(OUTPUT_DIR, false);
+		return DefaultJavaRuntimeEnvironment.getDefaultClassPaths();
 	}
 	protected IErrorHandlingPolicy getErrorHandlingPolicy() {
 		return new IErrorHandlingPolicy() {
@@ -1029,7 +1031,7 @@ protected static class JavacTestOptions {
 	 */
 	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths) {
 		this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
-		return new InMemoryNameEnvironment(testFiles, getClassLibs());
+		return new InMemoryNameEnvironment(testFiles, getClassLibs(classPaths == null));
 	}
 	protected IProblemFactory getProblemFactory() {
 		return new DefaultProblemFactory(Locale.getDefault());
