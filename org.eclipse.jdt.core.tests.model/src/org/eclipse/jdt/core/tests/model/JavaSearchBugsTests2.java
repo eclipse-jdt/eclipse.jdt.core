@@ -456,7 +456,172 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(project);
 		}
 	}
+	/**
+	 * @bug 297825: [search] Rename refactoring doesn't update enclosing type
+	 * @test Search for references for enclosing type's subclass should return a match.
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297825"
+	 */
+	public void testBug297825a() throws CoreException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" },
+					new String[] {"JCL_LIB"}, "bin");
+			createFolder("/P/src/b297825");
+			createFile("/P/src/b297825/_Foo.java",
+					"package b297825;\n" +
+					"public class _Foo {\n" +
+					"	public static class Bar {\n" +
+					"	}\n" +
+					"}"
+					);
+			createFile("/P/src/b297825/Foo.java",
+					"package b297825;\n" +
+					"public class Foo extends _Foo {\n" +
+					"}\n"
+					);
+			createFile("/P/src/b297825/Main.java",
+					"package b297825;\n" +
+					"public class Main {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new Foo.Bar();\n" +
+					"	}\n" +
+					"}"
+					);
+			waitUntilIndexesReady();
+			IType type = getCompilationUnit("/P/src/b297825/Foo.java").getType("Foo");
+			IJavaSearchScope scope = SearchEngine
+					.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES);
 
+			search(type, REFERENCES, scope, this.resultCollector);
+
+			assertSearchResults("src/b297825/Main.java void b297825.Main.main(String[]) [Foo] EXACT_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	/**
+	 * @bug 297825: [search] Rename refactoring doesn't update enclosing type
+	 * @test Verify there is no AIOOB when searching for references for a type.
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297825"
+	 */
+	public void testBug297825b() throws CoreException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" },
+					new String[] {"JCL_LIB"}, "bin");
+			createFile("/P/src/Foo.java",
+					"class _Foo {\n" +
+					"	public static class Bar {\n" +
+					"	}\n" +
+					"}" +
+					"public class Foo extends _Foo {\n" +
+					"	public static class FooBar {\n" +
+					"	}\n" +
+					"}" +
+					"class Main {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new Foo.Bar();\n" +
+					"		new Foo.FooBar();\n" +
+					"	}\n" +
+					"}"
+					);
+			waitUntilIndexesReady();
+			IType type = getCompilationUnit("/P/src/Foo.java").getType("Foo");
+			IJavaSearchScope scope = SearchEngine
+					.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES);
+
+			search(type, REFERENCES, scope, this.resultCollector);
+
+			assertSearchResults("src/Foo.java void Main.main(String[]) [Foo] EXACT_MATCH\n" +
+					"src/Foo.java void Main.main(String[]) [Foo] EXACT_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	/**
+	 * @bug 297825: [search] Rename refactoring doesn't update enclosing type
+	 * @test Search for references for the top level type Foo should report no match. "new _Foo.Bar.Foo()" refers to a different type.
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297825"
+	 */
+	public void testBug297825c() throws CoreException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" },
+					new String[] {"JCL_LIB"}, "bin");
+			createFolder("/P/src/b297825");
+			createFile("/P/src/b297825/_Foo.java",
+					"package b297825;\n" +
+					"public class _Foo {\n" +
+					"	public static class Bar {\n" +
+					"		public static class Foo {\n" +
+					"		}\n" +
+					"	}\n" +
+					"}"
+					);
+			createFile("/P/src/b297825/Foo.java",
+					"package b297825;\n" +
+					"public class Foo extends _Foo {\n" +
+					"}"
+					);
+			createFile("/P/src/b297825/Main.java",
+					"package b297825;\n" +
+					"class Main {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new _Foo.Bar.Foo();\n" +
+					"	}\n" +
+					"}"
+					);
+			waitUntilIndexesReady();
+			IType type = getCompilationUnit("/P/src/b297825/Foo.java").getType("Foo");
+			IJavaSearchScope scope = SearchEngine
+					.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES);
+
+			search(type, REFERENCES, scope, this.resultCollector);
+
+			assertSearchResults("");
+		} finally {
+			deleteProject("P");
+		}
+	}
+	/**
+	 * @bug 297825: [search] Rename refactoring doesn't update enclosing type
+	 * @test Search for references for enclosing type's subclass should return a match. The inner type is parameterized.
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297825"
+	 */
+	public void testBug297825d() throws CoreException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" },
+					new String[] {"JCL_LIB"}, "bin");
+			createFolder("/P/src/b297825");
+			createFile("/P/src/b297825/_Foo.java",
+					"package b297825;\n" +
+					"public class _Foo {\n" +
+					"	public static class Bar<T> {\n" +
+					"	}\n" +
+					"}"
+					);
+			createFile("/P/src/b297825/Foo.java",
+					"package b297825;\n" +
+					"public class Foo extends _Foo {\n" +
+					"}\n"
+					);
+			createFile("/P/src/b297825/Main.java",
+					"package b297825;\n" +
+					"public class Main {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new Foo.Bar<String>();\n" +
+					"	}\n" +
+					"}"
+					);
+			waitUntilIndexesReady();
+			IType type = getCompilationUnit("/P/src/b297825/Foo.java").getType("Foo");
+			IJavaSearchScope scope = SearchEngine
+					.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES);
+
+			search(type, REFERENCES, scope, this.resultCollector);
+
+			assertSearchResults("src/b297825/Main.java void b297825.Main.main(String[]) [Foo] EXACT_MATCH");
+		} finally {
+			deleteProject("P");
+		}
+	}
 	/**
 	 * @bug 342393: Anonymous class' occurrence count is incorrect when two methods in a class have the same name.
 	 * @test Search for Enumerators with anonymous types

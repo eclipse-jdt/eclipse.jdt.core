@@ -126,9 +126,17 @@ public class QualifiedTypeReference extends TypeReference {
 			} else {
 				qualifiedType = currentType.isGenericType() ? (ReferenceBinding)scope.environment().convertToRawType(currentType, false /*do not force conversion of enclosing types*/) : currentType;
 			}
+			recordResolution(scope.environment(), qualifiedType);
 		}
 		this.resolvedType = qualifiedType;
 		return this.resolvedType;
+	}
+
+	void recordResolution(LookupEnvironment env, TypeBinding typeFound) {
+		if (typeFound != null && typeFound.isValidBinding())
+			for (int i = 0; i < env.resolutionListeners.length; i++) {
+				env.resolutionListeners[i].recordResolution(this, typeFound);
+			}
 	}
 
 	public char[][] getTypeName(){

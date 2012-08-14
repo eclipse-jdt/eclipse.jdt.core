@@ -1061,6 +1061,8 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 	// initialize queue of units
 	this.numberOfMatches = 0;
 	this.matchesToProcess = new PossibleMatch[possibleMatchSize];
+
+	this.lookupEnvironment.addResolutionListener(this.patternLocator);
 }
 protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMatches, int start, int length) throws CoreException {
 	initialize(javaProject, length);

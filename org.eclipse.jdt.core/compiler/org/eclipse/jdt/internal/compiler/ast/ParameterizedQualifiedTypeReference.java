@@ -318,6 +318,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			if (isTypeUseDeprecated(qualifyingType, scope))
 				reportDeprecatedType(qualifyingType, scope, i);
 			this.resolvedType = qualifyingType;
+			recordResolution(scope.environment(), this.resolvedType);
 		}
 		return this.resolvedType;
 	}

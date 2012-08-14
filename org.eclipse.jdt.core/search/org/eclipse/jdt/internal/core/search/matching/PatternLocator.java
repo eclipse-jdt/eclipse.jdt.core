@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public abstract class PatternLocator implements IIndexConstants {
+public abstract class PatternLocator implements IIndexConstants, IQualifiedTypeResolutionListener {
 
 // store pattern info
 protected int matchMode;
@@ -969,5 +969,8 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 }
 public String toString(){
 	return "SearchPattern"; //$NON-NLS-1$
+}
+public void recordResolution(QualifiedTypeReference typeReference, TypeBinding resolution) {
+	// noop by default
 }
 }
