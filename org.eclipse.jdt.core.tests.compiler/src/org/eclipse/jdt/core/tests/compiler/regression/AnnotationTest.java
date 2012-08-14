@@ -12,6 +12,7 @@
  *								bug 185682 - Increment/decrement operators mark local variables as read
  *								bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
  *								bug 384663 - Package Based Annotation Compilation Error in JDT 3.8/4.2 (works in 3.7.2) 
+ *								bug 386356 - Type mismatch error with annotations and generics
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -10636,5 +10637,65 @@ public void testBug384663() {
 		"}",
 	};
 	runConformTest(testFiles);
+}
+
+// Bug 386356 - Type mismatch error with annotations and generics
+// test case from comment 9
+public void testBug386356_1() {
+	runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"import javax.xml.bind.annotation.adapters.XmlAdapter;\n" + 
+			"public abstract class X extends XmlAdapter<String,X> {\n" + 
+			"}",
+
+			"p/package-info.java",
+			"@XmlJavaTypeAdapters({ @XmlJavaTypeAdapter(value = X.class, type = X.class) })\n" + 
+			"package p;\n" + 
+			"import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;   \n" + 
+			"import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapters;"
+			
+		});
+}
+
+// Bug 386356 - Type mismatch error with annotations and generics
+// test case from comment 6
+public void testBug386356_2() {
+	runConformTest(
+		new String[] {
+			"com/ermahgerd/Ermahgerd.java",
+			"package com.ermahgerd;\n" + 
+			"\n" + 
+			"public class Ermahgerd {\n" + 
+			"}",
+
+			"com/ermahgerd/package-info.java",
+			"@XmlJavaTypeAdapters({ @XmlJavaTypeAdapter(value = ErmahgerdXmlAdapter.class, type = Ermahgerd.class) })\n" + 
+			"package com.ermahgerd;\n" + 
+			"import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;\n" + 
+			"import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapters;",
+			
+			"com/ermahgerd/ErmahgerdXmlAdapter.java",
+			"package com.ermahgerd;\n" + 
+			"\n" + 
+			"import javax.xml.bind.annotation.adapters.XmlAdapter;\n" + 
+			"\n" + 
+			"public class ErmahgerdXmlAdapter extends XmlAdapter<String,Ermahgerd> {\n" + 
+			"\n" + 
+			"	@Override\n" + 
+			"	public String marshal(Ermahgerd arg0) throws Exception {\n" + 
+			"		// TODO Auto-generated method stub\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	@Override\n" + 
+			"	public Ermahgerd unmarshal(String arg0) throws Exception {\n" + 
+			"		// TODO Auto-generated method stub\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}"
+			
+		});
 }
 }
