@@ -498,7 +498,7 @@ public class ToolFactory {
 	 * would report assert keywords ({@link ITerminalSymbols#TokenNameassert}). Java 1.4 has introduced
 	 * a new 'assert' keyword.
 	 * @param complianceLevel This is used to support the Unicode 4.0 character sets. if set to 1.5 or above,
-	 * the Unicode 4.0 is supporte, otherwise Unicode 3.0 is supported.
+	 * the Unicode 4.0 is supported, otherwise Unicode 3.0 is supported.
 	 * @return a scanner
 	 * @see org.eclipse.jdt.core.compiler.IScanner
 	 *

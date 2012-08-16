@@ -2563,6 +2563,64 @@ public void test383643() {
 			options
 		);	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=387146 - the fall-through comment is ignored
+public void test387146a() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	private Object someLock;\n" +
+		"	public void foo1(int i) {\n" +
+		"		switch (i) {\n" +
+		"		case 1:\n" +
+		"			synchronized (someLock) {\n" +
+		"				System.out.println();\n" +
+		"			}\n" +
+		"			//$FALL-THROUGH$\n" +
+		"		case 2:\n" +
+		"			System.out.println();\n" +
+		"			break;\n" +
+		"		default:\n" +
+		"			System.out.println();\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n",
+	},
+	"",
+	null,
+	true,
+	options);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=387146 - the fall-through comment is respected
+public void test387146b() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
+	this.runNegativeTest(new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	private boolean someFlag;\n" +
+		"	public void foo1(int i) {\n" +
+		"		switch (i) {\n" +
+		"		case 1:\n" +
+		"			if (someFlag) {\n" +
+		"				System.out.println();\n" +
+		"			}\n" +
+		"			//$FALL-THROUGH$\n" +
+		"		case 2:\n" +
+		"			System.out.println();\n" +
+		"			break;\n" +
+		"		default:\n" +
+		"			System.out.println();\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n",
+	},
+	"",
+	null,
+	true,
+	options);
+}
 public static Class testClass() {
 	return SwitchTest.class;
 }

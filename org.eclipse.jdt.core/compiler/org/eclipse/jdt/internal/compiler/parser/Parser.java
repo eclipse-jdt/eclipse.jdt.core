@@ -1113,7 +1113,7 @@ public void checkComment() {
 	int lastComment = this.scanner.commentPtr;
 
 	if (this.modifiersSourceStart >= 0) {
-		// eliminate comments located after modifierSourceStart if positionned
+		// eliminate comments located after modifierSourceStart if positioned
 		while (lastComment >= 0) {
 			int commentSourceStart = this.scanner.commentStarts[lastComment];
 			if (commentSourceStart < 0) commentSourceStart = -commentSourceStart;
@@ -7193,7 +7193,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 }
 protected void consumeStatementBreak() {
 	// BreakStatement ::= 'break' ';'
-	// break pushs a position on this.intStack in case there is no label
+	// break pushes a position on this.intStack in case there is no label
 
 	pushOnAstStack(new BreakStatement(null, this.intStack[this.intPtr--], this.endStatementPosition));
 
@@ -7448,7 +7448,8 @@ protected void consumeStatementSynchronized() {
 				this.intStack[this.intPtr--],
 				this.endStatementPosition);
 	}
-	resetModifiers();
+	this.modifiers = ClassFileConstants.AccDefault;
+	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
 }
 protected void consumeStatementThrow() {
 	// ThrowStatement ::= 'throw' Expression ';'
@@ -9227,7 +9228,7 @@ public void initialize() {
 	this.initialize(false);
 }
 public void initialize(boolean initializeNLS) {
-	//positionning the parser for a new compilation unit
+	//positioning the parser for a new compilation unit
 	//avoiding stack reallocation and all that....
 	this.astPtr = -1;
 	this.astLengthPtr = -1;
@@ -10786,6 +10787,9 @@ private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
 		}
 	}
 }
+/**
+ * Reset modifiers buffer and comment stack. Should be call only for nodes that claim both.
+ */
 protected void resetModifiers() {
 	this.modifiers = ClassFileConstants.AccDefault;
 	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)

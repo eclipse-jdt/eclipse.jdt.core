@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1305,5 +1305,39 @@ public class ScannerTest extends AbstractRegressionTest {
 			"	                                    ^^^^^^\n" + 
 			"Invalid unicode\n" + 
 			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=387146
+	public void test061() {
+		IScanner scanner = ToolFactory.createScanner(
+				true,
+				true,
+				true,
+				JavaCore.VERSION_1_4,
+				JavaCore.VERSION_1_4);
+		final char[] source = "case 1:\nsynchronized (someLock){}\n//$FALL-THROUGH$\ncase 2:".toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			assertEquals("Wrong token", ITerminalSymbols.TokenNamecase, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameIntegerLiteral, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameCOLON, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNamesynchronized, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameLPAREN, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameIdentifier, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameRPAREN, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameLBRACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameRBRACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameCOMMENT_LINE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNamecase, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameIntegerLiteral, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameCOLON, scanner.getNextToken());
+		} catch (InvalidInputException e) {
+			assertTrue("Should not fail with InvalidInputException", false);
+		}
 	}
 }
