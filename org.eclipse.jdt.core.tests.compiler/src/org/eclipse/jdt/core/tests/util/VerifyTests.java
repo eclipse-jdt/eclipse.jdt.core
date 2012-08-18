@@ -94,7 +94,7 @@ public class VerifyClassLoader extends ClassLoader {
 	protected boolean isExcluded(String name) {
 		// exclude the "java" packages.
 		// They always need to be excluded so that they are loaded by the system class loader
-		if (name.startsWith("java"))
+		if (name.startsWith("java") || name.startsWith("[Ljava"))
 			return true;
 
 		// exclude the user defined package paths
