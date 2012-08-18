@@ -241,7 +241,7 @@ private String getVerifyTestsCode() {
 		"	protected boolean isExcluded(String name) {\n" + 
 		"		// exclude the \"java\" packages.\n" + 
 		"		// They always need to be excluded so that they are loaded by the system class loader\n" + 
-		"		if (name.startsWith(\"java\"))\n" + 
+		"		if (name.startsWith(\"java\") || name.startsWith(\"[Ljava\"))\n" + 
 		"			return true;\n" + 
 		"\n" + 
 		"		// exclude the user defined package paths\n" + 
