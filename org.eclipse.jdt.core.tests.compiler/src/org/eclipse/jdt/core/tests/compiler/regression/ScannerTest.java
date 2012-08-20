@@ -1310,8 +1310,42 @@ public class ScannerTest extends AbstractRegressionTest {
 			"Invalid unicode\n" + 
 			"----------\n");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383062
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=387146
 	public void test061() {
+		IScanner scanner = ToolFactory.createScanner(
+				true,
+				true,
+				true,
+				JavaCore.VERSION_1_4,
+				JavaCore.VERSION_1_4);
+		final char[] source = "case 1:\nsynchronized (someLock){}\n//$FALL-THROUGH$\ncase 2:".toCharArray();
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			assertEquals("Wrong token", ITerminalSymbols.TokenNamecase, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameIntegerLiteral, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameCOLON, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNamesynchronized, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameLPAREN, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameIdentifier, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameRPAREN, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameLBRACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameRBRACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameCOMMENT_LINE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNamecase, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameIntegerLiteral, scanner.getNextToken());
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameCOLON, scanner.getNextToken());
+		} catch (InvalidInputException e) {
+			assertTrue("Should not fail with InvalidInputException", false);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383062
+	public void test062() {
 		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_4);
 		char[] source = "->".toCharArray(); //$NON-NLS-1$
 		scanner.setSource(source);
@@ -1325,7 +1359,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		assertEquals("Expecting ->", ITerminalSymbols.TokenNameARROW, token);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383062
-	public void test062() {
+	public void test063() {
 		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_4);
 		char[] source = "::".toCharArray(); //$NON-NLS-1$
 		scanner.setSource(source);
