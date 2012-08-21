@@ -5222,12 +5222,25 @@ protected void consumeMethodHeaderRightParen() {
 	md.sourceEnd = 	this.rParenPos;
 	//arguments
 	if (length != 0) {
-		System.arraycopy(
-			this.astStack,
-			this.astPtr + 1,
-			md.arguments = new Argument[length],
-			0,
-			length);
+		Argument arg = (Argument) this.astStack[this.astPtr + 1];
+		if (arg.isReceiver()) {
+			md.receiver = (Receiver) arg;
+			if (length > 1) {
+				System.arraycopy(
+					this.astStack,
+					this.astPtr + 2,
+					md.arguments = new Argument[length - 1],
+					0,
+					length - 1);
+			}
+		} else {
+			System.arraycopy(
+					this.astStack,
+					this.astPtr + 1,
+					md.arguments = new Argument[length],
+					0,
+					length);
+		}
 	}
 	md.bodyStart = this.rParenPos+1;
 	this.listLength = 0; // reset this.listLength after having read all parameters

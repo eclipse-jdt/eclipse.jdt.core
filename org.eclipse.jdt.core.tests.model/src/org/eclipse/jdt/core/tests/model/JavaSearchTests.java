@@ -4464,4 +4464,33 @@ public void testBug160323() throws CoreException {
 	// Should have same types with these 2 searches
 	assertEquals("Found types sounds not to be correct", requestor.toString(), collector.toString());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383908
+public void testBug383908() throws CoreException {
+	try {
+		String fileContent = "package p;\n" +
+								"public class X {\n" +
+								"  public void foobar(X this, String str) {\n" +
+								"  }\n" +
+								"}";
+		createJavaProject("P", new String[] {"src"}, new String[0], "bin");
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", fileContent);
+
+		IType type = getCompilationUnit("P", "src", "p", "X.java").getType("X");
+		IMethod[] methods = type.getMethods();
+		search(
+				methods[0],
+				DECLARATIONS,
+				SearchEngine.createJavaSearchScope(new IJavaElement[] {type}),
+				this.resultCollector);
+
+		assertSearchResults(
+				"src/p/X.java void p.X.foobar(String) [foobar]",
+				this.resultCollector);
+
+	} finally {
+		deleteProject("P");
+	}
+}
+
 }

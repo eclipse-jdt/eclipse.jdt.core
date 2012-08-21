@@ -47,6 +47,7 @@ public abstract class AbstractMethodDeclaration
 	public int modifiersSourceStart;
 	public Annotation[] annotations;
 	// jsr 308
+	public Receiver receiver;
 	public Annotation[] receiverAnnotations;
 	public Argument[] arguments;
 	public TypeReference[] thrownExceptions;
@@ -431,9 +432,12 @@ public abstract class AbstractMethodDeclaration
 		}
 
 		printReturnType(0, output).append(this.selector).append('(');
+		if (this.receiver != null) {
+			this.receiver.print(0, output);
+		}
 		if (this.arguments != null) {
 			for (int i = 0; i < this.arguments.length; i++) {
-				if (i > 0) output.append(", "); //$NON-NLS-1$
+				if (i > 0 || this.receiver != null) output.append(", "); //$NON-NLS-1$
 				this.arguments[i].print(0, output);
 			}
 		}
@@ -505,40 +509,37 @@ public abstract class AbstractMethodDeclaration
 	}
 
 	public void resolveReceiver() {
-		if (this.arguments != null && this.arguments.length > 0) {
-			if (this.arguments[0].isReceiver()) {
-				Receiver receiver = (Receiver) this.arguments[0];
+		if (this.receiver == null) return;
 
-				TypeBinding resolvedReceiverType = receiver.type.resolvedType;
-				if (this.binding == null || resolvedReceiverType == null || !resolvedReceiverType.isValidBinding())
-					return;
+		TypeBinding resolvedReceiverType = this.receiver.type.resolvedType;
+		if (this.binding == null || resolvedReceiverType == null || !resolvedReceiverType.isValidBinding()) {
+			return;
+		}
 
-				ReferenceBinding declaringClass = this.binding.declaringClass;
-				/* neither static methods nor methods in anonymous types can have explicit 'this' */
-				if (this.isStatic() || declaringClass.isAnonymousType()) {
-					this.scope.problemReporter().disallowedThisParameter(receiver);
-					return; // No need to do further validation
-				}
+		ReferenceBinding declaringClass = this.binding.declaringClass;
+		/* neither static methods nor methods in anonymous types can have explicit 'this' */
+		if (this.isStatic() || declaringClass.isAnonymousType()) {
+			this.scope.problemReporter().disallowedThisParameter(this.receiver);
+			return; // No need to do further validation
+		}
 
-				ReferenceBinding enclosingReceiver = this.scope.enclosingReceiverType();
-				if (this.isConstructor()) {
-					/* Only non static member types or local types can declare explicit 'this' params in constructors */
-					if (declaringClass.isStatic()
-							|| (declaringClass.tagBits & (TagBits.IsLocalType | TagBits.IsMemberType)) == 0) { /* neither member nor local type */
-						this.scope.problemReporter().disallowedThisParameter(receiver);
-						return; // No need to do further validation
-					}
-					enclosingReceiver = enclosingReceiver.enclosingType();
-				}
-
-				if (enclosingReceiver != resolvedReceiverType) {
-					this.scope.problemReporter().illegalTypeForExplicitThis(receiver, enclosingReceiver);
-				}
-
-				if ((receiver.qualifyingName == null) ? this.isConstructor() : !isQualifierValidForType(receiver.qualifyingName.getName(), enclosingReceiver)) {
-					this.scope.problemReporter().illegalQualifierForExplicitThis(receiver, enclosingReceiver);					
-				}
+		ReferenceBinding enclosingReceiver = this.scope.enclosingReceiverType();
+		if (this.isConstructor()) {
+			/* Only non static member types or local types can declare explicit 'this' params in constructors */
+			if (declaringClass.isStatic()
+					|| (declaringClass.tagBits & (TagBits.IsLocalType | TagBits.IsMemberType)) == 0) { /* neither member nor local type */
+				this.scope.problemReporter().disallowedThisParameter(this.receiver);
+				return; // No need to do further validation
 			}
+			enclosingReceiver = enclosingReceiver.enclosingType();
+		}
+
+		if (enclosingReceiver != resolvedReceiverType) {
+			this.scope.problemReporter().illegalTypeForExplicitThis(this.receiver, enclosingReceiver);
+		}
+
+		if ((this.receiver.qualifyingName == null) ? this.isConstructor() : !isQualifierValidForType(this.receiver.qualifyingName.getName(), enclosingReceiver)) {
+			this.scope.problemReporter().illegalQualifierForExplicitThis(this.receiver, enclosingReceiver);					
 		}
 	}
 	private boolean isQualifierValidForType(char[][] tokens, TypeBinding enclosingType) {

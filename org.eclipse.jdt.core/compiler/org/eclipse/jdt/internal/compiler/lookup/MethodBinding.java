@@ -34,6 +34,7 @@ public class MethodBinding extends Binding {
 	public char[] selector;
 	public TypeBinding returnType;
 	public TypeBinding[] parameters;
+	public TypeBinding receiver;  // JSR308 - explicit this parameter
 	public ReferenceBinding[] thrownExceptions;
 	public ReferenceBinding declaringClass;
 	public TypeVariableBinding[] typeVariables = Binding.NO_TYPE_VARIABLES;

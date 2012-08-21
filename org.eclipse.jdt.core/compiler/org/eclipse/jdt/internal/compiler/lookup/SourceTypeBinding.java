@@ -1504,6 +1504,10 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 		if (count < size)
 			System.arraycopy(method.thrownExceptions, 0, method.thrownExceptions = new ReferenceBinding[count], 0, count);
 	}
+	
+	if (methodDecl.receiver != null) {
+		method.receiver = methodDecl.receiver.type.resolveType(methodDecl.scope, true /* check bounds*/);
+	}
 	final boolean reportUnavoidableGenericTypeProblems = this.scope.compilerOptions().reportUnavoidableGenericTypeProblems;
 	boolean foundArgProblem = false;
 	Argument[] arguments = methodDecl.arguments;

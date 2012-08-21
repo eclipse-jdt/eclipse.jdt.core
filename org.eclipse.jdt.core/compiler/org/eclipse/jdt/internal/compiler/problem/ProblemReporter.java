@@ -2672,10 +2672,19 @@ public void illegalVararg(Argument argType, AbstractMethodDeclaration methodDecl
 		argType.sourceStart,
 		argType.sourceEnd);
 }
-public void illegalThis(Argument argument, AbstractMethodDeclaration method, long sourceLevel) {
+public void illegalThisDeclaration(Argument argument) {
 	String[] arguments = NoArgument;
 	this.handle(
-		sourceLevel <= ClassFileConstants.JDK1_7 ?  IProblem.ExplicitThisParameterNotBelow18 : IProblem.IllegalDeclarationOfThisParameter,
+		IProblem.IllegalDeclarationOfThisParameter,
+		arguments,
+		arguments,
+		argument.sourceStart,
+		argument.sourceEnd);
+}
+public void illegalSourceLevelForThis(Argument argument) {
+	String[] arguments = NoArgument;
+	this.handle(
+		IProblem.ExplicitThisParameterNotBelow18,
 		arguments,
 		arguments,
 		argument.sourceStart,

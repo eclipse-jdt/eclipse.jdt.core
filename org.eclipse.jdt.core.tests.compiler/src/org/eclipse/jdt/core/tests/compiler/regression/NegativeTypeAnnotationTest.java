@@ -1082,9 +1082,9 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"            InnerMost(Outer.Inner this) {}\n" +
 						"            InnerMost(Outer.Inner Outer.Inner.this, int i, float f) {}\n" +
 						"            InnerMost(Outer Outer.this, float f) {}\n" +
-						"            InnerMost(Outer.Inner<K,V>.InnerMost<T> Outer.Inner.InnerMost.this) {}\n" +
+						"            InnerMost(Outer.Inner<K,V>.InnerMost<T> Outer.Inner.InnerMost.this, Object obj) {}\n" +
 						"            InnerMost(Inner<K,V> Outer.Inner.InnerMost.this, int i) {}\n" +
-						"            InnerMost(Outer.Inner<K, V> this, float f) {}\n" +
+						"            InnerMost(Outer.Inner<K, V> this, float f, int i) {}\n" +
 						"            InnerMost(Outer.Inner<K,V> Inner.this, long l) {}\n" +
 						"        }\n" +
 						"    }\n" +
@@ -1136,12 +1136,12 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
 						"----------\n" + 
 						"10. ERROR in Outer.java (at line 9)\n" + 
-						"	InnerMost(Outer.Inner<K,V>.InnerMost<T> Outer.Inner.InnerMost.this) {}\n" + 
+						"	InnerMost(Outer.Inner<K,V>.InnerMost<T> Outer.Inner.InnerMost.this, Object obj) {}\n" + 
 						"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>\n" + 
 						"----------\n" + 
 						"11. ERROR in Outer.java (at line 9)\n" + 
-						"	InnerMost(Outer.Inner<K,V>.InnerMost<T> Outer.Inner.InnerMost.this) {}\n" + 
+						"	InnerMost(Outer.Inner<K,V>.InnerMost<T> Outer.Inner.InnerMost.this, Object obj) {}\n" + 
 						"	                                                              ^^^^\n" + 
 						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
 						"----------\n" + 
@@ -1151,7 +1151,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
 						"----------\n" + 
 						"13. ERROR in Outer.java (at line 11)\n" + 
-						"	InnerMost(Outer.Inner<K, V> this, float f) {}\n" + 
+						"	InnerMost(Outer.Inner<K, V> this, float f, int i) {}\n" + 
 						"	                            ^^^^\n" + 
 						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
 						"----------\n");
@@ -1166,11 +1166,11 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"        class InnerMost<T> {\n" +
 						"            public void foo(Outer Outer.this) {}\n" +
 						"            public void foo(Inner<K,V> Inner.this, int i) {}\n" +
-						"            public void foo(InnerMost this) {}\n" +
+						"            public void foo(InnerMost this, int i, int j) {}\n" +
 						"            public void foo(Inner.InnerMost<T> this, Object obj) {}\n" +
-						"            public void foo(InnerMost<T> this, int i) {}\n" +
+						"            public void foo(InnerMost<T> this, float f) {}\n" +
 						"            public void foo(Inner<K,V>.InnerMost<T> this, long l) {}\n" +
-						"            public void foo(Outer.Inner<K,V>.InnerMost<T> this, float f) {}\n" +
+						"            public void foo(Outer.Inner<K,V>.InnerMost<T> this, float f, float ff) {}\n" +
 						"            public void foo(InnerMost<T> Outer.Inner.InnerMost.this, int i, float f) {}\n" +
 						"        }\n" +
 						"    }\n" +
@@ -1197,12 +1197,12 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"The explicit 'this' parameter is expected to be qualified with Outer.Inner.InnerMost\n" + 
 						"----------\n" + 
 						"5. WARNING in Outer.java (at line 6)\n" + 
-						"	public void foo(InnerMost this) {}\n" + 
+						"	public void foo(InnerMost this, int i, int j) {}\n" + 
 						"	                ^^^^^^^^^\n" + 
 						"Outer.Inner.InnerMost is a raw type. References to generic type Outer.Inner<K,V>.InnerMost<T> should be parameterized\n" + 
 						"----------\n" + 
 						"6. ERROR in Outer.java (at line 6)\n" + 
-						"	public void foo(InnerMost this) {}\n" + 
+						"	public void foo(InnerMost this, int i, int j) {}\n" + 
 						"	                ^^^^^^^^^\n" + 
 						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>.InnerMost<T>\n" + 
 						"----------\n" + 
@@ -1222,6 +1222,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 				new String[] {
 						"Outer.java",
+						"import java.lang.annotation.Target;\n" + 
+						"import static java.lang.annotation.ElementType.*;\n" + 
 						"public class Outer {\n" +
 						"    class Inner<K,V> {\n" +
 						"		public Inner(@Missing Outer Outer.this) {}\n" +
@@ -1233,7 +1235,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"            }\n" +
 						"            void bar(int i) {\n" +
 						"                class Local {\n" +
-						"                    public int hashCode(Local this) { return 0; }\n" +
+						"                    public int hashCode(Local this, int k) { return 0; }\n" +
 						"                    public int hashCode(Outer.Local this) { return 0; }\n" +
 						"                }\n" +
 						"            }\n" +
@@ -1248,37 +1250,78 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"interface AnonymousInner {\n" +
 						"    public void foobar(AnonymousInner this);\n" +
 						"}\n" +
+						"@Target(TYPE_USE)\n" + 
 						"@interface Marker {}"},
 							"----------\n" + 
-							"1. ERROR in Outer.java (at line 3)\n" + 
+							"1. ERROR in Outer.java (at line 5)\n" + 
 							"	public Inner(@Missing Outer Outer.this) {}\n" + 
 							"	              ^^^^^^^\n" + 
 							"Missing cannot be resolved to a type\n" + 
 							"----------\n" + 
-							"2. ERROR in Outer.java (at line 7)\n" + 
+							"2. ERROR in Outer.java (at line 9)\n" + 
 							"	public void foobar(AnonymousInner this) {}\n" + 
 							"	                                  ^^^^\n" + 
-							"Explicit 'this' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
+							"Explicit \'this\' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
 							"----------\n" + 
-							"3. ERROR in Outer.java (at line 13)\n" + 
+							"3. ERROR in Outer.java (at line 15)\n" + 
 							"	public int hashCode(Outer.Local this) { return 0; }\n" + 
 							"	                    ^^^^^^^^^^^\n" + 
 							"Outer.Local cannot be resolved to a type\n" + 
 							"----------\n" + 
-							"4. ERROR in Outer.java (at line 19)\n" + 
+							"4. ERROR in Outer.java (at line 21)\n" + 
 							"	public StaticNested(@Marker Outer.StaticNested Outer.StaticNested.this) {}\n" + 
-							"	                                                                  ^^^^\n" + 
-							"Explicit 'this' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
+							"	                    ^^^^^^^\n" + 
+							"The annotation @Marker is disallowed for this location\n" + 
 							"----------\n" + 
 							"5. ERROR in Outer.java (at line 21)\n" + 
+							"	public StaticNested(@Marker Outer.StaticNested Outer.StaticNested.this) {}\n" + 
+							"	                                                                  ^^^^\n" + 
+							"Explicit \'this\' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
+							"----------\n" + 
+							"6. ERROR in Outer.java (at line 23)\n" + 
+							"	public static void foo(@Marker Outer this) {}\n" + 
+							"	                       ^^^^^^^\n" + 
+							"The annotation @Marker is disallowed for this location\n" + 
+							"----------\n" + 
+							"7. ERROR in Outer.java (at line 23)\n" + 
 							"	public static void foo(@Marker Outer this) {}\n" + 
 							"	                                     ^^^^\n" + 
-							"Explicit 'this' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
+							"Explicit \'this\' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
 							"----------\n" + 
-							"6. ERROR in Outer.java (at line 22)\n" + 
+							"8. ERROR in Outer.java (at line 24)\n" + 
 							"	public void foo(@Missing Outer this, int i) {}\n" + 
 							"	                 ^^^^^^^\n" + 
 							"Missing cannot be resolved to a type\n" + 
+							"----------\n" + 
+							"9. ERROR in Outer.java (at line 29)\n" + 
+							"	@Target(TYPE_USE)\n" + 
+							"	        ^^^^^^^^\n" + 
+							"TYPE_USE cannot be resolved to a variable\n" + 
 							"----------\n");
+	}
+	public void test0383908() {
+		this.runNegativeTest(
+				new String[]{"X.java",
+				"public class X { \n" +
+				"	void foo(X this) {}\n" +
+				"   void foo() {}\n" +
+				"}\n" +
+				"class Y {\n" +
+				"	void foo(Y this) {}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new Y().foo();\n" +
+				"	}\n" +
+				"}"}, 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	void foo(X this) {}\n" + 
+				"	     ^^^^^^^^^^^\n" + 
+				"Duplicate method foo() in type X\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	void foo() {}\n" + 
+				"	     ^^^^^\n" + 
+				"Duplicate method foo() in type X\n" + 
+				"----------\n");
 	}
 }
