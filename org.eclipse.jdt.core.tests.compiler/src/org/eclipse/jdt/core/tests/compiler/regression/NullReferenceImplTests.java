@@ -10,6 +10,7 @@
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
  *								bug 320170
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								bug 386181 - [compiler][null] wrong transition in UnconditionalFlowInfo.mergedWith()
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -850,7 +851,7 @@ public void test2500_addInitializationsFrom_for_definites() {
 // Note: coverage tests tend to fill the console with messages, and the
 //       instrumented code is slower, so never release code with active
 //       coverage tests.
-private static int coveragePointsNb = 41;
+private static int coveragePointsNb = 45;
 
 // PREMATURE reactivate coverage tests
 // Coverage by state transition tables methods.
@@ -869,6 +870,11 @@ public void test2998_coverage() {
 		test2060_addInitializationsFrom();
 		test2061_addPotentialInitializationsFrom();
 		test2062_mergedWith();
+		testBug292478();
+		testBug292478c();
+		test0331_if_else_nested();
+		testBug325755b();
+		testBug292478g();
 		// coverage check
 		int failuresNb = 0;
 		for (int i = 1; i <= coveragePointsNb; i++) {
@@ -890,6 +896,11 @@ public void test2998_coverage() {
 				test2060_addInitializationsFrom();
 				test2061_addPotentialInitializationsFrom();
 				test2062_mergedWith();
+				testBug292478();
+				testBug292478c();
+				test0331_if_else_nested();
+				testBug325755b();
+				testBug292478g();
 			}
 			catch (AssertionFailedError e) {
 				continue;
