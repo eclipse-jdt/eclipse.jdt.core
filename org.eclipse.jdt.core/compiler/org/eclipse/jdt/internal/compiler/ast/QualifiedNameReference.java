@@ -16,6 +16,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -246,7 +247,7 @@ public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInf
 			flowInfo.markAsComparedEqualToNonNull(local);
 			// from thereon it is set
 			if (flowContext.initsOnFinally != null) {
-				flowContext.initsOnFinally.markAsComparedEqualToNonNull(local);
+				flowContext.markFinallyNullStatus(local, FlowInfo.NON_NULL);
 			}
 		}
 	}

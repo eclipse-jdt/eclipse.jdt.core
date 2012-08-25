@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 IBM Corporation and others.
+ * Copyright (c) 2005, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,15 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *								bug 185682 - Increment/decrement operators mark local variables as read
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -369,7 +372,9 @@ public void test033() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=84215
 //TODO (philippe) should move to InitializationTest suite
 public void test034() {
-	this.runConformTest(
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public final class X \n" +
@@ -748,7 +753,15 @@ public void test034() {
 			"	private String adsyasta;\n" +
 			"}\n",
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 356)\n" + 
+		"	if (rs != null)\n" + 
+		"	    ^^\n" + 
+		"Redundant null check: The variable rs cannot be null at this location\n" + 
+		"----------\n",
+		null/*classLibs*/,
+		true/*shouldFlush*/,
+		options);
 }
 /*
  * Check scenario:  i = i++

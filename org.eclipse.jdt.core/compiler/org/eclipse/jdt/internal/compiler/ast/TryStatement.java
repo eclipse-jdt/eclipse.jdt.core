@@ -13,6 +13,7 @@
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *     							bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
  *								bug 358903 - Filter practically unimportant resource leak warnings
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -118,12 +119,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this,
 				this.caughtExceptionTypes,
 				this.caughtExceptionsCatchBlocks,
-				this.catchArguments,
 				null,
 				this.scope,
-				flowInfo.unconditionalInits());
-		handlingContext.initsOnFinally =
-			new NullInfoRegistry(flowInfo.unconditionalInits());
+				flowInfo);
 		// only try blocks initialize that member - may consider creating a
 		// separate class if needed
 
@@ -195,13 +193,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				FlowInfo catchInfo;
 				if (isUncheckedCatchBlock(i)) {
 					catchInfo =
-						handlingContext.initsOnFinally.mitigateNullInfoOf(
-							flowInfo.unconditionalCopy().
-								addPotentialInitializationsFrom(
-									handlingContext.initsOnException(i)).
-								addPotentialInitializationsFrom(tryInfo).
-								addPotentialInitializationsFrom(
-									handlingContext.initsOnReturn));
+						flowInfo.unconditionalCopy().
+							addPotentialInitializationsFrom(
+								handlingContext.initsOnException(i)).
+							addPotentialInitializationsFrom(tryInfo).
+							addPotentialInitializationsFrom(
+								handlingContext.initsOnReturn).
+						addNullInfoFrom(handlingContext.initsOnFinally);
 				} else {
 					FlowInfo initsOnException = handlingContext.initsOnException(i);
 					catchInfo =
@@ -244,7 +242,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		// chain up null info registry
 		if (flowContext.initsOnFinally != null) {
-			flowContext.initsOnFinally.add(handlingContext.initsOnFinally);
+			flowContext.initsOnFinally.addNullInfoFrom(handlingContext.initsOnFinally);
 		}
 
 		return tryInfo;
@@ -282,12 +280,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this,
 				this.caughtExceptionTypes,
 				this.caughtExceptionsCatchBlocks,
-				this.catchArguments,
 				null,
 				this.scope,
-				flowInfo.unconditionalInits());
-		handlingContext.initsOnFinally =
-			new NullInfoRegistry(flowInfo.unconditionalInits());
+				flowInfo);
 		// only try blocks initialize that member - may consider creating a
 		// separate class if needed
 
@@ -359,13 +354,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				FlowInfo catchInfo;
 				if (isUncheckedCatchBlock(i)) {
 					catchInfo =
-						handlingContext.initsOnFinally.mitigateNullInfoOf(
-							flowInfo.unconditionalCopy().
-								addPotentialInitializationsFrom(
-									handlingContext.initsOnException(i)).
-								addPotentialInitializationsFrom(tryInfo).
-								addPotentialInitializationsFrom(
-									handlingContext.initsOnReturn));
+						flowInfo.unconditionalCopy().
+							addPotentialInitializationsFrom(
+								handlingContext.initsOnException(i)).
+							addPotentialInitializationsFrom(tryInfo).
+							addPotentialInitializationsFrom(
+								handlingContext.initsOnReturn).
+							addNullInfoFrom(handlingContext.initsOnFinally);
 				}else {
 					FlowInfo initsOnException = handlingContext.initsOnException(i);
 					catchInfo =
@@ -406,19 +401,20 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// we also need to check potential multiple assignments of final variables inside the finally block
 		// need to include potential inits from returns inside the try/catch parts - 1GK2AOF
 		finallyContext.complainOnDeferredChecks(
-			handlingContext.initsOnFinally.mitigateNullInfoOf(
-				(tryInfo.tagBits & FlowInfo.UNREACHABLE) == 0 ?
-					flowInfo.unconditionalCopy().
+			((tryInfo.tagBits & FlowInfo.UNREACHABLE) == 0 ?
+				flowInfo.unconditionalCopy().
 					addPotentialInitializationsFrom(tryInfo).
-						// lighten the influence of the try block, which may have
-						// exited at any point
+					// lighten the influence of the try block, which may have
+					// exited at any point
 					addPotentialInitializationsFrom(insideSubContext.initsOnReturn) :
-					insideSubContext.initsOnReturn),
+				insideSubContext.initsOnReturn).
+			addNullInfoFrom(
+					handlingContext.initsOnFinally),
 			currentScope);
 
 		// chain up null info registry
 		if (flowContext.initsOnFinally != null) {
-			flowContext.initsOnFinally.add(handlingContext.initsOnFinally);
+			flowContext.initsOnFinally.addNullInfoFrom(handlingContext.initsOnFinally);
 		}
 
 		this.naturalExitMergeInitStateIndex =

@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -38,6 +39,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 			flowInfo = stat.analyseCode(this.scope, flowContext, flowInfo);
 		}
+		// record the effect of stat on the finally block of an enclosing try-finally, if any:
+		if (flowContext.initsOnFinally != null)
+			flowContext.mergeFinallyNullInfo(flowInfo);
 	}
 	if (this.explicitDeclarations > 0) {
 		// if block has its own scope analyze tracking vars now:

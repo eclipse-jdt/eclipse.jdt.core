@@ -15,6 +15,7 @@
  *							bug 358903 - Filter practically unimportant resource leak warnings
  *							bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *							bug 370639 - [compiler][resource] restore the default for resource leak warnings
+ *							bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -94,6 +95,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 	manageSyntheticAccessIfNecessary(currentScope, flowInfo);
+
+	// account for possible exceptions thrown by the constructor
+	flowContext.recordAbruptExit(); // TODO whitelist of ctors that cannot throw any exc.??
 
 	return flowInfo;
 }

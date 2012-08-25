@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *     Stephan Herrmann - Contributions for
+ *								bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -48,7 +50,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this,
 			this.breakLabel,
 			this.continueLabel,
-			currentScope);
+			currentScope,
+			false);
 
 	Constant cst = this.condition.constant;
 	boolean isConditionTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
@@ -59,7 +62,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	int previousMode = flowInfo.reachMode();
 
 	FlowInfo initsOnCondition = flowInfo;
-
 	UnconditionalFlowInfo actionInfo = flowInfo.nullInfoLessUnconditionalCopy();
 	// we need to collect the contribution to nulls of the coming paths through the
 	// loop, be they falling through normally or branched to break, continue labels
@@ -97,7 +99,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			currentScope,
 			(condLoopContext =
 				new LoopingFlowContext(flowContext,	flowInfo, this, null,
-					null, currentScope)),
+					null, currentScope, true)),
 			(this.action == null
 				? actionInfo
 				: (actionInfo.mergedWith(loopingContext.initsOnContinue))).copy());

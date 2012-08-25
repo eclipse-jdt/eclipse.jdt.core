@@ -14,6 +14,7 @@
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *								bug 385626 - @NonNull fails across loop boundaries
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -85,8 +86,9 @@ public class LoopingFlowContext extends SwitchFlowContext {
 		ASTNode associatedNode,
 		BranchLabel breakLabel,
 		BranchLabel continueLabel,
-		Scope associatedScope) {
-		super(parent, associatedNode, breakLabel);
+		Scope associatedScope,
+		boolean isPreTest) {
+		super(parent, associatedNode, breakLabel, isPreTest);
 		this.tagBits |= FlowContext.PREEMPT_NULL_DIAGNOSTIC;
 			// children will defer to this, which may defer to its own parent
 		this.continueLabel = continueLabel;

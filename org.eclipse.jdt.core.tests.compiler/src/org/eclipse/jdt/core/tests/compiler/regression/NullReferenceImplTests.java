@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 320170   
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *								bug 320170
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -30,7 +32,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.flow.NullInfoRegistry;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo.AssertionFailedException;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -571,11 +572,6 @@ public void test2061_addPotentialInitializationsFrom() {
 
 public void test2062_mergedWith() {
 	int failures = NullReferenceImplTransformations.mergedWith.test();
-	assertTrue("nb of failures: " + failures, failures == 0);
-}
-
-public void test2070_newNullInfoRegistry() {
-	int failures = NullReferenceImplTransformations.newNullInfoRegistry.test();
 	assertTrue("nb of failures: " + failures, failures == 0);
 }
 
@@ -1463,135 +1459,6 @@ static String testString(UnconditionalFlowInfo zis, int position) {
 	}
 }
 }
-/**
- * A class meant to augment
- * @link{org.eclipse.jdt.internal.compiler.flow.NullInfoRegistry} with
- * capabilities in the test domain. It especially provides factories to build
- * fake flow info instances for use in state transitions validation.
- */
-/*
- * The reason why UnconditionalFlowInfoTestHarness and this class were
- * separated is that NullInfoRegistry redefines part of the markAs* methods,
- * in effect preventing a harness extending NullInfoRegistry to access
- * UnconditionalFlowInfo implementations of the said methods.
- */
-class NullInfoRegistryTestHarness extends NullInfoRegistry {
-	private int testPosition;
-
-private NullInfoRegistryTestHarness() {
-	super(FlowInfo.DEAD_END);
-}
-
-	// Interface
-/**
- * Return the state represented by this.
- * @return the state represented by this
- */
-NullReferenceImplTests.State asState() {
-	return UnconditionalFlowInfoTestHarness.asState(this, 0);
-}
-
-/**
- * Return the state represented by this for a variable encoded at a given position.
- * @param position - int the position of the considered variable
- * @return the state represented by this for a variable encoded at a given position
- */
-NullReferenceImplTests.State asState(int position) {
-	return UnconditionalFlowInfoTestHarness.asState(this, position);
-}
-
-public FlowInfo copy() {
-	NullInfoRegistryTestHarness copy =
-		new NullInfoRegistryTestHarness();
-	copy.testPosition = this.testPosition;
-	UnconditionalFlowInfoTestHarness.copy(this, copy);
-	return copy;
-}
-
-/**
- * Return a fake null info registry derived from an unconditional flow
- * info.
- * @param upstream - UnconditionalFlowInfoTestHarness the upstream flow info
- * @return a fake null info registry derived from upstream
- */
-public static NullInfoRegistryTestHarness testNullInfoRegistry(
-		UnconditionalFlowInfoTestHarness upstream) {
-	NullInfoRegistry nullInfoRegistry = new NullInfoRegistry(upstream);
- 	NullInfoRegistryTestHarness result =
- 		new NullInfoRegistryTestHarness();
-	result.testPosition = upstream.testPosition;
-	if (result.testPosition < BitCacheSize) {
-		result.nullBit1 = nullInfoRegistry.nullBit1;
-		result.nullBit2 = nullInfoRegistry.nullBit2;
-		result.nullBit3 = nullInfoRegistry.nullBit3;
-		result.nullBit4 = nullInfoRegistry.nullBit4;
-//		result.nullBit5 = nullInfoRegistry.nullBit5;
-//		result.nullBit6 = nullInfoRegistry.nullBit6;
-	}
- 	else if ((nullInfoRegistry.tagBits & NULL_FLAG_MASK) != 0){
-		int vectorIndex = (result.testPosition / BitCacheSize) - 1,
-			length = vectorIndex + 1;
-        result.extra = new long[extraLength][];
-		result.extra[0] = new long[length];
-		result.extra[1] = new long[length];
-        for (int j = 2; j < extraLength; j++) {
-		    result.extra[j] = new long[length];
-		    result.extra[j][vectorIndex] = nullInfoRegistry.extra[j][vectorIndex];
-        }
-	}
-	if ((nullInfoRegistry.tagBits & NULL_FLAG_MASK) != 0) {
-		result.tagBits |= NULL_FLAG_MASK;
-	}
-	result.maxFieldCount = 0;
-	return result;
-}
-
-/**
- * Return true iff this flow info can be considered as equal to the one passed
- * in parameter.
- * @param other the flow info to compare to
- * @return true iff this flow info compares equal to other
- */
-public boolean testEquals(UnconditionalFlowInfo other) {
-	return UnconditionalFlowInfoTestHarness.testEquals(this, other);
-}
-
-/**
- * Return true iff this flow info can be considered as equal to the one passed
- * in parameter in respect with a single local variable which id would be
- * position in a class with no field.
- * @param other the flow info to compare to
- * @param position the position of the local to consider
- * @return true iff this flow info compares equal to other for a given local
- */
-public boolean testEquals(UnconditionalFlowInfo other, int position) {
-	return UnconditionalFlowInfoTestHarness.testEquals(this, other, position);
-}
-
-/**
- * Return a string suitable for use as a representation of this flow info
- * within test series.
- * @return a string suitable for use as a representation of this flow info
- */
-public String testString() {
-	if (this == DEAD_END) {
-		return "FlowInfo.DEAD_END"; //$NON-NLS-1$
-	}
-	return UnconditionalFlowInfoTestHarness.testString(this, this.testPosition);
-}
-
-/**
- * Return a string suitable for use as a representation of this flow info
- * within test series.
- * @param position a position to consider instead of this flow info default
- *                 test position
- * @return a string suitable for use as a representation of this flow info
- */
-public String testString(int position) {
-	return UnconditionalFlowInfoTestHarness.testString(this, position);
-}
-}
-
 interface CodeAnalysis {
 	public static final String
 		definitionStartMarker = "DEFINITION START",

@@ -14,6 +14,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -154,6 +155,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		//               NullReferenceTest#test0510
 	}
 	manageSyntheticAccessIfNecessary(currentScope, flowInfo);
+	// account for pot. exceptions thrown by method execution
+	flowContext.recordAbruptExit();
 	return flowInfo;
 }
 public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {

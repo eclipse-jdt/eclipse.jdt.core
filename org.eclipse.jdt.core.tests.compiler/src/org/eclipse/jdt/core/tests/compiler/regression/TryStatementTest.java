@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2011 IBM Corporation and others.
+ * Copyright (c) 2003, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -23,7 +25,7 @@ import junit.framework.Test;
 public class TryStatementTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test000" };
+//	TESTS_NAMES = new String[] { "test074" };
 //	TESTS_NUMBERS = new int[] { 74, 75 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -5961,6 +5963,33 @@ public void test073() {
 		"No exception of type Exception[] can be thrown; an exception type must be a subclass of Throwable\n" + 
 		"----------\n");
 }
+// test for regression during work on bug 345305
+// saw "The local variable name may not have been initialized" against last code line
+public void test074() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	Class test(String name) throws ClassNotFoundException {\n" + 
+			"		Class c= findClass(name);\n" + 
+			"		if (c != null)\n" + 
+			"			return c;\n" + 
+			"		if (isExcluded(name)) {\n" + 
+			"			try {\n" + 
+			"				c= findClass(name);\n" + 
+			"				return c;\n" + 
+			"			} catch (ClassNotFoundException e) {\n" + 
+			"				// keep searching\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		return findClass(name);\n" +
+			"    }\n" + 
+			"    boolean isExcluded(String name) { return false; }\n" +
+			"    Class findClass(String name) throws ClassNotFoundException { return null; }\n" +
+			"}\n"
+		});
+}
+
 public static Class testClass() {
 	return TryStatementTest.class;
 }

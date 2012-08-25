@@ -18,6 +18,7 @@
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -135,6 +136,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 	}
 	currentScope.checkUnclosedCloseables(flowInfo, flowContext, this, currentScope);
+	// inside conditional structure respect that a finally-block may conditionally be entered directly from here
+	flowContext.recordAbruptExit();
 	return FlowInfo.DEAD_END;
 }
 void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, int nullStatus) {
