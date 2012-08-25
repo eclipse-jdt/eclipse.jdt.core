@@ -15,6 +15,7 @@
  *     						bug 341499 - [compiler][null] allocate extra bits in all methods of UnconditionalFlowInfo
  *     						bug 349326 - [1.7] new warning for missing try-with-resources
  *							bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *							bug 386181 - [compiler][null] wrong transition in UnconditionalFlowInfo.mergedWith()
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -1453,8 +1454,8 @@ public void markPotentiallyUnknownBit(LocalVariableBinding local) {
         	isTrue((this.nullBit1 & mask) == 0, "Adding 'unknown' mark in unexpected state"); //$NON-NLS-1$
             this.nullBit4 |= mask;
             if (COVERAGE_TEST_FLAG) {
-				if(CoverageTestId == 46) {
-				  	this.nullBit4 = ~0;
+				if(CoverageTestId == 44) {
+				  	this.nullBit4 = 0;
 				}
 			}
         } else {
@@ -1481,8 +1482,11 @@ public void markPotentiallyUnknownBit(LocalVariableBinding local) {
     		isTrue((this.extra[2][vectorIndex] & mask) == 0, "Adding 'unknown' mark in unexpected state"); //$NON-NLS-1$
     		this.extra[5][vectorIndex] |= mask;
     		if (COVERAGE_TEST_FLAG) {
-				if(CoverageTestId == 47) {
-					this.extra[5][vectorIndex] = ~0;
+				if(CoverageTestId == 45) {
+					this.extra[2][vectorIndex] = ~0;
+					this.extra[3][vectorIndex] = ~0;
+					this.extra[4][vectorIndex] = 0;
+					this.extra[5][vectorIndex] = 0;
 				}
 			}
     	}
@@ -1501,7 +1505,7 @@ public void markPotentiallyNullBit(LocalVariableBinding local) {
             this.nullBit2 |= mask;
             if (COVERAGE_TEST_FLAG) {
 				if(CoverageTestId == 40) {
-				  	this.nullBit4 = ~0;
+				  	this.nullBit2 = 0;
 				}
 			}
         } else {
@@ -1529,7 +1533,7 @@ public void markPotentiallyNullBit(LocalVariableBinding local) {
     		isTrue((this.extra[2][vectorIndex] & mask) == 0, "Adding 'potentially null' mark in unexpected state"); //$NON-NLS-1$
     		if (COVERAGE_TEST_FLAG) {
 				if(CoverageTestId == 41) {
-					this.extra[5][vectorIndex] = ~0;
+					this.extra[3][vectorIndex] = 0;
 				}
 			}
     	}
@@ -1548,7 +1552,10 @@ public void markPotentiallyNonNullBit(LocalVariableBinding local) {
             this.nullBit3 |= mask;
             if (COVERAGE_TEST_FLAG) {
 				if(CoverageTestId == 42) {
-				  	this.nullBit4 = ~0;
+				  	this.nullBit1 = ~0;
+				  	this.nullBit2 = 0;
+				  	this.nullBit3 = ~0;
+				  	this.nullBit4 = 0;
 				}
 			}
         } else {
@@ -1576,7 +1583,10 @@ public void markPotentiallyNonNullBit(LocalVariableBinding local) {
     		this.extra[4][vectorIndex] |= mask;
     		if (COVERAGE_TEST_FLAG) {
 				if(CoverageTestId == 43) {
-					this.extra[5][vectorIndex] = ~0;
+					this.extra[2][vectorIndex] = ~0;
+					this.extra[3][vectorIndex] = 0;
+					this.extra[4][vectorIndex] = ~0;
+					this.extra[5][vectorIndex] = 0;
 				}
 			}
     	}
@@ -1628,57 +1638,27 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 		this.tagBits = otherInits.tagBits;
 	} else if (thisHadNulls) {
     	if (otherHasNulls) {
-    		this.nullBit1 = (a2 = this.nullBit2) & (a3 = this.nullBit3)
-    							& (a4 = this.nullBit4) & (b1 = otherInits.nullBit1)
-    							& (nb2 = ~(b2 = otherInits.nullBit2))
-                  			| (a1 = this.nullBit1) & (b1 & (a3 & a4 & (b3 = otherInits.nullBit3)
-                  													& (b4 = otherInits.nullBit4)
-                  												| (na2 = ~a2) & nb2
-                  													& ((nb4 = ~b4) | (na4 = ~a4)
-                  															| (na3 = ~a3) & (nb3 = ~b3))
-                  												| a2 & b2 & ((na4 | na3) & (nb4	| nb3)))
-                  											| na2 & b2 & b3 & b4);
-    		this.nullBit2 = b2 & (nb3 | (nb1 = ~b1) | a3 & (a4 | (na1 = ~a1)) & nb4)
-        			| a2 & (b2 | na4 & b3 & (b4 | nb1) | na3 | na1);
-    		this.nullBit3 = b3 & (nb2 & b4 | nb1 | a3 & (na4 & nb4 | a4 & b4))
-        			| a3 & (na2 & a4 | na1)
-        			| (a2 | na1) & b1 & nb2 & nb4
-        			| a1 & na2 & na4 & (b2 | nb1);
+    		this.nullBit1 = (a1 = this.nullBit1) & (b1 = otherInits.nullBit1) & (
+    				((a2 = this.nullBit2) & (((b2 = otherInits.nullBit2) & 
+    											~(((a3=this.nullBit3) & (a4=this.nullBit4)) ^ ((b3=otherInits.nullBit3) & (b4=otherInits.nullBit4))))
+    										|(a3 & a4 & (nb2 = ~b2))))
+    				|((na2 = ~a2) & ((b2 & b3 & b4)
+    								|(nb2 & ((na3 = ~a3) ^ b3)))));
+    		this.nullBit2 = b2 & ((nb3 = ~b3) | (nb1 = ~b1) | a3 & (a4 | (na1 = ~a1)) & (nb4 = ~b4))
+        			| a2 & (b2 | (na4 = ~a4) & b3 & (b4 | nb1) | na3 | na1);
+    		this.nullBit3 =   a3 & (na1 | a1 & na2 | b3 & (na4 ^ b4))
+    						| b3 & (nb1 | b1 & nb2);
     		this.nullBit4 = na3 & (nb1 & nb3 & b4
               			| b1 & (nb2 & nb3 | a4 & b2 & nb4)
               			| na1 & a4 & (nb3 | b1 & b2))
-        			| a3 & a4 & (b3 & b4 | b1 & nb2)
+        			| a3 & a4 & (b3 & b4 | b1 & nb2 | na1 & a2)
         			| na2 & (nb1 & b4 | b1 & nb3 | na1 & a4) & nb2
         			| a1 & (na3 & (nb3 & b4
                         			| b1 & b2 & b3 & nb4
                         			| na2 & (nb3 | nb2))
                 			| na2 & b3 & b4
-                			| a2 & (nb1 & b4 | a3 & na4 & b1) & nb3);
-    		// the above formulae do not handle the state 0111, do it now explicitly:
-    		long ax = ~a1 & a2 & a3 & a4;
-    		long bx = ~b1 & b2 & b3 & b4;
-    		long x = ax|bx;
-    		if (x != 0) {
-    			// restore state 0111 for all variable ids in x:
-    			this.nullBit1 &= ~x;
-    			this.nullBit2 |= x;
-    			this.nullBit3 |= x;
-    			this.nullBit4 |= x;
-    		}
-    		// workaround for Bug 386181 - [compiler][null] wrong transition in UnconditionalFlowInfo.mergedWith()
-    		ax = a1 & ~a2 & a3 & ~a4;
-    		bx = b1 & ~b2 & ~b3 & b4;
-    		x = ax&bx;
-    		ax = a1 & ~a2 & ~a3 & a4;
-    		bx = b1 & ~b2 & b3 & ~b4;
-    		x |= (ax&bx);
-    		if (x != 0) {
-    			// establish state 0011 for all variable ids in x:
-    			this.nullBit1 &= ~x;
-    			this.nullBit2 &= ~x;
-    			this.nullBit3 |= x;
-    			this.nullBit4 |= x;
-    		}
+                			| a2 & (nb1 & b4 | a3 & na4 & b1) & nb3)
+                	|nb1 & b2 & b3 & b4;
 
     		if (COVERAGE_TEST_FLAG) {
     			if(CoverageTestId == 30) {
@@ -1798,57 +1778,27 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 		}
 		// compose nulls
 		for (i = 0; i < mergeLimit; i++) {
-    		this.extra[1 + 1][i] = (a2 = this.extra[2 + 1][i]) & (a3 = this.extra[3 + 1][i])
-    							& (a4 = this.extra[4 + 1][i]) & (b1 = otherInits.extra[1 + 1][i])
-    							& (nb2 = ~(b2 = otherInits.extra[2 + 1][i]))
-                  			| (a1 = this.extra[1 + 1][i]) & (b1 & (a3 & a4 & (b3 = otherInits.extra[3 + 1][i])
-                  													& (b4 = otherInits.extra[4 + 1][i])
-                  												| (na2 = ~a2) & nb2
-                  													& ((nb4 = ~b4) | (na4 = ~a4)
-                  															| (na3 = ~a3) & (nb3 = ~b3))
-                  												| a2 & b2 & ((na4 | na3) & (nb4	| nb3)))
-                  											| na2 & b2 & b3 & b4);
-    		this.extra[2 + 1][i] = b2 & (nb3 | (nb1 = ~b1) | a3 & (a4 | (na1 = ~a1)) & nb4)
-        			| a2 & (b2 | na4 & b3 & (b4 | nb1) | na3 | na1);
-    		this.extra[3 + 1][i] = b3 & (nb2 & b4 | nb1 | a3 & (na4 & nb4 | a4 & b4))
-        			| a3 & (na2 & a4 | na1)
-        			| (a2 | na1) & b1 & nb2 & nb4
-        			| a1 & na2 & na4 & (b2 | nb1);
+    		this.extra[1 + 1][i] = (a1=this.extra[1+1][i]) & (b1=otherInits.extra[1+1][i]) & (
+    				((a2=this.extra[2+1][i]) & (((b2=otherInits.extra[2+1][i]) & 
+    												~(((a3=this.extra[3+1][i]) & (a4=this.extra[4+1][i])) ^ ((b3=otherInits.extra[3+1][i]) & (b4=otherInits.extra[4+1][i]))))
+    											|(a3 & a4 & (nb2=~b2))))
+    				|((na2=~a2) & ((b2 & b3 & b4)
+    						|(nb2 & ((na3=~a3) ^ b3)))));
+    		this.extra[2 + 1][i] = b2 & ((nb3=~b3) | (nb1 = ~b1) | a3 & (a4 | (na1 = ~a1)) & (nb4=~b4))
+        			| a2 & (b2 | (na4=~a4) & b3 & (b4 | nb1) | na3 | na1);
+    		this.extra[3 + 1][i] =   a3 & (na1 | a1 & na2 | b3 & (na4 ^ b4))
+								   | b3 & (nb1 | b1 & nb2);
     		this.extra[4 + 1][i] = na3 & (nb1 & nb3 & b4
               			| b1 & (nb2 & nb3 | a4 & b2 & nb4)
               			| na1 & a4 & (nb3 | b1 & b2))
-        			| a3 & a4 & (b3 & b4 | b1 & nb2)
+        			| a3 & a4 & (b3 & b4 | b1 & nb2 | na1 & a2)
         			| na2 & (nb1 & b4 | b1 & nb3 | na1 & a4) & nb2
         			| a1 & (na3 & (nb3 & b4
                         			| b1 & b2 & b3 & nb4
                         			| na2 & (nb3 | nb2))
                 			| na2 & b3 & b4
-                			| a2 & (nb1 & b4 | a3 & na4 & b1) & nb3);
-    		// the above formulae do not handle the state 0111, do it now explicitly:
-    		long ax = ~a1 & a2 & a3 & a4;
-    		long bx = ~b1 & b2 & b3 & b4;
-    		long x = ax|bx;
-    		if (x != 0) {
-    			// restore state 0111 for all variable ids in x:
-    			this.extra[2][i] &= ~x;
-    			this.extra[3][i] |= x;
-    			this.extra[4][i] |= x;
-    			this.extra[5][i] |= x;
-    		}
-    		// workaround for Bug 386181 - [compiler][null] wrong transition in UnconditionalFlowInfo.mergedWith()
-    		ax = a1 & ~a2 & a3 & ~a4;
-    		bx = b1 & ~b2 & ~b3 & b4;
-    		x = ax&bx;
-    		ax = a1 & ~a2 & ~a3 & a4;
-    		bx = b1 & ~b2 & b3 & ~b4;
-    		x |= (ax&bx);
-    		if (x != 0) {
-    			// establish state 0011 for all variable ids in x:
-    			this.extra[2][i] &= ~x;
-    			this.extra[3][i] &= ~x;
-    			this.extra[4][i] |= x;
-    			this.extra[5][i] |= x;
-    		}
+                			| a2 & (nb1 & b4 | a3 & na4 & b1) & nb3)
+                	|nb1 & b2 & b3 & b4;
 			thisHasNulls = thisHasNulls ||
 				this.extra[3][i] != 0 ||
 				this.extra[4][i] != 0 ||
