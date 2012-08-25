@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *     Stephan Herrmann - Contributions for
+ *								bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -36,6 +38,8 @@ public class ArrayAllocationExpression extends Expression {
 				}
 			}
 		}
+		// account for potential OutOfMemoryError:
+		flowContext.recordAbruptExit();
 		if (this.initializer != null) {
 			return this.initializer.analyseCode(currentScope, flowContext, flowInfo);
 		}

@@ -11,6 +11,7 @@
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 370930 - NonNull annotation not considered for enhanced for loops
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -94,10 +95,11 @@ public class ForeachStatement extends Statement {
 
 		this.postCollectionInitStateIndex = currentScope.methodScope().recordInitializationStates(condInfo);
 
+
 		// process the action
 		LoopingFlowContext loopingContext =
 			new LoopingFlowContext(flowContext, flowInfo, this, this.breakLabel,
-				this.continueLabel, this.scope);
+				this.continueLabel, this.scope, true);
 		UnconditionalFlowInfo actionInfo =
 			condInfo.nullInfoLessUnconditionalCopy();
 		actionInfo.markAsDefinitelyUnknown(elementVarBinding);

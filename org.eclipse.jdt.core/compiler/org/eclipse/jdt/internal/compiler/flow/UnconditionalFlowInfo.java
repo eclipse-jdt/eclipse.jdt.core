@@ -14,6 +14,7 @@
  *     						bug 332637 - Dead Code detection removing code that isn't dead
  *     						bug 341499 - [compiler][null] allocate extra bits in all methods of UnconditionalFlowInfo
  *     						bug 349326 - [1.7] new warning for missing try-with-resources
+ *							bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -1664,7 +1665,21 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
     			this.nullBit3 |= x;
     			this.nullBit4 |= x;
     		}
-		
+    		// workaround for Bug 386181 - [compiler][null] wrong transition in UnconditionalFlowInfo.mergedWith()
+    		ax = a1 & ~a2 & a3 & ~a4;
+    		bx = b1 & ~b2 & ~b3 & b4;
+    		x = ax&bx;
+    		ax = a1 & ~a2 & ~a3 & a4;
+    		bx = b1 & ~b2 & b3 & ~b4;
+    		x |= (ax&bx);
+    		if (x != 0) {
+    			// establish state 0011 for all variable ids in x:
+    			this.nullBit1 &= ~x;
+    			this.nullBit2 &= ~x;
+    			this.nullBit3 |= x;
+    			this.nullBit4 |= x;
+    		}
+
     		if (COVERAGE_TEST_FLAG) {
     			if(CoverageTestId == 30) {
 	    		  	this.nullBit4 = ~0;
@@ -1817,6 +1832,20 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
     			// restore state 0111 for all variable ids in x:
     			this.extra[2][i] &= ~x;
     			this.extra[3][i] |= x;
+    			this.extra[4][i] |= x;
+    			this.extra[5][i] |= x;
+    		}
+    		// workaround for Bug 386181 - [compiler][null] wrong transition in UnconditionalFlowInfo.mergedWith()
+    		ax = a1 & ~a2 & a3 & ~a4;
+    		bx = b1 & ~b2 & ~b3 & b4;
+    		x = ax&bx;
+    		ax = a1 & ~a2 & ~a3 & a4;
+    		bx = b1 & ~b2 & b3 & ~b4;
+    		x |= (ax&bx);
+    		if (x != 0) {
+    			// establish state 0011 for all variable ids in x:
+    			this.extra[2][i] &= ~x;
+    			this.extra[3][i] &= ~x;
     			this.extra[4][i] |= x;
     			this.extra[5][i] |= x;
     		}

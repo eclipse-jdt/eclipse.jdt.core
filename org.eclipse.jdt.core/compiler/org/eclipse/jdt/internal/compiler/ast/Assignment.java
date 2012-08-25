@@ -17,6 +17,7 @@
  *							bug 358903 - Filter practically unimportant resource leak warnings
  *							bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *							bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
+ *							bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -82,7 +83,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
 		flowInfo.markNullStatus(local, nullStatus);
 		if (flowContext.initsOnFinally != null)
-			flowContext.initsOnFinally.markNullStatus(local, nullStatus);
+			flowContext.markFinallyNullStatus(local, nullStatus);
 	}
 	return flowInfo;
 }

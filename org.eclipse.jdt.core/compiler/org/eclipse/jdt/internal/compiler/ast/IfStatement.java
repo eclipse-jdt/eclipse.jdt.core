@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for 
  *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -65,6 +66,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
 	boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
+
+	flowContext.conditionalLevel++;
 
 	// process the THEN part
 	FlowInfo thenFlowInfo = conditionFlowInfo.safeInitsWhenTrue();
@@ -140,6 +143,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this,
 		reportDeadCodeForKnownPattern);
 	this.mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
+	flowContext.conditionalLevel--;
 	return mergedInfo;
 }
 

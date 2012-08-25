@@ -23,6 +23,7 @@
  * 							bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
  * 							bug 367879 - Incorrect "Potential null pointer access" warning on statement after try-with-resources within try-finally
  * 							bug 383690 - [compiler] location of error re uninitialized final field should be aligned
+ *							bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -50,7 +51,8 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug336428f" };
+//		TESTS_NAMES = new String[] { "testBug345305_14" };
+//		TESTS_NAMES = new String[] { "test0515_try_finally" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -4634,13 +4636,12 @@ public void test0504_try_finally() {
 
 // null analysis -- try/finally
 // origin: AssignmentTest#test017
-// The whole issue here is whether or not to detect premature exits. We
-// follow JLS's conservative approach, which considers that the try
-// block may exit before the assignment is completed.
-// Note: conversely, without line 1, we would complain about x not being
-//       initialized (for sure) on line 2.
+// The whole issue here is whether or not to detect premature exits. 
+// Previously, we followed JLS's conservative approach, which considers
+// that the try block may exit before the assignment is completed.
+// As of Bug 345305 this has been changed to a more accurate analysis.
 public void test0505_try_finally() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -4653,7 +4654,12 @@ public void test0505_try_finally() {
 			"   }\n" +
 			" }\n" +
 			"}\n"},
-		"");
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	if (x == null) {/* */}\n" +
+			"	    ^\n" +
+			"Redundant null check: The variable x can only be null at this location\n" +
+			"----------\n");
 }
 
 // null analysis -- try finally
@@ -5819,7 +5825,7 @@ public void test0555_try_catch() {
 		"1. ERROR in X.java (at line 9)\n" +
 		"	o.toString();\n" +
 		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
+		"Null pointer access: The variable o can only be null at this location\n" +
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -5848,7 +5854,7 @@ public void test0556_try_catch() {
 		"1. ERROR in X.java (at line 9)\n" +
 		"	o.toString();\n" +
 		"	^\n" +
-		"Potential null pointer access: The variable o may be null at this location\n" +
+		"Null pointer access: The variable o can only be null at this location\n" +
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -9404,7 +9410,7 @@ public void test1013() {
 }
 
 public void test1014() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -9417,13 +9423,7 @@ public void test1014() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	x.foo(null);\n" +
-		"	^\n" +
-		"Potential null pointer access: The variable x may be null at this location\n" +
-		"----------\n",
-	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+		"");
 }
 
 public void test1015() {
@@ -9493,7 +9493,12 @@ public void test1017() {
 			"  }\n" +
 			"}\n"},
 		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	if (x == null) {\n" +
+		"	    ^\n" +
+		"Redundant null check: The variable x can only be null at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
 		"	x.foo(null);\n" +
 		"	^\n" +
 		"Null pointer access: The variable x can only be null at this location\n" +
@@ -9741,7 +9746,7 @@ public void _test1026() {
 }
 
 public void test1027() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -9759,7 +9764,12 @@ public void test1027() {
 			"    if (o == null) return;\n" +
 			"  }\n" +
 			"}\n"},
-		"");
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	if (o == null) \n" +
+			"	    ^\n" +
+			"Redundant null check: The variable o can only be null at this location\n" +
+			"----------\n");
 }
 
 // TODO (philippe) reenable once fixed
@@ -9942,7 +9952,7 @@ public void test1033() {
 
 // from AssignmentTest#test034, simplified
 public void test1034() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public final class X \n" +
@@ -9975,7 +9985,12 @@ public void test1034() {
 			"	}\n" +
 			"}\n",
 		},
-		"");
+		"----------\n" +
+		"1. ERROR in X.java (at line 16)\n" +
+		"	if (rs != null)\n" +
+		"	    ^^\n" +
+		"Redundant null check: The variable rs cannot be null at this location\n" +
+		"----------\n");
 }
 
 public void test1036() {
@@ -15607,5 +15622,403 @@ public void testBug360328d() {
 		"",/* expected output */
 		"",/* expected error */
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// simplified: only try-finally involved
+public void testBug345305_1() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo() {\n" +
+			"        String s = null;\n" + 
+			"        try {\n" + 
+			"            s = \"hi\";\n" + 
+			"        } finally {\n" + 
+			"            s.length();\n" + 
+			"            s = null;\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"}\n"
+		});
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// original test case
+public void testBug345305_2() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo() {\n" +
+			"        String s = null;\n" + 
+			"        while (true) {\n" + 
+			"            try {\n" + 
+			"                s = \"hi\";\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length();\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"}\n"
+		});
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// assignment in method argument position
+public void testBug345305_3() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo() {\n" +
+			"        String s = null;\n" + 
+			"        while (true) {\n" + 
+			"            try {\n" + 
+			"                check(s = \"hi\");\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length();\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"    void check(String s) {}\n" +
+			"}\n"
+		});
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// analysis of second local variable must not interfere
+public void testBug345305_4() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo() {\n" +
+			"        String s = \"\";\n" + 
+			"        String s2 = null;\n" + 
+			"        while (true) {\n" + 
+			"            try {\n" + 
+			"                s = null;\n" +
+			"                bar();\n" +
+			"                s2 = \"world\";\n" +
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length();\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"    void bar() {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	s.length();\n" + 
+		"	^\n" + 
+		"Null pointer access: The variable s can only be null at this location\n" + 
+		"----------\n");
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// DISABLED: block-less if involved - info about pot.nn. is lost when checking against loop's info (deferred check)
+public void _testBug345305_6() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo(boolean b) {\n" +
+			"        String s = null;\n" + 
+			"        while (true) {\n" + 
+			"            try {\n" +
+			"                if (b)\n" + 
+			"                    s = \"hi\";\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length();\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	s.length();\n" + 
+		"	^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n");
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// block-less if involved
+public void testBug345305_7() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo(boolean b) {\n" +
+			"        while (true) {\n" + 
+			"            String s = null;\n" + 
+			"            try {\n" +
+			"                if (b)\n" + 
+			"                    s = \"hi\";\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length();\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	s.length();\n" + 
+		"	^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n");
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// consider exception thrown from cast expression
+public void testBug345305_8() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo(Object o) {\n" +
+			"        while (true) {\n" + 
+			"            String s = null;\n" + 
+			"            try {\n" +
+			"                 s = (String) o;\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length();\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	s.length();\n" + 
+		"	^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n");
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// consider exception thrown from binary expression
+public void testBug345305_9() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo(int i, int j) {\n" +
+			"        while (true) {\n" + 
+			"            String s = null;\n" + 
+			"            try {\n" +
+			"                 s = ((i / j) == 3) ? \"3\" : \"not-3\";\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length();\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	s.length();\n" + 
+		"	^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n");
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// inner labeled block with break
+public void testBug345305_10() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo(int j) {\n" +
+			"        while (true) {\n" + 
+			"            String s = null;\n" + 
+			"            try {\n" +
+			"                int i=0;\n" +
+			"                block: {\n" +
+			"                    if (i++ == j)\n" +
+			"                         break block;\n" +
+			"                    s = \"\";\n" +
+			"                    return;\n" +
+			"                }\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length();\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	s.length();\n" + 
+		"	^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n");
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// switch statement
+public void testBug345305_11() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo(int j) {\n" +
+			"        while (true) {\n" + 
+			"            String s = null;\n" + 
+			"            try {\n" +
+			"                switch (j) {\n" +
+			"                    case 3:\n" +
+			"                        s = \"\";\n" +
+			"                        return;\n" +
+			"                    default: return;\n" +
+			"                }\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length();\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	s.length();\n" + 
+		"	^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n");
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// assignment inside conditional expression
+public void testBug345305_12() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    String foo(boolean b) {\n" +
+			"        while (true) {\n" + 
+			"            String s = null;\n" + 
+			"            try {\n" +
+			"                 return b ? (s = \"be\") : \"be not\";\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length();\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	s.length();\n" + 
+		"	^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n");
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// explicit throw
+public void testBug345305_13() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    String foo(boolean b) {\n" +
+			"        while (true) {\n" + 
+			"            String s = null;\n" +
+			"            RuntimeException ex = new RuntimeException();\n" + 
+			"            try {\n" +
+			"                 if (b)\n" +
+			"                     throw ex;\n" +
+			"                 s = \"be\";\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length();\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	s.length();\n" + 
+		"	^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n");
+}
+
+// Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+// do-while
+public void testBug345305_14() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo1(boolean b) {\n" +
+			"        while (true) {\n" + 
+			"            String s = null;\n" +
+			"            try {\n" +
+			"                 do {\n" +
+			"                     s = \"be\";\n" +
+			"                     if (b)\n" +
+			"                         return;\n" +
+			"                 } while (true);\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length(); // don't complain here\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"    void foo2(boolean b) {\n" +
+			"        while (true) {\n" + 
+			"            String s = null;\n" +
+			"            try {\n" +
+			"                 do {\n" +
+			"                     if (b)\n" +
+			"                         continue;\n" +
+			"                     s = \"be\";\n" +
+			"                     b = !b;\n" +
+			"                 } while (b);\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                s.length();\n" + 
+			"                s = null;\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 30)\n" + 
+		"	s.length();\n" + 
+		"	^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n");
 }
 }

@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 292478 - Report potentially null across variable assignment
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for 
+ *								bug 292478 - Report potentially null across variable assignment
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -531,11 +533,15 @@ public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInf
 		if ((this.bits & ASTNode.IsNonNull) == 0) {
 			flowContext.recordUsingNullReference(scope, local, this,
 					FlowContext.MAY_NULL, flowInfo);
+			// account for possible NPE:
+			if (!flowInfo.isDefinitelyNonNull(local)) {
+				flowContext.recordAbruptExit();
+			}
 		}
 		flowInfo.markAsComparedEqualToNonNull(local);
 			// from thereon it is set
 		if (flowContext.initsOnFinally != null) {
-			flowContext.initsOnFinally.markAsComparedEqualToNonNull(local);
+			flowContext.markFinallyNullStatus(local, FlowInfo.NON_NULL);
 		}
 	}
 }

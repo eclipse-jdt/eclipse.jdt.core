@@ -12,6 +12,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
+ *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -52,9 +53,17 @@ public class FlowContext implements TypeConstants {
 	public final static FlowContext NotContinuableContext = new FlowContext(null, null);
 	public ASTNode associatedNode;
 	public FlowContext parent;
-	public NullInfoRegistry initsOnFinally;
+	public FlowInfo initsOnFinally;
 		// only used within try blocks; remembers upstream flow info mergedWith
 		// any null related operation happening within the try block
+	/** 
+	 * Used to record whether effects in a try block affect the finally-block
+	 * conditionally or unconditionally.
+	 * -1 means: no effect,
+	 * 0 means: unconditional effect,
+	 * > 0 means levels of nested conditional structures.
+	 */
+	public int conditionalLevel = -1;
 
 	public int tagBits;
 
@@ -99,6 +108,7 @@ public FlowContext(FlowContext parent, ASTNode associatedNode) {
 			this.tagBits |= FlowContext.DEFER_NULL_DIAGNOSTIC;
 		}
 		this.initsOnFinally = parent.initsOnFinally;
+		this.conditionalLevel = parent.conditionalLevel;
 	}
 }
 
@@ -548,6 +558,59 @@ public boolean isSubRoutine() {
 
 public char[] labelName() {
 	return null;
+}
+
+/**
+ * Record a given null status of a given local variable as it will be seen in the finally block.
+ * Precondition: caller has checked that initsOnFinally != null.
+ * @param local the local variable being observed
+ * @param nullStatus the null status of local at the current point in the flow
+ */
+public void markFinallyNullStatus(LocalVariableBinding local, int nullStatus) {
+	if (this.conditionalLevel == -1) return;
+	if (this.conditionalLevel == 0) {
+		// node is unconditionally reached, take nullStatus as is:
+		this.initsOnFinally.markNullStatus(local, nullStatus);
+		return;
+	}
+	// node is reached only conditionally, weaken status to potentially_ and merge with previous
+	UnconditionalFlowInfo newInfo = this.initsOnFinally.unconditionalCopy();
+	newInfo.markNullStatus(local, nullStatus);
+	this.initsOnFinally = this.initsOnFinally.mergedWith(newInfo);
+}
+
+/**
+ * Merge the effect of a statement presumably contained in a try-block,
+ * i.e., record how the collected info will affect the corresponding finally-block.
+ * Precondition: caller has checked that initsOnFinally != null.
+ * @param flowInfo info after executing a statement of the try-block.
+ */
+public void mergeFinallyNullInfo(FlowInfo flowInfo) {
+	if (this.conditionalLevel == -1) return;
+	if (this.conditionalLevel == 0) {
+		// node is unconditionally reached, take null info as is:
+		this.initsOnFinally.addNullInfoFrom(flowInfo);
+		return;
+	}
+	// node is reached only conditionally: merge flowInfo with existing since both paths are possible
+	this.initsOnFinally = this.initsOnFinally.mergedWith(flowInfo.unconditionalCopy());
+}
+
+/**
+ * Record the fact that an abrupt exit has been observed, one of:
+ * - potential exception (incl. unchecked exceptions)
+ * - break
+ * - continue
+ * - return
+ */
+public void recordAbruptExit() {
+	if (this.conditionalLevel > -1) {
+		this.conditionalLevel++;
+		// delegate up up-to the enclosing try-finally:
+		if (!(this instanceof ExceptionHandlingFlowContext) && this.parent != null) {
+			this.parent.recordAbruptExit();
+		}
+	}
 }
 
 public void recordBreakFrom(FlowInfo flowInfo) {
