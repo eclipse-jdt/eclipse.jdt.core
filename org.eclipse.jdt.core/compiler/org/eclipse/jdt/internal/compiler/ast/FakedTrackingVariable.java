@@ -587,9 +587,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		do {
 			flowInfo.markAsDefinitelyNonNull(current.binding);
 			current.globalClosingState |= CLOSE_SEEN;
-//TODO(stephan): this might be useful, but I could not find a test case for it: 
 			if (flowContext.initsOnFinally != null)
-				flowContext.initsOnFinally.markAsDefinitelyNonNull(this.binding);
+				flowContext.markFinallyNullStatus(this.binding, FlowInfo.NON_NULL);
 			current = current.innerTracker;
 		} while (current != null);
 	}
