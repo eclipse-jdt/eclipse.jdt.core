@@ -7,10 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for Bug 380048 - error popup when navigating to source files
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.SourceMapper;
 
 import junit.framework.Test;
 
@@ -1554,5 +1556,55 @@ public void testCreateIntersectionTypeSignature2() {
 			"QSerializable;\n",
 			Signature.getIntersectionTypeBounds(signature)
 		);
+}
+// Bug 380048 - error popup when navigating to source files
+public void testSourceMapperSigConversion01() {
+	SourceMapper mapper = new SourceMapper();		
+	char[][] typeNames = new char[][] {
+		"java.lang.String".toCharArray(),
+		
+		("apache.Mapper" + 
+		"<?,?,ap.Text,ap.ClusterObservations>" + 
+		".Context"
+		).toCharArray(),
+
+		("apache.Mapper" + 
+		"<?,?,ap.Text,ap.ClusterObservations>" + 
+		".Context<java.lang.String>"
+		).toCharArray(),
+		
+		("app.Mapper" + 
+		"<?,?,ap.Text,ap2.ClusterObservations>"
+		).toCharArray(),
+		
+		"Context<String>".toCharArray(),
+
+		("Mapper" + 
+		"<?,?,Text,ClusterObservations>" + 
+		".Context"
+		+"<String>"
+		).toCharArray(),
+		
+		"Iterable<Mapper<?,?,Text,ClusterObservations>.Context>".toCharArray(),
+		
+		"java.util.Iterable<Mapper<?,?,Text,ClusterObservations>.Context>".toCharArray(),
+
+		"Mapper<?,?,Text,Mapper<?,?,Text,ClusterObservations>.Context>.Context".toCharArray()
+	};
+	String[] expectedSigs = new String[] {
+		"QString;",
+		"QContext;",
+		"QContext<QString;>;",
+		"QMapper<**QText;QClusterObservations;>;",
+		"QContext<QString;>;",
+		"QContext<QString;>;",
+		"QIterable<QContext;>;",
+		"QIterable<QContext;>;",
+		"QContext;"	
+	};
+	String[] ss = mapper.convertTypeNamesToSigs(typeNames);
+	assertEquals("Wrong number of signatures", expectedSigs.length, ss.length);
+	for (int i=0; i<ss.length; i++)
+		assertEquals("Unexpected signature", expectedSigs[i], ss[i]);
 }
 }
