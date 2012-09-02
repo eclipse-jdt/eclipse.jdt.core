@@ -2966,7 +2966,7 @@ public void test088() {
 		"The argument of type null should explicitly be cast to Class[] for the invocation of the varargs method getMethod(String, Class...) from type Class. It could alternatively be cast to Class for a varargs invocation\n" +
 		"----------\n";
 	String javaVersion = System.getProperty("java.version");
-	if (isJRELevel(AbstractCompilerTest.F_1_6|AbstractCompilerTest.F_1_7)
+	if (isJRELevel(AbstractCompilerTest.F_1_6|AbstractCompilerTest.F_1_7|AbstractCompilerTest.F_1_8)
 			|| (AbstractCompilerTest.getPossibleComplianceLevels() == AbstractCompilerTest.F_1_5
 				&& javaVersion.indexOf("1.5") == -1)) {
 		errorMessage =
