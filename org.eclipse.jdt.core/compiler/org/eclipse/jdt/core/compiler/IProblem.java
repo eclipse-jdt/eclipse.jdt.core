@@ -1548,6 +1548,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.9 */
 	int IllegalModifierForInterfaceDefaultMethod = MethodRelated + 1050;
 
+	/** @since 3.9 */
+	int DefaultMethodOverridesObjectMethod = MethodRelated + 1051;
+
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */

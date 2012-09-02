@@ -1437,6 +1437,21 @@ public void corruptedSignature(TypeBinding enclosingType, char[] signature, int 
 		0,
 		0);
 }
+public void defaultMethodOverridesObjectMethod(MethodBinding currentMethod) {
+	// Java 8 feature
+	AbstractMethodDeclaration method = currentMethod.sourceMethod();
+	int sourceStart = 0;
+	int sourceEnd = 0;
+	if (method != null) {
+		sourceStart = method.sourceStart;
+		sourceEnd = method.sourceEnd;
+	}
+	this.handle(
+		IProblem.DefaultMethodOverridesObjectMethod,
+		NoArgument, NoArgument,
+		sourceStart, sourceEnd);
+}
+
 public void deprecatedField(FieldBinding field, ASTNode location) {
 	int severity = computeSeverity(IProblem.UsingDeprecatedField);
 	if (severity == ProblemSeverities.Ignore) return;

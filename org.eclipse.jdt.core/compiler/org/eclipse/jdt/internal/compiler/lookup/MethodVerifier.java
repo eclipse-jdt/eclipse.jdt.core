@@ -150,7 +150,15 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 //					currentMethod.modifiers |= CompilerModifiers.AccImplementing;
 			} else if (inheritedMethod.isPublic() || !this.type.isInterface()) {
 				// interface I { @Override Object clone(); } does not override Object#clone()
-				currentMethod.modifiers |= ExtraCompilerModifiers.AccOverriding;
+				if (currentMethod.isDefaultMethod()
+						&& !inheritedMethod.isFinal() // overriding final is already reported, that's enough
+						&& inheritedMethod.declaringClass.id == TypeIds.T_JavaLangObject)
+				{
+					// JLS 9.4.3 (Java8): default method cannot override method from j.l.Object
+					problemReporter(currentMethod).defaultMethodOverridesObjectMethod(currentMethod);
+				} else {
+					currentMethod.modifiers |= ExtraCompilerModifiers.AccOverriding;
+				}
 			}
 
 			if (!areReturnTypesCompatible(currentMethod, inheritedMethod)

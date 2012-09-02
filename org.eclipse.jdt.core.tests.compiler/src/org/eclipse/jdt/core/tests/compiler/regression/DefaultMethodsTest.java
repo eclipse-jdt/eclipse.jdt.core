@@ -23,7 +23,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testModifiers1" };
+//			TESTS_NAMES = new String[] { "testObjectMethod" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -237,6 +237,64 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"	public class C implements I {}\n" + 
 			"	             ^\n" + 
 			"The type C must implement the inherited abstract method I.bar()\n" + 
+			"----------\n");
+	}
+	
+	// JLS 9.4.2  - default method cannot override method from Object
+	// Bug 382355 - [1.8][compiler] Compiler accepts erroneous default method
+	// new error message
+	public void testObjectMethod1() {
+		runNegativeTest(
+			new String[] {
+				"I.java",
+				"public interface I {\n" +
+				"    public String toString () default { return \"\";}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in I.java (at line 2)\n" + 
+			"	public String toString () default { return \"\";}\n" + 
+			"	              ^^^^^^^^^^^\n" + 
+			"A default method cannot override a method from java.lang.Object \n" + 
+			"----------\n");
+	}
+	
+	// JLS 9.4.2  - default method cannot override method from Object
+	// Bug 382355 - [1.8][compiler] Compiler accepts erroneous default method
+	// when using a type variable this is already reported as a name clash
+	public void testObjectMethod2() {
+		runNegativeTest(
+			new String[] {
+				"I.java",
+				"public interface I<T> {\n" +
+				"    public boolean equals (T other) default { return false;}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in I.java (at line 2)\n" + 
+			"	public boolean equals (T other) default { return false;}\n" + 
+			"	               ^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method equals(T) of type I<T> has the same erasure as equals(Object) of type Object but does not override it\n" + 
+			"----------\n");
+	}
+	
+	// JLS 9.4.2  - default method cannot override method from Object
+	// Bug 382355 - [1.8][compiler] Compiler accepts erroneous default method
+	// one error for final method is enough
+	public void testObjectMethod3() {
+		runNegativeTest(
+			new String[] {
+				"I.java",
+				"public interface I<T> {\n" +
+				"    @Override\n" +
+				"    public Class<?> getClass() default { return null;}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in I.java (at line 3)\n" + 
+			"	public Class<?> getClass() default { return null;}\n" + 
+			"	                ^^^^^^^^^^\n" + 
+			"Cannot override the final method from Object\n" + 
 			"----------\n");
 	}
 }
