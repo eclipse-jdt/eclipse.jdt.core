@@ -960,6 +960,47 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"The annotation @Marker is disallowed for this location\n" + 
 					"----------\n");
 	}
+	// JSR 308: "It is not permitted to annotate the type name in an import statement."
+	public void test039() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"import @Marker java.lang.String; // Compilation error \n" +
+						"public class X { \n" +
+						"}\n" + 
+						"@interface Marker {}\n"
+					}, 
+					"----------\n" + 
+					"1. ERROR in X.java (at line 1)\n" + 
+					"	import @Marker java.lang.String; // Compilation error \n" + 
+					"	^^^^^^\n" + 
+					"Syntax error on token(s), misplaced construct(s)\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 1)\n" + 
+					"	import @Marker java.lang.String; // Compilation error \n" + 
+					"	        ^^^^^^\n" + 
+					"Syntax error on token \"Marker\", package expected after this token\n" + 
+					"----------\n");
+	}
+	// Test that type name can't be left out in a cast expression with an annotations 
+	public void test040() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X { \n" +
+						"	public void foo(Object myObject) {\n" +
+						"		String myString = (@NonNull) myObject;" +
+						"	}\n" +
+						"}\n" + 
+						"@interface NonNull {}\n"
+					}, 
+					"----------\n" + 
+					"1. ERROR in X.java (at line 3)\n" + 
+					"	String myString = (@NonNull) myObject;	}\n" + 
+					"	                    ^^^^^^^\n" + 
+					"Syntax error on token \"NonNull\", void expected after this token\n" + 
+					"----------\n");
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385111
 	// [1.8][compiler] Compiler fails to flag undefined annotation type. 
 	public void test0385111() {
