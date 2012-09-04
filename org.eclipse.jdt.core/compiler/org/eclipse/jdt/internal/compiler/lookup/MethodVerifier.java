@@ -394,6 +394,8 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 			}
 		} else if (noMatch) {
 			problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
+		} else if (this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
+			checkInheritedDefaultMethods(methods, length);
 		}
 		return;
 	}
@@ -421,7 +423,21 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 		System.arraycopy(abstractMethods, 0, abstractMethods = new MethodBinding[index], 0, index);
 	checkConcreteInheritedMethod(concreteMethod, abstractMethods);
 }
-
+private void checkInheritedDefaultMethods(MethodBinding[] methods, int length) {
+	// JSL 9.4.1 (Java 8): default method clashes with other inherited method which is override-equivalent 
+	if (length < 2) return;
+	findDefaultMethod: for (int i=0; i<length; i++) {
+		if (methods[i].isDefaultMethod()) {
+			findEquivalent: for (int j=0; j<length; j++) {
+				if (j == i) continue findEquivalent;
+				if (isMethodSubsignature(methods[i], methods[j])) {
+					problemReporter().inheritedDefaultMethodConflictsWithOtherInherited(this.type, methods[i], methods[j]);
+					continue findDefaultMethod;
+				}
+			}
+		}
+	}
+}
 boolean checkInheritedReturnTypes(MethodBinding method, MethodBinding otherMethod) {
 	if (areReturnTypesCompatible(method, otherMethod)) return true;
 

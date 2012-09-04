@@ -1550,6 +1550,9 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.9 */
 	int DefaultMethodOverridesObjectMethod = MethodRelated + 1051;
+	
+	/** @since 3.9 */
+	int InheritedDefaultMethodConflictsWithOtherInherited = MethodRelated + 1052;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

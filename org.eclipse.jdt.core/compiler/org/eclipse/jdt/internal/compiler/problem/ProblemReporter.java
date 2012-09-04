@@ -3092,6 +3092,22 @@ public void indirectAccessToStaticMethod(ASTNode location, MethodBinding method)
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void inheritedDefaultMethodConflictsWithOtherInherited(SourceTypeBinding type, MethodBinding defaultMethod, MethodBinding otherMethod) {
+	TypeDeclaration typeDecl = type.scope.referenceContext;
+	String[] problemArguments = new String[] { 
+			String.valueOf(defaultMethod.readableName()), 
+			String.valueOf(defaultMethod.declaringClass.readableName()), 
+			String.valueOf(otherMethod.declaringClass.readableName()) };
+	String[] messageArguments = new String[] { 
+			String.valueOf(defaultMethod.shortReadableName()), 
+			String.valueOf(defaultMethod.declaringClass.shortReadableName()), 
+			String.valueOf(otherMethod.declaringClass.shortReadableName()) };	
+	this.handle(IProblem.InheritedDefaultMethodConflictsWithOtherInherited,
+			problemArguments,
+			messageArguments,
+			typeDecl.sourceStart,
+			typeDecl.sourceEnd);
+}
 private void inheritedMethodReducesVisibility(int sourceStart, int sourceEnd, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
 	StringBuffer concreteSignature = new StringBuffer();
 	concreteSignature
