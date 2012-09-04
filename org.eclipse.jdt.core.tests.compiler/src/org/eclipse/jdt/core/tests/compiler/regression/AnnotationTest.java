@@ -1029,6 +1029,30 @@ public class AnnotationTest extends AbstractComparableTest {
 		"----------\n");
 	}
 
+	// check annotation member modifiers (validity unchanged despite grammar change from JSR 335 - default methods)
+	// and https://bugs.eclipse.org/bugs/show_bug.cgi?id=3383968
+	public void test039a() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public @interface X {\n" +
+				"	strictfp double val() default 0.1;\n" +
+				"	synchronized String id() default \"zero\";\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	strictfp double val() default 0.1;\n" + 
+			"	                ^^^^^\n" + 
+			"Illegal modifier for the annotation attribute X.val; only public & abstract are permitted\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	synchronized String id() default \"zero\";\n" + 
+			"	                    ^^^^\n" + 
+			"Illegal modifier for the annotation attribute X.id; only public & abstract are permitted\n" + 
+			"----------\n");
+	}
+
 	// check annotation array field initializer
 	public void test040() {
 		this.runNegativeTest(
