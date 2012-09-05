@@ -43,6 +43,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 	// default methods with various modifiers, positive cases
 	public void testModifiers1() {
 // Inject an unrelated compile error to prevent class file verification. TODO revert
+// (even lambda-enabled JRE doesn't accept now-legal modifier combinations)
 //		runConformTest(
 		runNegativeTest(
 		new String[] {
@@ -198,25 +199,23 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 	// class implements interface with default method. 
 	// - no need to implement this interface method as it is not abstract
 	public void testModifiers5() {
-// Inject an unrelated compile error to prevent class file verification. TODO revert
-//		runConformTest(
-		runNegativeTest(
+		runConformTest(
 			new String[] {
+				"C.java",
+				"public class C implements I {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        new C().foo();\n" +
+				"    }\n" +
+				"}\n",
 				"I.java",
 				"public interface I {\n" +
-				"    void foo() default {}\n" +
-				"}\n",
-				"C.java",
-				"public class C implements I {}\n" +
-// TODO remove me:
-				"public class Wrong{}\n"
+				"    void foo() default {\n" +
+				"        System.out.println(\"default\");\n" +
+				"    }\n" +
+				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in C.java (at line 2)\n" +
-			"	public class Wrong{}\n" +
-			"	             ^^^^^\n" +
-			"The public type Wrong must be defined in its own file\n" +
-			"----------\n");
+			"default"
+			);
 	}
 	
 	// class implements interface with default method. 
