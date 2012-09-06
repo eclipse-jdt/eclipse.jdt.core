@@ -11,7 +11,9 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
+ *     Stephan Herrmann - Contributions for
+ *								Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
+ *								Bug 388630 - @NonNull diagnostics at line 0
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -412,6 +414,12 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 			sourceType); //declaringClass
 	constructor.binding.tagBits |= (inheritedConstructorBinding.tagBits & TagBits.HasMissingType);
 	constructor.binding.modifiers |= ExtraCompilerModifiers.AccIsDefaultConstructor;
+	if (inheritedConstructorBinding.parameterNonNullness != null) { // this implies that annotation based null analysis is enabled
+		// copy nullness info from inherited constructor to the new constructor:
+		int len = inheritedConstructorBinding.parameterNonNullness.length;
+		System.arraycopy(inheritedConstructorBinding.parameterNonNullness, 0, 
+				constructor.binding.parameterNonNullness = new Boolean[len], 0, len);
+	}
 
 	constructor.scope = new MethodScope(this.scope, constructor, true);
 	constructor.bindArguments();
