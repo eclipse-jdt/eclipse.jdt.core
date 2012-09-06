@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "testBug385626" };
+//		TESTS_NAMES = new String[] { "testBug388630" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -3714,5 +3714,61 @@ public void testBug385626_2() {
 		},
 		null,//options
 		"");
+}
+
+// Bug 388630 - @NonNull diagnostics at line 0
+// synthetic constructor must repeat null annotations of its super
+public void testBug388630_1() {
+	runConformTestWithLibs(
+		new String[] {
+			"C0.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"public class C0 {\n" + 
+			"	C0 (@NonNull Object o) { }\n" + 
+			"	void test() { }\n" + 
+			"}\n",
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		new C0(\"\") { }.test();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		null,
+		"");
+}
+
+// Bug 388630 - @NonNull diagnostics at line 0
+// additionally also references to outer variables must share their nullness
+public void testBug388630_2() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"C0.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"public class C0 {\n" + 
+			"	C0 (@NonNull Object o) { }\n" + 
+			"	void test() { }\n" + 
+			"}\n",
+			"X.java",
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"public class X {\n" + 
+			"	void foo(final @Nullable Object a) {\n" + 
+			"		new C0(\"\") {\n" +
+			"           @Override\n" +
+			"           void test() {\n" +
+			"               System.out.println(a.toString());\n" +
+			"               super.test();\n" +
+			"           }\n" +
+			"       }.test();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		null,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	System.out.println(a.toString());\n" + 
+		"	                   ^\n" + 
+		"Potential null pointer access: The variable a may be null at this location\n" + 
+		"----------\n");
 }
 }
