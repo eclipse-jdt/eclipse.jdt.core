@@ -1414,7 +1414,8 @@ public class Util {
 			String selector = original.isConstructor() ? declaringType.getElementName() : new String(original.selector);
 			boolean isBinary = declaringType.isBinary();
 			ReferenceBinding enclosingType = original.declaringClass.enclosingType();
-			boolean isInnerBinaryTypeConstructor = isBinary && original.isConstructor() && enclosingType != null;
+			// Static inner types' constructors don't get receivers (https://bugs.eclipse.org/bugs/show_bug.cgi?id=388137)
+			boolean isInnerBinaryTypeConstructor = isBinary && original.isConstructor() && !original.declaringClass.isStatic() && enclosingType != null;
 			TypeBinding[] parameters = original.parameters;
 			int length = parameters == null ? 0 : parameters.length;
 			int declaringIndex = isInnerBinaryTypeConstructor ? 1 : 0;
