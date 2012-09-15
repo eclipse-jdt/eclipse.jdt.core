@@ -14,6 +14,7 @@
  *     							bug 359334 - Analysis for resource leak warnings does not consider exceptions as method exit points
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -253,11 +254,23 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// analyse finally block first
 		insideSubContext = new InsideSubRoutineFlowContext(flowContext, this);
 
+		// process the try block in a context handling the local exceptions.
+		// (advance instantiation so we can wire this into the FinallyFlowContext)
+		ExceptionHandlingFlowContext handlingContext =
+			new ExceptionHandlingFlowContext(
+				insideSubContext,
+				this,
+				this.caughtExceptionTypes,
+				this.caughtExceptionsCatchBlocks,
+				null,
+				this.scope,
+				flowInfo);
+
 		subInfo =
 			this.finallyBlock
 				.analyseCode(
 					currentScope,
-					finallyContext = new FinallyFlowContext(flowContext, this.finallyBlock),
+					finallyContext = new FinallyFlowContext(flowContext, this.finallyBlock, handlingContext),
 					flowInfo.nullInfoLessUnconditionalCopy())
 				.unconditionalInits();
 		if (subInfo == FlowInfo.DEAD_END) {
@@ -273,16 +286,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 		}
 		this.subRoutineInits = subInfo;
-		// process the try block in a context handling the local exceptions.
-		ExceptionHandlingFlowContext handlingContext =
-			new ExceptionHandlingFlowContext(
-				insideSubContext,
-				this,
-				this.caughtExceptionTypes,
-				this.caughtExceptionsCatchBlocks,
-				null,
-				this.scope,
-				flowInfo);
 		// only try blocks initialize that member - may consider creating a
 		// separate class if needed
 

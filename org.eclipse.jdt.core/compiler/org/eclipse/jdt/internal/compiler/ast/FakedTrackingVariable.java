@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FinallyFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -79,14 +80,19 @@ public class FakedTrackingVariable extends LocalDeclaration {
 
 	// temporary storage while analyzing "res = new Res();":
 	private ASTNode currentAssignment; // temporarily store the assignment as the location for error reporting
+	
+	// if tracking var was allocated from a finally context, record here the flow context of the corresponding try block
+	private FlowContext tryContext;
 
-	public FakedTrackingVariable(LocalVariableBinding original, ASTNode location) {
+	public FakedTrackingVariable(LocalVariableBinding original, ASTNode location, FlowContext flowContext) {
 		super(original.name, location.sourceStart, location.sourceEnd);
 		this.type = new SingleTypeReference(
 				TypeConstants.OBJECT,
 				((long)this.sourceStart <<32)+this.sourceEnd);
 		this.methodScope = original.declaringScope.methodScope();
 		this.originalBinding = original;
+		if (flowContext instanceof FinallyFlowContext)
+			this.tryContext = ((FinallyFlowContext) flowContext).tryContext;
 		resolve(original.declaringScope);
 	}
 
@@ -129,7 +135,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 * @param expression
 	 * @return a new {@link FakedTrackingVariable} or null.
 	 */
-	public static FakedTrackingVariable getCloseTrackingVariable(Expression expression) {
+	public static FakedTrackingVariable getCloseTrackingVariable(Expression expression, FlowContext flowContext) {
 		while (true) {
 			if (expression instanceof CastExpression)
 				expression = ((CastExpression) expression).expression;
@@ -149,7 +155,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				// tracking var doesn't yet exist. This happens in finally block
 				// which is analyzed before the corresponding try block
 				Statement location = local.declaration;
-				local.closeTracker = new FakedTrackingVariable(local, location);
+				local.closeTracker = new FakedTrackingVariable(local, location, flowContext);
 				if (local.isParameter()) {
 					local.closeTracker.globalClosingState |= OWNED_BY_OUTSIDE;
 					// status of this tracker is now UNKNOWN
@@ -181,7 +187,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			closeTracker = local.closeTracker;
 			if (closeTracker == null) {
 				if (rhs.resolvedType != TypeBinding.NULL) { // not NULL means valid closeable as per method precondition
-					closeTracker = new FakedTrackingVariable(local, location);
+					closeTracker = new FakedTrackingVariable(local, location, null);
 					if (local.isParameter()) {
 						closeTracker.globalClosingState |= OWNED_BY_OUTSIDE;
 					}
@@ -321,12 +327,13 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 * @param scope scope containing the assignment
 	 * @param upstreamInfo info without analysis of the rhs, use this to determine the status of a resource being disconnected
 	 * @param flowInfo info with analysis of the rhs, use this for recording resource status because this will be passed downstream
+	 * @param flowContext 
 	 * @param location where to report warnigs/errors against
 	 * @param rhs the right hand side of the assignment, this expression is to be analyzed.
 	 *			The caller has already checked that the rhs is either of a closeable type or null.
 	 * @param local the local variable into which the rhs is being assigned
 	 */
-	public static void handleResourceAssignment(BlockScope scope, FlowInfo upstreamInfo, FlowInfo flowInfo, ASTNode location, Expression rhs, LocalVariableBinding local)
+	public static void handleResourceAssignment(BlockScope scope, FlowInfo upstreamInfo, FlowInfo flowInfo, FlowContext flowContext, ASTNode location, Expression rhs, LocalVariableBinding local)
 	{
 		// does the LHS (local) already have a tracker, indicating we may leak a resource by the assignment?
 		FakedTrackingVariable previousTracker = null;
@@ -342,7 +349,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		rhsAnalyis:
 		if (rhs.resolvedType != TypeBinding.NULL) {
 			// new value is AutoCloseable, start tracking, possibly re-using existing tracker var:
-			FakedTrackingVariable rhsTrackVar = getCloseTrackingVariable(rhs);
+			FakedTrackingVariable rhsTrackVar = getCloseTrackingVariable(rhs, flowContext);
 			if (rhsTrackVar != null) {								// 1. if RHS has a tracking variable...
 				if (local.closeTracker == null) {
 					// null shouldn't occur but let's play safe:
@@ -361,7 +368,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 								&& ((rhsTrackVar.globalClosingState & OWNED_BY_OUTSIDE) != 0)) {
 																	// 		c.: assigning a fresh resource (pre-connected alloc) 
 																	//			to a local previously holding an alien resource -> start over
-							local.closeTracker = new FakedTrackingVariable(local, location);
+							local.closeTracker = new FakedTrackingVariable(local, location, flowContext);
 							flowInfo.markAsDefinitelyNull(local.closeTracker.binding);
 							// still check disconnectedTracker below
 							break rhsAnalyis;
@@ -371,12 +378,26 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				}
 				// keep close-status of RHS unchanged across this assignment
 			} else if (previousTracker != null) {					// 2. re-use tracking variable from the LHS?
-				// re-assigning from a fresh value, mark as not-closed again:
-				if ((previousTracker.globalClosingState & (SHARED_WITH_OUTSIDE|OWNED_BY_OUTSIDE)) == 0)
-					flowInfo.markAsDefinitelyNull(previousTracker.binding);
-				local.closeTracker = analyseCloseableExpression(flowInfo, local, location, rhs, previousTracker);
+				FlowContext currentFlowContext = flowContext;
+				checkReuseTracker : {
+					if (previousTracker.tryContext != null) {
+						while (currentFlowContext != null) {
+							if (previousTracker.tryContext == currentFlowContext) {
+								// "previous" location was the finally block of the current try statement.
+								// -> This is not a re-assignment.
+								// see https://bugs.eclipse.org/388996
+								break checkReuseTracker;
+							}
+							currentFlowContext = currentFlowContext.parent;
+						}
+					}
+					// re-assigning from a fresh value, mark as not-closed again:
+					if ((previousTracker.globalClosingState & (SHARED_WITH_OUTSIDE|OWNED_BY_OUTSIDE)) == 0)
+						flowInfo.markAsDefinitelyNull(previousTracker.binding);
+					local.closeTracker = analyseCloseableExpression(flowInfo, flowContext, local, location, rhs, previousTracker);
+				}
 			} else {												// 3. no re-use, create a fresh tracking variable:
-				rhsTrackVar = analyseCloseableExpression(flowInfo, local, location, rhs, null);
+				rhsTrackVar = analyseCloseableExpression(flowInfo, flowContext, local, location, rhs, null);
 				if (rhsTrackVar != null) {
 					local.closeTracker = rhsTrackVar;
 					// a fresh resource, mark as not-closed:
@@ -411,7 +432,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 *  		which we should then re-use
 	 * @return a tracking variable associated with local or null if no need to track
 	 */
-	private static FakedTrackingVariable analyseCloseableExpression(FlowInfo flowInfo, LocalVariableBinding local, 
+	private static FakedTrackingVariable analyseCloseableExpression(FlowInfo flowInfo, FlowContext flowContext, LocalVariableBinding local, 
 									ASTNode location, Expression expression, FakedTrackingVariable previousTracker) 
 	{
 		// unwrap uninteresting nodes:
@@ -437,7 +458,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				|| expression instanceof ArrayReference) 
 		{
 			// we *might* be responsible for the resource obtained
-			FakedTrackingVariable tracker = new FakedTrackingVariable(local, location);
+			FakedTrackingVariable tracker = new FakedTrackingVariable(local, location, flowContext);
 			tracker.globalClosingState |= SHARED_WITH_OUTSIDE;
 			flowInfo.markPotentiallyNullBit(tracker.binding); // shed some doubt
 			return tracker;
@@ -447,7 +468,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 						&& ((QualifiedNameReference) expression).isFieldAccess()))
 		{
 			// responsibility for this resource probably lies at a higher level
-			FakedTrackingVariable tracker = new FakedTrackingVariable(local, location);
+			FakedTrackingVariable tracker = new FakedTrackingVariable(local, location, flowContext);
 			tracker.globalClosingState |= OWNED_BY_OUTSIDE;
 			// leave state as UNKNOWN, the bit OWNED_BY_OUTSIDE will prevent spurious warnings
 			return tracker;			
@@ -463,7 +484,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		if (local.closeTracker != null)
 			// (c): inner has already been analyzed: -> re-use track var
 			return local.closeTracker;
-		FakedTrackingVariable newTracker = new FakedTrackingVariable(local, location);
+		FakedTrackingVariable newTracker = new FakedTrackingVariable(local, location, flowContext);
 		LocalVariableBinding rhsLocal = expression.localVariableBinding();
 		if (rhsLocal != null && rhsLocal.isParameter()) {
 			newTracker.globalClosingState |= OWNED_BY_OUTSIDE;
@@ -604,9 +625,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 * and thus should be considered as potentially closed.
 	 * @param owned should the resource be considered owned by some outside?
 	 */
-	public static FlowInfo markPassedToOutside(BlockScope scope, Expression expression, FlowInfo flowInfo, boolean owned) {	
+	public static FlowInfo markPassedToOutside(BlockScope scope, Expression expression, FlowInfo flowInfo, FlowContext flowContext, boolean owned) {	
 		
-		FakedTrackingVariable trackVar = getCloseTrackingVariable(expression);
+		FakedTrackingVariable trackVar = getCloseTrackingVariable(expression, flowContext);
 		if (trackVar != null) {
 			// insert info that the tracked resource *may* be closed (by the target method, i.e.)
 			FlowInfo infoResourceIsClosed = owned ? flowInfo : flowInfo.copy();

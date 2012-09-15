@@ -19,6 +19,7 @@
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -55,12 +56,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (flowInfo.reachMode() == FlowInfo.REACHABLE)
 			checkAgainstNullAnnotation(currentScope, flowContext, this.expression.nullStatus(flowInfo));
 		if (currentScope.compilerOptions().analyseResourceLeaks) {
-			FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression);
+			FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression, flowContext);
 			if (trackingVariable != null) {
 				if (methodScope != trackingVariable.methodScope)
 					trackingVariable.markClosedInNestedMethod();
 				// by returning the method passes the responsibility to the caller:
-				flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.expression, flowInfo, true);
+				flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.expression, flowInfo, flowContext, true);
 			}
 		}
 	}
