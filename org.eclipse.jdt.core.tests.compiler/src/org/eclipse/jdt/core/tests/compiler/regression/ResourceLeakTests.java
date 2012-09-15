@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class ResourceLeakTests extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug388996" };
+//	TESTS_NAMES = new String[] { "testBug386534" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -3862,6 +3862,59 @@ public void testBug388996() {
 			"		return null;\n" + 
 			"	}\n" + 
 			"}"
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);
+}
+
+// https://bugs.eclipse.org/386534 -  [compiler][resource] "Potential resource leak" false positive warning
+public void testBug386534() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"Bug386534.java",
+			"import java.io.FileNotFoundException;\n" + 
+			"import java.io.IOException;\n" + 
+			"import java.io.OutputStream;\n" + 
+			"\n" + 
+			"public class Bug386534 {\n" + 
+			"	private static final String DETAILS_FILE_NAME = null;\n" + 
+			"	private static final String LOG_TAG = null;\n" + 
+			"	private static Context sContext;\n" + 
+			"	static void saveDetails(byte[] detailsData) {\n" + 
+			"		OutputStream os = null;\n" + 
+			"		try {\n" + 
+			"			os = sContext.openFileOutput(DETAILS_FILE_NAME,\n" + 
+			"					Context.MODE_PRIVATE);\n" + 
+			"			os.write(detailsData);\n" + 
+			"		} catch (IOException e) {\n" + 
+			"			Log.w(LOG_TAG, \"Unable to save details\", e);\n" + 
+			"		} finally {\n" + 
+			"			if (os != null) {\n" + 
+			"				try {\n" + 
+			"					os.close();\n" + 
+			"				} catch (IOException ignored) {\n" + 
+			"				}\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	static class Context {\n" + 
+			"		public static final String MODE_PRIVATE = null;\n" + 
+			"		public OutputStream openFileOutput(String detailsFileName,\n" + 
+			"				String modePrivate) throws FileNotFoundException{\n" + 
+			"			return null;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	static class Log {\n" + 
+			"		public static void w(String logTag, String string, IOException e) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
 		},
 		"",
 		null,

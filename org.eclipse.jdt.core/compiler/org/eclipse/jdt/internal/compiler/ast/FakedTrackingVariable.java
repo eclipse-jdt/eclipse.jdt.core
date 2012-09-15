@@ -91,8 +91,15 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				((long)this.sourceStart <<32)+this.sourceEnd);
 		this.methodScope = original.declaringScope.methodScope();
 		this.originalBinding = original;
-		if (flowContext instanceof FinallyFlowContext)
-			this.tryContext = ((FinallyFlowContext) flowContext).tryContext;
+		// inside a finally block?
+		while (flowContext != null) {
+			if (flowContext instanceof FinallyFlowContext) {
+				// yes -> connect to the corresponding try block:
+				this.tryContext = ((FinallyFlowContext) flowContext).tryContext;
+				break;
+			}
+			flowContext = flowContext.parent;
+		}
 		resolve(original.declaringScope);
 	}
 
