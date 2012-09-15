@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 186342 [compiler][null] Using annotations for null checking
+ *     Stephan Herrmann - Contributions for
+ *	 							bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 387612 - Unreachable catch block...exception is never thrown from the try
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -3973,13 +3975,14 @@ public abstract class Scope {
 										mostSpecificExceptions = current.thrownExceptions;
 									}
 									int mostSpecificLength = mostSpecificExceptions.length;
-									int nextLength = next.thrownExceptions.length;
+									ReferenceBinding[] nextExceptions = getFilteredExceptions(next);
+									int nextLength = nextExceptions.length;
 									SimpleSet temp = new SimpleSet(mostSpecificLength);
 									boolean changed = false;
 									nextException : for (int t = 0; t < mostSpecificLength; t++) {
 										ReferenceBinding exception = mostSpecificExceptions[t];
 										for (int s = 0; s < nextLength; s++) {
-											ReferenceBinding nextException = next.thrownExceptions[s];
+											ReferenceBinding nextException = nextExceptions[s];
 											if (exception.isCompatibleWith(nextException)) {
 												temp.add(exception);
 												continue nextException;
@@ -4010,6 +4013,41 @@ public abstract class Scope {
 
 		// if all moreSpecific methods are equal then see if duplicates exist because of substitution
 		return new ProblemMethodBinding(visible[0], visible[0].selector, visible[0].parameters, ProblemReasons.Ambiguous);
+	}
+
+	private ReferenceBinding[] getFilteredExceptions(MethodBinding method) {
+		// http://bugs.eclipse.org/387612 - Unreachable catch block...exception is never thrown from the try
+		// Need to filter redundant exceptions within the same throws clause.
+		// In this filtering the *most general* exception wins in order to capture all possible exceptions
+		// that could be thrown by the given method.
+		ReferenceBinding[] allExceptions = method.thrownExceptions;
+		int length = allExceptions.length;
+		if (length < 2) return allExceptions;
+		ReferenceBinding[] filteredExceptions = new ReferenceBinding[length];
+		int count = 0;
+		currents: for (int i = 0; i < length; i++) {
+			ReferenceBinding currentException = allExceptions[i];
+			for (int j = 0; j < length; j++) {
+				if (i == j) continue;
+				if (currentException == allExceptions[j]) {
+					// duplicate same exception
+					if (i < j) 
+						break; // take only the first occurrence
+					else
+						continue currents; // skip
+				}
+				if (currentException.isCompatibleWith(allExceptions[j])) {
+					continue currents; // skip
+				}
+			}
+			filteredExceptions[count++] = currentException;
+		}
+		if (count != length) {
+			ReferenceBinding[] tmp = new ReferenceBinding[count];
+			System.arraycopy(filteredExceptions, 0, tmp,  0, count);
+			return tmp;
+		}
+		return allExceptions;
 	}
 
 	public final ClassScope outerMostClassScope() {
