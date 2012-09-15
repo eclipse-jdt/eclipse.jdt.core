@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class ResourceLeakTests extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug385415" };
+//	TESTS_NAMES = new String[] { "testBug388996" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -3329,8 +3329,8 @@ public void test066b() {
 
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // example from comment 12
-// disabled because null info after try-catch is too weak,
-// see also Bug 370424 - [compiler][null] throw-catch analysis for null flow could be more precise
+// Red herring (disabled): warning says "potential" because in the exception case no resource
+// would actually be allocated.
 public void _test067() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -3359,9 +3359,7 @@ public void _test067() {
 
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // example from comment 12
-// disabled because null info after try-catch is too weak,
-// see also Bug 370424 - [compiler][null] throw-catch analysis for null flow could be more precise
-public void _test067b() {
+public void test067b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -3822,6 +3820,48 @@ public void _testBug386534() {
 			"		}\n" + 
 			"	}\n" + 
 			"}\n"
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);
+}
+
+// https://bugs.eclipse.org/388996 - [compiler][resource] Incorrect 'potential resource leak'
+public void testBug388996() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"Bug.java",
+			"import java.io.*;\n" +
+			"public class Bug {\n" +
+			"	public void processRequest(ResponseContext responseContext) throws IOException {\n" + 
+			"		OutputStream bao = null;\n" + 
+			"\n" + 
+			"		try {\n" + 
+			"			HttpServletResponse response = responseContext.getResponse();\n" + 
+			"\n" + 
+			"			bao = response.getOutputStream(); // <<<<\n" + 
+			"		} finally {\n" + 
+			"			if(bao != null) {\n" + 
+			"				bao.close();\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}" +
+			"}\n" +
+			"class ResponseContext {\n" + 
+			"	public HttpServletResponse getResponse() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class HttpServletResponse {\n" + 
+			"	public OutputStream getOutputStream() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}"
 		},
 		"",
 		null,

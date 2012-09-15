@@ -13,6 +13,7 @@
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
+ *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1050,7 +1051,7 @@ public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, 
 	if (location != null && flowInfo.reachMode() != 0) return;
 
 	FakedTrackingVariable returnVar = (location instanceof ReturnStatement) ?
-			FakedTrackingVariable.getCloseTrackingVariable(((ReturnStatement)location).expression) : null;
+			FakedTrackingVariable.getCloseTrackingVariable(((ReturnStatement)location).expression, flowContext) : null;
 
 	Set varSet = new HashSet(this.trackingVariables);
 	FakedTrackingVariable trackingVar;

@@ -14,6 +14,7 @@
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -90,7 +91,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			for (int i = 0, count = this.arguments.length; i < count; i++) {
 				if (analyseResources) {
 					// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
-					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, false);
+					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, flowContext, false);
 				}
 				flowInfo = this.arguments[i].analyseCode(currentScope, flowContext, flowInfo);
 				if ((this.arguments[i].implicitConversion & TypeIds.UNBOXING) != 0) {

@@ -12,6 +12,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 361407 - Resource leak warning when resource is assigned to a field outside of constructor
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
+ *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -84,7 +85,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 							.unconditionalInits();
 					if (analyseResources) {
 						// if argument is an AutoCloseable insert info that it *may* be closed (by the target constructor, i.e.)
-						flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, false);
+						flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, flowContext, false);
 					}
 					if ((this.arguments[i].implicitConversion & TypeIds.UNBOXING) != 0) {
 						this.arguments[i].checkNPE(currentScope, flowContext, flowInfo);

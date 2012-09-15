@@ -13,6 +13,7 @@
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *								bug 385626 - @NonNull fails across loop boundaries
+ *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -45,8 +46,12 @@ public class FinallyFlowContext extends FlowContext {
 	int nullCount;
 	// see also the related field FlowContext#expectedTypes
 
-	public FinallyFlowContext(FlowContext parent, ASTNode associatedNode) {
+	// back reference to the flow context of the corresponding try statement
+	public FlowContext tryContext;
+
+	public FinallyFlowContext(FlowContext parent, ASTNode associatedNode, ExceptionHandlingFlowContext tryContext) {
 		super(parent, associatedNode);
+		this.tryContext = tryContext;
 	}
 
 /**

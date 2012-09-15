@@ -18,6 +18,7 @@
  *							bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *							bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *							bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *							bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -68,7 +69,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		.unconditionalInits();
 
 	if (shouldAnalyseResource)
-		FakedTrackingVariable.handleResourceAssignment(currentScope, preInitInfo, flowInfo, this, this.expression, local);
+		FakedTrackingVariable.handleResourceAssignment(currentScope, preInitInfo, flowInfo, flowContext, this, this.expression, local);
 	else
 		FakedTrackingVariable.cleanUpAfterAssignment(currentScope, this.lhs.bits, this.expression);
 
