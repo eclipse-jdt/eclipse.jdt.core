@@ -1059,45 +1059,49 @@ public void testBug130778x() throws JavaModelException {
 public void testbug388137() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL15_LIB"}, "", "1.5");
-	String contents = "package p;\n" +
-						"import java.util.List;\n" +
-						"public class X {\n" +
-						"	public X(List list) {}\n" +
-						"	public static class ListHandler implements Handler {\n" +
-						"		List list = null;\n" +
-						"		public ListHandler(List list) {\n" +
-						" 	 		this.list = list;\n" +
-						"		}\n" +
-						"	}\n" +
-						"}\n" +
-						"interface Handler {}\n";
-	addLibrary(project, "lib.jar", "src.zip", new String[] {"/P1/p/X.java", contents}, "1.5");
+	try {
+		String contents = "package p;\n" +
+							"import java.util.List;\n" +
+							"public class X {\n" +
+							"	public X(List list) {}\n" +
+							"	public static class ListHandler implements Handler {\n" +
+							"		List list = null;\n" +
+							"		public ListHandler(List list) {\n" +
+							" 	 		this.list = list;\n" +
+							"		}\n" +
+							"	}\n" +
+							"}\n" +
+							"interface Handler {}\n";
+		addLibrary(project, "lib.jar", "src.zip", new String[] {"/P1/p/X.java", contents}, "1.5");
 
-	this.workingCopies[0] = getWorkingCopy("/P1/q/Y.java", true);
-	contents =
-			"package q;\n" +
-			"import p.X.ListHandler;\n" +
-			"public class Y {\n" +
-			"	public Object foo() {\n" +
-			"		ListHandler sortHandler = new ListHandler(null);\n" +
-			"		return sortHandler;" +
-			"	}\n" +
-			"}\n";
-	ASTNode node = buildAST(contents, this.workingCopies[0], true);
+		this.workingCopies[0] = getWorkingCopy("/P1/q/Y.java", true);
+		contents =
+				"package q;\n" +
+				"import p.X.ListHandler;\n" +
+				"public class Y {\n" +
+				"	public Object foo() {\n" +
+				"		ListHandler sortHandler = new ListHandler(null);\n" +
+				"		return sortHandler;" +
+				"	}\n" +
+				"}\n";
+		ASTNode node = buildAST(contents, this.workingCopies[0], true);
 
-	assertTrue("Should be a compilation unit", node instanceof CompilationUnit);
-	CompilationUnit unit = (CompilationUnit) node;
-	node = getASTNode(unit, 0, 0, 0);
-	assertEquals("Not an expression statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
-	VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
-	List fragments = statement.fragments();
-	assertEquals("Wrong size", 1, fragments.size());
-	VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(0);
-	Expression expression = fragment.getInitializer();
-	assertEquals("Not a constructor invocation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
-	ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
-	IMethodBinding binding = classInstanceCreation.resolveConstructorBinding();
-	JavaElement element = (JavaElement)binding.getJavaElement();
-	assertNotNull("Null Element info", element.getElementInfo());
+		assertTrue("Should be a compilation unit", node instanceof CompilationUnit);
+		CompilationUnit unit = (CompilationUnit) node;
+		node = getASTNode(unit, 0, 0, 0);
+		assertEquals("Not an expression statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not a constructor invocation", ASTNode.CLASS_INSTANCE_CREATION, expression.getNodeType());
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		IMethodBinding binding = classInstanceCreation.resolveConstructorBinding();
+		JavaElement element = (JavaElement)binding.getJavaElement();
+		assertNotNull("Null Element info", element.getElementInfo());
+	} finally {
+		deleteProject(project);
+	}
 }
 }
