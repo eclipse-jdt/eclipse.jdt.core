@@ -10,6 +10,7 @@
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
  *								bug 328281 - visibility leaks not detected when analyzing unused field in private class
  *								bug 379784 - [compiler] "Method can be static" is not getting reported
+ *								bug 379834 - Wrong "method can be static" in presence of qualified super and different staticness of nested super class.
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -8031,6 +8032,42 @@ public void test376550_12() {
 		compilerOptions /* custom options */
 	);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
+// https://bugs.eclipse.org/379834 - Wrong "method can be static" in presence of qualified super and different staticness of nested super class.
+public void test376550_13() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+				"QualifiedSuper.java", 
+				"public class QualifiedSuper {\n" + 
+				"	class InnerS {\n" + 
+				"		void flub() {}\n" + 
+				"	}\n" + 
+				"	static class InnerT extends InnerS {\n" + 
+				"		InnerT(QualifiedSuper qs) {\n" + 
+				"			qs.super();\n" + 
+				"		}\n" + 
+				"		final void schlumpf() {\n" + 
+				"			InnerT.super.flub();\n" + 
+				"		}\n" + 
+				"	}	\n" + 
+				"}\n"
+		},
+		"",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		null,
+		compilerOptions /* custom options */,
+		null
+	);
+}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=379530
 public void test379530() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
