@@ -14,6 +14,7 @@
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
+ *								bug 379784 - [compiler] "Method can be static" is not getting reported
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -981,14 +982,16 @@ public void resetEnclosingMethodStaticFlag() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
 /**
  * This method is used to reset the CanBeStatic on all enclosing methods until the method 
- * belonging to the declaringClass
- * @param declaringClass
+ * belonging to the enclosingInstanceType
+ * @param enclosingInstanceType type of which an enclosing instance is required in the code.
  */
-public void resetDeclaringClassMethodStaticFlag(TypeBinding declaringClass) {
+public void resetDeclaringClassMethodStaticFlag(TypeBinding enclosingInstanceType) {
 	MethodScope methodScope = methodScope();
 	if (methodScope != null && methodScope.referenceContext instanceof TypeDeclaration) {
-		// anonymous type, find enclosing method
-		methodScope = methodScope.enclosingMethodScope();
+		if (!methodScope.enclosingReceiverType().isCompatibleWith(enclosingInstanceType)) { // unless invoking a method of the local type ...
+			// anonymous type, find enclosing method
+			methodScope = methodScope.enclosingMethodScope();
+		}
 	}
 	while (methodScope != null && methodScope.referenceContext instanceof MethodDeclaration) {
 		MethodDeclaration methodDeclaration = (MethodDeclaration) methodScope.referenceContext;
@@ -996,14 +999,14 @@ public void resetDeclaringClassMethodStaticFlag(TypeBinding declaringClass) {
 		ClassScope enclosingClassScope = methodScope.enclosingClassScope();
 		if (enclosingClassScope != null) {
 			TypeDeclaration type = enclosingClassScope.referenceContext;
-			if (type != null && type.binding != null && declaringClass != null && type.binding != declaringClass.original()) {
+			if (type != null && type.binding != null && enclosingInstanceType != null
+					&& !type.binding.isCompatibleWith(enclosingInstanceType.original()))
+			{
 				methodScope = enclosingClassScope.enclosingMethodScope();
-			} else {
-				break;
+				continue;
 			}
-		} else {
-			break;
 		}
+		break;
 	}
 }
 

@@ -16,6 +16,7 @@
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
+ *								bug 379784 - [compiler] "Method can be static" is not getting reported
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -88,7 +89,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 		if (this.receiver.isThis()) {
 			// accessing non-static method without an object
-			currentScope.resetDeclaringClassMethodStaticFlag(this.binding.declaringClass);
+			currentScope.resetDeclaringClassMethodStaticFlag(this.actualReceiverType);
 		}
 	} else if (this.receiver.isThis()) {
 		if ((this.receiver.bits & ASTNode.IsImplicitThis) == 0) {
