@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 328281 - visibility leaks not detected when analyzing unused field in private class
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *								bug 328281 - visibility leaks not detected when analyzing unused field in private class
+ *								bug 379784 - [compiler] "Method can be static" is not getting reported
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -31,7 +33,7 @@ public ProblemTypeAndMethodTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "testBug335845g" };
+//		TESTS_NAMES = new String[] { "test376550" };
 //		TESTS_NUMBERS = new int[] { 113 };
 //		TESTS_RANGE = new int[] { 108, -1 };
 }
@@ -7495,8 +7497,47 @@ public void test376550_5a() {
 	);
 }
 
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
-//QualifiedNameReference, accessing outer class instance field
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
+// https://bugs.eclispe.org/379784 - [compiler] "Method can be static" is not getting reported
+// Variation of the above
+public void test376550_5aa() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"public class X {\n" +
+				"	int i1 = 1;\n" +
+				"	public void foo(){\n" +
+				"		class Local{\n" +
+				"			int i2 = 1;\n" +
+				"       }\n" +
+				"       class Local2 extends Local {\n" +
+				"			void method2() {\n" +
+				"				Local2.this.i2 = 1;\n" + // required instance is of type Local (super of Local2)
+				"			}\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public void foo(){\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X can potentially be declared as static\n" +
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376550
+// QualifiedNameReference, accessing outer class instance field
 public void test376550_5b() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return;
@@ -7904,6 +7945,47 @@ public void test376550_11() {
 		"	{ add(o);}\n" + 
 		"	      ^\n" + 
 		"Read access to enclosing field X.o is emulated by a synthetic accessor method\n" + 
+		"----------\n",
+		null /* no extra class libraries */,
+		true /* flush output directory */,
+		compilerOptions /* custom options */
+	);
+}
+
+// https://bugs.eclipse.org/376550
+// https://bugs.eclipse.org/379784 - [compiler] "Method can be static" is not getting reported
+// bug test case
+public void test376550_11a() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java", 
+				"import java.util.ArrayList;\n" +
+				"import java.util.Collection;\n" +
+				"public class X {\n" +
+				"   private Object o = new Object();\n" +
+				"   public final Collection<Object> go() {\n" +// can be static
+				"   	return new ArrayList<Object>() {\n" +
+				"			{ add(null);}\n" +	// required instance is of type ArrayList, not X
+				"		};\n" +
+				"	}\n" +
+				"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	public final Collection<Object> go() {\n" +
+		"	                                ^^^^\n" +
+		"The method go() from the type X can be declared as static\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" +
+		"	return new ArrayList<Object>() {\n" +
+		"	           ^^^^^^^^^^^^^^^^^^^\n" +
+		"The serializable class  does not declare a static final serialVersionUID field of type long\n" +
 		"----------\n",
 		null /* no extra class libraries */,
 		true /* flush output directory */,
