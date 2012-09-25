@@ -12,7 +12,9 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 383690 - [compiler] location of error re uninitialized final field should be aligned
+ *     Stephan Herrmann - Contribution for
+ *								bug 383690 - [compiler] location of error re uninitialized final field should be aligned
+ *								bug 388800 - [1.8] adjust tests to 1.8 JRE
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -4431,6 +4433,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    }\n" +
 				"    public int size() { return 0; }\n" +
 				"    public Object get(int index) { return null; }\n" +
+				ITERABLE_RAW_IMPL_JRE8 +
+				COLLECTION_RAW_IMPL_JRE8 +
+				LIST_RAW_IMPL_JRE8 +
 				"}\n"
 			},
 			"SUCCESS");
@@ -6140,6 +6145,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    public int compare(X x1, X x2) {\n" +
 				"        return comparator.compare(function.eval(x1),function.eval(x2));\n" +
 				"    }\n" +
+				COMPARATOR_RAW_IMPL_JRE8 +
 				"}\n",
 			},
 			"");
@@ -8840,6 +8846,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"   public Set<Map.Entry<String, V>> entrySet() {\n" +
 				"      return this.backingMap.entrySet();\n" +
 				"   }\n" +
+				MAP_STREAM_IMPL_JRE8.replaceAll("\\*", "String").replace('%', 'V') +
+				MAP_IMPL_JRE8.replaceAll("!", "String,V").replaceAll("\\*", "String")+
 				"}\n",
 			},
 			"----------\n" +
@@ -10802,6 +10810,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 					"		};\n" +
 					"	}\n" +
 					"	public int size() {return 0;}\n" +
+					COLLECTION_RAW_IMPL_JRE8 +
+					ITERABLE_IMPL_JRE8.replaceAll("\\*", "Entry<String,Integer>") +
 					"}"
 			}
 		);
@@ -11373,6 +11383,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    }\n" +
 				"    public Iterator<Runnable> iterator() {return null;}\n" +
 				"    public int size() {return 0;}\n" +
+				COLLECTION_RAW_IMPL_JRE8 +
+				ITERABLE_IMPL_JRE8.replaceAll("\\*", "Runnable") +
 				"}"
 				}
 		);
@@ -24899,6 +24911,9 @@ public void test0779() throws Exception {
 			"			List<String> list = new AbstractList<String>() {\n" +
 			"				@Override public int size() { return 0; }\n" +
 			"				@Override public String get(int i) { return args.get(i); }\n" +
+			COLLECTION_IMPL_JRE8.replaceAll("\\*", "String") +
+			ITERABLE_IMPL_JRE8.replaceAll("\\*", "String") +
+			LIST_IMPL_JRE8.replaceAll("\\*", "String") +
 			"			};\n" +
 			"		}\n" +
 			"	}\n" +
@@ -24910,13 +24925,14 @@ public void test0779() throws Exception {
 		},
 		"SUCCESS");
 
+	String constantPoolIdx = IS_JRE_8 ? "149" : "36"; // depends on whether or not stubs for JRE8 default methods are included
 	String expectedOutput =
 		"  // Method descriptor #31 (I)Ljava/lang/Object;\n" +
 		"  // Stack: 2, Locals: 2\n" +
 		"  public bridge synthetic java.lang.Object get(int arg0);\n" +
 		"    0  aload_0 [this]\n" +
 		"    1  iload_1 [arg0]\n" +
-		"    2  invokevirtual X$Entry$1.get(int) : java.lang.String [36]\n" +
+		"    2  invokevirtual X$Entry$1.get(int) : java.lang.String ["+constantPoolIdx+"]\n" +
 		"    5  areturn\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 1]\n";
@@ -28018,6 +28034,8 @@ public void test0868() {
 			"		// TODO Auto-generated method stub\n" +
 			"		\n" +
 			"	}" +
+			COLLECTION_RAW_IMPL_JRE8 +
+			ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8 +
 			"}",
 		},
 		"",
@@ -34170,6 +34188,7 @@ public void test1030() {
 			"		public Iterator<W> iterator() {\n" +
 			"			return theList.iterator();\n" +
 			"		}\n" +
+			ITERABLE_IMPL_JRE8.replace('*', 'W') +
 			"	}\n" +
 			"\n" +
 			"	private PointList<Waypoint> waypoints = new PointList<Waypoint>();\n" +
@@ -34414,6 +34433,7 @@ public void test1035() {
 			"public int compare(T obj1, T obj2) {\n" +
 			"	return obj1.compareTo(obj2);\n" +
 			"}\n" +
+			COMPARATOR_IMPL_JRE8.replace('*', 'T') +
 			"}\n" +
 			"\n" +
 			"@SuppressWarnings({\"unchecked\", \"rawtypes\"})\n" +
@@ -34464,6 +34484,7 @@ public void test1035() {
 			"public int compare(V obj1, V obj2) {\n" +
 			"	return 0;\n" +
 			"}\n" +
+			COMPARATOR_IMPL_JRE8.replace('*', 'V') +
 			"}", // =================
 
 		},

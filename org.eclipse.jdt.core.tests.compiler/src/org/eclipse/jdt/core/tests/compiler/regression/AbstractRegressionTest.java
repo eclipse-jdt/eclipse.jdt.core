@@ -11,7 +11,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 335093 - [compiler][null] minimal hook for future null annotation support
+ *     Stephan Herrmann - Contribution for
+ *								bug 335093 - [compiler][null] minimal hook for future null annotation support
+ *								bug 388800 - [1.8] adjust tests to 1.8 JRE
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -68,6 +70,199 @@ import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
+
+	// for compiling against JRE 8:
+	static final boolean IS_JRE_8;
+	static final String COMPARATOR_IMPL_JRE8;
+	static final String COMPARATOR_RAW_IMPL_JRE8;
+	static final String COLLECTION_IMPL_JRE8;
+	static final String COLLECTION_RAW_IMPL_JRE8;
+	static final String LIST_IMPL_JRE8;
+	static final String LIST_RAW_IMPL_JRE8;
+	static final String ITERABLE_IMPL_JRE8;
+	static final String ITERABLE_RAW_IMPL_JRE8;
+	static final String ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8;
+	static final String MAP_IMPL_JRE8;
+	static final String MAP_RAW_IMPL_JRE8;
+	static final String MAP_STREAM_IMPL_JRE8;
+	static final String MAP_STREAM_RAW_IMPL_JRE8;
+			
+	static {
+		String javaVersion = System.getProperty("java.specification.version");
+		IS_JRE_8 = "1.8".equals(javaVersion);
+		if (IS_JRE_8) { // TODO(stephan) accommodate future versions ...
+			COMPARATOR_IMPL_JRE8 =
+				"	public java.util.Comparator<*> compose(java.util.Comparator<? super *> other) { return null; }\n" +
+				"	public java.util.Comparator<*> reverse() { return null; }\n";
+			COMPARATOR_RAW_IMPL_JRE8 =
+				"	public java.util.Comparator compose(java.util.Comparator other) { return null; }\n" +
+				"	public java.util.Comparator reverse() { return null; }\n";
+			COLLECTION_IMPL_JRE8 = 
+				"	public boolean retainAll(java.util.functions.Predicate<? super *> filter) { return false; }\n" +
+				"	public boolean removeAll(java.util.functions.Predicate<? super *> filter) { return false; }\n" +
+				"	public void addAll(Iterable<? extends *> source) { }\n";
+			COLLECTION_RAW_IMPL_JRE8 = 
+				"	public @SuppressWarnings(\"rawtypes\") boolean retainAll(java.util.functions.Predicate filter) { return false; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") boolean removeAll(java.util.functions.Predicate filter) { return false; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") void addAll(Iterable source) { }\n";
+			LIST_IMPL_JRE8 =// replace '*' with your concrete type argument
+				"	public void sort(java.util.Comparator<? super *> comparator) {}\n" +
+				"	public void parallelSort(java.util.Comparator<? super *> comparator) {}\n";	
+			LIST_RAW_IMPL_JRE8 =
+				"	public @SuppressWarnings(\"rawtypes\") void sort(java.util.Comparator comparator) {}\n" +
+				"	public @SuppressWarnings(\"rawtypes\") void parallelSort(java.util.Comparator comparator) {}\n";	
+			ITERABLE_IMPL_JRE8 = // replace '*' with your concrete type argument
+				"	public boolean isEmpty() { return false; }\n" +
+				"	public long count() { return 0L; }\n" +
+				"	public * getOnly() { return null; }\n" +
+				"	public * getFirst() { return null; }\n" +
+				"	public * getAny() { return null; }\n" +
+				"	public * reduce(* base, java.util.functions.BinaryOperator<*> reducer) { return null; }\n" +
+				"	public <A extends java.util.Fillable<? super *>> A  into(A target) { return null; }\n" +
+				"	public void forEach(java.util.functions.Block<? super *> block) {}\n" +
+				"	public Iterable<*> sorted(java.util.Comparator<? super *> comparator) { return null; }\n" +
+				"	public boolean anyMatch(java.util.functions.Predicate<? super *> filter) { return false; }\n" +
+				"	public boolean allMatch(java.util.functions.Predicate<? super *> filter) { return false; }\n" +
+				"	public boolean noneMatch(java.util.functions.Predicate<? super *> filter) { return false; }\n" +
+				"	public Iterable<*> cumulate(java.util.functions.BinaryOperator<*> op) { return null; }\n" +
+				"	public <U> MapStream<*,U> mapped(java.util.functions.Mapper<? super *, ? extends U> mapper) { return null; }\n" +
+				"	public Iterable<*> filter(java.util.functions.Predicate<? super *> predicate) { return null; }\n" +
+				"	public <U> Iterable<U> map(java.util.functions.Mapper<? super *, ? extends U> mapper) { return null; }\n" +
+				"	public double mapReduce(java.util.functions.DoubleMapper<? super *> mapper, double base, java.util.functions.DoubleBinaryOperator reducer) { return 0; }\n" +
+				"	public long mapReduce(java.util.functions.LongMapper<? super *> mapper, long base, java.util.functions.LongBinaryOperator reducer) { return 0; }\n" +
+				"	public int mapReduce(java.util.functions.IntMapper<? super *> mapper, int base, java.util.functions.IntBinaryOperator reducer) { return 0; }\n" +
+				"	public <U> U mapReduce(java.util.functions.Mapper<? super *, ? extends U> mapper, U base, java.util.functions.BinaryOperator<U> reducer) { return null; }\n" +
+				"	public <U> Iterable<U> flatMap(java.util.functions.Mapper<? super *, ? extends Iterable<U>> mapper) { return null; }\n" +
+				"	public <U> MapStream<U, Iterable<*>> groupBy(java.util.functions.Mapper<? super *, ? extends U> mapper) { return null; }\n" +
+				"	public <U> MapStream<U, Iterable<*>> groupByMulti(java.util.functions.Mapper<? super *, ? extends Iterable<U>> mapper) { return null; }\n" +
+				"	public Iterable<*> uniqueElements() { return null; }\n";
+			ITERABLE_RAW_IMPL_JRE8 =
+				"	public boolean isEmpty() { return false; }\n" +
+				"	public long count() { return 0L; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Object getOnly() { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Object getFirst() { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Object getAny() { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Object reduce(Object base, java.util.functions.BinaryOperator reducer) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") java.util.Fillable into(java.util.Fillable target) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") void forEach(java.util.functions.Block block) {}\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Iterable sorted(java.util.Comparator comparator) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") boolean anyMatch(java.util.functions.Predicate filter) { return false; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") boolean allMatch(java.util.functions.Predicate filter) { return false; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") boolean noneMatch(java.util.functions.Predicate filter) { return false; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Iterable cumulate(java.util.functions.BinaryOperator op) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") MapStream mapped(java.util.functions.Mapper mapper) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Iterable filter(java.util.functions.Predicate predicate) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Iterable map(java.util.functions.Mapper mapper) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") double mapReduce(java.util.functions.DoubleMapper mapper, double base, java.util.functions.DoubleBinaryOperator reducer) { return 0; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") long mapReduce(java.util.functions.LongMapper mapper, long base, java.util.functions.LongBinaryOperator reducer) { return 0; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") int mapReduce(java.util.functions.IntMapper mapper, int base, java.util.functions.IntBinaryOperator reducer) { return 0; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Object mapReduce(java.util.functions.Mapper mapper, Object base, java.util.functions.BinaryOperator reducer) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Iterable flatMap(java.util.functions.Mapper mapper) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") MapStream groupBy(java.util.functions.Mapper mapper) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") MapStream groupByMulti(java.util.functions.Mapper mapper) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Iterable uniqueElements() { return null; }\n";
+			ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8 =
+				"	public long count() { return 0L; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Object getOnly() { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Object getFirst() { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Object getAny() { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Object reduce(Object base, java.util.functions.BinaryOperator reducer) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") java.util.Fillable into(java.util.Fillable target) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") void forEach(java.util.functions.Block block) {}\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Iterable sorted(java.util.Comparator comparator) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") boolean anyMatch(java.util.functions.Predicate filter) { return false; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") boolean allMatch(java.util.functions.Predicate filter) { return false; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") boolean noneMatch(java.util.functions.Predicate filter) { return false; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Iterable cumulate(java.util.functions.BinaryOperator op) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") MapStream mapped(java.util.functions.Mapper mapper) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Iterable filter(java.util.functions.Predicate predicate) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Iterable map(java.util.functions.Mapper mapper) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") double mapReduce(java.util.functions.DoubleMapper mapper, double base, java.util.functions.DoubleBinaryOperator reducer) { return 0; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") long mapReduce(java.util.functions.LongMapper mapper, long base, java.util.functions.LongBinaryOperator reducer) { return 0; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") int mapReduce(java.util.functions.IntMapper mapper, int base, java.util.functions.IntBinaryOperator reducer) { return 0; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Object mapReduce(java.util.functions.Mapper mapper, Object base, java.util.functions.BinaryOperator reducer) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Iterable flatMap(java.util.functions.Mapper mapper) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") MapStream groupBy(java.util.functions.Mapper mapper) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") MapStream groupByMulti(java.util.functions.Mapper mapper) { return null; }\n" +
+				"	public @SuppressWarnings(\"rawtypes\") Iterable uniqueElements() { return null; }\n";
+			MAP_IMPL_JRE8 = // '!' stands for 'K,V', '*' for 'K'
+				"	public Iterable<BiValue<!>> asIterable() { return null; }\n" +
+				"	public Iterable<*> inputs() { return null; }\n";
+			MAP_RAW_IMPL_JRE8 =
+				"	public Iterable asIterable() { return null; }\n" +
+				"	public Iterable inputs() { return null; }\n";
+			MAP_STREAM_IMPL_JRE8 = // '*' stands for 'K', '%' for 'V'
+				"	public BiValue<*,%> getOnly() { return null; }\n" +
+				"	public <A extends Map<? super *, ? super %>> A  into(A destination) { return null; }\n" +
+				"	public void forEach(java.util.functions.BiBlock<? super *, ? super %> block) {}\n" +
+				"	public MapStream<*, Iterable<%>> asMultiStream() { return null; }\n" +
+				"	public <W> MapStream<*, Iterable<W>> mapValuesMulti(final java.util.functions.BiMapper<? super *, ? super %, Iterable<W>> mapper) { return null; }\n" +
+				"	public MapStream<*,%> sorted(java.util.Comparator<? super *> comparator) { return null; }\n" +
+				"	public boolean anyMatch(java.util.functions.BiPredicate<? super *, ? super %> predicate) { return false; }\n" +
+				"	public boolean allMatch(java.util.functions.BiPredicate<? super *, ? super %> predicate) { return false; }\n" +
+				"	public boolean noneMatch(java.util.functions.BiPredicate<? super *, ? super %> predicate) { return false; }\n" +
+				"	public MapStream<*,%> merge(MapStream<*,%> other) { return null; }\n" +
+				"	public MapStream<*,%> filter(final java.util.functions.BiPredicate<? super *, ? super %> predicate) { return null; }\n" +
+				"	public MapStream<%,*> swap() { return null; }\n" +
+				"	public BiValue<*,%> getAny() { return null; }\n" +
+				"	public MapStream<*,%> filterKeys(final java.util.functions.Predicate<*> filter) { return null; }\n" +
+				"	public MapStream<*,%> filterValues(final java.util.functions.Predicate<%> filter) { return null; }\n" +
+				"	public <A extends Map<? super *, C>,C extends Collection<? super %>> A intoMulti(A destination, java.util.functions.Factory<C> factory) { return null; }\n" +
+				"	public <W> MapStream<*,W> mapValues(final java.util.functions.Mapper<%,W> mapper) { return null; }\n" +
+				"	public BiValue<*,%> getFirst() { return null; }\n" +
+				"	public <W> MapStream<*, W> map(final java.util.functions.BiMapper<*, %, W> mapper) { return null; }\n";
+			MAP_STREAM_RAW_IMPL_JRE8 =
+				"	public BiValue getOnly() { return null; }\n" +
+				"	public Map into(Map destination) { return null; }\n" +
+				"	public void forEach(java.util.functions.BiBlock block) {}\n" +
+				"	public MapStream asMultiStream() { return null; }\n" +
+				"	public MapStream mapValuesMulti(final java.util.functions.BiMapper mapper) { return null; }\n" +
+				"	public MapStream sorted(java.util.Comparator comparator) { return null; }\n" +
+				"	public boolean anyMatch(java.util.functions.BiPredicate predicate) { return false; }\n" +
+				"	public boolean allMatch(java.util.functions.BiPredicate predicate) { return false; }\n" +
+				"	public boolean noneMatch(java.util.functions.BiPredicate predicate) { return false; }\n" +
+				"	public MapStream merge(MapStream other) { return null; }\n" +
+				"	public MapStream filter(final java.util.functions.BiPredicate predicate) { return null; }\n" +
+				"	public MapStream swap() { return null; }\n" +
+				"	public BiValue getAny() { return null; }\n" +
+				"	public MapStream filterKeys(final java.util.functions.Predicate filter) { return null; }\n" +
+				"	public MapStream filterValues(final java.util.functions.Predicate filter) { return null; }\n" +
+				"	public Map intoMulti(Map destination, java.util.functions.Factory factory) { return null; }\n" +
+				"	public MapStream mapValues(final java.util.functions.Mapper mapper) { return null; }\n" +
+				"	public BiValue getFirst() { return null; }\n" +
+				"	public MapStream map(final java.util.functions.BiMapper mapper) { return null; }\n";
+		} else {
+			COMPARATOR_IMPL_JRE8 = "";			
+			COMPARATOR_RAW_IMPL_JRE8 = "";
+			COLLECTION_IMPL_JRE8 = "";
+			COLLECTION_RAW_IMPL_JRE8 = "";
+			LIST_IMPL_JRE8 = "";
+			LIST_RAW_IMPL_JRE8 = "";
+			ITERABLE_IMPL_JRE8 = "";
+			ITERABLE_RAW_IMPL_JRE8 = "";
+			ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8 = "";
+			MAP_IMPL_JRE8 = "";
+			MAP_RAW_IMPL_JRE8 = "";
+			MAP_STREAM_IMPL_JRE8 = "";
+			MAP_STREAM_RAW_IMPL_JRE8 = "";
+		}
+	}
+	String getListRawImplJRE8() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5)
+			return LIST_RAW_IMPL_JRE8.replaceAll("@SuppressWarnings\\(\"rawtypes\"\\)", "");
+		return LIST_RAW_IMPL_JRE8;
+	}
+	String getIterableRawImplJRE8() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5)
+			return ITERABLE_RAW_IMPL_JRE8.replaceAll("@SuppressWarnings\\(\"rawtypes\"\\)", "");
+		return ITERABLE_RAW_IMPL_JRE8;
+	}
+	String getCollectionRawImplJRE8() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5)
+			return COLLECTION_RAW_IMPL_JRE8.replaceAll("@SuppressWarnings\\(\"rawtypes\"\\)", "");
+		return COLLECTION_RAW_IMPL_JRE8;
+	}
+
 	// javac comparison related types, fields and methods - see runJavac for
 	// details
 static class JavacCompiler {

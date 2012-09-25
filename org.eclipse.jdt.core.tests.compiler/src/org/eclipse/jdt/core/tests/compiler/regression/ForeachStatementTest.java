@@ -1,12 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 388800 - [1.8] adjust tests to 1.8 JRE
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1101,6 +1107,7 @@ public void test023() {
 				"   public Iterator<String> iterator() {\n" +
 				"        return null;\n" +
 				"    }\n" +
+				ITERABLE_IMPL_JRE8.replaceAll("\\*", "String") +
 				"}\n",
 			},
 			"----------\n" +
@@ -1628,6 +1635,7 @@ public void test034() throws Exception {
 			"	public Iterator<String> iterator() {\n" +
 			"		return new ArrayIterator<String>(new String[]{\"a\",\"b\"});\n" +
 			"	}\n" +
+			ITERABLE_IMPL_JRE8.replaceAll("\\*", "String") +
 			"}\n",
 		},
 		"ab");
@@ -1723,6 +1731,7 @@ public void test035() throws Exception {
 			"	public Iterator<String> iterator() {\n" +
 			"		return new ArrayIterator<String>(new String[]{\"a\",\"b\"});\n" +
 			"	}\n" +
+			ITERABLE_IMPL_JRE8.replaceAll("\\*", "String") +
 			"}\n",
 		},
 		"ab");
@@ -1798,6 +1807,7 @@ public void test036() throws Exception {
 			"		X x = new X();\n" +
 			"		x.foo(x);\n" +
 			"	}\n" +
+			ITERABLE_IMPL_JRE8.replaceAll("\\*", "String") +
 			"}",
 		},
 		"ab");

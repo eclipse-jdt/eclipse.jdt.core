@@ -14,6 +14,7 @@
  *     Benjamin Muskalla - Contribution for bug 239066
  *     Stephan Herrmann - Contribution for
  *     								bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
+ *									bug 388954 - [1.8][compiler] detect default methods in class files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -163,7 +164,13 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 					// JLS 9.4.3 (Java8): default method cannot override method from j.l.Object
 					problemReporter(currentMethod).defaultMethodOverridesObjectMethod(currentMethod);
 				} else {
-					currentMethod.modifiers |= ExtraCompilerModifiers.AccOverriding;
+					// TODO (stephan) using AccImplementing for overrides of a default method works well
+					// for OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation
+					// but we should check if it has bad side effects elsewhere.
+					if (inheritedMethod.isDefaultMethod())
+						currentMethod.modifiers |= ExtraCompilerModifiers.AccImplementing;
+					else
+						currentMethod.modifiers |= ExtraCompilerModifiers.AccOverriding;
 				}
 			}
 

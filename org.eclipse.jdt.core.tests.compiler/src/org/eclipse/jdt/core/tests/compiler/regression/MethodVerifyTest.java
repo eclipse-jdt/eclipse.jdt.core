@@ -12,7 +12,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
- *								Bug 388800 - [1.8] adjust tests to 1.8 JRE
+ *								bug 388800 - [1.8] adjust tests to 1.8 JRE
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -62,12 +62,6 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				? " must override a superclass method\n"
 				: " must override or implement a supertype method\n");
 	}
-    
-	boolean isJava8JRE() {
-        String version = System.getProperty("java.specification.version");
-        return "1.8".equals(version);
-    }
-
 	public void test001() {
 		this.runNegativeTest(
 			new String[] {
@@ -1823,8 +1817,11 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
+				"import java.util.*;\n" + 
 				"public class X extends java.util.AbstractMap {\n" +
 				"	public java.util.Set entrySet() { return null; }\n" +
+				MAP_RAW_IMPL_JRE8 +
+				MAP_STREAM_RAW_IMPL_JRE8 +
 				"}\n"
 			},
 			""
@@ -6848,13 +6845,6 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783
 	public void test091() {
-        String j8warning = isJava8JRE() 
-                ?   "16. WARNING in DataSet.java (at line 34)\n" + 
-                    "	public void remove() {}\n" + 
-                    "	            ^^^^^^^^\n" + 
-                    "The method remove() of type DataSet<T> should be tagged with @Override since it actually overrides a superclass method\n" + 
-                    "----------\n"
-                :   "";
 		this.runNegativeTest(
 			new String[] {
 				"DataSet.java",//===================
@@ -6892,6 +6882,9 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	public boolean hasNext() {	return false; }\n" +
 				"	public Object next() {	return null; }\n" +
 				"	public void remove() {}\n" +
+				ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8 +
+				COLLECTION_RAW_IMPL_JRE8 +
+				LIST_RAW_IMPL_JRE8 + 
 				"}\n", // =================
 			},
 			"----------\n" +
@@ -6970,19 +6963,11 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"	       ^^^^\n" +
 			"List is a raw type. References to generic type List<E> should be parameterized\n" +
 			"----------\n"
-			+ j8warning
 		);
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783 - variation
 	public void test092() {
-        String j8warning = isJava8JRE()
-                ?   "14. WARNING in DataSet.java (at line 34)\n" + 
-	                "	public void remove() {}\n" + 
-	                "	            ^^^^^^^^\n" + 
-                    "The method remove() of type DataSet<T> should be tagged with @Override since it actually overrides a superclass method\n" + 
-                    "----------\n"
-                :   "";
 		this.runNegativeTest(
 			new String[] {
 				"DataSet.java",//===================
@@ -7020,6 +7005,9 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	public boolean hasNext() {	return false; }\n" +
 				"	public Object next() {	return null; }\n" +
 				"	public void remove() {}\n" +
+				ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8 +
+				COLLECTION_RAW_IMPL_JRE8 +
+				LIST_RAW_IMPL_JRE8 + 
 				"}\n", // =================
 			},
 			"----------\n" +
@@ -7087,18 +7075,10 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"	public List subList(int fromIndex, int toIndex) {	return null; }\n" +
 			"	       ^^^^\n" +
 			"List is a raw type. References to generic type List<E> should be parameterized\n" +
-			"----------\n"
-			+j8warning);
+			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783 - variation
 	public void test093() {
-        String j8warning = isJava8JRE()
-                ?   "18. WARNING in DataSet.java (at line 36)\n" + 
-		            "	public void remove() {}\n" + 
-		            "	            ^^^^^^^^\n" + 
-	                "The method remove() of type DataSet<T> should be tagged with @Override since it actually overrides a superclass method\n" + 
-                    "----------\n"
-                :   "";
 		this.runNegativeTest(
 			new String[] {
 				"DataSet.java",//===================
@@ -7138,6 +7118,9 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	public boolean hasNext() {	return false; }\n" +
 				"	public Object next() {	return null; }\n" +
 				"	public void remove() {}\n" +
+				ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8 +
+				COLLECTION_RAW_IMPL_JRE8 +
+				LIST_RAW_IMPL_JRE8 + 
 				"}\n", // =================
 			},
 			"----------\n" +
@@ -7226,7 +7209,6 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"	       ^^^^\n" +
 			"List is a raw type. References to generic type List<E> should be parameterized\n" +
 			"----------\n"
-			+j8warning
 		);
 	}
 
@@ -11424,6 +11406,7 @@ public void test203() {
 			"		return compare((I) o1, (I) o2);\n" +
 			"	}\n" +
 			"	public int compare(I o1, I o2) { return 0; }\n" +
+			COMPARATOR_RAW_IMPL_JRE8 +
 			"}"
 		},
 		""
@@ -12336,6 +12319,7 @@ public void test331446() {
 			"			public int compare(Object o1, Object o2) {\n" + 
 			"				return 0;\n" + 
 			"			}\n" + 
+			COMPARATOR_RAW_IMPL_JRE8 +
 			"		};\n" + 
 			"		Test.assertEquals(\"Test\", comparator, new ArrayList(), new ArrayList());\n" + 
 			"	}\n" + 
@@ -12406,6 +12390,7 @@ public void test331446a() {
 			"			public int compare(Object o1, Object o2) {\n" + 
 			"				return 0;\n" + 
 			"			}\n" + 
+			COMPARATOR_RAW_IMPL_JRE8 +
 			"		};\n" + 
 			"		Test.assertEquals(\"Test\", comparator, new ArrayList(), new ArrayList());\n" + 
 			"	}\n" + 

@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -14,6 +18,7 @@
  *								bug 365387 - [compiler][null] bug 186342: Issues to follow up post review and verification.
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
+ *								bug 388800 - [1.8][compiler] detect default methods in class files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -451,6 +456,13 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel, char[
 	int methodModifiers = method.getModifiers() | ExtraCompilerModifiers.AccUnresolved;
 	if (sourceLevel < ClassFileConstants.JDK1_5)
 		methodModifiers &= ~ClassFileConstants.AccVarargs; // vararg methods are not recognized until 1.5
+	if (isInterface() && (methodModifiers & ClassFileConstants.AccAbstract) == 0) {
+		// see https://bugs.eclipse.org/388954
+		if (sourceLevel >= ClassFileConstants.JDK1_8)
+			methodModifiers |= ExtraCompilerModifiers.AccDefaultMethod;
+		else
+			methodModifiers |= ClassFileConstants.AccAbstract;
+	}
 	ReferenceBinding[] exceptions = Binding.NO_EXCEPTIONS;
 	TypeBinding[] parameters = Binding.NO_PARAMETERS;
 	TypeVariableBinding[] typeVars = Binding.NO_TYPE_VARIABLES;

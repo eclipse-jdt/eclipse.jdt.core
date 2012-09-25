@@ -4,9 +4,15 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 388800 - [1.8] adjust tests to 1.8 JRE
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1777,6 +1783,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             		"    public Iterator<Value_Type> iterator() {\n" +
             		"        return null;\n" +
             		"    }\n" +
+            		ITERABLE_IMPL_JRE8.replaceAll("\\*", "Value_Type") +
             		"}\n" +
             		"\n" +
             		"class BirBlock {\n" +
