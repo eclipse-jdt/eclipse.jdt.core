@@ -154,6 +154,7 @@
  *									UninitializedBlankFinalFieldHintMissingDefault
  *									ShouldReturnValueHintMissingDefault
  *									IllegalModifierForInterfaceDefaultMethod
+ *									InheritedDefaultMethodConflictsWithOtherInherited
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
