@@ -1156,12 +1156,11 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 19, pc: 102] local: x index: 1 type: X\n" +
 				"        [pc: 2, pc: 111] local: i index: 2 type: int\n" +
 				"        [pc: 90, pc: 102] local: diff index: 3 type: java.lang.Object\n" +
-				"      Stack map table: number of frames 8\n" +
+				"      Stack map table: number of frames 7\n" +
 				"        [pc: 5, full, stack: {}, locals: {java.lang.String[], _, int}]\n" +
 				"        [pc: 38, full, stack: {}, locals: {java.lang.String[], X, int}]\n" +
 				"        [pc: 44, same]\n" +
 				"        [pc: 64, same]\n" +
-				"        [pc: 82, same]\n" +
 				"        [pc: 85, same]\n" +
 				"        [pc: 102, full, stack: {}, locals: {java.lang.String[], _, int}]\n" +
 				"        [pc: 105, same]\n";
