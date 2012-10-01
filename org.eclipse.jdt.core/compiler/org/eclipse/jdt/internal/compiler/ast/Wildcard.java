@@ -59,6 +59,7 @@ public class Wildcard extends SingleTypeReference {
 
 	private TypeBinding internalResolveType(Scope scope, ReferenceBinding genericType, int rank) {
 		TypeBinding boundType = null;
+		resolveAnnotations(scope);
 		if (this.bound != null) {
 			boundType = scope.kind == Scope.CLASS_SCOPE
 					? this.bound.resolveType((ClassScope)scope)
@@ -72,7 +73,23 @@ public class Wildcard extends SingleTypeReference {
 		return this.resolvedType = wildcard;
 	}
 
+	
+	private void resolveAnnotations(Scope scope) {
+		switch (scope.kind) {
+			case Scope.METHOD_SCOPE:
+			case Scope.BLOCK_SCOPE:
+				if (this.annotations != null)
+					resolveAnnotations((BlockScope) scope, this.annotations[0], new Annotation.TypeUseBinding(Binding.TYPE_USE));
+				break;
+			default: 
+				break;
+		}
+	}
 	public StringBuffer printExpression(int indent, StringBuffer output){
+		if (this.annotations != null && this.annotations[0] != null) {
+			printAnnotations(this.annotations[0], output);
+			output.append(' ');
+		}
 		switch (this.kind) {
 			case Wildcard.UNBOUND :
 				output.append(WILDCARD_NAME);

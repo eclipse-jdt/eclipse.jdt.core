@@ -2253,4 +2253,80 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Syntax error on token \"final\", delete this token\n" + 
 				"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388085
+	public void test0388085() {
+		this.runNegativeTest(
+				new String[] {"X.java",
+						"class X {\n" +
+						"	public void main() {\n" +
+						"		final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;" +
+						"		one = null;\n" +
+						"	}\n" +
+						"}\n" +
+						"class One<R> {}\n" +
+						"class Two<S> {}\n" +
+						"class Three<T> {}\n" +
+						"class Four<U, V> {}\n"},
+							"----------\n" + 
+							"1. ERROR in X.java (at line 3)\n" + 
+							"	final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;		one = null;\n" + 
+							"	           ^^^^^^\n" + 
+							"Marker cannot be resolved to a type\n" + 
+							"----------\n" + 
+							"2. ERROR in X.java (at line 3)\n" + 
+							"	final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;		one = null;\n" + 
+							"	                                 ^^^^^^\n" + 
+							"Marker cannot be resolved to a type\n" + 
+							"----------\n" + 
+							"3. ERROR in X.java (at line 3)\n" + 
+							"	final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;		one = null;\n" + 
+							"	                                                                      ^^^^^^\n" + 
+							"Marker cannot be resolved to a type\n" + 
+							"----------\n" + 
+							"4. ERROR in X.java (at line 3)\n" + 
+							"	final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;		one = null;\n" + 
+							"	                                                                                              ^^^^^^\n" + 
+							"Marker cannot be resolved to a type\n" + 
+							"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388085
+	public void test0388085a() {
+		this.runNegativeTest(
+				new String[] {"X.java",
+						"import java.lang.annotation.Target;\n" + 
+						"import static java.lang.annotation.ElementType.*;\n" + 
+						"class X {\n" +
+						"	public void main() {\n" +
+						"		final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;" +
+						"		one = null;\n" +
+						"	}\n" +
+						"}\n" +
+						"class One<R> {}\n" +
+						"class Two<S> {}\n" +
+						"class Three<T> {}\n" +
+						"class Four<U, V> {}\n" +
+						"@interface Marker {}"},
+						"----------\n" + 
+						"1. ERROR in X.java (at line 5)\n" + 
+						"	final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;		one = null;\n" + 
+						"	          ^^^^^^^\n" + 
+						"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
+						"----------\n" + 
+						"2. ERROR in X.java (at line 5)\n" + 
+						"	final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;		one = null;\n" + 
+						"	                                ^^^^^^^\n" + 
+						"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
+						"----------\n" + 
+						"3. ERROR in X.java (at line 5)\n" + 
+						"	final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;		one = null;\n" + 
+						"	                                                                     ^^^^^^^\n" + 
+						"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
+						"----------\n" + 
+						"4. ERROR in X.java (at line 5)\n" + 
+						"	final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;		one = null;\n" + 
+						"	                                                                                             ^^^^^^^\n" + 
+						"Only annotation types that explicitly specify TYPE_USE as a possible target element type can be applied here\n" + 
+						"----------\n");
+	}
+
 }

@@ -45,6 +45,9 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 	private static String  jsr308TestScratchArea = "c:\\Jsr308TestScratchArea";
 	private static String referenceCompiler = "C:\\jdk-7-ea-bin-b75-windows-i586-30_oct_2009\\jdk7\\bin\\javac.exe";
 	
+	static {
+//		TESTS_NAMES = new String [] { "test0137" };
+	}
 	public static Class testClass() {
 		return TypeAnnotationSyntaxTest.class;
 	}
@@ -3722,5 +3725,58 @@ public void test0136() throws IOException {
 			"  }\n" + 
 			"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
+}
+// Support type annotations for wildcard
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388085
+public void test0137() throws IOException {
+	String source = 
+			"class X {\n" +
+			"	public void main(Four<@Marker ? super String, @Marker ? extends Object> param) {\n" +
+			"		One<@Marker ? extends Two<@Marker ? extends Three<@Marker ? extends Four<@Marker ? super String,@Marker ? extends Object>>>> one = null;\n" +
+			"		Two<@Marker ? extends Three<@Marker ? extends Four<@Marker ? super String,@Marker ? extends Object>>> two = null;\n" +
+			"		Three<@Marker ? extends Four<@Marker ? super String,@Marker ? extends Object>> three = null;\n" +
+			"		Four<@Marker ? super String,@Marker ? extends Object> four = param;\n" +
+			"	}\n" +
+			"}\n" +
+			"class One<R> {}\n" +
+			"class Two<S> {}\n" +
+			"class Three<T> {}\n" +
+			"class Four<U, V> {}\n" +
+			"@interface Marker {}";
+	String expectedUnitToString = 
+			"class X {\n" + 
+			"  X() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  public void main(Four<@Marker ? super String, @Marker ? extends Object> param) {\n" + 
+			"    One<@Marker ? extends Two<@Marker ? extends Three<@Marker ? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;\n" + 
+			"    Two<@Marker ? extends Three<@Marker ? extends Four<@Marker ? super String, @Marker ? extends Object>>> two = null;\n" + 
+			"    Three<@Marker ? extends Four<@Marker ? super String, @Marker ? extends Object>> three = null;\n" + 
+			"    Four<@Marker ? super String, @Marker ? extends Object> four = param;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class One<R> {\n" + 
+			"  One() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Two<S> {\n" + 
+			"  Two() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Three<T> {\n" + 
+			"  Three() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Four<U, V> {\n" + 
+			"  Four() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"@interface Marker {\n" + 
+			"}\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0137", expectedUnitToString);
 }
 }
