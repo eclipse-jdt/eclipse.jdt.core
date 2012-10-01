@@ -2227,4 +2227,30 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385293
+	public void test069() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"class X<final T> {\n" +
+					"	Object o = (Object) (public X<final String>) null;\n" + 
+					"}\n"
+				}, 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	class X<final T> {\n" + 
+				"	        ^^^^^\n" + 
+				"Syntax error on token \"final\", delete this token\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 2)\n" + 
+				"	Object o = (Object) (public X<final String>) null;\n" + 
+				"	                     ^^^^^^\n" + 
+				"Syntax error on token \"public\", delete this token\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 2)\n" + 
+				"	Object o = (Object) (public X<final String>) null;\n" + 
+				"	                              ^^^^^\n" + 
+				"Syntax error on token \"final\", delete this token\n" + 
+				"----------\n");
+	}
 }
