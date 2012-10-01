@@ -1627,42 +1627,41 @@ public class GenericTypeTest extends AbstractComparableTest {
 					"}\n"
 			},
 			"----------\n" +
-				"1. ERROR in test\\X.java (at line 7)\n" +
-				"	X<int, short, long, float, double, boolean, char> x;\n" +
-				"	  ^^^\n" +
-				"Syntax error on token \"int\", Dimensions expected after this token\n" +
-				"----------\n" +
-				"2. ERROR in test\\X.java (at line 7)\n" +
-				"	X<int, short, long, float, double, boolean, char> x;\n" +
-				"	       ^^^^^\n" +
-				"Syntax error on token \"short\", Dimensions expected after this token\n" +
-				"----------\n" +
-				"3. ERROR in test\\X.java (at line 7)\n" +
-				"	X<int, short, long, float, double, boolean, char> x;\n" +
-				"	              ^^^^\n" +
-				"Syntax error on token \"long\", Dimensions expected after this token\n" +
-				"----------\n" +
-				"4. ERROR in test\\X.java (at line 7)\n" +
-				"	X<int, short, long, float, double, boolean, char> x;\n" +
-				"	                    ^^^^^\n" +
-				"Syntax error on token \"float\", Dimensions expected after this token\n" +
-				"----------\n" +
-				"5. ERROR in test\\X.java (at line 7)\n" +
-				"	X<int, short, long, float, double, boolean, char> x;\n" +
-				"	                           ^^^^^^\n" +
-				"Syntax error on token \"double\", Dimensions expected after this token\n" +
-				"----------\n" +
-				"6. ERROR in test\\X.java (at line 7)\n" +
-				"	X<int, short, long, float, double, boolean, char> x;\n" +
-				"	                                   ^^^^^^^\n" +
-				"Syntax error on token \"boolean\", Dimensions expected after this token\n" +
-				"----------\n" +
-				"7. ERROR in test\\X.java (at line 7)\n" +
-				"	X<int, short, long, float, double, boolean, char> x;\n" +
-				"	                                            ^^^^\n" +
-				"Syntax error on token \"char\", Dimensions expected after this token\n" +
-				"----------\n"
-		);
+			"1. ERROR in test\\X.java (at line 7)\n" +
+			"	X<int, short, long, float, double, boolean, char> x;\n" +
+			"	  ^^^\n" +
+			"Syntax error, insert \"Dimensions\" to complete TypeArgument\n" +
+			"----------\n" +
+			"2. ERROR in test\\X.java (at line 7)\n" +
+			"	X<int, short, long, float, double, boolean, char> x;\n" +
+			"	       ^^^^^\n" +
+			"Syntax error, insert \"Dimensions\" to complete TypeArgument\n" +
+			"----------\n" +
+			"3. ERROR in test\\X.java (at line 7)\n" +
+			"	X<int, short, long, float, double, boolean, char> x;\n" +
+			"	              ^^^^\n" +
+			"Syntax error, insert \"Dimensions\" to complete TypeArgument\n" +
+			"----------\n" +
+			"4. ERROR in test\\X.java (at line 7)\n" +
+			"	X<int, short, long, float, double, boolean, char> x;\n" +
+			"	                    ^^^^^\n" +
+			"Syntax error, insert \"Dimensions\" to complete TypeArgument\n" +
+			"----------\n" +
+			"5. ERROR in test\\X.java (at line 7)\n" +
+			"	X<int, short, long, float, double, boolean, char> x;\n" +
+			"	                           ^^^^^^\n" +
+			"Syntax error, insert \"Dimensions\" to complete TypeArgument\n" +
+			"----------\n" +
+			"6. ERROR in test\\X.java (at line 7)\n" +
+			"	X<int, short, long, float, double, boolean, char> x;\n" +
+			"	                                   ^^^^^^^\n" +
+			"Syntax error, insert \"Dimensions\" to complete TypeArgument\n" +
+			"----------\n" +
+			"7. ERROR in test\\X.java (at line 7)\n" +
+			"	X<int, short, long, float, double, boolean, char> x;\n" +
+			"	                                            ^^^^\n" +
+			"Syntax error, insert \"Dimensions\" to complete ReferenceType\n" +
+			"----------\n");
 	}
 	// JSR14-v10[2.1,2.2]: Valid multiple parameter types: primitive type arrays
 	public void test0062() {
@@ -2948,12 +2947,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"class AX<P> {\n" +
 				"}\n",
 			},
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X  <T extends AX<? super int>> {\n" +
-		"	                                      ^^^\n" +
-		"Syntax error on token \"int\", Dimensions expected after this token\n" +
-		"----------\n");
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public class X  <T extends AX<? super int>> {\n" +
+			"	                                      ^^^\n" +
+			"Syntax error, insert \"Dimensions\" to complete ArrayType\n" +
+			"----------\n"
+);
 	}
 
 	// type parameterized with wildcard cannot appear in allocation
@@ -48350,7 +48350,7 @@ public void test1402()  throws Exception {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=252120 - variation
-public void _test1403()  throws Exception {
+public void test1403()  throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"A.java",

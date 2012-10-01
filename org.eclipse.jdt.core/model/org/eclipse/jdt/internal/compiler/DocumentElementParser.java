@@ -26,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class DocumentElementParser extends Parser {
 	IDocumentElementRequestor requestor;
-	private int localIntPtr;
 	private int lastFieldEndPosition;
 	private int lastFieldBodyEndPosition;
 	private int typeStartPosition;
@@ -515,8 +514,6 @@ protected void consumeEnterVariable() {
 		}
 	}
 
-	this.localIntPtr = this.intPtr;
-
 	if (extendedTypeDimension == 0) {
 		declaration.type = type;
 	} else {
@@ -731,31 +728,35 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	char[] parameterName = this.identifierStack[this.identifierPtr];
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];
 	int extendedDimensions = this.intStack[this.intPtr--];
+	Annotation [][] annotationsOnExtendedDimensions = extendedDimensions == 0 ? null : getAnnotationsOnDimensions(extendedDimensions);
 	int endOfEllipsis = 0;
+	int length;
+	Annotation [] varArgsAnnotations = null;
 	if (isVarArgs) {
 		endOfEllipsis = this.intStack[this.intPtr--];
+		if ((length = this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr--]) != 0) {
+			System.arraycopy(
+				this.typeAnnotationStack,
+				(this.typeAnnotationPtr -= length) + 1,
+				varArgsAnnotations = new Annotation[length],
+				0,
+				length);
+		} 
 	}
 	int firstDimensions = this.intStack[this.intPtr--];
-	TypeReference type = getUnannotatedTypeReference(extendedDimensions);
-	Annotation [] varArgsAnnotations = null;
-	int length;
-	if ((length = this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr--]) != 0) {
-		System.arraycopy(
-			this.typeAnnotationStack,
-			(this.typeAnnotationPtr -= length) + 1,
-			varArgsAnnotations = new Annotation[length],
-			0,
-			length);
-	} 
+	TypeReference type = getTypeReference(firstDimensions);
+
 	final int typeDimensions = firstDimensions + extendedDimensions + (isVarArgs ? 1 : 0);
-	if (typeDimensions != extendedDimensions) {
+	if (typeDimensions != firstDimensions) {
 		// jsr308 type annotations management
-		Annotation [][] annotationsOnFirstDimensions = firstDimensions == 0 ? null : getAnnotationsOnDimensions(firstDimensions);
-		Annotation [][] annotationsOnExtendedDimensions = extendedDimensions == 0 ? null : type.getAnnotationsOnDimensions();
-		Annotation [][] annotationsOnAllDimensions = null;
-		if (annotationsOnFirstDimensions != null || annotationsOnExtendedDimensions != null || varArgsAnnotations != null) {
+		Annotation [][] annotationsOnFirstDimensions = firstDimensions == 0 ? null : type.getAnnotationsOnDimensions();
+		Annotation [][] annotationsOnAllDimensions = annotationsOnFirstDimensions;
+		if (annotationsOnExtendedDimensions != null) {
 			annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions, annotationsOnFirstDimensions, extendedDimensions, annotationsOnExtendedDimensions); 
-			annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions + extendedDimensions, annotationsOnAllDimensions, isVarArgs ? 1 : 0, isVarArgs ? new Annotation[][]{varArgsAnnotations} : null);
+		}
+		if (varArgsAnnotations != null) {
+			annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions + extendedDimensions, annotationsOnAllDimensions, 
+																				1, new Annotation[][]{varArgsAnnotations});
 		}
 		type = copyDims(type, typeDimensions, annotationsOnAllDimensions);
 		type.sourceEnd = type.isParameterizedTypeReference() ? this.endStatementPosition : this.endPosition;
@@ -1561,64 +1562,5 @@ public String toString() {
 	buffer.append("intArrayPtr = " + this.intArrayPtr + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 	buffer.append(super.toString());
 	return buffer.toString();
-}
-/**
- * INTERNAL USE ONLY
- */
-protected TypeReference typeReference(
-	int dim,
-	int localIdentifierPtr,
-	int localIdentifierLengthPtr) {
-	/* build a Reference on a variable that may be qualified or not
-	 * This variable is a type reference and dim will be its dimensions.
-	 * We don't have any side effect on the stacks' pointers.
-	 */
-	Annotation [][] annotationsOnDimensions = dim == 0 ? null : getAnnotationsOnDimensions(dim);
-	int length;
-	TypeReference ref;
-	if ((length = this.identifierLengthStack[localIdentifierLengthPtr]) == 1) {
-		// single variable reference
-		if (dim == 0) {
-			ref =
-				new SingleTypeReference(
-					this.identifierStack[localIdentifierPtr],
-					this.identifierPositionStack[localIdentifierPtr--]);
-		} else {
-			ref =
-				new ArrayTypeReference(
-					this.identifierStack[localIdentifierPtr],
-					dim,
-					annotationsOnDimensions,
-					this.identifierPositionStack[localIdentifierPtr--]);
-			ref.sourceEnd = this.endPosition;
-		}
-	} else {
-		if (length < 0) { //flag for precompiled type reference on base types
-			ref = TypeReference.baseTypeReference(-length, dim, annotationsOnDimensions);
-			ref.sourceStart = this.intStack[this.localIntPtr--];
-			if (dim == 0) {
-				ref.sourceEnd = this.intStack[this.localIntPtr--];
-			} else {
-				this.localIntPtr--;
-				ref.sourceEnd = this.endPosition;
-			}
-		} else { //Qualified variable reference
-			char[][] tokens = new char[length][];
-			localIdentifierPtr -= length;
-			long[] positions = new long[length];
-			System.arraycopy(this.identifierStack, localIdentifierPtr + 1, tokens, 0, length);
-			System.arraycopy(
-				this.identifierPositionStack,
-				localIdentifierPtr + 1,
-				positions,
-				0,
-				length);
-			if (dim == 0)
-				ref = new QualifiedTypeReference(tokens, positions);
-			else
-				ref = new ArrayQualifiedTypeReference(tokens, dim, annotationsOnDimensions, positions);
-		}
-	}
-	return ref;
 }
 }

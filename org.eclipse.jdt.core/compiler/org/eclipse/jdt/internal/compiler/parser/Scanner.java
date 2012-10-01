@@ -1155,6 +1155,12 @@ public int getNextToken() throws InvalidInputException {
 	} else if (token == TokenNameLESS && atReferenceExpression()) {
 		this.nextToken = token;
 		token = TokenNameBeginTypeArguments;
+	} else if (token == TokenNameAT && atTypeAnnotation()) {
+		token = TokenNameAT308;
+		if (atEllipsisAnnotation()) {
+			this.nextToken = token;
+			token = TokenNameAT308DOTDOTDOT;
+		}
 	}
 
 	this.lookBack[0] = this.lookBack[1];
@@ -4200,6 +4206,9 @@ private static class VanguardScanner extends Scanner {
 	   We morph one or the other specific token into EOF and see if the parser enters accept state. On true EOF, we return fake
 	   EOF to force an error. This is so that the interim goal reduction actually happens only when -> or :: occur in input at
 	   the expected place.
+	   
+	   To make matters interesting, type annotations can occur inside both lambda parameter list and reference expression trunks
+	   and declarative annotations can occur in lambda parameter lists. We need to discriminate between them. Sigh.
 	*/
 	private int fakeEofToken = TokenNameNotAToken; // if encountered in input stream, will be exposed as EOF instead.
 
@@ -4209,6 +4218,9 @@ private static class VanguardScanner extends Scanner {
 	
 	public int getNextToken() throws InvalidInputException {
 		int token = getNextToken0();
+		if (token == TokenNameAT && atTypeAnnotation()) {
+			token = TokenNameAT308;
+		}
 		return token == this.fakeEofToken ? TokenNameEOF : token == TokenNameEOF ? this.fakeEofToken : token; 
 	}
 
@@ -4218,13 +4230,7 @@ private static class VanguardScanner extends Scanner {
 }
 
 // Vanguard Parser - A Private utility helper class for the scanner.
-private static class VanguardParser implements ParserBasicInformation, TerminalTokens {
-	
-	private int[] stack = new int[StackIncrement];
-	private int stateStackTop;
-	private final static int StackIncrement = 255;
-	private int currentToken;
-	private final VanguardScanner scanner;
+private static class VanguardParser extends Parser {
 	
 	public VanguardParser(VanguardScanner scanner) {
 		this.scanner = scanner;
@@ -4252,11 +4258,21 @@ private static class VanguardParser implements ParserBasicInformation, TerminalT
 				if (act <= NUM_RULES) {
 					this.stateStackTop--;
 				} else if (act > ERROR_ACTION) { /* shift-reduce */
-					this.currentToken = this.scanner.getNextToken();
+					this.unstackedAct = act;
+					try {
+						this.currentToken = this.scanner.getNextToken();
+					} finally {
+						this.unstackedAct = ERROR_ACTION;
+					}
 					act -= ERROR_ACTION;
 				} else {
 				    if (act < ACCEPT_ACTION) { /* shift */
-				    	this.currentToken = this.scanner.getNextToken();
+				    	this.unstackedAct = act;
+						try {
+							this.currentToken = this.scanner.getNextToken();
+						} finally {
+							this.unstackedAct = ERROR_ACTION;
+						}
 						continue ProcessTerminals;
 					}
 				    return true; // accept !
@@ -4278,12 +4294,18 @@ private VanguardParser getVanguardParser() {
 	if (this.vanguardParser == null) {
 		this.vanguardScanner = new VanguardScanner(this.sourceLevel, this.complianceLevel);
 		this.vanguardParser = new VanguardParser(this.vanguardScanner);
+		this.vanguardScanner.setActiveParser(this.vanguardParser);
 	}
 	this.vanguardScanner.setSource(this.source);
 	this.vanguardScanner.resetTo(this.startPosition, this.eofPosition - 1);
 	return this.vanguardParser;
 }
-private final boolean atLambdaParameterList() { // Did the '(' we saw just now herald a lambda parameter list ?
+
+public void setFakeEofToken(int specialToken) {
+	throw new UnsupportedOperationException();   // for specific specializations only.
+}
+
+protected final boolean atLambdaParameterList() { // Did the '(' we saw just now herald a lambda parameter list ?
 
 	switch (this.lookBack[1]) {
 		case TokenNameEQUAL : 
@@ -4303,7 +4325,8 @@ private final boolean atLambdaParameterList() { // Did the '(' we saw just now h
 	}
 	return this.activeParser.atConflictScenario(TokenNameLPAREN) && getVanguardParser().parse(TokenNameARROW);
 }
-private final boolean atReferenceExpression() { // Did the '<' we saw just now herald a reference expression ?
+
+protected final boolean atReferenceExpression() { // Did the '<' we saw just now herald a reference expression ?
 	switch (this.lookBack[1]) {
 		case TokenNameIdentifier:
 			switch (this.lookBack[0]) {
@@ -4340,6 +4363,27 @@ private final boolean atReferenceExpression() { // Did the '<' we saw just now h
 			return false;
 	}
 	return this.activeParser.atConflictScenario(TokenNameLESS) && getVanguardParser().parse(TokenNameCOLON_COLON);
+}
+protected final boolean atEllipsisAnnotation() { // Did the '@' we saw just now herald a type annotation on a ... ? Presumed to be at type annotation already.
+	switch (this.lookBack[1]) {
+		case TokenNamenew:
+		case TokenNameCOMMA:
+		case TokenNameextends:
+		case TokenNamesuper:
+		case TokenNameimplements:
+		case TokenNameDOT:
+		case TokenNameLBRACE:
+		case TokenNameinstanceof:
+		case TokenNameLESS:
+		case TokenNameGREATER:
+		case TokenNameAND:
+		case TokenNamethrows:
+			return false;
+	}
+	return getVanguardParser().parse(TokenNameELLIPSIS);
+}
+protected final boolean atTypeAnnotation() { // Did the '@' we saw just now herald a type annotation ? We should not ask the parser whether it would shift @308 !
+	return !this.activeParser.atConflictScenario(TokenNameAT);
 }
 
 public void setActiveParser(ConflictedParser parser) {

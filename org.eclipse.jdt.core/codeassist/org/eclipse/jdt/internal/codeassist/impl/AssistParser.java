@@ -901,13 +901,13 @@ protected void flushElementStack() {
 /*
  * Build specific type reference nodes in case the cursor is located inside the type reference
  */
-protected TypeReference getUnannotatedTypeReference(int dim) {
+protected TypeReference getTypeReference(int dim) {
 
 	int index;
 
 	/* no need to take action if not inside completed identifiers */
 	if ((index = indexOfAssistIdentifier(true)) < 0) {
-		return super.getUnannotatedTypeReference(dim);
+		return super.getTypeReference(dim);
 	}
 	int length = this.identifierLengthStack[this.identifierLengthPtr];
 	TypeReference reference;
@@ -1066,6 +1066,8 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 		return super.getUnspecifiedReferenceOptimized();
 	}
 
+	consumeNonTypeUseName();
+	
 	/* retrieve identifiers subset and whole positions, the completion node positions
 		should include the entire replaced source. */
 	int length = this.identifierLengthStack[this.identifierLengthPtr];
@@ -1631,7 +1633,6 @@ protected boolean resumeAfterRecovery() {
 	this.astLengthPtr = -1;
 	this.expressionPtr = -1;
 	this.expressionLengthPtr = -1;
-	this.unattachedAnnotationPtr = -1;
 	this.typeAnnotationLengthPtr = -1;
 	this.typeAnnotationPtr = -1;
 	this.identifierPtr = -1;

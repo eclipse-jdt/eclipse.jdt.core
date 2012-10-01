@@ -6982,6 +6982,11 @@ private void syntaxError(
 	String errorTokenName,
 	String expectedToken) {
 
+	if (currentKind == TerminalTokens.TokenNameAT && expectedToken != null && expectedToken.equals("@")) { //$NON-NLS-1$
+		// In the diagnose parser case, we don't have the wherewithal to discriminate when we should hand out @308 vs @. So we always answer @.
+		// We should silently recover so swallow the message.
+		return;
+	}
 	String eTokenName;
 	if (isKeyword(currentKind) ||
 		isLiteral(currentKind) ||

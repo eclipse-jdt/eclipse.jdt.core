@@ -57,6 +57,9 @@ public class ArrayTypeReference extends SingleTypeReference {
 	public Annotation[][] getAnnotationsOnDimensions() {
 		return this.annotationsOnDimensions;
 	}
+	public void setAnnotationsOnDimensions(Annotation [][] annotationsOnDimensions) {
+		this.annotationsOnDimensions = annotationsOnDimensions;
+	}
 	/**
 	 * @return char[][]
 	 */

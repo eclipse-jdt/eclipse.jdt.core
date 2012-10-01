@@ -687,19 +687,14 @@ public void test0026() throws IOException {
 					"    return 0;\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"class A {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker int foo() {\n" + 
-		"    return 0;\n" +
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>int bar() {\n" + 
-		"    return 0;\n" +
-		"  }\n" + 
-		"}\n";
-	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0026", expectedUnitToString);
+	String expectedError = 
+			"----------\n" +
+			"1. ERROR in test0026 (at line 2)\n" +
+			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker int foo() {\n" +
+			"	                                                                ^^^^^^^\n" +
+			"Syntax error, type annotations are illegal here\n" +
+			"----------\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0026", null);
 }
 // Type
 public void test0027() throws IOException {
@@ -711,19 +706,14 @@ public void test0027() throws IOException {
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"class A {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker String foo() {\n" + 
-		"    return null;\n" +
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>String bar() {\n" + 
-		"    return null;\n" +
-		"  }\n" + 
-		"}\n";
-	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0027", expectedUnitToString);
+	String expectedError = 
+			"----------\n" +
+			"1. ERROR in test0027 (at line 2)\n" +
+			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker String foo() {\n" +
+			"	                                                                ^^^^^^^\n" +
+			"Syntax error, type annotations are illegal here\n" +
+			"----------\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0027", null);
 }
 //Type
 public void test0028() throws IOException {
@@ -735,19 +725,14 @@ public void test0028() throws IOException {
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"class A {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker HashMap<@Readonly String, Object> foo() {\n" + 
-		"    return null;\n" +
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object> bar() {\n" + 
-		"    return null;\n" +
-		"  }\n" + 
-		"}\n";
-	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0028", expectedUnitToString);
+	String expectedError = 
+			"----------\n" +
+			"1. ERROR in test0028 (at line 2)\n" +
+			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object> foo() {\n" +
+			"	                                                                ^^^^^^^\n" +
+			"Syntax error, type annotations are illegal here\n" +
+			"----------\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0028", null);
 }
 // Type
 public void test0029() throws IOException {
@@ -759,19 +744,14 @@ public void test0029() throws IOException {
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"class A {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator foo() {\n" + 
-		"    return null;\n" +
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>.Iterator bar() {\n" + 
-		"    return null;\n" +
-		"  }\n" + 
-		"}\n";
-	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0029", expectedUnitToString);
+	String expectedError = 
+			"----------\n" +
+			"1. ERROR in test0029 (at line 2)\n" +
+			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator foo() {\n" +
+			"	                                                                ^^^^^^^\n" +
+			"Syntax error, type annotations are illegal here\n" +
+			"----------\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0029", null);
 }
 //Type
 public void test0030() throws IOException {
@@ -783,19 +763,14 @@ public void test0030() throws IOException {
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"class A {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator[] @NonEmpty [][] foo() {\n" + 
-		"    return null;\n" +
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>.Iterator[] @NonEmpty [][] bar() {\n" + 
-		"    return null;\n" +
-		"  }\n" + 
-		"}\n";
-	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0030", expectedUnitToString);
+	String expectedError = 
+			"----------\n" +
+			"1. ERROR in test0030 (at line 2)\n" +
+			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>.Iterator[] @NonEmpty[][] foo() {\n" +
+			"	                                                                ^^^^^^^\n" +
+			"Syntax error, type annotations are illegal here\n" +
+			"----------\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0030", null);
 }
 //Type
 public void test0031() throws IOException {
@@ -807,19 +782,14 @@ public void test0031() throws IOException {
 					"    return 0;\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"class A {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker int[] @NonEmpty [][] foo() {\n" + 
-		"    return 0;\n" +
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>int[] @NonEmpty [][] bar() {\n" + 
-		"    return 0;\n" +
-		"  }\n" + 
-		"}\n";
-	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0031", expectedUnitToString);
+	String expectedError = 
+			"----------\n" +
+			"1. ERROR in test0031 (at line 2)\n" +
+			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker int[] @NonEmpty[][] foo() {\n" +
+			"	                                                                ^^^^^^^\n" +
+			"Syntax error, type annotations are illegal here\n" +
+			"----------\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0031", null);
 }
 // Type
 public void test0032() throws IOException {
@@ -831,19 +801,14 @@ public void test0032() throws IOException {
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"class A {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker String[] @NonEmpty [][] foo() {\n" + 
-		"    return null;\n" +
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>String[] @NonEmpty [][] bar() {\n" + 
-		"    return null;\n" +
-		"  }\n" + 
-		"}\n";
-	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0032", expectedUnitToString);
+	String expectedError = 
+			"----------\n" +
+			"1. ERROR in test0032 (at line 2)\n" +
+			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker String[]@NonEmpty[][] foo() {\n" +
+			"	                                                                ^^^^^^^\n" +
+			"Syntax error, type annotations are illegal here\n" +
+			"----------\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0032", null);
 }
 //Type
 public void test0033() throws IOException {
@@ -855,19 +820,14 @@ public void test0033() throws IOException {
 					"    return null;\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"class A {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>@Marker HashMap<@Readonly String, Object>[] @NonEmpty [][] foo() {\n" + 
-		"    return null;\n" +
-		"  }\n" + 
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>HashMap<String, @NonNull Object>[] @NonEmpty [][] bar() {\n" + 
-		"    return null;\n" +
-		"  }\n" + 
-		"}\n";
-	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0033", expectedUnitToString);
+	String expectedError = 
+			"----------\n" +
+			"1. ERROR in test0033 (at line 2)\n" +
+			"	public <Integer, @Positive Integer, @Negative Integer, Integer> @Marker HashMap<@Readonly String, Object>[] @NonEmpty[][] foo() {\n" +
+			"	                                                                ^^^^^^^\n" +
+			"Syntax error, type annotations are illegal here\n" +
+			"----------\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0033", null);
 }
 // Type0 field declaration.
 public void test0034() throws IOException {
@@ -2915,22 +2875,14 @@ public void test0110() throws IOException {
 		"		new @Marker @SingleMember(10) X().new <@Readonly String> @Marker MX(\"SUCCESS\");\n" +
 		"	}\n" +
 		"}\n";
-	String expectedUnitToString =
-		"class X {\n" +
-		"  class MX {\n" +
-		"    @Marker <T>MX(T t) {\n" +
-		"      super();\n" +
-		"      System.out.println(t);\n" +
-		"    }\n" +
-		"  }\n" +
-		"  X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  public static void main(String[] args) {\n" +
-		"    new @Marker @SingleMember(10) X().new <@Readonly String>@Marker MX(\"SUCCESS\");\n" +
-		"  }\n" +
-		"}\n";
-	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER & ~CHECK_DOCUMENT_ELEMENT_PARSER, source.toCharArray(), null, "test0110", expectedUnitToString );
+	String expectedError =
+			"----------\n" +
+			"1. ERROR in test0110 (at line 8)\n" +
+			"	new @Marker @SingleMember(10) X().new <@Readonly String> @Marker MX(\"SUCCESS\");\n" +
+			"	                                                         ^^^^^^^\n" +
+			"Syntax error, type annotations are illegal here\n" +
+			"----------\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0110", null );
 }
 
 // To test Parser.consumeClassInstanceCreationExpressionWithTypeArguments()
@@ -2945,17 +2897,14 @@ public void test0111() throws IOException {
 		"		new <@Readonly String> @Marker @SingleMember(0) X(\"SUCCESS\");\n" +
 		"	}\n" +
 		"}\n";
-	String expectedUnitToString =
-		"class X {\n" +
-		"  public <T>X(T t) {\n" +
-		"    super();\n" +
-		"    System.out.println(t);\n" +
-		"  }\n" +
-		"  public static void main(String[] args) {\n" +
-		"    new <@Readonly String>@Marker @SingleMember(0) X(\"SUCCESS\");\n" +
-		"  }\n" +
-		"}\n";
-	checkParse(CHECK_ALL & ~CHECK_DOCUMENT_ELEMENT_PARSER, source.toCharArray(), null, "test0111", expectedUnitToString );
+	String expectedError =
+			"----------\n" +
+			"1. ERROR in test0111 (at line 6)\n" +
+			"	new <@Readonly String> @Marker @SingleMember(0) X(\"SUCCESS\");\n" +
+			"	                       ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Syntax error, type annotations are illegal here\n" +
+			"----------\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0111", null);
 }
 
 // To test Parser.consumeEnhancedForStatementHeaderInit() with Type Annotations

@@ -1078,12 +1078,12 @@ public void test0023() {
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	import static for;\n" +
-		"	              ^^^\n" +
-		"Syntax error on token \"for\", Identifier expected\n" +
-		"----------\n";
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	import static for;\n" + 
+			"	              ^^^\n" + 
+			"Syntax error on token \"for\", invalid Name\n" + 
+			"----------\n";
 
 	runComplianceParserTest(
 		testFiles,
@@ -1306,7 +1306,7 @@ public void test0028() {
 		expected15ProblemLog
 	);
 }
-public void _test0029() {
+public void test0029() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -1746,7 +1746,7 @@ public void test0037() {
 		expected15ProblemLog
 	);
 }
-public void _test0038() {
+public void test0038() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -1828,7 +1828,7 @@ public void test0039() {
 		expected15ProblemLog
 	);
 }
-public void _test0040() {
+public void test0040() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -1871,7 +1871,7 @@ public void _test0040() {
 		expected15ProblemLog
 	);
 }
-public void _test0041() {
+public void test0041() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +

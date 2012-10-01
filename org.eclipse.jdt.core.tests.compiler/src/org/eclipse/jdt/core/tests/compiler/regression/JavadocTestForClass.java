@@ -1022,17 +1022,29 @@ public class JavadocTestForClass extends JavadocTest {
 						"	int i = 0;\n" +
 						"}\n",
 						},
-						"----------\n" + 
-						"1. WARNING in X.java (at line 2)\n"+
-						"	import java.util.Map.Entry;\n"+
-						"	       ^^^^^^^^^^^^^^^^^^^\n"+
-						"The import java.util.Map.Entry is never used\n"+
-						"----------\n"+
-						"2. ERROR in X.java (at line 6)\n" + 
-						"	* <li> {@link Entry} </li>\n" + 
-						"	              ^^^^^\n" + 
-						"Javadoc: Invalid member type qualification\n" + 
-						"----------\n");
+						IS_JRE_8 ? 		
+								"----------\n" + 
+								"1. ERROR in X.java (at line 6)\n" + 
+								"	* <li> {@link Entry} </li>\n" + 
+								"	              ^^^^^\n" + 
+								"Javadoc: Invalid member type qualification\n" + 
+								"----------\n" + 
+								"2. ERROR in X.java (at line 9)\n" + 
+								"	public interface X extends Map {\n" + 
+								"	                 ^\n" + 
+								"The return types are incompatible for the inherited methods MapStream.values(), Map.values()\n" + 
+								"----------\n" : 
+									"----------\n" + 
+									"1. WARNING in X.java (at line 2)\n"+
+									"	import java.util.Map.Entry;\n"+
+									"	       ^^^^^^^^^^^^^^^^^^^\n"+
+									"The import java.util.Map.Entry is never used\n"+
+									"----------\n"+
+									"2. ERROR in X.java (at line 6)\n" + 
+									"	* <li> {@link Entry} </li>\n" + 
+									"	              ^^^^^\n" + 
+									"Javadoc: Invalid member type qualification\n" + 
+									"----------\n");
 			return;
 		}
 		runNegativeTest(
@@ -1073,12 +1085,24 @@ public class JavadocTestForClass extends JavadocTest {
 				"	Entry e = null;\n" + 
 				"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	* <li> {@link Entry} </li>\n" + 
-				"	              ^^^^^\n" + 
-				"Javadoc: Invalid member type qualification\n" + 
-				"----------\n");
+				IS_JRE_8 && this.complianceLevel >= ClassFileConstants.JDK1_5 ? 
+						"----------\n" + 
+						"1. ERROR in X.java (at line 5)\n" + 
+						"	* <li> {@link Entry} </li>\n" + 
+						"	              ^^^^^\n" + 
+						"Javadoc: Invalid member type qualification\n" + 
+						"----------\n":
+							"----------\n" + 
+							"1. ERROR in X.java (at line 5)\n" + 
+							"	* <li> {@link Entry} </li>\n" + 
+							"	              ^^^^^\n" + 
+							"Javadoc: Invalid member type qualification\n" + 
+							"----------\n" + 
+							"2. ERROR in X.java (at line 8)\n" + 
+							"	public interface X extends Map {\n" + 
+							"	                 ^\n" + 
+							"The return types are incompatible for the inherited methods MapStream.values(), Map.values()\n" + 
+							"----------\n");
 	}	
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253750
@@ -1099,17 +1123,29 @@ public class JavadocTestForClass extends JavadocTest {
 						"	Entry e = null;\n" + 
 						"}\n",
 						},
-						"----------\n" + 
-						"1. WARNING in X.java (at line 2)\n"+
-						"	import java.util.Map.Entry;\n"+
-						"	       ^^^^^^^^^^^^^^^^^^^\n"+
-						"The import java.util.Map.Entry is never used\n"+
-						"----------\n"+
-						"2. ERROR in X.java (at line 6)\n" + 
-						"	* <li> {@link Entry} </li>\n" + 
-						"	              ^^^^^\n" + 
-						"Javadoc: Invalid member type qualification\n" + 
-						"----------\n");
+						IS_JRE_8 ? 
+								"----------\n" + 
+								"1. ERROR in X.java (at line 6)\n" + 
+								"	* <li> {@link Entry} </li>\n" + 
+								"	              ^^^^^\n" + 
+								"Javadoc: Invalid member type qualification\n" + 
+								"----------\n" + 
+								"2. ERROR in X.java (at line 9)\n" + 
+								"	public interface X extends Map {\n" + 
+								"	                 ^\n" + 
+								"The return types are incompatible for the inherited methods MapStream.values(), Map.values()\n" + 
+								"----------\n" : 
+									"----------\n" + 
+									"1. WARNING in X.java (at line 2)\n"+
+									"	import java.util.Map.Entry;\n"+
+									"	       ^^^^^^^^^^^^^^^^^^^\n"+
+									"The import java.util.Map.Entry is never used\n"+
+									"----------\n"+
+									"2. ERROR in X.java (at line 6)\n" + 
+									"	* <li> {@link Entry} </li>\n" + 
+									"	              ^^^^^\n" + 
+									"Javadoc: Invalid member type qualification\n" + 
+									"----------\n");
 			return;
 		}
 		runNegativeTest(

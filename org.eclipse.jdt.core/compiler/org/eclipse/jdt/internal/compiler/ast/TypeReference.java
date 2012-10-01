@@ -354,6 +354,10 @@ public Annotation[][] getAnnotationsOnDimensions() {
 	return null;
 }
 
+public void setAnnotationsOnDimensions(Annotation [][] annotationsOnDimensions) {
+	// nothing to do. Subtypes should react suitably.
+}
+
 public abstract char[] getLastToken();
 
 /**

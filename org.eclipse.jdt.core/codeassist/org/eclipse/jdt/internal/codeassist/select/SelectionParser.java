@@ -610,31 +610,34 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		char[] identifierName = this.identifierStack[this.identifierPtr];
 		long namePositions = this.identifierPositionStack[this.identifierPtr--];
 		int extendedDimensions = this.intStack[this.intPtr--];
+		Annotation [][] annotationsOnExtendedDimensions = extendedDimensions == 0 ? null : getAnnotationsOnDimensions(extendedDimensions);
+		Annotation [] varArgsAnnotations = null;
+		int length;
 		int endOfEllipsis = 0;
 		if (isVarArgs) {
 			endOfEllipsis = this.intStack[this.intPtr--];
+			if ((length = this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr--]) != 0) {
+				System.arraycopy(
+					this.typeAnnotationStack,
+					(this.typeAnnotationPtr -= length) + 1,
+					varArgsAnnotations = new Annotation[length],
+					0,
+					length);
+			} 
 		}
 		int firstDimensions = this.intStack[this.intPtr--];
-		TypeReference type = getUnannotatedTypeReference(extendedDimensions);
-		Annotation [] varArgsAnnotations = null;
-		int length;
-		if ((length = this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr--]) != 0) {
-			System.arraycopy(
-				this.typeAnnotationStack,
-				(this.typeAnnotationPtr -= length) + 1,
-				varArgsAnnotations = new Annotation[length],
-				0,
-				length);
-		} 
+		TypeReference type = getTypeReference(firstDimensions);
+
 		final int typeDimensions = firstDimensions + extendedDimensions + (isVarArgs ? 1 : 0);
-		if (typeDimensions != extendedDimensions) {
+		if (typeDimensions != firstDimensions) {
 			// jsr308 type annotations management
-			Annotation [][] annotationsOnFirstDimensions = firstDimensions == 0 ? null : getAnnotationsOnDimensions(firstDimensions);
-			Annotation [][] annotationsOnExtendedDimensions = extendedDimensions == 0 ? null : type.getAnnotationsOnDimensions();
-			Annotation [][] annotationsOnAllDimensions = null;
-			if (annotationsOnFirstDimensions != null || annotationsOnExtendedDimensions != null || varArgsAnnotations != null) {
-				annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions, annotationsOnFirstDimensions, extendedDimensions, annotationsOnExtendedDimensions); 
-				annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions + extendedDimensions, annotationsOnAllDimensions, isVarArgs ? 1 : 0, isVarArgs ? new Annotation[][]{varArgsAnnotations} : null);
+			Annotation [][] annotationsOnFirstDimensions = firstDimensions == 0 ? null : type.getAnnotationsOnDimensions();
+			Annotation [][] annotationsOnAllDimensions = annotationsOnFirstDimensions;
+			if (annotationsOnExtendedDimensions != null) {
+				annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions, annotationsOnFirstDimensions, extendedDimensions, annotationsOnExtendedDimensions);
+			}
+			if (varArgsAnnotations != null) {
+				annotationsOnAllDimensions = getMergedAnnotationsOnDimensions(firstDimensions + extendedDimensions, annotationsOnAllDimensions, 1, new Annotation[][]{varArgsAnnotations});
 			}
 			type = copyDims(type, typeDimensions, annotationsOnAllDimensions);
 			type.sourceEnd = type.isParameterizedTypeReference() ? this.endStatementPosition : this.endPosition;
@@ -729,11 +732,11 @@ protected void consumeLocalVariableDeclarationStatement() {
 		}
 	}
 }
-protected void consumeMarkerAnnotation() {
+protected void consumeMarkerAnnotation(boolean isTypeAnnotation) {
 	int index;
 
 	if ((index = this.indexOfAssistIdentifier()) < 0) {
-		super.consumeMarkerAnnotation();
+		super.consumeMarkerAnnotation(isTypeAnnotation);
 		return;
 	}
 
@@ -774,7 +777,11 @@ protected void consumeMarkerAnnotation() {
 
 	markerAnnotation = new MarkerAnnotation(typeReference, this.intStack[this.intPtr--]);
 	markerAnnotation.declarationSourceEnd = markerAnnotation.sourceEnd;
-	pushOnExpressionStack(markerAnnotation);
+	if (isTypeAnnotation) {
+		pushOnTypeAnnotationStack(markerAnnotation);
+	} else {
+		pushOnExpressionStack(markerAnnotation);
+	}
 }
 protected void consumeMemberValuePair() {
 	if (this.indexOfAssistIdentifier() < 0) {
@@ -896,11 +903,11 @@ protected void consumeMethodInvocationPrimary() {
 	this.lastCheckPoint = constructorCall.sourceEnd + 1;
 	this.isOrphanCompletionNode = true;
 }
-protected void consumeNormalAnnotation() {
+protected void consumeNormalAnnotation(boolean isTypeAnnotation) {
 	int index;
 
 	if ((index = this.indexOfAssistIdentifier()) < 0) {
-		super.consumeNormalAnnotation();
+		super.consumeNormalAnnotation(isTypeAnnotation);
 		return;
 	}
 
@@ -949,13 +956,17 @@ protected void consumeNormalAnnotation() {
 			length);
 	}
 	normalAnnotation.declarationSourceEnd = this.rParenPos;
-	pushOnExpressionStack(normalAnnotation);
+	if (isTypeAnnotation) {
+		pushOnTypeAnnotationStack(normalAnnotation);
+	} else {
+		pushOnExpressionStack(normalAnnotation);
+	}
 }
-protected void consumeSingleMemberAnnotation() {
+protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
 	int index;
 
 	if ((index = this.indexOfAssistIdentifier()) < 0) {
-		super.consumeSingleMemberAnnotation();
+		super.consumeSingleMemberAnnotation(isTypeAnnotation);
 		return;
 	}
 
@@ -998,7 +1009,11 @@ protected void consumeSingleMemberAnnotation() {
 	singleMemberAnnotation.memberValue = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
 	singleMemberAnnotation.declarationSourceEnd = this.rParenPos;
-	pushOnExpressionStack(singleMemberAnnotation);
+	if (isTypeAnnotation) {
+		pushOnTypeAnnotationStack(singleMemberAnnotation);
+	} else {
+		pushOnExpressionStack(singleMemberAnnotation);
+	}
 }
 protected void consumeStaticImportOnDemandDeclarationName() {
 	// TypeImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
@@ -1192,25 +1207,32 @@ public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, Compila
 	selectionScanner.selectionEnd = end;
 	return this.dietParse(sourceUnit, compilationResult);
 }
-protected NameReference getUnspecifiedReference() {
+protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 	/* build a (unspecified) NameReference which may be qualified*/
 
 	int completionIndex;
 
 	/* no need to take action if not inside completed identifiers */
 	if ((completionIndex = indexOfAssistIdentifier()) < 0) {
-		return super.getUnspecifiedReference();
+		return super.getUnspecifiedReference(rejectTypeAnnotations);
 	}
 
+	if (rejectTypeAnnotations) {
+		consumeNonTypeUseName();
+	}
 	int length = this.identifierLengthStack[this.identifierLengthPtr];
 	if (CharOperation.equals(assistIdentifier(), SUPER)){
 		Reference reference;
 		if (completionIndex > 0){ // qualified super
 			// discard 'super' from identifier stacks
+			// There is some voodoo going on here in combination with SelectionScanne#scanIdentifierOrKeyword, do in Rome as Romans do and leave the stacks at the right depth.
 			this.identifierLengthStack[this.identifierLengthPtr] = completionIndex;
 			int ptr = this.identifierPtr -= (length - completionIndex);
 			pushOnGenericsLengthStack(0);
 			pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
+			for (int i = 0; i < completionIndex; i++) {
+				pushOnTypeAnnotationLengthStack(0);
+			}
 			reference =
 				new SelectionOnQualifiedSuperReference(
 					getTypeReference(0),

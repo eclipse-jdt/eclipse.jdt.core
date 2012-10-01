@@ -171,8 +171,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		TerminalTokens.TokenNamevoid
 	};
 	private static final int[] CLOSING_GENERICS_EXPECTEDTOKENS = new int[] {
-		TerminalTokens.TokenNameGREATER,
 		TerminalTokens.TokenNameRIGHT_SHIFT,
+		TerminalTokens.TokenNameGREATER,
 		TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT,
 	};
 	public int lastLocalDeclarationSourceStart;

@@ -44,6 +44,10 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 	public Annotation[][] getAnnotationsOnDimensions() {
 		return this.annotationsOnDimensions;
 	}
+	
+	public void setAnnotationsOnDimensions(Annotation [][] annotationsOnDimensions) {
+		this.annotationsOnDimensions = annotationsOnDimensions;
+	}
 
 	/**
 	 * @return char[][]
