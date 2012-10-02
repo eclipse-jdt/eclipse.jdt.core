@@ -420,4 +420,128 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"Name clash: The method foo(List<String>) of type I3 has the same erasure as foo(List) of type I2 but does not override it\n" + 
 			"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390761
+	public void testDefaultNonclash() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public interface X extends Map<String, Object> {\n" +
+				"   Zork z;\n" +
+				"}\n" +
+				"\n" +
+				"interface Map<K,V> extends MapStream<K, V>  {\n" +
+				"   @Override\n" +
+				"	Iterable<BiValue<K, V>> asIterable() default {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"interface MapStream<K, V> {\n" +
+				"	Iterable<BiValue<K, V>> asIterable();\n" +
+				"}\n" +
+				"\n" +
+				"interface BiValue<T, U> {\n" +
+				"    T getKey();\n" +
+				"    U getValue();\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390761
+	public void testDefaultNonclash2() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public interface X extends Map<String, Object> {\n" +
+				"   Zork z;\n" +
+				"}\n" +
+				"\n" +
+				"interface Map<K,V> extends MapStream<K, V>  {\n" +
+				"   @Override\n" +
+				"	Iterable<BiValue<K, V>> asIterable();\n" +
+				"}\n" +
+				"interface MapStream<K, V> {\n" +
+				"	Iterable<BiValue<K, V>> asIterable() default {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"}\n" +
+				"\n" +
+				"interface BiValue<T, U> {\n" +
+				"    T getKey();\n" +
+				"    U getValue();\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	
+	public void _testDefaultNonclash3() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public interface X extends Map<String, Object> {\n" +
+				"   Zork z;\n" +
+				"}\n" +
+				"\n" +
+				"interface Map<K,V> extends MapStream<K, V>  {\n" +
+				"   @Override\n" +
+				"	Iterable<BiValue<K, V>> asIterable() default {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"}\n" +
+				"interface MapStream<K, V> {\n" +
+				"	Iterable<BiValue<K, V>> asIterable() default {\n" +
+				"       return null;\n" +
+				"   }\n" +
+				"}\n" +
+				"\n" +
+				"interface BiValue<T, U> {\n" +
+				"    T getKey();\n" +
+				"    U getValue();\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390761
+	public void testDefaultNonclash4() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public interface X extends Map<String, Object> {\n" +
+				"   Zork z;\n" +
+				"}\n" +
+				"\n" +
+				"interface Map<K,V> extends MapStream<K, V>  {\n" +
+				"   @Override\n" +
+				"	Iterable<BiValue<K, V>> asIterable();\n" +
+				"}\n" +
+				"interface MapStream<K, V> {\n" +
+				"	Iterable<BiValue<K, V>> asIterable();\n" +
+				"}\n" +
+				"\n" +
+				"interface BiValue<T, U> {\n" +
+				"    T getKey();\n" +
+				"    U getValue();\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
 }

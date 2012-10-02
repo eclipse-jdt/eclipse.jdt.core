@@ -444,7 +444,8 @@ private void checkInheritedDefaultMethods(MethodBinding[] methods, int length) {
 			findEquivalent: for (int j=0; j<length; j++) {
 				if (j == i) continue findEquivalent;
 				if (isMethodSubsignature(methods[i], methods[j])) {
-					problemReporter().inheritedDefaultMethodConflictsWithOtherInherited(this.type, methods[i], methods[j]);
+					if (!doesMethodOverride(methods[i], methods[j]) && !doesMethodOverride(methods[j], methods[i])) 
+						problemReporter().inheritedDefaultMethodConflictsWithOtherInherited(this.type, methods[i], methods[j]);
 					continue findDefaultMethod;
 				}
 			}
