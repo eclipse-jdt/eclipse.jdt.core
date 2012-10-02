@@ -1085,7 +1085,7 @@ public class JavadocTestForClass extends JavadocTest {
 				"	Entry e = null;\n" + 
 				"}\n",
 				},
-				IS_JRE_8 && this.complianceLevel >= ClassFileConstants.JDK1_5 ? 
+				!IS_JRE_8 || (IS_JRE_8 && this.complianceLevel >= ClassFileConstants.JDK1_5) ? 
 						"----------\n" + 
 						"1. ERROR in X.java (at line 5)\n" + 
 						"	* <li> {@link Entry} </li>\n" + 
