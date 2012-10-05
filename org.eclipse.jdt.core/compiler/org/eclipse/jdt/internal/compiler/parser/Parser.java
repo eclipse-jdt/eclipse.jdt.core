@@ -898,12 +898,9 @@ public class Parser implements ConflictedParser, ParserBasicInformation, Termina
 	   to handle such interleaving and will look ugly if changed. 
 	   
 	   See consumeArrayCreationExpressionWithoutInitializer for example. 
-	   
-	   See that annotations gets pushed into expression stack the moment an annotation is discovered and
-	   get moved to the new type annotations stack only later when the annotation is recognized to be a
-	   type annotation. Where ambiguities exist (i.e 1.7 annotation occurs in a place sanctioned for an
-	   1.5 type annotation, the annotation continues to stay in the expression stack, but in these case
-	   interleaving is not an issue.
+
+	   Where SE8 annotations occur in a place SE5 annotations are legal, the SE8 annotations end up in
+	   the expression stack as we have no way of distinguishing between the two.
 	*/  
 	protected int typeAnnotationPtr;
 	protected int typeAnnotationLengthPtr;
@@ -3079,8 +3076,8 @@ protected void consumeDims() {
 	this.dimensions = 0;
 }
 protected void consumeDimWithOrWithOutExpr() {
-	// DimWithOrWithOutExpr ::= '[' ']'
-	// DimWithOrWithOutExpr ::= OneOrMoreAnnotations '[' ']' 
+	// DimWithOrWithOutExpr ::= TypeAnnotationsopt '[' ']'
+	// DimWithOrWithOutExpr ::= TypeAnnotationsopt '[' Expression ']'
 	pushOnExpressionStack(null);
 
 	if(this.currentElement != null && this.currentToken == TokenNameLBRACE) {
@@ -4136,8 +4133,9 @@ protected void consumeForInit() {
 	pushOnAstLengthStack(-1);
 }
 protected void consumeFormalParameter(boolean isVarArgs) {
-	// FormalParameter ::= Type VariableDeclaratorId ==> false
-	// FormalParameter ::= Modifiers Type VariableDeclaratorId ==> true
+	// FormalParameter ::= Modifiersopt Type VariableDeclaratorIdOrThis
+	// FormalParameter ::= Modifiersopt Type PushZeroTypeAnnotations '...' VariableDeclaratorIdOrThis
+	// FormalParameter ::= Modifiersopt Type @308... TypeAnnotations '...' VariableDeclaratorIdOrThis
 	/*
 	this.astStack :
 	this.identifierStack : type identifier
@@ -4712,7 +4710,8 @@ protected void consumeLocalVariableDeclarationStatement() {
 
 }
 protected void consumeMarkerAnnotation(boolean isTypeAnnotation) {
-	// MarkerAnnotation ::= '@' Name
+	// MarkerAnnotation ::= AnnotationName
+	// MarkerTypeAnnotation ::= TypeAnnotationName
 	MarkerAnnotation markerAnnotation = null;
 
 	int oldIndex = this.identifierPtr;
@@ -5247,6 +5246,10 @@ protected void consumeMultipleResources() {
 	concatNodeLists();
 }
 protected void consumeTypeAnnotation() {
+	// TypeAnnotation ::= NormalTypeAnnotation
+	// TypeAnnotation ::= MarkerTypeAnnotation
+	// TypeAnnotation ::= SingleMemberTypeAnnotation
+	
 	if (!this.statementRecoveryActivated &&
 			this.options.sourceLevel < ClassFileConstants.JDK1_8 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
@@ -5255,7 +5258,7 @@ protected void consumeTypeAnnotation() {
 	}
 }
 protected void consumeOneMoreTypeAnnotation() {
-	// OneOrMoreAnnotations ::= OneOrMoreAnnotations Annotation
+	// TypeAnnotations ::= TypeAnnotations TypeAnnotation
 	this.typeAnnotationLengthStack[--this.typeAnnotationLengthPtr]++;
 }
 protected void consumeNameArrayType() {
@@ -5287,7 +5290,8 @@ protected void consumeNestedType() {
 	this.variablesCounter[this.nestedType] = 0;
 }
 protected void consumeNormalAnnotation(boolean isTypeAnnotation) {
-	// NormalAnnotation ::= '@' Name '(' MemberValuePairsopt ')'
+	// NormalTypeAnnotation ::= TypeAnnotationName '(' MemberValuePairsopt ')'
+	// NormalAnnotation ::= AnnotationName '(' MemberValuePairsopt ')'
 	NormalAnnotation normalAnnotation = null;
 
 	int oldIndex = this.identifierPtr;
@@ -5327,6 +5331,8 @@ protected void consumeNormalAnnotation(boolean isTypeAnnotation) {
 	this.recordStringLiterals = true;
 }
 protected void consumeOneDimLoop(boolean isAnnotated) {
+	// OneDimLoop ::= '[' ']'
+	// OneDimLoop ::= TypeAnnotations '[' ']'
 	this.dimensions++;
 	if (!isAnnotated) {
 		pushOnTypeAnnotationLengthStack(0); // signal no annotations for the current dimension.
@@ -5384,7 +5390,7 @@ protected void consumePackageDeclaration() {
 	impt.declarationSourceEnd = flushCommentsDefinedPriorTo(impt.declarationSourceEnd);
 }
 protected void consumePackageDeclarationName() {
-	// PackageDeclarationName ::= 'package' Name
+	// PackageDeclarationName ::= PackageComment 'package' Name RejectTypeAnnotations
 	/* build an ImportRef build from the last name
 	stored in the identifier stack. */
 
@@ -5426,7 +5432,7 @@ protected void consumePackageDeclarationName() {
 	}
 }
 protected void consumePackageDeclarationNameWithModifiers() {
-	// PackageDeclarationName ::= Modifiers 'package' Name
+	// PackageDeclarationName ::= Modifiers 'package' PushRealModifiers Name RejectTypeAnnotations
 	/* build an ImportRef build from the last name
 	stored in the identifier stack. */
 
@@ -5640,6 +5646,7 @@ protected void consumePushRealModifiers() {
 }
 protected void consumeQualifiedName(boolean qualifiedNameIsAnnotated) {
 	// QualifiedName ::= Name '.' SimpleName
+	// QualifiedName ::= Name '.' TypeAnnotations SimpleName 
 	/*back from the recursive loop of QualifiedName.
 	Updates identifier length into the length stack*/
 
@@ -5649,10 +5656,7 @@ protected void consumeQualifiedName(boolean qualifiedNameIsAnnotated) {
 	}
 }
 protected void consumeUnannotatableQualifiedName() {
-	// QualifiedName ::= Name '.' SimpleName
-	/*back from the recursive loop of QualifiedName.
-	Updates identifier length into the length stack*/
-
+	// UnannotatableName ::= UnannotatableName '.' SimpleName
 	this.identifierLengthStack[--this.identifierLengthPtr]++;
 }
 protected void consumeRecoveryMethodHeaderName() {
@@ -5730,7 +5734,7 @@ protected void consumeRightParen() {
 	pushOnIntStack(this.rParenPos);
 }
 protected void consumeNonTypeUseName() { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383596
-	// NonTypeUseName ::= $empty
+	// RejectTypeAnnotations ::= $empty
 	// We can get here with type annotation stack empty, because completion parser manipulates the identifier stacks even without rule reduction. See completionIdentifierCheck
 	for (int i = this.identifierLengthStack[this.identifierLengthPtr]; i > 0 && this.typeAnnotationLengthPtr >= 0; --i) {
 		int length = this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr--];
@@ -5747,6 +5751,9 @@ protected void consumeNonTypeUseName() { // https://bugs.eclipse.org/bugs/show_b
 	}
 }
 protected void consumeZeroTypeAnnotations() {
+	// PushZeroTypeAnnotations ::= $empty
+	// Name ::= SimpleName
+	// TypeAnnotationsopt ::= $empty
 	pushOnTypeAnnotationLengthStack(0); // signal absence of @308 annotations.
 }
 // This method is part of an automatic generation : do NOT edit-modify
@@ -7657,7 +7664,8 @@ protected void consumeVariableDeclaratorIdParameter () {
 }
 protected void consumeExplicitThisParameter(boolean isQualified) {
 	// VariableDeclaratorIdOrThis ::= 'this'
-	// VariableDeclaratorIdOrThis ::= Name '.' 'this'
+	// VariableDeclaratorIdOrThis ::= UnannotatableName '.' 'this'
+	// VariableDeclaratorIdOrThis ::= VariableDeclaratorId
 
 	NameReference qualifyingNameReference = null;
 	if (isQualified) {
@@ -7835,6 +7843,8 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive, boolean i
 		this.intPtr--;  // pop type arguments source start.
 	}
 	
+	// TODO(Srikanth) : Handle ambiguity with NameReference.
+	
 	if (!isPrimitive) { // handle type arguments
 		pushOnGenericsLengthStack(0);
 		pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
@@ -7848,41 +7858,6 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive, boolean i
 		rexp = new ReferenceExpression(type, typeArguments, methodReference);
 	}
 
-	pushOnExpressionStack(rexp);
-	if (!this.parsingJava8Plus) {
-		problemReporter().referenceExpressionsNotBelow18(rexp);
-	}
-}
-protected void consumeReferenceExpressionNameForm() {
-	// ReferenceExpression ::= Name '::' NonWildTypeArgumentsopt IdentifierOrNew
-	
-	ReferenceExpression rexp;
-	TypeReference [] typeArguments = null;
-	SingleNameReference methodReference = null;
-	int newEnd = -1;
-	
-	boolean newForm = this.intStack[this.intPtr--] != 0;
-	if (newForm) {
-		newEnd = this.intStack[this.intPtr--] + 3; // "new"
-	} else {
-		methodReference = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
-		this.identifierLengthPtr--;
-	}
-	
-	int length = this.genericsLengthStack[this.genericsLengthPtr--];
-	if (length > 0) {
-		this.genericsPtr -= length;
-		System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeArguments = new TypeReference[length], 0, length);
-		this.intPtr--;  // pop type arguments source start.
-	}
-	
-	// There is some ambiguity between type reference and name reference here.
-	NameReference nameReference = getUnspecifiedReference();
-	if (newForm) {
-		rexp = new ReferenceExpression(nameReference, typeArguments, newEnd);
-	} else {
-		rexp = new ReferenceExpression(nameReference, typeArguments, methodReference); 
-	}
 	pushOnExpressionStack(rexp);
 	if (!this.parsingJava8Plus) {
 		problemReporter().referenceExpressionsNotBelow18(rexp);
@@ -8002,7 +7977,8 @@ protected void consumeSimpleAssertStatement() {
 	pushOnAstStack(new AssertStatement(this.expressionStack[this.expressionPtr--], this.intStack[this.intPtr--]));
 }
 protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
-	// SingleMemberAnnotation ::= '@' Name '(' MemberValue ')'
+	// SingleMemberTypeAnnotation ::= TypeAnnotationName '(' SingleMemberAnnotationMemberValue ')'
+	// SingleMemberAnnotation ::= AnnotationName '(' SingleMemberAnnotationMemberValue ')'
 	SingleMemberAnnotation singleMemberAnnotation = null;
 
 	int oldIndex = this.identifierPtr;
@@ -8047,7 +8023,7 @@ protected void consumeSingleResource() {
 	// Resources ::= Resource
 }
 protected void consumeSingleStaticImportDeclarationName() {
-	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
+	// SingleTypeImportDeclarationName ::= 'import' Name RejectTypeAnnotations
 	/* push an ImportRef build from the last name
 	stored in the identifier stack. */
 
@@ -8448,7 +8424,7 @@ protected void consumeStatementWhile() {
 			this.endStatementPosition);
 }
 protected void consumeStaticImportOnDemandDeclarationName() {
-	// TypeImportOnDemandDeclarationName ::= 'import' 'static' Name '.' '*'
+	// StaticImportOnDemandDeclarationName ::= 'import' 'static' Name '.' RejectTypeAnnotations '*'
 	/* push an ImportRef build from the last name
 	stored in the identifier stack. */
 
@@ -8964,7 +8940,7 @@ protected void consumeTypeHeaderNameWithTypeParameters() {
 	}
 }
 protected void consumeTypeImportOnDemandDeclarationName() {
-	// TypeImportOnDemandDeclarationName ::= 'import' Name '.' '*'
+	// TypeImportOnDemandDeclarationName ::= 'import' Name '.' RejectTypeAnnotations '*'
 	/* push an ImportRef build from the last name
 	stored in the identifier stack. */
 
@@ -9030,7 +9006,7 @@ protected void consumeTypeParameter1WithExtendsAndBounds() {
 	}
 }
 protected void consumeTypeParameterHeader() {
-	//TypeParameterHeader ::= Identifier
+	//TypeParameterHeader ::= TypeAnnotationsopt Identifier
 	TypeParameter typeParameter = new TypeParameter();
 	int length;
 	if ((length = this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr--]) != 0) {
@@ -9865,7 +9841,9 @@ protected void annotateTypeReference(TypeReference ref) {
 				ref.annotations[0] = new Annotation[length],
 				0,
 				length);
-		ref.sourceStart = ref.annotations[0][0].sourceStart;
+		if (ref.sourceStart > ref.annotations[0][0].sourceStart) {
+			ref.sourceStart = ref.annotations[0][0].sourceStart;
+		}
 		ref.bits |= ASTNode.HasTypeAnnotations;
 	}
 }

@@ -2049,6 +2049,7 @@ ReferenceType2 ::= ReferenceType '>>'
 ReferenceType2 ::= ClassOrInterface '<' TypeArgumentList3
 /.$putCase consumeTypeArgumentReferenceType2(); $break ./
 /:$readableName ReferenceType2:/
+/:$compliance 1.5:/
 
 TypeArgumentList3 -> TypeArgument3
 TypeArgumentList3 ::= TypeArgumentList ',' TypeArgument3
