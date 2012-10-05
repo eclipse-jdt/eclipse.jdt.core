@@ -76,6 +76,21 @@ public class QualifiedTypeReference extends TypeReference {
 	public char[] getLastToken() {
 		return this.tokens[this.tokens.length-1];
 	}
+
+	protected void rejectAnnotationsOnPackageQualifiers(Scope scope, PackageBinding packageBinding) {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390882
+		if (packageBinding == null || this.annotations == null) return;
+
+		int i = packageBinding.compoundName.length;
+		for (int j = i; j > 0; j--) {
+			Annotation[] qualifierAnnot = this.annotations[j];
+			if (qualifierAnnot != null && qualifierAnnot.length > 0) {
+				scope.problemReporter().misplacedTypeAnnotations(qualifierAnnot[0], qualifierAnnot[qualifierAnnot.length - 1]);
+				this.annotations[j] = null;
+			}
+		}
+	}
+
 	protected TypeBinding getTypeBinding(Scope scope) {
 
 		if (this.resolvedType != null) {
@@ -91,9 +106,12 @@ public class QualifiedTypeReference extends TypeReference {
 			return (ReferenceBinding) binding; // not found
 		}
 	    PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
+	    rejectAnnotationsOnPackageQualifiers(scope, packageBinding);
+
+	    int i = packageBinding == null ? 0 : packageBinding.compoundName.length;
 	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 	    ReferenceBinding qualifiedType = null;
-		for (int i = packageBinding == null ? 0 : packageBinding.compoundName.length, max = this.tokens.length, last = max-1; i < max; i++) {
+		for (int max = this.tokens.length, last = max-1; i < max; i++) {
 			findNextTypeBinding(i, scope, packageBinding);
 			if (!this.resolvedType.isValidBinding())
 				return this.resolvedType;

@@ -188,6 +188,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		}
 
 		PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
+		rejectAnnotationsOnPackageQualifiers(scope, packageBinding);
+
 		boolean typeIsConsistent = true;
 		ReferenceBinding qualifyingType = null;
 		for (int i = packageBinding == null ? 0 : packageBinding.compoundName.length, max = this.tokens.length; i < max; i++) {
