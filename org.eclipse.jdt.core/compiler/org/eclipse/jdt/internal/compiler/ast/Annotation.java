@@ -351,7 +351,7 @@ public abstract class Annotation extends Expression {
 		return result;
 	}
 	
-	// jsr 308
+	    // jsr 308
 		public static class TypeUseBinding extends ReferenceBinding {
 			private int kind;
 			public TypeUseBinding(int kind) {
@@ -362,7 +362,6 @@ public abstract class Annotation extends Expression {
 				return this.kind;
 			}
 			public boolean hasTypeBit(int bit) {
-				// TODO Auto-generated method stub
 				return false;
 			}
 		}
@@ -761,6 +760,11 @@ public abstract class Annotation extends Expression {
 					case Binding.PACKAGE :
 						((PackageBinding)this.recipient).tagBits |= tagBits;
 						break;
+					case Binding.TYPE_PARAMETER:
+					case Binding.TYPE_USE:
+						ReferenceBinding typeAnnotationRecipient = (ReferenceBinding) this.recipient;
+						typeAnnotationRecipient.tagBits |= tagBits;
+						break;
 					case Binding.TYPE :
 					case Binding.GENERIC_TYPE :
 						SourceTypeBinding sourceType = (SourceTypeBinding) this.recipient;
@@ -870,7 +874,6 @@ public abstract class Annotation extends Expression {
 						if ((metaTagBits & TagBits.AnnotationForField) != 0) {
 							break checkTargetCompatibility;
 						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-							// jsr 308 - annotation on field type
 							break checkTargetCompatibility;
 						}
 						break;
@@ -879,13 +882,11 @@ public abstract class Annotation extends Expression {
 							if ((metaTagBits & TagBits.AnnotationForParameter) != 0) {
 								break checkTargetCompatibility;
 							} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-								// jsr 308 - annotation on method parameter type
 								break checkTargetCompatibility;
 							}
 						} else if ((annotationType.tagBits & TagBits.AnnotationForLocalVariable) != 0) {
 							break checkTargetCompatibility;
 						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-							// jsr 308 - annotation on local type
 							break checkTargetCompatibility;
 						}
 						break;
