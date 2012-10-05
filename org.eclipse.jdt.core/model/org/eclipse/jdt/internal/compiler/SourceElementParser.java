@@ -769,7 +769,7 @@ public TypeReference getTypeReference(int dim) {
 				}
 			}
 		} else if (length == 1) {
-			// single variable reference
+			// single type reference
 			this.genericsLengthPtr--; // pop the 0
 			if (dim == 0) {
 				ref =

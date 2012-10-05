@@ -33,7 +33,8 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 	public ArrayQualifiedTypeReference(char[][] sources, int dim, Annotation[][] annotationsOnDimensions, long[] poss) {
 		this(sources, dim, poss);
 		this.annotationsOnDimensions = annotationsOnDimensions;
-		this.bits |= ASTNode.HasTypeAnnotations;
+		if (annotationsOnDimensions != null)
+			this.bits |= ASTNode.HasTypeAnnotations;
 	}
 
 	public int dimensions() {
@@ -150,7 +151,7 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 			if (this.annotationsOnDimensions != null) {
 				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
 					Annotation[] annotations2 = this.annotationsOnDimensions[i];
-					for (int j = 0, max2 = annotations2.length; j < max2; j++) {
+					for (int j = 0, max2 = annotations2 == null ? 0 : annotations2.length; j < max2; j++) {
 						Annotation annotation = annotations2[j];
 						annotation.traverse(visitor, scope);
 					}
@@ -173,7 +174,7 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 			if (this.annotationsOnDimensions != null) {
 				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
 					Annotation[] annotations2 = this.annotationsOnDimensions[i];
-					for (int j = 0, max2 = annotations2.length; j < max2; j++) {
+					for (int j = 0, max2 = annotations2 == null ? 0 : annotations2.length; j < max2; j++) {
 						Annotation annotation = annotations2[j];
 						annotation.traverse(visitor, scope);
 					}

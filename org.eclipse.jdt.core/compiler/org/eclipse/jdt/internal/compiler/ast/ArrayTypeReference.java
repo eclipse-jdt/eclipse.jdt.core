@@ -120,11 +120,9 @@ public class ArrayTypeReference extends SingleTypeReference {
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.annotations != null) {
-				int annotationsLevels = this.annotations.length;
-				for (int i = 0; i < annotationsLevels; i++) {
-					int annotationsLength = this.annotations[i] == null ? 0 : this.annotations[i].length;
-					for (int j = 0; j < annotationsLength; j++)
-						this.annotations[i][j].traverse(visitor, scope);
+				Annotation [] typeAnnotations = this.annotations[0];
+				for (int i = 0, length = typeAnnotations == null ? 0 : typeAnnotations.length; i < length; i++) {
+					typeAnnotations[i].traverse(visitor, scope);
 				}
 			}
 			if (this.annotationsOnDimensions != null) {
@@ -145,11 +143,9 @@ public class ArrayTypeReference extends SingleTypeReference {
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.annotations != null) {
-				int annotationsLevels = this.annotations.length;
-				for (int i = 0; i < annotationsLevels; i++) {
-					int annotationsLength = this.annotations[i] == null ? 0 : this.annotations[i].length;
-					for (int j = 0; j < annotationsLength; j++)
-						this.annotations[i][j].traverse(visitor, scope);
+				Annotation [] typeAnnotations = this.annotations[0];
+				for (int i = 0, length = typeAnnotations == null ? 0 : typeAnnotations.length; i < length; i++) {
+					typeAnnotations[i].traverse(visitor, scope);
 				}
 			}
 			if (this.annotationsOnDimensions != null) {

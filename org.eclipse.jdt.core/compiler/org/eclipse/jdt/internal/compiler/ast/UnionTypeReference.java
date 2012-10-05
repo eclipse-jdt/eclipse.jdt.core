@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,7 @@ public class UnionTypeReference extends TypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#copyDims(int)
 	 */
 	public TypeReference copyDims(int dim) {
-		return this;
+		return this; // arrays are not legal as union types.
 	}
 
 	/* (non-Javadoc)
@@ -161,8 +161,7 @@ public class UnionTypeReference extends TypeReference {
 	}
 
 	public TypeReference copyDims(int dim, Annotation[][] annotationsOnDimensions) {
-		// TODO Auto-generated method stub
-		return null;
+		return this; // arrays are not legal as union types.
 	}
 
 }

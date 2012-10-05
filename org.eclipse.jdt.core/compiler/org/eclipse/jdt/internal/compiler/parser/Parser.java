@@ -5517,7 +5517,7 @@ protected void consumePrimaryNoNewArrayName() {
 	pushOnExpressionStack(
 		new ClassLiteralAccess(this.intStack[this.intPtr--], typeReference));
 }
-private void rejectIllegalLeadingTypeAnnotations(TypeReference typeReference) {
+protected void rejectIllegalLeadingTypeAnnotations(TypeReference typeReference) {
 	// Reject misplaced annotations prefixed to a type reference; Used when the grammar is permissive enough to allow them in the first place.
 	Annotation [][]  annotations = typeReference.annotations;
 	if (annotations != null && annotations[0] != null) {

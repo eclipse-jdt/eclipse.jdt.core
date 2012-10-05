@@ -2612,14 +2612,6 @@ public void illegalModifierForMethod(AbstractMethodDeclaration methodDecl) {
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void invalidLocationForModifiers(ASTNode location) {
-	this.handle(
-			IProblem.InvalidLocationForModifiers,
-			NoArgument,
-			NoArgument,
-			location.sourceStart,
-			location.sourceEnd);
-}
 public void illegalModifierForVariable(LocalDeclaration localDecl, boolean complainAsArgument) {
 	String[] arguments = new String[] {new String(localDecl.name)};
 	this.handle(

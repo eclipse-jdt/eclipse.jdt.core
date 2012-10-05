@@ -1171,12 +1171,9 @@ private void buildMoreGenericsCompletionContext(ASTNode node, boolean consumeTyp
 				if(info == LESS && node instanceof TypeReference) {
 					if(this.identifierLengthPtr > -1 && this.identifierLengthStack[this.identifierLengthPtr]!= 0) {
 						if (consumeTypeArguments) consumeTypeArguments();
-						TypeReference ref;
+						TypeReference ref = this.getTypeReference(0);
 						if(prevKind == K_PARAMETERIZED_CAST) {
-							ref = this.getTypeReference(0);
 							ref = computeQualifiedGenericsFromRightSide(ref, 0, null);
-						} else {
-							ref = this.getTypeReference(0);
 						}
 						if(this.currentElement instanceof RecoveredType) {
 							this.currentElement = this.currentElement.add(new CompletionOnFieldType(ref, false), 0);
@@ -2134,6 +2131,7 @@ protected void consumeCastExpressionWithGenericsArray() {
 	cast.sourceStart = castType.sourceStart - 1;
 	cast.sourceEnd = exp.sourceEnd;
 }
+
 protected void consumeCastExpressionWithQualifiedGenericsArray() {
 	popElement(K_CAST_STATEMENT);
 

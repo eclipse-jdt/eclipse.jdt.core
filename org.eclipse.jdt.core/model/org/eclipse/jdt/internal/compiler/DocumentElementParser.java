@@ -583,6 +583,7 @@ protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 			localDeclaration.annotations = new Annotation[length],
 			0,
 			length);
+		localDeclaration.bits |= ASTNode.HasTypeAnnotations;
 	}
 	if (hasModifiers) {
 		localDeclaration.declarationSourceStart = declarationSourceStart1;
@@ -592,7 +593,7 @@ protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 		localDeclaration.declarationSourceStart = type.sourceStart;
 	}
 	localDeclaration.type = type;
-
+	localDeclaration.bits |= (type.bits & ASTNode.HasTypeAnnotations);
 	ForeachStatement iteratorForStatement =
 		new ForeachStatement(
 			localDeclaration,
@@ -619,7 +620,8 @@ protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMet
 	this.identifierLengthPtr--;
 	//type
 	md.returnType = getTypeReference(this.intStack[this.intPtr--]);
-
+	rejectIllegalLeadingTypeAnnotations(md.returnType);
+	md.bits |= (md.returnType.bits & ASTNode.HasTypeAnnotations);
 	// consume type parameters
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;

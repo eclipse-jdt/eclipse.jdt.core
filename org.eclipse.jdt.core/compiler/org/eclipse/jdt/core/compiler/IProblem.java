@@ -1299,8 +1299,6 @@ void setSourceStart(int sourceStart);
     int DisallowedExplicitThisParameter = Syntax + Internal + 638;
     /** @since 3.9 */
     int MisplacedTypeAnnotations = Syntax + Internal + 639;
-    /** @since 3.9 */
-    int InvalidLocationForModifiers = Syntax + Internal + 640;
     /** @since 3.9*/
     int IllegalUsageOfTypeAnnotations = Internal + Syntax + 641;
     /** @since 3.9*/
