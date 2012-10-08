@@ -654,14 +654,22 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"@interface Marker {}",
 					"X.java",
 					"public class X<@Marker T> {}",
+
+					"java/lang/annotation/ElementType.java",
+					"package java.lang.annotation;\n" +
+					"public enum ElementType {\n" +
+					"    TYPE,\n" +
+					"    FIELD,\n" +
+					"    METHOD,\n" +
+					"    PARAMETER,\n" +
+					"    CONSTRUCTOR,\n" +
+					"    LOCAL_VARIABLE,\n" +
+					"    ANNOTATION_TYPE,\n" +
+					"    PACKAGE,\n" +
+					"    TYPE_PARAMETER,\n" +
+					"    TYPE_USE\n" +
+					"}\n"
 				},
-				/* TODO(Srikanth/Jay) when JSR308 enabled runtime becomes available for testing, the first error message should be deleted. */
-				"----------\n" + 
-				"1. ERROR in Marker.java (at line 3)\n" + 
-				"	@Target(TYPE_USE)\n" + 
-				"	        ^^^^^^^^\n" + 
-				"TYPE_USE cannot be resolved to a variable\n" + 
-				"----------\n" + 
 				"----------\n" + 
 				"1. ERROR in X.java (at line 1)\n" + 
 				"	public class X<@Marker T> {}\n" + 
@@ -1247,7 +1255,23 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"    public void foobar(AnonymousInner this);\n" +
 						"}\n" +
 						"@Target(TYPE_USE)\n" + 
-						"@interface Marker {}"},
+						"@interface Marker {}",
+
+						"java/lang/annotation/ElementType.java",
+						"package java.lang.annotation;\n" +
+						"public enum ElementType {\n" +
+						"    TYPE,\n" +
+						"    FIELD,\n" +
+						"    METHOD,\n" +
+						"    PARAMETER,\n" +
+						"    CONSTRUCTOR,\n" +
+						"    LOCAL_VARIABLE,\n" +
+						"    ANNOTATION_TYPE,\n" +
+						"    PACKAGE,\n" +
+						"    TYPE_PARAMETER,\n" +
+						"    TYPE_USE\n" +
+						"}\n"
+					},
 							"----------\n" + 
 							"1. ERROR in Outer.java (at line 5)\n" + 
 							"	public Inner(@Missing Outer Outer.this) {}\n" + 
@@ -1266,33 +1290,18 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 							"----------\n" + 
 							"4. ERROR in Outer.java (at line 21)\n" + 
 							"	public StaticNested(@Marker Outer.StaticNested Outer.StaticNested.this) {}\n" + 
-							"	                    ^^^^^^^\n" + 
-							"The annotation @Marker is disallowed for this location\n" + 
-							"----------\n" + 
-							"5. ERROR in Outer.java (at line 21)\n" + 
-							"	public StaticNested(@Marker Outer.StaticNested Outer.StaticNested.this) {}\n" + 
 							"	                                                                  ^^^^\n" + 
 							"Explicit \'this\' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
 							"----------\n" + 
-							"6. ERROR in Outer.java (at line 23)\n" + 
-							"	public static void foo(@Marker Outer this) {}\n" + 
-							"	                       ^^^^^^^\n" + 
-							"The annotation @Marker is disallowed for this location\n" + 
-							"----------\n" + 
-							"7. ERROR in Outer.java (at line 23)\n" + 
+							"5. ERROR in Outer.java (at line 23)\n" + 
 							"	public static void foo(@Marker Outer this) {}\n" + 
 							"	                                     ^^^^\n" + 
 							"Explicit \'this\' parameter is allowed only in instance methods of non-anonymous classes and inner class constructors\n" + 
 							"----------\n" + 
-							"8. ERROR in Outer.java (at line 24)\n" + 
+							"6. ERROR in Outer.java (at line 24)\n" + 
 							"	public void foo(@Missing Outer this, int i) {}\n" + 
 							"	                 ^^^^^^^\n" + 
 							"Missing cannot be resolved to a type\n" + 
-							"----------\n" + 
-							"9. ERROR in Outer.java (at line 29)\n" + 
-							"	@Target(TYPE_USE)\n" + 
-							"	        ^^^^^^^^\n" + 
-							"TYPE_USE cannot be resolved to a variable\n" + 
 							"----------\n");
 	}
 	public void test0383908() {
@@ -2329,7 +2338,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390882
-	public void _test0390882() {
+	public void test0390882() {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -2344,7 +2353,22 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"	public void foobar(@Marker java.lang.Integer arg) {}\n" +
 					"}\n" +
 					"@Target(TYPE_USE)\n" +
-					"@interface Marker {}\n"
+					"@interface Marker {}\n",
+
+					"java/lang/annotation/ElementType.java",
+					"package java.lang.annotation;\n" +
+					"public enum ElementType {\n" +
+					"    TYPE,\n" +
+					"    FIELD,\n" +
+					"    METHOD,\n" +
+					"    PARAMETER,\n" +
+					"    CONSTRUCTOR,\n" +
+					"    LOCAL_VARIABLE,\n" +
+					"    ANNOTATION_TYPE,\n" +
+					"    PACKAGE,\n" +
+					"    TYPE_PARAMETER,\n" +
+					"    TYPE_USE\n" +
+					"}\n"
 				},
 				"----------\n" + 
 				"1. ERROR in X.java (at line 5)\n" + 
@@ -2368,7 +2392,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n");
 	}
-	public void _test0390882a() {
+	public void test0390882a() {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -2382,7 +2406,22 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"@Target(TYPE_USE)\n" +
 					"@interface Marker {}\n" +
 					"@Target(TYPE_USE)\n" +
-					"@interface Annot {}"
+					"@interface Annot {}",
+
+					"java/lang/annotation/ElementType.java",
+					"package java.lang.annotation;\n" +
+					"public enum ElementType {\n" +
+					"    TYPE,\n" +
+					"    FIELD,\n" +
+					"    METHOD,\n" +
+					"    PARAMETER,\n" +
+					"    CONSTRUCTOR,\n" +
+					"    LOCAL_VARIABLE,\n" +
+					"    ANNOTATION_TYPE,\n" +
+					"    PACKAGE,\n" +
+					"    TYPE_PARAMETER,\n" +
+					"    TYPE_USE\n" +
+					"}\n"
 				},
 				"----------\n" + 
 				"1. ERROR in X.java (at line 4)\n" + 
@@ -2401,7 +2440,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"java.lang cannot be resolved to a type\n" + 
 				"----------\n");
 	}
-	public void _test0390882b() {
+	public void test0390882b() {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -2416,7 +2455,22 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"@Target(TYPE_USE)\n" +
 					"@interface Marker {}\n" +
 					"@Target(TYPE_USE)\n" +
-					"@interface Annot {}"
+					"@interface Annot {}",
+
+					"java/lang/annotation/ElementType.java",
+					"package java.lang.annotation;\n" +
+					"public enum ElementType {\n" +
+					"    TYPE,\n" +
+					"    FIELD,\n" +
+					"    METHOD,\n" +
+					"    PARAMETER,\n" +
+					"    CONSTRUCTOR,\n" +
+					"    LOCAL_VARIABLE,\n" +
+					"    ANNOTATION_TYPE,\n" +
+					"    PACKAGE,\n" +
+					"    TYPE_PARAMETER,\n" +
+					"    TYPE_USE\n" +
+					"}\n"
 				},
 				"----------\n" + 
 				"1. ERROR in X.java (at line 4)\n" + 
@@ -2435,5 +2489,146 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385137
+	public void test0385137() {
+		this.runNegativeTest(
+				new String[]{ "A.java",
+				"package p;" +
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"public class A<T> { \n" +
+				"	static class B<T> {" +
+				"		static class C<K, V> {" +
+				"		}	" +
+				"	}\n" +
+				"   public void foo() {\n" +
+				"		Object o = (@Marker @Annot A.@Marker B.@Marker C) null;\n" +
+				"		Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" +
+				"   }\n" +
+				"}\n" +
+				"@Target(TYPE_USE)\n" + 
+				"@interface Marker {}\n" +
+				"@Target(TYPE_USE)\n" + 
+				"@interface Annot {}\n",
 
+				"java/lang/annotation/ElementType.java",
+				"package java.lang.annotation;\n" +
+				"public enum ElementType {\n" +
+				"    TYPE,\n" +
+				"    FIELD,\n" +
+				"    METHOD,\n" +
+				"    PARAMETER,\n" +
+				"    CONSTRUCTOR,\n" +
+				"    LOCAL_VARIABLE,\n" +
+				"    ANNOTATION_TYPE,\n" +
+				"    PACKAGE,\n" +
+				"    TYPE_PARAMETER,\n" +
+				"    TYPE_USE\n" +
+				"}\n"},
+					"----------\n" + 
+					"1. ERROR in A.java (at line 6)\n" + 
+					"	Object o = (@Marker @Annot A.@Marker B.@Marker C) null;\n" + 
+					"	            ^^^^^^^^^^^^^^\n" + 
+					"Type annotations are not allowed on type names used to access static members\n" + 
+					"----------\n" + 
+					"2. WARNING in A.java (at line 6)\n" + 
+					"	Object o = (@Marker @Annot A.@Marker B.@Marker C) null;\n" + 
+					"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"A.B.C is a raw type. References to generic type A<T>.B<T>.C<K,V> should be parameterized\n" + 
+					"----------\n" + 
+					"3. ERROR in A.java (at line 6)\n" + 
+					"	Object o = (@Marker @Annot A.@Marker B.@Marker C) null;\n" + 
+					"	                             ^^^^^^^\n" + 
+					"Type annotations are not allowed on type names used to access static members\n" + 
+					"----------\n" + 
+					"4. ERROR in A.java (at line 7)\n" + 
+					"	Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" + 
+					"	             ^^^^^^^\n" + 
+					"Type annotations are not allowed on type names used to access static members\n" + 
+					"----------\n" + 
+					"5. WARNING in A.java (at line 7)\n" + 
+					"	Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" + 
+					"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"A.B.C is a raw type. References to generic type A<T>.B<T>.C<K,V> should be parameterized\n" + 
+					"----------\n" + 
+					"6. ERROR in A.java (at line 7)\n" + 
+					"	Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" + 
+					"	                       ^^^^^^^\n" + 
+					"Syntax error, type annotations are illegal here\n" + 
+					"----------\n" + 
+					"7. ERROR in A.java (at line 7)\n" + 
+					"	Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" + 
+					"	                                 ^^^^^^^\n" + 
+					"Type annotations are not allowed on type names used to access static members\n" + 
+					"----------\n");
+	}
+	public void test0385137a() {
+		this.runNegativeTest(
+				new String[]{"A.java",
+				"package p;" +
+				"import java.lang.annotation.Target;\n" + 
+				"import static java.lang.annotation.ElementType.*;\n" + 
+				"public class A { \n" +
+				"	static class B<T> {" +
+				"		static class C<K, V> {" +
+				"		}	" +
+				"	}\n" +
+				"   public void foo() {\n" +
+				"		Object o1 = (@Marker p.@Marker A.@Marker B.@Marker C[]) null;\n" +
+				"		Object o2 = (@Marker @Annot A.@Annot B.C<Integer, String>) null;\n" +
+				"		Object o5 = (@Marker @Annot A.B<String>[]) null;\n" +
+				"   }\n" +
+				"}\n" +
+				"@Target(TYPE_USE)\n" + 
+				"@interface Marker {}\n" +
+				"@Target(TYPE_USE)\n" + 
+				"@interface Annot {}\n",
+
+				"java/lang/annotation/ElementType.java",
+				"package java.lang.annotation;\n" +
+				"public enum ElementType {\n" +
+				"    TYPE,\n" +
+				"    FIELD,\n" +
+				"    METHOD,\n" +
+				"    PARAMETER,\n" +
+				"    CONSTRUCTOR,\n" +
+				"    LOCAL_VARIABLE,\n" +
+				"    ANNOTATION_TYPE,\n" +
+				"    PACKAGE,\n" +
+				"    TYPE_PARAMETER,\n" +
+				"    TYPE_USE\n" +
+				"}\n",
+				},
+				"----------\n" + 
+					"1. ERROR in A.java (at line 6)\n" + 
+					"	Object o1 = (@Marker p.@Marker A.@Marker B.@Marker C[]) null;\n" + 
+					"	             ^^^^^^^\n" + 
+					"Type annotations are not allowed on type names used to access static members\n" + 
+					"----------\n" + 
+					"2. ERROR in A.java (at line 6)\n" + 
+					"	Object o1 = (@Marker p.@Marker A.@Marker B.@Marker C[]) null;\n" + 
+					"	                       ^^^^^^^\n" + 
+					"Syntax error, type annotations are illegal here\n" + 
+					"----------\n" + 
+					"3. ERROR in A.java (at line 6)\n" + 
+					"	Object o1 = (@Marker p.@Marker A.@Marker B.@Marker C[]) null;\n" + 
+					"	                                 ^^^^^^^\n" + 
+					"Type annotations are not allowed on type names used to access static members\n" + 
+					"----------\n" + 
+					"4. ERROR in A.java (at line 7)\n" + 
+					"	Object o2 = (@Marker @Annot A.@Annot B.C<Integer, String>) null;\n" + 
+					"	             ^^^^^^^^^^^^^^\n" + 
+					"Type annotations are not allowed on type names used to access static members\n" + 
+					"----------\n" + 
+					"5. ERROR in A.java (at line 7)\n" + 
+					"	Object o2 = (@Marker @Annot A.@Annot B.C<Integer, String>) null;\n" + 
+					"	                              ^^^^^^\n" + 
+					"Type annotations are not allowed on type names used to access static members\n" + 
+					"----------\n" + 
+					"6. ERROR in A.java (at line 8)\n" + 
+					"	Object o5 = (@Marker @Annot A.B<String>[]) null;\n" + 
+					"	             ^^^^^^^^^^^^^^\n" + 
+					"Type annotations are not allowed on type names used to access static members\n" + 
+					"----------\n");
+	}
 }

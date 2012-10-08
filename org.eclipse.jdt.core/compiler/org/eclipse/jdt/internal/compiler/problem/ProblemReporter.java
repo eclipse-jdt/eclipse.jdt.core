@@ -4305,6 +4305,14 @@ public void illegalUsageOfTypeAnnotations(Annotation annotation) {
 			annotation.sourceStart,
 			annotation.sourceEnd);	
 }
+public void illegalTypeAnnotationsInStaticMemberAccess(Annotation first, Annotation last) {
+	this.handle(
+			IProblem.IllegalTypeAnnotationsInStaticMemberAccess,
+			NoArgument,
+			NoArgument,
+			first.sourceStart,
+			last.sourceEnd);
+}
 public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location) {
 	this.referenceContext = compUnitDecl;
 	String[] arguments = new String[] {CharOperation.toString(wellKnownTypeName)};
