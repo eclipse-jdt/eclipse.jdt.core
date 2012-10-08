@@ -544,4 +544,33 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}
+
+	// JLS 9.4.1
+	// Bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
+	// Don't report conflict between the same method inherited on two paths.
+	public void testInheritedDefaultOverrides05() {
+		runConformTest(
+			new String[] {
+				"StringList.java",
+				"import java.util.Collection;\n" +
+				"public abstract class StringList implements Collection<String> {\n" +
+				"}\n"
+			},
+			"");
+	}
+
+	// JLS 9.4.1
+	// Bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
+	// extract from SuperTypeTest.test013():
+	public void testInheritedDefaultOverrides06() {
+		runConformTest(
+			new String[] {
+				"IterableList.java",
+				"import java.util.*;\n" +
+				"public interface IterableList<E> extends Iterable<E>, List<E> {}\n" +
+				"interface ListIterable<E> extends Iterable<E>, List<E> {}\n" +
+				"\n"
+			},
+			"");
+	}
 }
