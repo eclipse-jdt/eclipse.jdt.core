@@ -1036,5 +1036,154 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"	                       ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 
 				"----------\n");
+	}
+	// ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments '.' ClassOrInterfaceType Dimsopt
+	public void test026() throws Exception {  // WILL FAIL WHEN REFERENCE EXPRESSIONS ARE ANALYZED.
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"interface I {\n" +
+					"    void foo(Y<String>.Z z, int x);\n" +
+					"}\n" +
+					"public class X  {\n" +
+					"    public static void main(String [] args) {\n" +
+					"        I i = Y<String>.@Marker Z::foo;\n" +
+					"        i.foo(new Y<String>().new Z(), 10); \n" +
+					"        Zork z;\n" +
+					"    }\n" +
+					"}\n" +
+					"class Y<T> {\n" +
+					"    class Z {\n" +
+					"        void foo(int x) {\n" +
+					"	    System.out.println(x);\n" +
+					"        }\n" +
+					"    }\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
+	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
+	public void test027() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X  {\n" +
+					"    public static void main(String [] args) {\n" +
+					"        X [] x = new @Marker X @Marker [5];\n" +
+					"        X [] x2 = new @Marker X @Marker [] { null };\n" +
+					"        Zork z;\n" +
+					"    }\n" +
+					"}\n"				},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 3)\n" + 
+					"	X [] x = new @Marker X @Marker [5];\n" + 
+					"	              ^^^^^^\n" + 
+					"Marker cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 3)\n" + 
+					"	X [] x = new @Marker X @Marker [5];\n" + 
+					"	                        ^^^^^^\n" + 
+					"Marker cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 4)\n" + 
+					"	X [] x2 = new @Marker X @Marker [] { null };\n" + 
+					"	               ^^^^^^\n" + 
+					"Marker cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"4. ERROR in X.java (at line 4)\n" + 
+					"	X [] x2 = new @Marker X @Marker [] { null };\n" + 
+					"	                         ^^^^^^\n" + 
+					"Marker cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"5. ERROR in X.java (at line 5)\n" + 
+					"	Zork z;\n" + 
+					"	^^^^\n" + 
+					"Zork cannot be resolved to a type\n" + 
+					"----------\n");
+	}
+	// CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType Dimsopt PushRPAREN InsideCastExpressionWithQualifiedGenerics UnaryExpressionNotPlusMinus
+	public void test028() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X  {\n" +
+					"    public static void main(String [] args) {\n" +
+					"        java.util.Map.Entry [] e = (java.util.Map<String, String>.@Marker Entry []) null;\n" +
+					"    }\n" +
+					"}\n"				},
+					"----------\n" + 
+					"1. WARNING in X.java (at line 3)\n" + 
+					"	java.util.Map.Entry [] e = (java.util.Map<String, String>.@Marker Entry []) null;\n" + 
+					"	^^^^^^^^^^^^^^^^^^^\n" + 
+					"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 3)\n" + 
+					"	java.util.Map.Entry [] e = (java.util.Map<String, String>.@Marker Entry []) null;\n" + 
+					"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"The member type Map<String,String>.Entry cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Map<String,String>\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 3)\n" + 
+					"	java.util.Map.Entry [] e = (java.util.Map<String, String>.@Marker Entry []) null;\n" + 
+					"	                                                           ^^^^^^\n" + 
+					"Marker cannot be resolved to a type\n" + 
+					"----------\n");
+	}
+	// ReferenceType1 ::= ClassOrInterface '<' TypeArgumentList2
+	public void test029() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.io.Serializable;\n" +
+					"import java.util.List;\n" +
+					"public class X<T extends Comparable<T> & Serializable> {\n" +
+					"	void foo(List<? extends @Marker Comparable<T>> p) {} \n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	void foo(List<? extends @Marker Comparable<T>> p) {} \n" + 
+				"	                         ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// ReferenceType2 ::= ClassOrInterface '<' TypeArgumentList3
+	public void test030() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"class Base {\n" +
+					"}\n" +
+					"class Foo<U extends Base, V extends Bar<U, @Marker Foo<U, V>>> {\n" +
+					"}\n" +
+					"class Bar<E extends Base, F extends Foo<E, @Marker Bar<E, F>>> {\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	class Foo<U extends Base, V extends Bar<U, @Marker Foo<U, V>>> {\n" + 
+				"	                                           ^^^^^^^^^^^\n" + 
+				"Bound mismatch: The type Foo<U,V> is not a valid substitute for the bounded parameter <F extends Foo<E,Bar<E,F>>> of the type Bar<E,F>\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	class Foo<U extends Base, V extends Bar<U, @Marker Foo<U, V>>> {\n" + 
+				"	                                            ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	class Bar<E extends Base, F extends Foo<E, @Marker Bar<E, F>>> {\n" + 
+				"	                                           ^^^^^^^^^^^\n" + 
+				"Bound mismatch: The type Bar<E,F> is not a valid substitute for the bounded parameter <V extends Bar<U,Foo<U,V>>> of the type Foo<U,V>\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 5)\n" + 
+				"	class Bar<E extends Base, F extends Foo<E, @Marker Bar<E, F>>> {\n" + 
+				"	                                            ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
 	}	
 }
