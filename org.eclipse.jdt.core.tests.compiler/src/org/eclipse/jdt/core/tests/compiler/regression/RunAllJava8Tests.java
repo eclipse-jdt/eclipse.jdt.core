@@ -40,6 +40,7 @@ public class RunAllJava8Tests extends TestCase {
 			ReferenceExpressionSyntaxTest.class,
 			DefaultMethodsTest.class,
 			ComplianceDiagnoseTest.class,
+			GrammarCoverageTests308.class,
 		};
 	}
 	public static Test suite() {
