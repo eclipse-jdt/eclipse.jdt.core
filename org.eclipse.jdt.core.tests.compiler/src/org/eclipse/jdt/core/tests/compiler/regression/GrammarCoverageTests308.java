@@ -723,4 +723,318 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n");
 	}
+	// InstanceofExpression ::= InstanceofExpression 'instanceof' ReferenceType
+	public void test016() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X  {\n" +
+					"    public static void main(String [] args) {\n" +
+					"        if (args instanceof @Readonly String) {\n" +
+					"        }\n" +
+					"    }\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	if (args instanceof @Readonly String) {\n" + 
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Incompatible conditional operand types String[] and String\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	if (args instanceof @Readonly String) {\n" + 
+				"	                     ^^^^^^^^\n" + 
+				"Readonly cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// TypeArgument ::= ReferenceType
+	public void test017() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X extends Y<@Marker Integer, String> {}\n" +
+					"class Y<T, V> {\n" +
+				    "    Zork z;\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X extends Y<@Marker Integer, String> {}\n" + 
+				"	                          ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// ReferenceType1 ::= ReferenceType '>'
+	public void test018() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X extends Y<@Marker Integer> {}\n" +
+					"class Y<T> {\n" +
+				    "    Zork z;\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X extends Y<@Marker Integer> {}\n" + 
+				"	                          ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	
+	// ReferenceType2 ::= ReferenceType '>>'
+	public void test019() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X<T extends Object & Comparable<? super @Marker String>> {}\n" +
+					"class Y<T> {\n" +
+				    "    Zork z;\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// ReferenceType3 ::= ReferenceType '>>>'
+	public void test020() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X<A extends X<X<X<@Marker String>>>> {}\n" +
+					"class Y<T> {\n" +
+				    "    Zork z;\n" +
+					"}\n"
+ 				},
+ 				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X<A extends X<X<X<@Marker String>>>> {}\n" + 
+				"	                           ^\n" + 
+				"Bound mismatch: The type X<X<String>> is not a valid substitute for the bounded parameter <A extends X<X<X<String>>>> of the type X<A>\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 1)\n" + 
+				"	public class X<A extends X<X<X<@Marker String>>>> {}\n" + 
+				"	                             ^\n" + 
+				"Bound mismatch: The type X<String> is not a valid substitute for the bounded parameter <A extends X<X<X<String>>>> of the type X<A>\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 1)\n" + 
+				"	public class X<A extends X<X<X<@Marker String>>>> {}\n" + 
+				"	                               ^^^^^^^^^^^^^^\n" + 
+				"Bound mismatch: The type String is not a valid substitute for the bounded parameter <A extends X<X<X<String>>>> of the type X<A>\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 1)\n" + 
+				"	public class X<A extends X<X<X<@Marker String>>>> {}\n" + 
+				"	                                ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 3)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// WildcardBounds ::= 'extends' ReferenceType
+	// WildcardBounds ::= 'super' ReferenceType
+	public void test021() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}\n" +
+					"   void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}\n" + 
+				"	         ^^^\n" + 
+				"Map cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 2)\n" + 
+				"	void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}\n" + 
+				"	              ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 2)\n" + 
+				"	void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}\n" + 
+				"	                              ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 2)\n" + 
+				"	void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}\n" + 
+				"	                                              ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 2)\n" + 
+				"	void foo(Map<@Marker ? super @Marker Object, @Marker ? extends @Marker String> m){}\n" + 
+				"	                                                                ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 3)\n" + 
+				"	void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}\n" + 
+				"	         ^^^\n" + 
+				"Map cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 3)\n" + 
+				"	void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}\n" + 
+				"	              ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 3)\n" + 
+				"	void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}\n" + 
+				"	                                ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"9. ERROR in X.java (at line 3)\n" + 
+				"	void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}\n" + 
+				"	                                                ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"10. ERROR in X.java (at line 3)\n" + 
+				"	void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}\n" + 
+				"	                                                                ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// TypeParameter ::= TypeParameterHeader 'extends' ReferenceType
+	public void test022() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker Integer> {\n" +
+					"}\n" +
+					"class Y<T> {}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker Integer> {\n" + 
+				"	                 ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 1)\n" + 
+				"	public class X <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker Integer> {\n" + 
+				"	                                   ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 1)\n" + 
+				"	public class X <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker Integer> {\n" + 
+				"	                                             ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 1)\n" + 
+				"	public class X <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker Integer> {\n" + 
+				"	                                                         ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. WARNING in X.java (at line 1)\n" + 
+				"	public class X <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker Integer> {\n" + 
+				"	                                                                          ^^^^^^^^^^^^^^^\n" + 
+				"The type parameter Q should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 1)\n" + 
+				"	public class X <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker Integer> {\n" + 
+				"	                                                                           ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// TypeParameter ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList
+	// AdditionalBound ::= '&' ReferenceType
+	// TypeParameter1 ::= TypeParameterHeader 'extends' ReferenceType AdditionalBoundList1
+	public void test023() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"I.java",
+					"public interface I<U extends J<? extends I<U>>> {\n" +
+					"}\n" +
+					"interface J<T extends I<? extends J<T>>> {\n" +
+					"}\n" +
+					"class CI<U extends CJ<T, U> & @Marker J<@Marker T>,\n" +
+					"			T extends CI<U, T> & @Marker I<U>>\n" +
+					"	implements I<U> {\n" +
+					"}\n" +
+					"class CJ<T extends CI<U, T> & @Marker I<@Marker U>,\n" +
+					"			U extends CJ<T, U> & J<T>>\n" +
+					"	implements J<T> {\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in I.java (at line 5)\n" + 
+				"	class CI<U extends CJ<T, U> & @Marker J<@Marker T>,\n" + 
+				"	                               ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in I.java (at line 5)\n" + 
+				"	class CI<U extends CJ<T, U> & @Marker J<@Marker T>,\n" + 
+				"	                                         ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in I.java (at line 6)\n" + 
+				"	T extends CI<U, T> & @Marker I<U>>\n" + 
+				"	                      ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in I.java (at line 9)\n" + 
+				"	class CJ<T extends CI<U, T> & @Marker I<@Marker U>,\n" + 
+				"	                               ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. ERROR in I.java (at line 9)\n" + 
+				"	class CJ<T extends CI<U, T> & @Marker I<@Marker U>,\n" + 
+				"	                                         ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// InstanceofExpression_NotName ::= Name 'instanceof' ReferenceType
+	public void test024() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X<E> {\n" +
+					"  class Y {\n" +
+					"    E e;\n" +
+					"    E getOtherElement(Object other) {\n" +
+					"      if (!(other instanceof @Marker X<?>.Y)) {};\n" +
+					"      return null;\n" +
+					"    }\n" +
+					"  }\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	if (!(other instanceof @Marker X<?>.Y)) {};\n" + 
+				"	                        ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// InstanceofExpression_NotName ::= InstanceofExpression_NotName 'instanceof' ReferenceType
+	public void test025() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X<P, C> {\n" +
+					"  public X() {\n" +
+					"    if (!(this instanceof @Marker X)) {}\n" +
+					"  }\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	if (!(this instanceof @Marker X)) {}\n" + 
+				"	                       ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
+	}	
 }
