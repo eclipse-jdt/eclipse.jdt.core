@@ -2908,4 +2908,69 @@ public void test0064() {
 			expectedProblemLog
 		);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391201
+public void testBug391201() {
+	if(this.complianceLevel >= ClassFileConstants.JDK1_8 || this.complianceLevel < ClassFileConstants.JDK1_5) {
+		return;
+	}
+	String[] testFiles = new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	@Marker int foo(@Marker int p) {\n" +
+		"		@Marker int i = 0;\n" +
+		"		return i;\n" +
+		"	}\n" +
+		"	@Marker\n" +
+		"	class Y {}\n" +
+		"	@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+		"	@interface Marker {}" +
+		"}",
+		"java/lang/annotation/ElementType.java",
+		"package java.lang.annotation;\n" +
+		"public enum ElementType {\n" +
+		"    TYPE,\n" +
+		"    FIELD,\n" +
+		"    METHOD,\n" +
+		"    PARAMETER,\n" +
+		"    CONSTRUCTOR,\n" +
+		"    LOCAL_VARIABLE,\n" +
+		"    ANNOTATION_TYPE,\n" +
+		"    PACKAGE,\n" +
+		"    TYPE_PARAMETER,\n" +
+		"    TYPE_USE\n" +
+		"}\n"
+	};
+
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	@Marker int foo(@Marker int p) {\n" + 
+			"	^^^^^^^\n" + 
+			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	@Marker int foo(@Marker int p) {\n" + 
+			"	                ^^^^^^^\n" + 
+			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 3)\n" + 
+			"	@Marker int i = 0;\n" + 
+			"	^^^^^^^\n" + 
+			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	@Marker\n" + 
+			"	^^^^^^^\n" + 
+			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
+			"----------\n";
+
+	runComplianceParserTest(
+		testFiles,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog
+	);
+}
 }

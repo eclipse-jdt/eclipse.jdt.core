@@ -1537,21 +1537,11 @@ public void disallowedTargetForAnnotation(Annotation annotation) {
 		annotation.sourceEnd);
 }
 public void explitAnnotationTargetRequired(Annotation annotation) {
-	int kind = annotation.recipient.kind();
-	if (kind == Binding.TYPE_USE) {
-		this.handle(IProblem.ExplicitAnnotationTargetRequired,
-			new String[] {new String(annotation.resolvedType.readableName())},
-			new String[]{new String(TypeConstants.TYPE_USE_TARGET)},
+	this.handle(IProblem.ExplicitAnnotationTargetRequired,
+			NoArgument,
+			NoArgument,
 			annotation.sourceStart,
 			annotation.sourceEnd);
-	}
-	else if (kind == Binding.TYPE_PARAMETER) {
-		this.handle(IProblem.ExplicitAnnotationTargetRequired,
-				new String[] {new String(annotation.resolvedType.readableName())},
-				new String[]{new String(TypeConstants.TYPE_PARAMETER_TARGET)},
-				annotation.sourceStart,
-				annotation.sourceEnd);
-	}
 }
 public void polymorphicMethodNotBelow17(ASTNode node) {
 	this.handle(

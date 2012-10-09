@@ -78,8 +78,9 @@ public class Wildcard extends SingleTypeReference {
 		switch (scope.kind) {
 			case Scope.METHOD_SCOPE:
 			case Scope.BLOCK_SCOPE:
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391315
 				if (this.annotations != null)
-					resolveAnnotations((BlockScope) scope, this.annotations[0], new Annotation.TypeUseBinding(Binding.TYPE_USE));
+					resolveAnnotations((BlockScope) scope, this.annotations[0], new Annotation.TypeUseBinding(Binding.TYPE_PARAMETER));
 				break;
 			default: 
 				break;

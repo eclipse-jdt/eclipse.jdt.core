@@ -115,11 +115,10 @@ public interface TagBits {
 	long AnnotationForPackage = ASTNode.Bit44L;
 	long AnnotationForTypeUse = ASTNode.Bit54L;
 	long AnnotationForTypeParameter = ASTNode.Bit55L;
-	long AnnotationTargetMASK = AnnotationTarget
-				| AnnotationForType | AnnotationForField
-				| AnnotationForMethod | AnnotationForParameter
-				| AnnotationForConstructor | AnnotationForLocalVariable
-				| AnnotationForAnnotationType | AnnotationForPackage
+	long SE7AnnotationTargetMASK = AnnotationForType | AnnotationForField | AnnotationForMethod
+				| AnnotationForParameter | AnnotationForConstructor | AnnotationForLocalVariable
+				| AnnotationForAnnotationType | AnnotationForPackage;
+	long AnnotationTargetMASK = SE7AnnotationTargetMASK | AnnotationTarget
 				| AnnotationForTypeUse | AnnotationForTypeParameter;
 	// 2-bits for retention (should check (tagBits & RetentionMask) == RuntimeRetention
 	long AnnotationSourceRetention = ASTNode.Bit45L;
