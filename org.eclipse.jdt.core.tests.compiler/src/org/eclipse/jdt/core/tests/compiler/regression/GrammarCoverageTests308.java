@@ -31,6 +31,31 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 	public GrammarCoverageTests308(String testName){
 		super(testName);
 	}
+	// Lone test to verify that multiple annotations of all three kinds are accepted. All other tests will use only marker annotations
+	public void test000() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X extends @Marker @SingleMember(0) @Normal(Value = 0) Object {\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X extends @Marker @SingleMember(0) @Normal(Value = 0) Object {\n" + 
+				"	                        ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 1)\n" + 
+				"	public class X extends @Marker @SingleMember(0) @Normal(Value = 0) Object {\n" + 
+				"	                                ^^^^^^^^^^^^\n" + 
+				"SingleMember cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 1)\n" + 
+				"	public class X extends @Marker @SingleMember(0) @Normal(Value = 0) Object {\n" + 
+				"	                                                 ^^^^^^\n" + 
+				"Normal cannot be resolved to a type\n" + 
+				"----------\n");
+	}
 	// FieldDeclaration ::= Modifiersopt Type VariableDeclarators ';'
 	public void test001() throws Exception {
 		this.runNegativeTest(
@@ -40,7 +65,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"    @Marker int x;\n" +
 					"    Zork z;\n" +
 					"}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n" +
 					"@interface Marker {}\n",
 					
 					"java/lang/annotation/ElementType.java",
@@ -59,7 +84,12 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"}\n"
 				},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	@Marker int x;\n" + 
+				"	^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -74,7 +104,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"    @Marker <T> @Marker int x() { return 10; };\n" +
 					"    Zork z;\n" +
 					"}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n" +
 					"@interface Marker {}\n",
 					
 					"java/lang/annotation/ElementType.java",
@@ -95,10 +125,15 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	@Marker <T> @Marker int x() { return 10; };\n" + 
+				"	^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 2)\n" + 
+				"	@Marker <T> @Marker int x() { return 10; };\n" + 
 				"	            ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 3)\n" + 
+				"3. ERROR in X.java (at line 3)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -113,7 +148,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"    @Marker int x() { return 10; };\n" +
 					"    Zork z;\n" +
 					"}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n" +
 					"@interface Marker {}\n",
 					
 					"java/lang/annotation/ElementType.java",
@@ -132,7 +167,12 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"}\n"
 				},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	@Marker int x() { return 10; };\n" + 
+				"	^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -147,7 +187,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"    int x(@Marker int p) { return 10; };\n" +
 					"    Zork z;\n" +
 					"}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n" +
 					"@interface Marker {}\n",
 					
 					"java/lang/annotation/ElementType.java",
@@ -166,7 +206,12 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"}\n"
 				},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	int x(@Marker int p) { return 10; };\n" + 
+				"	      ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -181,7 +226,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"    int x(@Marker int ... p) { return 10; };\n" +
 					"    Zork z;\n" +
 					"}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n" +
 					"@interface Marker {}\n",
 					
 					"java/lang/annotation/ElementType.java",
@@ -200,7 +245,12 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"}\n"
 				},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	int x(@Marker int ... p) { return 10; };\n" + 
+				"	      ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -281,7 +331,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"    }\n" +
 					"    Zork z;\n" +
 					"}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n" +
 					"@interface Marker {}\n",
 					
 					"java/lang/annotation/ElementType.java",
@@ -300,7 +350,22 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"}\n"
 				},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 8)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	@Marker int p;\n" + 
+				"	^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	final @Marker int q;\n" + 
+				"	      ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	@Marker final int r;\n" + 
+				"	^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -320,7 +385,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"    }\n" +
 					"    Zork z;\n" +
 					"}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n" +
 					"@interface Marker {}\n",
 					
 					"java/lang/annotation/ElementType.java",
@@ -341,20 +406,35 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	try (@Marker Integer p = null; final @Marker Integer q = null; @Marker final Integer r = null) {\n" + 
-				"	             ^^^^^^^\n" + 
-				"The resource type Integer does not implement java.lang.AutoCloseable\n" + 
+				"	     ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 3)\n" + 
 				"	try (@Marker Integer p = null; final @Marker Integer q = null; @Marker final Integer r = null) {\n" + 
-				"	                                             ^^^^^^^\n" + 
+				"	             ^^^^^^^\n" + 
 				"The resource type Integer does not implement java.lang.AutoCloseable\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 3)\n" + 
 				"	try (@Marker Integer p = null; final @Marker Integer q = null; @Marker final Integer r = null) {\n" + 
+				"	                                     ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 3)\n" + 
+				"	try (@Marker Integer p = null; final @Marker Integer q = null; @Marker final Integer r = null) {\n" + 
+				"	                                             ^^^^^^^\n" + 
+				"The resource type Integer does not implement java.lang.AutoCloseable\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 3)\n" + 
+				"	try (@Marker Integer p = null; final @Marker Integer q = null; @Marker final Integer r = null) {\n" + 
+				"	                                                               ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 3)\n" + 
+				"	try (@Marker Integer p = null; final @Marker Integer q = null; @Marker final Integer r = null) {\n" + 
 				"	                                                                             ^^^^^^^\n" + 
 				"The resource type Integer does not implement java.lang.AutoCloseable\n" + 
 				"----------\n" + 
-				"4. ERROR in X.java (at line 7)\n" + 
+				"7. ERROR in X.java (at line 7)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -375,7 +455,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"    }\n" +
 					"    Zork z;\n" +
 					"}\n" +
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n" +
 					"@interface Marker {}\n",
 					
 					"java/lang/annotation/ElementType.java",
@@ -394,7 +474,22 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"}\n"
 				},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 8)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	for (@Marker int i: new int[3]) {}\n" + 
+				"	     ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	for (final @Marker int i: new int[3]) {}\n" + 
+				"	           ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	for (@Marker final int i: new int[3]) {}\n" + 
+				"	     ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -415,7 +510,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"	@Marker public <T> @Marker String value6(); \n" +
 					"}\n" +
 					
-					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n" +
 					"@interface Marker {}\n",
 					
 					"java/lang/annotation/ElementType.java",
@@ -434,32 +529,62 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"}\n"
 				},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	public @Marker String value(); \n" + 
+				"	       ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	@Marker String value2(); \n" + 
+				"	^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 4)\n" + 
+				"	@Marker public String value3(); \n" + 
+				"	^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 5)\n" + 
+				"	public @Marker <T> @Marker String value4(); \n" + 
+				"	       ^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 5)\n" + 
 				"	public @Marker <T> @Marker String value4(); \n" + 
 				"	                   ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 5)\n" + 
+				"6. ERROR in X.java (at line 5)\n" + 
 				"	public @Marker <T> @Marker String value4(); \n" + 
 				"	                                  ^^^^^^^^\n" + 
 				"Annotation attributes cannot be generic\n" + 
 				"----------\n" + 
-				"3. ERROR in X.java (at line 6)\n" + 
+				"7. ERROR in X.java (at line 6)\n" + 
+				"	@Marker <T> @Marker String value5(); \n" + 
+				"	^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 6)\n" + 
 				"	@Marker <T> @Marker String value5(); \n" + 
 				"	            ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"4. ERROR in X.java (at line 6)\n" + 
+				"9. ERROR in X.java (at line 6)\n" + 
 				"	@Marker <T> @Marker String value5(); \n" + 
 				"	                           ^^^^^^^^\n" + 
 				"Annotation attributes cannot be generic\n" + 
 				"----------\n" + 
-				"5. ERROR in X.java (at line 7)\n" + 
+				"10. ERROR in X.java (at line 7)\n" + 
+				"	@Marker public <T> @Marker String value6(); \n" + 
+				"	^^^^^^^\n" + 
+				"The annotation @Marker is disallowed for this location\n" + 
+				"----------\n" + 
+				"11. ERROR in X.java (at line 7)\n" + 
 				"	@Marker public <T> @Marker String value6(); \n" + 
 				"	                   ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"6. ERROR in X.java (at line 7)\n" + 
+				"12. ERROR in X.java (at line 7)\n" + 
 				"	@Marker public <T> @Marker String value6(); \n" + 
 				"	                                  ^^^^^^^^\n" + 
 				"Annotation attributes cannot be generic\n" + 
@@ -501,7 +626,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n");
 	}
 	// ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
-	public void test013() throws Exception {
+	public void test013() throws Exception {  // WILL FAIL WHEN REFERENCE EXPRESSIONS ARE ANALYZED.
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
