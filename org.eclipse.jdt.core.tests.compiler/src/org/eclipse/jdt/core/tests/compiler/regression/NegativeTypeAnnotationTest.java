@@ -2183,6 +2183,11 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	Object o = new X().new <String> @Marker X();\n" + 
+				"	                                ^^^^^^^\n" + 
+				"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 2)\n" + 
+				"	Object o = new X().new <String> @Marker X();\n" + 
 				"	                                ^^^^^^^^^\n" + 
 				"X.X cannot be resolved to a type\n" + 
 				"----------\n");
@@ -2704,6 +2709,41 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"	X<@Marker3 ?> l3;\n" + 
 				"	  ^^^^^^^^\n" + 
 				"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
+				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391500
+	public void testBug391500() {
+		this.runNegativeTest(
+				new String[]{
+				"X.java",
+				"public class X {\n" +
+				"	class Y {\n" +
+				"		class Z {\n" +
+				"		}\n" +
+				"		Z z1 = new @Marker X().new @Marker Y().new @Marker Z();\n" +
+				"		Z z3 = new @Marker Z(){};\n" +
+				"	};\n" +
+				"}\n"},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	Z z1 = new @Marker X().new @Marker Y().new @Marker Z();\n" + 
+				"	            ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	Z z1 = new @Marker X().new @Marker Y().new @Marker Z();\n" + 
+				"	                            ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	Z z1 = new @Marker X().new @Marker Y().new @Marker Z();\n" + 
+				"	                                            ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 6)\n" + 
+				"	Z z3 = new @Marker Z(){};\n" + 
+				"	            ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
 				"----------\n");
 	}
 }

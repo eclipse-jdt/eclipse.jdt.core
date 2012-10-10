@@ -1248,15 +1248,25 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"	            ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 5)\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	Y y1 = new @Marker X().new @Marker Y();\n" + 
+				"	                            ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
 				"	Y y2 = new @Marker X().new <String> @Marker Y();\n" + 
 				"	            ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 
 				"----------\n" + 
-				"3. WARNING in X.java (at line 5)\n" + 
+				"4. WARNING in X.java (at line 5)\n" + 
 				"	Y y2 = new @Marker X().new <String> @Marker Y();\n" + 
 				"	                            ^^^^^^\n" + 
 				"Unused type arguments for the non generic constructor X.Y() of type X.Y; it should not be parameterized with arguments <String>\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 5)\n" + 
+				"	Y y2 = new @Marker X().new <String> @Marker Y();\n" + 
+				"	                                     ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
 				"----------\n");
 	}
 	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
@@ -1279,15 +1289,25 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"	       ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	Y y1 = @Marker x.new @Marker Y();\n" + 
+				"	                      ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
 				"	Y y2 = @Marker x.new <String> @Marker Y();\n" + 
 				"	       ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"3. WARNING in X.java (at line 6)\n" + 
+				"4. WARNING in X.java (at line 6)\n" + 
 				"	Y y2 = @Marker x.new <String> @Marker Y();\n" + 
 				"	                      ^^^^^^\n" + 
 				"Unused type arguments for the non generic constructor X.Y() of type X.Y; it should not be parameterized with arguments <String>\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 6)\n" + 
+				"	Y y2 = @Marker x.new <String> @Marker Y();\n" + 
+				"	                               ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
 				"----------\n");
 	}
 	// MethodHeaderThrowsClause ::= 'throws' ClassTypeList
