@@ -1340,15 +1340,11 @@ ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments '.' ClassOrInterf
 /:$compliance 1.8:/
 
 ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
-/.$putCase consumeReferenceExpressionTypeForm(true, true); $break ./
+/.$putCase consumeReferenceExpressionTypeForm(true); $break ./
 /:$compliance 1.8:/
 
-ReferenceExpression ::= Name Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
-/.$putCase consumeReferenceExpressionTypeForm(false, true); $break ./
-/:$compliance 1.8:/
-
-ReferenceExpression ::= Name '::' NonWildTypeArgumentsopt IdentifierOrNew
-/.$putCase consumeReferenceExpressionTypeForm(false, false); $break ./
+ReferenceExpression ::= Name Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
+/.$putCase consumeReferenceExpressionTypeForm(false); $break ./
 /:$compliance 1.8:/
 
 -- BeginTypeArguments is a synthetic token the scanner concocts to help disambiguate
