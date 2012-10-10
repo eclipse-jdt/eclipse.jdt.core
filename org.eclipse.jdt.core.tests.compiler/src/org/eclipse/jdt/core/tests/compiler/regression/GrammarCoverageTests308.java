@@ -1185,5 +1185,133 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"	                                            ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 
 				"----------\n");
+	}
+	// ClassHeaderExtends ::= 'extends' ClassType
+	public void test031() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X extends @Marker Object {\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X extends @Marker Object {\n" + 
+				"	                        ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// ClassInstanceCreationExpression ::= 'new' OnlyTypeArguments ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' UnqualifiedClassBodyopt
+	// ClassInstanceCreationExpression ::= 'new' ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' UnqualifiedClassBodyopt
+	public void test032() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    X x = new @Marker X();\n" +
+					"    X y = new <String> @Marker X();\n" +		
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	X x = new @Marker X();\n" + 
+				"	           ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 3)\n" + 
+				"	X y = new <String> @Marker X();\n" + 
+				"	           ^^^^^^\n" + 
+				"Unused type arguments for the non generic constructor X() of type X; it should not be parameterized with arguments <String>\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 3)\n" + 
+				"	X y = new <String> @Marker X();\n" + 
+				"	                    ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// ClassInstanceCreationExpression ::= Primary '.' 'new' OnlyTypeArguments ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
+	// ClassInstanceCreationExpression ::= Primary '.' 'new' ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
+	public void test033() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    class Y {\n" +
+					"    }\n" +
+					"    Y y1 = new @Marker X().new @Marker Y();\n" +
+					"    Y y2 = new @Marker X().new <String> @Marker Y();\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	Y y1 = new @Marker X().new @Marker Y();\n" + 
+				"	            ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	Y y2 = new @Marker X().new <String> @Marker Y();\n" + 
+				"	            ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 5)\n" + 
+				"	Y y2 = new @Marker X().new <String> @Marker Y();\n" + 
+				"	                            ^^^^^^\n" + 
+				"Unused type arguments for the non generic constructor X.Y() of type X.Y; it should not be parameterized with arguments <String>\n" + 
+				"----------\n");
+	}
+	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
+	// ClassInstanceCreationExpression ::= ClassInstanceCreationExpressionName 'new' OnlyTypeArguments ClassType EnterInstanceCreationArgumentList '(' ArgumentListopt ')' QualifiedClassBodyopt
+	public void test034() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    X x;\n" +
+					"    class Y {\n" +
+					"    }\n" +
+					"    Y y1 = @Marker x.new @Marker Y();\n" +
+					"    Y y2 = @Marker x.new <String> @Marker Y();\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	Y y1 = @Marker x.new @Marker Y();\n" + 
+				"	       ^^^^^^^\n" + 
+				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	Y y2 = @Marker x.new <String> @Marker Y();\n" + 
+				"	       ^^^^^^^\n" + 
+				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 6)\n" + 
+				"	Y y2 = @Marker x.new <String> @Marker Y();\n" + 
+				"	                      ^^^^^^\n" + 
+				"Unused type arguments for the non generic constructor X.Y() of type X.Y; it should not be parameterized with arguments <String>\n" + 
+				"----------\n");
+	}
+	// MethodHeaderThrowsClause ::= 'throws' ClassTypeList
+	// ClassTypeList -> ClassTypeElt
+	// ClassTypeList ::= ClassTypeList ',' ClassTypeElt
+	// ClassTypeElt ::= ClassType
+	public void test035() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    void foo() throws @Marker NullPointerException, @Marker ArrayIndexOutOfBoundsException {}\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	void foo() throws @Marker NullPointerException, @Marker ArrayIndexOutOfBoundsException {}\n" + 
+				"	                   ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 2)\n" + 
+				"	void foo() throws @Marker NullPointerException, @Marker ArrayIndexOutOfBoundsException {}\n" + 
+				"	                                                 ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
 	}	
 }
