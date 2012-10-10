@@ -2167,7 +2167,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"2. ERROR in X.java (at line 2)\n" + 
 				"	Object o = new <String> @Marker X();\n" + 
 				"	                        ^^^^^^^\n" + 
-				"Syntax error, type annotations are illegal here\n" + 
+				"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
 				"----------\n");
 	}
 	public void test066() throws Exception {
@@ -2182,11 +2182,6 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				}, 
 				"----------\n" + 
 				"1. ERROR in X.java (at line 2)\n" + 
-				"	Object o = new X().new <String> @Marker X();\n" + 
-				"	                                ^^^^^^^\n" + 
-				"Syntax error, type annotations are illegal here\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 2)\n" + 
 				"	Object o = new X().new <String> @Marker X();\n" + 
 				"	                                ^^^^^^^^^\n" + 
 				"X.X cannot be resolved to a type\n" + 

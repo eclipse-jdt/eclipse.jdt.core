@@ -2878,14 +2878,22 @@ public void test0110() throws IOException {
 		"		new @Marker @SingleMember(10) X().new <@Readonly String> @Marker MX(\"SUCCESS\");\n" +
 		"	}\n" +
 		"}\n";
-	String expectedError =
-			"----------\n" +
-			"1. ERROR in test0110 (at line 8)\n" +
-			"	new @Marker @SingleMember(10) X().new <@Readonly String> @Marker MX(\"SUCCESS\");\n" +
-			"	                                                         ^^^^^^^\n" +
-			"Syntax error, type annotations are illegal here\n" +
-			"----------\n";
-	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0110", null );
+	String expectedUnitToString =
+			"class X {\n" +
+			"  class MX {\n" +
+			"    @Marker <T>MX(T t) {\n" +
+			"      super();\n" +
+			"      System.out.println(t);\n" +
+			"    }\n" +
+			"  }\n" +
+			"  X() {\n" +
+			"    super();\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    new @Marker @SingleMember(10) X().new <@Readonly String>@Marker MX(\"SUCCESS\");\n" +
+			"  }\n" +
+			"}\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0110", expectedUnitToString);
 }
 
 // To test Parser.consumeClassInstanceCreationExpressionWithTypeArguments()
@@ -2900,14 +2908,17 @@ public void test0111() throws IOException {
 		"		new <@Readonly String> @Marker @SingleMember(0) X(\"SUCCESS\");\n" +
 		"	}\n" +
 		"}\n";
-	String expectedError =
-			"----------\n" +
-			"1. ERROR in test0111 (at line 6)\n" +
-			"	new <@Readonly String> @Marker @SingleMember(0) X(\"SUCCESS\");\n" +
-			"	                       ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Syntax error, type annotations are illegal here\n" +
-			"----------\n";
-	checkParse(CHECK_PARSER, source.toCharArray(), expectedError, "test0111", null);
+	String expectedUnitToString =
+			"class X {\n" +
+			"  public <T>X(T t) {\n" +
+			"    super();\n" +
+			"    System.out.println(t);\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    new <@Readonly String>@Marker @SingleMember(0) X(\"SUCCESS\");\n" +
+			"  }\n" +
+			"}\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0111", expectedUnitToString);
 }
 
 // To test Parser.consumeEnhancedForStatementHeaderInit() with Type Annotations
