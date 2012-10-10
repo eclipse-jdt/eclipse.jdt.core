@@ -1313,5 +1313,200 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"	                                                 ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 
 				"----------\n");
-	}	
+	}
+	// ClassHeaderImplements ::= 'implements' InterfaceTypeList
+	// InterfaceHeaderExtends ::= 'extends' InterfaceTypeList
+	// InterfaceTypeList -> InterfaceType
+	// InterfaceTypeList ::= InterfaceTypeList ',' InterfaceType
+	// InterfaceType ::= ClassOrInterfaceType
+	public void test036() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"interface I {}\n" +
+					"interface J {}\n" +
+					"interface K extends @Marker I, @Marker J {}\n" +
+					"interface L {}\n" +
+					"public class X implements @Marker K, @Marker L {\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	interface K extends @Marker I, @Marker J {}\n" + 
+				"	                     ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	interface K extends @Marker I, @Marker J {}\n" + 
+				"	                                ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	public class X implements @Marker K, @Marker L {\n" + 
+				"	                           ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 5)\n" + 
+				"	public class X implements @Marker K, @Marker L {\n" + 
+				"	                                      ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// ReferenceExpression ::= Name Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
+	public void test037() throws Exception { // WILL FAIL WHEN REFERENCE EXPRESSIONS ARE ANALYZED.
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"interface I {\n" +
+					"    void foo(int x);\n" +
+					"}\n" +
+					"public class X  {\n" +
+					"    public static void main(String [] args) {\n" +
+					"        I i = @Marker Y. @Marker Z @Marker [] [] @Marker [] ::foo;\n" +
+					"        i.foo(10); \n" +
+					"        Zork z;\n" +
+					"    }\n" +
+					"}\n" +
+					"class Y {\n" +
+					"    static class Z {\n" +
+					"        public static void foo(int x) {\n" +
+					"	    System.out.println(x);\n" +
+					"        }\n" +
+					"    }\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+	}
+	// ReferenceExpression ::= Name BeginTypeArguments ReferenceExpressionTypeArgumentsAndTrunk '::' NonWildTypeArgumentsopt IdentifierOrNew
+	public void test038() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"interface I {\n" +
+					"    Y foo(int x);\n" +
+					"}\n" +
+					"public class X  {\n" +
+					"    class Z extends Y {\n" +
+					"        public Z(int x) {\n" +
+					"            super(x);\n" +
+					"            System.out.println();\n" +
+					"        }\n" +
+					"    }\n" +
+					"    public static void main(String [] args) {\n" +
+					"        i = @Marker W<@Marker Integer>::<@Marker String> new;\n" +
+					"    }\n" +
+					"}\n" +
+					"class W<T> extends Y {\n" +
+					"    public W(T x) {\n" +
+					"        super(0);\n" +
+					"        System.out.println(x);\n" +
+					"    }\n" +
+					"}\n" +
+					"class Y {\n" +
+					"    public Y(int x) {\n" +
+					"        System.out.println(x);\n" +
+					"    }\n" +
+					"}\n"
+
+
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 12)\n" + 
+				"	i = @Marker W<@Marker Integer>::<@Marker String> new;\n" + 
+				"	^\n" + 
+				"i cannot be resolved to a variable\n" + 
+				"----------\n");
+	}
+	// CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
+	// CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+	// CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression Dimsopt PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+	// CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType Dimsopt PushRPAREN InsideCastExpressionWithQualifiedGenerics UnaryExpressionNotPlusMinus
+	public void test039() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X  {\n" +
+					"    Object o = (@Marker X) null;\n" +
+					"    Object p = (@Marker X @Marker []) null;\n" +
+					"    Object q = (@Marker java. @Marker util. @Marker List<@Marker String> []) null;\n" +
+					"    Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" +
+					"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	Object o = (@Marker X) null;\n" + 
+				"	             ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	Object p = (@Marker X @Marker []) null;\n" + 
+				"	             ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 3)\n" + 
+				"	Object p = (@Marker X @Marker []) null;\n" + 
+				"	                       ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 4)\n" + 
+				"	Object q = (@Marker java. @Marker util. @Marker List<@Marker String> []) null;\n" + 
+				"	             ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 4)\n" + 
+				"	Object q = (@Marker java. @Marker util. @Marker List<@Marker String> []) null;\n" + 
+				"	                          ^^^^^^^\n" + 
+				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 4)\n" + 
+				"	Object q = (@Marker java. @Marker util. @Marker List<@Marker String> []) null;\n" + 
+				"	                                        ^^^^^^^\n" + 
+				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 4)\n" + 
+				"	Object q = (@Marker java. @Marker util. @Marker List<@Marker String> []) null;\n" + 
+				"	                                                      ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	            ^^^^^^^\n" + 
+				"Type annotations are not allowed on type names used to access static members\n" + 
+				"----------\n" + 
+				"9. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The member type Map<String,String>.Entry cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Map<String,String>\n" + 
+				"----------\n" + 
+				"10. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	             ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"11. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	                          ^^^^^^^\n" + 
+				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n" + 
+				"12. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	                                       ^^^^^^^\n" + 
+				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n" + 
+				"13. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	                                                    ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"14. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	                                                                    ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
+	}
 }
