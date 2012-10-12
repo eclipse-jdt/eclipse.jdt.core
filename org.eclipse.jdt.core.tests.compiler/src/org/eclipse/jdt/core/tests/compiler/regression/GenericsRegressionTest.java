@@ -44,6 +44,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	protected Map getCompilerOptions() {
 		Map compilerOptions = super.getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
+		compilerOptions.put(CompilerOptions.OPTION_ReportUnusedTypeParameter,CompilerOptions.IGNORE);
 		return compilerOptions;
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=322531
@@ -2597,5 +2598,55 @@ public void test375394a() {
 		"	                                 ^\n" + 
 		"C is a raw type. References to generic type C<T> should be parameterized\n" + 
 		"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
+public void test385780() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportUnusedTypeParameter,
+			CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n"+
+			"public <S> X() {\n"+
+			"}\n"+
+			"public void ph(int t) {\n"+
+	        "}\n"+
+			"}\n"+
+			"interface doNothingInterface<T> {\n"+
+			"}\n"+
+			"class doNothing {\n"+
+			"public <T> void doNothingMethod() {"+
+			"}\n"+
+			"}\n"+
+			"class noerror {\n"+
+			"public <T> void doNothing(T t) {"+
+			"}"+
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	public class X<T> {\n" + 
+		"	               ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	public <S> X() {\n" + 
+		"	        ^\n" + 
+		"Unused type parameter S\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	interface doNothingInterface<T> {\n" + 
+		"	                             ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 10)\n" + 
+		"	public <T> void doNothingMethod() {}\n" + 
+		"	        ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n",
+		null, true, customOptions);
 }
 }

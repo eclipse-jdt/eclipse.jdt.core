@@ -500,6 +500,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			return false;
 
 		ReferenceBinding refType = (ReferenceBinding) type;
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
+		if (refType instanceof TypeVariableBinding) {
+			refType.modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
+		}
 		// ignore references insing Javadoc comments
 		if ((this.bits & ASTNode.InsideJavadoc) == 0 && refType.isOrEnclosedByPrivateType() && !scope.isDefinedInType(refType)) {
 			// ignore cases where type is used from inside itself

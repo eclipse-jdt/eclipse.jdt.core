@@ -492,6 +492,9 @@ public static int getIrritant(int problemID) {
 		case IProblem.MissingNonNullByDefaultAnnotationOnPackage:
 		case IProblem.MissingNonNullByDefaultAnnotationOnType:
 			return CompilerOptions.MissingNonNullByDefaultAnnotation;
+			
+		case IProblem.UnusedTypeParameter:
+			return CompilerOptions.UnusedTypeParameter;
 	}
 	return 0;
 }
@@ -570,6 +573,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnusedLabel :
 			case CompilerOptions.RedundantSuperinterface :
 			case CompilerOptions.RedundantSpecificationOfTypeArguments :
+			case CompilerOptions.UnusedTypeParameter:
 				return CategorizedProblem.CAT_UNNECESSARY_CODE;
 
 			case CompilerOptions.UsingDeprecatedAPI :
@@ -8018,6 +8022,17 @@ public void unusedPrivateType(TypeDeclaration typeDecl) {
 		severity,
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
+}
+public void unusedTypeParameter(TypeParameter typeParameter) {
+	int severity = computeSeverity(IProblem.UnusedTypeParameter);
+	if (severity == ProblemSeverities.Ignore) return;
+	String [] arguments = new String[] {new String(typeParameter.name)};
+	this.handle(
+			IProblem.UnusedTypeParameter,
+			arguments,
+			arguments,
+			typeParameter.sourceStart,
+			typeParameter.sourceEnd);
 }
 public void unusedWarningToken(Expression token) {
 	String[] arguments = new String[] { token.constant.stringValue() };

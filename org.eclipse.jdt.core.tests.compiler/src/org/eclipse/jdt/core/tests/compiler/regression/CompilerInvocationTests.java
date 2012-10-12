@@ -947,6 +947,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UnusedPrivateMethod", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnusedPrivateType", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnusedTypeArgumentsForConstructorInvocation", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("UnusedTypeParameter", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnusedTypeArgumentsForMethodInvocation", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("UnusedWarningToken", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UseAssertAsAnIdentifier", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
@@ -1672,6 +1673,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UnusedPrivateMethod", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER));
 		expectedProblemAttributes.put("UnusedPrivateType", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER));
 		expectedProblemAttributes.put("UnusedTypeArgumentsForConstructorInvocation", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_TYPE_ARGUMENTS_FOR_METHOD_INVOCATION));
+		expectedProblemAttributes.put("UnusedTypeParameter", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_TYPE_PARAMETER));
 		expectedProblemAttributes.put("UnusedTypeArgumentsForMethodInvocation", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_TYPE_ARGUMENTS_FOR_METHOD_INVOCATION));
 		expectedProblemAttributes.put("UnusedWarningToken", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_WARNING_TOKEN));
 		expectedProblemAttributes.put("UseAssertAsAnIdentifier", new ProblemAttributes(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER));

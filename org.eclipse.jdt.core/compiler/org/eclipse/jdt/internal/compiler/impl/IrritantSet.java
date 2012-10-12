@@ -142,6 +142,7 @@ public class IrritantSet {
 			.set(CompilerOptions.RedundantSuperinterface)
 			.set(CompilerOptions.DeadCode)
 			.set(CompilerOptions.UnusedObjectAllocation)
+			.set(CompilerOptions.UnusedTypeParameter)
 			.set(CompilerOptions.RedundantSpecificationOfTypeArguments);
 		STATIC_METHOD
 		    .set(CompilerOptions.MethodCanBePotentiallyStatic);

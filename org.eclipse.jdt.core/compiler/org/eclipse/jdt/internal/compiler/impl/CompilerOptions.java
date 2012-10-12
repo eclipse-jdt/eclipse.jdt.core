@@ -129,6 +129,7 @@ public class CompilerOptions {
 	public static final String OPTION_SuppressWarnings =  "org.eclipse.jdt.core.compiler.problem.suppressWarnings"; //$NON-NLS-1$
 	public static final String OPTION_SuppressOptionalErrors = "org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnhandledWarningToken =  "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedTypeParameter =  "org.eclipse.jdt.core.compiler.problem.unusedTypeParameter"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedWarningToken =  "org.eclipse.jdt.core.compiler.problem.unusedWarningToken"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedLabel =  "org.eclipse.jdt.core.compiler.problem.unusedLabel"; //$NON-NLS-1$
 	public static final String OPTION_FatalOptionalError =  "org.eclipse.jdt.core.compiler.problem.fatalOptionalError"; //$NON-NLS-1$
@@ -278,6 +279,7 @@ public class CompilerOptions {
 	public static final int RedundantNullAnnotation = IrritantSet.GROUP2 | ASTNode.Bit14;
 	public static final int MissingNonNullByDefaultAnnotation = IrritantSet.GROUP2 | ASTNode.Bit15;
 	public static final int MissingDefaultCase = IrritantSet.GROUP2 | ASTNode.Bit16;
+	public static final int UnusedTypeParameter = IrritantSet.GROUP2 | ASTNode.Bit17;
 
 	// Severity level for handlers
 	/** 
@@ -602,6 +604,8 @@ public class CompilerOptions {
 				return OPTION_ReportMissingJavadocTagDescription;
 			case UnusedTypeArguments :
 				return OPTION_ReportUnusedTypeArgumentsForMethodInvocation;
+			case UnusedTypeParameter:
+				return OPTION_ReportUnusedTypeParameter;
 			case UnusedWarningToken :
 				return OPTION_ReportUnusedWarningToken;
 			case RedundantSuperinterface :
@@ -820,7 +824,8 @@ public class CompilerOptions {
 			OPTION_ReportNullSpecViolation,
 			OPTION_ReportNullAnnotationInferenceConflict,
 			OPTION_ReportNullUncheckedConversion,
-			OPTION_ReportRedundantNullAnnotation
+			OPTION_ReportRedundantNullAnnotation,
+			OPTION_ReportUnusedTypeParameter,
 		};
 		return result;
 	}
@@ -877,6 +882,7 @@ public class CompilerOptions {
 			case DeadCode :
 			case UnusedObjectAllocation :
 			case RedundantSpecificationOfTypeArguments :
+			case UnusedTypeParameter:
 				return "unused"; //$NON-NLS-1$
 			case DiscouragedReference :
 			case ForbiddenReference :
@@ -1116,6 +1122,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_NonNullAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullAnnotationName, '.')));
 		optionsMap.put(OPTION_NonNullByDefaultAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullByDefaultAnnotationName, '.')));
 		optionsMap.put(OPTION_ReportMissingNonNullByDefaultAnnotation, getSeverityString(MissingNonNullByDefaultAnnotation));
+		optionsMap.put(OPTION_ReportUnusedTypeParameter, getSeverityString(UnusedTypeParameter));
 		return optionsMap;
 	}
 
@@ -1569,6 +1576,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportUnclosedCloseable)) != null) updateSeverity(UnclosedCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportPotentiallyUnclosedCloseable)) != null) updateSeverity(PotentiallyUnclosedCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportExplicitlyClosedAutoCloseable)) != null) updateSeverity(ExplicitlyClosedAutoCloseable, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedTypeParameter)) != null) updateSeverity(UnusedTypeParameter, optionValue);
 		if (getSeverity(UnclosedCloseable) == ProblemSeverities.Ignore
 				&& getSeverity(PotentiallyUnclosedCloseable) == ProblemSeverities.Ignore
 				&& getSeverity(ExplicitlyClosedAutoCloseable) == ProblemSeverities.Ignore) {
@@ -1822,6 +1830,7 @@ public class CompilerOptions {
 		buf.append("\n\t- resource is not closed: ").append(getSeverityString(UnclosedCloseable)); //$NON-NLS-1$
 		buf.append("\n\t- resource may not be closed: ").append(getSeverityString(PotentiallyUnclosedCloseable)); //$NON-NLS-1$
 		buf.append("\n\t- resource should be handled by try-with-resources: ").append(getSeverityString(ExplicitlyClosedAutoCloseable)); //$NON-NLS-1$
+		buf.append("\n\t- Unused Type Parameter: ").append(getSeverityString(UnusedTypeParameter)); //$NON-NLS-1$
 		return buf.toString();
 	}
 	
