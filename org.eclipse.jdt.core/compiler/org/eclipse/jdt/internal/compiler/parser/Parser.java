@@ -2266,7 +2266,7 @@ protected void consumeCastExpressionWithGenericsArray() {
 	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 
 	this.expressionStack[this.expressionPtr] = cast = new CastExpression(exp = this.expressionStack[this.expressionPtr], castType = getTypeReference(dim));
-	this.intPtr--;
+	this.intPtr--;  // pop position of '<'
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = (cast.sourceStart = this.intStack[this.intPtr--]) + 1;
 	cast.sourceEnd = exp.sourceEnd;
@@ -4144,7 +4144,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	this.intStack :
 	*/
 	NameReference qualifyingNameReference = null;
-    boolean isReceiver = this.intStack[this.intPtr--] == 0;
+    boolean isReceiver = this.intStack[this.intPtr--] == 0;  // flag pushed in consumeExplicitThisParameter -> 0, consumeVariableDeclaratorIdParameter -> 1
     if (isReceiver) {
     	qualifyingNameReference = (NameReference) this.expressionStack[this.expressionPtr--];
     	this.expressionLengthPtr --;
@@ -4192,7 +4192,6 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		type.bits |= ASTNode.IsVarArgs; // set isVarArgs
 	}
 	int modifierPositions = this.intStack[this.intPtr--];
-	this.intPtr--;
 	Argument arg;
 	if (isReceiver) {
 		arg = new Receiver(
@@ -4200,13 +4199,13 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 				namePositions, 
 				type,
 				qualifyingNameReference,
-				this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated);
+				this.intStack[this.intPtr--] & ~ClassFileConstants.AccDeprecated);
 	} else {
 		arg = new Argument(
 			identifierName,
 			namePositions,
 			type,
-			this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated); // modifiers
+			this.intStack[this.intPtr--] & ~ClassFileConstants.AccDeprecated); // modifiers
 	}
 	arg.declarationSourceStart = modifierPositions;
 	arg.bits |= (type.bits & ASTNode.HasTypeAnnotations);
@@ -5155,7 +5154,7 @@ protected void consumeMethodInvocationNameWithTypeArguments() {
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
-	this.intPtr--;
+	this.intPtr--;  // consume position of '<'
 
 	m.receiver = getUnspecifiedReference();
 	m.sourceStart = m.receiver.sourceStart;
@@ -5189,7 +5188,7 @@ protected void consumeMethodInvocationPrimaryWithTypeArguments() {
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	this.genericsPtr -= length;
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, m.typeArguments = new TypeReference[length], 0, length);
-	this.intPtr--;
+	this.intPtr--; // consume position of '<'
 
 	m.receiver = this.expressionStack[this.expressionPtr];
 	m.sourceStart = m.receiver.sourceStart;
@@ -5449,7 +5448,7 @@ protected void consumePackageDeclarationNameWithModifiers() {
 		0,
 		length);
 
-	int packageModifiersSourceStart = this.intStack[this.intPtr--]; // we don't need the modifiers start
+	int packageModifiersSourceStart = this.intStack[this.intPtr--];
 	int packageModifiers = this.intStack[this.intPtr--];
 
 	impt = new ImportReference(tokens, positions, false, packageModifiers);
@@ -7802,7 +7801,7 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) {
 	SingleNameReference methodReference = null;
 	int newEnd = -1;
 	
-	boolean newForm = this.intStack[this.intPtr--] != 0;
+	boolean newForm = this.intStack[this.intPtr--] != 0; // flag pushed in consumeIdentifierOrNew(boolean)
 	if (newForm) {
 		newEnd = this.intStack[this.intPtr--] + 3; // "new"
 	} else {
@@ -7900,7 +7899,7 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 	SingleNameReference methodReference = null;
 	int newEnd = -1;
 	
-	boolean newForm = this.intStack[this.intPtr--] != 0;
+	boolean newForm = this.intStack[this.intPtr--] != 0; // flag pushed in consumeIdentifierOrNew(boolean)
 	if (newForm) {
 		newEnd = this.intStack[this.intPtr--] + 3; // "new"
 	} else {
@@ -8863,7 +8862,7 @@ protected void consumeTypeArgumentList3() {
 protected void consumeTypeArgumentReferenceType1() {
 	concatGenericsLists();
 	pushOnGenericsStack(getTypeReference(0));
-	this.intPtr--;
+	this.intPtr--; // pop '<' position.
 }
 protected void consumeTypeArgumentReferenceType2() {
 	concatGenericsLists();
