@@ -1991,7 +1991,8 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedPrivateMember\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedTypeArgumentsForMethodInvocation\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedTypeArgumentsForMethodInvocation\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedTypeParameter\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedWarningToken\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.processAnnotations\" value=\"disabled\"/>\n" + 
@@ -7758,7 +7759,12 @@ public void test191_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"7 problems (7 warnings)",
+		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
+		"	<T> void bar() {\n" + 
+		"	 ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"8 problems (8 warnings)",
 		true);
 }
 // -warn option - regression tests
@@ -8063,7 +8069,12 @@ public void test199_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"6 problems (6 warnings)",
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
+		"	<T> void bar() {\n" + 
+		"	 ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"7 problems (7 warnings)",
 		true);
 }
 // -warn option - regression tests
@@ -8123,7 +8134,12 @@ public void test200_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"6 problems (6 warnings)",
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
+		"	<T> void bar() {\n" + 
+		"	 ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"7 problems (7 warnings)",
 		true);
 }
 // -warn option - regression tests
@@ -8183,7 +8199,12 @@ public void test201_warn_options() {
 		"	      ^^^^^^\n" +
 		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" +
 		"----------\n" +
-		"6 problems (6 warnings)",
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
+		"	<T> void bar() {\n" + 
+		"	 ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"7 problems (7 warnings)",
 		true);
 }
 // -warn option - regression tests
@@ -8243,7 +8264,12 @@ public void test202_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"6 problems (6 warnings)",
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
+		"	<T> void bar() {\n" + 
+		"	 ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"7 problems (7 warnings)",
 		true);
 }
 // -warn option - regression tests
@@ -8303,7 +8329,12 @@ public void test203_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"6 problems (6 warnings)",
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
+		"	<T> void bar() {\n" + 
+		"	 ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"7 problems (7 warnings)",
 		true);
 }
 // -warn option - regression tests
@@ -8363,7 +8394,12 @@ public void test204_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"6 problems (6 warnings)",
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
+		"	<T> void bar() {\n" + 
+		"	 ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"7 problems (7 warnings)",
 		true);
 }
 // -warn option - regression tests
@@ -8423,7 +8459,12 @@ public void test205_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"6 problems (6 warnings)",
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
+		"	<T> void bar() {\n" + 
+		"	 ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"7 problems (7 warnings)",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=211588
@@ -13590,5 +13631,55 @@ public void testBug375366c() throws IOException {
 			"----------\n" + 
 			"3 problems (3 errors)", 
 			false/*don't flush*/);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
+public void test385780_warn_option() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n"+
+			"public <S> X() {\n"+
+			"}\n"+
+			"public void ph(int t) {\n"+
+	        "}\n"+
+			"}\n"+
+			"interface doNothingInterface<T> {\n"+
+			"}\n"+
+			"class doNothing {\n"+
+			"public <T> void doNothingMethod() {"+
+			"}\n"+
+			"}\n"+
+			"class noerror {\n"+
+			"public <T> void doNothing(T t) {"+
+			"}"+
+			"}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -warn:unusedTypeParameter -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
+		"	public class X<T> {\n" + 
+		"	               ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"	public <S> X() {\n" + 
+		"	        ^\n" + 
+		"Unused type parameter S\n" + 
+		"----------\n" + 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
+		"	interface doNothingInterface<T> {\n" + 
+		"	                             ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n" + 
+		"	public <T> void doNothingMethod() {}\n" + 
+		"	        ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"4 problems (4 warnings)",
+		true);
 }
 }

@@ -1293,6 +1293,8 @@ void setSourceStart(int sourceStart);
 	 */
     /** @since 3.4 */
     int UnusedTypeArgumentsForConstructorInvocation = MethodRelated + 660;
+	/** @since 3.9 */
+	int UnusedTypeParameter = TypeRelated + 661;
 
 	/**
 	 * Corrupted binaries

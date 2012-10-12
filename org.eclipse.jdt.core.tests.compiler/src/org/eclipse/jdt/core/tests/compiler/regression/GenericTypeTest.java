@@ -50,6 +50,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportUnusedTypeParameter, CompilerOptions.IGNORE);
 		return options;
 	}
 

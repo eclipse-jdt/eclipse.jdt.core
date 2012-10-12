@@ -513,6 +513,21 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_SYNTHETIC_ACCESS_EMULATION = PLUGIN_ID + ".compiler.problem.syntheticAccessEmulation"; //$NON-NLS-1$
+
+	/**
+	 * Compiler option ID: Reporting Unused Type Parameter.
+	 * <p>When enabled, the compiler will issue an error or a warning whenever it encounters an 
+	 * unused type parameter. </p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedTypeParameter"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
+	 * </dl>
+	 * @since 3.9
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_UNUSED_TYPE_PARAMETER = PLUGIN_ID + ".compiler.problem.unusedTypeParameter"; //$NON-NLS-1$
+
 	/**
 	 * Compiler option ID: Reporting Non-Externalized String Literal.
 	 * <p>When enabled, the compiler will issue an error or a warning for non externalized
