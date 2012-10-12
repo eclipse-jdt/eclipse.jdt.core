@@ -4264,6 +4264,7 @@ protected Annotation[][] getAnnotationsOnDimensions(int dimensionsCount) {
 }
 protected void consumeFormalParameterList() {
 	// FormalParameterList ::= FormalParameterList ',' FormalParameter
+	// TypeElidedFormalParameterList ::= TypeElidedFormalParameterList ',' TypeElidedFormalParameter
 	optimizedConcatNodeLists();
 }
 protected void consumeFormalParameterListopt() {
@@ -7696,7 +7697,7 @@ protected void consumeExplicitThisParameter(boolean isQualified) {
 }
 protected void consumeLambdaExpression() {
 	
-	// LambdaExpression ::= LambdaParameters ARROW LambdaBody
+	// LambdaExpression ::= LambdaParameters '->' LambdaBody
 
 	this.astLengthPtr--; 	// pop length for LambdaBody (always 1)
 	Statement body = (Statement) this.astStack[this.astPtr--];
@@ -7805,16 +7806,18 @@ protected void consumeExpression() {
 	}
 }
 protected void consumeIdentifierOrNew(boolean newForm) {
+	// IdentifierOrNew ::= 'Identifier'
+	// IdentifierOrNew ::= 'new'
 	pushOnIntStack(newForm ? 1 : 0);  // to discriminate between the two forms downstream.
 }
 protected void consumeEmptyTypeArguments() {
+	// NonWildTypeArgumentsopt ::= $empty
 	pushOnGenericsLengthStack(0); // signal absence of type arguments.
 }
 protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) {
 	
 	// ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
-	// ReferenceExpression ::= Name Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
-	// ReferenceExpression ::= Name '::' NonWildTypeArgumentsopt IdentifierOrNew
+	// ReferenceExpression ::= Name Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
 
 	ReferenceExpression rexp;
 	TypeReference type = null;
@@ -7957,6 +7960,7 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 	}
 }
 protected void consumeInterfaceMethodDefault() {
+	// PushDefault ::= $empty
 	// Shift method co-ordinates past the default keyword.
 	AbstractMethodDeclaration md = (AbstractMethodDeclaration) this.astStack[this.astPtr];
 	md.bodyStart = this.scanner.currentPosition;
