@@ -7667,31 +7667,8 @@ protected void consumeExplicitThisParameter(boolean isQualified) {
 		qualifyingNameReference = getUnspecifiedReference(false); // By construction the qualified name is unannotated here, so we should not meddle with the type annotation stack
 	}
 	pushOnExpressionStack(qualifyingNameReference);
-
-	int stackLength = this.identifierStack.length;
-	if (++this.identifierPtr >= stackLength) {
-		System.arraycopy(
-				this.identifierStack, 0,
-				this.identifierStack = new char[stackLength + 20][], 0,
-				stackLength);
-		System.arraycopy(
-				this.identifierPositionStack, 0,
-				this.identifierPositionStack = new long[stackLength + 20], 0,
-				stackLength);
-	}
-	this.identifierStack[this.identifierPtr] = ConstantPool.This;
 	int thisStart = this.intStack[this.intPtr--];
-	this.identifierPositionStack[this.identifierPtr] =
-			(((long) thisStart << 32)) + (thisStart + 3);
-
-	stackLength = this.identifierLengthStack.length;
-	if (++this.identifierLengthPtr >= stackLength) {
-		System.arraycopy(
-				this.identifierLengthStack, 0,
-				this.identifierLengthStack = new int[stackLength + 10], 0,
-				stackLength);
-	}
-	this.identifierLengthStack[this.identifierLengthPtr] = 1;
+	pushIdentifier(ConstantPool.This, (((long) thisStart << 32)) + (thisStart + 3));
 	pushOnIntStack(0);  // extended dimensions ...
 	pushOnIntStack(0);  // signal explicit this
 }
@@ -11372,11 +11349,7 @@ public ProblemReporter problemReporter(){
 	this.problemReporter.referenceContext = this.referenceContext;
 	return this.problemReporter;
 }
-protected void pushIdentifier() {
-	/*push the consumeToken on the identifier stack.
-	Increase the total number of identifier in the stack.
-	identifierPtr points on the next top */
-
+protected void pushIdentifier(char [] identifier, long position) {
 	int stackLength = this.identifierStack.length;
 	if (++this.identifierPtr >= stackLength) {
 		System.arraycopy(
@@ -11388,9 +11361,8 @@ protected void pushIdentifier() {
 			this.identifierPositionStack = new long[stackLength + 20], 0,
 			stackLength);
 	}
-	this.identifierStack[this.identifierPtr] = this.scanner.getCurrentIdentifierSource();
-	this.identifierPositionStack[this.identifierPtr] =
-		(((long) this.scanner.startPosition) << 32) + (this.scanner.currentPosition - 1);
+	this.identifierStack[this.identifierPtr] = identifier;
+	this.identifierPositionStack[this.identifierPtr] = position;
 
 	stackLength = this.identifierLengthStack.length;
 	if (++this.identifierLengthPtr >= stackLength) {
@@ -11400,6 +11372,13 @@ protected void pushIdentifier() {
 			stackLength);
 	}
 	this.identifierLengthStack[this.identifierLengthPtr] = 1;
+}
+protected void pushIdentifier() {
+	/*push the consumeToken on the identifier stack.
+	Increase the total number of identifier in the stack.
+	identifierPtr points on the next top */
+
+	pushIdentifier(this.scanner.getCurrentIdentifierSource(), (((long) this.scanner.startPosition) << 32) + (this.scanner.currentPosition - 1));
 }
 protected void pushIdentifier(int flag) {
 	/*push a special flag on the stack :
