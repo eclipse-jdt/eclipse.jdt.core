@@ -4352,4 +4352,17 @@ public abstract class Scope {
 			}
 		}
 	}
+	public static BlockScope typeAnnotationsResolutionScope(Scope scope) {
+		BlockScope resolutionScope = null;
+		switch(scope.kind) {
+			case Scope.CLASS_SCOPE:
+				resolutionScope = ((ClassScope) scope).referenceContext.staticInitializerScope;
+				break;
+			case Scope.BLOCK_SCOPE :
+			case Scope.METHOD_SCOPE :
+				resolutionScope = (BlockScope) scope;
+				break;
+		}
+		return resolutionScope;
+	}
 }

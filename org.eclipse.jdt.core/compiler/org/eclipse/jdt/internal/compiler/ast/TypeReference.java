@@ -423,14 +423,7 @@ protected TypeBinding internalResolveType(Scope scope) {
 			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
 		scope.problemReporter().rawTypeReference(this, type);
 	}
-	if (this.annotations != null) {
-		switch(scope.kind) {
-			case Scope.BLOCK_SCOPE :
-			case Scope.METHOD_SCOPE :
-				resolveAnnotations((BlockScope) scope, this.annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
-				break;
-		}
-	}
+	resolveAnnotations(scope);
 
 	if (hasError) {
 		// do not store the computed type, keep the problem type instead
@@ -441,7 +434,9 @@ protected TypeBinding internalResolveType(Scope scope) {
 public boolean isTypeReference() {
 	return true;
 }
-
+public boolean isWildcard() {
+	return false;
+}
 public boolean isParameterizedTypeReference() {
 	return false;
 }
@@ -511,9 +506,29 @@ public abstract void traverse(ASTVisitor visitor, BlockScope scope);
 
 public abstract void traverse(ASTVisitor visitor, ClassScope scope);
 
-protected void resolveAnnotations(BlockScope scope) {
-	if (this.annotations != null) {
-		resolveAnnotations(scope, this.annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
+protected void resolveAnnotations(Scope scope) {
+	Annotation[][] annotationsOnDimensions = getAnnotationsOnDimensions();
+	if (this.annotations != null || annotationsOnDimensions != null) {
+		BlockScope resolutionScope = Scope.typeAnnotationsResolutionScope(scope);
+		if (resolutionScope != null) {
+			if (this.annotations != null) {
+				int annotationsLevels = this.annotations.length;
+				for (int i = 0; i < annotationsLevels; i++) {
+					if (this.annotations[i] != null) {
+						resolveAnnotations(resolutionScope, this.annotations[i], new Annotation.TypeUseBinding(isWildcard() ? Binding.TYPE_PARAMETER : Binding.TYPE_USE));
+					}
+				}
+			}
+
+			if (annotationsOnDimensions != null) {
+				for (int i = 0, length = annotationsOnDimensions.length; i < length; i++) {
+					Annotation [] dimensionAnnotations = annotationsOnDimensions[i];
+					if (dimensionAnnotations  != null) {
+						resolveAnnotations(resolutionScope, dimensionAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
+					}
+				}
+			}
+		}
 	}
 }
 public int getAnnotatableLevels() {

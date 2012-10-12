@@ -2746,4 +2746,75 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Marker cannot be resolved to a type\n" + 
 				"----------\n");
 	}
+	public void testBug391464() {
+		this.runNegativeTest(
+				new String[]{
+				"X.java",
+				"public class X<T> {\n" +
+				"	public void foo() {\n" +
+				"		Object o = (X @Marker []) null;\n" +
+				"		o = (java.lang.String @Marker []) null;\n" +
+				"		o = (X<String> @Marker []) null;\n" +
+				"		o = (java.util.List<String> @Marker []) null;\n" +
+				"		if (o == null) return;\n" +
+				"	}" +
+				"}\n"},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	Object o = (X @Marker []) null;\n" + 
+				"	               ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	o = (java.lang.String @Marker []) null;\n" + 
+				"	                       ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	o = (X<String> @Marker []) null;\n" + 
+				"	                ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 6)\n" + 
+				"	o = (java.util.List<String> @Marker []) null;\n" + 
+				"	                             ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
+	}	
+	public void testBug391464_2() {
+		this.runNegativeTest(
+				new String[]{
+				"X.java",
+				"public class X  {\n" +
+				"	class Y {\n" +
+				"		class Z {}\n" +
+				"	}\n" +
+				"	@M X.@M Y.@Unreported Z z = null;\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface M {\n" +
+				"}\n",
+				
+				"java/lang/annotation/ElementType.java",
+				"package java.lang.annotation;\n" +
+				"public enum ElementType {\n" +
+				"    TYPE,\n" +
+				"    FIELD,\n" +
+				"    METHOD,\n" +
+				"    PARAMETER,\n" +
+				"    CONSTRUCTOR,\n" +
+				"    LOCAL_VARIABLE,\n" +
+				"    ANNOTATION_TYPE,\n" +
+				"    PACKAGE,\n" +
+				"    TYPE_PARAMETER,\n" +
+				"    TYPE_USE\n" +
+				"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	@M X.@M Y.@Unreported Z z = null;\n" + 
+				"	           ^^^^^^^^^^\n" + 
+				"Unreported cannot be resolved to a type\n" + 
+				"----------\n");
+	}		
 }

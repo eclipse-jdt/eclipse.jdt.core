@@ -130,15 +130,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 		}
 		this.bits |= ASTNode.DidResolve;
-		if (this.annotations != null) {
-			switch(scope.kind) {
-				case Scope.BLOCK_SCOPE :
-				case Scope.METHOD_SCOPE :
-					resolveAnnotations((BlockScope) scope, this.annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
-					break;
-			}
-		}
 		TypeBinding type = internalResolveLeafType(scope, enclosingType, checkBounds);
+		resolveAnnotations(scope);
 		// handle three different outcomes:
 		if (type == null) {
 			this.resolvedType = createArrayType(scope, this.resolvedType);
@@ -292,13 +285,6 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			return scope.createArrayType(type, this.dimensions);
 		}
 		return type;
-	}
-	
-	protected void resolveAnnotations(BlockScope scope) {
-		super.resolveAnnotations(scope);
-		for (int i = 0, length = this.typeArguments.length; i < length; i++) {
-			this.typeArguments[i].resolveAnnotations(scope);
-		}
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output){

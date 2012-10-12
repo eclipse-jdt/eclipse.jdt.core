@@ -93,17 +93,6 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 
 	protected TypeBinding internalResolveType(Scope scope) {
 		TypeBinding internalResolveType = super.internalResolveType(scope);
-		if (this.annotationsOnDimensions != null) {
-			switch(scope.kind) {
-				case Scope.BLOCK_SCOPE :
-				case Scope.METHOD_SCOPE :
-					for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
-						Annotation[] annotationsOnDimension = this.annotationsOnDimensions[i];
-						resolveAnnotations((BlockScope) scope, annotationsOnDimension, new Annotation.TypeUseBinding(Binding.TYPE_USE));
-					}
-					break;
-			}
-		}
 		return internalResolveType;
 	}
 
@@ -182,15 +171,5 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 			}
 		}
 		visitor.endVisit(this, scope);
-	}
-
-	protected void resolveAnnotations(BlockScope scope) {
-		super.resolveAnnotations(scope);
-		if (this.annotationsOnDimensions != null) {
-			for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
-				Annotation[] annotationsOnDimension = this.annotationsOnDimensions[i];
-				resolveAnnotations(scope, annotationsOnDimension, new Annotation.TypeUseBinding(Binding.TYPE_USE));
-			}
-		}
 	}
 }

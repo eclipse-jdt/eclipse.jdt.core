@@ -576,14 +576,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return output;
 	}
 
-	public static void resolveAnnotations(BlockScope scope, Annotation[][] sourceAnnotations, Binding recipient) {
-		int annotationsLevels = sourceAnnotations == null ? 0 : sourceAnnotations.length;
-		for (int i = 0; i < annotationsLevels; i++) {
-			if (sourceAnnotations[i] != null) {
-				resolveAnnotations(scope, sourceAnnotations[i], recipient);
-			}
-		}
-	}
 	/**
 	 * Resolve annotations, and check duplicates, answers combined tagBits
 	 * for recognized standard annotations

@@ -73,19 +73,6 @@ public class Wildcard extends SingleTypeReference {
 		return this.resolvedType = wildcard;
 	}
 
-	
-	private void resolveAnnotations(Scope scope) {
-		switch (scope.kind) {
-			case Scope.METHOD_SCOPE:
-			case Scope.BLOCK_SCOPE:
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391315
-				if (this.annotations != null)
-					resolveAnnotations((BlockScope) scope, this.annotations[0], new Annotation.TypeUseBinding(Binding.TYPE_PARAMETER));
-				break;
-			default: 
-				break;
-		}
-	}
 	public StringBuffer printExpression(int indent, StringBuffer output){
 		if (this.annotations != null && this.annotations[0] != null) {
 			printAnnotations(this.annotations[0], output);
@@ -147,5 +134,8 @@ public class Wildcard extends SingleTypeReference {
 			}
 		}
 		visitor.endVisit(this, scope);
+	}
+	public boolean isWildcard() {
+		return true;
 	}
 }

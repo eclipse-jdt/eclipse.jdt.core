@@ -151,16 +151,9 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			}
 		}
 		this.bits |= ASTNode.DidResolve;
-		if (this.annotations != null) {
-			switch(scope.kind) {
-				case Scope.BLOCK_SCOPE :
-				case Scope.METHOD_SCOPE :
-					resolveAnnotations((BlockScope) scope, this.annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
-					break;
-			}
-		}
 		TypeBinding type = internalResolveLeafType(scope, checkBounds);
 		createArrayType(scope);
+		resolveAnnotations(scope);
 		return type == null ? type : this.resolvedType;
 	}
 	private TypeBinding internalResolveLeafType(Scope scope, boolean checkBounds) {

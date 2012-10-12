@@ -986,19 +986,6 @@ public void resolve() {
 		try {
 			this.staticInitializerScope.insideTypeAnnotation = true;
 			resolveAnnotations(this.staticInitializerScope, this.annotations, sourceType);
-			if (this.superclass != null) {
-				this.superclass.resolveAnnotations(this.staticInitializerScope);
-			}
-			if (this.superInterfaces != null) {
-				for (int i = 0, max = this.superInterfaces.length; i < max; i++) {
-					this.superInterfaces[i].resolveAnnotations(this.staticInitializerScope);
-				}
-			}
-			if (this.typeParameters != null) {
-				for (int i = 0, count = this.typeParameters.length; i < count; i++) {
-					this.typeParameters[i].resolveAnnotations(this.staticInitializerScope);
-				}
-			}
 		} finally {
 			this.staticInitializerScope.insideTypeAnnotation = old;
 		}

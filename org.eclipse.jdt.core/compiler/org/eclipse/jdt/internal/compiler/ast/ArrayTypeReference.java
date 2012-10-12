@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -165,26 +164,6 @@ public class ArrayTypeReference extends SingleTypeReference {
 
 	protected TypeBinding internalResolveType(Scope scope) {
 		TypeBinding internalResolveType = super.internalResolveType(scope);
-		if (this.annotationsOnDimensions != null) {
-			switch(scope.kind) {
-				case Scope.BLOCK_SCOPE :
-				case Scope.METHOD_SCOPE :
-					for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
-						Annotation[] annotationsOnDimension = this.annotationsOnDimensions[i];
-						resolveAnnotations((BlockScope) scope, annotationsOnDimension, new Annotation.TypeUseBinding(Binding.TYPE_USE));
-					}
-					break;
-			}
-		}
 		return internalResolveType;
-	}
-	protected void resolveAnnotations(BlockScope scope) {
-		super.resolveAnnotations(scope);
-		if (this.annotationsOnDimensions != null) {
-			for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
-				Annotation[] annotationsOnDimension = this.annotationsOnDimensions[i];
-				resolveAnnotations(scope, annotationsOnDimension, new Annotation.TypeUseBinding(Binding.TYPE_USE));
-			}
-		}
 	}
 }

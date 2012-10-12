@@ -803,7 +803,12 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"}\n"
 				},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
+				"1. ERROR in X.java (at line 1)\n" + 
+				"	public class X<T extends Object & Comparable<? super @Marker String>> {}\n" + 
+				"	                                                      ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -1526,6 +1531,16 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"14. ERROR in X.java (at line 5)\n" + 
 				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
 				"	                                                                    ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"15. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	                                                                                    ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"16. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	                                                                                                  ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 
 				"----------\n");
 	}
