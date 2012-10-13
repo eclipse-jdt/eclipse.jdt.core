@@ -4288,6 +4288,9 @@ private static class VanguardParser extends Parser {
 			return false;
 		}
 	}
+	public String toString() {
+		return "\n\n\n----------------Scanner--------------\n" + this.scanner.toString(); //$NON-NLS-1$;
+	}
 }
 
 private VanguardParser getVanguardParser() {
