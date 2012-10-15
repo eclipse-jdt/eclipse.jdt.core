@@ -2711,6 +2711,48 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
 				"----------\n");
 	}
+	public void testBug391315a() {
+		this.runNegativeTest(
+				new String[]{
+				"X.java",
+				"public class X<@Marker T> {\n" +
+				"	@Marker T t;\n" +
+				"	T t2 = (@Marker T) null;\n" +
+				"}\n" +
+				"class X2<@Marker2 T> {\n" +
+				"	@Marker2 T t;\n" +
+				"	T t2 = (@Marker2 T) null;\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Marker {}\n" +
+				"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n" +
+				"@interface Marker2 {}",
+				"java/lang/annotation/ElementType.java",
+				"package java.lang.annotation;\n" +
+				"public enum ElementType {\n" +
+				"    TYPE,\n" +
+				"    FIELD,\n" +
+				"    METHOD,\n" +
+				"    PARAMETER,\n" +
+				"    CONSTRUCTOR,\n" +
+				"    LOCAL_VARIABLE,\n" +
+				"    ANNOTATION_TYPE,\n" +
+				"    PACKAGE,\n" +
+				"    TYPE_PARAMETER,\n" +
+				"    TYPE_USE\n" +
+				"}\n"},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	@Marker2 T t;\n" + 
+				"	^^^^^^^^\n" + 
+				"The annotation @Marker2 is disallowed for this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	T t2 = (@Marker2 T) null;\n" + 
+				"	        ^^^^^^^^\n" + 
+				"The annotation @Marker2 is disallowed for this location\n" + 
+				"----------\n");
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391500
 	public void testBug391500() {
 		this.runNegativeTest(
