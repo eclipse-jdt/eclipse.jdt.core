@@ -1295,6 +1295,8 @@ void setSourceStart(int sourceStart);
     int UnusedTypeArgumentsForConstructorInvocation = MethodRelated + 660;
 	/** @since 3.9 */
 	int UnusedTypeParameter = TypeRelated + 661;
+	/** @since 3.9 */
+	int IllegalArrayOfUnionType = TypeRelated + 662;
 
 	/**
 	 * Corrupted binaries
