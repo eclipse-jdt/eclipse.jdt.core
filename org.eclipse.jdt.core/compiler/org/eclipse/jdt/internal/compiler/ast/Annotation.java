@@ -878,10 +878,6 @@ public abstract class Annotation extends Expression {
 						} else if ((metaTagBits & TagBits.AnnotationForMethod) != 0) {
 							break checkTargetCompatibility;
 						} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-							// jsr 308 - annotation on method return type
-							if (methodBinding.returnType != null && methodBinding.returnType.id == T_void) {
-								scope.problemReporter().illegalUsageOfTypeAnnotations(this);
-							}
 							break checkTargetCompatibility;
 						}
 						break;

@@ -2858,5 +2858,47 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"	           ^^^^^^^^^^\n" + 
 				"Unreported cannot be resolved to a type\n" + 
 				"----------\n");
-	}		
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391108
+	public void testBug391108() {
+		this.runNegativeTest(
+				new String[]{
+						"X.java",
+						"public class X {\n" +
+						"	@Marker @Marker2 @Marker3 public void foo() {}\n" +
+						"	@Marker @Marker2 @Marker3 void foo2() {}\n" +
+						"}\n" +
+						"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+						"@interface Marker {}\n" +
+						"@java.lang.annotation.Target (java.lang.annotation.ElementType.METHOD)\n" +
+						"@interface Marker2 {}\n" +
+						"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE_USE, java.lang.annotation.ElementType.METHOD})\n" +
+						"@interface Marker3 {}",
+						"java/lang/annotation/ElementType.java",
+						"package java.lang.annotation;\n" +
+						"public enum ElementType {\n" +
+						"    TYPE,\n" +
+						"    FIELD,\n" +
+						"    METHOD,\n" +
+						"    PARAMETER,\n" +
+						"    CONSTRUCTOR,\n" +
+						"    LOCAL_VARIABLE,\n" +
+						"    ANNOTATION_TYPE,\n" +
+						"    PACKAGE,\n" +
+						"    TYPE_PARAMETER,\n" +
+						"    TYPE_USE\n" +
+						"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	@Marker @Marker2 @Marker3 public void foo() {}\n" + 
+				"	^^^^^^^\n" + 
+				"Type annotation is illegal for a method that returns void\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	@Marker @Marker2 @Marker3 void foo2() {}\n" + 
+				"	^^^^^^^\n" + 
+				"Type annotation is illegal for a method that returns void\n" + 
+				"----------\n");
+	}
 }
