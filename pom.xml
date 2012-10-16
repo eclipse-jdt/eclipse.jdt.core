@@ -27,6 +27,10 @@
   <version>3.8.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <properties>
+    <tycho.scmUrl>scm:git:git://git.eclipse.org/gitroot/jdt/eclipse.jdt.core.git</tycho.scmUrl>
+  </properties>
+
   <modules>
     <module>org.eclipse.jdt.annotation</module>
     <module>org.eclipse.jdt.compiler.tool</module>
