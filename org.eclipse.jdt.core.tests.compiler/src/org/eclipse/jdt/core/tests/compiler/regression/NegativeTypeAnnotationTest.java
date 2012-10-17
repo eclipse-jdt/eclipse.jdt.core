@@ -14,6 +14,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import junit.framework.Test;
 
 public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
@@ -2900,5 +2903,173 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"	^^^^^^^\n" + 
 				"Type annotation is illegal for a method that returns void\n" + 
 				"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119
+	public void test392119() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"@Marker78 @Marker8 @Marker7\n" +
+				"public class X {\n" +
+				"    Zork z;\n" +
+				"}\n" +
+				"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE_USE, java.lang.annotation.ElementType.TYPE})\n" +
+				"@interface Marker78 {\n" +
+				"}\n" +
+				"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE})\n" +
+				"@interface Marker7 {\n" +
+				"}\n" +
+				"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE_USE})\n" +
+				"@interface Marker8 {\n" +
+				"}\n",
+				
+				"java/lang/annotation/ElementType.java",
+				"package java.lang.annotation;\n" +
+				"public enum ElementType {\n" +
+				"    TYPE,\n" +
+				"    FIELD,\n" +
+				"    METHOD,\n" +
+				"    PARAMETER,\n" +
+				"    CONSTRUCTOR,\n" +
+				"    LOCAL_VARIABLE,\n" +
+				"    ANNOTATION_TYPE,\n" +
+				"    PACKAGE,\n" +
+				"    TYPE_PARAMETER,\n" +
+				"    TYPE_USE\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n",
+			null,
+			true, // flush output
+			null,
+			true, // generate output
+			false,
+			false);
+		String expectedOutput =
+				"  RuntimeInvisibleAnnotations: \n" + 
+				"    #24 @Marker78(\n" + 
+				"    )\n" + 
+				"    #25 @Marker7(\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119, variant with explicit class file retention.
+	public void test392119b() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"@Marker78 @Marker8 @Marker7\n" +
+				"public class X {\n" +
+				"    Zork z;\n" +
+				"}\n" +
+				"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS)\n" +
+				"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE_USE, java.lang.annotation.ElementType.TYPE})\n" +
+				"@interface Marker78 {\n" +
+				"}\n" +
+				"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS)\n" +
+				"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE})\n" +
+				"@interface Marker7 {\n" +
+				"}\n" +
+				"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS)\n" +
+				"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE_USE})\n" +
+				"@interface Marker8 {\n" +
+				"}\n",
+				
+				"java/lang/annotation/ElementType.java",
+				"package java.lang.annotation;\n" +
+				"public enum ElementType {\n" +
+				"    TYPE,\n" +
+				"    FIELD,\n" +
+				"    METHOD,\n" +
+				"    PARAMETER,\n" +
+				"    CONSTRUCTOR,\n" +
+				"    LOCAL_VARIABLE,\n" +
+				"    ANNOTATION_TYPE,\n" +
+				"    PACKAGE,\n" +
+				"    TYPE_PARAMETER,\n" +
+				"    TYPE_USE\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n",
+			null,
+			true, // flush output
+			null,
+			true, // generate output
+			false,
+			false);
+		String expectedOutput =
+				"  RuntimeInvisibleAnnotations: \n" + 
+				"    #24 @Marker78(\n" + 
+				"    )\n" + 
+				"    #25 @Marker7(\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119, variant with explicit class file retention.
+	public void test392119c() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"X.java", //-----------------------------------------------------------------------
+				"@Marker78 @Marker8 @Marker7\n" +
+				"public class X {\n" +
+				"    Zork z;\n" +
+				"}\n" +
+				"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)\n" +
+				"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE_USE, java.lang.annotation.ElementType.TYPE})\n" +
+				"@interface Marker78 {\n" +
+				"}\n" +
+				"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)\n" +
+				"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE})\n" +
+				"@interface Marker7 {\n" +
+				"}\n" +
+				"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)\n" +
+				"@java.lang.annotation.Target ({java.lang.annotation.ElementType.TYPE_USE})\n" +
+				"@interface Marker8 {\n" +
+				"}\n",
+				
+				"java/lang/annotation/ElementType.java",
+				"package java.lang.annotation;\n" +
+				"public enum ElementType {\n" +
+				"    TYPE,\n" +
+				"    FIELD,\n" +
+				"    METHOD,\n" +
+				"    PARAMETER,\n" +
+				"    CONSTRUCTOR,\n" +
+				"    LOCAL_VARIABLE,\n" +
+				"    ANNOTATION_TYPE,\n" +
+				"    PACKAGE,\n" +
+				"    TYPE_PARAMETER,\n" +
+				"    TYPE_USE\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n",
+			null,
+			true, // flush output
+			null,
+			true, // generate output
+			false,
+			false);
+		String expectedOutput =
+				"  RuntimeVisibleAnnotations: \n" + 
+				"    #24 @Marker78(\n" + 
+				"    )\n" + 
+				"    #25 @Marker7(\n" + 
+				"    )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 }

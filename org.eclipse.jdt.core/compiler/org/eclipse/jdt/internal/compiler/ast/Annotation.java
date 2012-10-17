@@ -546,10 +546,12 @@ public abstract class Annotation extends Expression {
 			return false;
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
-		// jsr 308
-		// we need to filter out type use and type parameter annotations
+
+		// we need to filter out only "pure" type use and type parameter annotations, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119
 		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
-			return false;
+			if ((metaTagBits & TagBits.SE7AnnotationTargetMASK) == 0) {  // not a hybrid target. 
+				return false;
+			}
 		}
 
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
@@ -564,10 +566,11 @@ public abstract class Annotation extends Expression {
 			return false;
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
-		// jsr 308
-		// we need to filter out type use and type parameter annotations
-		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) != 0
-				&& ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0)) {
+
+		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) == 0) { // explicit target required for JSR308 style annotations.
+			return false;
+		}
+		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
 			return false;
 		}
 
@@ -583,8 +586,11 @@ public abstract class Annotation extends Expression {
 			return false;
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits();
-		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) != 0
-				&& ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0)) {
+
+		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) == 0) { // explicit target required for JSR308 style annotations.
+			return false;
+		}
+		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
 			return false;
 		}
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
@@ -599,8 +605,11 @@ public abstract class Annotation extends Expression {
 			return false;
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits();
+		// we need to filter out only "pure" type use and type parameter annotations, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119
 		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
-			return false;
+			if ((metaTagBits & TagBits.SE7AnnotationTargetMASK) == 0) { // not a hybrid target.
+				return false;
+			}
 		}
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
 			return false; // by default the retention is CLASS
