@@ -11,7 +11,9 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
+ *     Stephan Herrmann - Contributions for
+ *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -158,6 +160,7 @@ public interface TagBits {
 				| AnnotationNonNull
 				| AnnotationNonNullByDefault
 				| AnnotationNullUnspecifiedByDefault;
+	long AnnotationNullMASK = AnnotationNullable | AnnotationNonNull;
 
 	long DefaultValueResolved = ASTNode.Bit60L;
 

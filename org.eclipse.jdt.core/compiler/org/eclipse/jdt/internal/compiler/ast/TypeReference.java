@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -24,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -533,5 +536,35 @@ protected void resolveAnnotations(Scope scope) {
 }
 public int getAnnotatableLevels() {
 	return 1;
+}
+// If typeArgumentAnnotations contain any that are evaluated by the compiler
+// create/retrieve a parameterized type binding
+// capturing the effect of these annotations into the resolved type binding.
+protected TypeBinding captureTypeAnnotations(Scope scope, ReferenceBinding enclosingType, TypeBinding argType, Annotation[] typeArgumentAnnotations) {
+	if (!scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled
+			|| typeArgumentAnnotations == null 
+			|| !(argType instanceof ReferenceBinding))
+	{
+		return argType;
+	}
+    int annotLen = typeArgumentAnnotations.length;
+    long annotationBits = 0L;
+    for (int i = 0; i < annotLen; i++) {
+		if (typeArgumentAnnotations[i] instanceof MarkerAnnotation) {
+			AnnotationBinding compilerAnnotation = ((MarkerAnnotation)typeArgumentAnnotations[i]).getCompilerAnnotation();
+			if (compilerAnnotation != null) {
+				switch (compilerAnnotation.getAnnotationType().id) {
+					case TypeIds.T_ConfiguredAnnotationNonNull :
+						annotationBits |= TagBits.AnnotationNonNull;
+						break;
+					case TypeIds.T_ConfiguredAnnotationNullable :
+						annotationBits |= TagBits.AnnotationNullable;
+						break;
+					default: // no other annotations are currently handled
+				}
+			}
+		}
+	}
+	return scope.environment().createParameterizedType((ReferenceBinding) argType, Binding.NO_TYPES, annotationBits, enclosingType);
 }
 }

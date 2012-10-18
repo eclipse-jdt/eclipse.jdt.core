@@ -17,6 +17,7 @@
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
+ *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -93,10 +94,16 @@ public abstract class AbstractMethodDeclaration
 				Argument argument = this.arguments[i];
 				argument.createBinding(this.scope, this.binding.parameters[i]);
 				// createBinding() has resolved annotations, now transfer nullness info from the argument to the method:
-				if ((argument.binding.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) != 0) {
+				// prefer type annotation:
+				long argTypeTagBits = (argument.type.resolvedType.tagBits & TagBits.AnnotationNullMASK);
+				// if none found try SE7 annotation:
+				if (argTypeTagBits == 0) {
+					argTypeTagBits = (argument.binding.tagBits & TagBits.AnnotationNullMASK);
+				}
+				if (argTypeTagBits != 0) {
 					if (this.binding.parameterNonNullness == null)
 						this.binding.parameterNonNullness = new Boolean[this.arguments.length];
-					this.binding.parameterNonNullness[i] = Boolean.valueOf((argument.binding.tagBits & TagBits.AnnotationNonNull) != 0);
+					this.binding.parameterNonNullness[i] = Boolean.valueOf(argTypeTagBits == TagBits.AnnotationNonNull);
 				}
 			}
 		}

@@ -16,34 +16,10 @@ import java.util.Map;
 
 import junit.framework.Test;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.JavaCore;
 
 // see bug 186342 - [compiler][null] Using annotations for null checking
-public class NullAnnotationTest extends AbstractComparableTest {
-
-// class libraries including our default null annotation types:
-String[] LIBS;
-
-// names and content of custom annotations used in a few tests:
-private static final String CUSTOM_NONNULL_NAME = "org/foo/NonNull.java";
-private static final String CUSTOM_NONNULL_CONTENT =
-	"package org.foo;\n" +
-	"import static java.lang.annotation.ElementType.*;\n" +
-	"import java.lang.annotation.*;\n" +
-	"@Retention(RetentionPolicy.CLASS)\n" +
-	"@Target({METHOD,PARAMETER,LOCAL_VARIABLE})\n" +
-	"public @interface NonNull {\n" +
-	"}\n";
-private static final String CUSTOM_NULLABLE_NAME = "org/foo/Nullable.java";
-private static final String CUSTOM_NULLABLE_CONTENT = "package org.foo;\n" +
-	"import static java.lang.annotation.ElementType.*;\n" +
-	"import java.lang.annotation.*;\n" +
-	"@Retention(RetentionPolicy.CLASS)\n" +
-	"@Target({METHOD,PARAMETER,LOCAL_VARIABLE})\n" +
-	"public @interface Nullable {\n" +
-	"}\n";
+public class NullAnnotationTest extends AbstractNullAnnotationTest {
 
 public NullAnnotationTest(String name) {
 	super(name);
@@ -65,89 +41,6 @@ public static Class testClass() {
 	return NullAnnotationTest.class;
 }
 
-protected void setUp() throws Exception {
-	super.setUp();
-	if (this.LIBS == null) {
-		String[] defaultLibs = getDefaultClassPaths();
-		int len = defaultLibs.length;
-		this.LIBS = new String[len+1];
-		System.arraycopy(defaultLibs, 0, this.LIBS, 0, len);
-		File bundleFile = FileLocator.getBundleFile(Platform.getBundle("org.eclipse.jdt.annotation"));
-		if (bundleFile.isDirectory())
-			this.LIBS[len] = bundleFile.getPath()+"/bin";
-		else
-			this.LIBS[len] = bundleFile.getPath();
-	}
-}
-// Conditionally augment problem detection settings
-static boolean setNullRelatedOptions = true;
-protected Map getCompilerOptions() {
-    Map defaultOptions = super.getCompilerOptions();
-    if (setNullRelatedOptions) {
-    	defaultOptions.put(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
-	    defaultOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	    defaultOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
-		defaultOptions.put(JavaCore.COMPILER_PB_INCLUDE_ASSERTS_IN_NULL_ANALYSIS, JavaCore.ENABLED);
-
-		defaultOptions.put(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION_FOR_INTERFACE_METHOD_IMPLEMENTATION, JavaCore.DISABLED);
-
-		// enable null annotations:
-		defaultOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-		// leave other new options at these defaults:
-//		defaultOptions.put(CompilerOptions.OPTION_ReportNullContractViolation, JavaCore.ERROR);
-//		defaultOptions.put(CompilerOptions.OPTION_ReportPotentialNullContractViolation, JavaCore.ERROR);
-//		defaultOptions.put(CompilerOptions.OPTION_ReportNullContractInsufficientInfo, CompilerOptions.WARNING);
-
-//		defaultOptions.put(CompilerOptions.OPTION_NullableAnnotationName, "org.eclipse.jdt.annotation.Nullable");
-//		defaultOptions.put(CompilerOptions.OPTION_NonNullAnnotationName, "org.eclipse.jdt.annotation.NonNull");
-    }
-    return defaultOptions;
-}
-void runNegativeTestWithLibs(String[] testFiles, String expectedErrorLog) {
-	runNegativeTest(
-			testFiles,
-			expectedErrorLog,
-			this.LIBS,
-			false /*shouldFlush*/);
-}
-void runNegativeTestWithLibs(boolean shouldFlushOutputDirectory, String[] testFiles, Map customOptions, String expectedErrorLog) {
-	runNegativeTest(
-			shouldFlushOutputDirectory,
-			testFiles,
-			this.LIBS,
-			customOptions,
-			expectedErrorLog,
-			// runtime options
-		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
-}
-void runNegativeTestWithLibs(String[] testFiles, Map customOptions, String expectedErrorLog) {
-	runNegativeTestWithLibs(false /* flush output directory */,	testFiles, customOptions, expectedErrorLog);
-}
-void runConformTestWithLibs(String[] testFiles, Map customOptions, String expectedCompilerLog) {
-	runConformTestWithLibs(false /* flush output directory */, testFiles, customOptions, expectedCompilerLog);
-}
-void runConformTestWithLibs(boolean shouldFlushOutputDirectory, String[] testFiles, Map customOptions, String expectedCompilerLog) {
-	runConformTest(
-			shouldFlushOutputDirectory,
-			testFiles,
-			this.LIBS,
-			customOptions,
-			expectedCompilerLog,
-			"",/* expected output */
-			"",/* expected error */
-		    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
-}
-void runConformTest(String[] testFiles, Map customOptions, String expectedOutputString) {
-	runConformTest(
-			testFiles,
-			expectedOutputString,
-			null /*classLibraries*/,
-			true /*shouldFlushOutputDirectory*/,
-			null /*vmArguments*/,
-			customOptions,
-			null /*customRequestor*/);
-
-}
 // a nullable argument is dereferenced without a check
 public void test_nullable_paramter_001() {
 	runNegativeTest(

@@ -4,10 +4,16 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
+ *     Stephan Herrmann - Contributions for
+ *								bug 186342 - [compiler][null] Using annotations for null checking
+ *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -112,6 +118,24 @@ public class ParameterizedMethodBinding extends MethodBinding {
 			this.thrownExceptions = Scope.substitute(substitution, this.thrownExceptions);
 			// error case where exception type variable would have been substituted by a non-reference type (207573)
 			if (this.thrownExceptions == null) this.thrownExceptions = Binding.NO_EXCEPTIONS;
+
+			// after substitution transfer nullness information from type annotations:
+			if (parameterizedDeclaringClass.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+				long returnNullBits = this.returnType.tagBits & TagBits.AnnotationNullMASK;
+				if (returnNullBits != 0L) {
+					this.tagBits &= ~TagBits.AnnotationNullMASK;
+					this.tagBits |= returnNullBits;
+				}
+				int parametersLen = this.parameters.length;
+				for (int i=0; i<parametersLen; i++) {
+					long paramTagBits = this.parameters[i].tagBits & TagBits.AnnotationNullMASK;
+					if (paramTagBits != 0) {
+						if (this.parameterNonNullness == null)
+							this.parameterNonNullness = new Boolean[parametersLen];
+						this.parameterNonNullness[i] = Boolean.valueOf(paramTagBits == TagBits.AnnotationNonNull);
+					}
+				}
+			}
 		}
 		checkMissingType: {
 			if ((this.tagBits & TagBits.HasMissingType) != 0)

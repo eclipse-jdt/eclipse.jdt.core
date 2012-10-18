@@ -11,6 +11,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1490,55 +1492,75 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n" + 
 				"6. ERROR in X.java (at line 4)\n" + 
 				"	Object q = (@Marker java. @Marker util. @Marker List<@Marker String> []) null;\n" + 
+				"	                           ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 4)\n" + 
+				"	Object q = (@Marker java. @Marker util. @Marker List<@Marker String> []) null;\n" + 
 				"	                                        ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"7. ERROR in X.java (at line 4)\n" + 
+				"8. ERROR in X.java (at line 4)\n" + 
+				"	Object q = (@Marker java. @Marker util. @Marker List<@Marker String> []) null;\n" + 
+				"	                                         ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"9. ERROR in X.java (at line 4)\n" + 
 				"	Object q = (@Marker java. @Marker util. @Marker List<@Marker String> []) null;\n" + 
 				"	                                                      ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 
 				"----------\n" + 
-				"8. ERROR in X.java (at line 5)\n" + 
+				"10. ERROR in X.java (at line 5)\n" + 
 				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
 				"	            ^^^^^^^\n" + 
 				"Type annotations are not allowed on type names used to access static members\n" + 
 				"----------\n" + 
-				"9. ERROR in X.java (at line 5)\n" + 
+				"11. ERROR in X.java (at line 5)\n" + 
 				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
 				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"The member type Map<String,String>.Entry cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Map<String,String>\n" + 
 				"----------\n" + 
-				"10. ERROR in X.java (at line 5)\n" + 
+				"12. ERROR in X.java (at line 5)\n" + 
 				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
 				"	             ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 
 				"----------\n" + 
-				"11. ERROR in X.java (at line 5)\n" + 
+				"13. ERROR in X.java (at line 5)\n" + 
 				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
 				"	                          ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"12. ERROR in X.java (at line 5)\n" + 
-				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
-				"	                                       ^^^^^^^\n" + 
-				"Syntax error, type annotations are illegal here\n" + 
-				"----------\n" + 
-				"13. ERROR in X.java (at line 5)\n" + 
-				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
-				"	                                                    ^^^^^^\n" + 
-				"Marker cannot be resolved to a type\n" + 
-				"----------\n" + 
 				"14. ERROR in X.java (at line 5)\n" + 
 				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
-				"	                                                                    ^^^^^^\n" + 
+				"	                           ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 
 				"----------\n" + 
 				"15. ERROR in X.java (at line 5)\n" + 
 				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	                                       ^^^^^^^\n" + 
+				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n" + 
+				"16. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	                                        ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"17. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	                                                    ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"18. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
+				"	                                                                    ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"19. ERROR in X.java (at line 5)\n" + 
+				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
 				"	                                                                                    ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 
 				"----------\n" + 
-				"16. ERROR in X.java (at line 5)\n" + 
+				"20. ERROR in X.java (at line 5)\n" + 
 				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
 				"	                                                                                                  ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 

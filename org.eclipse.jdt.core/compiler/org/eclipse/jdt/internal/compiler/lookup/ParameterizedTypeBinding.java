@@ -4,10 +4,16 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 349326 - [1.7] new warning for missing try-with-resources
+ *     Stephan Herrmann - Contributions for
+ *								bug 349326 - [1.7] new warning for missing try-with-resources
+ *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -317,12 +323,22 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public String debugName() {
 	    StringBuffer nameBuffer = new StringBuffer(10);
+	    if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+	    	// restore applied null annotation from tagBits:
+		    if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
+		    	char[][] nonNullAnnotationName = environment().getNonNullAnnotationName();
+				nameBuffer.append('@').append(nonNullAnnotationName[nonNullAnnotationName.length-1]).append(' ');
+		    } else if ((this.tagBits & TagBits.AnnotationNullable) != 0) {
+		    	char[][] nullableAnnotationName = environment().getNullableAnnotationName();
+				nameBuffer.append('@').append(nullableAnnotationName[nullableAnnotationName.length-1]).append(' ');
+		    }
+	    }
 	    if (this.type instanceof UnresolvedReferenceBinding) {
 	    	nameBuffer.append(this.type);
 	    } else {
 			nameBuffer.append(this.type.sourceName());
 	    }
-		if (this.arguments != null) {
+		if (this.arguments != null && this.arguments.length > 0) { // empty arguments array happens when PTB has been created just to capture type annotations
 			nameBuffer.append('<');
 		    for (int i = 0, length = this.arguments.length; i < length; i++) {
 		        if (i > 0) nameBuffer.append(',');
@@ -684,7 +700,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				this.tagBits |= someArgument.tagBits & (TagBits.HasTypeVariable | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences);
 			}
 		}
-		this.tagBits |= someType.tagBits & (TagBits.IsLocalType| TagBits.IsMemberType | TagBits.IsNestedType | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences);
+		this.tagBits |= someType.tagBits & (TagBits.IsLocalType| TagBits.IsMemberType | TagBits.IsNestedType | TagBits.HasMissingType | TagBits.ContainsNestedTypeReferences | TagBits.AnnotationNullMASK);
 		this.tagBits &= ~(TagBits.AreFieldsComplete|TagBits.AreMethodsComplete);
 	}
 
@@ -847,7 +863,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		} else {
 			nameBuffer.append(CharOperation.concatWith(this.type.compoundName, '.'));
 		}
-		if (this.arguments != null) {
+		if (this.arguments != null && this.arguments.length > 0) { // empty arguments array happens when PTB has been created just to capture type annotations
 			nameBuffer.append('<');
 		    for (int i = 0, length = this.arguments.length; i < length; i++) {
 		        if (i > 0) nameBuffer.append(',');
@@ -918,7 +934,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		} else {
 			nameBuffer.append(this.type.sourceName);
 		}
-		if (this.arguments != null) {
+		if (this.arguments != null && this.arguments.length > 0) { // empty arguments array happens when PTB has been created just to capture type annotations
 			nameBuffer.append('<');
 		    for (int i = 0, length = this.arguments.length; i < length; i++) {
 		        if (i > 0) nameBuffer.append(',');

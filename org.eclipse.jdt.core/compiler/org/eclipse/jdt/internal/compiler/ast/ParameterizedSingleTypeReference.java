@@ -11,7 +11,9 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for Bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+ *     Stephan Herrmann - Contributions for
+ *								bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+ *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -218,7 +220,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		     if (argType == null) {
 		         argHasError = true;
 		     } else {
-			    argTypes[i] = argType;
+			    if (typeArgument.annotations != null)
+			    	argTypes[i] = captureTypeAnnotations(scope, enclosingType, argType, typeArgument.annotations[0]);
+			    else
+			    	argTypes[i] = argType;
 		     }
 		}
 		if (argHasError) {
