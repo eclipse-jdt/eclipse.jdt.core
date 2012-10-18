@@ -36,6 +36,7 @@ public class ImplicitNullAnnotationVerifier {
 	static class InheritedNonNullnessInfo {
 		Boolean inheritedNonNullness;
 		MethodBinding annotationOrigin;
+		boolean complained;
 	}
 
 	// delegate which to ask for recursive analysis of super methods
@@ -99,14 +100,16 @@ public class ImplicitNullAnnotationVerifier {
 				
 				// transfer collected information into currentMethod:
 				InheritedNonNullnessInfo info = inheritedNonNullnessInfos[0];
-				if (info.inheritedNonNullness == Boolean.TRUE) {
-					currentMethod.tagBits |= TagBits.AnnotationNonNull;
-				} else if (info.inheritedNonNullness == Boolean.FALSE) {
-					currentMethod.tagBits |= TagBits.AnnotationNullable;
+				if (!info.complained) {
+					if (info.inheritedNonNullness == Boolean.TRUE) {
+						currentMethod.tagBits |= TagBits.AnnotationNonNull;
+					} else if (info.inheritedNonNullness == Boolean.FALSE) {
+						currentMethod.tagBits |= TagBits.AnnotationNullable;
+					}
 				}
 				for (int i=0; i<paramLen; i++) {
 					info = inheritedNonNullnessInfos[i+1];
-					if (info.inheritedNonNullness != null) {
+					if (!info.complained && info.inheritedNonNullness != null) {
 						if (currentMethod.parameterNonNullness == null)
 							currentMethod.parameterNonNullness = new Boolean[paramLen];
 						currentMethod.parameterNonNullness[i] = info.inheritedNonNullness;
@@ -346,6 +349,7 @@ public class ImplicitNullAnnotationVerifier {
 			scope.problemReporter().conflictingInheritedNullAnnotations(location, 
 					nullnessInfo.inheritedNonNullness.booleanValue(), nullnessInfo.annotationOrigin, 
 					inheritedNonNullness.booleanValue(), inheritedMethod);
+			nullnessInfo.complained = true;
 			// leave previous info intact, so subsequent errors are reported against the same first method
 		} else {
 			nullnessInfo.inheritedNonNullness = inheritedNonNullness;
