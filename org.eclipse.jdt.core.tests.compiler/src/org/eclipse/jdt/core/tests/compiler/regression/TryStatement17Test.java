@@ -1167,6 +1167,55 @@ public void test032() { // no finally
 			}, 
 			"Done");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391092
+public void testBug391092() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String [] args) {\n" +
+			"		try {\n" +
+			"		} catch (NullPointerException  | ArrayIndexOutOfBoundsException  e []) {\n" +
+			"		} catch (ClassCastException [] c) {\n" +
+			"		} catch (ArrayStoreException a[]) {\n" +
+			"		} catch (ArithmeticException | NegativeArraySizeException b[][] ) {\n" +
+			"		} catch (ClassCastException[][] | ClassNotFoundException[] g) {\n" +
+			"		}\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	} catch (NullPointerException  | ArrayIndexOutOfBoundsException  e []) {\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Illegal attempt to create arrays of union types\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	} catch (ClassCastException [] c) {\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"No exception of type ClassCastException[] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	} catch (ArrayStoreException a[]) {\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"No exception of type ArrayStoreException[] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 7)\n" + 
+		"	} catch (ArithmeticException | NegativeArraySizeException b[][] ) {\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Illegal attempt to create arrays of union types\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 8)\n" + 
+		"	} catch (ClassCastException[][] | ClassNotFoundException[] g) {\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"No exception of type ClassCastException[][] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 8)\n" + 
+		"	} catch (ClassCastException[][] | ClassNotFoundException[] g) {\n" + 
+		"	                                  ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"No exception of type ClassNotFoundException[] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n");
+	}
 public static Class testClass() {
 	return TryStatement17Test.class;
 }

@@ -2335,6 +2335,10 @@ protected void consumeCatchFormalParameter() {
 	if (extendedDimensions > 0) {
 		type = type.copyDims(type.dimensions() + extendedDimensions);
 		type.sourceEnd = this.endPosition;
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391092
+		if (type instanceof UnionTypeReference) {
+			this.problemReporter().illegalArrayOfUnionType(identifierName, type);		
+		}
 	}
 	this.astLengthPtr--;
 	int modifierPositions = this.intStack[this.intPtr--];

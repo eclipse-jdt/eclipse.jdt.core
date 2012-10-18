@@ -1228,6 +1228,15 @@ public void cannotThrowType(ASTNode exception, TypeBinding expectedType) {
 		exception.sourceStart,
 		exception.sourceEnd);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391092
+public void illegalArrayOfUnionType(char[] identifierName, TypeReference typeReference) {
+		this.handle(
+		IProblem.IllegalArrayOfUnionType,
+		NoArgument,
+		NoArgument,
+		typeReference.sourceStart,
+		typeReference.sourceEnd);
+}
 public void cannotUseQualifiedEnumConstantInCaseLabel(Reference location, FieldBinding field) {
 	this.handle(
 		IProblem.IllegalQualifiedEnumConstantLabel,
