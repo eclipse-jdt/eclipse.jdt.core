@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -70,6 +74,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			this.deleteProject("Converter15"); //$NON-NLS-1$
 			this.deleteProject("Converter16"); //$NON-NLS-1$
 			this.deleteProject("Converter17"); //$NON-NLS-1$
+			this.deleteProject("Converter18"); //$NON-NLS-1$
 		} else {
 			TEST_SUITES.remove(getClass());
 			if (TEST_SUITES.size() == 0) {
@@ -77,6 +82,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 				this.deleteProject("Converter15"); //$NON-NLS-1$
 				this.deleteProject("Converter16"); //$NON-NLS-1$
 				this.deleteProject("Converter17"); //$NON-NLS-1$
+				this.deleteProject("Converter18"); //$NON-NLS-1$
 			}
 		}
 
@@ -101,6 +107,14 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 					new IPath[] {getConverterJCLPath("1.7"), getConverterJCLSourcePath("1.7"), getConverterJCLRootSourcePath()},
 					null);
 			}
+		} else if ("1.8".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("CONVERTER_JCL18_LIB") == null) {
+				setupExternalJCL("converterJclMin1.8");
+				JavaCore.setClasspathVariables(
+					new String[] {"CONVERTER_JCL18_LIB", "CONVERTER_JCL18_SRC", "CONVERTER_JCL18_SRCROOT"},
+					new IPath[] {getConverterJCLPath("1.8"), getConverterJCLSourcePath("1.8"), getConverterJCLRootSourcePath()},
+					null);
+			}
 		} else if (JavaCore.getClasspathVariable("CONVERTER_JCL_LIB") == null) {
 			setupExternalJCL("converterJclMin");
 			JavaCore.setClasspathVariables(
@@ -121,6 +135,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
 			setUpJavaProject("Converter16", "1.6"); //$NON-NLS-1$ //$NON-NLS-2$
 			setUpJavaProject("Converter17", "1.7"); //$NON-NLS-1$ //$NON-NLS-2$
+			setUpJavaProject("Converter18", "1.8"); //$NON-NLS-1$ //$NON-NLS-2$
 			waitUntilIndexesReady(); // needed to find secondary types
 			PROJECT_SETUP = true;
 		}

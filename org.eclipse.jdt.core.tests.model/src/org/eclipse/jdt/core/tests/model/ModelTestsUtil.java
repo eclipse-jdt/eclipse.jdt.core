@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -431,7 +435,15 @@ static public void setupExternalJCL(String jclName) throws IOException {
 }
 
 static public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
-	if ("1.7".equals(compliance)) {
+	if ("1.8".equals(compliance)) {
+		if (JavaCore.getClasspathVariable("JCL18_LIB") == null) {
+			setupExternalJCL("jclMin1.8");
+			JavaCore.setClasspathVariables(
+				new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
+				new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
+				null);
+		}
+	} else if ("1.7".equals(compliance)) {
 		if (JavaCore.getClasspathVariable("JCL17_LIB") == null) {
 			setupExternalJCL("jclMin1.7");
 			JavaCore.setClasspathVariables(

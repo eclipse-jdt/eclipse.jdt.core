@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1650,6 +1654,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 					javaProject.setOptions(options);
+				} else if ("1.8".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+					javaProject.setOptions(options);
 				}
 
 				result[0] = javaProject;
@@ -2737,7 +2747,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					new IPath[] {getExternalJCLPath("1.7"), getExternalJCLSourcePath("1.7"), getExternalJCLRootSourcePath()},
 					null);
 			}
-		}else {
+		} else if ("1.8".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL18_LIB") == null) {
+				setupExternalJCL("jclMin1.8");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("1.8"), getExternalJCLSourcePath("1.8"), getExternalJCLRootSourcePath()},
+					null);
+			}	
+		} else {
 			if (JavaCore.getClasspathVariable("JCL_LIB") == null) {
 				setupExternalJCL("jclMin");
 				JavaCore.setClasspathVariables(
