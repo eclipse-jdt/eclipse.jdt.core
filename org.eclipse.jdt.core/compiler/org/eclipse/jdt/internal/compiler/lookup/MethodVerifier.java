@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
+ *     Stephan Herrmann - Contribution for
+ *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -18,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
-public class MethodVerifier {
+public class MethodVerifier extends ImplicitNullAnnotationVerifier {
 	SourceTypeBinding type;
 	HashtableOfObject inheritedMethods;
 	HashtableOfObject currentMethods;
@@ -42,6 +44,7 @@ Binding creation is responsible for reporting all problems with types:
 		- defining an interface as a local type (local types can only be classes)
 */
 MethodVerifier(LookupEnvironment environment) {
+	super(environment.globalOptions);
 	this.type = null;  // Initialized with the public method verify(SourceTypeBinding)
 	this.inheritedMethods = null;
 	this.currentMethods = null;
@@ -52,18 +55,6 @@ MethodVerifier(LookupEnvironment environment) {
 }
 boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
 	return isParameterSubsignature(one, two) && areReturnTypesCompatible(one, two);
-}
-boolean areParametersEqual(MethodBinding one, MethodBinding two) {
-	TypeBinding[] oneArgs = one.parameters;
-	TypeBinding[] twoArgs = two.parameters;
-	if (oneArgs == twoArgs) return true;
-
-	int length = oneArgs.length;
-	if (length != twoArgs.length) return false;
-
-	for (int i = 0; i < length; i++)
-		if (!areTypesEqual(oneArgs[i], twoArgs[i])) return false;
-	return true;
 }
 boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two) {
 	if (one.returnType == two.returnType) return true;
@@ -86,19 +77,6 @@ boolean areReturnTypesCompatible0(MethodBinding one, MethodBinding two) {
 		return two.returnType.isCompatibleWith(one.returnType); // interface methods inherit from Object
 
 	return one.returnType.isCompatibleWith(two.returnType);
-}
-boolean areTypesEqual(TypeBinding one, TypeBinding two) {
-	if (one == two) return true;
-
-	// its possible that an UnresolvedReferenceBinding can be compared to its resolved type
-	// when they're both UnresolvedReferenceBindings then they must be identical like all other types
-	// all wrappers of UnresolvedReferenceBindings are converted as soon as the type is resolved
-	// so its not possible to have 2 arrays where one is UnresolvedX[] and the other is X[]
-	if (one instanceof UnresolvedReferenceBinding)
-		return ((UnresolvedReferenceBinding) one).resolvedType == two;
-	if (two instanceof UnresolvedReferenceBinding)
-		return ((UnresolvedReferenceBinding) two).resolvedType == one;
-	return false; // all other type bindings are identical
 }
 boolean canSkipInheritedMethods() {
 	if (this.type.superclass() != null && this.type.superclass().isAbstract())

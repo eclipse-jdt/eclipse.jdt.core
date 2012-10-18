@@ -13,6 +13,7 @@
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
+ *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -971,6 +972,23 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 
 public boolean hasMemberTypes() {
     return false;
+}
+
+/**
+ * Answer whether a @NonNullByDefault is applicable at the given method binding.
+ */
+boolean hasNonNullDefault() {
+	// Note, STB overrides for correctly handling local types
+	ReferenceBinding currentType = this;
+	while (currentType != null) {
+		if ((currentType.tagBits & TagBits.AnnotationNonNullByDefault) != 0)
+			return true;
+		if ((currentType.tagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0)
+			return false;
+		currentType = currentType.enclosingType();
+	}
+	// package
+	return this.getPackage().defaultNullness == NONNULL_BY_DEFAULT;
 }
 
 public final boolean hasRestrictedAccess() {

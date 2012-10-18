@@ -149,6 +149,8 @@
  *									UninitializedLocalVariableHintMissingDefault
  *									UninitializedBlankFinalFieldHintMissingDefault
  *									ShouldReturnValueHintMissingDefault
+ *									ConflictingNullAnnotations
+ *									ConflictingInheritedNullAnnotations
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -1507,6 +1509,10 @@ void setSourceStart(int sourceStart);
 	int SpecdNonNullLocalVariableComparisonYieldsFalse = Internal + 932;
 	/** @since 3.8 */
 	int RequiredNonNullButProvidedSpecdNullable = Internal + 933;
+	/** @since 3.9 */
+	int ConflictingNullAnnotations = MethodRelated + 939;
+	/** @since 3.9 */
+	int ConflictingInheritedNullAnnotations = MethodRelated + 940;
 
 	/**
 	 * External problems -- These are problems defined by other plugins

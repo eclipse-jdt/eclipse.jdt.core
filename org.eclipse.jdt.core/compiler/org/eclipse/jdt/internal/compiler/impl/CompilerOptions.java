@@ -16,6 +16,7 @@
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *								bug 366063 - Compiler should not add synthetic @NonNull annotations
  *								bug 374605 - Unreasonable warning for enum-based switch statements
+ *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
@@ -162,6 +163,7 @@ public class CompilerOptions {
 	static final char[][] DEFAULT_NONNULL_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.NonNull".toCharArray()); //$NON-NLS-1$
 	static final char[][] DEFAULT_NONNULLBYDEFAULT_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.NonNullByDefault".toCharArray()); //$NON-NLS-1$
 	public static final String OPTION_ReportMissingNonNullByDefaultAnnotation = "org.eclipse.jdt.core.compiler.annotation.missingNonNullByDefaultAnnotation";  //$NON-NLS-1$
+	public static final String OPTION_InheritNullAnnotations = "org.eclipse.jdt.core.compiler.annotation.inheritNullAnnotations";  //$NON-NLS-1$
 	/**
 	 * Possible values for configurable options
 	 */
@@ -425,6 +427,8 @@ public class CompilerOptions {
 		String tolerateIllegalAmbiguousVarargs = System.getProperty("tolerateIllegalAmbiguousVarargsInvocation"); //$NON-NLS-1$
 		tolerateIllegalAmbiguousVarargsInvocation = tolerateIllegalAmbiguousVarargs != null && tolerateIllegalAmbiguousVarargs.equalsIgnoreCase("true"); //$NON-NLS-1$
 	}
+	/** Should null annotations of overridden methods be inherited? */
+	public boolean inheritNullAnnotations;
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
@@ -815,6 +819,7 @@ public class CompilerOptions {
 			OPTION_ReportNullUncheckedConversion,
 			OPTION_ReportRedundantNullAnnotation,
 			OPTION_ReportUnusedTypeParameter,
+			OPTION_InheritNullAnnotations
 		};
 		return result;
 	}
@@ -1112,6 +1117,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_NonNullByDefaultAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullByDefaultAnnotationName, '.')));
 		optionsMap.put(OPTION_ReportMissingNonNullByDefaultAnnotation, getSeverityString(MissingNonNullByDefaultAnnotation));
 		optionsMap.put(OPTION_ReportUnusedTypeParameter, getSeverityString(UnusedTypeParameter));
+		optionsMap.put(OPTION_InheritNullAnnotations, this.inheritNullAnnotations ? ENABLED : DISABLED);
 		return optionsMap;
 	}
 
@@ -1270,6 +1276,7 @@ public class CompilerOptions {
 		this.nonNullAnnotationName = DEFAULT_NONNULL_ANNOTATION_NAME;
 		this.nonNullByDefaultAnnotationName = DEFAULT_NONNULLBYDEFAULT_ANNOTATION_NAME;
 		this.intendedDefaultNonNullness = 0;
+		this.inheritNullAnnotations = false;
 		
 		this.analyseResourceLeaks = true;
 
@@ -1600,6 +1607,9 @@ public class CompilerOptions {
 				this.nonNullByDefaultAnnotationName = CharOperation.splitAndTrimOn('.', ((String)optionValue).toCharArray());
 			}
 			if ((optionValue = optionsMap.get(OPTION_ReportMissingNonNullByDefaultAnnotation)) != null) updateSeverity(MissingNonNullByDefaultAnnotation, optionValue);
+			if ((optionValue = optionsMap.get(OPTION_InheritNullAnnotations)) != null) {
+				this.inheritNullAnnotations = ENABLED.equals(optionValue);
+			}
 		}
 
 		// Javadoc options

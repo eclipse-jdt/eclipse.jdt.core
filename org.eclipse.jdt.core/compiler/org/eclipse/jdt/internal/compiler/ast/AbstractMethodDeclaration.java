@@ -12,6 +12,7 @@
  *								bug 367203 - [compiler][null] detect assigning null to nonnull argument
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
+ *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -84,8 +85,10 @@ public abstract class AbstractMethodDeclaration
 				argument.createBinding(this.scope, this.binding.parameters[i]);
 				// createBinding() has resolved annotations, now transfer nullness info from the argument to the method:
 				if ((argument.binding.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) != 0) {
-					if (this.binding.parameterNonNullness == null)
+					if (this.binding.parameterNonNullness == null) {
 						this.binding.parameterNonNullness = new Boolean[this.arguments.length];
+						this.binding.tagBits |= TagBits.IsNullnessKnown;
+					}
 					this.binding.parameterNonNullness[i] = Boolean.valueOf((argument.binding.tagBits & TagBits.AnnotationNonNull) != 0);
 				}
 			}
