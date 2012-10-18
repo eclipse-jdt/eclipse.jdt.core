@@ -6592,14 +6592,6 @@ private int retrieveStartingPositionAfterOpeningParenthesis(int sourceStart, int
 	}
 	return sourceStart;
 }
-public void returnTypeCannotBeVoidArray(MethodDeclaration methodDecl) {
-	this.handle(
-		IProblem.CannotAllocateVoidArray,
-		NoArgument,
-		NoArgument,
-		methodDecl.returnType.sourceStart,
-		methodDecl.returnType.sourceEnd);
-}
 public void scannerError(Parser parser, String errorTokenName) {
 	Scanner scanner = parser.scanner;
 

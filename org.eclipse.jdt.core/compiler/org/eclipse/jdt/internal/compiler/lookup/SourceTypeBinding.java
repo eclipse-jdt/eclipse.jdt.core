@@ -1592,9 +1592,6 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 			}
 			if (methodType == null) {
 				foundReturnTypeProblem = true;
-			} else if (methodType.isArrayType() && ((ArrayBinding) methodType).leafComponentType == TypeBinding.VOID) {
-				methodDecl.scope.problemReporter().returnTypeCannotBeVoidArray((MethodDeclaration) methodDecl);
-				foundReturnTypeProblem = true;
 			} else {
 				if ((methodType.tagBits & TagBits.HasMissingType) != 0) {
 					method.tagBits |= TagBits.HasMissingType;
