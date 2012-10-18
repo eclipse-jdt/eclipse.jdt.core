@@ -4157,11 +4157,11 @@ public void testBug388281_09() {
 			"public class Sub extends p1.Super implements p1.I {\n" +
 			"    @Override\n" +
 			"    public Object compatible(Object arg) {\n" +
-			"        return this;" +
+			"        return this;\n" +
 			"    }\n" +
 			"    @Override\n" +
 			"    public Object incompatible(int dummy, Object arg) {\n" +
-			"        return null;" +
+			"        return null;\n" +
 			"    }\n" +
 			"}\n"
 		}, 
@@ -4177,12 +4177,12 @@ public void testBug388281_09() {
 		"	                         ^^^^^^\n" + 
 		"Conflict between inherited null annotations \'@NonNull\' declared in I versus \'@Nullable\' declared in Super \n" + 
 		"----------\n" + 
-		"3. ERROR in p2\\Sub.java (at line 7)\n" + 
+		"3. ERROR in p2\\Sub.java (at line 8)\n" + 
 		"	public Object incompatible(int dummy, Object arg) {\n" + 
 		"	       ^^^^^^\n" + 
 		"Conflict between inherited null annotations \'@NonNull\' declared in I versus \'@Nullable\' declared in Super \n" + 
 		"----------\n" + 
-		"4. ERROR in p2\\Sub.java (at line 7)\n" + 
+		"4. ERROR in p2\\Sub.java (at line 8)\n" + 
 		"	public Object incompatible(int dummy, Object arg) {\n" + 
 		"	                                      ^^^^^^\n" + 
 		"Conflict between inherited null annotations \'@Nullable\' declared in I versus \'@NonNull\' declared in Super \n" + 
