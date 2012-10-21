@@ -1,15 +1,21 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
 package org.eclipse.jdt.core.dom;
+
+import java.util.List;
 
 /**
  * Abstract base class of all type AST node types. A type node represents a
@@ -18,6 +24,9 @@ package org.eclipse.jdt.core.dom;
  * parameterized type, or to a wildcard type. Note that not all of these
  * are meaningful in all contexts; for example, a wildcard type is only
  * meaningful in the type argument position of a parameterized type.
+ * UnionType got introduced in JLS4 to support common catch blocks for disjunctive types.
+ * For JLS8, optional annotations indicated by {Annotation} got added and
+ * these are absent in JLS2, JLS3 and JLS4.
  * <p>
  * <pre>
  * Type:
@@ -27,26 +36,28 @@ package org.eclipse.jdt.core.dom;
  *    QualifiedType
  *    ParameterizedType
  *    WildcardType
+ *    UnionType  
+ *    
  * PrimitiveType:
- *    <b>byte</b>
- *    <b>short</b>
- *    <b>char</b>
- *    <b>int</b>
- *    <b>long</b>
- *    <b>float</b>
- *    <b>double</b>
- *    <b>boolean</b>
- *    <b>void</b>
+ *    <b>{Annotation} byte</b>
+ *    <b>{Annotation} short</b>
+ *    <b>{Annotation} char</b>
+ *    <b>{Annotation} int</b>
+ *    <b>{Annotation} long</b>
+ *    <b>{Annotation} float</b>
+ *    <b>{Annotation} double</b>
+ *    <b>{Annotation} boolean</b>
+ *    <b>{Annotation} void</b>
  * ArrayType:
- *    Type <b>[</b> <b>]</b>
+ *    Type <b>{Annotation} [</b> <b>]</b>
  * SimpleType:
- *    TypeName
+ *    {Annotation} TypeName
  * ParameterizedType:
  *    Type <b>&lt;</b> Type { <b>,</b> Type } <b>&gt;</b>
  * QualifiedType:
- *    Type <b>.</b> SimpleName
+ *    Type <b>.</b>{Annotation} SimpleName
  * WildcardType:
- *    <b>?</b> [ ( <b>extends</b> | <b>super</b>) Type ]
+ *    <b>{Annotation} ?</b> [ ( <b>extends</b> | <b>super</b>) Type ]
  * </pre>
  * </p>
  *
@@ -54,6 +65,12 @@ package org.eclipse.jdt.core.dom;
  */
 public abstract class Type extends ASTNode {
 
+	/**
+	 * The type annotations (element type: {@link Annotation}).
+	 * @since 3.9
+	 */
+	protected ASTNode.NodeList annotations = null;
+	
 	/**
 	 * Creates a new AST node for a type owned by the given AST.
 	 * <p>
@@ -179,5 +196,20 @@ public abstract class Type extends ASTNode {
 	 */
 	public final ITypeBinding resolveBinding() {
 		return this.ast.getBindingResolver().resolveType(this);
+	}
+	
+	/**
+	 * Returns the live ordered list of annotations for this Type node.
+	 *
+	 * @return the live list of annotations (element type: {@link Annotation})
+	 * @exception UnsupportedOperationException if this operation is used
+	 *            in a JLS2, JLS3 or JLS4 AST
+	 * @since 3.9
+	 */
+	public List annotations() {
+		if (this.annotations == null) {
+			unsupportedIn2_3_4(); 
+		}
+		return this.annotations;
 	}
 }

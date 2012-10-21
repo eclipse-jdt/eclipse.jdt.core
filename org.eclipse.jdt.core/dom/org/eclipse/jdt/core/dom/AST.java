@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -163,6 +167,22 @@ public final class AST {
 	 * @since 3.7.1
 	 */
 	public static final int JLS4 = 4;
+	
+	/**
+	 * Constant for indicating the AST API that handles JLS8.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 8 Edition (JLS8) as specified by JSR337.
+	 * JLS8 is a superset of all earlier versions of the
+	 * Java language, and the JLS8 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 8 (aka JDK 1.8).
+	 * </p>
+	 *
+	 * @since 3.9
+	 */
+	public static final int JLS8 = 8;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
@@ -677,6 +697,19 @@ public final class AST {
 						null/*taskPriorities*/,
 						true/*taskCaseSensitive*/);
 				break;
+			case JLS8 :
+				this.apiLevel = level;
+				// initialize a scanner
+				this.scanner = new Scanner(
+						true /*comment*/,
+						true /*whitespace*/,
+						false /*nls*/,
+						ClassFileConstants.JDK1_8 /*sourceLevel*/,
+						ClassFileConstants.JDK1_8 /*complianceLevel*/,
+						null/*taskTag*/,
+						null/*taskPriorities*/,
+						true/*taskCaseSensitive*/);
+				break;	
 			default:
 				throw new IllegalArgumentException("Unsupported JLS level"); //$NON-NLS-1$
 		}

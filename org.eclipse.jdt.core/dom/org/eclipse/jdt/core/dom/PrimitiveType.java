@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -17,18 +21,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Primitive type nodes.
+ * Primitive type nodes. For JLS8 optional annotations indicated by {Annotation}
+ * were added and are not present in ASTs of JLS2, JLS3 and JLS4 vintages.
  * <pre>
  * PrimitiveType:
- *    <b>byte</b>
- *    <b>short</b>
- *    <b>char</b>
- *    <b>int</b>
- *    <b>long</b>
- *    <b>float</b>
- *    <b>double</b>
- *    <b>boolean</b>
- *    <b>void</b>
+ *    <b>{Annotation} byte</b>
+ *    <b>{Annotation} short</b>
+ *    <b>{Annotation} char</b>
+ *    <b>{Annotation} int</b>
+ *    <b>{Annotation} long</b>
+ *    <b>{Annotation} float</b>
+ *    <b>{Annotation} double</b>
+ *    <b>{Annotation} boolean</b>
+ *    <b>{Annotation} void</b>
  * </pre>
  * <p>
  * Note that due to the fact that AST nodes belong to a specific AST and
@@ -160,6 +165,13 @@ public class PrimitiveType extends Type {
 	 */
 	public static final SimplePropertyDescriptor PRIMITIVE_TYPE_CODE_PROPERTY =
 		new SimplePropertyDescriptor(PrimitiveType.class, "primitiveTypeCode", PrimitiveType.Code.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "annotations" structural property of this node type (child type: {@link Annotation}).
+	 * @since 3.9
+	 */
+	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
+		new ChildListPropertyDescriptor(PrimitiveType.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -167,12 +179,24 @@ public class PrimitiveType extends Type {
 	 * or null if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
-
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.9
+	 */
+	private static final List PROPERTY_DESCRIPTORS_8_0;
 	static {
 		List propertyList = new ArrayList(2);
 		createPropertyList(PrimitiveType.class, propertyList);
 		addProperty(PRIMITIVE_TYPE_CODE_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+		
+		propertyList = new ArrayList(3);
+		createPropertyList(PrimitiveType.class, propertyList);
+		addProperty(PRIMITIVE_TYPE_CODE_PROPERTY, propertyList);
+		addProperty(ANNOTATIONS_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
 	}
 
 	/**
@@ -187,7 +211,14 @@ public class PrimitiveType extends Type {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		return PROPERTY_DESCRIPTORS;
+		switch (apiLevel) {
+			case AST.JLS2_INTERNAL :
+			case AST.JLS3_INTERNAL :
+			case AST.JLS4:
+				return PROPERTY_DESCRIPTORS;
+			default :
+				return PROPERTY_DESCRIPTORS_8_0;
+		}
 	}
 
 	/**
@@ -201,6 +232,9 @@ public class PrimitiveType extends Type {
 	 */
 	PrimitiveType(AST ast) {
 		super(ast);
+		if (ast.apiLevel >= AST.JLS8) {
+			this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
+		}
 	}
 
 	/* (omit javadoc for this method)
@@ -210,6 +244,16 @@ public class PrimitiveType extends Type {
 		return propertyDescriptors(apiLevel);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == ANNOTATIONS_PROPERTY) {
+			return annotations();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -240,6 +284,11 @@ public class PrimitiveType extends Type {
 		PrimitiveType result = new PrimitiveType(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setPrimitiveTypeCode(getPrimitiveTypeCode());
+		if (this.ast.apiLevel >= AST.JLS8) {
+			result.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
+			result.annotations.addAll(
+					ASTNode.copySubtrees(target, annotations()));
+		}
 		return result;
 	}
 
@@ -255,7 +304,12 @@ public class PrimitiveType extends Type {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		visitor.visit(this);
+		boolean visitChildren = visitor.visit(this);
+		if (visitChildren) {
+			if (this.ast.apiLevel >= AST.JLS8) {
+				acceptChildren(visitor, this.annotations);
+			}
+		}
 		visitor.endVisit(this);
 	}
 
@@ -290,13 +344,13 @@ public class PrimitiveType extends Type {
 	 */
 	int memSize() {
 		// treat Code as free
-		return BASE_NODE_SIZE + 1 * 4;
+		return BASE_NODE_SIZE + 2 * 4;
 	}
 
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return memSize();
+		return memSize() + (this.annotations == null ? 0 : this.annotations.listSize());
 	}
 }

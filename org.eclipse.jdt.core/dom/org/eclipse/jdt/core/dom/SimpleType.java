@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -21,6 +25,8 @@ import java.util.List;
  * (<code>Type</code>) by wrapping it.
  * </p>
  *
+ * In JLS8, the SimpleType may have optional annotations.
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -32,6 +38,13 @@ public class SimpleType extends Type {
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		new ChildPropertyDescriptor(SimpleType.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "annotations" structural property of this node type (child type: {@link Annotation}).
+	 * @since 3.9
+	 */
+	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
+		new ChildListPropertyDescriptor(SimpleType.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -39,12 +52,25 @@ public class SimpleType extends Type {
 	 * or null if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.9
+	 */
+	private static final List PROPERTY_DESCRIPTORS_8_0;
 
 	static {
 		List propertyList = new ArrayList(2);
 		createPropertyList(SimpleType.class, propertyList);
 		addProperty(NAME_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+		
+		propertyList = new ArrayList(3);
+		createPropertyList(SimpleType.class, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
+		addProperty(ANNOTATIONS_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
 	}
 
 	/**
@@ -58,7 +84,14 @@ public class SimpleType extends Type {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		return PROPERTY_DESCRIPTORS;
+		switch (apiLevel) {
+			case AST.JLS2_INTERNAL :
+			case AST.JLS3_INTERNAL :
+			case AST.JLS4:
+				return PROPERTY_DESCRIPTORS;
+			default :
+				return PROPERTY_DESCRIPTORS_8_0;
+		}
 	}
 
 	/**
@@ -78,6 +111,9 @@ public class SimpleType extends Type {
 	 */
 	SimpleType(AST ast) {
 		super(ast);
+		if (ast.apiLevel >= AST.JLS8) {
+			this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
+		}
 	}
 
 	/* (omit javadoc for this method)
@@ -87,6 +123,17 @@ public class SimpleType extends Type {
 		return propertyDescriptors(apiLevel);
 	}
 
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == ANNOTATIONS_PROPERTY) {
+			return annotations();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
@@ -117,6 +164,11 @@ public class SimpleType extends Type {
 		SimpleType result = new SimpleType(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setName((Name) (getName()).clone(target));
+		if (this.ast.apiLevel >= AST.JLS8) {
+			result.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
+			result.annotations.addAll(
+					ASTNode.copySubtrees(target, annotations()));
+		}
 		return result;
 	}
 
@@ -134,6 +186,9 @@ public class SimpleType extends Type {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
+			if (this.ast.apiLevel >= AST.JLS8) {
+				acceptChildren(visitor, this.annotations);
+			}
 			acceptChild(visitor, getName());
 		}
 		visitor.endVisit(this);
@@ -183,7 +238,7 @@ public class SimpleType extends Type {
 	 */
 	int memSize() {
 		// treat Code as free
-		return BASE_NODE_SIZE + 1 * 4;
+		return BASE_NODE_SIZE + 2 * 4;
 	}
 
 	/* (omit javadoc for this method)
@@ -192,6 +247,7 @@ public class SimpleType extends Type {
 	int treeSize() {
 		return
 			memSize()
+			+ (this.annotations == null ? 0 : this.annotations.listSize())
 			+ (this.typeName == null ? 0 : getName().treeSize());
 	}
 }

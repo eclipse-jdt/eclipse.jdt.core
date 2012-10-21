@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -221,6 +225,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(ArrayType node) {
 		getChildNode(node, ArrayType.COMPONENT_TYPE_PROPERTY).accept(this);
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			visitList(node, ArrayType.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		}
 		this.result.append("[]"); //$NON-NLS-1$
 		return false;
 	}
@@ -714,6 +721,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(PrimitiveType)
 	 */
 	public boolean visit(PrimitiveType node) {
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			visitList(node, PrimitiveType.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		}
 		this.result.append(getAttribute(node, PrimitiveType.PRIMITIVE_TYPE_CODE_PROPERTY).toString());
 		return false;
 	}
@@ -724,6 +734,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	public boolean visit(QualifiedName node) {
 		getChildNode(node, QualifiedName.QUALIFIER_PROPERTY).accept(this);
 		this.result.append('.');
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			visitList(node, QualifiedName.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		}
 		getChildNode(node, QualifiedName.NAME_PROPERTY).accept(this);
 		return false;
 	}
@@ -746,6 +759,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(SimpleName)
 	 */
 	public boolean visit(SimpleName node) {
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			visitList(node, SimpleName.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		}
 		this.result.append(getAttribute(node, SimpleName.IDENTIFIER_PROPERTY));
 		return false;
 	}
@@ -754,7 +770,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(SimpleType)
 	 */
 	public boolean visit(SimpleType node) {
-		return true;
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			visitList(node, SimpleType.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		}
+		node.getName().accept(this);
+		return false;
 	}
 
 	/*
@@ -1301,6 +1321,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	public boolean visit(QualifiedType node) {
 		getChildNode(node, QualifiedType.QUALIFIER_PROPERTY).accept(this);
 		this.result.append('.');
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			visitList(node, QualifiedType.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		}
 		getChildNode(node, QualifiedType.NAME_PROPERTY).accept(this);
 		return false;
 	}
@@ -1321,6 +1344,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.TypeParameter)
 	 */
 	public boolean visit(TypeParameter node) {
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			visitList(node, TypeParameter.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		}
 		getChildNode(node, TypeParameter.NAME_PROPERTY).accept(this);
 		visitList(node, TypeParameter.TYPE_BOUNDS_PROPERTY, " & ", " extends ", Util.EMPTY_STRING); //$NON-NLS-1$ //$NON-NLS-2$
 		return false;
@@ -1330,6 +1356,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.WildcardType)
 	 */
 	public boolean visit(WildcardType node) {
+		if (node.getAST().apiLevel() >= AST.JLS8) {
+			visitList(node, WildcardType.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		}
 		this.result.append('?');
 		ASTNode bound = getChildNode(node, WildcardType.BOUND_PROPERTY);
 		if (bound != null) {

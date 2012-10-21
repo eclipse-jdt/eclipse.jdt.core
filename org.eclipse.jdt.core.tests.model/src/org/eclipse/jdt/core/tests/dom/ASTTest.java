@@ -745,6 +745,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS2));
 				suite.addTest(new ASTTest(methods[i].getName(), JLS3_INTERNAL));
 				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS4));
+			//	suite.addTest(new ASTTest(methods[i].getName(), AST.JLS8));
 			}
 		}
 		return suite;

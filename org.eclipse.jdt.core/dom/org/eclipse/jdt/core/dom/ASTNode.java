@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1802,6 +1806,22 @@ public abstract class ASTNode {
 	final void unsupportedIn2_3() {
 		if (this.ast.apiLevel <= AST.JLS3_INTERNAL) {
 			throw new UnsupportedOperationException("Operation only supported in JLS4 AST"); //$NON-NLS-1$
+		}
+	}
+	
+	/**
+     * Checks that this AST operation is not used when
+     * building JLS2 or JLS3 or JLS4 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties that have been added in JLS8.
+     * </p>
+     * 
+	 * @exception UnsupportedOperationException
+	 * @since 3.9
+	 */
+	final void unsupportedIn2_3_4() {
+		if (this.ast.apiLevel < AST.JLS8) {
+			throw new UnsupportedOperationException("Operation only supported in JLS8 AST"); //$NON-NLS-1$
 		}
 	}
 	
