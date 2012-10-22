@@ -16,6 +16,8 @@ package org.eclipse.jdt.core.tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -29,6 +31,11 @@ import org.eclipse.jdt.core.tests.compiler.regression.DefaultMethodsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.GrammarCoverageTests308;
 import org.eclipse.jdt.core.tests.compiler.regression.NegativeLambdaExpressionsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NegativeTypeAnnotationTest;
+import org.eclipse.jdt.core.tests.dom.ASTConverter15JLS8Test;
+import org.eclipse.jdt.core.tests.dom.ASTConverterAST8Test;
+import org.eclipse.jdt.core.tests.dom.ASTConverterBugsTestJLS8;
+import org.eclipse.jdt.core.tests.dom.ASTConverterTestAST8_2;
+import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.dom.TypeAnnotationsConverterTest;
 
 public class RunAllJava8Tests extends TestCase {
@@ -45,21 +52,38 @@ public class RunAllJava8Tests extends TestCase {
 			ReferenceExpressionSyntaxTest.class,
 			DefaultMethodsTest.class,
 			ComplianceDiagnoseTest.class,
-			GrammarCoverageTests308.class,
-			TypeAnnotationsConverterTest.class,
+			GrammarCoverageTests308.class
+		};
+	}
+	
+	public static Class[] getConverterTestClasses() {
+		return new Class[] {
+				TypeAnnotationsConverterTest.class,
+				ASTConverterTestAST8_2.class,
+				ASTConverterAST8Test.class,
+				ASTConverterBugsTestJLS8.class,
+				ASTConverter15JLS8Test.class,
 		};
 	}
 	public static Test suite() {
 		TestSuite ts = new TestSuite(RunAllJava8Tests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
+		addTestsToSuite(ts, testClasses);
+		testClasses = getConverterTestClasses();
+		ConverterTestSetup.TEST_SUITES = new ArrayList(Arrays.asList(testClasses));
+		addTestsToSuite(ts, testClasses);
+		return ts;
+	}
+	public static void addTestsToSuite(TestSuite suite, Class[] testClasses) {
+
 		for (int i = 0; i < testClasses.length; i++) {
 			Class testClass = testClasses[i];
 			// call the suite() method and add the resulting suite to the suite
 			try {
 				Method suiteMethod = testClass.getDeclaredMethod("suite", new Class[0]); //$NON-NLS-1$
-				Test suite = (Test)suiteMethod.invoke(null, new Object[0]);
-				ts.addTest(suite);
+				Test test = (Test)suiteMethod.invoke(null, new Object[0]);
+				suite.addTest(test);
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
 			} catch (InvocationTargetException e) {
@@ -68,6 +92,9 @@ public class RunAllJava8Tests extends TestCase {
 				e.printStackTrace();
 			}
 		}
-		return ts;
+	}
+	protected void tearDown() throws Exception {
+		ConverterTestSetup.PROJECT_SETUP = false;
+		super.tearDown();
 	}
 }

@@ -37,8 +37,8 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
 	protected AST ast;
-	static List TEST_SUITES = null;
-	static boolean PROJECT_SETUP = false;
+	public static List TEST_SUITES = null;
+	public static boolean PROJECT_SETUP = false;
 
 	protected ConverterTestSetup(String name) {
 		super(name);
