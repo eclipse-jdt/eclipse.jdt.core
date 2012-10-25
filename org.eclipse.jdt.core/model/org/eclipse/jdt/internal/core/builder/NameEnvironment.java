@@ -10,6 +10,8 @@
  *     Terry Parker <tparker@google.com> 
  *           - Contribution for https://bugs.eclipse.org/bugs/show_bug.cgi?id=372418
  *           -  Another problem with inner classes referenced from jars or class folders: "The type ... cannot be resolved"
+ *     Stephan Herrmann - Contribution for
+ *								Bug 392727 - Cannot compile project when a java file contains $ in its file name
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
@@ -277,16 +279,17 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		// Only enclosing type names are present in the additional units table, so strip off inner class specifications
 		// when doing the lookup (https://bugs.eclipse.org/372418). 
 		// Also take care of $ in the name of the class (https://bugs.eclipse.org/377401)
-		int index = qualifiedTypeName.indexOf('$');
-		if (index > 0) {
-			String enclosingTypeName = qualifiedTypeName.substring(0, index);
-			SourceFile unit = (SourceFile) this.additionalUnits.get(enclosingTypeName); // doesn't have file extension
-			if (unit != null)
-				return new NameEnvironmentAnswer(unit, null /*no access restriction*/);
-		}
+		// and prefer name with '$' if unit exists rather than failing to search for nested class (https://bugs.eclipse.org/392727)
 		SourceFile unit = (SourceFile) this.additionalUnits.get(qualifiedTypeName); // doesn't have file extension
 		if (unit != null)
 			return new NameEnvironmentAnswer(unit, null /*no access restriction*/);
+		int index = qualifiedTypeName.indexOf('$');
+		if (index > 0) {
+			String enclosingTypeName = qualifiedTypeName.substring(0, index);
+			unit = (SourceFile) this.additionalUnits.get(enclosingTypeName); // doesn't have file extension
+			if (unit != null)
+				return new NameEnvironmentAnswer(unit, null /*no access restriction*/);
+		}
 	}
 
 	String qBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;

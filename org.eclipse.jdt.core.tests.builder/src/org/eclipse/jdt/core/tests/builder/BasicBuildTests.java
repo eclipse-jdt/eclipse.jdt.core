@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 392727 - Cannot compile project when a java file contains $ in its file name
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
@@ -31,6 +33,9 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 public class BasicBuildTests extends BuilderTests {
 	public BasicBuildTests(String name) {
 		super(name);
+	}
+	static {
+//		TESTS_NAMES = new String[] { "testBug392727" };
 	}
 
 	public static Test suite() {
@@ -514,4 +519,54 @@ public class BasicBuildTests extends BuilderTests {
 		JavaCore.setOptions(options);
 	}
 
+	// Bug 392727 - Cannot compile project when a java file contains $ in its file name
+	public void testBug392727() throws JavaModelException {
+		int save = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
+		try {
+			IPath projectPath = env.addProject("Project");
+			env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	
+			// remove old package fragment root so that names don't collide
+			env.removePackageFragmentRoot(projectPath, "");
+	
+			IPath root = env.addPackageFragmentRoot(projectPath, "src");
+			env.setOutputFolder(projectPath, "bin");
+	
+			// this class is the primary unit during build (see comment below)
+			env.addClass(root, "pack",
+				"Zork",
+				"package pack;\npublic class Zork { Main main; }\n" // pull in Main first
+			);
+			
+			env.addClass(root, "pack", "Main",
+				"package pack;\n" +
+				"public class Main {\n" +
+				"	Main$Sub sub;\n" + // indirectly pull in Main$Sub
+				"}\n"
+			);
+	
+			env.addClass(root, "pack", "Main$Sub",
+				"package pack;\n" +
+				"public class Main$Sub { }\n"
+			);
+	
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 1;
+	
+			// Assumption regarding the order of compilation units:
+			// - org.eclipse.core.internal.dtree.AbstractDataTreeNode.assembleWith(AbstractDataTreeNode[], AbstractDataTreeNode[], boolean)
+			//   assembles children array in lexical order, so "Zork.java" is last
+			// - org.eclipse.core.internal.watson.ElementTreeIterator.doIteration(DataTreeNode, IElementContentVisitor)
+			//   iterates children last-to-first so "Zork.java" becomes first in sourceFiles of
+			//   org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.addAllSourceFiles(ArrayList)
+			// - org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.compile(SourceFile[])
+			//   puts only "Zork.java" into 'toCompile' (due to MAX_AT_ONCE=1) and the others into 'remainingUnits'
+			// This ensures that NameEnvironment is setup with "Main.java" and "Main$Sub.java" both served from 'additionalUnits'
+			// which is essential for reproducing the bug.
+	
+			fullBuild(projectPath);
+			expectingNoProblems();
+		} finally {
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = save;
+		}
+	}
 }
