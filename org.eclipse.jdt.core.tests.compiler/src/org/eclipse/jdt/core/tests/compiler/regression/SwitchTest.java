@@ -2621,6 +2621,34 @@ public void test387146b() {
 	true,
 	options);
 }
+//JDK7: Strings in Switch.
+public void test393537() {
+	String errorMsg = 		
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	switch (\"\") {\n" + 
+			"	        ^^\n" + 
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+			"----------\n";
+	
+	String [] sourceFiles = 
+		new String[] {
+		"X.java",
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		switch (\"\") {\n" + 
+		"			case \"\":\n" + 
+		"			default:\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}",
+	};
+	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
+		this.runNegativeTest(sourceFiles, errorMsg);
+	} else {
+		this.runConformTest(sourceFiles, "");
+	}
+}
 public static Class testClass() {
 	return SwitchTest.class;
 }
