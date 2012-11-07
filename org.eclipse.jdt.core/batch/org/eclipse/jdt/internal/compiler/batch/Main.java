@@ -3852,7 +3852,7 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				setSeverity(CompilerOptions.OPTION_ReportUnusedLabel, severity, isEnabling);
 				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, severity, isEnabling);
 				setSeverity(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, severity, isEnabling);
-				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeParameter, severity,isEnabling); //TODO - Enable this when tests are modified at ui addition.
+				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeParameter, severity,isEnabling);
 				return;
 			} else if (token.equals("unusedParam")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUnusedParameter, severity, isEnabling);
