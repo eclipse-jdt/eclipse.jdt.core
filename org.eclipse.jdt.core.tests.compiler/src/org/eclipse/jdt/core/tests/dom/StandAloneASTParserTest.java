@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -343,6 +344,66 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			assertEquals("Wrong type of binding", IBinding.TYPE, bindings[1].getKind());
 			typeBinding = (ITypeBinding) bindings[1];
 			assertEquals("Wrong binding", "java.lang.Object", typeBinding.getQualifiedName());
+		} finally {
+			file.delete();
+			fileY.delete();
+		}
+	}
+
+	public void test7() throws IOException {
+		File rootDir = new File(System.getProperty("java.io.tmpdir"));
+
+		String contents =
+			"enum X {\n" + 
+			"              /** */\n" + 
+			"    FOO\n" + 
+			"}";
+		
+		File file = new File(rootDir, "X.java");
+		Writer writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(file));
+			writer.write(contents);
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch(IOException e) {
+					// ignore
+				}
+			}
+		}
+
+		String contents2 =
+			"package p;\n" + 
+			"class Y {}";
+		File packageDir = new File(rootDir, "p");
+		packageDir.mkdir();
+		File fileY = new File(packageDir, "Y.java");
+		Writer writer2 = null;
+		try {
+			writer2 = new BufferedWriter(new FileWriter(fileY));
+			writer2.write(contents2);
+		} finally {
+			if (writer2 != null) {
+				try {
+					writer2.close();
+				} catch(IOException e) {
+					// ignore
+				}
+			}
+		}
+
+		try {
+			ASTParser parser = ASTParser.newParser(AST.JLS4);
+			parser.setKind(ASTParser.K_COMPILATION_UNIT);
+			parser.setCompilerOptions(JavaCore.getOptions());
+			parser.createASTs(
+					new String[] { file.getCanonicalPath(), fileY.getCanonicalPath() },
+					null,
+					new String[] {},
+					new FileASTRequestor() {},
+					null);
 		} finally {
 			file.delete();
 			fileY.delete();
