@@ -8095,4 +8095,54 @@ public void test379530() {
 		null
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=393781
+public void test393781() {
+	Map compilerOptions = getCompilerOptions(); // OPTION_ReportRawTypeReference
+	Object oldOption = compilerOptions.get(CompilerOptions.OPTION_ReportRawTypeReference);
+	compilerOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	try {
+		this.runNegativeTest(
+				new String[] {
+						"p/X.java", 
+						"public class X {\n" +
+						"   public void foo(Map map, String str) {}\n" +
+						"	public void foo1() {}\n" +
+						"	public void bar(java.util.Map map) {\n" +
+						"		foo(map, \"\");\n" +
+						"		foo(map);\n" +
+						"		foo();\n" +
+						"		foo1(map, \"\");\n" +
+						"	}\n" +
+						"}\n" +
+						"class Map {}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in p\\X.java (at line 5)\n" + 
+				"	foo(map, \"\");\n" + 
+				"	^^^\n" + 
+				"The method foo(Map, java.lang.String) in the type X is not applicable for the arguments (java.util.Map, java.lang.String)\n" + 
+				"----------\n" + 
+				"2. ERROR in p\\X.java (at line 6)\n" + 
+				"	foo(map);\n" + 
+				"	^^^\n" + 
+				"The method foo(Map, String) in the type X is not applicable for the arguments (Map)\n" + 
+				"----------\n" + 
+				"3. ERROR in p\\X.java (at line 7)\n" + 
+				"	foo();\n" + 
+				"	^^^\n" + 
+				"The method foo(Map, String) in the type X is not applicable for the arguments ()\n" + 
+				"----------\n" + 
+				"4. ERROR in p\\X.java (at line 8)\n" + 
+				"	foo1(map, \"\");\n" + 
+				"	^^^^\n" + 
+				"The method foo1() in the type X is not applicable for the arguments (Map, String)\n" + 
+				"----------\n",
+				null,
+				true,
+				compilerOptions /* default options */
+			);
+	} finally {
+		compilerOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, oldOption);
+	}
+}
 }
