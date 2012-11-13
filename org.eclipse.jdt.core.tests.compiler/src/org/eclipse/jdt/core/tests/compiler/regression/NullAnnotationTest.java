@@ -4189,4 +4189,35 @@ public void testBug388281_09() {
 		"----------\n");
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
+// respect inherited @NonNull also inside the method body, see comment 28
+public void testBug388281_10() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"p1/Super.java",
+			"package p1;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Super {\n" +
+			"    public void m(@NonNull Object arg) {}\n" +
+			"}\n",
+			"p2/Sub.java",
+			"package p2;\n" +
+			"public class Sub extends p1.Super  {\n" +
+			"    @Override\n" +
+			"    public void m(Object arg) {\n" +
+			"        arg = null;\n" +
+			"    }\n" +
+			"}\n"
+		}, 
+		options,
+		"----------\n" + 
+		"1. ERROR in p2\\Sub.java (at line 5)\n" + 
+		"	arg = null;\n" + 
+		"	      ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n"); 
+	}
+
 }

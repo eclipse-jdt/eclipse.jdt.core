@@ -110,9 +110,8 @@ public class ImplicitNullAnnotationVerifier {
 				for (int i=0; i<paramLen; i++) {
 					info = inheritedNonNullnessInfos[i+1];
 					if (!info.complained && info.inheritedNonNullness != null) {
-						if (currentMethod.parameterNonNullness == null)
-							currentMethod.parameterNonNullness = new Boolean[paramLen];
-						currentMethod.parameterNonNullness[i] = info.inheritedNonNullness;
+						Argument currentArg = srcMethod == null ? null : srcMethod.arguments[i];
+						recordArgNonNullness(currentMethod, paramLen, i, currentArg, info.inheritedNonNullness);
 					}
 				}
 
@@ -289,17 +288,14 @@ public class ImplicitNullAnnotationVerifier {
 									inheritedMethod, inheritedNonNullNess, inheritedNonNullnessInfos[i+1]);
 						} else {
 							// no need to defer, record this info now:
-							if (currentMethod.parameterNonNullness == null)
-								currentMethod.parameterNonNullness = new Boolean[length];
-							currentMethod.parameterNonNullness[i] = inheritedNonNullNess;
+							recordArgNonNullness(currentMethod, length, i, currentArgument, inheritedNonNullNess);
 						}
 						continue; // compatible by construction, skip complain phase below
 					}
 				}
 				if (hasNonNullDefault) { // conflict with inheritance already checked
-					if (currentMethod.parameterNonNullness == null)
-						currentMethod.parameterNonNullness = new Boolean[length];
-					currentMethod.parameterNonNullness[i] = (currentNonNullNess = Boolean.TRUE);
+					currentNonNullNess = Boolean.TRUE;
+					recordArgNonNullness(currentMethod, length, i, currentArgument, Boolean.TRUE);
 				}
 			}
 			if (shouldComplain) {
@@ -340,6 +336,7 @@ public class ImplicitNullAnnotationVerifier {
 			}
 		}
 	}
+
 	/* check for conflicting annotations and record here the info 'inheritedNonNullness' found in 'inheritedMethod'. */
 	protected void recordDeferredInheritedNullness(Scope scope, ASTNode location,
 			MethodBinding inheritedMethod, Boolean inheritedNonNullness, 
@@ -356,7 +353,18 @@ public class ImplicitNullAnnotationVerifier {
 			nullnessInfo.annotationOrigin = inheritedMethod;
 		}
 	}
-	
+
+	/* record declared nullness of a parameter into the method and into the argument (if present). */
+	void recordArgNonNullness(MethodBinding method, int paramCount, int paramIdx, Argument currentArgument, Boolean nonNullNess) {
+		if (method.parameterNonNullness == null)
+			method.parameterNonNullness = new Boolean[paramCount];
+		method.parameterNonNullness[paramIdx] = nonNullNess;
+		if (currentArgument != null) {
+			currentArgument.binding.tagBits |= nonNullNess.booleanValue() ?
+					TagBits.AnnotationNonNull : TagBits.AnnotationNullable;
+		}
+	}
+
 	// ==== minimal set of utility methods previously from MethodVerifier15: ====
 	
 	boolean areParametersEqual(MethodBinding one, MethodBinding two) {
