@@ -83,7 +83,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 			"}\n";
 
 	static {
-//		TESTS_NAMES = new String[] { "testBug375366" };
+//		TESTS_NAMES = new String[] { "test320_warn_options" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -1732,7 +1732,8 @@ public void test012b(){
         "                           maskedCatchBlock\n" + 
         "      includeAssertNull    raise null warnings for variables\n" + 
         "                           that got tainted in an assert expression\n" + 
-        "      indirectStatic       indirect reference to static member\n" + 
+        "      indirectStatic       indirect reference to static member\n" +
+        "      inheritNullAnnot     inherit null annotations\n" + 
         "      intfAnnotation     + annotation type used as super interface\n" + 
         "      intfNonInherited   + interface non-inherited method compatibility\n" + 
         "      intfRedundant        find redundant superinterfaces\n" + 
@@ -12913,6 +12914,47 @@ public void test319_warn_options() {
 		"The switch over the enum type Color should have a default case\n" +
 		"----------\n" +
 		"1 problem (1 warning)",
+		true);
+}
+
+// Bug 388281 - [compiler][null] inheritance of null annotations as an option
+// -warn option - regression tests to check option inheritNullAnnot
+public void test320_warn_options() {
+	this.runNegativeTest(
+		new String[] {
+				"p/Super.java",
+				"package p;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class Super {\n" +
+				"    void foo(@NonNull String s) {}\n" +
+				"}\n",
+				"p/Sub.java",
+				"package p;\n" +
+				"public class Sub extends Super {\n" +
+				"    void foo(String s) {\n" +
+				"        s= null;\n" + // illegal since s inherits @NonNull
+				"        super.foo(s);\n" + // legal
+				"    }\n" +
+				"}\n",
+				"org/eclipse/jdt/annotation/NonNull.java",
+				NONNULL_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/Nullable.java",
+				NULLABLE_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/NonNullByDefault.java",				
+				NONNULL_BY_DEFAULT_ANNOTATION_CONTENT
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "Sub.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -err:+nullAnnot,+null,+inheritNullAnnot -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" + 
+		"1. ERROR in " + OUTPUT_DIR +  File.separator + "p" + File.separator + "Sub.java (at line 4)\n" + 
+		"	s= null;\n" + 
+		"	   ^^^^\n" + 
+		"Null type mismatch: required '@NonNull String' but the provided value is null\n" + 
+		"----------\n" + 
+		"1 problem (1 error)", 
 		true);
 }
 
