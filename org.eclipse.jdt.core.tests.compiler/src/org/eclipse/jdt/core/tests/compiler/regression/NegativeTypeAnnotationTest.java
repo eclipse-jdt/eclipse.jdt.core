@@ -3072,4 +3072,48 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"    )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=394355
+	public void testBug394355() {
+		this.runNegativeTest(
+			new String[]{
+				"X.java",
+				"import java.lang.annotation.Target;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"public class X {\n" +
+				"	public void foo(@Marker @Marker2 X this) {}\n" +
+				"	class Y {\n" +
+				"		Y(@Marker @Marker2 X X.this) {}\n" +
+				"	}\n" +
+				"}\n" +
+				"@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+				"@interface Marker {}\n" +
+				"@Target ({METHOD, PARAMETER, TYPE, PACKAGE, FIELD, CONSTRUCTOR, LOCAL_VARIABLE, TYPE_PARAMETER})\n" +
+				"@interface Marker2 {}",
+				"java/lang/annotation/ElementType.java",
+				"package java.lang.annotation;\n" +
+				"public enum ElementType {\n" +
+				"    TYPE,\n" +
+				"    FIELD,\n" +
+				"    METHOD,\n" +
+				"    PARAMETER,\n" +
+				"    CONSTRUCTOR,\n" +
+				"    LOCAL_VARIABLE,\n" +
+				"    ANNOTATION_TYPE,\n" +
+				"    PACKAGE,\n" +
+				"    TYPE_PARAMETER,\n" +
+				"    TYPE_USE\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	public void foo(@Marker @Marker2 X this) {}\n" + 
+			"	                        ^^^^^^^^\n" + 
+			"The annotation @Marker2 is disallowed for this location\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	Y(@Marker @Marker2 X X.this) {}\n" + 
+			"	          ^^^^^^^^\n" + 
+			"The annotation @Marker2 is disallowed for this location\n" + 
+			"----------\n"); 
+	}
 }
