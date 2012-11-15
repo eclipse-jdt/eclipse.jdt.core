@@ -28,7 +28,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "testBug388630" };
+//		TESTS_NAMES = new String[] { "testBug388281_09" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -3655,4 +3655,538 @@ public void testBug388630_2() {
 		"Potential null pointer access: The variable a may be null at this location\n" + 
 		"----------\n");
 }
+
+/* Content of Test388281.jar used in the following tests:
+
+// === package i (explicit annotations): ===
+package i;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+public interface I {
+    @NonNull Object m1(@Nullable Object a1);
+    @Nullable String m2(@NonNull Object a2);
+	Object m1(@Nullable Object o1, Object o2);
+}
+
+// === package  i2 with package-info.java (default annot, canceled in one type): ===
+@org.eclipse.jdt.annotation.NonNullByDefault
+package i2;
+
+package i2;
+public interface I2 {
+    Object m1(Object a1);
+    String m2(Object a2);
+}
+
+package i2;
+public interface II extends i.I {
+	String m1(Object o1, Object o2);
+}
+
+package i2;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+@NonNullByDefault(false)
+public interface I2A {
+    Object m1(Object a1);
+    String m2(Object a2);
+}
+
+// === package c (no null annotations): ===
+package c;
+public class C1 implements i.I {
+	public Object m1(Object a1) {
+		System.out.println(a1.toString()); // (1)
+		return null; // (2)
+	}
+	public String m2(Object a2) {
+		System.out.println(a2.toString());
+		return null;
+	}
+	public Object m1(Object o1, Object o2) {
+		return null;
+	}
+}
+
+package c;
+public class C2 implements i2.I2 {
+	public Object m1(Object a1) {
+		return a1;
+	}
+	public String m2(Object a2) {
+		return a2.toString();
+	}
+}
+ */
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
+// Test whether null annotations from a super interface are respected
+// Class and its super interface both read from binary
+public void testBug388281_01() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281.jar";
+	String[] libs = new String[this.LIBS.length + 1];
+	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
+	libs[this.LIBS.length] = path;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+	runNegativeTest(
+		new String[] {
+			"Client.java",
+			"import c.C1;\n" +
+			"public class Client {\n" + 
+			"    void test(C1 c) {\n" + 
+			"         String s = c.m2(null);               // (3)\n" + 
+			"         System.out.println(s.toUpperCase()); // (4)\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Client.java (at line 4)\n" + 
+		"	String s = c.m2(null);               // (3)\n" + 
+		"	                ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in Client.java (at line 5)\n" + 
+		"	System.out.println(s.toUpperCase()); // (4)\n" + 
+		"	                   ^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n",
+		libs,
+		true /* shouldFlush*/,
+		options);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
+// Test whether null annotations from a super interface are respected
+// Class from source, its supers (class + super interface) from binary
+public void testBug388281_02() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281.jar";
+	String[] libs = new String[this.LIBS.length + 1];
+	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
+	libs[this.LIBS.length] = path;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+	runNegativeTest(
+		new String[] {
+			"ctest/C.java",
+			"package ctest;\n" +
+			"public class C extends c.C1 {\n" +
+			"    @Override\n" +
+			"    public Object m1(Object a1) {\n" + 
+			"         System.out.println(a1.toString());   // (1)\n" + 
+			"         return null;                         // (2)\n" + 
+			"    }\n" +
+			"    @Override\n" +
+			"    public String m2(Object a2) {\n" + 
+			"         System.out.println(a2.toString());\n" + 
+			"         return null;\n" + 
+			"    }\n" +
+			"}\n",
+			"Client.java",
+			"import ctest.C;\n" +
+			"public class Client {\n" + 
+			"    void test(C c) {\n" + 
+			"         String s = c.m2(null);               // (3)\n" + 
+			"         System.out.println(s.toUpperCase()); // (4)\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in ctest\\C.java (at line 5)\n" + 
+		"	System.out.println(a1.toString());   // (1)\n" + 
+		"	                   ^^\n" + 
+		"Potential null pointer access: The variable a1 may be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in ctest\\C.java (at line 6)\n" + 
+		"	return null;                         // (2)\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"----------\n" +
+		"1. ERROR in Client.java (at line 4)\n" + 
+		"	String s = c.m2(null);               // (3)\n" + 
+		"	                ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in Client.java (at line 5)\n" + 
+		"	System.out.println(s.toUpperCase()); // (4)\n" + 
+		"	                   ^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n",
+		libs,
+		true /* shouldFlush*/,
+		options);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
+// Test whether null annotations from a super interface trigger an error against the overriding implementation
+// Class from source, its super interface from binary
+public void testBug388281_03() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281.jar";
+	String[] libs = new String[this.LIBS.length + 1];
+	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
+	libs[this.LIBS.length] = path;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+	runNegativeTest(
+		new String[] {
+			"ctest/C.java",
+			"package ctest;\n" +
+			"public class C implements i.I {\n" +
+			"    public Object m1(Object a1) {\n" + 
+			"         System.out.println(a1.toString());   // (1)\n" + 
+			"         return null;                         // (2)\n" + 
+			"    }\n" +
+			"    public String m2(Object a2) {\n" + 
+			"         System.out.println(a2.toString());\n" + 
+			"         return null;\n" + 
+			"    }\n" +
+			"    public Object m1(Object a1, Object a2) {\n" +
+			"        System.out.println(a1.toString());   // (3)\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in ctest\\C.java (at line 4)\n" + 
+		"	System.out.println(a1.toString());   // (1)\n" + 
+		"	                   ^^\n" + 
+		"Potential null pointer access: The variable a1 may be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in ctest\\C.java (at line 5)\n" + 
+		"	return null;                         // (2)\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"3. ERROR in ctest\\C.java (at line 12)\n" + 
+		"	System.out.println(a1.toString());   // (3)\n" + 
+		"	                   ^^\n" + 
+		"Potential null pointer access: The variable a1 may be null at this location\n" + 
+		"----------\n",
+		libs,		
+		true /* shouldFlush*/,
+		options);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
+// Do inherit even if one parameter/return is annotated
+// also features some basic overloading
+public void testBug388281_04() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		true /* shouldFlush*/,
+		new String[] {
+			"i/I.java",
+			"package i;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public interface I {\n" +
+			"    @NonNull Object m1(@NonNull Object s1, @Nullable String s2);\n" +
+			"    @Nullable Object m1(@Nullable String s1, @NonNull Object s2);\n" +
+			"}\n",
+			"ctest/C.java",
+			"package ctest;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class C implements i.I {\n" +
+			"    public Object m1(@Nullable Object o1, String s2) {\n" + 
+			"         System.out.println(s2.toString());   // (1)\n" + 
+			"         return null;                         // (2)\n" + 
+			"    }\n" +
+			"    public @NonNull Object m1(String s1, Object o2) {\n" + 
+			"         System.out.println(s1.toString());   // (3)\n" + 
+			"         return new Object();\n" + 
+			"    }\n" +
+			"}\n"
+		},
+		options,
+		"----------\n" + 
+		"1. ERROR in ctest\\C.java (at line 5)\n" + 
+		"	System.out.println(s2.toString());   // (1)\n" + 
+		"	                   ^^\n" + 
+		"Potential null pointer access: The variable s2 may be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in ctest\\C.java (at line 6)\n" + 
+		"	return null;                         // (2)\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"3. ERROR in ctest\\C.java (at line 9)\n" + 
+		"	System.out.println(s1.toString());   // (3)\n" + 
+		"	                   ^^\n" + 
+		"Potential null pointer access: The variable s1 may be null at this location\n" + 
+		"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
+// Test whether null annotations from a super interface trigger an error against the overriding implementation
+// Class from source, its super interface from binary
+// Super interface subject to package level @NonNullByDefault
+public void testBug388281_05() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281.jar";
+	String[] libs = new String[this.LIBS.length + 1];
+	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
+	libs[this.LIBS.length] = path;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+	runNegativeTest(
+		new String[] {
+			"ctest/C.java",
+			"package ctest;\n" +
+			"public class C implements i2.I2 {\n" +
+			"    public Object m1(Object a1) {\n" + 
+			"         System.out.println(a1.toString());   // silent\n" + 
+			"         return null;                         // (1)\n" + 
+			"    }\n" +
+			"    public String m2(Object a2) {\n" + 
+			"         System.out.println(a2.toString());\n" + 
+			"         return null;						   // (2)\n" + 
+			"    }\n" +
+			"}\n",
+			"Client.java",
+			"import ctest.C;\n" +
+			"public class Client {\n" + 
+			"    void test(C c) {\n" + 
+			"         String s = c.m2(null);               // (3)\n" + 
+			"    }\n" + 
+			"}\n"			
+		},
+		"----------\n" + 
+		"1. ERROR in ctest\\C.java (at line 5)\n" + 
+		"	return null;                         // (1)\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in ctest\\C.java (at line 9)\n" + 
+		"	return null;						   // (2)\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" +
+		"----------\n" + 
+		"1. ERROR in Client.java (at line 4)\n" + 
+		"	String s = c.m2(null);               // (3)\n" + 
+		"	                ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n",
+		libs,		
+		true /* shouldFlush*/,
+		options);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
+// Conflicting annotations from several indirect super interfaces must be detected
+public void testBug388281_06() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281.jar";
+	String[] libs = new String[this.LIBS.length + 1];
+	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
+	libs[this.LIBS.length] = path;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+	runNegativeTest(
+		new String[] {
+			"ctest/C.java",
+			"package ctest;\n" +
+			"public class C extends c.C2 implements i2.I2A {\n" + // neither super has explicit annotations,
+																  // but C2 inherits those from the default applicable at its super interface i2.I2
+																  // whereas I2A cancels that same default
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in ctest\\C.java (at line 2)\n" + 
+		"	public class C extends c.C2 implements i2.I2A {\n" + 
+		"	             ^\n" + 
+		"The method m2(Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
+		"----------\n" + 
+		"2. ERROR in ctest\\C.java (at line 2)\n" + 
+		"	public class C extends c.C2 implements i2.I2A {\n" + 
+		"	             ^\n" + 
+		"The method m1(Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
+		"----------\n",
+		libs,		
+		true /* shouldFlush*/,
+		options);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
+// report conflict between inheritance and default
+public void testBug388281_07() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"p1/Super.java",
+			"package p1;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Super {\n" +
+			"    public @Nullable Object m(@Nullable Object arg) {\n" +
+			"        return null;" +
+			"    }\n" +
+			"}\n",
+			"p2/Sub.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class Sub extends p1.Super {\n" +
+			"    @Override\n" +
+			"    public Object m(Object arg) { // (a)+(b) conflict at arg and return\n" +
+			"        System.out.println(arg.toString()); // (1)\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n",
+			"Client.java",
+			"public class Client {\n" +
+			"    void test(p2.Sub s) {\n" +
+			"        Object result = s.m(null);\n" +
+			"        System.out.println(result.toString());  // (2)\n" +
+			"    }\n" +
+			"}\n"
+		}, 
+		options,
+		"----------\n" + 
+		"1. ERROR in p2\\Sub.java (at line 6)\n" + 
+		"	public Object m(Object arg) { // (a)+(b) conflict at arg and return\n" + 
+		"	       ^^^^^^\n" + 
+		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from Super \n" + 
+		"----------\n" + 
+		"2. ERROR in p2\\Sub.java (at line 6)\n" + 
+		"	public Object m(Object arg) { // (a)+(b) conflict at arg and return\n" + 
+		"	                       ^^^\n" + 
+		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from Super \n" + 
+		"----------\n" + 
+		"3. ERROR in p2\\Sub.java (at line 7)\n" + 
+		"	System.out.println(arg.toString()); // (1)\n" + 
+		"	                   ^^^\n" + 
+		"Potential null pointer access: The variable arg may be null at this location\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in Client.java (at line 4)\n" + 
+		"	System.out.println(result.toString());  // (2)\n" + 
+		"	                   ^^^^^^\n" + 
+		"Potential null pointer access: The variable result may be null at this location\n" + 
+		"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
+// report conflict between inheritance and default - binary types
+public void testBug388281_08() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281.jar";
+	String[] libs = new String[this.LIBS.length + 1];
+	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
+	libs[this.LIBS.length] = path;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+	runNegativeTest(
+		new String[] {
+			"ctest/Ctest.java",
+			"package ctest;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class Ctest implements i2.II {\n" +
+			"    public Object m1(@Nullable Object a1) { // silent: conflict at a1 avoided\n" + 
+			"		return new Object();\n" + 
+			"    }\n" + 
+			"    public String m2(Object a2) { // (a) conflict at return\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"    public String m1(Object o1, Object o2) { // (b) conflict at o1\n" +
+			"        System.out.println(o1.toString()); // (1) inherited @Nullable\n" +  
+			"        return null; // (2) @NonNullByDefault in i2.II\n" + 
+			"    }\n" +
+			"}\n",
+			"Client.java",
+			"public class Client {\n" +
+			"    void test(ctest.Ctest c) {\n" +
+			"        Object result = c.m1(null, null); // (3) 2nd arg @NonNullByDefault from i2.II\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in ctest\\Ctest.java (at line 8)\n" + 
+		"	public String m2(Object a2) { // (a) conflict at return\n" + 
+		"	       ^^^^^^\n" + 
+		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from I \n" + 
+		"----------\n" + 
+		"2. ERROR in ctest\\Ctest.java (at line 11)\n" + 
+		"	public String m1(Object o1, Object o2) { // (b) conflict at o1\n" + 
+		"	                        ^^\n" + 
+		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from II \n" + 
+		"----------\n" + 
+		"3. ERROR in ctest\\Ctest.java (at line 12)\n" + 
+		"	System.out.println(o1.toString()); // (1) inherited @Nullable\n" + 
+		"	                   ^^\n" + 
+		"Potential null pointer access: The variable o1 may be null at this location\n" + 
+		"----------\n" + 
+		"4. ERROR in ctest\\Ctest.java (at line 13)\n" + 
+		"	return null; // (2) @NonNullByDefault in i2.II\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in Client.java (at line 3)\n" + 
+		"	Object result = c.m1(null, null); // (3) 2nd arg @NonNullByDefault from i2.II\n" + 
+		"	                           ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n",
+		libs,
+		true, // should flush
+		options);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
+// difference between inherited abstract & non-abstract methods
+public void testBug388281_09() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"p1/Super.java",
+			"package p1;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public abstract class Super {\n" +
+			"    public abstract @NonNull Object compatible(@Nullable Object arg);\n" +
+			"    public @Nullable Object incompatible(int dummy, @NonNull Object arg) {\n" +
+			"        return null;" +
+			"    }\n" +
+			"}\n",
+			"p1/I.java",
+			"package p1;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public interface I {\n" +
+			"    public @Nullable Object compatible(@NonNull Object arg);\n" +
+			"    public @NonNull Object incompatible(int dummy, @Nullable Object arg);\n" +
+			"}\n",
+			"p2/Sub.java",
+			"package p2;\n" +
+			"public class Sub extends p1.Super implements p1.I {\n" +
+			"    @Override\n" +
+			"    public Object compatible(Object arg) {\n" +
+			"        return this;" +
+			"    }\n" +
+			"    @Override\n" +
+			"    public Object incompatible(int dummy, Object arg) {\n" +
+			"        return null;" +
+			"    }\n" +
+			"}\n"
+		}, 
+		options,
+		"----------\n" + 
+		"1. ERROR in p2\\Sub.java (at line 4)\n" + 
+		"	public Object compatible(Object arg) {\n" + 
+		"	       ^^^^^^\n" + 
+		"Conflict between inherited null annotations \'@Nullable\' declared in I versus \'@NonNull\' declared in Super \n" + 
+		"----------\n" + 
+		"2. ERROR in p2\\Sub.java (at line 4)\n" + 
+		"	public Object compatible(Object arg) {\n" + 
+		"	                         ^^^^^^\n" + 
+		"Conflict between inherited null annotations \'@NonNull\' declared in I versus \'@Nullable\' declared in Super \n" + 
+		"----------\n" + 
+		"3. ERROR in p2\\Sub.java (at line 7)\n" + 
+		"	public Object incompatible(int dummy, Object arg) {\n" + 
+		"	       ^^^^^^\n" + 
+		"Conflict between inherited null annotations \'@NonNull\' declared in I versus \'@Nullable\' declared in Super \n" + 
+		"----------\n" + 
+		"4. ERROR in p2\\Sub.java (at line 7)\n" + 
+		"	public Object incompatible(int dummy, Object arg) {\n" + 
+		"	                                      ^^^^^^\n" + 
+		"Conflict between inherited null annotations \'@Nullable\' declared in I versus \'@NonNull\' declared in Super \n" + 
+		"----------\n");
+}
+
 }

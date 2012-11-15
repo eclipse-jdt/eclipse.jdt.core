@@ -19,6 +19,7 @@
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *								bug 388800 - [1.8][compiler] detect default methods in class files
+ *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1174,13 +1175,6 @@ void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBindi
 	if (nullableAnnotationName == null || nonNullAnnotationName == null || nonNullByDefaultAnnotationName == null)
 		return; // not well-configured to use null annotations
 
-	int currentDefault = NO_NULL_DEFAULT;
-	if ((this.tagBits & TagBits.AnnotationNonNullByDefault) != 0) {
-		currentDefault = NONNULL_BY_DEFAULT;
-	} else if ((this.tagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0) {
-		currentDefault = NULL_UNSPECIFIED_BY_DEFAULT;
-	}
-
 	// return:
 	IBinaryAnnotation[] annotations = method.getAnnotations();
 	boolean explicitNullness = false;
@@ -1192,7 +1186,6 @@ void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBindi
 			char[][] typeName = CharOperation.splitOn('/', annotationTypeName, 1, annotationTypeName.length-1); // cut of leading 'L' and trailing ';'
 			if (CharOperation.equals(typeName, nonNullByDefaultAnnotationName)) {
 				methodBinding.tagBits |= TagBits.AnnotationNonNullByDefault;
-				currentDefault = NONNULL_BY_DEFAULT;
 			}
 			if (!explicitNullness && CharOperation.equals(typeName, nonNullAnnotationName)) {
 				methodBinding.tagBits |= TagBits.AnnotationNonNull;
@@ -1204,19 +1197,13 @@ void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBindi
 			}
 		}
 	}
-	if (!explicitNullness 
-			&& (methodBinding.returnType != null && !methodBinding.returnType.isBaseType()) 
-			&& currentDefault == NONNULL_BY_DEFAULT) {
-		methodBinding.tagBits |= TagBits.AnnotationNonNull;
-	}
 
 	// parameters:
 	TypeBinding[] parameters = methodBinding.parameters;
 	int numVisibleParams = parameters.length;
 	int numParamAnnotations = method.getAnnotatedParametersCount();
-	if (numParamAnnotations > 0 || currentDefault == NONNULL_BY_DEFAULT) {
+	if (numParamAnnotations > 0) {
 		for (int j = 0; j < numVisibleParams; j++) {
-			explicitNullness = false;
 			if (numParamAnnotations > 0) {
 				int startIndex = numParamAnnotations - numVisibleParams;
 				IBinaryAnnotation[] paramAnnotations = method.getParameterAnnotations(j+startIndex);
@@ -1230,23 +1217,14 @@ void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBindi
 							if (methodBinding.parameterNonNullness == null)
 								methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
 							methodBinding.parameterNonNullness[j] = Boolean.TRUE;
-							explicitNullness = true;
 							break;
 						} else if (CharOperation.equals(typeName, nullableAnnotationName)) {
 							if (methodBinding.parameterNonNullness == null)
 								methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
 							methodBinding.parameterNonNullness[j] = Boolean.FALSE;
-							explicitNullness = true;
 							break;
 						}
 					}
-				}
-			}
-			if (!explicitNullness && currentDefault == NONNULL_BY_DEFAULT) {
-				if (methodBinding.parameterNonNullness == null)
-					methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
-				if (methodBinding.parameters[j]!= null && !methodBinding.parameters[j].isBaseType()) {
-					methodBinding.parameterNonNullness[j] = Boolean.TRUE;
 				}
 			}
 		}

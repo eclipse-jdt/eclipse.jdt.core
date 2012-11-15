@@ -18,6 +18,7 @@
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								bug 379784 - [compiler] "Method can be static" is not getting reported
  *								bug 379834 - Wrong "method can be static" in presence of qualified super and different staticness of nested super class.
+ *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -38,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -542,6 +544,12 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 
+	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && (this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
+		// not interested in reporting problems against this.binding:
+		new ImplicitNullAnnotationVerifier(compilerOptions.inheritNullAnnotations)
+				.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
+	}
+	
 	if (((this.bits & ASTNode.InsideExpressionStatement) != 0)
 			&& this.binding.isPolymorphic()) {
 		// we only set the return type to be void if this method invocation is used inside an expression statement

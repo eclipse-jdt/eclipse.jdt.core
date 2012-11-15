@@ -18,6 +18,7 @@
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -101,8 +102,10 @@ public abstract class AbstractMethodDeclaration
 					argTypeTagBits = (argument.binding.tagBits & TagBits.AnnotationNullMASK);
 				}
 				if (argTypeTagBits != 0) {
-					if (this.binding.parameterNonNullness == null)
+					if (this.binding.parameterNonNullness == null) {
 						this.binding.parameterNonNullness = new Boolean[this.arguments.length];
+						this.binding.tagBits |= TagBits.IsNullnessKnown;
+					}
 					this.binding.parameterNonNullness[i] = Boolean.valueOf(argTypeTagBits == TagBits.AnnotationNonNull);
 				}
 			}

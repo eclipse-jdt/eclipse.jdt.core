@@ -24,6 +24,7 @@
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *								bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
+ *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -327,6 +328,8 @@ public static int getIrritant(int problemID) {
 		case IProblem.ParameterLackingNonNullAnnotation:
 		case IProblem.ParameterLackingNullableAnnotation:
 		case IProblem.CannotImplementIncompatibleNullness:
+		case IProblem.ConflictingNullAnnotations:
+		case IProblem.ConflictingInheritedNullAnnotations:
 			return CompilerOptions.NullSpecViolation;
 
 		case IProblem.RequiredNonNullButProvidedPotentialNull:
@@ -8610,6 +8613,44 @@ public void contradictoryNullAnnotations(Annotation annotation) {
 			new String(nullableAnnotationName[nullableAnnotationName.length-1])
 		};
 	this.handle(IProblem.ContradictoryNullAnnotations, arguments, shortArguments, annotation.sourceStart, annotation.sourceEnd);
+}
+
+// conflict default <-> inherited
+public void conflictingNullAnnotations(MethodBinding currentMethod, ASTNode location, MethodBinding inheritedMethod)
+{
+	char[][] nonNullAnnotationName = this.options.nonNullAnnotationName;
+	char[][] nullableAnnotationName = this.options.nullableAnnotationName;
+	String[] arguments = {
+		new String(CharOperation.concatWith(nonNullAnnotationName, '.')),
+		new String(CharOperation.concatWith(nullableAnnotationName, '.')),
+		new String(inheritedMethod.declaringClass.readableName())
+	};
+	String[] shortArguments = {
+			new String(nonNullAnnotationName[nonNullAnnotationName.length-1]),
+			new String(nullableAnnotationName[nullableAnnotationName.length-1]),
+			new String(inheritedMethod.declaringClass.shortReadableName())
+		};
+	this.handle(IProblem.ConflictingNullAnnotations, arguments, shortArguments, location.sourceStart, location.sourceEnd);
+}
+
+// conflict between different inheriteds
+public void conflictingInheritedNullAnnotations(ASTNode location, boolean previousIsNonNull, MethodBinding previousInherited, boolean isNonNull, MethodBinding inheritedMethod)
+{
+	char[][] previousAnnotationName = previousIsNonNull ? this.options.nonNullAnnotationName : this.options.nullableAnnotationName;
+	char[][] annotationName = isNonNull ? this.options.nonNullAnnotationName : this.options.nullableAnnotationName;
+	String[] arguments = {
+		new String(CharOperation.concatWith(previousAnnotationName, '.')),
+		new String(previousInherited.declaringClass.readableName()),
+		new String(CharOperation.concatWith(annotationName, '.')),
+		new String(inheritedMethod.declaringClass.readableName())
+	};
+	String[] shortArguments = {
+			new String(previousAnnotationName[previousAnnotationName.length-1]),
+			new String(previousInherited.declaringClass.shortReadableName()),
+			new String(annotationName[annotationName.length-1]),
+			new String(inheritedMethod.declaringClass.shortReadableName())
+		};
+	this.handle(IProblem.ConflictingInheritedNullAnnotations, arguments, shortArguments, location.sourceStart, location.sourceEnd);
 }
 
 public void illegalAnnotationForBaseType(TypeReference type, Annotation[] annotations, char[] annotationName, long nullAnnotationTagBit)
