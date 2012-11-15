@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><!--
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
     Copyright (c) 2005, 2010 IBM Corporation and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
@@ -42,7 +43,8 @@
 		<mkdir dir="${dest}/checksum" />
 		<checksum file="${dest}/ecj-${buildLabel}.jar" property="md5-ecj.jar" />
 		<echo message="${md5-ecj.jar} ecj-${buildLabel}.jar" file="${dest}/checksum/ecj-${buildLabel}.jar.md5" />
-		<checksum file="${dest}/ecjsrc-${buildLabel}.jar" property="md5-ecjsrc.jar" /> 		<echo message="${md5-ecjsrc.jar} ecjsrc-${buildLabel}.jar" file="${dest}/checksum/ecjsrc-${buildLabel}.jar.md5" /> 	</target>
+		<checksum file="${dest}/ecjsrc-${buildLabel}.jar" property="md5-ecjsrc.jar" /> 		<echo message="${md5-ecjsrc.jar} ecjsrc-${buildLabel}.jar" file="${dest}/checksum/ecjsrc-${buildLabel}.jar.md5" /> 
+	</target>
 
 	<!-- ===================================================================== -->
 	<!-- Steps to do before the target build.sources                           -->
