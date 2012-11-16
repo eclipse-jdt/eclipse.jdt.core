@@ -12949,7 +12949,7 @@ public void test320_warn_options() {
 		+ " -err:+nullAnnot,+null,+inheritNullAnnot -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" + 
-		"1. ERROR in " + OUTPUT_DIR +  File.separator + "p" + File.separator + "Sub.java (at line 4)\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/Sub.java (at line 4)\n" + 
 		"	s= null;\n" + 
 		"	   ^^^^\n" + 
 		"Null type mismatch: required '@NonNull String' but the provided value is null\n" + 
