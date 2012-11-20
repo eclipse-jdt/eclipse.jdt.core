@@ -4,10 +4,16 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *      Stephen Herrmann <stephan@cs.tu-berlin.de> -  Contribution for bug 317046
+ *      Stephen Herrmann <stephan@cs.tu-berlin.de> -  Contributions for
+ *								bug 317046 - Exception during debugging when hover mouse over a field
+ *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1153,6 +1159,14 @@ public boolean needsUncheckedConversion(TypeBinding targetType) {
 			break;
 	}
 	return false;
+}
+
+/** Answer a readable name (for error reporting) that includes nullness type annotations. */
+public char[] nullAnnotatedReadableName(LookupEnvironment env, boolean shortNames) /* e.g.: java.lang.Object @o.e.j.a.NonNull[] */ {
+	if (shortNames)
+		return shortReadableName();
+	else
+		return readableName();
 }
 
 /**

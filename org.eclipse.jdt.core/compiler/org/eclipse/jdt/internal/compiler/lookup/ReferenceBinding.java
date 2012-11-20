@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -14,6 +18,7 @@
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1348,6 +1353,24 @@ public ReferenceBinding[] memberTypes() {
 
 public MethodBinding[] methods() {
 	return Binding.NO_METHODS;
+}
+
+public char[] nullAnnotatedReadableName(LookupEnvironment env, boolean shortNames) /* java.lang.Object @o.e.j.a.NonNull[] */ {
+	char[] typeName = shortNames ? shortReadableName() : readableName();
+	if ((this.tagBits & TagBits.AnnotationNullMASK) == 0)
+		return typeName;
+	char[][] fqAnnotationName;
+	if ((this.tagBits & TagBits.AnnotationNonNull) != 0)
+		fqAnnotationName = env.getNonNullAnnotationName();
+	else
+		fqAnnotationName = env.getNullableAnnotationName();
+	char[] annotationName = shortNames
+								? fqAnnotationName[fqAnnotationName.length-1]
+								: CharOperation.concatWith(fqAnnotationName, '.');				
+	char[] prefix = new char[annotationName.length+1];
+	prefix[0] = '@';
+	System.arraycopy(annotationName, 0, prefix, 1, annotationName.length);
+	return CharOperation.concat(prefix, typeName, ' ');
 }
 
 public final ReferenceBinding outermostEnclosingType() {

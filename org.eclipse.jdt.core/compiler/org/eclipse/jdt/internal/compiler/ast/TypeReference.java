@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -426,13 +427,15 @@ protected TypeBinding internalResolveType(Scope scope) {
 			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
 		scope.problemReporter().rawTypeReference(this, type);
 	}
-	resolveAnnotations(scope);
-
 	if (hasError) {
-		// do not store the computed type, keep the problem type instead
+		resolveAnnotations(scope);		
 		return type;
+	} else {
+		// store the computed type only if no error, otherwise keep the problem type instead
+		this.resolvedType = type;
+		resolveAnnotations(scope);
+		return this.resolvedType; // pick up value that may have been changed in resolveAnnotations(..)
 	}
-	return this.resolvedType = type;
 }
 public boolean isTypeReference() {
 	return true;
@@ -514,11 +517,27 @@ protected void resolveAnnotations(Scope scope) {
 	if (this.annotations != null || annotationsOnDimensions != null) {
 		BlockScope resolutionScope = Scope.typeAnnotationsResolutionScope(scope);
 		if (resolutionScope != null) {
+			long[] tagBitsPerDimension = null;
+			int dimensions = this.dimensions();
+			boolean shouldAnalyzeArrayNullAnnotations = scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled && this instanceof ArrayTypeReference;
 			if (this.annotations != null) {
 				int annotationsLevels = this.annotations.length;
 				for (int i = 0; i < annotationsLevels; i++) {
-					if (this.annotations[i] != null) {
-						resolveAnnotations(resolutionScope, this.annotations[i], new Annotation.TypeUseBinding(isWildcard() ? Binding.TYPE_PARAMETER : Binding.TYPE_USE));
+					Annotation[] currentAnnotations = this.annotations[i];
+					if (currentAnnotations != null) {
+						resolveAnnotations(resolutionScope, currentAnnotations, new Annotation.TypeUseBinding(isWildcard() ? Binding.TYPE_PARAMETER : Binding.TYPE_USE));
+						if (shouldAnalyzeArrayNullAnnotations) {
+							int len = currentAnnotations.length;
+							for (int j=0; j<len; j++) {
+								Binding recipient = currentAnnotations[j].recipient;
+								if (recipient instanceof Annotation.TypeUseBinding) {
+									if (tagBitsPerDimension == null)
+										tagBitsPerDimension = new long[dimensions+1]; // each dimension plus leaf component type at last position
+									// @NonNull Foo [][][] means the leaf component type is @NonNull:
+									tagBitsPerDimension[dimensions] = ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -528,8 +547,24 @@ protected void resolveAnnotations(Scope scope) {
 					Annotation [] dimensionAnnotations = annotationsOnDimensions[i];
 					if (dimensionAnnotations  != null) {
 						resolveAnnotations(resolutionScope, dimensionAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
+						if (shouldAnalyzeArrayNullAnnotations) {
+							int len = dimensionAnnotations.length;
+							for (int j=0; j<len; j++) {
+								Binding recipient = dimensionAnnotations[j].recipient;
+								if (recipient instanceof Annotation.TypeUseBinding) {
+									if (tagBitsPerDimension == null)
+										tagBitsPerDimension = new long[dimensions+1];
+									tagBitsPerDimension[i] = ((Annotation.TypeUseBinding)recipient).tagBits & TagBits.AnnotationNullMASK;
+								}
+							}
+						}
 					}
 				}
+			}
+			if (tagBitsPerDimension != null && this.resolvedType.isValidBinding()) {
+				// TODO(stephan): wouldn't it be more efficient to store the array bindings inside the type binding rather than the environment?
+				// cf. LocalTypeBinding.createArrayType()
+				this.resolvedType = scope.environment().createArrayType(this.resolvedType.leafComponentType(), dimensions, tagBitsPerDimension);
 			}
 		}
 	}

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Nick Teryaev - fix for bug (https://bugs.eclipse.org/bugs/show_bug.cgi?id=40752)
@@ -19,6 +23,7 @@
  *								bug 379784 - [compiler] "Method can be static" is not getting reported
  *								bug 379834 - Wrong "method can be static" in presence of qualified super and different staticness of nested super class.
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -165,9 +170,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return flowInfo;
 }
 public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
-	super.checkNPE(scope, flowContext, flowInfo);
-	if ((nullStatus(flowInfo) & FlowInfo.POTENTIALLY_NULL) != 0)
+	if ((nullStatus(flowInfo) & FlowInfo.POTENTIALLY_NULL) != 0) // note that flowInfo is not used inside nullStatus(..)
 		scope.problemReporter().messageSendPotentialNullReference(this.binding, this);
+	else
+		super.checkNPE(scope, flowContext, flowInfo);
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.ast.Expression#computeConversion(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)

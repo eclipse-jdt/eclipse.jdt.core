@@ -11,6 +11,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *******************************************************************************/
 package org.eclipse.jdt.core.tests;
 
@@ -31,6 +33,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.DefaultMethodsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.GrammarCoverageTests308;
 import org.eclipse.jdt.core.tests.compiler.regression.NegativeLambdaExpressionsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NegativeTypeAnnotationTest;
+import org.eclipse.jdt.core.tests.compiler.regression.NullTypeAnnotationTest;
 import org.eclipse.jdt.core.tests.dom.ASTConverter15JLS8Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverterAST8Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverterBugsTestJLS8;
@@ -52,7 +55,8 @@ public class RunAllJava8Tests extends TestCase {
 			ReferenceExpressionSyntaxTest.class,
 			DefaultMethodsTest.class,
 			ComplianceDiagnoseTest.class,
-			GrammarCoverageTests308.class
+			GrammarCoverageTests308.class,
+			NullTypeAnnotationTest.class
 		};
 	}
 	

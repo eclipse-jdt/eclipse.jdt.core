@@ -16,10 +16,12 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -640,6 +642,9 @@ public AnnotationBinding createAnnotation(ReferenceBinding annotationType, Eleme
  *  Used to guarantee array type identity.
  */
 public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimensionCount) {
+	return createArrayType(leafComponentType, dimensionCount, null);
+}
+public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimensionCount, long[] nullTagBitsPerDimension) {
 	if (leafComponentType instanceof LocalTypeBinding) // cache local type arrays with the local type itself
 		return ((LocalTypeBinding) leafComponentType).createArrayType(dimensionCount, this);
 
@@ -664,8 +669,9 @@ public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimension
 	while (++index < length) {
 		ArrayBinding currentBinding = arrayBindings[index];
 		if (currentBinding == null) // no matching array, but space left
-			return arrayBindings[index] = new ArrayBinding(leafComponentType, dimensionCount, this);
-		if (currentBinding.leafComponentType == leafComponentType)
+			return arrayBindings[index] = new ArrayBinding(leafComponentType, dimensionCount, this, nullTagBitsPerDimension);
+		if (currentBinding.leafComponentType == leafComponentType
+				&& (nullTagBitsPerDimension == null || Arrays.equals(currentBinding.nullTagBitsPerDimension, nullTagBitsPerDimension)))
 			return currentBinding;
 	}
 
@@ -675,7 +681,7 @@ public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimension
 		(arrayBindings = new ArrayBinding[length * 2]), 0,
 		length);
 	this.uniqueArrayBindings[dimIndex] = arrayBindings;
-	return arrayBindings[length] = new ArrayBinding(leafComponentType, dimensionCount, this);
+	return arrayBindings[length] = new ArrayBinding(leafComponentType, dimensionCount, this, nullTagBitsPerDimension);
 }
 public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 	return createBinaryTypeFrom(binaryType, packageBinding, true, accessRestriction);

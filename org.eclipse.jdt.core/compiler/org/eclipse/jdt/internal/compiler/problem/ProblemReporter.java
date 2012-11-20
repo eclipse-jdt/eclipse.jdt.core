@@ -25,6 +25,7 @@
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *								bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -109,6 +110,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
@@ -307,6 +309,8 @@ public static int getIrritant(int problemID) {
 
 		case IProblem.PotentialNullLocalVariableReference:
 		case IProblem.PotentialNullMessageSendReference:
+		case IProblem.ArrayReferencePotentialNullReference:
+		case IProblem.DereferencingNullableExpression:
 			return CompilerOptions.PotentialNullReference;
 
 		case IProblem.RedundantLocalVariableNullAssignment:
@@ -330,11 +334,13 @@ public static int getIrritant(int problemID) {
 		case IProblem.CannotImplementIncompatibleNullness:
 		case IProblem.ConflictingNullAnnotations:
 		case IProblem.ConflictingInheritedNullAnnotations:
+		case IProblem.NullityMismatchingTypeAnnotation:
 			return CompilerOptions.NullSpecViolation;
 
 		case IProblem.RequiredNonNullButProvidedPotentialNull:
 			return CompilerOptions.NullAnnotationInferenceConflict;
 		case IProblem.RequiredNonNullButProvidedUnknown:
+		case IProblem.NullityMismatchingTypeAnnotationUnchecked:
 			return CompilerOptions.NullUncheckedConversion;
 		case IProblem.RedundantNullAnnotation:
 		case IProblem.RedundantNullDefaultAnnotation:
@@ -8409,12 +8415,10 @@ public void nullityMismatch(Expression expression, TypeBinding providedType, Typ
 public void nullityMismatchIsNull(Expression expression, TypeBinding requiredType, char[][] annotationName) {
 	int problemId = IProblem.RequiredNonNullButProvidedNull;
 	String[] arguments = new String[] {
-			String.valueOf(CharOperation.concatWith(annotationName, '.')),
-			String.valueOf(requiredType.readableName())
+			annotatedTypeName(requiredType, annotationName)
 	};
 	String[] argumentsShort = new String[] {
-			String.valueOf(annotationName[annotationName.length-1]),
-			String.valueOf(requiredType.shortReadableName())
+			shortAnnotatedTypeName(requiredType, annotationName)
 	};
 	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
 }
@@ -8422,13 +8426,11 @@ public void nullityMismatchSpecdNullable(Expression expression, TypeBinding requ
 	int problemId = IProblem.RequiredNonNullButProvidedSpecdNullable;
 	char[][] nullableName = this.options.nullableAnnotationName;
 	String[] arguments = new String[] {
-			String.valueOf(CharOperation.concatWith(annotationName, '.')),
-			String.valueOf(requiredType.readableName()),
+			annotatedTypeName(requiredType, annotationName),
 			String.valueOf(CharOperation.concatWith(nullableName, '.'))
 	};
 	String[] argumentsShort = new String[] {
-			String.valueOf(annotationName[annotationName.length-1]),
-			String.valueOf(requiredType.shortReadableName()),
+			shortAnnotatedTypeName(requiredType, annotationName),
 			String.valueOf(nullableName[nullableName.length-1])
 	};
 	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
@@ -8437,13 +8439,11 @@ public void nullityMismatchPotentiallyNull(Expression expression, TypeBinding re
 	int problemId = IProblem.RequiredNonNullButProvidedPotentialNull;
 	char[][] nullableName = this.options.nullableAnnotationName;
 	String[] arguments = new String[] {
-			String.valueOf(CharOperation.concatWith(annotationName, '.')),
-			String.valueOf(requiredType.readableName()),
+			annotatedTypeName(requiredType, annotationName),
 			String.valueOf(CharOperation.concatWith(nullableName, '.'))
 	};
 	String[] argumentsShort = new String[] {
-			String.valueOf(annotationName[annotationName.length-1]),
-			String.valueOf(requiredType.shortReadableName()),
+			shortAnnotatedTypeName(requiredType, annotationName),
 			String.valueOf(nullableName[nullableName.length-1])
 	};
 	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
@@ -8452,13 +8452,11 @@ public void nullityMismatchIsUnknown(Expression expression, TypeBinding provided
 	int problemId = IProblem.RequiredNonNullButProvidedUnknown;
 	String[] arguments = new String[] {
 			String.valueOf(providedType.readableName()),
-			String.valueOf(CharOperation.concatWith(annotationName, '.')),
-			String.valueOf(requiredType.readableName())
+			annotatedTypeName(requiredType, annotationName)
 	};
 	String[] argumentsShort = new String[] {
 			String.valueOf(providedType.shortReadableName()),
-			String.valueOf(annotationName[annotationName.length-1]),
-			String.valueOf(requiredType.shortReadableName())
+			shortAnnotatedTypeName(requiredType, annotationName)
 	};
 	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
 }
@@ -8671,6 +8669,50 @@ public void illegalAnnotationForBaseType(TypeReference type, Annotation[] annota
 			type.sourceEnd);
 }
 
+private String annotatedTypeName(TypeBinding type, char[][] annotationName) {
+	int dims = 0;
+	if (type instanceof ArrayBinding && ((ArrayBinding)type).nullTagBitsPerDimension != null) {
+		dims = type.dimensions();
+		type = type.leafComponentType();
+	}
+	char[] typeName = type.readableName();
+	char[] annotationDisplayName = CharOperation.concatWith(annotationName, '.');
+	return internalAnnotatedTypeName(annotationDisplayName, typeName, dims);
+}
+private String shortAnnotatedTypeName(TypeBinding type, char[][] annotationName) {
+	int dims = 0;
+	if (type instanceof ArrayBinding && ((ArrayBinding)type).nullTagBitsPerDimension != null) {
+		// if type has annotations on dimensions show the annotation on the outer most dimension:
+		dims = type.dimensions();
+		type = type.leafComponentType();
+	}
+	char[] typeName = type.shortReadableName();
+	char[] annotationDisplayName = annotationName[annotationName.length-1];
+	return internalAnnotatedTypeName(annotationDisplayName, typeName, dims);
+}
+
+String internalAnnotatedTypeName(char[] annotationName, char[] typeName, int dims) {
+	char[] fullName;
+	if (dims > 0) {
+		int plainLen = annotationName.length+typeName.length+2; // adding '@' and ' ' ...
+		fullName = new char[plainLen+(2*dims)]; // ... and []* 
+		System.arraycopy(typeName, 0, fullName, 0, typeName.length);
+		fullName[typeName.length] = ' ';
+		fullName[typeName.length+1] = '@';
+		System.arraycopy(annotationName, 0, fullName, typeName.length+2, annotationName.length);
+		for (int i=0; i<dims; i++) {
+			fullName[plainLen+i] = '[';
+			fullName[plainLen+i+1] = ']';
+		}
+	} else {
+		fullName = new char[annotationName.length+typeName.length+2]; // adding '@' and ' ' 
+		fullName[0] = '@';
+		System.arraycopy(annotationName, 0, fullName, 1, annotationName.length);
+		fullName[annotationName.length+1] = ' ';
+		System.arraycopy(typeName, 0, fullName, annotationName.length+2, typeName.length);
+	}
+	return String.valueOf(fullName);
+}
 private Annotation findAnnotation(Annotation[] annotations, int typeId) {
 	if (annotations != null) {
 		// should have a @NonNull/@Nullable annotation, search for it:
@@ -8722,5 +8764,39 @@ public void illegalModifiersForElidedType(Argument argument) {
 			arg,
 			argument.declarationSourceStart,
 			argument.declarationSourceEnd);
+}
+
+public void arrayReferencePotentialNullReference(ArrayReference arrayReference) {
+	// TODO(stephan): merge with other expressions
+	this.handle(IProblem.ArrayReferencePotentialNullReference, NoArgument, NoArgument, arrayReference.sourceStart, arrayReference.sourceEnd);
+	
+}
+public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding providedType, TypeBinding requiredType, 
+		boolean uncheckedConversion, LookupEnvironment env) 
+{
+	String[] arguments = new String[] {
+		String.valueOf(requiredType.nullAnnotatedReadableName(env, false)),
+		String.valueOf(providedType.nullAnnotatedReadableName(env, false))
+	};
+	String[] shortArguments = new String[] {
+		String.valueOf(requiredType.nullAnnotatedReadableName(env, true)),
+		String.valueOf(providedType.nullAnnotatedReadableName(env, true))
+	};
+	this.handle(
+			uncheckedConversion ? IProblem.NullityMismatchingTypeAnnotationUnchecked : IProblem.NullityMismatchingTypeAnnotation,
+			arguments, shortArguments, expression.sourceStart, expression.sourceEnd);
+}
+public void dereferencingNullableExpression(Expression expression, LookupEnvironment env) {
+	if (expression instanceof MessageSend) {
+		MessageSend send = (MessageSend) expression;
+		messageSendPotentialNullReference(send.binding, send);
+		return;
+	}
+	char[][] nullableName = env.getNullableAnnotationName();
+	char[] nullableShort = nullableName[nullableName.length-1];
+	String[] arguments = { String.valueOf(nullableShort) };
+	// TODO(stephan): more sophisticated handling for various kinds of expressions
+	this.handle(IProblem.DereferencingNullableExpression, arguments, arguments, expression.sourceStart, expression.sourceEnd);
+	
 }
 }

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -15,11 +19,14 @@
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 370930 - NonNull annotation not considered for enhanced for loops
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
+ *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -67,35 +74,57 @@ public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowCo
 protected void analyseArguments(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, MethodBinding methodBinding, Expression[] arguments)
 {
 	// compare actual null-status against parameter annotations of the called method:
-	if (arguments != null && methodBinding.parameterNonNullness != null) {
-
-		// check if varargs need special treatment:
+	if (arguments != null) {
+		CompilerOptions compilerOptions = currentScope.compilerOptions();
+		boolean considerTypeAnnotations = compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8
+				&& compilerOptions.isAnnotationBasedNullAnalysisEnabled;
+		boolean hasJDK15NullAnnotations = methodBinding.parameterNonNullness != null;
 		int numParamsToCheck = methodBinding.parameters.length;
-		boolean passThrough = false;
-		if (methodBinding.isVarargs()) {
-			int varArgPos = numParamsToCheck-1;
-			// this if-block essentially copied from generateArguments(..):
-			if (numParamsToCheck == arguments.length) {
-				TypeBinding varArgsType = methodBinding.parameters[varArgPos];
-				TypeBinding lastType = arguments[varArgPos].resolvedType;
-				if (lastType == TypeBinding.NULL
-						|| (varArgsType.dimensions() == lastType.dimensions()
-						&& lastType.isCompatibleWith(varArgsType)))
-					passThrough = true; // pass directly as-is
+		if (considerTypeAnnotations || hasJDK15NullAnnotations) {
+			// check if varargs need special treatment:
+			boolean passThrough = false;
+			if (methodBinding.isVarargs()) {
+				int varArgPos = numParamsToCheck-1;
+				// this if-block essentially copied from generateArguments(..):
+				if (numParamsToCheck == arguments.length) {
+					TypeBinding varArgsType = methodBinding.parameters[varArgPos];
+					TypeBinding lastType = arguments[varArgPos].resolvedType;
+					if (lastType == TypeBinding.NULL
+							|| (varArgsType.dimensions() == lastType.dimensions()
+							&& lastType.isCompatibleWith(varArgsType)))
+						passThrough = true; // pass directly as-is
+				}
+				if (!passThrough)
+					numParamsToCheck--; // with non-passthrough varargs last param is fed from individual args -> don't check
 			}
-			if (!passThrough)
-				numParamsToCheck--; // with non-passthrough varargs last param is fed from individual args -> don't check
 		}
-
-		for (int i = 0; i < numParamsToCheck; i++) {
-			if (methodBinding.parameterNonNullness[i] == Boolean.TRUE) {
+		if (considerTypeAnnotations) {
+			for (int i=0; i<numParamsToCheck; i++) {
 				TypeBinding expectedType = methodBinding.parameters[i];
 				Expression argument = arguments[i];
-				int nullStatus = argument.nullStatus(flowInfo); // slight loss of precision: should also use the null info from the receiver.
-				if (nullStatus != FlowInfo.NON_NULL) // if required non-null is not provided
-					flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
+				// prefer check based on type annotations:
+				int severity = findNullTypeAnnotationMismatch(expectedType, argument.resolvedType);
+				if (severity > 0) {
+					// immediate reporting:
+					currentScope.problemReporter().nullityMismatchingTypeAnnotation(argument, argument.resolvedType, expectedType, severity==1, currentScope.environment());
+					// next check flow-based null status against null JDK15-style annotations:
+				} else if (hasJDK15NullAnnotations && methodBinding.parameterNonNullness[i] == Boolean.TRUE) {
+					int nullStatus = argument.nullStatus(flowInfo); // slight loss of precision: should also use the null info from the receiver.
+					if (nullStatus != FlowInfo.NON_NULL) // if required non-null is not provided
+						flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
+				}
 			}
-		}
+		} else if (hasJDK15NullAnnotations) {
+			for (int i = 0; i < numParamsToCheck; i++) {
+				if (methodBinding.parameterNonNullness[i] == Boolean.TRUE) {
+					TypeBinding expectedType = methodBinding.parameters[i];
+					Expression argument = arguments[i];
+					int nullStatus = argument.nullStatus(flowInfo); // slight loss of precision: should also use the null info from the receiver.
+					if (nullStatus != FlowInfo.NON_NULL) // if required non-null is not provided
+						flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
+				}
+			}
+		} 
 	}
 }
 
@@ -104,10 +133,13 @@ protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, Flow
 												   LocalVariableBinding local, int nullStatus, Expression expression, TypeBinding providedType)
 {
 	if (local != null) {
+		int severity = 0;
 		if ((local.tagBits & TagBits.AnnotationNonNull) != 0
 				&& nullStatus != FlowInfo.NON_NULL) {
 			flowContext.recordNullityMismatch(currentScope, expression, providedType, local.type, nullStatus);
 			return FlowInfo.NON_NULL;
+		} else if ((severity = findNullTypeAnnotationMismatch(local.type, providedType)) > 0) {
+			currentScope.problemReporter().nullityMismatchingTypeAnnotation(expression, providedType, local.type, severity==1, currentScope.environment());
 		} else if ((local.tagBits & TagBits.AnnotationNullable) != 0
 				&& nullStatus == FlowInfo.UNKNOWN) {	// provided a legacy type?
 			return FlowInfo.POTENTIALLY_NULL;			// -> use more specific info from the annotation
@@ -115,7 +147,33 @@ protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, Flow
 	}
 	return nullStatus;
 }
-
+protected int findNullTypeAnnotationMismatch(TypeBinding requiredType, TypeBinding providedType) {
+	int severity = 0;
+	if (requiredType instanceof ArrayBinding) {
+		long[] requiredDimsTagBits = ((ArrayBinding)requiredType).nullTagBitsPerDimension;
+		if (requiredDimsTagBits != null) {
+			int dims = requiredType.dimensions();
+			if (requiredType.dimensions() == providedType.dimensions()) {
+				long[] providedDimsTagBits = ((ArrayBinding)providedType).nullTagBitsPerDimension;
+				if (providedDimsTagBits == null) {
+					severity = 1; // required is annotated, provided not, need unchecked conversion
+				} else {
+					for (int i=0; i<dims; i++) {
+						long requiredBits = requiredDimsTagBits[i] & TagBits.AnnotationNullMASK;
+						long providedBits = providedDimsTagBits[i] & TagBits.AnnotationNullMASK;
+						if (requiredBits != 0 && requiredBits != providedBits) {
+							if (providedBits == 0)
+								severity = 1; // need unchecked conversion regarding type detail
+							else
+								return 2; // mismatching annotations
+						}
+					}
+				}
+			}
+		}
+	}
+	return severity;
+}
 /**
  * INTERNAL USE ONLY.
  * This is used to redirect inter-statements jumps.

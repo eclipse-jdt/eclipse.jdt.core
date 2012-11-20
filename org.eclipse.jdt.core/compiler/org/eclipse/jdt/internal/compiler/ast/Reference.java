@@ -5,9 +5,15 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *								bug 185682 - Increment/decrement operators mark local variables as read
+ *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -22,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
@@ -91,6 +98,16 @@ public abstract void generateAssignment(BlockScope currentScope, CodeStream code
 public abstract void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired);
 
 public abstract void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired);
+
+public int nullStatus(FlowInfo flowInfo) {
+	if (this.resolvedType != null) {
+		if ((this.resolvedType.tagBits & TagBits.AnnotationNonNull) != 0)
+			return FlowInfo.NON_NULL;
+		else if ((this.resolvedType.tagBits & TagBits.AnnotationNullable) != 0)
+			return FlowInfo.POTENTIALLY_NULL;
+	}
+	return FlowInfo.UNKNOWN;
+}
 
 /* report if a private field is only read from a 'special operator',
  * i.e., in a postIncrement expression or a compound assignment,

@@ -50,7 +50,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testMissingAnnotationTypes_01" };
+//			TESTS_NAMES = new String[] { "testArrayType_05" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -376,7 +376,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in B.java (at line 4)\n" + 
 			"	ai.foo(null); // problems: ai can be null, arg must not be null\n" + 
 			"	^^\n" + 
-			"Potential null pointer access: The variable ai may be null at this location\n" + 
+			"Potential null pointer access: this expression has a '@Nullable' type\n" + 
 			"----------\n" + 
 			"2. ERROR in B.java (at line 4)\n" + 
 			"	ai.foo(null); // problems: ai can be null, arg must not be null\n" + 
@@ -408,5 +408,395 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	             ^^^^^^^^\n" + 
 			"Missing2 cannot be resolved to a type\n" + 
 			"----------\n");
+	}
+
+	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+	// annotation on leaf type in 1-dim array
+	public void testArrayType_01() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		runNegativeTest(
+			new String[] {
+				ELEMENT_TYPE_JAVA,
+				ELEMENT_TYPE_SOURCE,
+				CUSTOM_NULLABLE_NAME,
+				CUSTOM_NULLABLE_CONTENT_JSR308,
+				CUSTOM_NONNULL_NAME,
+				CUSTOM_NONNULL_CONTENT_JSR308,
+				"Wrapper.java",
+				  "public class Wrapper<T> {\n" +
+				  "	T content;" +
+				  "	public T content() { return content; }\n" +
+				  "}\n",
+				"A.java",
+				  "import org.foo.*;\n" +
+				  "public class A {\n" +
+// Using Wrapper is a workaround until bug 391331 is fixed (to force the interesting annotation to be consumed as a type annotation):
+				  "    void bar(Wrapper<@NonNull String[]> realStrings, Wrapper<@Nullable String[]> maybeStrings) {\n" +
+				  "        System.out.println(realStrings.content()[0].toUpperCase()); // no problem\n" +
+				  "        realStrings.content()[0] = null; // problem: cannot assign null as @NonNull element\n" +
+				  "        System.out.println(maybeStrings.content()[0].toUpperCase()); // problem: element can be null\n" +
+				  "        maybeStrings.content()[0] = null; // no problem\n" +
+				  "    }\n" +
+				  "}\n"},
+		    "----------\n" + 
+			"1. ERROR in A.java (at line 5)\n" + 
+			"	realStrings.content()[0] = null; // problem: cannot assign null as @NonNull element\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 6)\n" + 
+			"	System.out.println(maybeStrings.content()[0].toUpperCase()); // problem: element can be null\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Potential null pointer access: array element may be null\n" + 
+			"----------\n",
+			null,
+			true, /* shouldFlush*/
+			customOptions);
+	}
+
+	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+	// annotation on leaf type in 2-dim array
+	public void testArrayType_02() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		runNegativeTest(
+			new String[] {
+				ELEMENT_TYPE_JAVA,
+				ELEMENT_TYPE_SOURCE,
+				CUSTOM_NULLABLE_NAME,
+				CUSTOM_NULLABLE_CONTENT_JSR308,
+				CUSTOM_NONNULL_NAME,
+				CUSTOM_NONNULL_CONTENT_JSR308,
+				"Wrapper.java",
+				  "public class Wrapper<T> {\n" +
+				  "	T content;" +
+				  "	public T content() { return content; }\n" +
+				  "}\n",
+				"A.java",
+				  "import org.foo.*;\n" +
+				  "public class A {\n" +
+// Using Wrapper is a workaround until bug 391331 is fixed (to force the interesting annotation to be consumed as a type annotation):
+				  "    void bar(Wrapper<@NonNull String[][]> realStrings, Wrapper<@Nullable String[][]> maybeStrings) {\n" +
+				  "        System.out.println(realStrings.content()[0][0].toUpperCase()); // no problem\n" +
+				  "        realStrings.content()[0][0] = null; // problem: cannot assign null as @NonNull element\n" +
+				  "        System.out.println(maybeStrings.content()[0][0].toUpperCase()); // problem: element can be null\n" +
+				  "        maybeStrings.content()[0][0] = null; // no problem\n" +
+				  "    }\n" +
+				  "}\n"},
+		    "----------\n" + 
+			"1. ERROR in A.java (at line 5)\n" + 
+			"	realStrings.content()[0][0] = null; // problem: cannot assign null as @NonNull element\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 6)\n" + 
+			"	System.out.println(maybeStrings.content()[0][0].toUpperCase()); // problem: element can be null\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Potential null pointer access: array element may be null\n" + 
+			"----------\n",
+			null,
+			true, /* shouldFlush*/
+			customOptions);
+	}
+
+	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+	// annotation on array type (1-dim array)
+	public void testArrayType_03() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		runNegativeTest(
+			new String[] {
+				ELEMENT_TYPE_JAVA,
+				ELEMENT_TYPE_SOURCE,
+				CUSTOM_NULLABLE_NAME,
+				CUSTOM_NULLABLE_CONTENT_JSR308,
+				CUSTOM_NONNULL_NAME,
+				CUSTOM_NONNULL_CONTENT_JSR308,
+				"A.java",
+				  "import org.foo.*;\n" +
+				  "public class A {\n" +
+				  "    void array(String @NonNull[] realStringArray, String @Nullable[] maybeStringArray) {\n" +
+				  "        @NonNull Object array;\n" +
+				  "        array = realStringArray;  // no problem\n" +
+				  "        realStringArray = null; 	 // problem: cannot assign null as @NonNull array\n" +
+				  "        array = maybeStringArray; // problem: array can be null\n" +
+				  "        maybeStringArray = null;  // no problem\n" +
+				  "    }\n" +
+				  "    void leaf(String @NonNull[] realStringArray, String @Nullable[] maybeStringArray) {\n" +
+				  "        @NonNull String string;\n" +
+				  "        string = realStringArray[0];  // problem: unchecked conversion\n" +
+				  "        realStringArray[0] = null; 	 // no problem\n" +
+				  "        string = maybeStringArray[0]; // problems: indexing nullable array & unchecked conversion\n" +
+				  "        maybeStringArray[0] = null; 	 // problem: indexing nullable array\n" +
+				  "    }\n" +
+				  "}\n"},
+		    "----------\n" + 
+    		"1. ERROR in A.java (at line 7)\n" + 
+    		"	array = maybeStringArray; // problem: array can be null\n" + 
+    		"	        ^^^^^^^^^^^^^^^^\n" + 
+    		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
+    		"----------\n" + 
+    		"2. WARNING in A.java (at line 12)\n" + 
+    		"	string = realStringArray[0];  // problem: unchecked conversion\n" + 
+    		"	         ^^^^^^^^^^^^^^^^^^\n" + 
+    		"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" + 
+    		"----------\n" + 
+    		"3. ERROR in A.java (at line 14)\n" + 
+    		"	string = maybeStringArray[0]; // problems: indexing nullable array & unchecked conversion\n" + 
+    		"	         ^^^^^^^^^^^^^^^^\n" + 
+    		"Potential null pointer access: this expression has a '@Nullable' type\n" + 
+    		"----------\n" + 
+    		"4. WARNING in A.java (at line 14)\n" + 
+    		"	string = maybeStringArray[0]; // problems: indexing nullable array & unchecked conversion\n" + 
+    		"	         ^^^^^^^^^^^^^^^^^^^\n" + 
+    		"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull String\'\n" + 
+    		"----------\n" + 
+    		"5. ERROR in A.java (at line 15)\n" + 
+    		"	maybeStringArray[0] = null; 	 // problem: indexing nullable array\n" + 
+    		"	^^^^^^^^^^^^^^^^\n" + 
+    		"Potential null pointer access: this expression has a '@Nullable' type\n" + 
+			"----------\n",
+			null,
+			true, /* shouldFlush*/
+			customOptions);
+	}
+
+	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+	// annotation on intermediate type in 2-dim array
+	public void testArrayType_04() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		runNegativeTest(
+			new String[] {
+				ELEMENT_TYPE_JAVA,
+				ELEMENT_TYPE_SOURCE,
+				CUSTOM_NULLABLE_NAME,
+				CUSTOM_NULLABLE_CONTENT_JSR308,
+				CUSTOM_NONNULL_NAME,
+				CUSTOM_NONNULL_CONTENT_JSR308,
+				"A.java",
+				  "import org.foo.*;\n" +
+				  "public class A {\n" +
+				  "    void outer(String [] @NonNull[] realArrays, String [] @Nullable[] maybeArrays) {\n" +
+				  "        @NonNull Object array;\n" +
+				  "        array = realArrays; 		// problem: unchecked conversion\n" +
+				  "        realArrays = null; 		// no problem, outer array is unspecified\n" +
+				  "        array = maybeArrays; 	// problem: unchecked conversion\n" +
+				  "        maybeArrays = null; 		// no problem\n" +
+				  "    }\n" +
+				  "    void inner(String [] @NonNull[] realArrays, String [] @Nullable[] maybeArrays) {\n" +
+				  "        @NonNull Object array;\n" +
+				  "        array = realArrays[0]; 	// no problem\n" +
+				  "        realArrays[0] = null; 	// problem: cannot assign null to @NonNull array\n" +
+				  "        array = maybeArrays[0]; 	// problem: element can be null\n" +
+				  "        maybeArrays[0] = null; 	// no problem\n" +
+				  "    }\n" +
+				  "    void leaf(String [] @NonNull[] realArrays, String [] @Nullable[] maybeArrays) {\n" +
+				  "        @NonNull Object array;\n" +
+				  "        array = realArrays[0][0]; // problem: unchecked conversion\n" +
+				  "        realArrays[0][0] = null;  // no problem, element type is unspecified\n" +
+				  "        array = maybeArrays[0][0]; // problems: indexing nullable array & unchecked conversion\n" +
+				  "        maybeArrays[0][0] = null; // problem: indexing nullable array\n" +
+				  "    }\n" +
+				  "}\n"},
+		    "----------\n" + 
+    		"1. WARNING in A.java (at line 5)\n" + 
+    		"	array = realArrays; 		// problem: unchecked conversion\n" + 
+    		"	        ^^^^^^^^^^\n" + 
+    		"Null type safety: The expression of type String[][] needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+		    "----------\n" + 
+			"2. WARNING in A.java (at line 7)\n" + 
+    		"	array = maybeArrays; 	// problem: unchecked conversion\n" + 
+    		"	        ^^^^^^^^^^^\n" + 
+    		"Null type safety: The expression of type String[][] needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+			"----------\n" + 
+			"3. ERROR in A.java (at line 13)\n" + 
+			"	realArrays[0] = null; 	// problem: cannot assign null to @NonNull array\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"Null type mismatch: required \'String @NonNull[]\' but the provided value is null\n" + 
+			"----------\n" + 
+			"4. ERROR in A.java (at line 14)\n" +
+			"	array = maybeArrays[0]; 	// problem: element can be null\n" +
+			"	        ^^^^^^^^^^^^^^\n" + 
+			"Null type mismatch: required '@NonNull Object' but the provided value is inferred as @Nullable\n" + 
+			"----------\n" + 
+			"5. WARNING in A.java (at line 19)\n" +
+			"	array = realArrays[0][0]; // problem: unchecked conversion\n" +
+			"	        ^^^^^^^^^^^^^^^^\n" +
+    		"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+			"----------\n" + 
+			"6. ERROR in A.java (at line 21)\n" +
+			"	array = maybeArrays[0][0]; // problems: indexing nullable array & unchecked conversion\n" +
+			"	        ^^^^^^^^^^^^^^\n" +
+    		"Potential null pointer access: array element may be null\n" + 
+			"----------\n" + 
+			"7. WARNING in A.java (at line 21)\n" +
+			"	array = maybeArrays[0][0]; // problems: indexing nullable array & unchecked conversion\n" +
+			"	        ^^^^^^^^^^^^^^^^^\n" +
+			"Null type safety: The expression of type String needs unchecked conversion to conform to \'@NonNull Object\'\n" +
+			"----------\n" + 
+			"8. ERROR in A.java (at line 22)\n" + 
+			"	maybeArrays[0][0] = null; // problem: indexing nullable array\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"Potential null pointer access: array element may be null\n" + 
+			"----------\n",
+			null,
+			true, /* shouldFlush*/
+			customOptions);
+	}
+
+	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+	// mismatches against outer array type, test display of type annotation in error messages
+	public void testArrayType_05() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		runNegativeTest(
+			new String[] {
+				ELEMENT_TYPE_JAVA,
+				ELEMENT_TYPE_SOURCE,
+				CUSTOM_NULLABLE_NAME,
+				CUSTOM_NULLABLE_CONTENT_JSR308,
+				CUSTOM_NONNULL_NAME,
+				CUSTOM_NONNULL_CONTENT_JSR308,
+				"A.java",
+				  "import org.foo.*;\n" +
+				  "public class A {\n" +
+				  "    void outer(String @NonNull[] @NonNull[] realArrays, String @NonNull[] @Nullable[] maybeArrays, String @Nullable[][] unknownArrays) {\n" +
+				  "        realArrays[0] = maybeArrays[0];		// problem: inner array can be null\n" +
+				  "        realArrays[0] = unknownArrays[0];	// problems: inner array is unspecified, outer can be null\n" +
+				  "    }\n" +
+				  "    void oneDim(String @Nullable[] maybeStrings, String[] unknownStrings) {\n" +
+				  "        String @NonNull[] s = maybeStrings;\n" +
+				  "        s = unknownStrings;\n" +
+				  "        consume(maybeStrings);\n" +
+				  "        consume(unknownStrings);\n" +
+				  "    }\n" +
+				  "    void consume(String @NonNull[] s) {};\n" +
+				  "}\n"},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 4)\n" + 
+			"	realArrays[0] = maybeArrays[0];		// problem: inner array can be null\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"Null type mismatch: required \'String @NonNull[]\' but the provided value is inferred as @Nullable\n" + 
+			"----------\n" + 
+			"2. WARNING in A.java (at line 5)\n" + 
+			"	realArrays[0] = unknownArrays[0];	// problems: inner array is unspecified, outer can be null\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"Null type safety: The expression of type String[] needs unchecked conversion to conform to \'String @NonNull[]\'\n" + 
+			"----------\n" + 
+			"3. ERROR in A.java (at line 5)\n" + 
+			"	realArrays[0] = unknownArrays[0];	// problems: inner array is unspecified, outer can be null\n" + 
+			"	                ^^^^^^^^^^^^^\n" + 
+			"Potential null pointer access: this expression has a \'@Nullable\' type\n" + 
+			"----------\n" + 
+			"4. ERROR in A.java (at line 8)\n" + 
+			"	String @NonNull[] s = maybeStrings;\n" + 
+			"	                      ^^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @NonNull[]\' but this expression has type \'String @Nullable[]\'\n" + 
+			"----------\n" + 
+			"5. WARNING in A.java (at line 9)\n" + 
+			"	s = unknownStrings;\n" + 
+			"	    ^^^^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): the expression of type \'String[]\' needs unchecked conversion to conform to \'String @NonNull[]\'\n" + 
+			"----------\n" + 
+			"6. ERROR in A.java (at line 10)\n" + 
+			"	consume(maybeStrings);\n" + 
+			"	        ^^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @NonNull[]\' but this expression has type \'String @Nullable[]\'\n" + 
+			"----------\n" + 
+			"7. WARNING in A.java (at line 11)\n" + 
+			"	consume(unknownStrings);\n" + 
+			"	        ^^^^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): the expression of type \'String[]\' needs unchecked conversion to conform to \'String @NonNull[]\'\n" + 
+			"----------\n",
+			null,
+			true, /* shouldFlush*/
+			customOptions);
+	}
+
+	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+	// more compiler messages
+	public void testArrayType_10() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+		runNegativeTest(
+			new String[] {
+				ELEMENT_TYPE_JAVA,
+				ELEMENT_TYPE_SOURCE,
+				CUSTOM_NULLABLE_NAME,
+				CUSTOM_NULLABLE_CONTENT_JSR308,
+				CUSTOM_NONNULL_NAME,
+				CUSTOM_NONNULL_CONTENT_JSR308,
+				"A.java",
+				  "import org.foo.*;\n" +
+				  "public class A {\n" +
+				  "    void outer(String @NonNull[] @NonNull[] realArrays, String @NonNull[] @Nullable[] maybeArrays, String @Nullable[][] unknownArrays, String @NonNull[][] mixedArrays) {\n" +
+				  "        realArrays = maybeArrays;			// problem on inner dimension!\n" +
+				  "        realArrays = unknownArrays; 			// problems on both dimensions\n" +
+				  "        maybeArrays = realArrays;			// problem on inner dimension\n" +
+				  "        unknownArrays = maybeArrays;			// problsm on outer dimension\n" +
+				  "        realArrays = mixedArrays;			// problem on inner\n" +
+				  "        maybeArrays = mixedArrays;			// problem on inner\n" +
+				  "        consume(maybeArrays, mixedArrays, maybeArrays);\n" +
+				  "    }\n" +
+				  "    void consume(String @NonNull[] @NonNull[] realStrings, String @NonNull[] @Nullable[] maybeArrays, String @Nullable[][] unknownArrays) {\n" +
+				  "    }\n" +
+				  "}\n"},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 4)\n" + 
+			"	realArrays = maybeArrays;			// problem on inner dimension!\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @NonNull[] @NonNull[]\' but this expression has type \'String @NonNull[] @Nullable[]\'\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 5)\n" + 
+			"	realArrays = unknownArrays; 			// problems on both dimensions\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @NonNull[] @NonNull[]\' but this expression has type \'String @Nullable[] []\'\n" + 
+			"----------\n" + 
+			"3. ERROR in A.java (at line 6)\n" + 
+			"	maybeArrays = realArrays;			// problem on inner dimension\n" + 
+			"	              ^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @NonNull[] @Nullable[]\' but this expression has type \'String @NonNull[] @NonNull[]\'\n" + 
+			"----------\n" + 
+			"4. ERROR in A.java (at line 7)\n" + 
+			"	unknownArrays = maybeArrays;			// problsm on outer dimension\n" + 
+			"	                ^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @Nullable[] []\' but this expression has type \'String @NonNull[] @Nullable[]\'\n" + 
+			"----------\n" + 
+			"5. WARNING in A.java (at line 8)\n" + 
+			"	realArrays = mixedArrays;			// problem on inner\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): the expression of type \'String @NonNull[] []\' needs unchecked conversion to conform to \'String @NonNull[] @NonNull[]\'\n" + 
+			"----------\n" + 
+			"6. WARNING in A.java (at line 9)\n" + 
+			"	maybeArrays = mixedArrays;			// problem on inner\n" + 
+			"	              ^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): the expression of type \'String @NonNull[] []\' needs unchecked conversion to conform to \'String @NonNull[] @Nullable[]\'\n" + 
+			"----------\n" + 
+			"7. ERROR in A.java (at line 10)\n" + 
+			"	consume(maybeArrays, mixedArrays, maybeArrays);\n" + 
+			"	        ^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @NonNull[] @NonNull[]\' but this expression has type \'String @NonNull[] @Nullable[]\'\n" + 
+			"----------\n" + 
+			"8. WARNING in A.java (at line 10)\n" + 
+			"	consume(maybeArrays, mixedArrays, maybeArrays);\n" + 
+			"	                     ^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): the expression of type \'String @NonNull[] []\' needs unchecked conversion to conform to \'String @NonNull[] @Nullable[]\'\n" + 
+			"----------\n" + 
+			"9. ERROR in A.java (at line 10)\n" + 
+			"	consume(maybeArrays, mixedArrays, maybeArrays);\n" + 
+			"	                                  ^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @Nullable[] []\' but this expression has type \'String @NonNull[] @Nullable[]\'\n" + 
+			"----------\n",
+			null,
+			true, /* shouldFlush*/
+			customOptions);
 	}
 }
