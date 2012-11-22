@@ -4192,6 +4192,42 @@ public void test380112e() {
 				"}\n"
 			}, "Done", libs, true, new String[] {"-cp", path});
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=394780
+public void test394780() {
+	this.runConformTest(
+			new String[] {
+				"X.java", 
+				"public class X<R extends Resource> {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        X<Resource> m = new X<>();\n" + 
+				"        m.tryWithResource(new ResourceImpl());\n" + 
+				"    }\n" + 
+				"    public void tryWithResource(R resource) {\n" + 
+				"        try (R r = resource) {\n" + 
+				"            r.compute();\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}",
+				"Resource.java",
+				"public interface Resource extends AutoCloseable {\n" + 
+				"    void compute();\n" + 
+				"    @Override\n" + 
+				"    public void close();\n" + 
+				"}",
+				"ResourceImpl.java",
+				"public class ResourceImpl implements Resource {\n" + 
+				"    @Override\n" + 
+				"    public void close() {\n" + 
+				"        System.out.print(\"close\");\n" + 
+				"    }\n" + 
+				"    @Override\n" + 
+				"    public void compute() {\n" + 
+				"        System.out.print(\"compute\");\n" + 
+				"    }\n" + 
+				"}"
+			}, 
+			"computeclose");
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }
