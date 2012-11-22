@@ -8161,4 +8161,42 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			assertEquals("Wrong contents", expectedOutput, actualOutput);
 		}
 	}
+	// from https://bugs.eclipse.org/bugs/show_bug.cgi?id=394718
+	public void test394718() throws Exception {
+		this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X\n" + 
+					"{\n" + 
+					"	public static Boolean test() throws Exception\n" + 
+					"	{\n" + 
+					"		try\n" + 
+					"		{\n" + 
+					"			for (int i = 0; i < 1; i++)\n" + 
+					"			{\n" + 
+					"				long status = System.currentTimeMillis();\n" + 
+					"				if (status < 0)\n" + 
+					"					return false;\n" + 
+					"				if (status == 1)\n" + 
+					"					return false;\n" + 
+					"			}\n" + 
+					"			\n" + 
+					"			return false;\n" + 
+					"		}\n" + 
+					"		finally\n" + 
+					"		{\n" + 
+					"			System.currentTimeMillis();\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"	\n" + 
+					"	public static void main(String[] args) throws Exception\n" + 
+					"	{\n" + 
+					"		System.out.print(\"Starting\");\n" + 
+					"		test();\n" + 
+					"		System.out.println(\"Done\");\n" + 
+					"	}\n" + 
+					"}"
+			},
+			"StartingDone");
+	}	
 }
