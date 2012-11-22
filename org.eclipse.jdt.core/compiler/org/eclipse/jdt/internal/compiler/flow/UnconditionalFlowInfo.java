@@ -16,6 +16,7 @@
  *     						bug 349326 - [1.7] new warning for missing try-with-resources
  *							bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *							bug 386181 - [compiler][null] wrong transition in UnconditionalFlowInfo.mergedWith()
+ *							bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -826,6 +827,31 @@ final public boolean isDefinitelyUnknown(LocalVariableBinding local) {
 	}
 	return ((this.extra[2][vectorIndex] & this.extra[5][vectorIndex]
 	    & ~this.extra[3][vectorIndex] & ~this.extra[4][vectorIndex])
+		    & (1L << (position % BitCacheSize))) != 0;
+}
+
+final public boolean hasNullInfoFor(LocalVariableBinding local) {
+	// do not want to complain in unreachable code
+	if ((this.tagBits & UNREACHABLE) != 0 ||
+			(this.tagBits & NULL_FLAG_MASK) == 0) {
+		return false;
+	}
+	int position = local.id + this.maxFieldCount;
+	if (position < BitCacheSize) { // use bits
+		return ((this.nullBit1 | this.nullBit2
+				| this.nullBit3 | this.nullBit4) & (1L << position)) != 0;
+	}
+	// use extra vector
+	if (this.extra == null) {
+		return false; // if vector not yet allocated, then not initialized
+	}
+	int vectorIndex;
+	if ((vectorIndex = (position / BitCacheSize) - 1) >=
+			this.extra[2].length) {
+		return false; // if not enough room in vector, then not initialized
+	}
+	return ((this.extra[2][vectorIndex] | this.extra[3][vectorIndex]
+	    | this.extra[4][vectorIndex] | this.extra[5][vectorIndex])
 		    & (1L << (position % BitCacheSize))) != 0;
 }
 

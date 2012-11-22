@@ -19,6 +19,7 @@
  *								bug 379784 - [compiler] "Method can be static" is not getting reported
  *								bug 379834 - Wrong "method can be static" in presence of qualified super and different staticness of nested super class.
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -78,7 +79,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	boolean analyseResources = currentScope.compilerOptions().analyseResourceLeaks;
 	if (analyseResources && CharOperation.equals(TypeConstants.CLOSE, this.selector)) 
 	{
-		FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.receiver, flowContext);
+		FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.receiver, flowInfo, flowContext);
 		if (trackingVariable != null) { // null happens if receiver is not a local variable or not an AutoCloseable
 			if (trackingVariable.methodScope == currentScope.methodScope()) {
 				trackingVariable.markClose(flowInfo, flowContext);
