@@ -2350,7 +2350,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"public class X {    \n " +
 					"	Object o1 = (@Marker java.lang.Integer) null;   // 1. Right.\n" +
 					"	Object o2 = (java. @Marker lang.Integer) null;  // 2. Wrong.\n" +
-					"	Object o3 = (java.lang. @Marker Integer) null;  // 3. Wrong.\n" +
+					"	Object o3 = (java.lang. @Marker Integer) null;  // 3. Legal.\n" +
 					"	public void foo(java. @Marker lang.Integer arg) {}\n" +
 					"	public void bar(java.lang. @Marker Integer arg) {}\n" +
 					"	public void foobar(@Marker java.lang.Integer arg) {}\n" +
@@ -2374,24 +2374,19 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"}\n"
 				},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	Object o2 = (java. @Marker lang.Integer) null;  // 2. Wrong.\n" + 
-				"	                   ^^^^^^^\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	Object o1 = (@Marker java.lang.Integer) null;   // 1. Right.\n" + 
+				"	             ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
-				"	Object o3 = (java.lang. @Marker Integer) null;  // 3. Wrong.\n" + 
-				"	                        ^^^^^^^\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	Object o2 = (java. @Marker lang.Integer) null;  // 2. Wrong.\n" + 
+				"	                   ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 7)\n" + 
 				"	public void foo(java. @Marker lang.Integer arg) {}\n" + 
 				"	                      ^^^^^^^\n" + 
-				"Syntax error, type annotations are illegal here\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 8)\n" + 
-				"	public void bar(java.lang. @Marker Integer arg) {}\n" + 
-				"	                           ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n");
 	}
@@ -2402,8 +2397,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"import java.lang.annotation.Target;\n" +
 					"import static java.lang.annotation.ElementType.*;\n" +
 					"public class X {    \n " +
-					"	Object o1 = (java. @Marker @Annot lang.Integer) null;  // 2. Wrong.\n" +
-					"	Object o2 = (java.lang. @Marker @Annot Integer) null;  // 3. Wrong.\n" +
+					"	Object o1 = (java. @Marker @Annot lang.Integer) null;  // 1. Wrong.\n" +
+					"	Object o2 = (java.lang. @Marker @Annot Integer) null;  // 2. Legal\n" +
 					"	Object o3 = (java.@lang lang) null;  // 3. Wrong.\n" +
 					"}\n" +
 					"@Target(TYPE_USE)\n" +
@@ -2428,16 +2423,11 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				},
 				"----------\n" + 
 				"1. ERROR in X.java (at line 4)\n" + 
-				"	Object o1 = (java. @Marker @Annot lang.Integer) null;  // 2. Wrong.\n" + 
+				"	Object o1 = (java. @Marker @Annot lang.Integer) null;  // 1. Wrong.\n" + 
 				"	                   ^^^^^^^^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 5)\n" + 
-				"	Object o2 = (java.lang. @Marker @Annot Integer) null;  // 3. Wrong.\n" + 
-				"	                        ^^^^^^^^^^^^^^\n" + 
-				"Syntax error, type annotations are illegal here\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 6)\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
 				"	Object o3 = (java.@lang lang) null;  // 3. Wrong.\n" + 
 				"	             ^^^^^^^^^^^^^^^\n" + 
 				"java.lang cannot be resolved to a type\n" + 
@@ -2450,10 +2440,11 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"import java.lang.annotation.Target;\n" +
 					"import static java.lang.annotation.ElementType.*;\n" +
 					"public class X {    \n " +
-					"	Object o1 = (java.util.@Marker @Annot List<String>) null; 	// 1. Wrong.\n" +
-					"	Object o2 = (java.lang.@Marker @Annot Integer[]) null;		// 2. Wrong.\n" +
-					"	Object o3 = (java.util.@Marker @Annot List<String>[]) null; // 3. Wrong.\n" +
-					"	Object o4 = (java.lang.Integer @Marker []) null;	// 4. Right.\n" +
+					"	Object o1 = (@Marker @Annot java.util.List<String>) null; 	// 1. Wrong.\n" +
+					"	Object o2 = (java. @Marker @Annot lang.Integer[]) null;		// 2. Wrong.\n" +
+					"	Object o3 = (@Marker @Annot java.util.List<String>[]) null; // 3. Wrong.\n" +
+					"	Object o4 = (java.util.List<String> @Marker @Annot []) null; // 4. Right.\n" +
+					"	Object o5 = (java.lang.Integer @Marker @Annot []) null;	// 5. Right.\n" +
 					"}\n" +
 					"@Target(TYPE_USE)\n" +
 					"@interface Marker {}\n" +
@@ -2477,18 +2468,18 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				},
 				"----------\n" + 
 				"1. ERROR in X.java (at line 4)\n" + 
-				"	Object o1 = (java.util.@Marker @Annot List<String>) null; 	// 1. Wrong.\n" + 
-				"	                       ^^^^^^^^^^^^^^\n" + 
+				"	Object o1 = (@Marker @Annot java.util.List<String>) null; 	// 1. Wrong.\n" + 
+				"	             ^^^^^^^^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
-				"	Object o2 = (java.lang.@Marker @Annot Integer[]) null;		// 2. Wrong.\n" + 
-				"	                       ^^^^^^^^^^^^^^\n" + 
+				"	Object o2 = (java. @Marker @Annot lang.Integer[]) null;		// 2. Wrong.\n" + 
+				"	                   ^^^^^^^^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 6)\n" + 
-				"	Object o3 = (java.util.@Marker @Annot List<String>[]) null; // 3. Wrong.\n" + 
-				"	                       ^^^^^^^^^^^^^^\n" + 
+				"	Object o3 = (@Marker @Annot java.util.List<String>[]) null; // 3. Wrong.\n" + 
+				"	             ^^^^^^^^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n");
 	}
@@ -2547,7 +2538,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"4. ERROR in A.java (at line 7)\n" + 
 					"	Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" + 
 					"	             ^^^^^^^\n" + 
-					"Type annotations are not allowed on type names used to access static members\n" + 
+					"Syntax error, type annotations are illegal here\n" + 
 					"----------\n" + 
 					"5. WARNING in A.java (at line 7)\n" + 
 					"	Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" + 
@@ -2557,7 +2548,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"6. ERROR in A.java (at line 7)\n" + 
 					"	Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" + 
 					"	                       ^^^^^^^\n" + 
-					"Syntax error, type annotations are illegal here\n" + 
+					"Type annotations are not allowed on type names used to access static members\n" + 
 					"----------\n" + 
 					"7. ERROR in A.java (at line 7)\n" + 
 					"	Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" + 
@@ -2606,12 +2597,12 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"1. ERROR in A.java (at line 6)\n" + 
 					"	Object o1 = (@Marker p.@Marker A.@Marker B.@Marker C[]) null;\n" + 
 					"	             ^^^^^^^\n" + 
-					"Type annotations are not allowed on type names used to access static members\n" + 
+					"Syntax error, type annotations are illegal here\n" + 
 					"----------\n" + 
 					"2. ERROR in A.java (at line 6)\n" + 
 					"	Object o1 = (@Marker p.@Marker A.@Marker B.@Marker C[]) null;\n" + 
 					"	                       ^^^^^^^\n" + 
-					"Syntax error, type annotations are illegal here\n" + 
+					"Type annotations are not allowed on type names used to access static members\n" + 
 					"----------\n" + 
 					"3. ERROR in A.java (at line 6)\n" + 
 					"	Object o1 = (@Marker p.@Marker A.@Marker B.@Marker C[]) null;\n" + 

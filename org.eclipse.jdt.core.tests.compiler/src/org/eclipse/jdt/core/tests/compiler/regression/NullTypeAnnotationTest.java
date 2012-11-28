@@ -84,7 +84,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "        System.out.print(l.get(0).toString()); // problem: retrieved element can be null\n" +
 				  "        l.add(null);\n" +
 				  "    }\n" +
-				  "    void bar(java.util.List<@Nullable java.lang.Object> l) {\n" +
+				  "    void bar(java.util.List<@Nullable Object> l) {\n" +
 				  "        System.out.print(l.get(1).toString()); // problem: retrieved element can be null\n" +
 				  "        l.add(null);\n" +
 				  "    }\n" +
@@ -133,7 +133,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "        System.out.print(l.get(0).toString()); // problem: retrieved element can be null\n" +
 				  "        l.add(null);\n" +
 				  "    }\n" +
-				  "    void bar(java.util.List<@Dummy @Nullable java.lang.Object> l) {\n" +
+				  "    void bar(java.util.List<@Dummy @Nullable Object> l) {\n" +
 				  "        System.out.print(l.get(1).toString()); // problem: retrieved element can be null\n" +
 				  "        l.add(null);\n" +
 				  "    }\n" +
@@ -175,7 +175,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "        System.out.print(l.get(0).toString()); // problem: l may be null\n" +
 				  "        l.add(null); // problem: cannot insert 'null' into this list\n" +
 				  "    }\n" +
-				  "    void bar(@Nullable java.util.List<@NonNull java.lang.Object> l) {\n" +
+				  "    void bar(@Nullable List<@NonNull Object> l) {\n" +
 				  "        System.out.print(l.get(0).toString()); // problem: l may be null\n" +
 				  "        l.add(0, null); // problem: cannot insert 'null' into this list\n" +
 				  "    }\n" +
