@@ -87,6 +87,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		suite.addTest(new AttachedJavadocTests("testBug334652_4"));
 		suite.addTest(new AttachedJavadocTests("testBug354766"));
 		suite.addTest(new AttachedJavadocTests("testBug354766_2"));
+		suite.addTest(new AttachedJavadocTests("testBug394967"));
 		return suite;
 	}
 
@@ -1039,6 +1040,47 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 					"\r\n" + 
 					"<!-- ============ METHOD DETAIL ========== -->\r\n" + 
 					"\r\n",
+					javadoc);
+		} finally {
+			this.project.setRawClasspath(entries, null);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=394967
+	public void testBug394967() throws JavaModelException {
+		IClasspathEntry[] entries = this.project.getRawClasspath();
+		try {
+			IClasspathAttribute attribute =
+					JavaCore.newClasspathAttribute(
+							IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME,
+							"jar:platform:/resource/AttachedJavadocProject/bug394967_doc.zip!/");
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug394967.jar"), null, null, null, new IClasspathAttribute[] { attribute}, false);
+			this.project.setRawClasspath(new IClasspathEntry[]{newEntry}, null);
+			this.project.getResolvedClasspath(false);
+
+			IPackageFragmentRoot jarRoot = this.project.getPackageFragmentRoot(getFile("/AttachedJavadocProject/bug394967.jar"));
+			final IPackageFragment packageFragment = jarRoot.getPackageFragment("java.io");
+			assertNotNull(packageFragment);
+			assertTrue("Does not exist", packageFragment.exists());
+
+			String javadoc = packageFragment.getAttachedJavadoc(null);
+			assertNotNull(javadoc);
+			assertEquals(
+					"Wrong contents",
+					"\r\n<div class=\"block\">Provides for system input and output through data streams, serialization and the file system.\r\n" +
+					"<h2>\r\n" +
+					"Package Specification</h2>\r\n" +
+					"<p><br>Provides for system input and output through data streams, serialization and the file system. Unless otherwise noted, passing a null argument to a constructor or method in any class or interface in this package will cause a NullPointerException to be thrown.\r\n" +
+					"<h2>Related Documentation</h2>\r\n" +
+					"For overviews, tutorials, examples, guides, and tool documentation,\r\n" +
+					"please see:\r\n" +
+					"<ul>\r\n" +
+					"  <li><a href=\"../../../guide/serialization\">Serialization Enhancements</a>\r\n" +
+					"</ul>\r\n" +
+					"<DL>\r\n" +
+					"<DT><B>Since:</B></DT>\r\n" +
+					"<DD>JDK1.0</DD>\r\n" +
+					"</DL></div>\r\n" +
+					"</div>\r\n",
 					javadoc);
 		} finally {
 			this.project.setRawClasspath(entries, null);
