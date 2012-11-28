@@ -482,9 +482,12 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 	pathBuffer.append(packPath).append('/').append(JavadocConstants.PACKAGE_FILE_NAME);
 
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-	final String contents = getURLContents(String.valueOf(pathBuffer));
+	String contents = getURLContents(String.valueOf(pathBuffer));
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	if (contents == null) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, this));
+	
+	contents = (new JavadocContents(contents)).getPackageDoc();
+	if (contents == null) contents = ""; //$NON-NLS-1$
 	synchronized (projectInfo.javadocCache) {
 		projectInfo.javadocCache.put(this, contents);
 	}

@@ -31,6 +31,11 @@ public interface JavadocConstants {
 	char[] METHOD_SUMMARY = "<!-- ========== METHOD SUMMARY =========== -->".toCharArray(); //$NON-NLS-1$
 	char[] NESTED_CLASS_SUMMARY = "<!-- ======== NESTED CLASS SUMMARY ======== -->".toCharArray(); //$NON-NLS-1$
 	String PACKAGE_FILE_NAME = "package-summary.html"; //$NON-NLS-1$
+	char[] PACKAGE_DESCRIPTION_START = "name=\"package_description\"".toCharArray(); //$NON-NLS-1$
+	char[] H2_PREFIX = "<H2".toCharArray(); //$NON-NLS-1$
+	char[] H2_SUFFIX = "</H2>".toCharArray(); //$NON-NLS-1$
+	int H2_SUFFIX_LENGTH = H2_SUFFIX.length;
+	char[] BOTTOM_NAVBAR = "<!-- ======= START OF BOTTOM NAVBAR ====== -->".toCharArray(); //$NON-NLS-1$
 	char[] SEPARATOR_START = "<!-- =".toCharArray(); //$NON-NLS-1$
 	char[] START_OF_CLASS_DATA = "<!-- ======== START OF CLASS DATA ======== -->".toCharArray(); //$NON-NLS-1$
 	int START_OF_CLASS_DATA_LENGTH = JavadocConstants.START_OF_CLASS_DATA.length;
