@@ -21,6 +21,7 @@
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 375366 - ECJ ignores unusedParameterIncludeDocCommentReference unless enableJavadoc option is set
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -12628,12 +12629,7 @@ public void test313_warn_options() {
 		"	                     ^^^^^^\n" + 
 		"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" + 
 		"----------\n" + 
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
-		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
-		"	                               ^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" + 
-		"----------\n" + 
-		"3 problems (3 warnings)", 
+		"2 problems (2 warnings)", 
 		true);
 }
 
@@ -12677,12 +12673,7 @@ public void test314_warn_options() {
 		"	                     ^^^^^^\n" + 
 		"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" + 
 		"----------\n" + 
-		"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
-		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
-		"	                               ^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" + 
-		"----------\n" + 
-		"3 problems (3 errors)", 
+		"2 problems (2 errors)", 
 		true);
 }
 
@@ -13668,12 +13659,7 @@ public void testBug375366c() throws IOException {
 			"	                     ^^^^^^\n" + 
 			"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" + 
 			"----------\n" + 
-			"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
-			"	@Nullable Object foo(Object o, Object o2) { return null; }\n" + 
-			"	                               ^^^^^^\n" + 
-			"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" + 
-			"----------\n" + 
-			"3 problems (3 errors)", 
+			"2 problems (2 errors)", 
 			false/*don't flush*/);
 }
 

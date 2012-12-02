@@ -1036,10 +1036,10 @@ public void test_parameter_specification_inheritance_008() {
 	options.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	runConformTestWithLibs(
 		new String[] {
-			"IX.java",
+			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"public interface IX {\n" +
-			"    void printObject(@NonNull Object o);\n" +
+			"public class X {\n" +
+			"    void printObject(@NonNull Object o) { System.out.print(o.toString()); }\n" +
 			"}\n"
 		},
 		null /*customOptions*/,
@@ -1047,26 +1047,25 @@ public void test_parameter_specification_inheritance_008() {
 	runNegativeTestWithLibs(
 		false, // don't flush
 		new String[] {
-			"X.java",
-			"public class X implements IX {\n" +
-			"    public void printObject(Object o) { System.out.print(o.toString()); }\n" +
+			"XSub.java",
+			"public class XSub extends X {\n" +
+			"    @Override\n" +
+			"    public void printObject(Object o) { super.printObject(o); }\n" +
 			"}\n",
 			"M.java",
 			"public class M{\n" +
-			"    void foo(IX x, Object o) {\n" +
+			"    void foo(X x, Object o) {\n" +
 			"        x.printObject(o);\n" +
 			"    }\n" +
 			"}\n"
 		},
 		options,
 		"----------\n" +
-		// additional error:
-		"1. ERROR in X.java (at line 2)\n" +
-		"	public void printObject(Object o) { System.out.print(o.toString()); }\n" +
-		"	                        ^^^^^^\n" +
-		"Missing non-null annotation: inherited method from IX declares this parameter as @NonNull\n" +
+		"1. ERROR in XSub.java (at line 3)\n" +
+		"	public void printObject(Object o) { super.printObject(o); }\n" +
+		"	                                                      ^\n" +
+		"Null type safety: The expression of type Object needs unchecked conversion to conform to \'@NonNull Object\'\n" +
 		"----------\n" +
-		// main error:
 		"----------\n" +
 		"1. ERROR in M.java (at line 3)\n" +
 		"	x.printObject(o);\n" +
@@ -1230,18 +1229,14 @@ public void test_parameter_specification_inheritance_013() {
 		"	public @Nullable String getString(String s1, @NonNull String s2, @NonNull String s3) {\n" +
 		"	       ^^^^^^^^^^^^^^^^\n" +
 		"The return type is incompatible with the @NonNull return from IY.getString(String, String, String)\n" +
+		// no problem regarding s1: widening @NonNull to unannotated
 		"----------\n" +
 		"2. ERROR in p1\\Y.java (at line 5)\n" +
-		"	public @Nullable String getString(String s1, @NonNull String s2, @NonNull String s3) {\n" +
-		"	                                  ^^^^^^\n" +
-		"Missing non-null annotation: inherited method from IY declares this parameter as @NonNull\n" +
-		"----------\n" +
-		"3. ERROR in p1\\Y.java (at line 5)\n" +
 		"	public @Nullable String getString(String s1, @NonNull String s2, @NonNull String s3) {\n" +
 		"	                                             ^^^^^^^^^^^^^^^\n" +
 		"Illegal redefinition of parameter s2, inherited method from X declares this parameter as @Nullable\n" +
 		"----------\n" +
-		"4. ERROR in p1\\Y.java (at line 5)\n" +
+		"3. ERROR in p1\\Y.java (at line 5)\n" +
 		"	public @Nullable String getString(String s1, @NonNull String s2, @NonNull String s3) {\n" +
 		"	                                                                 ^^^^^^^^^^^^^^^\n" +
 		"Illegal redefinition of parameter s3, inherited method from IY declares this parameter as @Nullable\n" +
@@ -1316,6 +1311,29 @@ public void test_parameter_specification_inheritance_014() {
 		"The method getString3(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
 		"----------\n");
 }
+// a method relaxes the parameter null specification from @NonNull to un-annotated
+// see https://bugs.eclipse.org/381443
+public void test_parameter_specification_inheritance_015() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    void foo(@NonNull String s) { System.out.println(s); }\n" +
+			"}\n",
+			"XSub.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class XSub extends X {\n" +
+			"    public void foo(String s) { if (s != null) super.foo(s); }\n" +
+			"    void bar() { foo(null); }\n" +
+			"}\n"
+		},
+		"",
+	    this.LIBS,
+	    false/*shouldFlush*/,
+	    null/*vmArgs*/);
+}
+
 // a nullable return value is dereferenced without a check
 public void test_nullable_return_001() {
 	runNegativeTestWithLibs(
