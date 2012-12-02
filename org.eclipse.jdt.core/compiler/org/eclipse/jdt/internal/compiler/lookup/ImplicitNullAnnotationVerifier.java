@@ -319,10 +319,9 @@ public class ImplicitNullAnnotationVerifier {
 					} else {
 						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod);
 					}
-				} else if (inheritedNonNullNess != null
+				} else if (inheritedNonNullNess == Boolean.FALSE // unannotated conflics only with inherited @Nullable
 							&& currentNonNullNess == null) 
 				{
-					// weak conflict (TODO reconsider this case)
 					if (currentArgument != null) {
 						scope.problemReporter().parameterLackingNullAnnotation(
 								currentArgument,
