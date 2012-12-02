@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 358903 - Filter practically unimportant resource leak warnings
+ *								bug 381445 - [compiler][resource] Can the resource leak check be made aware of Closeables.closeQuietly?
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -165,6 +166,22 @@ public interface TypeConstants {
 	};
 	char[][] JAVA_LANG_AUTOCLOSEABLE =  {JAVA, LANG, "AutoCloseable".toCharArray()}; //$NON-NLS-1$
 	char[] CLOSE = "close".toCharArray(); //$NON-NLS-1$
+	// known helper functions for closing a Closeable (all receive a Closeable as their first argument):
+	public static class CloseMethodRecord {
+		public char[][] typeName;
+		public char[] selector;
+		public CloseMethodRecord(char[][] typeName, char[] selector) {
+			this.typeName = typeName;
+			this.selector = selector;
+		}
+	}
+	char[][] GUAVA_CLOSEABLES = { "com".toCharArray(), "google".toCharArray(), "common".toCharArray(), "io".toCharArray(), "Closeables".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+	char[][] APACHE_IOUTILS = { "org".toCharArray(), "apache".toCharArray(), "commons".toCharArray(), "io".toCharArray(), "IOUtils".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+	CloseMethodRecord[] closeMethods = new CloseMethodRecord[] {
+		new CloseMethodRecord(GUAVA_CLOSEABLES, "closeQuietly".toCharArray()), //$NON-NLS-1$
+		new CloseMethodRecord(GUAVA_CLOSEABLES, "close".toCharArray()), //$NON-NLS-1$
+		new CloseMethodRecord(APACHE_IOUTILS, "closeQuietly".toCharArray()) //$NON-NLS-1$
+	};
 	// white lists of closeables:
 	char[][] JAVA_IO_WRAPPER_CLOSEABLES = new char[][] {
 		"BufferedInputStream".toCharArray(), //$NON-NLS-1$
