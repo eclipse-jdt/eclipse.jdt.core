@@ -20,6 +20,7 @@
  *								bug 379834 - Wrong "method can be static" in presence of qualified super and different staticness of nested super class.
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
+ *								bug 381445 - [compiler][resource] Can the resource leak check be made aware of Closeables.closeQuietly?
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -75,19 +76,40 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	boolean nonStatic = !this.binding.isStatic();
 	boolean wasInsideAssert = ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0);
 	flowInfo = this.receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
+
 	// recording the closing of AutoCloseable resources:
 	boolean analyseResources = currentScope.compilerOptions().analyseResourceLeaks;
-	if (analyseResources && CharOperation.equals(TypeConstants.CLOSE, this.selector)) 
-	{
-		FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.receiver, flowInfo, flowContext);
-		if (trackingVariable != null) { // null happens if receiver is not a local variable or not an AutoCloseable
-			if (trackingVariable.methodScope == currentScope.methodScope()) {
-				trackingVariable.markClose(flowInfo, flowContext);
-			} else {
-				trackingVariable.markClosedInNestedMethod();
+	if (analyseResources) {
+		Expression closeTarget = null;
+		if (nonStatic) {
+			// closeable.close()
+			if (CharOperation.equals(TypeConstants.CLOSE, this.selector)) {
+				closeTarget = this.receiver;
+			}
+		} else if (this.arguments != null && this.arguments.length > 0 && FakedTrackingVariable.isAnyCloseable(this.arguments[0].resolvedType)) {
+			// Helper.closeMethod(closeable, ..)
+			for (int i=0; i<TypeConstants.closeMethods.length; i++) {
+				CloseMethodRecord record = TypeConstants.closeMethods[i];
+				if (CharOperation.equals(record.selector, this.selector)
+						&& CharOperation.equals(record.typeName, this.binding.declaringClass.compoundName)) 
+				{
+					closeTarget = this.arguments[0];
+					break;
+				}
+			}
+		}
+		if (closeTarget != null) {
+			FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(closeTarget, flowInfo, flowContext);
+			if (trackingVariable != null) { // null happens if target is not a local variable or not an AutoCloseable
+				if (trackingVariable.methodScope == currentScope.methodScope()) {
+					trackingVariable.markClose(flowInfo, flowContext);
+				} else {
+					trackingVariable.markClosedInNestedMethod();
+				}
 			}
 		}
 	}
+
 	if (nonStatic) {
 		this.receiver.checkNPE(currentScope, flowContext, flowInfo);
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
