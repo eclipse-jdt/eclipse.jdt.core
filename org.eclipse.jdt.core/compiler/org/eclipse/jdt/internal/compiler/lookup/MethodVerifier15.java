@@ -11,6 +11,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 388795 - [compiler] detection of name clash depends on order of super interfaces
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -33,6 +34,9 @@ MethodVerifier15(LookupEnvironment environment) {
 	super(environment);
 }
 boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
+	return areMethodsCompatible(one, two, false);
+}
+boolean areMethodsCompatible(MethodBinding one, MethodBinding two, boolean allowReverse) {
 	// use the original methods to test compatibility, but do not check visibility, etc
 	one = one.original();
 	two = one.findOriginalInheritedMethod(two);
@@ -40,7 +44,7 @@ boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
 	if (two == null)
 		return false; // method's declaringClass does not inherit from inheritedMethod's
 
-	return isParameterSubsignature(one, two);
+	return isParameterSubsignature(one, two) || (allowReverse && isParameterSubsignature(two, one));
 }
 boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two) {
 	if (one.returnType == two.returnType) return true;
@@ -461,6 +465,12 @@ void checkMethods() {
 		int inheritedLength = inherited.length;
 		MethodBinding[] matchingInherited = new MethodBinding[inheritedLength];
 		MethodBinding[] foundMatch = new MethodBinding[inheritedLength]; // null is no match, otherwise value is matching currentMethod
+
+		// skip tracks inherited methods which can be safely ignored for one of these reasons:
+		// - methods that have matched other inherited methods
+		// 		either because they match the same currentMethod or match each other
+		// - methods that are overridden by a current method
+		boolean[] skip = new boolean[inheritedLength];
 		if (current != null) {
 			for (int i = 0, length1 = current.length; i < length1; i++) {
 				MethodBinding currentMethod = current[i];
@@ -469,6 +479,8 @@ void checkMethods() {
 					MethodBinding inheritedMethod = computeSubstituteMethod(inherited[j], currentMethod);
 					if (inheritedMethod != null) {
 						if (foundMatch[j] == null && isSubstituteParameterSubsignature(currentMethod, inheritedMethod)) {
+							// already checked compatibility, do visibility etc. also indicate overriding? If so ignore inheritedMethod further downstream
+							skip[j] = couldMethodOverride(currentMethod, inheritedMethod);
 							matchingInherited[++index] = inheritedMethod;
 							foundMatch[j] = currentMethod;
 						} else {
@@ -492,9 +504,6 @@ void checkMethods() {
 			}
 		}
 
-		// skip tracks which inherited methods have matched other inherited methods
-		// either because they match the same currentMethod or match each other
-		boolean[] skip = new boolean[inheritedLength];
 		for (int i = 0; i < inheritedLength; i++) {
 			MethodBinding matchMethod = foundMatch[i];
 			if (matchMethod == null && current != null && this.type.isPublic()) { // current == null case handled already.
@@ -522,24 +531,28 @@ void checkMethods() {
 				// This elimination used to happen rather eagerly in computeInheritedMethods step
 				// itself earlier. (https://bugs.eclipse.org/bugs/show_bug.cgi?id=302358)
 				if (inheritedMethod.declaringClass != otherInheritedMethod.declaringClass) {
-					if (otherInheritedMethod.declaringClass.isInterface()) {
+					if (otherInheritedMethod.declaringClass.isInterface() && !inheritedMethod.declaringClass.isInterface()) {
 						if (isInterfaceMethodImplemented(otherInheritedMethod, inheritedMethod, otherInheritedMethod.declaringClass)) {
 							skip[j] = true;
 							continue;
 						}
-					} else if (areMethodsCompatible(inheritedMethod, otherInheritedMethod)) {
+					} else if (areMethodsCompatible(inheritedMethod, otherInheritedMethod, true)) {
 						skip[j] = true;
 						continue;
 					}
 				}
 				otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
 				if (otherInheritedMethod != null) {
-					if (isSubstituteParameterSubsignature(inheritedMethod, otherInheritedMethod)) {
-							if (index == -1)
-								matchingInherited[++index] = inheritedMethod;
-							if (foundMatch[j] == null)
-								matchingInherited[++index] = otherInheritedMethod;
-							skip[j] = true;
+					if (((!inheritedMethod.isAbstract() || otherInheritedMethod.isAbstract()) 		// if (abstract(inherited) => abstract(other)) check if inherited overrides other 
+								&& isSubstituteParameterSubsignature(inheritedMethod, otherInheritedMethod))
+						|| ((!otherInheritedMethod.isAbstract() || inheritedMethod.isAbstract())	// if (abstract(other) => abstract(inherited)) check if other overrides inherited 
+								&& isSubstituteParameterSubsignature(otherInheritedMethod, inheritedMethod))) 
+					{
+						if (index == -1)
+							matchingInherited[++index] = inheritedMethod;
+						if (foundMatch[j] == null)
+							matchingInherited[++index] = otherInheritedMethod;
+						skip[j] = true;
 					} else if (matchMethod == null && foundMatch[j] == null) {
 						checkInheritedMethods(inheritedMethod, otherInheritedMethod);
 					}
@@ -659,7 +672,6 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 			ReferenceBinding[] interfaces = typeVariable.superInterfaces;
 			if (interfaceLength != interfaces.length)
 				return inheritedMethod; // not a match
-			// TODO (kent) another place where we expect the superinterfaces to be in the exact same order
 			next : for (int j = 0; j < interfaceLength; j++) {
 				TypeBinding superType = Scope.substitute(substitute, inheritedTypeVariable.superInterfaces[j]);
 				for (int k = 0; k < interfaceLength; k++)

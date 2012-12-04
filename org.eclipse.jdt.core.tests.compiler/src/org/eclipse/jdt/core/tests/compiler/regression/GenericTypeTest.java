@@ -7,7 +7,9 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 383690 - [compiler] location of error re uninitialized final field should be aligned
+ *     Stephan Herrmann - Contributions for
+ *								bug 383690 - [compiler] location of error re uninitialized final field should be aligned
+ *								bug 388795 - [compiler] detection of name clash depends on order of super interfaces
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -42809,7 +42811,7 @@ public void test1239() {
 		"4. ERROR in X.java (at line 13)\n" +
 		"	public interface CombinedSubInterface extends SubInterface, OtherSubInterface {}\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^\n" +
-		"The return types are incompatible for the inherited methods X.SuperInterface.and(X.SuperInterface), X.OtherSubInterface.and(X.SuperInterface), X.SubInterface.and(X.SuperInterface)\n" +
+		"The return types are incompatible for the inherited methods X.OtherSubInterface.and(X.SuperInterface), X.SubInterface.and(X.SuperInterface)\n" +
 		"----------\n" +
 		"5. WARNING in X.java (at line 15)\n" +
 		"	public interface OtherSubInterface extends SuperInterface {\n" +

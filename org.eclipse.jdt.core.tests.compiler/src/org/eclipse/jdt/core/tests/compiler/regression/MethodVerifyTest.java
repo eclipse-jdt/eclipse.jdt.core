@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 388795 - [compiler] detection of name clash depends on order of super interfaces
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2491,32 +2493,27 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Name clash: The method foo(A<String>) of type K has the same erasure as foo(A) of type I but does not override it\n" + 
 			"----------\n" : 
 				"----------\n" + 
-				"1. ERROR in X.java (at line 2)\n" + 
-				"	abstract class Y implements J, I { }\n" + 
-				"	               ^\n" + 
-				"Name clash: The method foo(A<String>) of type J has the same erasure as foo(A) of type I but does not override it\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 4)\n" + 
+				"1. WARNING in X.java (at line 4)\n" + 
 				"	class YYY implements J, I { public void foo(A a) {} }\n" + 
 				"	                                            ^\n" + 
 				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
 				"----------\n" + 
-				"3. WARNING in X.java (at line 5)\n" + 
+				"2. WARNING in X.java (at line 5)\n" + 
 				"	class XXX implements I, J { public void foo(A a) {} }\n" + 
 				"	                                            ^\n" + 
 				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
 				"----------\n" + 
-				"4. WARNING in X.java (at line 6)\n" + 
+				"3. WARNING in X.java (at line 6)\n" + 
 				"	class ZZZ implements K { public void foo(A a) {} }\n" + 
 				"	                                         ^\n" + 
 				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
 				"----------\n" + 
-				"5. WARNING in X.java (at line 7)\n" + 
+				"4. WARNING in X.java (at line 7)\n" + 
 				"	interface I { void foo(A a); }\n" + 
 				"	                       ^\n" + 
 				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
 				"----------\n" + 
-				"6. ERROR in X.java (at line 9)\n" + 
+				"5. ERROR in X.java (at line 9)\n" + 
 				"	interface K extends I { void foo(A<String> a); }\n" + 
 				"	                             ^^^^^^^^^^^^^^^^\n" + 
 				"Name clash: The method foo(A<String>) of type K has the same erasure as foo(A) of type I but does not override it\n" + 
@@ -9087,7 +9084,7 @@ public void test140() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public abstract class X implements J, K {}\n" +
 		"	                      ^\n" +
-		"The return types are incompatible for the inherited methods I.foo(Number), K.foo(Number), J.foo(Number)\n" +
+		"The return types are incompatible for the inherited methods K.foo(Number), J.foo(Number)\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 6)\n" +
 		"	XX foo(Number n);\n" +
@@ -13378,6 +13375,11 @@ public void testBug317719f() throws Exception {
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 7)\n" + 
+			"	class ChildX<Z> extends X<Z>{}\n" + 
+			"	      ^^^^^^\n" + 
+			"Duplicate methods named forAccountSet with the parameters (List<R>) and (List) are defined by the type X<Z>\n" + 
 			"----------\n":
 				"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
