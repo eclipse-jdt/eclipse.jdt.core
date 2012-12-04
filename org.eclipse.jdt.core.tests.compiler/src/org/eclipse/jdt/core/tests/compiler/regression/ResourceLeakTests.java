@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class ResourceLeakTests extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug386534" };
+//	TESTS_NAMES = new String[] { "testBug394768" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -3912,6 +3912,94 @@ public void testBug386534() {
 			"	}\n" + 
 			"	static class Log {\n" + 
 			"		public static void w(String logTag, String string, IOException e) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);
+}
+
+//https://bugs.eclipse.org/386534 -  [compiler][resource] "Potential resource leak" false positive warning
+public void testBug394768() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"Bug394768.java",
+			"import java.io.File;\n" + 
+			"import java.io.FileInputStream;\n" + 
+			"import java.io.InputStream;\n" + 
+			"\n" + 
+			"public class Bug394768 {\n" + 
+			"	public void readFile(String path) throws Exception {\n" + 
+			"		InputStream stream = null;\n" + 
+			"		File file = new File(path);\n" + 
+			"\n" + 
+			"		if (file.exists())\n" + 
+			"			stream = new FileInputStream(path);\n" + 
+			"		else\n" + 
+			"			stream = getClass().getClassLoader().getResourceAsStream(path);\n" + 
+			"\n" + 
+			"		if (stream == null)\n" + 
+			"			return;\n" + 
+			"\n" + 
+			"		try {\n" + 
+			"			// Use the opened stream here\n" + 
+			"			stream.read();\n" + 
+			"		} finally {\n" + 
+			"			stream.close();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);
+}
+
+// https://bugs.eclipse.org/386534 -  [compiler][resource] "Potential resource leak" false positive warning
+// variation: 2nd branch closes and nulls the newly acquired resource
+public void testBug394768_1() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"Bug394768.java",
+			"import java.io.File;\n" + 
+			"import java.io.FileInputStream;\n" + 
+			"import java.io.InputStream;\n" + 
+			"\n" + 
+			"public class Bug394768 {\n" + 
+			"	public void readFile(String path) throws Exception {\n" + 
+			"		InputStream stream = null;\n" + 
+			"		File file = new File(path);\n" + 
+			"\n" + 
+			"		if (file.exists()) {\n" + 
+			"			stream = new FileInputStream(path);\n" + 
+			"		} else {\n" + 
+			"			stream = getClass().getClassLoader().getResourceAsStream(path);" +
+			"           stream.close();\n" +
+			"           stream = null;\n" +
+			"       }\n" + 
+			"\n" + 
+			"		if (stream == null)\n" + 
+			"			return;\n" + 
+			"\n" + 
+			"		try {\n" + 
+			"			// Use the opened stream here\n" + 
+			"			stream.read();\n" + 
+			"		} finally {\n" + 
+			"			stream.close();\n" + 
 			"		}\n" + 
 			"	}\n" + 
 			"}\n"
