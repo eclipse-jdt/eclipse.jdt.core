@@ -128,12 +128,12 @@ protected Process execCommandLine() throws TargetException {
 		// does not properly handle spaces in arguments on Unix/Linux platforms.
 		String[] commandLine = getCommandLine();
 
-		// DEBUG - temporarily enabled for https://bugs.eclipse.org/393149
-		for (int i = 0; i < commandLine.length; i++) {
+		// DEBUG
+		/*for (int i = 0; i < commandLine.length; i++) {
 			System.out.print(commandLine[i] + " ");
 		}
 		System.out.println();
-		
+		*/
 
 		vmProcess= Runtime.getRuntime().exec(commandLine);
 	} catch (IOException e) {
