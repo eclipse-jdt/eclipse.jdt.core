@@ -13,6 +13,7 @@
  *     						Bug 354536 - compiling package-info.java still depends on the order of compilation units
  *     						Bug 349326 - [1.7] new warning for missing try-with-resources
  *     						Bug 358903 - Filter practically unimportant resource leak warnings
+ *							Bug 395977 - [compiler][resource] Resource leak warning behavior possibly incorrect for anonymous inner class
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -50,6 +51,20 @@ public class ClassScope extends Scope {
 	void buildAnonymousTypeBinding(SourceTypeBinding enclosingType, ReferenceBinding supertype) {
 		LocalTypeBinding anonymousType = buildLocalType(enclosingType, enclosingType.fPackage);
 		anonymousType.modifiers |= ExtraCompilerModifiers.AccLocallyUsed; // tag all anonymous types as used locally
+		int inheritedBits = supertype.typeBits; // for anonymous class assume same properties as its super (as a closeable) ...
+		// ... unless it overrides close():
+		if ((inheritedBits & TypeIds.BitWrapperCloseable) != 0) {
+			AbstractMethodDeclaration[] methods = this.referenceContext.methods;
+			if (methods != null) {
+				for (int i=0; i<methods.length; i++) {
+					if (CharOperation.equals(TypeConstants.CLOSE, methods[i].selector) && methods[i].arguments == null) {
+						inheritedBits &= TypeIds.InheritableBits;
+						break;
+					}
+				}
+			}
+		}
+		anonymousType.typeBits |= inheritedBits;
 		if (supertype.isInterface()) {
 			anonymousType.superclass = getJavaLangObject();
 			anonymousType.superInterfaces = new ReferenceBinding[] { supertype };

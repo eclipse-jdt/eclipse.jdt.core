@@ -34,7 +34,7 @@ private static final String GUAVA_CLOSEABLES_CONTENT = "package com.google.commo
 	"}\n";
 
 static {
-//	TESTS_NAMES = new String[] { "testBug394768" };
+//	TESTS_NAMES = new String[] { "testBug395977" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -4179,5 +4179,193 @@ public void testBug381445_3() {
 		null, 
 		options,
 		null);	
+}
+
+// Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
+// original test case
+public void testBug395977() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"WriterTest.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class WriterTest implements Runnable\n" + 
+			"{\n" + 
+			"   private BufferedWriter m_Writer;\n" + 
+			"   \n" + 
+			"   public void run()\n" + 
+			"   {\n" + 
+			"      try\n" + 
+			"      {\n" + 
+			"         initializeWriter();\n" + 
+			"         \n" + 
+			"         m_Writer.write(\"string\");\n" + 
+			"         m_Writer.newLine();\n" + 
+			"         \n" + 
+			"         closeWriter();\n" + 
+			"      }\n" + 
+			"      catch (IOException ioe)\n" + 
+			"      {\n" + 
+			"         ioe.printStackTrace();\n" + 
+			"      }\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private void initializeWriter()\n" + 
+			"      throws UnsupportedEncodingException, FileNotFoundException\n" + 
+			"   {\n" + 
+			"      m_Writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"))\n" + 
+			"      {\n" + 
+			"         /**\n" + 
+			"          * Writes an LF character on all platforms, to avoid constantly flipping the line terminator style.\n" + 
+			"          */\n" + 
+			"         public void newLine() throws IOException\n" + 
+			"         {\n" + 
+			"            write('\\n');\n" + 
+			"         }\n" + 
+			"      };\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private void closeWriter()\n" + 
+			"      throws IOException\n" + 
+			"   {\n" + 
+			"      m_Writer.close();\n" + 
+			"   }\n" + 
+			"}"
+		},
+		"",
+		null,
+		true,
+		null, 
+		options,
+		null);
+}
+
+// Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
+// variant with named local class - don't accept as a secure resource wrapper
+public void testBug395977_1() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"WriterTest.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class WriterTest implements Runnable\n" + 
+			"{\n" + 
+			"   private BufferedWriter m_Writer;\n" + 
+			"   \n" + 
+			"   public void run()\n" + 
+			"   {\n" + 
+			"      try\n" + 
+			"      {\n" + 
+			"         initializeWriter();\n" + 
+			"         \n" + 
+			"         m_Writer.write(\"string\");\n" + 
+			"         m_Writer.newLine();\n" + 
+			"         \n" + 
+			"         closeWriter();\n" + 
+			"      }\n" + 
+			"      catch (IOException ioe)\n" + 
+			"      {\n" + 
+			"         ioe.printStackTrace();\n" + 
+			"      }\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private void initializeWriter()\n" + 
+			"      throws UnsupportedEncodingException, FileNotFoundException\n" + 
+			"   {\n" + 
+			"      class MyBufferedWriter extends BufferedWriter\n" + 
+			"      {\n" +
+			"         MyBufferedWriter(OutputStreamWriter writer) { super(writer); }\n" +
+			"         /**\n" + 
+			"          * Writes an LF character on all platforms, to avoid constantly flipping the line terminator style.\n" + 
+			"          */\n" + 
+			"         public void newLine() throws IOException\n" + 
+			"         {\n" + 
+			"            write('\\n');\n" + 
+			"         }\n" + 
+			"      };" +
+			"      m_Writer = new MyBufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"));\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private void closeWriter()\n" + 
+			"      throws IOException\n" + 
+			"   {\n" + 
+			"      m_Writer.close();\n" + 
+			"   }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in WriterTest.java (at line 37)\n" + 
+		"	};      m_Writer = new MyBufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"));\n" + 
+		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+
+// Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
+// anonymous class tries to "cheat" by overriding close()
+public void testBug395977_2() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"WriterTest.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class WriterTest implements Runnable\n" + 
+			"{\n" + 
+			"   private BufferedWriter m_Writer;\n" + 
+			"   \n" + 
+			"   public void run()\n" + 
+			"   {\n" + 
+			"      try\n" + 
+			"      {\n" + 
+			"         initializeWriter();\n" + 
+			"         \n" + 
+			"         m_Writer.write(\"string\");\n" + 
+			"         m_Writer.newLine();\n" + 
+			"         \n" + 
+			"         closeWriter();\n" + 
+			"      }\n" + 
+			"      catch (IOException ioe)\n" + 
+			"      {\n" + 
+			"         ioe.printStackTrace();\n" + 
+			"      }\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private void initializeWriter()\n" + 
+			"      throws UnsupportedEncodingException, FileNotFoundException\n" + 
+			"   {\n" + 
+			"      m_Writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"))\n" + 
+			"      {\n" + 
+			"         public void close() { /* nop */}\n" +
+			"      };\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private void closeWriter()\n" + 
+			"      throws IOException\n" + 
+			"   {\n" + 
+			"      m_Writer.close();\n" + 
+			"   }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in WriterTest.java (at line 27)\n" + 
+		"	m_Writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"))\n" + 
+		"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
 }
 }
