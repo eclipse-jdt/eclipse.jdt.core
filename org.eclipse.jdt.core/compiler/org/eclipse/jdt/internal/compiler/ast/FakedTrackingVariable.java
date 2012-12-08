@@ -16,11 +16,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FinallyFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -31,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * A faked local variable declaration used for keeping track of data flows of a
@@ -40,6 +44,10 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
  * See bug 349326 - [1.7] new warning for missing try-with-resources
  */
 public class FakedTrackingVariable extends LocalDeclaration {
+
+	private static final char[] UNASSIGNED_CLOSEABLE_NAME = "<unassigned Closeable value>".toCharArray(); //$NON-NLS-1$
+	private static final char[] UNASSIGNED_CLOSEABLE_NAME_TEMPLATE = "<unassigned Closeable value from line {0}>".toCharArray(); //$NON-NLS-1$
+	private static final char[] TEMPLATE_ARGUMENT = "{0}".toCharArray(); //$NON-NLS-1$
 
 	// a call to close() was seen at least on one path:
 	private static final int CLOSE_SEEN = 1;
@@ -107,7 +115,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 
 	/* Create an unassigned tracking variable while analyzing an allocation expression: */
 	private FakedTrackingVariable(BlockScope scope, ASTNode location, FlowInfo flowInfo, int nullStatus) {
-		super("<unassigned Closeable value>".toCharArray(), location.sourceStart, location.sourceEnd); //$NON-NLS-1$
+		super(UNASSIGNED_CLOSEABLE_NAME, location.sourceStart, location.sourceEnd);
 		this.type = new SingleTypeReference(
 				TypeConstants.OBJECT,
 				((long)this.sourceStart <<32)+this.sourceEnd);
@@ -827,5 +835,23 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			current.globalClosingState &= ~(REPORTED_POTENTIAL_LEAK|REPORTED_DEFINITIVE_LEAK);
 			current = current.innerTracker;
 		} while (current != null);
+	}
+
+	public String nameForReporting(ASTNode location, ReferenceContext referenceContext) {
+		if (this.name == UNASSIGNED_CLOSEABLE_NAME) {
+			if (location != null && referenceContext != null) {
+				CompilationResult compResult = referenceContext.compilationResult();
+				if (compResult != null) {
+					int[] lineEnds = compResult.getLineSeparatorPositions();
+					int resourceLine = Util.getLineNumber(this.sourceStart, lineEnds , 0, lineEnds.length-1);
+					int reportLine = Util.getLineNumber(location.sourceStart, lineEnds , 0, lineEnds.length-1);
+					if (resourceLine != reportLine) {
+						char[] replacement = Integer.toString(resourceLine).toCharArray();
+						return String.valueOf(CharOperation.replace(UNASSIGNED_CLOSEABLE_NAME_TEMPLATE, TEMPLATE_ARGUMENT, replacement));
+					}
+				}
+			}
+		}
+		return String.valueOf(this.name);
 	}
 }
