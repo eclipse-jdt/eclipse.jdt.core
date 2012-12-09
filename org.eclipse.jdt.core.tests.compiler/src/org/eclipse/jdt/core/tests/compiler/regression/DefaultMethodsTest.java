@@ -573,4 +573,156 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			},
 			"");
 	}
+
+	// JLS 8.1.1.1 abstract Classes
+	// Default method overrides an abstract method from its super interface
+	public void testAbstract01() {
+		runConformTest(
+			new String[] {
+				"I2.java",
+				"public interface I2 {\n" +
+				"    void test();\n" +
+				"}\n",
+				"I1.java",
+				"public interface I1 extends I2 {\n" +
+				"    void test() default {}\n" +
+				"}\n",
+				"C.java",
+				"public class C implements I1 {\n" +
+				"}\n"
+			});
+	}
+
+	// JLS 8.1.1.1 abstract Classes
+	// Default method overrides independent abstract method
+	public void testAbstract02() {
+		runConformTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"    void test();\n" +
+				"}\n",
+				"I2.java",
+				"public interface I2 {\n" +
+				"    void test() default {}\n" +
+				"}\n",
+				"C.java",
+				"public class C implements I1, I2 {\n" +
+				"}\n"
+			});
+	}
+
+	// JLS 8.1.1.1 abstract Classes
+	// Default method overrides independent abstract method
+	// same as above except for order of implements list
+	public void testAbstract02a() {
+		runConformTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"    void test();\n" +
+				"}\n",
+				"I2.java",
+				"public interface I2 {\n" +
+				"    void test() default {}\n" +
+				"}\n",
+				"C.java",
+				"public class C implements I2, I1 {\n" +
+				"}\n"
+			});
+	}
+
+	// JLS 8.1.1.1 abstract Classes
+	// Default method overrides an abstract method from its super interface - class implements both
+	public void testAbstract03() {
+		runConformTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"    void test();\n" +
+				"}\n",
+				"I2.java",
+				"public interface I2 extends I1 {\n" +
+				"    @Override\n" +
+				"    void test() default {}\n" +
+				"}\n",
+				"C.java",
+				"public class C implements I1, I2 {\n" +
+				"}\n"
+			});
+	}
+	
+	// JLS 8.1.1.1 abstract Classes
+	// Default method overrides an abstract method from its super interface - class implements both
+	// same as above except for order of implements list
+	public void testAbstract03a() {
+		runConformTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"    void test();\n" +
+				"}\n",
+				"I2.java",
+				"public interface I2 extends I1 {\n" +
+				"    @Override\n" +
+				"    void test() default {}\n" +
+				"}\n",
+				"C.java",
+				"public class C implements I2, I1 {\n" +
+				"}\n"
+			});
+	}
+
+	// JLS 8.1.1.1 abstract Classes
+	// default method is not inherited because a more specific abstract method is.
+	public void testAbstract04() {
+		runNegativeTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"    void test() default {}\n" +
+				"}\n",
+				"I2.java",
+				"public interface I2 extends I1 {\n" +
+				"    @Override\n" +
+				"    void test();\n" +
+				"}\n",
+				"C.java",
+				"public class C implements I2, I1 {\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in C.java (at line 1)\n" + 
+			"	public class C implements I2, I1 {\n" + 
+			"	             ^\n" + 
+			"The type C must implement the inherited abstract method I2.test()\n" + 
+			"----------\n");
+	}
+
+	// JLS 8.1.1.1 abstract Classes
+	// default method is not inherited because a more specific abstract method is.
+	// same as above except for order of implements list
+	public void testAbstract04a() {
+		runNegativeTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"    void test() default {}\n" +
+				"}\n",
+				"I2.java",
+				"public interface I2 extends I1 {\n" +
+				"    @Override\n" +
+				"    void test();\n" +
+				"}\n",
+				"C.java",
+				"public class C implements I2, I1 {\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in C.java (at line 1)\n" + 
+			"	public class C implements I2, I1 {\n" + 
+			"	             ^\n" + 
+			"The type C must implement the inherited abstract method I2.test()\n" + 
+			"----------\n");
+	}
 }

@@ -26,6 +26,7 @@
  *								bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+ *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -3169,10 +3170,11 @@ public void inheritedMethodsHaveIncompatibleReturnTypes(ASTNode location, Method
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void inheritedMethodsHaveIncompatibleReturnTypes(SourceTypeBinding type, MethodBinding[] inheritedMethods, int length) {
+public void inheritedMethodsHaveIncompatibleReturnTypes(SourceTypeBinding type, MethodBinding[] inheritedMethods, int length, boolean[] isOverridden) {
 	StringBuffer methodSignatures = new StringBuffer();
 	StringBuffer shortSignatures = new StringBuffer();
 	for (int i = length; --i >= 0;) {
+		if (isOverridden[i]) continue;
 		methodSignatures
 			.append(inheritedMethods[i].declaringClass.readableName())
 			.append('.')

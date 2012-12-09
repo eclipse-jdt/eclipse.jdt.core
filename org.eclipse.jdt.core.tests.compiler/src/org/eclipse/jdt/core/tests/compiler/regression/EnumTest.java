@@ -5,12 +5,17 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *		IBM Corporation - initial API and implementation
  *		Stephan Herrmann - Contributions for
  *								Bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								Bug 265744 - Enum switch should warn about missing default
  *								Bug 374605 - Unreasonable warning for enum-based switch statements
+ *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -3007,7 +3012,7 @@ public void test095() { // check missing abstract cases from multiple interfaces
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public enum X implements I, J { \n" +
 		"	            ^\n" +
-		"The type X must implement the inherited abstract method I.foo()\n" +
+		"The type X must implement the inherited abstract method J.foo()\n" +
 		"----------\n");
 	this.runNegativeTest(
 		new String[] {

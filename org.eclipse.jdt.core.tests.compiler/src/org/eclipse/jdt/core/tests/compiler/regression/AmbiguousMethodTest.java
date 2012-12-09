@@ -5,8 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -115,7 +121,7 @@ public class AmbiguousMethodTest extends AbstractComparableTest {
 					"1. ERROR in X.java (at line 4)\n" + 
 					"	static interface I3<E3, E4> extends I1<E3>, I2<E4> {}\n" + 
 					"	                 ^^\n" + 
-					"Name clash: The method method(E1) of type X.I1<E1> has the same erasure as method(E2) of type X.I2<E2> but does not override it\n" + 
+					"Name clash: The method method(E2) of type X.I2<E2> has the same erasure as method(E1) of type X.I1<E1> but does not override it\n" + 
 					"----------\n");
 		}
 	}
@@ -2485,7 +2491,7 @@ public void test047() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public class X<T extends I & J> {\n" +
 		"	               ^\n" +
-		"The return types are incompatible for the inherited methods J.method(), I.method()\n" +
+		"The return types are incompatible for the inherited methods I.method(), J.method()\n" +
 		"----------\n",
 		// javac options
 	  	JavacTestOptions.JavacHasABug.JavacBug5061359 /* javac test options */);
@@ -2517,7 +2523,7 @@ public void test048() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public class X<T extends I & J> {\n" +
 		"	               ^\n" +
-		"The return types are incompatible for the inherited methods J.method(), I.method()\n" +
+		"The return types are incompatible for the inherited methods I.method(), J.method()\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	t.method();\n" +
@@ -3176,12 +3182,12 @@ public void test070() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	interface C extends B, A {}\n" +
 		"	          ^\n" +
-		"The return types are incompatible for the inherited methods A.foo(), B.foo()\n" +
+		"The return types are incompatible for the inherited methods B.foo(), A.foo()\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	interface D extends A, B {}\n" +
 		"	          ^\n" +
-		"The return types are incompatible for the inherited methods B.foo(), A.foo()\n" +
+		"The return types are incompatible for the inherited methods A.foo(), B.foo()\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 8)\n" +
 		"	X<? extends B> c_b = c.foo();\n" +
@@ -3307,7 +3313,7 @@ public void test073() {
 		"3. ERROR in Y.java (at line 13)\n" +
 		"	abstract class Y extends X implements I, J {\n" +
 		"	               ^\n" +
-		"The return types are incompatible for the inherited methods J.a(), I.a()\n" +
+		"The return types are incompatible for the inherited methods I.a(), J.a()\n" +
 		"----------\n" +
 		"4. ERROR in Y.java (at line 20)\n" +
 		"	abstract class Y2 extends X implements J, I {\n" +
@@ -3322,7 +3328,7 @@ public void test073() {
 		"6. ERROR in Y.java (at line 20)\n" +
 		"	abstract class Y2 extends X implements J, I {\n" +
 		"	               ^^\n" +
-		"The return types are incompatible for the inherited methods I.a(), J.a()\n" +
+		"The return types are incompatible for the inherited methods J.a(), I.a()\n" +
 		"----------\n"
 	);
 }

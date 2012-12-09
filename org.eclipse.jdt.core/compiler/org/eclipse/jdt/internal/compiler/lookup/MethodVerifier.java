@@ -16,8 +16,14 @@
  *     								bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
  *									bug 388954 - [1.8][compiler] detect default methods in class files
  *									bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *									bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -25,8 +31,9 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
+import org.eclipse.jdt.internal.compiler.util.Sorting;
 
-public class MethodVerifier extends ImplicitNullAnnotationVerifier {
+public abstract class MethodVerifier extends ImplicitNullAnnotationVerifier {
 	SourceTypeBinding type;
 	HashtableOfObject inheritedMethods;
 	HashtableOfObject currentMethods;
@@ -346,7 +353,7 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 	}
 }
 
-void checkInheritedMethods(MethodBinding[] methods, int length) {
+void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOverridden) {
 	/*
 	1. find concrete method
 	2. if it doesn't exist then find first inherited abstract method whose return type is compatible with all others
@@ -383,7 +390,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 				}
 			}
 		} else if (noMatch) {
-			problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
+			problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length, isOverridden);
 		} else if (this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
 			checkInheritedDefaultMethods(methods, length);
 		}
@@ -397,7 +404,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 		// concreteMethod is not the best match
 		MethodBinding bestAbstractMethod = findBestInheritedAbstractMethod(methods, length);
 		if (bestAbstractMethod == null)
-			problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
+			problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length, isOverridden);
 		else // can only happen in >= 1.5 since return types must be equal prior to 1.5
 			problemReporter().abstractMethodMustBeImplemented(this.type, bestAbstractMethod, concreteMethod);
 		return;
@@ -458,7 +465,8 @@ For each inherited method identifier (message pattern - vm signature minus the r
 				else
 					complain about missing implementation only if type is NOT an interface or abstract
 */
-void checkMethods() {
+abstract void checkMethods();
+private void _unusedCheckMethods() {
 	boolean mustImplementAbstractMethods = mustImplementAbstractMethods();
 	boolean skipInheritedMethods = mustImplementAbstractMethods && canSkipInheritedMethods(); // have a single concrete superclass so only check overridden methods
 	boolean isOrEnclosedByPrivateType = this.type.isOrEnclosedByPrivateType();
@@ -531,7 +539,7 @@ void checkMethods() {
 			}
 			if (index == -1) continue;
 			if (index > 0)
-				checkInheritedMethods(matchingInherited, index + 1); // pass in the length of matching
+				checkInheritedMethods(matchingInherited, index + 1, null/*FIXME: required value not provided*/); // pass in the length of matching
 			else if (mustImplementAbstractMethods && matchingInherited[0].isAbstract())
 				checkAbstractMethod(matchingInherited[0]);
 			while (index >= 0) matchingInherited[index--] = null; // clear the contents of the matching methods
@@ -591,36 +599,11 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 	// if an inheritedMethod has been 'replaced' by a supertype's method then skip it, however
     // see usage of canOverridingMethodDifferInErasure below.
 	this.inheritedMethods = new HashtableOfObject(51); // maps method selectors to an array of methods... must search to match paramaters & return type
-	ReferenceBinding[] interfacesToVisit = null;
-	int nextPosition = 0;
-	ReferenceBinding[] itsInterfaces = superInterfaces;
-	if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-		nextPosition = itsInterfaces.length;
-		interfacesToVisit = itsInterfaces;
-	}
 
 	ReferenceBinding superType = superclass;
 	HashtableOfObject nonVisibleDefaultMethods = new HashtableOfObject(3); // maps method selectors to an array of methods
 
 	while (superType != null && superType.isValidBinding()) {
-		// We used to only include superinterfaces if immediate superclasses are abstract
-		// but that is problematic. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=302358
-		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
-			if (interfacesToVisit == null) {
-				interfacesToVisit = itsInterfaces;
-				nextPosition = interfacesToVisit.length;
-			} else {
-				int itsLength = itsInterfaces.length;
-				if (nextPosition + itsLength >= interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-				nextInterface : for (int a = 0; a < itsLength; a++) {
-					ReferenceBinding next = itsInterfaces[a];
-					for (int b = 0; b < nextPosition; b++)
-						if (next == interfacesToVisit[b]) continue nextInterface;
-					interfacesToVisit[nextPosition++] = next;
-				}
-			}
-		}
 
 		MethodBinding[] methods = superType.unResolvedMethods();
 		nextMethod : for (int m = methods.length; --m >= 0;) {
@@ -687,24 +670,27 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 		}
 		superType = superType.superclass();
 	}
-	if (nextPosition == 0) return;
 
+	List superIfcList = new ArrayList();
+	HashSet seenTypes = new HashSet();
+	collectAllDistinctSuperInterfaces(superInterfaces, seenTypes, superIfcList);
+	if (superclass != null)
+		collectAllDistinctSuperInterfaces(superclass.superInterfaces(), seenTypes, superIfcList);
+	if (superIfcList.size() == 0) return;
+	
+	if (superIfcList.size() == 1) {
+		superInterfaces = new ReferenceBinding[] { (ReferenceBinding) superIfcList.get(0) };
+	} else {
+		superInterfaces = (ReferenceBinding[]) superIfcList.toArray(new ReferenceBinding[superIfcList.size()]);
+		superInterfaces = Sorting.sortTypes(superInterfaces);
+	}
+	
 	SimpleSet skip = findSuperinterfaceCollisions(superclass, superInterfaces);
-	for (int i = 0; i < nextPosition; i++) {
-		superType = interfacesToVisit[i];
+	int len = superInterfaces.length;
+	for (int i = len-1; i >= 0; i--) {
+		superType = superInterfaces[i];
 		if (superType.isValidBinding()) {
 			if (skip != null && skip.includes(superType)) continue;
-			if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
-				int itsLength = itsInterfaces.length;
-				if (nextPosition + itsLength >= interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-				nextInterface : for (int a = 0; a < itsLength; a++) {
-					ReferenceBinding next = itsInterfaces[a];
-					for (int b = 0; b < nextPosition; b++)
-						if (next == interfacesToVisit[b]) continue nextInterface;
-					interfacesToVisit[nextPosition++] = next;
-				}
-			}
 
 			MethodBinding[] methods = superType.unResolvedMethods();
 			nextMethod : for (int m = methods.length; --m >= 0;) { // Interface methods are all abstract public
@@ -725,6 +711,18 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 				}
 				this.inheritedMethods.put(inheritedMethod.selector, existingMethods);
 			}
+		}
+	}
+}
+
+void collectAllDistinctSuperInterfaces(ReferenceBinding[] superInterfaces, Set seen, List result) {
+	// use 'seen' to avoid duplicates, use result to maintain stable order
+	int length = superInterfaces.length;
+	for (int i=0; i<length; i++) {
+		ReferenceBinding superInterface = superInterfaces[i];
+		if (seen.add(superInterface)) {
+			result.add(superInterface);
+			collectAllDistinctSuperInterfaces(superInterface.superInterfaces(), seen, result);
 		}
 	}
 }
