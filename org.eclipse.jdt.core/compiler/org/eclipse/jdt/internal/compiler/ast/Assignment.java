@@ -20,6 +20,7 @@
  *							bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *							bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *							bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
+ *							bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -190,7 +191,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.compilationUnitScope().recordTypeConversion(lhsType, rhsType);
 	}
 	if (this.expression.isConstantValueOfTypeAssignableToType(rhsType, lhsType)
-			|| rhsType.isCompatibleWith(lhsType)) {
+			|| rhsType.isCompatibleWith(lhsType, scope)) {
 		this.expression.computeConversion(scope, lhsType, rhsType);
 		checkAssignment(scope, lhsType, rhsType);
 		if (this.expression instanceof CastExpression

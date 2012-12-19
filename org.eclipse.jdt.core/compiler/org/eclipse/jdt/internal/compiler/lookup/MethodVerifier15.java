@@ -12,6 +12,7 @@
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 388795 - [compiler] detection of name clash depends on order of super interfaces
+ *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -679,7 +680,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 						continue next;
 				return inheritedMethod; // not a match
 			}
-		} else if (inheritedTypeVariable.boundCheck(substitute, argument) != TypeConstants.OK) {
+		} else if (inheritedTypeVariable.boundCheck(substitute, argument, this.type.scope) != TypeConstants.OK) {
 	    	return inheritedMethod;
 		}
 	}

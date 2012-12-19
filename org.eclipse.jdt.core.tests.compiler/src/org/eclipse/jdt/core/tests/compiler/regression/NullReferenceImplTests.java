@@ -11,6 +11,7 @@
  *								bug 320170
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 386181 - [compiler][null] wrong transition in UnconditionalFlowInfo.mergedWith()
+ *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -38,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo.AssertionFai
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 /**
@@ -1022,7 +1024,7 @@ class TestLocalVariableBinding extends LocalVariableBinding {
 		public PackageBinding getPackage() {
 			return null;
 		}
-		public boolean isCompatibleWith(TypeBinding right) {
+		public boolean isCompatibleWith(TypeBinding right, Scope captureScope) {
 			return false;
 		}
 		public char[] qualifiedSourceName() {
