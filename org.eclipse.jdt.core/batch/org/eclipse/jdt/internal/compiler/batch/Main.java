@@ -1638,20 +1638,22 @@ private boolean checkVMVersion(long minimalSupportedVersion) {
 		return false;
 	}
 	switch(majorVersion) {
-		case 45 : // 1.0 and 1.1
+		case ClassFileConstants.MAJOR_VERSION_1_1 : // 1.0 and 1.1
 			return ClassFileConstants.JDK1_1 >= minimalSupportedVersion;
-		case 46 : // 1.2
+		case ClassFileConstants.MAJOR_VERSION_1_2 : // 1.2
 			return ClassFileConstants.JDK1_2 >= minimalSupportedVersion;
-		case 47 : // 1.3
+		case ClassFileConstants.MAJOR_VERSION_1_3 : // 1.3
 			return ClassFileConstants.JDK1_3 >= minimalSupportedVersion;
-		case 48 : // 1.4
+		case ClassFileConstants.MAJOR_VERSION_1_4 : // 1.4
 			return ClassFileConstants.JDK1_4 >= minimalSupportedVersion;
-		case 49 : // 1.5
+		case ClassFileConstants.MAJOR_VERSION_1_5 : // 1.5
 			return ClassFileConstants.JDK1_5 >= minimalSupportedVersion;
-		case 50 : // 1.6
+		case ClassFileConstants.MAJOR_VERSION_1_6 : // 1.6
 			return ClassFileConstants.JDK1_6 >= minimalSupportedVersion;
-		case 51 : // 1.7
+		case ClassFileConstants.MAJOR_VERSION_1_7 : // 1.7
 			return ClassFileConstants.JDK1_7 >= minimalSupportedVersion;
+		case ClassFileConstants.MAJOR_VERSION_1_8: // 1.8
+			return ClassFileConstants.JDK1_8 >= minimalSupportedVersion;
 	}
 	// unknown version
 	return false;
