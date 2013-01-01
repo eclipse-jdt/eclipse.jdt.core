@@ -183,7 +183,9 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 	protected static boolean hasEmptyName(TypeReference reference, ASTNode assistNode) {
 		if (reference == null) return false;
 
-		if (reference.sourceStart <= assistNode.sourceStart && assistNode.sourceEnd <= reference.sourceEnd) return false;
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=397070
+		if (reference != assistNode &&
+				reference.sourceStart <= assistNode.sourceStart && assistNode.sourceEnd <= reference.sourceEnd) return false;
 
 		if (reference instanceof CompletionOnSingleTypeReference ||
 				reference instanceof CompletionOnQualifiedTypeReference ||
