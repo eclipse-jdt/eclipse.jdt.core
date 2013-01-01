@@ -30,19 +30,25 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.CompletionContext;
+import org.eclipse.jdt.core.CompletionProposal;
+import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.codeassist.InternalCompletionContext;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 public class CompletionTests2 extends ModifyingResourceTests implements RelevanceConstants {
@@ -5979,6 +5985,66 @@ public void testBug373409() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=397070
+public void testBug397070() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/Completion.java",
+		"package test;\n" +
+		"public class Completion implements {}\n" +
+		"public interface Completion2 extends {}\n" +
+		"public class Completion3 extends {}\n" +
+		"}\n");
+
+	class CompletionRequestor2 extends CompletionRequestor {
+		SourceType type = null;
+		public void acceptContext(CompletionContext con) {
+			this.type = null;
+			if (con instanceof InternalCompletionContext) {
+				InternalCompletionContext context = (InternalCompletionContext) con;
+				IJavaElement element = context.getEnclosingElement();
+				if (element instanceof org.eclipse.jdt.internal.core.SourceType) {
+					this.type = (SourceType) element;
+				}
+			}
+		}
+		public boolean isExtendedContextRequired() {
+			return true;
+		}
+		public SourceType getType() {
+			return this.type;
+		}
+		public void accept(CompletionProposal proposal) {
+			// Do nothing
+		}
+	}
+
+	CompletionRequestor2 requestor = new CompletionRequestor2();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Completion implements ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	try {
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		SourceType type = requestor.getType();
+		String[] names = type.getSuperInterfaceTypeSignatures();
+		assertEquals("Incorrect syper interface signature", 0, names.length);
+
+		completeBehind = "Completion2 extends ";
+		cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		type = requestor.getType();
+		names = type.getSuperInterfaceTypeSignatures();
+		assertEquals("Incorrect syper interface signature", 0, names.length);
+
+		completeBehind = "Completion3 extends ";
+		cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		type = requestor.getType();
+		assertNull("Incorrect syper class signature", type.getSuperclassTypeSignature());
+	} catch (IllegalArgumentException iae) {
+		fail("Invalid completion context");
 	}
 }
 }
