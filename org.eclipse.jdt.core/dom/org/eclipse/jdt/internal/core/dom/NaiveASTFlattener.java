@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1318,6 +1318,18 @@ public class NaiveASTFlattener extends ASTVisitor {
 		node.getType().accept(this);
 		if (node.getAST().apiLevel() >= JLS3) {
 			if (node.isVarargs()) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
+				if (node.getAST().apiLevel() >= AST.JLS8) {
+					List annotations = node.varargsAnnotations();
+					if (annotations != null) {
+						this.buffer.append(' ');						
+						for (Iterator it = annotations.iterator(); it.hasNext(); ) {
+							Annotation annotation = (Annotation) it.next();
+							annotation.accept(this);
+							this.buffer.append(' ');
+						}
+					}
+				}
 				this.buffer.append("...");//$NON-NLS-1$
 			}
 		}

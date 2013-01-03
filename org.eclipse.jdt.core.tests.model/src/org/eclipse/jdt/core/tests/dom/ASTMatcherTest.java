@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -39,6 +43,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
 				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS2));
 				suite.addTest(new ASTMatcherTest(methods[i].getName(), JLS3_INTERNAL));
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
+				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS8));
 			}
 		}
 		return suite;
@@ -1320,4 +1326,16 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
+	public void testSingleVariableDeclarationVarargsAnnotation() {
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		SingleVariableDeclaration x1 = this.ast.newSingleVariableDeclaration();
+		x1.setType(this.T1);
+		x1.setName(this.N1);
+		x1.setVarargs(true);
+		x1.varargsAnnotations().add(this.ANO1);
+		basicMatch(x1);
+	}
 }

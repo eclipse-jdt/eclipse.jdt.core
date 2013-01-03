@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -31,6 +35,11 @@ import java.util.List;
  * <pre>
  * SingleVariableDeclaration:
  *    { ExtendedModifier } Type [ <b>...</b> ] Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
+ * </pre>
+ * For JLS8, variable arguments are allowed to have optional annotations:
+ * <pre>
+ * SingleVariableDeclaration:
+ *    { ExtendedModifier } Type {Annotation} [ <b>...</b> ] Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
  * </pre>
  *
  * @since 2.0
@@ -72,6 +81,13 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 */
 	public static final SimplePropertyDescriptor VARARGS_PROPERTY =
 		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "varargs", boolean.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "varargsAnnotations" structural property of variable arguments of this node type (child type: {@link Annotation}).
+	 * @since 3.9
+	 */
+	public static final ChildListPropertyDescriptor VARARGS_ANNOTATIONS_PROPERTY =
+		new ChildListPropertyDescriptor(SingleVariableDeclaration.class, "varargsAnnotations", Annotation.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "extraDimensions" structural property of this node type (type: {@link Integer}).
@@ -102,7 +118,15 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @since 3.1
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
-
+	
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.9
+	 */
+	private static final List PROPERTY_DESCRIPTORS_8_0;
+	
 	static {
 		List propertyList = new ArrayList(6);
 		createPropertyList(SingleVariableDeclaration.class, propertyList);
@@ -122,7 +146,20 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		addProperty(EXTRA_DIMENSIONS_PROPERTY, propertyList);
 		addProperty(INITIALIZER_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(propertyList);
-	}
+		
+		
+		propertyList = new ArrayList(8);
+		createPropertyList(SingleVariableDeclaration.class, propertyList);
+		addProperty(MODIFIERS2_PROPERTY, propertyList);
+		addProperty(TYPE_PROPERTY, propertyList);
+		addProperty(VARARGS_ANNOTATIONS_PROPERTY, propertyList);
+		addProperty(VARARGS_PROPERTY, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
+		addProperty(EXTRA_DIMENSIONS_PROPERTY, propertyList);
+		addProperty(INITIALIZER_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);		
+	
+		}
 
 	/**
 	 * Returns a list of structural property descriptors for this node type.
@@ -137,8 +174,10 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	public static List propertyDescriptors(int apiLevel) {
 		if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
-		} else {
+		} else if (apiLevel < AST.JLS8) {
 			return PROPERTY_DESCRIPTORS_3_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_8_0;
 		}
 	}
 
@@ -192,6 +231,12 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	private Expression optionalInitializer = null;
 
 	/**
+	 * The type annotations (element type: {@link Annotation}).
+	 * @since 3.9
+	 */
+	private ASTNode.NodeList varargsAnnotations = null;
+
+	/**
 	 * Creates a new AST node for a variable declaration owned by the given
 	 * AST. By default, the variable declaration has: no modifiers, an
 	 * unspecified (but legal) type, an unspecified (but legal) variable name,
@@ -206,6 +251,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		super(ast);
 		if (ast.apiLevel >= AST.JLS3_INTERNAL) {
 			this.modifiers = new ASTNode.NodeList(MODIFIERS2_PROPERTY);
+			if (ast.apiLevel >= AST.JLS8) {
+				this.varargsAnnotations = new ASTNode.NodeList(VARARGS_ANNOTATIONS_PROPERTY);
+			}
 		}
 	}
 
@@ -319,6 +367,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		if (property == MODIFIERS2_PROPERTY) {
 			return modifiers();
 		}
+		if (property == VARARGS_ANNOTATIONS_PROPERTY) {
+			return varargsAnnotations();
+		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
@@ -347,6 +398,11 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		result.setName((SimpleName) getName().clone(target));
 		result.setInitializer(
 			(Expression) ASTNode.copySubtree(target, getInitializer()));
+		if (this.ast.apiLevel >= AST.JLS8) {
+			result.varargsAnnotations = new ASTNode.NodeList(VARARGS_ANNOTATIONS_PROPERTY);
+			result.varargsAnnotations().addAll(
+					ASTNode.copySubtrees(target, varargsAnnotations()));
+		}
 		return result;
 	}
 
@@ -369,6 +425,9 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 				acceptChildren(visitor, this.modifiers);
 			}
 			acceptChild(visitor, getType());
+			if (this.ast.apiLevel >= AST.JLS8 && isVarargs()) {
+				acceptChildren(visitor, this.varargsAnnotations);
+			}
 			acceptChild(visitor, getName());
 			acceptChild(visitor, getInitializer());
 		}
@@ -613,13 +672,28 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		this.optionalInitializer = initializer;
 		postReplaceChild(oldChild, initializer,INITIALIZER_PROPERTY);
 	}
-
+	
+	/**
+	 * Returns the  ordered list of annotations of variable arguments.
+	 *
+	 * @return the list of annotations of the varargs (element type: {@link Annotation})
+	 * @exception UnsupportedOperationException if this operation is used
+	 *            in a JLS2, JLS3 or JLS4 AST
+	 * @since 3.9
+	 */
+	public List varargsAnnotations() {
+		if (this.varargsAnnotations == null) {
+			unsupportedIn2_3_4(); 
+		}
+		return this.varargsAnnotations;
+	}
+	
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
 		// treat Operator as free
-		return BASE_NODE_SIZE + 7 * 4;
+		return BASE_NODE_SIZE + 8 * 4;
 	}
 
 	/* (omit javadoc for this method)
@@ -628,6 +702,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	int treeSize() {
 		return
 			memSize()
+			+ (this.varargsAnnotations == null ? 0 : this.varargsAnnotations.listSize())
 			+ (this.modifiers == null ? 0 : this.modifiers.listSize())
 			+ (this.type == null ? 0 : getType().treeSize())
 			+ (this.variableName == null ? 0 : getName().treeSize())
