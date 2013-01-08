@@ -11,6 +11,7 @@
  *     							bug 236385 - [compiler] Warn for potential programming problem if an object is created but not used
  *      						bug 349326 - [1.7] new warning for missing try-with-resources
  *      						bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
+ *								bug 391517 - java.lang.VerifyError on code that runs correctly in Eclipse 3.7 and eclipse 3.6
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2599,6 +2600,41 @@ public void testBug380750() {
 				"		return new String[] {s};\n" + 
 				"	}\n" + 
 				"}\n"
+			}, 
+			"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391517
+// java.lang.VerifyError on code that runs correctly in Eclipse 3.7 and eclipse 3.6
+public void testBug391517() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.PrintWriter;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	private static final int CONSTANT = 0;\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		// TODO Auto-generated method stub\n" + 
+				"\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static void addStackTrace(String prefix) {\n" + 
+				"		if (CONSTANT == 0) {\n" + 
+				"			return;\n" + 
+				"		}\n" + 
+				"		PrintWriter pw = null;\n" + 
+				"		new Exception().printStackTrace(pw);\n" + 
+				"		if (bar() == null) {\n" + 
+				"			System.out.println();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static Object bar() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}"
 			}, 
 			"");
 }
