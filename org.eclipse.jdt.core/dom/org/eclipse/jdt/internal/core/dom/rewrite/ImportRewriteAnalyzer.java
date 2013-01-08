@@ -270,13 +270,17 @@ public final class ImportRewriteAnalyzer {
 			int nextOffset= next.getStartPosition();
 			int nextLength= next.getLength();
 			int nextOffsetLine= root.getLineNumber(nextOffset);
+			int nextExtendedOffset = root.getExtendedStartPosition(next);
+			int nextExtendedOffsetLine = root.getLineNumber(nextExtendedOffset);
 
 			int extendedStart = root.getExtendedStartPosition(curr);
+			int extendedLength = root.getExtendedLength(curr);
 			if (extendedStart < this.replaceRange.getOffset()) {
 				// don't touch the first comments before the start of import declarations
+				extendedLength -=  (currOffset - extendedStart);
 				extendedStart = currOffset;
 			}
-			int extendedLength = root.getExtendedLength(curr);
+			
 			// if next import is on a different line, modify the end position to the next line begin offset
 			int nextLineOffset = nextOffset; // offset at the start of next line. Next import may not start here
 			if (currEndLine < nextOffsetLine) {
@@ -314,6 +318,7 @@ public final class ImportRewriteAnalyzer {
 				nextOffset= root.getPosition(nextOffsetLine, 0);
 
 				currPackage= new PackageEntry(); // create a comment package entry for this
+				currPackage.setGroupID(packName);
 				this.packageEntries.add(currPackage);
 				currPackage.add(new ImportDeclEntry(packName.length(), null, false, new Region(nextLineOffset, nextOffset - nextLineOffset)));
 
@@ -566,6 +571,7 @@ public final class ImportRewriteAnalyzer {
 		}
 		String groupId= null;
 		int longestPrefix= -1;
+		PackageEntry matchingCommentEntry = null;
 		// find the matching group
 		for (int i= 0; i < this.packageEntries.size(); i++) {
 			PackageEntry curr= (PackageEntry) this.packageEntries.get(i);
@@ -573,8 +579,11 @@ public final class ImportRewriteAnalyzer {
 				String currGroup= curr.getGroupID();
 				if (currGroup != null && newName.startsWith(currGroup)) {
 					int prefixLen= currGroup.length();
-					if (prefixLen == newName.length()) {
+					if (prefixLen == newName.length() && !curr.isComment()) {
 						return curr; // perfect fit, use entry
+					} else if (curr.isComment()) {
+						matchingCommentEntry = curr; // may be the only fit if no actual import of this group is already present
+						continue;
 					}
 					if ((newName.charAt(prefixLen) == '.' || prefixLen == 0) && prefixLen > longestPrefix) {
 						longestPrefix= prefixLen;
@@ -582,6 +591,9 @@ public final class ImportRewriteAnalyzer {
 					}
 				}
 			}
+		}
+		if (matchingCommentEntry != null) {
+			return matchingCommentEntry;
 		}
 		PackageEntry bestMatch= null;
 		PackageMatcher matcher= new PackageMatcher();
@@ -616,10 +628,78 @@ public final class ImportRewriteAnalyzer {
 		return qualifier.equals(packageName +'.' + mainTypeName);
 	}
 
-	public void addImport(String fullTypeName, boolean isStatic) {
+	public void addImport(String fullTypeName, boolean isStatic, CompilationUnit root, boolean restoreExistingImports) {
 		String typeContainerName= getQualifier(fullTypeName, isStatic);
-		ImportDeclEntry decl= new ImportDeclEntry(typeContainerName.length(), fullTypeName, isStatic, null);
+		ImportDeclEntry decl;
+		if (restoreExistingImports) {
+			decl = new ImportDeclEntry(typeContainerName.length(), fullTypeName, isStatic, null);
+		} else {
+			decl = addImportDeclEntry(typeContainerName, fullTypeName, isStatic, root);
+		}
 		sortIn(typeContainerName, decl, isStatic);
+	}
+
+	/**
+	 * adds the import entry, but if its an existing import entry then preserves the comments surrounding the import
+	 */
+	private ImportDeclEntry addImportDeclEntry(String containerName, String fullTypeName, boolean isStatic, CompilationUnit root) {
+		List/*ImportDeclaration*/ decls= root.imports();
+		if (decls.isEmpty() || this.preserveExistingCommentsRanges == null || this.preserveExistingCommentsRanges.length == 0) {
+			return new ImportDeclEntry(containerName.length(), fullTypeName, isStatic, null);
+		}
+		IRegion precedingCommentRange = null;
+		IRegion trailingCommentRange = null;
+		int prevOffset = this.replaceRange.getOffset();  // will store offset of the previous import's extended end
+		int numOfImports = decls.size();
+		for (int i= 0; i < numOfImports; i++) {
+			ImportDeclaration curr= (ImportDeclaration) decls.get(i);
+			int currOffset= curr.getStartPosition();
+			int currLength= curr.getLength();
+			int currExtendedStart = root.getExtendedStartPosition(curr);
+			int currExtendedLen = root.getExtendedLength(curr);
+			String name= getFullName(curr);
+			String packName= getQualifier(curr);
+			if (packName.equals(containerName) && (name.equals(fullTypeName) || name.endsWith("*"))) {//$NON-NLS-1$
+				int preserveCommentsLen = this.preserveExistingCommentsRanges.length;
+				for (int j = 0; j < preserveCommentsLen; j++) {
+					int offset = this.preserveExistingCommentsRanges[j].getOffset();
+					boolean wasRangeUsed = false;
+					int existingCommentLength = this.preserveExistingCommentsRanges[j].getLength();
+					if (offset == currExtendedStart) {
+						// comments belonging to this import's extended start
+						precedingCommentRange = new Region(offset, existingCommentLength);	
+						wasRangeUsed = true;
+					} else if (offset < currExtendedStart && offset > prevOffset) {
+						// comment between two imports but not inside either's extended ranges
+						// to preserve the position of these comments add a dummy comment entry
+						PackageEntry commentEntry = new PackageEntry(); // create a comment package entry for this
+						commentEntry.setGroupID(packName);	// the comment should belong to the current group
+						this.packageEntries.add(commentEntry);
+						commentEntry.add(new ImportDeclEntry(packName.length(), null, false, new Region(offset, existingCommentLength)));
+						wasRangeUsed = true;
+					} else if ((currExtendedStart + currExtendedLen) != (currOffset + currLength)){
+						if (offset == currOffset + currLength) {
+							// comment is in the extended end of the import
+							trailingCommentRange = new Region(offset, existingCommentLength);
+							wasRangeUsed = true;
+						} else if (offset > (currOffset + currLength)) {
+							break;
+						}
+					}
+					if (wasRangeUsed) {
+						// remove this comment from preceedingCommnentRange array
+						IRegion[] tempRegions = new IRegion[preserveCommentsLen = (preserveCommentsLen - 1)];
+						System.arraycopy(this.preserveExistingCommentsRanges, 0, tempRegions, 0, j);
+						System.arraycopy(this.preserveExistingCommentsRanges, j+1, tempRegions, j, tempRegions.length - j);
+						this.preserveExistingCommentsRanges = tempRegions;
+						j--;
+					}
+				}	
+				return new ImportDeclEntry(containerName.length(), fullTypeName, isStatic, null, precedingCommentRange, trailingCommentRange);
+			}
+			prevOffset = currExtendedStart + currExtendedLen - 1;
+		}
+		return new ImportDeclEntry(containerName.length(), fullTypeName, isStatic, null);
 	}
 
 	public boolean removeImport(String qualifiedName, boolean isStatic) {
@@ -758,6 +838,9 @@ public final class ImportRewriteAnalyzer {
 								stringsToInsert.add(lineDelim);
 							}
 						}
+					} else if (lastPackage != null && lastPackage.isComment() && pack.isSameGroup(lastPackage)) {
+						// the last pack may be a dummy for a comment which doesn't belong to any extended range
+						stringsToInsert.add(lineDelim);
 					}
 				}
 				lastPackage= pack;
@@ -766,11 +849,13 @@ public final class ImportRewriteAnalyzer {
 				int threshold= isStatic ? this.staticImportOnDemandThreshold : this.importOnDemandThreshold;
 
 				boolean doStarImport= pack.hasStarImport(threshold, onDemandConflicts);
+				boolean allImportsAddedToStar = false;
 				if (doStarImport && (pack.find("*") == null)) { //$NON-NLS-1$
 					String[] imports = getNewImportStrings(buffer, pack, isStatic, lineDelim);
 					for (int j = 0, max = imports.length; j < max; j++) {
 						stringsToInsert.add(imports[j]);
 					}
+					allImportsAddedToStar = true;
 				}
 
 				for (int k= 0; k < nImports; k++) {
@@ -779,9 +864,19 @@ public final class ImportRewriteAnalyzer {
 
 					if (region == null) { // new entry
 						if (!doStarImport || currDecl.isOnDemand() || (onDemandConflicts != null && onDemandConflicts.contains(currDecl.getSimpleName()))) {
-							String str= getNewImportString(currDecl.getElementName(), isStatic, lineDelim);
+							IRegion rangeBefore = currDecl.getPrecedingCommentRange();
+							IRegion rangeAfter = currDecl.getTrailingCommentRange();
+							if (rangeBefore != null) {
+								stringsToInsert.add(buffer.getText(rangeBefore.getOffset(), rangeBefore.getLength()));
+							}
+							
+							String trailingComment = null;
+							if (rangeAfter != null) {
+								trailingComment = buffer.getText(rangeAfter.getOffset(), rangeAfter.getLength());
+							}
+							String str= getNewImportString(currDecl.getElementName(), isStatic, trailingComment, lineDelim);
 							stringsToInsert.add(str);
-						} else if (doStarImport && !currDecl.isOnDemand()) {
+						} else if (doStarImport && !currDecl.isOnDemand() && !allImportsAddedToStar) {
 							String simpleName = currDecl.getTypeQualifiedName();
 							if (simpleName.indexOf('.') != -1) {
 								String str= getNewImportString(currDecl.getElementName(), isStatic, lineDelim);
@@ -830,7 +925,7 @@ public final class ImportRewriteAnalyzer {
 
 			// insert back all existing imports comments since existing imports were not preserved
 			if (this.preserveExistingCommentsRanges != null) {
-				for (int i = 0, max = this.preserveExistingCommentsRanges.length; i < max; i++) {
+				for (int i = 0, max = this.preserveExistingCommentsRanges.length; (i < max && this.preserveExistingCommentsRanges[i] != null); i++) {
 					IRegion region = this.preserveExistingCommentsRanges[i];
 					String text = buffer.getText(region.getOffset(), region.getLength());
 					// remove preceding whitespaces
@@ -1012,6 +1107,7 @@ public final class ImportRewriteAnalyzer {
 		List allImports = new ArrayList();
 		int nImports = packageEntry.getNumberOfImports();
 		StringBuffer allComments = null;
+		StringBuffer allCommentsLead = null;
 		for (int i= 0; i < nImports; i++) {
 			ImportDeclEntry curr= packageEntry.getImportAt(i);
 			String simpleName = curr.getTypeQualifiedName();
@@ -1029,28 +1125,41 @@ public final class ImportRewriteAnalyzer {
 				allImports.add(getNewImportString(curr.getElementName(), isStatic, trailingComment, lineDelim));
 			} else if (!isStarImportAdded) {
 				String starImportString= packageEntry.getName() + ".*"; //$NON-NLS-1$
-				allImports.add(getNewImportString(starImportString, isStatic, lineDelim));
+				// collect all comments
+				IRegion rangeBefore = curr.getPrecedingCommentRange();
+				if (rangeBefore != null) {
+					allImports.add(buffer.getText(rangeBefore.getOffset(), rangeBefore.getLength()));
+				}
+				IRegion rangeAfter = curr.getTrailingCommentRange();
+				String trailComments = null;
+				if (rangeAfter != null) {
+					trailComments = buffer.getText(rangeAfter.getOffset(), rangeAfter.getLength());
+				}
+				allImports.add(getNewImportString(starImportString, isStatic, trailComments, lineDelim));
 				isStarImportAdded = true;
 			} else {
 				// collect all comments
 				IRegion rangeBefore = curr.getPrecedingCommentRange();
 				if (rangeBefore != null) {
-					if (allComments == null) {
-						allComments = new StringBuffer();
+					if (allCommentsLead == null) {
+						allCommentsLead = new StringBuffer();
 					}
-					allComments.append(buffer.getText(rangeBefore.getOffset(), rangeBefore.getLength())).append(lineDelim);
+					allCommentsLead.append(buffer.getText(rangeBefore.getOffset(), rangeBefore.getLength()));
 				}
 				IRegion rangeAfter = curr.getTrailingCommentRange();
 				if (rangeAfter != null) {
 					if (allComments == null) {
 						allComments = new StringBuffer();
 					}
-					allComments.append(buffer.getText(rangeAfter.getOffset(), rangeAfter.getLength())).append(lineDelim);
+					allComments.append(buffer.getText(rangeAfter.getOffset(), rangeAfter.getLength()));
 				}
 			}
 		}
+		if (allCommentsLead != null) {
+			allImports.add(0, String.valueOf(allCommentsLead));
+		}
 		if (allComments != null) {
-			allImports.add(0, String.valueOf(allComments));
+			allImports.add(String.valueOf(allComments.append(lineDelim)));
 		}
 		return (String[]) allImports.toArray(new String[allImports.size()]);
 	}
@@ -1110,8 +1219,8 @@ public final class ImportRewriteAnalyzer {
 		private IRegion sourceRange;
 		private final boolean isStatic;
 		private int containerNameLength;
-		private IRegion precedingCommentRange;
-		private IRegion trailingCommentRange;
+		IRegion precedingCommentRange;
+		IRegion trailingCommentRange;
 
 		public ImportDeclEntry(
 				int containerNameLength,
