@@ -1,12 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *		IBM Corporation - initial API and implementation
+ *		Stephan Herrmann - Contribution for Bug 378024 - Ordering of comments between imports not preserved
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
@@ -65,6 +66,10 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	public static Test suite() {
+//		System.err.println("Warning, only part of the ImportRewriteTest are being executed!");
+//		Suite suite = new Suite(ImportRewriteTest.class.getName());
+//		suite.addTest(new ImportRewriteTest("testRemoveImports1"));
+//		return suite;
 		return allTests();
 	}
 
@@ -1537,7 +1542,6 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" + 
                 "import java.util.*; // test\n" + 
                 "import java.util.Map.Entry;\n" + 
-                "\n" +
                 "//comment 2\n" +
                 "import java.util.Map.SomethingElse;\n" +
                 "// commen 3\n" +
@@ -1914,6 +1918,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "import java.util.Map.*;\n" +
                 "\n" +
                 "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
+                "\n" +
                 "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
                 "// commen 3\n" + 
                 "\n" + 
@@ -1974,6 +1979,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" + 
                 "// comment 1\n" + 
                 "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
+                "\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
                 "import java.util.Map.*;\n" +
                 "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
@@ -2094,8 +2100,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" + 
                 "// comment 1\n" +
 				"/* lead 1*/ " +
-				"import java.util.Map.*; " + 
-				"// test1\n" +
+				"import java.util.Map.*; // test1\n" +
 				"/* lead 2*/\n" +
 				"// test2\n" +
 				"/* lead 3*/ \n" +
@@ -2157,8 +2162,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "// comment 1\n" +
                 "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
                 "\n" +
-                "/* lead 1*/ " +
-                "import java.util.*;\n" + 
+                "/* lead 1*/ import java.util.*;\n" +
                 " // test1\n" +
                 "// commen 3\n" +
                 "\n" + 
@@ -2171,6 +2175,57 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" + 
                 "        PrintWriter pw;\n" + 
                 "        System.out.println(\"hello\");\n" + 
+                "    }\n" + 
+                "}");
+        assertEqualString(cu.getSource(), buf.toString());
+    }
+
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
+    // separating comment should not prevent folding into *-import
+    public void testBug376930_5e() throws Exception {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
+        StringBuffer buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" +
+                "\n" +
+                "import java.util.Map;\n" +
+                "/* comment leading Map.Entry */\n" +
+                "import java.util.Map.Entry;\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "    }\n" +
+                "}");
+        ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+        String[] order = new String[] { "java", "javax", "org", "com" };
+
+        ImportRewrite imports= newImportsRewrite(cu, order, 2, 2, true);
+        imports.setUseContextToFilterImplicitImports(true);
+        imports.addImport("java.util.HashMap");
+
+        apply(imports);
+
+        buf = new StringBuffer();
+        buf.append(
+                "package pack1;\n" + 
+                "\n" +
+                "import java.util.*;\n" +
+                "/* comment leading Map.Entry */\n" + 
+                "import java.util.Map.Entry;\n" +
+                "\n" + 
+                "public class C {\n" + 
+                "    public static void main(String[] args) {\n" + 
+                "        HashMap h;\n" + 
+                "\n" + 
+                "        Map.Entry e= null;\n" + 
+                "        Entry e2= null;\n" + 
+                "\n" + 
                 "    }\n" + 
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
@@ -3217,6 +3272,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 " * don't move me 4\n" +
                 " */\n" +
                 "\n" +
+                "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
                 "// commen 3\n" + 
@@ -3305,6 +3361,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "/*\n" +
                 " * don't move me 4\n" +
                 " */\n" +
+                "\n" +
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
