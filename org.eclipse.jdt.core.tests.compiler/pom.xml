@@ -20,6 +20,6 @@
   </parent>
   <groupId>eclipse.jdt.core</groupId>
   <artifactId>org.eclipse.jdt.core.tests.compiler</artifactId>
-  <version>3.8.1-SNAPSHOT</version>
+  <version>3.8.2-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 </project>
