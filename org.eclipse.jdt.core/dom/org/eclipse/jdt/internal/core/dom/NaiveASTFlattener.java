@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotatableType;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
@@ -1834,7 +1835,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		return false;
 	}
-	private void visitTypeAnnotations(Type node) {
+	private void visitTypeAnnotations(AnnotatableType node) {
 		if (node.getAST().apiLevel() >= AST.JLS8) {
 			List annotations = node.annotations();
 			if (annotations != null) {

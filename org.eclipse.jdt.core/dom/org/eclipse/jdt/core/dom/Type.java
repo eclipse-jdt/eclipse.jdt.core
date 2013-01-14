@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,6 @@
 
 package org.eclipse.jdt.core.dom;
 
-import java.util.List;
 
 /**
  * Abstract base class of all type AST node types. A type node represents a
@@ -30,26 +29,27 @@ import java.util.List;
  * <p>
  * <pre>
  * Type:
- *    PrimitiveType
- *    ArrayType
- *    SimpleType
- *    QualifiedType
+ *    AnnotatableType:
+ *       PrimitiveType
+ *       ArrayType
+ *       SimpleType
+ *       QualifiedType
+ *       WildcardType
  *    ParameterizedType
- *    WildcardType
  *    UnionType  
  *    
  * PrimitiveType:
- *    <b>{Annotation} byte</b>
- *    <b>{Annotation} short</b>
- *    <b>{Annotation} char</b>
- *    <b>{Annotation} int</b>
- *    <b>{Annotation} long</b>
- *    <b>{Annotation} float</b>
- *    <b>{Annotation} double</b>
- *    <b>{Annotation} boolean</b>
- *    <b>{Annotation} void</b>
+ *    {Annotation} <b>byte</b>
+ *    {Annotation} <b>short</b>
+ *    {Annotation} <b>char</b>
+ *    {Annotation} <b>int</b>
+ *    {Annotation} <b>long</b>
+ *    {Annotation} <b>float</b>
+ *    {Annotation} <b>double</b>
+ *    {Annotation} <b>boolean</b>
+ *    {Annotation} <b>void</b>
  * ArrayType:
- *    Type <b>{Annotation} [</b> <b>]</b>
+ *    Type {Annotation} <b>'['</b> <b>']'</b>
  * SimpleType:
  *    {Annotation} TypeName
  * ParameterizedType:
@@ -64,12 +64,6 @@ import java.util.List;
  * @since 2.0
  */
 public abstract class Type extends ASTNode {
-
-	/**
-	 * The type annotations (element type: {@link Annotation}).
-	 * @since 3.9
-	 */
-	protected ASTNode.NodeList annotations = null;
 	
 	/**
 	 * Creates a new AST node for a type owned by the given AST.
@@ -183,6 +177,19 @@ public abstract class Type extends ASTNode {
 	public final boolean isWildcardType() {
 		return (this instanceof WildcardType);
 	}
+	
+	/**
+	 * Returns whether this type can be annotated. All sub-classes of
+	 * {@link AnnotatableType} can be annotated.
+	 *
+	 * @return <code>true</code> if this type is an instance of {@link AnnotatableType}, and
+	 * <code>false</code> otherwise
+	 * 			
+	 * @since 3.9
+	 */
+	public boolean isAnnotatable() {
+		return (this instanceof AnnotatableType);
+	}
 
 	/**
 	 * Resolves and returns the binding for this type.
@@ -196,20 +203,5 @@ public abstract class Type extends ASTNode {
 	 */
 	public final ITypeBinding resolveBinding() {
 		return this.ast.getBindingResolver().resolveType(this);
-	}
-	
-	/**
-	 * Returns the live ordered list of annotations for this Type node.
-	 *
-	 * @return the live list of annotations (element type: {@link Annotation})
-	 * @exception UnsupportedOperationException if this operation is used
-	 *            in a JLS2, JLS3 or JLS4 AST
-	 * @since 3.9
-	 */
-	public List annotations() {
-		if (this.annotations == null) {
-			unsupportedIn2_3_4(); 
-		}
-		return this.annotations;
 	}
 }

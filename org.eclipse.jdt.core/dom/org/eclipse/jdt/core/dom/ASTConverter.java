@@ -806,12 +806,15 @@ class ASTConverter {
 		if (isVarArgs) {
 			setTypeForSingleVariableDeclaration(variableDecl, type, extraDimensions + 1);
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
-			if (this.ast.apiLevel() >= AST.JLS8 && !type.annotations().isEmpty()) {
-				Iterator annotations = type.annotations.iterator();
-				while (annotations.hasNext()) {
-					Annotation annotation = (Annotation) annotations.next();
-					annotation.setParent(null, null);
-					variableDecl.varargsAnnotations().add(annotation);
+			if (type.isAnnotatable()) {
+				AnnotatableType annotatableType = (AnnotatableType) type;
+				if (this.ast.apiLevel() >= AST.JLS8 && !annotatableType.annotations().isEmpty()) {
+					Iterator annotations = annotatableType.annotations.iterator();
+					while (annotations.hasNext()) {
+						Annotation annotation = (Annotation) annotations.next();
+						annotation.setParent(null, null);
+						variableDecl.varargsAnnotations().add(annotation);
+					}
 				}
 			}
 			if (extraDimensions != 0) {
@@ -3066,7 +3069,7 @@ class ASTConverter {
 		return variableDeclarationStatement;
 	}
 
-	private void annotateType(Type type, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations) {
+	private void annotateType(AnnotatableType type, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations) {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
 			case AST.JLS3_INTERNAL :
@@ -3164,7 +3167,8 @@ class ASTConverter {
 			length = typeReference.sourceEnd - typeReference.sourceStart + 1;
 			// need to find out if this is an array type of primitive types or not
 			if (isPrimitiveType(name)) {
-				int end = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
+				int[] positions = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
+				int end = positions[1];
 				if (end == -1) {
 					end = sourceStart + length - 1;
 				}
@@ -3179,11 +3183,17 @@ class ASTConverter {
 				ParameterizedSingleTypeReference parameterizedSingleTypeReference = (ParameterizedSingleTypeReference) typeReference;
 				final SimpleName simpleName = new SimpleName(this.ast);
 				simpleName.internalSetIdentifier(new String(name));
-				int end = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
+				int[] positions = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
+				int end = positions[1];
 				if (end == -1) {
 					end = sourceStart + length - 1;
 				}
-				simpleName.setSourceRange(sourceStart, end - sourceStart + 1);
+				if (positions[0] != -1) {
+					simpleName.setSourceRange(positions[0], end - positions[0] + 1);
+				} else {
+					simpleName.setSourceRange(sourceStart, end - sourceStart + 1);					
+				}
+
 				switch(this.ast.apiLevel) {
 					case AST.JLS2_INTERNAL :
 						SimpleType simpleType = new SimpleType(this.ast);
@@ -3228,11 +3238,16 @@ class ASTConverter {
 				simpleName.internalSetIdentifier(new String(name));
 				// we need to search for the starting position of the first brace in order to set the proper length
 				// PR http://dev.eclipse.org/bugs/show_bug.cgi?id=10759
-				int end = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
+				int[] positions = retrieveEndOfElementTypeNamePosition(sourceStart, sourceStart + length);
+				int end = positions[1];
 				if (end == -1) {
 					end = sourceStart + length - 1;
 				}
-				simpleName.setSourceRange(sourceStart, end - sourceStart + 1);
+				if (positions[0] != -1) {
+					simpleName.setSourceRange(positions[0], end - positions[0] + 1);
+				} else {
+					simpleName.setSourceRange(sourceStart, end - sourceStart + 1);
+				}
 				final SimpleType simpleType = new SimpleType(this.ast);
 				simpleType.setName(simpleName);
 				type = simpleType;
@@ -4179,16 +4194,26 @@ class ASTConverter {
 	}
 
 	/**
-	 * This method is used to retrieve the position just before the left bracket.
-	 * @return int the dimension found, -1 if none
+	 * This method is used to retrieve the start and end position of a name.
+	 * 
+	 * @return int[] a single dimensional array, with two elements, for the start and end positions of the name respectively
 	 */
-	protected int retrieveEndOfElementTypeNamePosition(int start, int end) {
+	protected int[] retrieveEndOfElementTypeNamePosition(int start, int end) {
 		this.scanner.resetTo(start, end);
+		boolean isAnnotation = false;
 		try {
 			int token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
+					case TerminalTokens.TokenNameAT:
+						isAnnotation = true;
+						break;
 					case TerminalTokens.TokenNameIdentifier:
+						if (isAnnotation) {
+							isAnnotation = false;
+							break;
+						}
+						//$FALL-THROUGH$
 					case TerminalTokens.TokenNamebyte:
 					case TerminalTokens.TokenNamechar:
 					case TerminalTokens.TokenNamedouble:
@@ -4197,13 +4222,13 @@ class ASTConverter {
 					case TerminalTokens.TokenNamelong:
 					case TerminalTokens.TokenNameshort:
 					case TerminalTokens.TokenNameboolean:
-						return this.scanner.currentPosition - 1;
+						return new int[]{this.scanner.startPosition, this.scanner.currentPosition - 1};
 				}
 			}
 		} catch(InvalidInputException e) {
 			// ignore
 		}
-		return -1;
+		return new int[]{-1, -1};
 	}
 
 	/**
