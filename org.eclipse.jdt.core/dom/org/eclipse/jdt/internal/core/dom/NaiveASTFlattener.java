@@ -1023,16 +1023,30 @@ public class NaiveASTFlattener extends ASTVisitor {
 		for (int i = 0; i < node.getExtraDimensions(); i++) {
 			this.buffer.append("[]"); //$NON-NLS-1$
 		}
-		if (!node.thrownExceptions().isEmpty()) {
-			this.buffer.append(" throws ");//$NON-NLS-1$
-			for (Iterator it = node.thrownExceptions().iterator(); it.hasNext(); ) {
-				Name n = (Name) it.next();
-				n.accept(this);
-				if (it.hasNext()) {
-					this.buffer.append(", ");//$NON-NLS-1$
-				}
+		if (node.getAST().apiLevel() < AST.JLS8) {
+			if (!node.thrownExceptions().isEmpty()) {
+				this.buffer.append(" throws ");//$NON-NLS-1$
+				for (Iterator it = node.thrownExceptions().iterator(); it.hasNext(); ) {
+					Name n = (Name) it.next();
+					n.accept(this);
+					if (it.hasNext()) {
+						this.buffer.append(", ");//$NON-NLS-1$
+					}
+				}				
+				this.buffer.append(" ");//$NON-NLS-1$
+			} 
+		} else {
+			if (!node.thrownExceptionTypes().isEmpty()) {				
+				this.buffer.append(" throws ");//$NON-NLS-1$
+				for (Iterator it = node.thrownExceptionTypes().iterator(); it.hasNext(); ) {
+					Type n = (Type) it.next();
+					n.accept(this);
+					if (it.hasNext()) {
+						this.buffer.append(", ");//$NON-NLS-1$
+					}
+				}	
+				this.buffer.append(" ");//$NON-NLS-1$				
 			}
-			this.buffer.append(" ");//$NON-NLS-1$
 		}
 		if (node.getBody() == null) {
 			this.buffer.append(";\n");//$NON-NLS-1$

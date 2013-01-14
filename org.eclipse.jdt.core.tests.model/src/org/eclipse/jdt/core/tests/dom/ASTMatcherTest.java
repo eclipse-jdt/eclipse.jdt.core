@@ -101,7 +101,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	Modifier MOD2;
 	EnumConstantDeclaration EC1;
 	EnumConstantDeclaration EC2;
-
+	Type T3;
+	Type T4;
 	final StringBuffer b = new StringBuffer();
 
 	int API_LEVEL;
@@ -231,7 +232,10 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			this.EC2 = this.ast.newEnumConstantDeclaration();
 			this.EC2.setName(this.ast.newSimpleName("G")); //$NON-NLS-1$
 		}
-
+		if (this.ast.apiLevel() >= AST.JLS8) {
+			this.T3 = this.ast.newSimpleType(this.ast.newSimpleName("U")); //$NON-NLS-1$
+			this.T4 = this.ast.newSimpleType(this.ast.newSimpleName("V")); //$NON-NLS-1$
+		}
 	}
 
 	protected void tearDown() throws Exception {
@@ -996,8 +1000,13 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setName(this.N1);
 		x1.parameters().add(this.V1);
 		x1.parameters().add(this.V2);
-		x1.thrownExceptions().add(this.N2);
-		x1.thrownExceptions().add(this.N3);
+		if (this.ast.apiLevel() < AST.JLS8) {
+			x1.thrownExceptions().add(this.N2);
+			x1.thrownExceptions().add(this.N3);			
+		} else {
+			x1.thrownExceptionTypes().add(this.T3);
+			x1.thrownExceptionTypes().add(this.T4);			
+		}
 		x1.setBody(this.B1);
 		basicMatch(x1);
 	}

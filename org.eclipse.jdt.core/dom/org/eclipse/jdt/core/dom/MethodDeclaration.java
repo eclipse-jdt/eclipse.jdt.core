@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -138,11 +142,18 @@ public class MethodDeclaration extends BodyDeclaration {
 		new ChildListPropertyDescriptor(MethodDeclaration.class, "parameters", SingleVariableDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "thrownExceptions" structural property of this node type (element type: {@link Name}).
+	 * The "thrownExceptions" structural property of this node type (element type: {@link Name}) (Available in JLS2, JLS3, and JLS4 Only).
 	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor THROWN_EXCEPTIONS_PROPERTY =
 		new ChildListPropertyDescriptor(MethodDeclaration.class, "thrownExceptions", Name.class, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "thrownExceptionTypes" structural property of this node type (element type: {@link Type}) (added in JLS8 API).
+	 * @since 3.9
+	 */
+	public static final ChildListPropertyDescriptor THROWN_EXCEPTION_TYPES_PROPERTY =
+		new ChildListPropertyDescriptor(MethodDeclaration.class, "thrownExceptionTypes", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "body" structural property of this node type (child type: {@link Block}).
@@ -166,6 +177,14 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @since 3.1
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
+
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.9
+	 */
+	private static final List PROPERTY_DESCRIPTORS_8_0;
 
 	static {
 		List propertyList = new ArrayList(10);
@@ -194,6 +213,20 @@ public class MethodDeclaration extends BodyDeclaration {
 		addProperty(THROWN_EXCEPTIONS_PROPERTY, propertyList);
 		addProperty(BODY_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(propertyList);
+
+		propertyList = new ArrayList(11);
+		createPropertyList(MethodDeclaration.class, propertyList);
+		addProperty(JAVADOC_PROPERTY, propertyList);
+		addProperty(MODIFIERS2_PROPERTY, propertyList);
+		addProperty(CONSTRUCTOR_PROPERTY, propertyList);
+		addProperty(TYPE_PARAMETERS_PROPERTY, propertyList);
+		addProperty(RETURN_TYPE2_PROPERTY, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
+		addProperty(PARAMETERS_PROPERTY, propertyList);
+		addProperty(EXTRA_DIMENSIONS_PROPERTY, propertyList);
+		addProperty(THROWN_EXCEPTION_TYPES_PROPERTY, propertyList);
+		addProperty(BODY_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);	
 	}
 
 	/**
@@ -208,8 +241,10 @@ public class MethodDeclaration extends BodyDeclaration {
 	public static List propertyDescriptors(int apiLevel) {
 		if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
-		} else {
+		} else if (apiLevel < AST.JLS8) {
 			return PROPERTY_DESCRIPTORS_3_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_8_0;
 		}
 	}
 
@@ -265,10 +300,15 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * The list of thrown exception names (element type: {@link Name}).
-	 * Defaults to an empty list.
+	 * Defaults to an empty list for api levels below JLS8.
 	 */
-	private ASTNode.NodeList thrownExceptions =
-		new ASTNode.NodeList(THROWN_EXCEPTIONS_PROPERTY);
+	private ASTNode.NodeList thrownExceptions = null;
+
+	/**
+	 * The list of thrown exception Types (element type: {@link Type}).
+	 * Defaults to an empty list at JLS8 and above.
+	 */
+	private ASTNode.NodeList thrownExceptionTypes = null;
 
 	/**
 	 * The method body, or <code>null</code> if none.
@@ -295,6 +335,11 @@ public class MethodDeclaration extends BodyDeclaration {
 		super(ast);
 		if (ast.apiLevel >= AST.JLS3_INTERNAL) {
 			this.typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
+		}
+		if (ast.apiLevel() < AST.JLS8) {
+			this.thrownExceptions = new ASTNode.NodeList(THROWN_EXCEPTIONS_PROPERTY);
+		} else {
+			this.thrownExceptionTypes = new ASTNode.NodeList(THROWN_EXCEPTION_TYPES_PROPERTY);
 		}
 	}
 
@@ -410,6 +455,9 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (property == THROWN_EXCEPTIONS_PROPERTY) {
 			return thrownExceptions();
 		}
+		if (property == THROWN_EXCEPTION_TYPES_PROPERTY) {
+			return thrownExceptionTypes();
+		}		
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
@@ -467,8 +515,14 @@ public class MethodDeclaration extends BodyDeclaration {
 		result.setName((SimpleName) getName().clone(target));
 		result.parameters().addAll(
 			ASTNode.copySubtrees(target, parameters()));
-		result.thrownExceptions().addAll(
-			ASTNode.copySubtrees(target, thrownExceptions()));
+		if  (this.ast.apiLevel() < AST.JLS8) {
+			result.thrownExceptions().addAll(
+			ASTNode.copySubtrees(target, thrownExceptions()));			
+		} else {
+			result.thrownExceptionTypes().addAll(
+			ASTNode.copySubtrees(target, thrownExceptionTypes()));
+			
+		}
 		result.setBody(
 			(Block) ASTNode.copySubtree(target, getBody()));
 		return result;
@@ -500,7 +554,11 @@ public class MethodDeclaration extends BodyDeclaration {
 			// n.b. visit return type even for constructors
 			acceptChild(visitor, getName());
 			acceptChildren(visitor, this.parameters);
-			acceptChildren(visitor, this.thrownExceptions);
+			if (this.ast.apiLevel() < AST.JLS8) {
+				acceptChildren(visitor, this.thrownExceptions);				
+			} else {
+				acceptChildren(visitor, this.thrownExceptionTypes);				
+			}
 			acceptChild(visitor, getBody());
 		}
 		visitor.endVisit(this);
@@ -633,7 +691,27 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *    (element type: {@link Name})
 	 */
 	public List thrownExceptions() {
+		if (this.thrownExceptions == null) {
+			supportedOnlyIn2_3_4();
+		}
 		return this.thrownExceptions;
+	}
+
+	/**
+	 * Returns the live ordered list of thrown exception types in this method
+	 * declaration.
+	 *
+	 * @return the live list of exception types
+	 *    (element type: {@link Type})
+	 * @exception UnsupportedOperationException if this operation is used
+	 *            in a JLS2, JLS3 or JLS4 AST    
+	 * @since 3.9    	
+	 */
+	public List thrownExceptionTypes()  {
+		if (this.thrownExceptionTypes == null) {
+			unsupportedIn2_3_4();
+		}
+		return this.thrownExceptionTypes;
 	}
 
 	/**
@@ -887,7 +965,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 9 * 4;
+		return super.memSize() + 10 * 4;
 	}
 
 	/* (omit javadoc for this method)
@@ -902,7 +980,7 @@ public class MethodDeclaration extends BodyDeclaration {
 			+ (this.methodName == null ? 0 : getName().treeSize())
 			+ (this.returnType == null ? 0 : this.returnType.treeSize())
 			+ this.parameters.listSize()
-			+ this.thrownExceptions.listSize()
+			+ (this.ast.apiLevel < AST.JLS8 ? this.thrownExceptions.listSize() : this.thrownExceptionTypes.listSize())
 			+ (this.optionalBody == null ? 0 : getBody().treeSize());
 	}
 }

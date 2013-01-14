@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 IBM Corporation and others.
+ * Copyright (c) 2011, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -378,7 +378,8 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			compilationUnit.accept(bindingsCollectorVisitor);
 			assertEquals("wrong number", 3, bindingsCollectorVisitor.getUnresolvedNodesSet().size()); //$NON-NLS-1$
 			Map bindingsMap = bindingsCollectorVisitor.getBindingsMap();
-			assertEquals("wrong number", 211, bindingsMap.size()); //$NON-NLS-1$
+			// changed to 212  - two bindings (type + name) for each Throwable derivatives.
+			assertEquals("wrong number", 212, bindingsMap.size()); //$NON-NLS-1$
 			ASTNodesCollectorVisitor nodesCollector = new ASTNodesCollectorVisitor();
 			compilationUnit.accept(nodesCollector);
 			Set detachedNodes = nodesCollector.getDetachedAstNodes();
@@ -528,10 +529,18 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-		List throwsException = methodDeclaration.thrownExceptions();
-		assertEquals("wrong size", 2, throwsException.size()); //$NON-NLS-1$
-		Name name = (Name) throwsException.get(0);
-		IBinding binding = name.resolveBinding();
+		IBinding binding;
+		if (node.getAST().apiLevel() < AST.JLS8) {
+			List throwsException = methodDeclaration.thrownExceptions();
+			assertEquals("wrong size", 2, throwsException.size()); //$NON-NLS-1$
+			Name name = (Name) throwsException.get(0);
+			binding = name.resolveBinding();			
+		} else {
+			List throwsExceptionTypes = methodDeclaration.thrownExceptionTypes();
+			assertEquals("wrong size", 2, throwsExceptionTypes.size()); //$NON-NLS-1$
+			Type type = (Type) throwsExceptionTypes.get(0);
+			binding = type.resolveBinding();			
+		}
 		assertNotNull("No binding", binding); //$NON-NLS-1$
 		assertEquals("LIOException;", binding.getKey());
 		assertTrue("Binding should be marked as recovered", binding.isRecovered());

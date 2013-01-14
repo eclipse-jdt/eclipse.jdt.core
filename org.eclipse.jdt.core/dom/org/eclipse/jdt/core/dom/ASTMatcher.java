@@ -1392,7 +1392,9 @@ public class ASTMatcher {
 				// n.b. compare return type even for constructors
 				&& safeSubtreeListMatch(node.parameters(), o.parameters())
 	 			&& node.getExtraDimensions() == o.getExtraDimensions()
-				&& safeSubtreeListMatch(node.thrownExceptions(), o.thrownExceptions())
+				&& (node.getAST().apiLevel() < AST.JLS8 ? 
+						safeSubtreeListMatch(node.thrownExceptions(), o.thrownExceptions()) :
+						safeSubtreeListMatch(node.thrownExceptionTypes(), o.thrownExceptionTypes()))
 				&& safeSubtreeMatch(node.getBody(), o.getBody()));
 	}
 

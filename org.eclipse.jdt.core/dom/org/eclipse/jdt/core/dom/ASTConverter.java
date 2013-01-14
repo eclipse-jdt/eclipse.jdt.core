@@ -441,13 +441,23 @@ class ASTConverter {
 		int methodHeaderEnd = methodDeclaration.sourceEnd;
 		int thrownExceptionsLength = thrownExceptions == null ? 0 : thrownExceptions.length;
 		if (thrownExceptionsLength > 0) {
-			Name thrownException;
-			int i = 0;
-			do {
-				thrownException = convert(thrownExceptions[i++]);
-				methodDecl.thrownExceptions().add(thrownException);
-			} while (i < thrownExceptionsLength);
-			methodHeaderEnd = thrownException.getStartPosition() + thrownException.getLength();
+			if (this.ast.apiLevel() < AST.JLS8) {
+				Name thrownException;
+				int i = 0;
+				do {
+					thrownException = convert(thrownExceptions[i++]);
+					methodDecl.thrownExceptions().add(thrownException);
+				} while (i < thrownExceptionsLength);
+				methodHeaderEnd = thrownException.getStartPosition() + thrownException.getLength();				
+			} else {
+				Type thrownExceptionType;
+				int i = 0;
+				do {
+					thrownExceptionType = convertType(thrownExceptions[i++]);
+					methodDecl.thrownExceptionTypes().add(thrownExceptionType);
+				} while (i < thrownExceptionsLength);
+				methodHeaderEnd = thrownExceptionType.getStartPosition() + thrownExceptionType.getLength();				
+			}
 		}
 		org.eclipse.jdt.internal.compiler.ast.Argument[] parameters = methodDeclaration.arguments;
 		int parametersLength = parameters == null ? 0 : parameters.length;

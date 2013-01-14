@@ -1842,6 +1842,22 @@ public abstract class ASTNode {
 	}
 
 	/**
+     * Checks that this AST operation is only used when
+     * building JLS2, JLS3 or JLS4 level ASTs.
+     * <p>
+     * Use this method to prevent access to deprecated properties (deprecated in JLS8).
+     * </p>
+     * 
+     * @exception UnsupportedOperationException
+     * @since 3.9
+     */
+	final void supportedOnlyIn2_3_4() {
+	  if (this.ast.apiLevel >= AST.JLS8) {
+	  	throw new UnsupportedOperationException("Operation only supported in JLS2, JLS3 and JLS4 ASTs"); //$NON-NLS-1$
+	  }
+	}
+	
+	/**
 	 * Sets or clears this node's parent node and location.
 	 * <p>
 	 * Note that this method is package-private. The pointer from a node

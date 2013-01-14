@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -119,7 +123,11 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	String EC1S;
 	EnumConstantDeclaration EC2;
 	String EC2S;
-
+	Type T3;
+	String T3S;
+	Type T4;
+	String T4S;
+	
 	final StringBuffer b = new StringBuffer();
 
 	int API_LEVEL;
@@ -279,7 +287,13 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			this.EC2.setName(this.ast.newSimpleName("d")); //$NON-NLS-1$
 			this.EC2S = "[(ECD[(nSddnS)]ECD)]"; //$NON-NLS-1$
 		}
-
+		if (this.ast.apiLevel() >= AST.JLS8) {
+			this.T3 = this.ast.newSimpleType(this.ast.newSimpleName("W")); //$NON-NLS-1$
+			this.T3S = "[(tS[(nSWWnS)]tS)]"; //$NON-NLS-1$
+			this.T4 = this.ast.newSimpleType(this.ast.newSimpleName("X")); //$NON-NLS-1$
+			this.T4S = "[(tS[(nSXXnS)]tS)]"; //$NON-NLS-1$
+		}
+		
 	}
 
 	protected void tearDown() throws Exception {
@@ -1623,8 +1637,13 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setName(this.N1);
 		x1.parameters().add(this.V1);
 		x1.parameters().add(this.V2);
-		x1.thrownExceptions().add(this.N2);
-		x1.thrownExceptions().add(this.N3);
+		if (this.ast.apiLevel() < AST.JLS8) {
+			x1.thrownExceptions().add(this.N2);
+			x1.thrownExceptions().add(this.N3);			
+		} else {
+			x1.thrownExceptions().add(this.T3);
+			x1.thrownExceptions().add(this.T4);			
+		}
 		x1.setBody(this.B1);
 		TestVisitor v1 = new TestVisitor();
 		this.b.setLength(0);
@@ -1632,8 +1651,10 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = this.b.toString();
 		if (this.ast.apiLevel() == AST.JLS2) {
 			assertTrue(result.equals("[(MD"+this.JD1S+this.T1S+this.N1S+this.V1S+this.V2S+this.N2S+this.N3S+this.B1S+"MD)]")); //$NON-NLS-1$ //$NON-NLS-2$
-		} else {
+		} else if (this.ast.apiLevel() < AST.JLS8) {
 			assertTrue(result.equals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.N1S+this.V1S+this.V2S+this.N2S+this.N3S+this.B1S+"MD)]")); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			assertTrue(result.equals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.T3S+this.V1S+this.V2S+this.T4S+this.N3S+this.B1S+"MD)]")); //$NON-NLS-1$ //$NON-NLS-2$			
 		}
 	}
 	/** @deprecated using deprecated code */

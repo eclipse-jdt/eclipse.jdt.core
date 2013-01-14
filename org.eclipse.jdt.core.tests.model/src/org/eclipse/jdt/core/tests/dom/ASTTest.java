@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -3403,7 +3407,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getExtraDimensions() == 0);
 		assertTrue(x.getJavadoc() == null);
 		assertTrue(x.parameters().size() == 0);
-		assertTrue(x.thrownExceptions().size() == 0);
+		if (this.ast.apiLevel() < AST.JLS8) {
+			assertTrue(x.thrownExceptions().size() == 0);			
+		} else {
+			assertTrue(x.thrownExceptionTypes().size() == 0);			
+		}
 		assertTrue(x.getBody() == null);
 		assertTrue(x.getNodeType() == ASTNode.METHOD_DECLARATION);
 		assertTrue(x.structuralPropertiesForType() ==
@@ -3543,16 +3551,29 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		genericPropertyListTest(x, x.thrownExceptions(),
-		  new Property("ThrownExceptions", true, Name.class) { //$NON-NLS-1$
-			public ASTNode sample(AST targetAst, boolean parented) {
-				SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
-				if (parented) {
-					targetAst.newExpressionStatement(result);
-				}
-				return result;
-			}
-		});
+		if (this.ast.apiLevel() < AST.JLS8) {
+			genericPropertyListTest(x, x.thrownExceptions(),
+					  new Property("ThrownExceptions", true, Name.class) { //$NON-NLS-1$
+						public ASTNode sample(AST targetAst, boolean parented) {
+							SimpleName result = targetAst.newSimpleName("foo"); //$NON-NLS-1$
+							if (parented) {
+								targetAst.newExpressionStatement(result);
+							}
+							return result;
+						}
+					});			
+		} else {
+			genericPropertyListTest(x, x.thrownExceptionTypes(),
+					  new Property("ThrownExceptionTypes", true, Type.class) { //$NON-NLS-1$
+						public ASTNode sample(AST targetAst, boolean parented) {
+							Type result = targetAst.newSimpleType(targetAst.newSimpleName("foo")); //$NON-NLS-1$
+							if (parented) {
+								targetAst.newArrayType(result);
+							}
+							return result;
+						}
+					});			
+		}
 
 		genericPropertyTest(x, new Property("Body", false, Block.class) { //$NON-NLS-1$
 			public ASTNode sample(AST targetAst, boolean parented) {
