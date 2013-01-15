@@ -18,6 +18,7 @@
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 375366 - ECJ ignores unusedParameterIncludeDocCommentReference unless enableJavadoc option is set
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -3685,6 +3686,9 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				return;
 			} else if (token.equals("nullUncheckedConversion")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportNullUncheckedConversion, severity, isEnabling);
+				return;
+			} else if (token.equals("nonnullNotRepeated")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportNonnullParameterAnnotationDropped, severity, isEnabling);
 				return;
 			}
 			

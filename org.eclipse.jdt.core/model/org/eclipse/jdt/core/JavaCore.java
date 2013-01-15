@@ -96,6 +96,7 @@
  *									COMPILER_PB_MISSING_ENUM_CASE_DESPITE_DEFAULT
  *									COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE
  *									COMPILER_INHERIT_NULL_ANNOTATIONS
+ *									COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED
  *******************************************************************************/
 
 package org.eclipse.jdt.core;
@@ -1706,6 +1707,32 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_INHERIT_NULL_ANNOTATIONS = JavaCore.PLUGIN_ID+".compiler.annotation.inheritNullAnnotations"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Reporting Dropped Nonnull Parameter Annotations.
+	 * <p>When enabled, the compiler will issue an error or a warning against a parameter of 
+	 *    a method that overrides an inherited method
+	 *    if all of the following hold:</p>
+	 * <ul>
+	 *    <li>The overridden method declares the corresponding parameter as non-null (see {@link #COMPILER_NONNULL_ANNOTATION_NAME}).</li>
+	 *    <li>The parameter in the overriding method has no null annotation.</li>
+	 *    <li>The overriding method is not affected by a nullness default (see {@link #COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME}).</li>
+	 *    <li>Inheritance of null annotations is disabled (see {@link #COMPILER_INHERIT_NULL_ANNOTATIONS}).</li>
+	 * </ul>
+	 * <p>This particular situation bears the same inherent risk as any unannotated method parameter,
+	 *    because the compiler's null ananysis cannot decide wither <code>null</code> is or is not a legal value for this parameter.
+	 *    However, the annotation in the overridden method <em>suggests</em> that the parameter should also be annotated as non-null.
+	 *    If that is not intended or possible, it is recommended to annotate the parameter as nullable,
+	 *    in order to make this (legal) change of contract explicit.</p>   
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.nonnullParameterAnnotationDropped"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 * @since 3.9
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED = JavaCore.PLUGIN_ID+".compiler.problem.nonnullParameterAnnotationDropped"; //$NON-NLS-1$
+
 	/**
 	 * Compiler option ID: Setting Source Compatibility Mode.
 	 * <p>Specify whether which source level compatibility is used. From 1.4 on, <code>'assert'</code> is a keyword

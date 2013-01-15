@@ -13,6 +13,7 @@
  *								bug 370639 - [compiler][resource] restore the default for resource leak warnings
  *								bug 265744 - Enum switch should warn about missing default
  *								bug 374605 - Unreasonable warning for enum-based switch statements
+ *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.impl;
@@ -111,7 +112,8 @@ public class IrritantSet {
 				|CompilerOptions.Tasks
 				|CompilerOptions.UnclosedCloseable
 				|CompilerOptions.NullUncheckedConversion
-				|CompilerOptions.RedundantNullAnnotation);
+				|CompilerOptions.RedundantNullAnnotation
+				|CompilerOptions.NonnullParameterAnnotationDropped);
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation
@@ -128,7 +130,8 @@ public class IrritantSet {
 			.set(CompilerOptions.NullSpecViolation)
 			.set(CompilerOptions.NullAnnotationInferenceConflict)
 			.set(CompilerOptions.NullUncheckedConversion)
-			.set(CompilerOptions.RedundantNullAnnotation);
+			.set(CompilerOptions.RedundantNullAnnotation)
+			.set(CompilerOptions.NonnullParameterAnnotationDropped);
 
 		RESTRICTION.set(CompilerOptions.DiscouragedReference);
 		STATIC_ACCESS.set(CompilerOptions.NonStaticAccessToStatic);

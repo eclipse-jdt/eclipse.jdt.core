@@ -17,6 +17,7 @@
  *								bug 366063 - Compiler should not add synthetic @NonNull annotations
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
@@ -164,6 +165,7 @@ public class CompilerOptions {
 	static final char[][] DEFAULT_NONNULLBYDEFAULT_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.NonNullByDefault".toCharArray()); //$NON-NLS-1$
 	public static final String OPTION_ReportMissingNonNullByDefaultAnnotation = "org.eclipse.jdt.core.compiler.annotation.missingNonNullByDefaultAnnotation";  //$NON-NLS-1$
 	public static final String OPTION_InheritNullAnnotations = "org.eclipse.jdt.core.compiler.annotation.inheritNullAnnotations";  //$NON-NLS-1$
+	public static final String OPTION_ReportNonnullParameterAnnotationDropped = "org.eclipse.jdt.core.compiler.problem.nonnullParameterAnnotationDropped";  //$NON-NLS-1$
 	/**
 	 * Possible values for configurable options
 	 */
@@ -277,6 +279,7 @@ public class CompilerOptions {
 	public static final int MissingNonNullByDefaultAnnotation = IrritantSet.GROUP2 | ASTNode.Bit15;
 	public static final int MissingDefaultCase = IrritantSet.GROUP2 | ASTNode.Bit16;
 	public static final int UnusedTypeParameter = IrritantSet.GROUP2 | ASTNode.Bit17;
+	public static final int NonnullParameterAnnotationDropped = IrritantSet.GROUP2 | ASTNode.Bit18;
 
 	// Severity level for handlers
 	/** 
@@ -641,6 +644,8 @@ public class CompilerOptions {
 				return OPTION_ReportNullUncheckedConversion;
 			case RedundantNullAnnotation :
 				return OPTION_ReportRedundantNullAnnotation;
+			case NonnullParameterAnnotationDropped:
+				return OPTION_ReportNonnullParameterAnnotationDropped;
 		}
 		return null;
 	}
@@ -819,7 +824,8 @@ public class CompilerOptions {
 			OPTION_ReportNullUncheckedConversion,
 			OPTION_ReportRedundantNullAnnotation,
 			OPTION_ReportUnusedTypeParameter,
-			OPTION_InheritNullAnnotations
+			OPTION_InheritNullAnnotations,
+			OPTION_ReportNonnullParameterAnnotationDropped
 		};
 		return result;
 	}
@@ -889,6 +895,7 @@ public class CompilerOptions {
 			case NullUncheckedConversion :
 			case RedundantNullAnnotation :
 			case MissingNonNullByDefaultAnnotation:
+			case NonnullParameterAnnotationDropped:
 				return "null"; //$NON-NLS-1$
 			case FallthroughCase :
 				return "fallthrough"; //$NON-NLS-1$
@@ -1118,6 +1125,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportMissingNonNullByDefaultAnnotation, getSeverityString(MissingNonNullByDefaultAnnotation));
 		optionsMap.put(OPTION_ReportUnusedTypeParameter, getSeverityString(UnusedTypeParameter));
 		optionsMap.put(OPTION_InheritNullAnnotations, this.inheritNullAnnotations ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportNonnullParameterAnnotationDropped, getSeverityString(NonnullParameterAnnotationDropped));
 		return optionsMap;
 	}
 
@@ -1610,6 +1618,7 @@ public class CompilerOptions {
 			if ((optionValue = optionsMap.get(OPTION_InheritNullAnnotations)) != null) {
 				this.inheritNullAnnotations = ENABLED.equals(optionValue);
 			}
+			if ((optionValue = optionsMap.get(OPTION_ReportNonnullParameterAnnotationDropped)) != null) updateSeverity(NonnullParameterAnnotationDropped, optionValue);
 		}
 
 		// Javadoc options

@@ -20,6 +20,7 @@
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 376053 - [compiler][resource] Strange potential resource leak problems
+ *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -317,12 +318,14 @@ public static int getIrritant(int problemID) {
 		case IProblem.IllegalReturnNullityRedefinition:
 		case IProblem.IllegalRedefinitionToNonNullParameter:
 		case IProblem.IllegalDefinitionToNonNullParameter:
-		case IProblem.ParameterLackingNonNullAnnotation:
 		case IProblem.ParameterLackingNullableAnnotation:
 		case IProblem.CannotImplementIncompatibleNullness:
 		case IProblem.ConflictingNullAnnotations:
 		case IProblem.ConflictingInheritedNullAnnotations:
 			return CompilerOptions.NullSpecViolation;
+
+		case IProblem.ParameterLackingNonNullAnnotation:
+			return CompilerOptions.NonnullParameterAnnotationDropped;
 
 		case IProblem.RequiredNonNullButProvidedPotentialNull:
 			return CompilerOptions.NullAnnotationInferenceConflict;
@@ -598,6 +601,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.NullAnnotationInferenceConflict :
 			case CompilerOptions.NullUncheckedConversion :
 			case CompilerOptions.MissingNonNullByDefaultAnnotation:
+			case CompilerOptions.NonnullParameterAnnotationDropped:
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			case CompilerOptions.RedundantNullAnnotation :
 				return CategorizedProblem.CAT_UNNECESSARY_CODE;
@@ -8314,13 +8318,29 @@ public void illegalRedefinitionToNonNullParameter(Argument argument, ReferenceBi
 			argument.type.sourceEnd);
 	}
 }
-public void parameterLackingNullAnnotation(Argument argument, ReferenceBinding declaringClass, boolean needNonNull, char[][] inheritedAnnotationName) {
+public void parameterLackingNullableAnnotation(Argument argument, ReferenceBinding declaringClass, char[][] inheritedAnnotationName) {
 	this.handle(
-		needNonNull ? IProblem.ParameterLackingNonNullAnnotation : IProblem.ParameterLackingNullableAnnotation, 
+		IProblem.ParameterLackingNullableAnnotation, 
 		new String[] { new String(argument.name), new String(declaringClass.readableName()), CharOperation.toString(inheritedAnnotationName)},
 		new String[] { new String(argument.name), new String(declaringClass.shortReadableName()), new String(inheritedAnnotationName[inheritedAnnotationName.length-1])},
 		argument.type.sourceStart,
 		argument.type.sourceEnd);
+}
+public void parameterLackingNonnullAnnotation(Argument argument, ReferenceBinding declaringClass, char[][] inheritedAnnotationName) {
+	int sourceStart = 0, sourceEnd = 0;
+	if (argument != null) {
+		sourceStart = argument.type.sourceStart;
+		sourceEnd = argument.type.sourceEnd;
+	} else if (this.referenceContext instanceof TypeDeclaration) {
+		sourceStart = ((TypeDeclaration) this.referenceContext).sourceStart;
+		sourceEnd =   ((TypeDeclaration) this.referenceContext).sourceEnd;
+	}
+	this.handle(
+		IProblem.ParameterLackingNonNullAnnotation, 
+		new String[] { new String(declaringClass.readableName()), CharOperation.toString(inheritedAnnotationName)},
+		new String[] { new String(declaringClass.shortReadableName()), new String(inheritedAnnotationName[inheritedAnnotationName.length-1])},
+		sourceStart,
+		sourceEnd);
 }
 public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDecl, MethodBinding inheritedMethod, char[][] nonNullAnnotationName) {
 	MethodDeclaration methodDecl = (MethodDeclaration) abstractMethodDecl;

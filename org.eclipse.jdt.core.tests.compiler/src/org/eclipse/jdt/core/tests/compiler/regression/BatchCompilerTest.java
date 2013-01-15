@@ -1949,7 +1949,8 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonnullParameterAnnotationDropped\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullAnnotationInferenceConflict\" value=\"error\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullSpecViolation\" value=\"error\"/>\n" + 
@@ -12629,13 +12630,18 @@ public void test313_warn_options() {
 		"	                     ^^^^^^\n" + 
 		"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" + 
 		"----------\n" + 
-		"2 problems (2 warnings)", 
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
+		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" +
+		"	                               ^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" +
+		"----------\n" +
+		"3 problems (3 warnings)", 
 		true);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
 // -err option - regression tests to check option nullAnnot
-// Null warnings because of annotations, null spec violations configured as errors
+// Null warnings because of annotations, null spec violations plus one specific problem configured as errors
 public void test314_warn_options() {
 	this.runNegativeTest(
 		new String[] {
@@ -12660,7 +12666,7 @@ public void test314_warn_options() {
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
-		+ " -err:+nullAnnot -warn:-null -proc:none -d \"" + OUTPUT_DIR + "\"",
+		+ " -err:+nullAnnot -warn:-null -err:+nonnullNotRepeated -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" + 
 		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
@@ -12673,7 +12679,12 @@ public void test314_warn_options() {
 		"	                     ^^^^^^\n" + 
 		"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" + 
 		"----------\n" + 
-		"2 problems (2 errors)", 
+		"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
+		"	@Nullable Object foo(Object o, Object o2) { return null; }\n" +
+		"	                               ^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" +
+		"----------\n" +
+		"3 problems (3 errors)", 
 		true);
 }
 
@@ -13659,6 +13670,60 @@ public void testBug375366c() throws IOException {
 			"	                     ^^^^^^\n" + 
 			"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" + 
 			"----------\n" + 
+			"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
+			"	@Nullable Object foo(Object o, Object o2) { return null; }\n" +
+			"	                               ^^^^^^\n" +
+			"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" +
+			"----------\n" +
+			"3 problems (2 errors, 1 warning)", 
+			false/*don't flush*/);
+}
+
+// Bug 375366 - ECJ ignores unusedParameterIncludeDocCommentReference unless enableJavadoc option is set
+// property file enables null annotation support, one optional warning disabled
+public void testBug375366d() throws IOException {
+	createOutputTestDirectory("regression/.settings");
+	Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
+			"eclipse.preferences.version=1\n" + 
+			"org.eclipse.jdt.core.compiler.annotation.nullanalysis=enabled\n" +
+			"org.eclipse.jdt.core.compiler.problem.nonnullParameterAnnotationDropped=ignore\n");
+	this.runNegativeTest(
+			new String[] {
+					"p/X.java",
+					"package p;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"public class X {\n" +
+					"  @NonNull Object foo(@Nullable Object o, @NonNull Object o2) {\n" +
+					"	 return this;\n" +
+					"  }\n" +
+					"}\n" +
+					"class Y extends X {\n" +
+					"    @Nullable Object foo(Object o, Object o2) { return null; }\n" +
+					"}\n",
+					"org/eclipse/jdt/annotation/NonNull.java",
+					NONNULL_ANNOTATION_CONTENT,
+					"org/eclipse/jdt/annotation/Nullable.java",
+					NULLABLE_ANNOTATION_CONTENT,
+					"org/eclipse/jdt/annotation/NonNullByDefault.java",				
+					NONNULL_BY_DEFAULT_ANNOTATION_CONTENT
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+			+ " -sourcepath \"" + OUTPUT_DIR + "\""
+			+ " -1.5"
+			+ " -properties " + OUTPUT_DIR + File.separator +".settings" + File.separator + "org.eclipse.jdt.core.prefs "
+			+ " -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"----------\n" +
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
+			"	@Nullable Object foo(Object o, Object o2) { return null; }\n" +
+			"	^^^^^^^^^^^^^^^^\n" +
+			"The return type is incompatible with the @NonNull return from X.foo(Object, Object)\n" +
+			"----------\n" +
+			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
+			"	@Nullable Object foo(Object o, Object o2) { return null; }\n" +
+			"	                     ^^^^^^\n" +
+			"Missing nullable annotation: inherited method from X declares this parameter as @Nullable\n" +
+			"----------\n" +
 			"2 problems (2 errors)", 
 			false/*don't flush*/);
 }

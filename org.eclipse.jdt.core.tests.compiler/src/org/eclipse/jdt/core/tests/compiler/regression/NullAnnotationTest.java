@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "testBug388281_09" };
+//		TESTS_NAMES = new String[] { "test_parameter_specification_inheritance_01" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -1061,7 +1061,12 @@ public void test_parameter_specification_inheritance_008() {
 		},
 		options,
 		"----------\n" +
-		"1. ERROR in XSub.java (at line 3)\n" +
+		"1. WARNING in XSub.java (at line 3)\n" + 
+		"	public void printObject(Object o) { super.printObject(o); }\n" + 
+		"	                        ^^^^^^\n" + 
+		"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" + 
+		"----------\n" + 
+		"2. ERROR in XSub.java (at line 3)\n" +
 		"	public void printObject(Object o) { super.printObject(o); }\n" +
 		"	                                                      ^\n" +
 		"Null type safety: The expression of type Object needs unchecked conversion to conform to \'@NonNull Object\'\n" +
@@ -1197,6 +1202,7 @@ public void test_parameter_specification_inheritance_012() {
 public void test_parameter_specification_inheritance_013() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED, JavaCore.IGNORE);
 	runNegativeTestWithLibs(
 		new String[] {
 	"p1/X.java",
@@ -1332,6 +1338,95 @@ public void test_parameter_specification_inheritance_015() {
 	    this.LIBS,
 	    false/*shouldFlush*/,
 	    null/*vmArgs*/);
+}
+
+// a method relaxes the parameter null specification from @NonNull to un-annotated
+// see https://bugs.eclipse.org/381443
+// issue configured as error
+public void test_parameter_specification_inheritance_016() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED, JavaCore.ERROR);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    void foo(@NonNull String s) { System.out.println(s); }\n" +
+			"}\n",
+			"XSub.java",
+			"public class XSub extends X {\n" +
+			"    @Override\n" +
+			"    public void foo(String s) { if (s != null) super.foo(s); }\n" +
+			"    void bar() { foo(null); }\n" +
+			"}\n"
+		},
+		options,
+		"----------\n" +
+		"1. ERROR in XSub.java (at line 3)\n" +
+		"	public void foo(String s) { if (s != null) super.foo(s); }\n" +
+		"	                ^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X declares this parameter as @NonNull\n" +
+		"----------\n");
+}
+
+// a class inherits two methods with different spec: one non-null param & one unannotated param
+// widening reported as warning by default
+// see https://bugs.eclipse.org/381443
+public void test_parameter_specification_inheritance_017() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public void foo(String s) { System.out.println(s); }\n" +
+			"}\n",
+			"IX.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public interface IX {\n" +
+			"    void foo(@NonNull String s);\n" +
+			"}\n",
+			"XSub.java",
+			"public class XSub extends X implements IX {\n" +
+			"    void bar() { foo(null); }\n" +
+			"    static void zork(XSub sub) {\n" +
+			"        sub.foo(null);\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in XSub.java (at line 1)\n" + 
+		"	public class XSub extends X implements IX {\n" + 
+		"	             ^^^^\n" + 
+		"Missing non-null annotation: inherited method from IX declares this parameter as @NonNull\n" + 
+		"----------\n");
+}
+
+// a class inherits two methods with different spec: one non-null param & one unannotated param
+// opt to accept this widening
+// see https://bugs.eclipse.org/381443
+public void test_parameter_specification_inheritance_018() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED, JavaCore.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public void foo(String s) { System.out.println(s); }\n" +
+			"}\n",
+			"IX.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public interface IX {\n" +
+			"    void foo(@NonNull String s);\n" +
+			"}\n",
+			"XSub.java",
+			"public class XSub extends X implements IX {\n" +
+			"    void bar() { foo(null); }\n" +
+			"    static void zork(XSub sub) {\n" +
+			"        sub.foo(null);\n" +
+			"    }\n" +
+			"}\n"
+		},
+		options,
+		"");
 }
 
 // a nullable return value is dereferenced without a check

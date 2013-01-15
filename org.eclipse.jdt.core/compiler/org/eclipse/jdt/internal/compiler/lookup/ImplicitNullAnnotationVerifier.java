@@ -299,10 +299,8 @@ public class ImplicitNullAnnotationVerifier {
 				}
 			}
 			if (shouldComplain) {
-				boolean needNonNull = false;
 				char[][] annotationName;
 				if (inheritedNonNullNess == Boolean.TRUE) {
-					needNonNull = true;
 					annotationName = environment.getNonNullAnnotationName();
 				} else {
 					annotationName = environment.getNullableAnnotationName();
@@ -319,17 +317,24 @@ public class ImplicitNullAnnotationVerifier {
 					} else {
 						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod);
 					}
-				} else if (inheritedNonNullNess == Boolean.FALSE // unannotated conflics only with inherited @Nullable
-							&& currentNonNullNess == null) 
+				} else if (currentNonNullNess == null) 
 				{
-					if (currentArgument != null) {
-						scope.problemReporter().parameterLackingNullAnnotation(
+					// unannotated strictly conflicts only with inherited @Nullable
+					if (inheritedNonNullNess == Boolean.FALSE) { 
+						if (currentArgument != null) {
+							scope.problemReporter().parameterLackingNullableAnnotation(
+									currentArgument,
+									inheritedMethod.declaringClass,
+									annotationName);
+						} else {
+							scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod);
+						}
+					} else if (inheritedNonNullNess == Boolean.TRUE) {
+						// not strictly a conflict, but a configurable warning is given anyway:
+						scope.problemReporter().parameterLackingNonnullAnnotation(
 								currentArgument,
 								inheritedMethod.declaringClass,
-								needNonNull,
 								annotationName);
-					} else {
-						scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod);
 					}
 				}
 			}
