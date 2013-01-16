@@ -20,7 +20,7 @@
   </parent>
   <groupId>eclipse.jdt.core</groupId>
   <artifactId>org.eclipse.jdt.compiler.apt</artifactId>
-  <version>1.0.500-SNAPSHOT</version>
+  <version>1.0.600-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 
   <build>
