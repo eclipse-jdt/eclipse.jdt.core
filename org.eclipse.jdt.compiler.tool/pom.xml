@@ -22,4 +22,81 @@
   <artifactId>org.eclipse.jdt.compiler.tool</artifactId>
   <version>1.0.101-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>update-ecj</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target>
+
+                <path id="ecj.id">
+                  <fileset dir="${basedir}/../org.eclipse.jdt.core/target/">
+                    <include name="org.eclipse.jdt.core-*-SNAPSHOT-batch-compiler.jar"/>
+                  </fileset>
+                </path> 
+
+                <property name="ecj.file" refid="ecj.id"/>
+
+                <echo message="UPDATE ${ecj.file}" />
+
+                <property name="unjarDestBin" value="${basedir}/tempbin"/>
+                <mkdir dir="${unjarDestBin}"/>
+
+                <unjar
+                    src="${ecj.file}"
+                    dest="${unjarDestBin}"/>
+
+                <zip destfile="${ecj.file}" update="true">
+                  <!-- old stuff -->
+                  <fileset dir="${unjarDestBin}"/>	
+                  <!-- new stuff: this plugin classes are here -->
+                  <fileset dir="${basedir}/target/classes">
+                    <include name="**/*"/>
+                  </fileset>
+                  <fileset dir="${basedir}">
+                    <include name="META-INF/services/**" />
+                  </fileset>
+                </zip>
+                <delete dir="${unjarDestBin}" failonerror="false"/>
+
+                <!-- no source bundle for ecj, as jdt.core pom.xml does not generate it -->
+
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>bsf</groupId>
+            <artifactId>bsf</artifactId>
+            <version>2.4.0</version>
+          </dependency>
+          <dependency>
+            <groupId>rhino</groupId>
+            <artifactId>js</artifactId>
+            <version>1.7R2</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-apache-bsf</artifactId>
+            <version>1.8.3</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-nodeps</artifactId>
+            <version>1.8.1</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
 </project>
