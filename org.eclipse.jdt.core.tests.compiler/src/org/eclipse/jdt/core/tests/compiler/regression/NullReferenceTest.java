@@ -24,6 +24,7 @@
  * 							bug 367879 - Incorrect "Potential null pointer access" warning on statement after try-with-resources within try-finally
  * 							bug 383690 - [compiler] location of error re uninitialized final field should be aligned
  *							bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *							bug 376263 - Bogus "Potential null pointer access" warning
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -32,6 +33,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -53,6 +55,7 @@ public NullReferenceTest(String name) {
 static {
 //		TESTS_NAMES = new String[] { "testBug345305_14" };
 //		TESTS_NAMES = new String[] { "test0515_try_finally" };
+//		TESTS_NAMES = new String[] { "testBug376263" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -15622,6 +15625,41 @@ public void testBug360328d() {
 		"",/* expected output */
 		"",/* expected error */
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+public void testBug376263() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"    private int x;\n" + 
+			"\n" + 
+			"    static void test(Test[] array) {\n" + 
+			"        Test elem = null;\n" + 
+			"        int i = 0;\n" + 
+			"        while (i < array.length) {\n" + 
+			"            if (i == 0) {\n" + 
+			"                elem = array[0];\n" + 
+			"            }\n" + 
+			"            if (elem != null) {\n" + 
+			"                while (true) {\n" + 
+			"                    if (elem.x >= 0 || i >= array.length) { // should not warn here\n" + 
+			"                        break;\n" + 
+			"                    }\n" + 
+			"                    elem = array[i++];\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"",
+		null/*classLibraries*/,
+		true/*shouldFlush*/,
+		null/*vmArgs*/,
+		customOptions,
+		null/*requestor*/);
 }
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"

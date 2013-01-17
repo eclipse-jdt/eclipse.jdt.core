@@ -15,6 +15,7 @@
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *								bug 385626 - @NonNull fails across loop boundaries
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								bug 376263 - Bogus "Potential null pointer access" warning
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -148,6 +149,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 			addPotentialNullInfoFrom(this.innerFlowInfos[i]);
 	}
 	this.innerFlowContextsCount = 0;
+	FlowInfo upstreamCopy = this.upstreamNullFlowInfo.copy();
 	UnconditionalFlowInfo flowInfo = this.upstreamNullFlowInfo.
 		addPotentialNullInfoFrom(callerFlowInfo.unconditionalInitsWithoutSideEffect());
 	if ((this.tagBits & FlowContext.DEFER_NULL_DIAGNOSTIC) != 0) {
@@ -277,8 +279,12 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 				default:
 					// never happens
 			}
-			this.parent.recordUsingNullReference(scope, local, location,
-					this.nullCheckTypes[i], flowInfo);
+			// https://bugs.eclipse.org/376263: avoid further deferring if the upstream info
+			// already has definite information (which might get lost for deferred checking).
+			if (!(this.nullCheckTypes[i] == MAY_NULL && upstreamCopy.isDefinitelyNonNull(local))) {
+				this.parent.recordUsingNullReference(scope, local, location,
+						this.nullCheckTypes[i], flowInfo);
+			}
 		}
 	}
 	else {
