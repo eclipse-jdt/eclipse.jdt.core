@@ -21,6 +21,7 @@
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 376053 - [compiler][resource] Strange potential resource leak problems
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
+ *								bug 393719 - [compiler] inconsistent warnings on iteration variables
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -258,6 +259,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.UnsafeRawConstructorInvocation:
 		case IProblem.UnsafeRawMethodInvocation:
 		case IProblem.UnsafeTypeConversion:
+		case IProblem.UnsafeElementTypeConversion:
 		case IProblem.UnsafeRawFieldAssignment:
 		case IProblem.UnsafeGenericCast:
 		case IProblem.UnsafeReturnTypeOverride:
@@ -7582,6 +7584,21 @@ public void unsafeTypeConversion(Expression expression, TypeBinding expressionTy
 	}
 	this.handle(
 		IProblem.UnsafeTypeConversion,
+		new String[] { new String(expressionType.readableName()), new String(expectedType.readableName()), new String(expectedType.erasure().readableName()) },
+		new String[] { new String(expressionType.shortReadableName()), new String(expectedType.shortReadableName()), new String(expectedType.erasure().shortReadableName()) },
+		severity,
+		expression.sourceStart,
+		expression.sourceEnd);
+}
+public void unsafeElementTypeConversion(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
+	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) return; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259
+	int severity = computeSeverity(IProblem.UnsafeElementTypeConversion);
+	if (severity == ProblemSeverities.Ignore) return;
+	if (!this.options.reportUnavoidableGenericTypeProblems && expression.forcedToBeRaw(this.referenceContext)) {
+		return;
+	}
+	this.handle(
+		IProblem.UnsafeElementTypeConversion,
 		new String[] { new String(expressionType.readableName()), new String(expectedType.readableName()), new String(expectedType.erasure().readableName()) },
 		new String[] { new String(expressionType.shortReadableName()), new String(expectedType.shortReadableName()), new String(expectedType.erasure().shortReadableName()) },
 		severity,

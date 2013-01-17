@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 393719 - [compiler] inconsistent warnings on iteration variables
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -38,7 +40,7 @@ protected Map getCompilerOptions() {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//	TESTS_NAMES = new String[] { "test000" };
+//	TESTS_NAMES = new String[] { "test055" };
 //	TESTS_NUMBERS = new int[] { 50, 51, 52, 53 };
 //	TESTS_RANGE = new int[] { 34, 38 };
 }
@@ -2815,7 +2817,7 @@ public void test054() throws Exception {
 			"2. WARNING in X.java (at line 10)\n" + 
 			"	for (Set<String> BUG : new Set[] { x, y }) {\n" + 
 			"	                       ^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" + 
+			"Type safety: Elements of type Set need unchecked conversion to conform to Set<String>\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 14)\n" + 
 			"	Set [] set = new Set[] { x, y };\n" + 
@@ -2825,9 +2827,80 @@ public void test054() throws Exception {
 			"4. WARNING in X.java (at line 15)\n" + 
 			"	for (Set<String> BUG : set) {\n" + 
 			"	                       ^^^\n" + 
-			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" + 
+			"Type safety: Elements of type Set need unchecked conversion to conform to Set<String>\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 20)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/393719
+// like test054 but suppressing the warnings.
+public void test055() throws Exception {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.HashSet;\n" +
+				"import java.util.Set;\n" +
+				"public class X {\n" +
+				"    void foo() {\n" +
+				"       HashSet<String> x = new HashSet<String>();\n" +
+				"        x.add(\"a\");\n" +
+				"        HashSet<Integer> y = new HashSet<Integer>();\n" +
+				"        y.add(1);\n" +
+				"        @SuppressWarnings(\"unchecked\") Set<String> [] OK= new Set[] { x, y };\n" +
+				"        for (@SuppressWarnings(\"unchecked\") Set<String> BUG : new Set[] { x, y }) {\n" +
+				"            for (String str : BUG)\n" +
+				"                System.out.println(str);\n" +
+				"        }\n" +
+				"        @SuppressWarnings({\"rawtypes\", \"unchecked\"}) Set [] set = new Set[] { x, y };\n" +
+				"        for (@SuppressWarnings(\"unchecked\") Set<String> BUG : set) {\n" +
+				"            for (String str : BUG)\n" +
+				"                System.out.println(str);\n" +
+				"        }\n" +
+				"    }\n" +
+				"    Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 20)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/393719
+// "unchecked" warning against the collection (raw Iterable)
+public void test056() throws Exception {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"    void testRawType(@SuppressWarnings(\"rawtypes\") List<List> lists) {\n" + 
+				"		List<String> stringList = lists.get(0); // (1)\n" + 
+				"		for (List<String> strings : lists)      // (2)\n" + 
+				"			stringList = strings;\n" + 
+				"		for (@SuppressWarnings(\"unchecked\") List<String> strings : lists) // no warning\n" + 
+				"			stringList = strings;\n" + 
+				"		System.out.println(stringList.get(0));\n" +
+				"	 }\n" +
+				"    Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	List<String> stringList = lists.get(0); // (1)\n" + 
+			"	                          ^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
+			"	for (List<String> strings : lists)      // (2)\n" + 
+			"	                            ^^^^^\n" + 
+			"Type safety: Elements of type List need unchecked conversion to conform to List<String>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 11)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 

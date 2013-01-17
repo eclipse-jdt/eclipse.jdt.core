@@ -11,6 +11,7 @@
  *     Stephan Herrmann - Contributions for 
  *								bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
  *								bug 374605 - Unreasonable warning for enum-based switch statements
+ *								bug 393719 - [compiler] inconsistent warnings on iteration variables
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -3058,6 +3059,10 @@ protected void consumeEnhancedForStatementHeader(){
 	this.expressionLengthPtr--;
 	final Expression collection = this.expressionStack[this.expressionPtr--];
 	statement.collection = collection;
+	// https://bugs.eclipse.org/393719 - [compiler] inconsistent warnings on iteration variables
+	// let declaration(Source)End include the collection to achieve that @SuppressWarnings affects this part, too:
+	statement.elementVariable.declarationSourceEnd = collection.sourceEnd;
+	statement.elementVariable.declarationEnd = collection.sourceEnd;
 	statement.sourceEnd = this.rParenPos;
 
 	if(!this.statementRecoveryActivated &&
@@ -3074,6 +3079,7 @@ protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 
 	LocalDeclaration localDeclaration = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
 	localDeclaration.declarationSourceEnd = localDeclaration.declarationEnd;
+	localDeclaration.bits |= ASTNode.IsForeachElementVariable;
 
 	int extraDims = this.intStack[this.intPtr--];
 	this.identifierPtr--;
