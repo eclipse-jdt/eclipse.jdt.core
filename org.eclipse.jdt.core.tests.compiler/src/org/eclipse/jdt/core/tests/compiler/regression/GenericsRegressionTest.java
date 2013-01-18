@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2750,4 +2750,71 @@ public void testBug395002_combined() {
 		});
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=397888
+public void test397888a() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedTypeParameter, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference,
+	          CompilerOptions.ENABLED);
+
+	this.runNegativeTest(
+		 new String[] {
+ 		"X.java",
+         "/***\n" +
+         " * @param <T>\n" +
+         " */\n" +
+         "public class X <T> {\n"+
+         "/***\n" +
+         " * @param <S>\n" +
+         " */\n" +
+         "	public <S> void ph(int i) {\n"+
+         "	}\n"+
+         "}\n"
+         },
+ 		"----------\n" + 
+ 		"1. ERROR in X.java (at line 8)\n" + 
+ 		"	public <S> void ph(int i) {\n" + 
+ 		"	                       ^\n" + 
+ 		"The value of the parameter i is not used\n" + 
+ 		"----------\n",
+ 		null, true, customOptions);
+}        
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=397888
+public void test397888b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedTypeParameter, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference,
+        CompilerOptions.DISABLED);
+
+	this.runNegativeTest(
+        new String[] {
+     		   "X.java",
+                "/***\n" +
+                " * @param <T>\n" +
+                " */\n" +
+                "public class X <T> {\n"+
+                "/***\n" +
+                " * @param <S>\n" +
+                " */\n" +
+                "public <S> void ph() {\n"+
+                "}\n"+
+                "}\n"
+        },
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	public class X <T> {\n" + 
+		"	                ^\n" + 
+		"Unused type parameter T\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	public <S> void ph() {\n" + 
+		"	        ^\n" + 
+		"Unused type parameter S\n" + 
+		"----------\n",
+		null, true, customOptions);
+}
 }

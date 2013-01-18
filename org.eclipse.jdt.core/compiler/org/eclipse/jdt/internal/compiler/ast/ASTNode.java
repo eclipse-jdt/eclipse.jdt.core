@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -495,8 +495,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			return false;
 
 		ReferenceBinding refType = (ReferenceBinding) type;
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=397888
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
-		if (refType instanceof TypeVariableBinding) {
+		if ((this.bits & ASTNode.InsideJavadoc) == 0  && refType instanceof TypeVariableBinding) {
 			refType.modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
 		// ignore references insing Javadoc comments
