@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
@@ -24,6 +27,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.TypeNameMatchCollector;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
 /**
@@ -1094,6 +1098,24 @@ public void testBug250211() throws CoreException {
 			assertNotNull("Unexpected null project!", projects[i]);
 			deleteProject(projects[i]);
 		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=397818
+public void testBug397818() throws CoreException {
+	try {
+		createJavaProject("P1", new String[] {"src"}, new String[] {}, "bin");
+		
+		createFolder("/P1/new folder");
+		IFile newFile = createFile("/P1/new folder/testindex.index", "");
+		try {
+			URL newURL = newFile.getLocationURI().toURL();
+			IndexLocation indexLoc = IndexLocation.createIndexLocation(newURL);
+			assertTrue("Malformed index location", indexLoc.getIndexFile().exists());
+		} catch (MalformedURLException e) {
+			fail("Malformed index location");
+		}
+	} finally {
+		deleteProject("P1");
 	}
 }
 }
