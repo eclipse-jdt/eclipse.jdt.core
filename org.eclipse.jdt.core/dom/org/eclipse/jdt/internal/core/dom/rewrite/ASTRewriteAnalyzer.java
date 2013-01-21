@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2778,9 +2778,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		rewriteRequiredNode(node, QualifiedName.QUALIFIER_PROPERTY);
-		if (node.getAST().apiLevel() >= AST.JLS8) {
-			rewriteTypeAnnotations(node, QualifiedName.ANNOTATIONS_PROPERTY, node.getStartPosition());
-		}
 		rewriteRequiredNode(node, QualifiedName.NAME_PROPERTY);
 		return false;
 	}
@@ -2791,9 +2788,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	public boolean visit(SimpleName node) {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
-		}
-		if (node.getAST().apiLevel() >= AST.JLS8) {
-			rewriteTypeAnnotations(node, SimpleName.ANNOTATIONS_PROPERTY, node.getStartPosition());
 		}
 		String newString= (String) getNewValue(node, SimpleName.IDENTIFIER_PROPERTY);
 		TextEditGroup group = getEditGroup(node, SimpleName.IDENTIFIER_PROPERTY);

@@ -1,14 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2011 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -43,13 +39,6 @@ public class SimpleName extends Name {
 	 */
 	public static final SimplePropertyDescriptor IDENTIFIER_PROPERTY =
 		new SimplePropertyDescriptor(SimpleName.class, "identifier", String.class, MANDATORY); //$NON-NLS-1$
-	
-	/**
-	 * The "annotations" structural property of this node type (child type: {@link Annotation}).
-	 * @since 3.9
-	 */
-	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
-		new ChildListPropertyDescriptor(SimpleName.class, "annotations", Annotation.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -58,26 +47,12 @@ public class SimpleName extends Name {
 	 * @since 3.0
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
-	
-	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
-	 * @since 3.9
-	 */
-	private static final List PROPERTY_DESCRIPTORS_8_0;
 
 	static {
 		List propertyList = new ArrayList(2);
 		createPropertyList(SimpleName.class, propertyList);
 		addProperty(IDENTIFIER_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
-		
-		propertyList = new ArrayList(3);
-		createPropertyList(SimpleName.class, propertyList);
-		addProperty(IDENTIFIER_PROPERTY, propertyList);
-		addProperty(ANNOTATIONS_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
 	}
 
 	/**
@@ -90,14 +65,7 @@ public class SimpleName extends Name {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		switch (apiLevel) {
-			case AST.JLS2_INTERNAL :
-			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
-				return PROPERTY_DESCRIPTORS;
-			default :
-				return PROPERTY_DESCRIPTORS_8_0;
-		}
+		return PROPERTY_DESCRIPTORS;
 	}
 
 	/**
@@ -123,9 +91,6 @@ public class SimpleName extends Name {
 	 */
 	SimpleName(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.JLS8) {
-			this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
-		}
 	}
 
 	/* (omit javadoc for this method)
@@ -134,17 +99,6 @@ public class SimpleName extends Name {
 	 */
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
-	}
-	
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
-	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
-		if (property == ANNOTATIONS_PROPERTY) {
-			return annotations();
-		}
-		// allow default implementation to flag the error
-		return super.internalGetChildListProperty(property);
 	}
 
 	/* (omit javadoc for this method)
@@ -177,11 +131,6 @@ public class SimpleName extends Name {
 		SimpleName result = new SimpleName(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setIdentifier(getIdentifier());
-		if (this.ast.apiLevel >= AST.JLS8) {
-			result.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
-			result.annotations.addAll(
-					ASTNode.copySubtrees(target, annotations()));
-		}
 		return result;
 	}
 
@@ -197,12 +146,7 @@ public class SimpleName extends Name {
 	 * Method declared on ASTNode.
 	 */
 	void accept0(ASTVisitor visitor) {
-		boolean visitChildren = visitor.visit(this);
-		if (visitChildren) {
-			if (this.ast.apiLevel >= AST.JLS8) {
-				acceptChildren(visitor, this.annotations);
-			}
-		}
+		visitor.visit(this);
 		visitor.endVisit(this);
 	}
 
@@ -353,7 +297,7 @@ public class SimpleName extends Name {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		int size = BASE_NAME_NODE_SIZE + 1 * 4;
+		int size = BASE_NAME_NODE_SIZE + 2 * 4;
 		if (this.identifier != MISSING_IDENTIFIER) {
 			// everything but our missing id costs
 			size += stringSize(this.identifier);
@@ -365,7 +309,7 @@ public class SimpleName extends Name {
 	 * Method declared on ASTNode.
 	 */
 	int treeSize() {
-		return memSize() + (this.annotations == null ? 0 : this.annotations.listSize());
+		return memSize();
 	}
 }
 

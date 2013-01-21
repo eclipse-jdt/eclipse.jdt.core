@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -734,9 +734,6 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	public boolean visit(QualifiedName node) {
 		getChildNode(node, QualifiedName.QUALIFIER_PROPERTY).accept(this);
 		this.result.append('.');
-		if (node.getAST().apiLevel() >= AST.JLS8) {
-			visitList(node, QualifiedName.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
-		}
 		getChildNode(node, QualifiedName.NAME_PROPERTY).accept(this);
 		return false;
 	}
@@ -759,9 +756,6 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(SimpleName)
 	 */
 	public boolean visit(SimpleName node) {
-		if (node.getAST().apiLevel() >= AST.JLS8) {
-			visitList(node, SimpleName.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
-		}
 		this.result.append(getAttribute(node, SimpleName.IDENTIFIER_PROPERTY));
 		return false;
 	}

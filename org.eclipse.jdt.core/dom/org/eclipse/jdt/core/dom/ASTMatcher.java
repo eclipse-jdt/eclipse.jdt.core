@@ -1691,17 +1691,9 @@ public class ASTMatcher {
 			return false;
 		}
 		QualifiedName o = (QualifiedName) other;
-		switch(node.getAST().apiLevel) {
-			case AST.JLS2_INTERNAL :
-			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
-				return safeSubtreeMatch(node.getQualifier(), o.getQualifier())
-						&& safeSubtreeMatch(node.getName(), o.getName());
-			default:
-				return safeSubtreeMatch(node.getQualifier(), o.getQualifier())
-						&& safeSubtreeMatch(node.getName(), o.getName()) &&
-						safeSubtreeListMatch(node.annotations(), o.annotations());
-		}	
+
+		return safeSubtreeMatch(node.getQualifier(), o.getQualifier())
+				&& safeSubtreeMatch(node.getName(), o.getName());
 	}
 
 	/**
@@ -1781,15 +1773,7 @@ public class ASTMatcher {
 			return false;
 		}
 		SimpleName o = (SimpleName) other;
-		switch(node.getAST().apiLevel) {
-			case AST.JLS2_INTERNAL :
-			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
-				return node.getIdentifier().equals(o.getIdentifier());
-			default:
-				return (node.getIdentifier().equals(o.getIdentifier())) &&
-						safeSubtreeListMatch(node.annotations(), o.annotations());
-		}	
+		return node.getIdentifier().equals(o.getIdentifier());
 	}
 
 	/**

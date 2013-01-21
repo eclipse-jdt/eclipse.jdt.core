@@ -1257,7 +1257,6 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(QualifiedName node) {
 		node.getQualifier().accept(this);
 		this.buffer.append(".");//$NON-NLS-1$
-		visitTypeAnnotations(node);
 		node.getName().accept(this);
 		return false;
 	}
@@ -1292,7 +1291,6 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(SimpleName)
 	 */
 	public boolean visit(SimpleName node) {
-		visitTypeAnnotations(node);
 		this.buffer.append(node.getIdentifier());
 		return false;
 	}
@@ -1846,18 +1844,5 @@ public class NaiveASTFlattener extends ASTVisitor {
 				}
 			}
 		}
-	}
-	private void visitTypeAnnotations(Name node) {
-		if (node.getAST().apiLevel() >= AST.JLS8) {
-			List annotations = node.annotations();
-			if (annotations != null) {
-				for (Iterator it = annotations.iterator(); it.hasNext(); ) {
-					Annotation annotation = (Annotation) it.next();
-					annotation.accept(this);
-					this.buffer.append(' ');
-				}
-			}
-		}
-	}
-
+	}	
 }

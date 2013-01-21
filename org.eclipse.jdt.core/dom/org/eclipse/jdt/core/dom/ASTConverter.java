@@ -2733,7 +2733,7 @@ class ASTConverter {
 			// QualifiedName
 			org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference qualifiedTypeReference = (org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference) typeReference;
 			final long[] positions = qualifiedTypeReference.sourcePositions;
-			return setQualifiedNameNameAndSourceRanges(typeName, positions, typeReference, typeReference.annotations);
+			return setQualifiedNameNameAndSourceRanges(typeName, positions, typeReference);
 		} else {
 			final SimpleName name = new SimpleName(this.ast);
 			name.internalSetIdentifier(new String(typeName[0]));
@@ -2741,10 +2741,6 @@ class ASTConverter {
 			name.index = 1;
 			if (this.resolveBindings) {
 				recordNodes(name, typeReference);
-			}
-			org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations;
-			if (typeReference.annotations != null && (annotations = typeReference.annotations[0]) != null) {
-				annotateName(name, annotations);
 			}
 			return name;
 		}
@@ -3090,27 +3086,7 @@ class ASTConverter {
 				}
 		}
 	}
-	private void annotateName(Name name, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations) {
-		switch(this.ast.apiLevel) {
-			case AST.JLS2_INTERNAL :
-			case AST.JLS3_INTERNAL :
-			case AST.JLS4:
-				name.setFlags(name.getFlags() | ASTNode.MALFORMED);
-				break;
-			default:
-				int annotationsLength = annotations.length;
-				for (int i = 0; i < annotationsLength; i++) {
-					org.eclipse.jdt.internal.compiler.ast.Annotation typeAnnotation = annotations[i];
-					if (typeAnnotation != null) {
-						Annotation annotation = convert(typeAnnotation);
-						int start = typeAnnotation.sourceStart;
-						int end = typeAnnotation.sourceEnd;
-						annotation.setSourceRange(start, end - start + 1);
-						name.annotations.add(annotation);
-					}
-				}
-		}
-	}
+
 	private void annotateTypeParameter(TypeParameter typeParameter, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations) {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
@@ -3296,7 +3272,7 @@ class ASTConverter {
 						int nameLength = name.length;
 						sourceStart = (int)(positions[0]>>>32);
 						length = (int)(positions[nameLength - 1] & 0xFFFFFFFF) - sourceStart + 1;
-						Name qualifiedName = this.setQualifiedNameNameAndSourceRanges(name, positions, typeReference, typeReference.annotations);
+						Name qualifiedName = this.setQualifiedNameNameAndSourceRanges(name, positions, typeReference);
 						final SimpleType simpleType = new SimpleType(this.ast);
 						simpleType.setName(qualifiedName);
 						simpleType.setSourceRange(sourceStart, length);
@@ -3418,7 +3394,7 @@ class ASTConverter {
 				long[] positions = ((org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference) typeReference).sourcePositions;
 				sourceStart = (int)(positions[0]>>>32);
 				length = (int)(positions[nameLength - 1] & 0xFFFFFFFF) - sourceStart + 1;
-				final Name qualifiedName = this.setQualifiedNameNameAndSourceRanges(name, positions, typeReference, typeReference.annotations);
+				final Name qualifiedName = this.setQualifiedNameNameAndSourceRanges(name, positions, typeReference);
 				final SimpleType simpleType = new SimpleType(this.ast);
 				simpleType.setName(qualifiedName);
 				type = simpleType;
@@ -4983,12 +4959,7 @@ class ASTConverter {
 	}
 
 	protected QualifiedName setQualifiedNameNameAndSourceRanges(char[][] typeName, long[] positions, org.eclipse.jdt.internal.compiler.ast.ASTNode node) {
-		return setQualifiedNameNameAndSourceRanges(typeName, positions, node, null);
-	}
-
-	protected QualifiedName setQualifiedNameNameAndSourceRanges(char[][] typeName, long[] positions, org.eclipse.jdt.internal.compiler.ast.ASTNode node, org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotations) {
-	    org.eclipse.jdt.internal.compiler.ast.Annotation[] typeAnnotations;
-		int length = typeName.length;
+	    int length = typeName.length;
 		final SimpleName firstToken = new SimpleName(this.ast);
 		firstToken.internalSetIdentifier(new String(typeName[0]));
 		firstToken.index = 1;
@@ -4996,9 +4967,6 @@ class ASTConverter {
 		int start = start0;
 		int end = (int)(positions[0] & 0xFFFFFFFF);
 		firstToken.setSourceRange(start, end - start + 1);
-		if (annotations != null && (typeAnnotations = annotations[0]) != null) {
-			annotateName(firstToken, typeAnnotations);
-		}
 		final SimpleName secondToken = new SimpleName(this.ast);
 		secondToken.internalSetIdentifier(new String(typeName[1]));
 		secondToken.index = 2;
@@ -5008,9 +4976,6 @@ class ASTConverter {
 		QualifiedName qualifiedName = new QualifiedName(this.ast);
 		qualifiedName.setQualifier(firstToken);
 		qualifiedName.setName(secondToken);
-		if (annotations != null && (typeAnnotations = annotations[1]) != null) {
-			annotateName(qualifiedName, typeAnnotations);
-		}
 		if (this.resolveBindings) {
 			recordNodes(qualifiedName, node);
 			recordPendingNameScopeResolution(qualifiedName);
@@ -5035,9 +5000,6 @@ class ASTConverter {
 			qualifiedName = qualifiedName2;
 			qualifiedName.index = newPart.index;
 			qualifiedName.setSourceRange(start0, end - start0 + 1);
-			if (annotations != null && (typeAnnotations = annotations[i]) != null) {
-				annotateName(qualifiedName, typeAnnotations);
-			}	
 			if (this.resolveBindings) {
 				recordNodes(qualifiedName, node);
 				recordNodes(newPart, node);
@@ -5054,7 +5016,6 @@ class ASTConverter {
 	}
 
 	protected QualifiedName setQualifiedNameNameAndSourceRanges(char[][] typeName, long[] positions, int endingIndex, org.eclipse.jdt.internal.compiler.ast.TypeReference node) {
- 		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations;
  		int length = endingIndex + 1;
 		final SimpleName firstToken = new SimpleName(this.ast);
 		firstToken.internalSetIdentifier(new String(typeName[0]));
@@ -5063,9 +5024,6 @@ class ASTConverter {
 		int start = start0;
 		int end = (int) positions[0];
 		firstToken.setSourceRange(start, end - start + 1);
-		if (node.annotations != null && (annotations = node.annotations[0]) != null) {
-			annotateName(firstToken, annotations);
-		}
 		final SimpleName secondToken = new SimpleName(this.ast);
 		secondToken.internalSetIdentifier(new String(typeName[1]));
 		secondToken.index = 2;
@@ -5075,9 +5033,6 @@ class ASTConverter {
 		QualifiedName qualifiedName = new QualifiedName(this.ast);
 		qualifiedName.setQualifier(firstToken);
 		qualifiedName.setName(secondToken);
-		if (node.annotations != null && (annotations = node.annotations[1]) != null) {
-			annotateName(qualifiedName, annotations);
-		}
 		if (this.resolveBindings) {
 			recordNodes(qualifiedName, node);
 			recordPendingNameScopeResolution(qualifiedName);
@@ -5102,9 +5057,6 @@ class ASTConverter {
 			qualifiedName = qualifiedName2;
 			qualifiedName.index = newPart.index;
 			qualifiedName.setSourceRange(start0, end - start0 + 1);
-			if (node.annotations != null && (annotations = node.annotations[i]) != null) {
-				annotateName(qualifiedName, annotations);
-			}
 			if (this.resolveBindings) {
 				recordNodes(qualifiedName, node);
 				recordNodes(newPart, node);
