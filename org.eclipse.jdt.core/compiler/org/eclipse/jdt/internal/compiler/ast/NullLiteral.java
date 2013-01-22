@@ -7,11 +7,14 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.*;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -49,7 +52,7 @@ public class NullLiteral extends MagicLiteral {
 		return TypeBinding.NULL;
 	}
 
-	public int nullStatus(FlowInfo flowInfo) {
+	public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 		return FlowInfo.NULL;
 	}
 

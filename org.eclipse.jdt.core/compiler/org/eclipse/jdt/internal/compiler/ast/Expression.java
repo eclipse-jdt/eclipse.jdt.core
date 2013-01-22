@@ -7,9 +7,11 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for 
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
  *								bug 292478 - Report potentially null across variable assignment
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -38,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Messages;
@@ -519,14 +522,21 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 }
 
 /**
- * Check the local variable of this expression, if any, against potential NPEs
- * given a flow context and an upstream flow info. If so, report the risk to
- * the context. Marks the local as checked, which affects the flow info.
+ * Check this expression against potential NPEs, which may occur:
+ * <ul>
+ * <li>if the expression is the receiver in a field access, qualified allocation, array reference or message send
+ * 		incl. implicit message sends like it happens for the collection in a foreach statement.</li>
+ * <li>if the expression is subject to unboxing</li>
+ * <li>if the expression is the exception in a throw statement</li>
+ * </ul>
+ * If a risk of NPE is detected report it to the context.
+ * If the expression denotes a local variable, mark it as checked, which affects the flow info.
  * @param scope the scope of the analysis
  * @param flowContext the current flow context
  * @param flowInfo the upstream flow info; caveat: may get modified
+ * @return could this expression be checked by the current implementation?
  */
-public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
 	LocalVariableBinding local = localVariableBinding();
 	if (local != null &&
 			(local.type.tagBits & TagBits.IsBaseType) == 0) {
@@ -543,7 +553,9 @@ public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInf
 		if (flowContext.initsOnFinally != null) {
 			flowContext.markFinallyNullStatus(local, FlowInfo.NON_NULL);
 		}
+		return true;
 	}
+	return false; // not checked
 }
 
 public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
@@ -865,11 +877,11 @@ public void markAsNonNull() {
 	this.bits |= ASTNode.IsNonNull;
 }
 
-public int nullStatus(FlowInfo flowInfo) {
+public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 
 	if (/* (this.bits & IsNonNull) != 0 || */
 		this.constant != null && this.constant != Constant.NotAConstant)
-	return FlowInfo.NON_NULL; // constant expression cannot be null
+		return FlowInfo.NON_NULL; // constant expression cannot be null
 
 	LocalVariableBinding local = localVariableBinding();
 	if (local != null)
@@ -1111,5 +1123,14 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
  */
 public void traverse(ASTVisitor visitor, ClassScope scope) {
 	// nothing to do
+}
+
+/**
+ * Used on the lhs of an assignment for detecting null spec violation.
+ * If this expression represents a null-annotated variable return the variable binding,
+ * otherwise null.
+*/
+public VariableBinding nullAnnotatedVariableBinding() {
+	return null;
 }
 }

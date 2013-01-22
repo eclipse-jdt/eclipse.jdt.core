@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -33,9 +35,11 @@ public FlowInfo analyseCode(
 		FlowInfo flowInfo) {
 	this.expression.checkNPE(currentScope, flowContext, flowInfo);
 	if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
-		return this.expression.
+		flowInfo = this.expression.
 			analyseCode(currentScope, flowContext, flowInfo).
 			asNegatedCondition();
+		flowContext.expireNullCheckedFieldInfo();
+		return flowInfo;
 	} else {
 		return this.expression.
 			analyseCode(currentScope, flowContext, flowInfo);

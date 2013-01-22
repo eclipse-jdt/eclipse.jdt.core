@@ -13,6 +13,7 @@
  *								bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
  *								bug 384663 - Package Based Annotation Compilation Error in JDT 3.8/4.2 (works in 3.7.2) 
  *								bug 386356 - Type mismatch error with annotations and generics
+ *								bug 331649 - [compiler][null] consider null annotations for fields
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -10401,7 +10402,7 @@ public void testBug365437e() {
 			"}\n" +
 			"class E3 {\n" +
 			"	 @p.NonNull\n" +
-			"    private int E3;\n" +
+			"    private Object E3 = new Object();\n" +
 			"}\n" +
 			"class E4 {\n" +
 			"	 @Deprecated\n" +
@@ -10441,8 +10442,8 @@ public void testBug365437e() {
 		"The value of the field E2.E2 is not used\n" + 
 		"----------\n" + 
 		"4. ERROR in Example.java (at line 15)\n" + 
-		"	private int E3;\n" + 
-		"	            ^^\n" + 
+		"	private Object E3 = new Object();\n" + 
+		"	               ^^\n" + 
 		"The value of the field E3.E3 is not used\n" + 
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);

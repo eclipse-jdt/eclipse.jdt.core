@@ -13,6 +13,7 @@
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -70,6 +71,12 @@ public class FlowContext implements TypeConstants {
 	// array to store the provided and expected types from the potential error location (for display in error messages):
 	public TypeBinding[][] providedExpectedTypes = null;
 
+	// record field references known to be non-null
+	//   this array will never shrink, only grow. reset happens by nulling the first cell
+	//   adding elements after reset ensures that the valid part of the array is always null-terminated
+	private Reference[] nullCheckedFieldReferences = null;
+	private int timeToLiveForNullCheckInfo = -1;
+
 	public static final int DEFER_NULL_DIAGNOSTIC = 0x1;
 	public static final int PREEMPT_NULL_DIAGNOSTIC = 0x2;
 	/**
@@ -109,7 +116,72 @@ public FlowContext(FlowContext parent, ASTNode associatedNode) {
 		}
 		this.initsOnFinally = parent.initsOnFinally;
 		this.conditionalLevel = parent.conditionalLevel;
+		this.nullCheckedFieldReferences = parent.nullCheckedFieldReferences; // re-use list if there is one
 	}
+}
+
+/**
+ * Record that a reference to a field has been seen in a non-null state.
+ *
+ * @param reference Can be a SingleNameReference, a FieldReference or a QualifiedNameReference resolving to a field
+ * @param timeToLive control how many expire events are needed to expire this information
+ */
+public void recordNullCheckedFieldReference(Reference reference, int timeToLive) {
+	this.timeToLiveForNullCheckInfo = timeToLive;
+	if (this.nullCheckedFieldReferences == null) {
+		// first entry:
+		this.nullCheckedFieldReferences = new Reference[2];
+		this.nullCheckedFieldReferences[0] = reference;
+	} else {
+		int len = this.nullCheckedFieldReferences.length;
+		// insert into first empty slot:
+		for (int i=0; i<len; i++) {
+			if (this.nullCheckedFieldReferences[i] == null) {
+				this.nullCheckedFieldReferences[i] = reference;
+				if (i+1 < len) {
+					this.nullCheckedFieldReferences[i+1] = null; // lazily mark next as empty
+				}
+				return;
+			}
+		}
+		// grow array:
+		System.arraycopy(this.nullCheckedFieldReferences, 0, this.nullCheckedFieldReferences=new Reference[len+2], 0, len);
+		this.nullCheckedFieldReferences[len] = reference;
+	}
+}
+/**
+ * Forget any information about fields that were previously known to be non-null.
+ * 
+ * Will only cause any effect if CompilerOptions.enableSyntacticNullAnalysisForFields
+ * (implicitly by guards before calls to {@link #recordNullCheckedFieldReference(Reference, int)}).
+ */	 
+public void expireNullCheckedFieldInfo() {
+	if (this.nullCheckedFieldReferences != null) {
+		if (--this.timeToLiveForNullCheckInfo == 0) {
+			this.nullCheckedFieldReferences[0] = null; // lazily wipe
+		}
+	}
+}
+
+/** 
+ * Is the given field reference equivalent to a reference that is freshly known to be non-null?
+ * Can only return true if CompilerOptions.enableSyntacticNullAnalysisForFields
+ * (implicitly by guards before calls to {@link #recordNullCheckedFieldReference(Reference, int)}).
+ */
+public boolean isNullcheckedFieldAccess(Reference reference) {
+	if (this.nullCheckedFieldReferences == null)  // always null unless CompilerOptions.enableSyntacticNullAnalysisForFields
+		return false;
+	int len = this.nullCheckedFieldReferences.length;
+	for (int i=0; i<len; i++) {
+		Reference checked = this.nullCheckedFieldReferences[i];
+		if (checked == null) {
+			return false;
+		}
+		if (checked.isEquivalent(reference)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 public BranchLabel breakLabel() {

@@ -19,6 +19,7 @@
  *							bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *							bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
  *							bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+ *							bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -113,7 +114,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	else
 		FakedTrackingVariable.cleanUpAfterAssignment(currentScope, Binding.LOCAL, this.initialization);
 
-	int nullStatus = this.initialization.nullStatus(flowInfo);
+	int nullStatus = this.initialization.nullStatus(flowInfo, flowContext);
 	if (!flowInfo.isDefinitelyAssigned(this.binding)){// for local variable debug attributes
 		this.bits |= FirstAssignmentToLocal;
 	} else {

@@ -21,6 +21,7 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -55,7 +56,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this.expression.checkNPE(currentScope, flowContext, flowInfo);
 		}
 		if (flowInfo.reachMode() == FlowInfo.REACHABLE)
-			checkAgainstNullAnnotation(currentScope, flowContext, this.expression.nullStatus(flowInfo));
+			checkAgainstNullAnnotation(currentScope, flowContext, this.expression.nullStatus(flowInfo, flowContext));
 		if (currentScope.compilerOptions().analyseResourceLeaks) {
 			FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression, flowInfo, flowContext);
 			if (trackingVariable != null) {

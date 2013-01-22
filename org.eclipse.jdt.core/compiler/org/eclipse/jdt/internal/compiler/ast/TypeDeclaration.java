@@ -410,7 +410,9 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 			sourceType); //declaringClass
 	constructor.binding.tagBits |= (inheritedConstructorBinding.tagBits & TagBits.HasMissingType);
 	constructor.binding.modifiers |= ExtraCompilerModifiers.AccIsDefaultConstructor;
-	if (inheritedConstructorBinding.parameterNonNullness != null) { // this implies that annotation based null analysis is enabled
+	if (inheritedConstructorBinding.parameterNonNullness != null // this implies that annotation based null analysis is enabled
+			&& argumentsLength > 0) 
+	{
 		// copy nullness info from inherited constructor to the new constructor:
 		int len = inheritedConstructorBinding.parameterNonNullness.length;
 		System.arraycopy(inheritedConstructorBinding.parameterNonNullness, 0, 

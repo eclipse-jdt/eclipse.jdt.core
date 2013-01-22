@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 331649 - [compiler][null] consider null annotations for fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -29,10 +31,21 @@ public NameReference() {
 	this.bits |= Binding.TYPE | Binding.VARIABLE; // restrictiveFlag
 }
 
+/** 
+ * Use this method only when sure that the current reference is <strong>not</strong>
+ * a chain of several fields (QualifiedNameReference with more than one field).
+ * Otherwise use {@link #lastFieldBinding()}.
+ */
 public FieldBinding fieldBinding() {
 	//this method should be sent ONLY after a check against isFieldReference()
 	//check its use doing senders.........
 	return (FieldBinding) this.binding ;
+}
+
+public FieldBinding lastFieldBinding() {
+	if ((this.bits & ASTNode.RestrictiveFlagMASK) == Binding.FIELD)
+		return fieldBinding(); // most subclasses only refer to one field anyway
+	return null;
 }
 
 public boolean isSuperAccess() {

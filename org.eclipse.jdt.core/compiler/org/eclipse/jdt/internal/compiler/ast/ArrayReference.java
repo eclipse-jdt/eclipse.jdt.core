@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -167,7 +168,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 	codeStream.arrayAtPut(this.resolvedType.id, false);
 }
 
-public int nullStatus(FlowInfo flowInfo) {
+public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 	return FlowInfo.UNKNOWN;
 }
 
