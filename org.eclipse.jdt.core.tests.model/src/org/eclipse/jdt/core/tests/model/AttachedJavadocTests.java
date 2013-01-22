@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -93,6 +93,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		suite.addTest(new AttachedJavadocTests("testBug354766_2"));
 		suite.addTest(new AttachedJavadocTests("testBug394967"));
 		suite.addTest(new AttachedJavadocTests("testBug394382"));
+		suite.addTest(new AttachedJavadocTests("testBug398272"));
 		return suite;
 	}
 
@@ -1148,6 +1149,17 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		}
 		finally {
 			this.project.setRawClasspath(oldClasspath, null);
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=398272
+	public void testBug398272() throws JavaModelException {
+		IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2.p3.p4"); //$NON-NLS-1$
+		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
+		try {
+			String javadoc = packageFragment.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+			assertNull("Javadoc should be null", javadoc); //$NON-NLS-1$
+		} catch(JavaModelException jme) {
+			fail("Should not throw Java Model Exception");
 		}
 	}
 }
