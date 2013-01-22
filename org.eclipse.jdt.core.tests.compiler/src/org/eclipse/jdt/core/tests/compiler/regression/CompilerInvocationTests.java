@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2012 IBM Corporation and others.
+ * Copyright (c) 2006, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -537,6 +537,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalQualifiedEnumConstantLabel", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalQualifiedParameterizedTypeAllocation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalQualifierForExplicitThis", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("IllegalQualifierForExplicitThis2", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalReturnNullityRedefinition", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("IllegalRedefinitionToNonNullParameter", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("IllegalStaticModifierForMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1269,6 +1270,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalQualifiedEnumConstantLabel", SKIP);
 		expectedProblemAttributes.put("IllegalQualifiedParameterizedTypeAllocation", SKIP);
 		expectedProblemAttributes.put("IllegalQualifierForExplicitThis", SKIP);
+		expectedProblemAttributes.put("IllegalQualifierForExplicitThis2", SKIP);
 		expectedProblemAttributes.put("IllegalRedefinitionToNonNullParameter", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("IllegalReturnNullityRedefinition", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("IllegalStaticModifierForMemberType", SKIP);

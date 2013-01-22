@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -548,18 +548,16 @@ public abstract class AbstractMethodDeclaration
 			this.scope.problemReporter().illegalTypeForExplicitThis(this.receiver, enclosingReceiver);
 		}
 
-		if ((this.receiver.qualifyingName == null) ? this.isConstructor() : !isQualifierValidForType(this.receiver.qualifyingName.getName(), enclosingReceiver)) {
-			this.scope.problemReporter().illegalQualifierForExplicitThis(this.receiver, enclosingReceiver);					
-		}
-	}
-	private boolean isQualifierValidForType(char[][] tokens, TypeBinding enclosingType) {
-		for(int index = tokens.length - 1; index >= 0 && enclosingType != null; index--) {
-			if (!CharOperation.equals(enclosingType.sourceName(), tokens[index])) {
-				return false;
+		char[][] tokens = (this.receiver.qualifyingName == null) ? null : this.receiver.qualifyingName.getName();
+		if (this.isConstructor()) {
+			if (tokens == null || tokens.length > 1 || !CharOperation.equals(enclosingReceiver.sourceName(), tokens[0])) {
+				this.scope.problemReporter().illegalQualifierForExplicitThis(this.receiver, enclosingReceiver);
+				this.receiver.qualifyingName = null;
 			}
-			enclosingType = enclosingType.enclosingType();
+		} else if (tokens != null && tokens.length > 0) {
+			this.scope.problemReporter().illegalQualifierForExplicitThis2(this.receiver);
+			this.receiver.qualifyingName = null;
 		}
-		return true;
 	}
 	public void resolveJavadoc() {
 

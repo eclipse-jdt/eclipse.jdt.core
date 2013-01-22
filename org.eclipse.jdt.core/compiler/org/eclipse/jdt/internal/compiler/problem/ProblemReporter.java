@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2721,11 +2721,20 @@ public void disallowedThisParameter(Receiver receiver) {
 		receiver.sourceEnd);
 }
 public void illegalQualifierForExplicitThis(Receiver receiver, TypeBinding expectedType) {
+	String[] problemArguments = new String[] { new String(expectedType.sourceName())};
 	this.handle(
 		IProblem.IllegalQualifierForExplicitThis,
-		new String[] { new String(expectedType.readableName())},
-		new String[] { new String(expectedType.qualifiedSourceName())},
-		receiver.sourceStart,
+		problemArguments,
+		problemArguments,
+		(receiver.qualifyingName == null) ? receiver.sourceStart : receiver.qualifyingName.sourceStart,
+		receiver.sourceEnd);
+}
+public void illegalQualifierForExplicitThis2(Receiver receiver) {
+	this.handle(
+		IProblem.IllegalQualifierForExplicitThis2,
+		NoArgument,
+		NoArgument,
+		receiver.qualifyingName.sourceStart,
 		receiver.sourceEnd);
 }
 public void illegalTypeForExplicitThis(Receiver receiver, TypeBinding expectedType) {

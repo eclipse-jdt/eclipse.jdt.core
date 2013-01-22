@@ -16,7 +16,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 public class Receiver extends Argument {
-	NameReference qualifyingName;
+	public NameReference qualifyingName;
 	public Receiver(char[] name, long posNom, TypeReference typeReference, NameReference qualifyingName, int modifiers) {
 		super(name, posNom, typeReference, modifiers);
 		this.qualifyingName = qualifyingName;

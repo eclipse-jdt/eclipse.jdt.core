@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 IBM Corporation and others.
+ * Copyright (c) 2011, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1120,7 +1120,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"5. ERROR in Outer.java (at line 6)\n" + 
 						"	InnerMost(Outer.Inner this) {}\n" + 
 						"	                      ^^^^\n" + 
-						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Inner\n" + 
 						"----------\n" + 
 						"6. WARNING in Outer.java (at line 7)\n" + 
 						"	InnerMost(Outer.Inner Outer.Inner.this, int i, float f) {}\n" + 
@@ -1132,35 +1132,40 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"	          ^^^^^^^^^^^\n" + 
 						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>\n" + 
 						"----------\n" + 
-						"8. ERROR in Outer.java (at line 8)\n" + 
+						"8. ERROR in Outer.java (at line 7)\n" + 
+						"	InnerMost(Outer.Inner Outer.Inner.this, int i, float f) {}\n" + 
+						"	                      ^^^^^^^^^^^^^^^^\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Inner\n" + 
+						"----------\n" + 
+						"9. ERROR in Outer.java (at line 8)\n" + 
 						"	InnerMost(Outer Outer.this, float f) {}\n" + 
 						"	          ^^^^^\n" + 
 						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>\n" + 
 						"----------\n" + 
-						"9. ERROR in Outer.java (at line 8)\n" + 
+						"10. ERROR in Outer.java (at line 8)\n" + 
 						"	InnerMost(Outer Outer.this, float f) {}\n" + 
-						"	                      ^^^^\n" + 
-						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
+						"	                ^^^^^^^^^^\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Inner\n" + 
 						"----------\n" + 
-						"10. ERROR in Outer.java (at line 9)\n" + 
+						"11. ERROR in Outer.java (at line 9)\n" + 
 						"	InnerMost(Outer.Inner<K,V>.InnerMost<T> Outer.Inner.InnerMost.this, Object obj) {}\n" + 
 						"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>\n" + 
 						"----------\n" + 
-						"11. ERROR in Outer.java (at line 9)\n" + 
+						"12. ERROR in Outer.java (at line 9)\n" + 
 						"	InnerMost(Outer.Inner<K,V>.InnerMost<T> Outer.Inner.InnerMost.this, Object obj) {}\n" + 
-						"	                                                              ^^^^\n" + 
-						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
+						"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Inner\n" + 
 						"----------\n" + 
-						"12. ERROR in Outer.java (at line 10)\n" + 
+						"13. ERROR in Outer.java (at line 10)\n" + 
 						"	InnerMost(Inner<K,V> Outer.Inner.InnerMost.this, int i) {}\n" + 
-						"	                                           ^^^^\n" + 
-						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
+						"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Inner\n" + 
 						"----------\n" + 
-						"13. ERROR in Outer.java (at line 11)\n" + 
+						"14. ERROR in Outer.java (at line 11)\n" + 
 						"	InnerMost(Outer.Inner<K, V> this, float f, int i) {}\n" + 
 						"	                            ^^^^\n" + 
-						"The explicit 'this' parameter is expected to be qualified with Outer.Inner\n" + 
+						"The explicit 'this' parameter is expected to be qualified with Inner\n" + 
 						"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383913
@@ -1190,8 +1195,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"----------\n" + 
 						"2. ERROR in Outer.java (at line 4)\n" + 
 						"	public void foo(Outer Outer.this) {}\n" + 
-						"	                            ^^^^\n" + 
-						"The explicit 'this' parameter is expected to be qualified with Outer.Inner.InnerMost\n" + 
+						"	                      ^^^^^^^^^^\n" + 
+						"The explicit 'this' parameter for a method cannot have a qualifying name\n" + 
 						"----------\n" + 
 						"3. ERROR in Outer.java (at line 5)\n" + 
 						"	public void foo(Inner<K,V> Inner.this, int i) {}\n" + 
@@ -1200,8 +1205,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"----------\n" + 
 						"4. ERROR in Outer.java (at line 5)\n" + 
 						"	public void foo(Inner<K,V> Inner.this, int i) {}\n" + 
-						"	                                 ^^^^\n" + 
-						"The explicit 'this' parameter is expected to be qualified with Outer.Inner.InnerMost\n" + 
+						"	                           ^^^^^^^^^^\n" + 
+						"The explicit 'this' parameter for a method cannot have a qualifying name\n" + 
 						"----------\n" + 
 						"5. WARNING in Outer.java (at line 6)\n" + 
 						"	public void foo(InnerMost this, int i, int j) {}\n" + 
@@ -1222,6 +1227,11 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"	public void foo(Inner.InnerMost<T> this, Object obj) {}\n" + 
 						"	                ^^^^^^^^^^^^^^^\n" + 
 						"The declared type of the explicit 'this' parameter is expected to be Outer.Inner<K,V>.InnerMost<T>\n" + 
+						"----------\n" +
+						"9. ERROR in Outer.java (at line 11)\n" + 
+						"	public void foo(InnerMost<T> Outer.Inner.InnerMost.this, int i, float f) {}\n" + 
+						"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+						"The explicit 'this' parameter for a method cannot have a qualifying name\n" + 
 						"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383913
@@ -1523,7 +1533,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"public class X {\n" +
 				"   class Y {\n" +
 			    "       class Z {\n" +
-				"           Z(X. @Marker Y  X.Y.this) {\n" +
+				"           Z(X. @Marker Y  Y.this) {\n" +
 				"           }\n" +
 				"       }\n" +
 				"    }\n" +
@@ -1531,7 +1541,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			}, 
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
-			"	Z(X. @Marker Y  X.Y.this) {\n" + 
+			"	Z(X. @Marker Y  Y.this) {\n" + 
 			"	      ^^^^^^\n" + 
 			"Marker cannot be resolved to a type\n" + 
 			"----------\n");
