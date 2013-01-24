@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10726,5 +10726,81 @@ public void testBug386356_2() {
 			"}"
 			
 		});
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=398657
+public void test398657() throws Exception {
+	if (this.complianceLevel != ClassFileConstants.JDK1_5) {
+		return;
+	}
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"p/Annot.java",
+			"package p;\n" +
+			"public @interface Annot {\n" + 
+			"   static public enum E { A }\n" + 
+			"   E getEnum();\n" + 
+			"}",
+			"X.java",
+			"import static p.Annot.E.*;\n" +
+			"import p.Annot;" +
+			"@Annot(getEnum=A)\n" +
+			"public class X {}"
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null,
+		true);
+
+	String expectedOutput =
+		"  Inner classes:\n" + 
+		"    [inner class info: #22 p/Annot$E, outer class info: #24 p/Annot\n" + 
+		"     inner name: #26 E, accessflags: 16409 public static final]\n";
+
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=398657
+public void test398657_2() throws Exception {
+	if (this.complianceLevel != ClassFileConstants.JDK1_5) {
+		return;
+	}
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	this.runConformTest(
+		new String[] {
+			"p/Y.java",
+			"package p;\n" +
+			"public class Y {\n" +
+			"	static public @interface Annot {\n" + 
+			"		int id();\n" +
+			"	}\n" + 
+			"}",
+			"X.java",
+			"import p.Y.Annot;\n" +
+			"@Annot(id=4)\n" +
+			"public class X {}"
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null,
+		true);
+
+	String expectedOutput =
+			"  Inner classes:\n" + 
+			"    [inner class info: #21 p/Y$Annot, outer class info: #23 p/Y\n" + 
+			"     inner name: #25 Annot, accessflags: 9737 public abstract static]\n";
+
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
 }
 }
