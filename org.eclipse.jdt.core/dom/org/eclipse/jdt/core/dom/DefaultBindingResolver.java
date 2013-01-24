@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for Bug 342671 - ClassCastException: org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding cannot be cast to org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
@@ -285,11 +289,14 @@ class DefaultBindingResolver extends BindingResolver {
 		this.bindingTables.compilerBindingsToASTBindings.put(packageBinding, binding);
 		return binding;
 	}
-	private int getTypeArguments(ParameterizedQualifiedTypeReference typeReference) {
+	private int getTypeCount(ParameterizedQualifiedTypeReference typeReference) {
 		TypeReference[][] typeArguments = typeReference.typeArguments;
 		int value = 0;
-		for (int i = 0, max = typeArguments.length; i < max; i++) {
-			if ((typeArguments[i] != null) || (value != 0)) {
+		org.eclipse.jdt.internal.compiler.ast.Annotation[][] typeAnnotations = typeReference.annotations;
+		int length = typeReference.tokens.length;	
+		for (int i = 0; i < length; ++i) {
+			if (value != 0 || (typeArguments != null && typeArguments[i] != null) ||
+				(typeAnnotations != null && typeAnnotations[i] != null )) {
 				value++;
 			}
 		}
@@ -1551,7 +1558,7 @@ class DefaultBindingResolver extends BindingResolver {
 				} else {
 					index = 1;
 				}
-				final int numberOfTypeArgumentsNotNull = getTypeArguments(typeReference);
+				final int numberOfTypeArgumentsNotNull = getTypeCount(typeReference);
 				if (index != numberOfTypeArgumentsNotNull) {
 					int  i = numberOfTypeArgumentsNotNull;
 					while (i != index) {

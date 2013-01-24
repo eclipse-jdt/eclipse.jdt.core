@@ -1299,8 +1299,17 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(SimpleType)
 	 */
 	public boolean visit(SimpleType node) {
-		visitTypeAnnotations(node);
-		node.getName().accept(this);
+		Name name = node.getName();
+		if (name.isQualifiedName()) {
+			QualifiedName qualifiedName = (QualifiedName) name;
+			qualifiedName.getQualifier().accept(this);
+			this.buffer.append(".");//$NON-NLS-1$
+			visitTypeAnnotations(node);
+			qualifiedName.getName().accept(this);
+		} else {
+			visitTypeAnnotations(node);
+			node.getName().accept(this);			
+		}
 		return false;
 	}
 

@@ -1347,4 +1347,33 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.varargsAnnotations().add(this.ANO1);
 		basicMatch(x1);
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=395886
+	public void testQualifiedTypeAnnotation() {
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		QualifiedType x1 = this.ast.newQualifiedType(this.T1, this.N1);
+		x1.annotations().add(this.ANO1);
+		x1 = this.ast.newQualifiedType(x1, this.N2);
+		x1.annotations().add(this.ANO2);
+		basicMatch(x1);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=395886
+	public void testParameterizedQualifiedTypeAnnotation() {
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		QualifiedType qualifiedType = this.ast.newQualifiedType(this.T1, this.N1); 
+		qualifiedType.annotations().add(this.ANO1);
+		ParameterizedType x1 = this.ast.newParameterizedType(qualifiedType);
+		x1.typeArguments().add(this.ast.newSimpleType(this.ast.newSimpleName("SN1")));
+		qualifiedType = this.ast.newQualifiedType(x1, this.N2);
+		x1 = this.ast.newParameterizedType(qualifiedType);
+		SimpleType simpleType = this.ast.newSimpleType(this.ast.newSimpleName("SN2"));
+		simpleType.annotations().add(this.ANO2);
+		x1.typeArguments().add(simpleType);
+		basicMatch(x1);
+	}
 }
