@@ -50,7 +50,6 @@ public abstract class AbstractMethodDeclaration
 	public Annotation[] annotations;
 	// jsr 308
 	public Receiver receiver;
-	public Annotation[] receiverAnnotations;
 	public Argument[] arguments;
 	public TypeReference[] thrownExceptions;
 	public Statement[] statements;
@@ -452,10 +451,6 @@ public abstract class AbstractMethodDeclaration
 			}
 		}
 		output.append(')');
-		if (this.receiverAnnotations != null) {
-			output.append(" "); //$NON-NLS-1$
-			printAnnotations(this.receiverAnnotations, output);
-		}
 		if (this.thrownExceptions != null) {
 			output.append(" throws "); //$NON-NLS-1$
 			for (int i = 0; i < this.thrownExceptions.length; i++) {
@@ -502,7 +497,8 @@ public abstract class AbstractMethodDeclaration
 			resolveJavadoc();
 			resolveAnnotations(this.scope, this.annotations, this.binding);
 			// jsr 308
-			resolveAnnotations(this.scope, this.receiverAnnotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
+			if (this.receiver != null && this.receiver.annotations != null)
+				resolveAnnotations(this.scope, this.receiver.annotations, new Annotation.TypeUseBinding(Binding.TYPE_USE));
 			validateNullAnnotations();
 			resolveStatements();
 			// check @Deprecated annotation presence
@@ -530,6 +526,7 @@ public abstract class AbstractMethodDeclaration
 		/* neither static methods nor methods in anonymous types can have explicit 'this' */
 		if (this.isStatic() || declaringClass.isAnonymousType()) {
 			this.scope.problemReporter().disallowedThisParameter(this.receiver);
+			this.receiver = null;
 			return; // No need to do further validation
 		}
 
@@ -539,13 +536,10 @@ public abstract class AbstractMethodDeclaration
 			if (declaringClass.isStatic()
 					|| (declaringClass.tagBits & (TagBits.IsLocalType | TagBits.IsMemberType)) == 0) { /* neither member nor local type */
 				this.scope.problemReporter().disallowedThisParameter(this.receiver);
+				this.receiver = null;
 				return; // No need to do further validation
 			}
 			enclosingReceiver = enclosingReceiver.enclosingType();
-		}
-
-		if (enclosingReceiver != resolvedReceiverType) {
-			this.scope.problemReporter().illegalTypeForExplicitThis(this.receiver, enclosingReceiver);
 		}
 
 		char[][] tokens = (this.receiver.qualifyingName == null) ? null : this.receiver.qualifyingName.getName();
@@ -557,6 +551,11 @@ public abstract class AbstractMethodDeclaration
 		} else if (tokens != null && tokens.length > 0) {
 			this.scope.problemReporter().illegalQualifierForExplicitThis2(this.receiver);
 			this.receiver.qualifyingName = null;
+		}
+
+		if (enclosingReceiver != resolvedReceiverType) {
+			this.scope.problemReporter().illegalTypeForExplicitThis(this.receiver, enclosingReceiver);
+			this.receiver = null;
 		}
 	}
 	public void resolveJavadoc() {

@@ -68,6 +68,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	Block B1;
 	SingleVariableDeclaration V1;
 	SingleVariableDeclaration V2;
+	AnnotatableType R1;
+	Name Q1;
 	VariableDeclarationFragment W1;
 	VariableDeclarationFragment W2;
 	FieldDeclaration FD1;
@@ -134,6 +136,10 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.S1 = this.ast.newContinueStatement();
 		this.S2 = this.ast.newBreakStatement();
 		this.B1 = this.ast.newBlock();
+		if (this.ast.apiLevel() >= AST.JLS8) {
+			this.R1 = this.ast.newSimpleType(this.ast.newSimpleName("XYZ"));
+			this.Q1 = this.ast.newSimpleName("XYZ");
+		}
 		this.V1 = this.ast.newSingleVariableDeclaration();
 		this.V1.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 		this.V1.setName(this.ast.newSimpleName("a")); //$NON-NLS-1$
@@ -996,6 +1002,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			x1.typeParameters().add(this.TP1);
 			x1.typeParameters().add(this.TP2);
 			x1.setReturnType2(this.T1);
+			if (this.ast.apiLevel() >= AST.JLS8) {
+				x1.setReceiverType(this.R1);
+			}
 		}
 		x1.setName(this.N1);
 		x1.parameters().add(this.V1);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 IBM Corporation and others.
+ * Copyright (c) 2011, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.NegativeLambdaExpressionsT
 import org.eclipse.jdt.core.tests.compiler.regression.NegativeTypeAnnotationTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NullTypeAnnotationTest;
 import org.eclipse.jdt.core.tests.dom.ASTConverter15JLS8Test;
+import org.eclipse.jdt.core.tests.dom.ASTConverter18Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverterAST8Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverterBugsTestJLS8;
 import org.eclipse.jdt.core.tests.dom.ASTConverterTestAST8_2;
@@ -67,6 +68,7 @@ public class RunAllJava8Tests extends TestCase {
 				ASTConverterAST8Test.class,
 				ASTConverterBugsTestJLS8.class,
 				ASTConverter15JLS8Test.class,
+				ASTConverter18Test.class,
 		};
 	}
 	public static Test suite() {

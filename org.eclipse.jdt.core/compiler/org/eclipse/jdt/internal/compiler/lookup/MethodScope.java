@@ -370,7 +370,6 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 			problemReporter().illegalSourceLevelForThis(method.receiver);
 		}
 		if (method.receiver.annotations != null) {
-			method.receiverAnnotations = method.receiver.annotations;
 			method.bits |= ASTNode.HasTypeAnnotations;
 		}
 	}

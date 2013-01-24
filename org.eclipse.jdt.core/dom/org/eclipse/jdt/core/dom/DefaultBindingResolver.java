@@ -43,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.Receiver;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
@@ -1535,6 +1536,9 @@ class DefaultBindingResolver extends BindingResolver {
 		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(type);
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = null;
 		if (node != null) {
+			if (node instanceof Receiver) {
+				node = ((Receiver) node).type;
+			}
 			if (node instanceof ParameterizedQualifiedTypeReference) {
  				ParameterizedQualifiedTypeReference typeReference = (ParameterizedQualifiedTypeReference) node;
 				org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = typeReference.resolvedType;

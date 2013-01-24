@@ -23,9 +23,12 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AnnotatableType;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 public class ASTConverter18Test extends ConverterTestSetup {
 
@@ -961,5 +964,57 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertTrue(type.isSimpleType());
 		simpleType = (SimpleType) type;
 		assertEquals("Outer3", simpleType.toString());
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391893
+	public void test0007() throws JavaModelException {
+		String contents =
+			"public class X {\n" +
+			"	public void foo(@Marker @Marker2 X this, @Marker2 @Marker int i){}\n" +
+			"}\n" +
+			"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+			"@interface Marker {}\n" +
+			"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+			"@interface Marker2 {}";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration method = (MethodDeclaration) node;
+		AnnotatableType receiver = method.getReceiverType();
+		assertEquals("Not an annotatable type", ASTNode.SIMPLE_TYPE, receiver.getNodeType());
+		assertEquals("Incorrect receiver signature", "@Marker @Marker2 X", ((SimpleType) receiver).toString());
+		assertEquals("Incorrect annotations on receiver", 2, ((SimpleType) receiver).annotations().size());
+		assertNull("Incorrect receiver qualfier", method.getReceiverQualifier());
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391893
+	public void test0008() throws JavaModelException {
+		String contents =
+			"public class X {\n" +
+			"	class Y {\n" +
+			"		public Y(@Marker @Marker2 X X.this, @Marker2 @Marker int i){}\n" +
+			"	}\n" +
+			"}\n" +
+			"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+			"@interface Marker {}\n" +
+			"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+			"@interface Marker2 {}";
+
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a type Declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration innerType = (TypeDeclaration) node;
+		assertEquals("Incorrect no of methods", 1, innerType.getMethods().length);
+		MethodDeclaration method = innerType.getMethods()[0];
+		AnnotatableType receiver = method.getReceiverType();
+		assertEquals("Not an annotatable type", ASTNode.SIMPLE_TYPE, receiver.getNodeType());
+		assertEquals("Incorrect receiver signature", "@Marker @Marker2 X", ((SimpleType) receiver).toString());
+		assertEquals("Incorrect annotations on receiver", 2, ((SimpleType) receiver).annotations().size());
+		assertNotNull("Incorrect receiver qualfier", method.getReceiverQualifier());
+		assertEquals("Incorrect receiver qualfier", "X", method.getReceiverQualifier().getFullyQualifiedName());
 	}
 }

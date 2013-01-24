@@ -43,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.Receiver;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
@@ -459,6 +460,14 @@ class ASTConverter {
 				methodHeaderEnd = thrownExceptionType.getStartPosition() + thrownExceptionType.getLength();				
 			}
 		}
+
+		if (methodDeclaration.receiver != null) {
+			if(this.ast.apiLevel >= AST.JLS8) {
+				convertAndSetReceiver(methodDeclaration, methodDecl);
+			} else {
+				methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
+			}
+		}
 		org.eclipse.jdt.internal.compiler.ast.Argument[] parameters = methodDeclaration.arguments;
 		int parametersLength = parameters == null ? 0 : parameters.length;
 		if (parametersLength > 0) {
@@ -777,6 +786,36 @@ class ASTConverter {
 			annotationTypeMemberDeclaration2.resolveBinding();
 		}
 		return annotationTypeMemberDeclaration2;
+	}
+
+	private void convertAndSetReceiver(AbstractMethodDeclaration method, MethodDeclaration methodDecl) {
+		Receiver receiver = method.receiver;
+		if (receiver.qualifyingName != null) {
+			final SimpleName name = new SimpleName(this.ast);
+			name.internalSetIdentifier(new String(receiver.qualifyingName.getName()[0]));
+			int start = receiver.qualifyingName.sourceStart;
+			int nameEnd = receiver.qualifyingName.sourceEnd;
+			name.setSourceRange(start, nameEnd - start + 1);
+			methodDecl.setReceiverQualifier(name);
+			if (this.resolveBindings) {
+				recordNodes(name, receiver);
+			}
+		}
+		AnnotatableType type = (AnnotatableType) convertType(receiver.type);
+		org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = receiver.annotations;
+		int length = (annotations == null) ? 0 : annotations.length;
+		for (int i = 0; i < length; i++) {
+			type.annotations().add(convert(annotations[i]));
+		}
+		if (length > 0) {
+			int start = annotations[0].sourceStart;
+			type.setSourceRange(start, (receiver.type.sourceEnd - start + 1));
+		}
+		methodDecl.setReceiverType(type);
+		if (this.resolveBindings) {
+			recordNodes(type, receiver);
+			type.resolveBinding();
+		}
 	}
 
 	public SingleVariableDeclaration convert(org.eclipse.jdt.internal.compiler.ast.Argument argument) {

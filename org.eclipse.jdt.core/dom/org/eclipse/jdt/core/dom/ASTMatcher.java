@@ -1386,6 +1386,14 @@ public class ASTMatcher {
 				return false;
 			}
 		}
+		if (level >= AST.JLS8) {
+			if (!safeSubtreeMatch(node.getReceiverType(), o.getReceiverType())) {
+				return false;
+			}
+			if (!safeSubtreeMatch(node.getReceiverQualifier(), o.getReceiverQualifier())) {
+				return false;
+			}
+		}
 		return ((node.isConstructor() == o.isConstructor())
 				&& safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
 				&& safeSubtreeMatch(node.getName(), o.getName())

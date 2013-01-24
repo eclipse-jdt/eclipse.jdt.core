@@ -53,6 +53,23 @@ import java.util.List;
  * 			 { <b>,</b> FormalParameter } ] <b>)</b>
  *        [<b>throws</b> TypeName { <b>,</b> TypeName } ] Block
  * </pre>
+ * For JLS8 optional receiver parameter is added:
+ * <pre>
+ * MethodDeclaration:
+ *    [ Javadoc ] { ExtendedModifier }
+ *		  [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
+ *        ( Type | <b>void</b> ) Identifier <b>(</b>
+ *        	[ ReceiverParameter ]
+ *         	[ <b>, </b> FormalParameter { <b>,</b> FormalParameter } ] <b>)</b> {<b>[</b> <b>]</b> }
+ *        [ <b>throws</b> TypeName { <b>,</b> TypeName } ] ( Block | <b>;</b> )
+ * ConstructorDeclaration:
+ *    [ Javadoc ] { ExtendedModifier }
+ *		  [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
+ *        Identifier <b>(</b>
+ * 		  	[ ReceiverParameter ]
+ * 			[ <b>, </b> FormalParameter { <b>,</b> FormalParameter } ] <b>)</b>
+ *        [<b>throws</b> TypeName { <b>,</b> TypeName } ] Block
+ * </pre>
  * <p>
  * When a Javadoc comment is present, the source
  * range begins with the first character of the "/**" comment delimiter.
@@ -142,6 +159,22 @@ public class MethodDeclaration extends BodyDeclaration {
 		new ChildListPropertyDescriptor(MethodDeclaration.class, "parameters", SingleVariableDeclaration.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
+	 * The "receiverType" structural property of this node type (element type:
+	 * {@link AnnotatableType}) (added in JLS8 API).
+	 * @since 3.9
+	 */
+	public static final ChildPropertyDescriptor RECEIVER_TYPE_PROPERTY =
+			new ChildPropertyDescriptor(MethodDeclaration.class, "receiverType", AnnotatableType.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "receiverQualifier" structural property of this node type (element type:
+	 * {@link SimpleName}) (added in JLS8 API).
+	 * @since 3.9
+	 */
+	public static final ChildPropertyDescriptor RECEIVER_QUALIFIER_PROPERTY =
+			new ChildPropertyDescriptor(MethodDeclaration.class, "receiverQualifier", SimpleName.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+
+	/**
 	 * The "thrownExceptions" structural property of this node type (element type: {@link Name}) (Available in JLS2, JLS3, and JLS4 Only).
 	 * @since 3.0
 	 */
@@ -214,7 +247,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		addProperty(BODY_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(propertyList);
 
-		propertyList = new ArrayList(11);
+		propertyList = new ArrayList(13);
 		createPropertyList(MethodDeclaration.class, propertyList);
 		addProperty(JAVADOC_PROPERTY, propertyList);
 		addProperty(MODIFIERS2_PROPERTY, propertyList);
@@ -222,6 +255,8 @@ public class MethodDeclaration extends BodyDeclaration {
 		addProperty(TYPE_PARAMETERS_PROPERTY, propertyList);
 		addProperty(RETURN_TYPE2_PROPERTY, propertyList);
 		addProperty(NAME_PROPERTY, propertyList);
+		addProperty(RECEIVER_TYPE_PROPERTY, propertyList);
+		addProperty(RECEIVER_QUALIFIER_PROPERTY, propertyList);
 		addProperty(PARAMETERS_PROPERTY, propertyList);
 		addProperty(EXTRA_DIMENSIONS_PROPERTY, propertyList);
 		addProperty(THROWN_EXCEPTION_TYPES_PROPERTY, propertyList);
@@ -259,6 +294,16 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * legal Java identifier.
 	 */
 	private SimpleName methodName = null;
+
+	/**
+	 * The explicit receiver type.
+	 */
+	private AnnotatableType receiverType = null;
+	
+	/**
+	 * Qualifying name if any of the explicit </code>this</code> parameter.
+	 */
+	private SimpleName receiverQualifier = null;
 
 	/**
 	 * The parameter declarations
@@ -427,6 +472,20 @@ public class MethodDeclaration extends BodyDeclaration {
 				return null;
 			}
 		}
+		if (property == RECEIVER_TYPE_PROPERTY) {
+			if (get) {
+				return this.receiverType;
+			} else {
+				setReceiverType((AnnotatableType) child);
+			}
+		}
+		if (property == RECEIVER_QUALIFIER_PROPERTY) {
+			if (get) {
+				return this.receiverQualifier;
+			} else {
+				setReceiverQualifier((SimpleName) child);
+			}
+		}
 		if (property == BODY_PROPERTY) {
 			if (get) {
 				return getBody();
@@ -510,6 +569,10 @@ public class MethodDeclaration extends BodyDeclaration {
 			result.setReturnType2(
 					(Type) ASTNode.copySubtree(target, getReturnType2()));
 		}
+		if (this.ast.apiLevel >= AST.JLS8) {
+			result.setReceiverType((AnnotatableType) ASTNode.copySubtree(target, this.receiverType));
+			result.setReceiverQualifier((SimpleName) ASTNode.copySubtree(target, this.receiverQualifier));
+		}
 		result.setConstructor(isConstructor());
 		result.setExtraDimensions(getExtraDimensions());
 		result.setName((SimpleName) getName().clone(target));
@@ -553,6 +616,10 @@ public class MethodDeclaration extends BodyDeclaration {
 			}
 			// n.b. visit return type even for constructors
 			acceptChild(visitor, getName());
+			if (this.ast.apiLevel >= AST.JLS8) {
+				acceptChild(visitor, this.receiverType);
+				acceptChild(visitor, this.receiverQualifier);
+			}
 			acceptChildren(visitor, this.parameters);
 			if (this.ast.apiLevel() < AST.JLS8) {
 				acceptChildren(visitor, this.thrownExceptions);				
@@ -647,6 +714,68 @@ public class MethodDeclaration extends BodyDeclaration {
 		postReplaceChild(oldChild, methodName, NAME_PROPERTY);
 	}
 
+	/**
+	 * Returns the receiver type explicitly declared in the method or constructor 
+	 * declaration (JLS8 API only).
+	 *
+	 * If the receiver is not explicitly declared in the method or constructor 
+	 * declaration, <code>null</code> is returned.
+	 *
+	 * @return the receiver type or <code>null</code> if receiver is not declared explicitly
+	 * @exception UnsupportedOperationException if this operation is used below JLS8
+	 * @since 3.9
+	 */
+	public AnnotatableType getReceiverType() {
+		unsupportedIn2_3_4();
+		return this.receiverType;
+	}
+
+	/**
+	 * Sets the given type as the type of explicit receiver parameter. (JLS8 API only).
+	 *
+	 * @param receiverType type of explicit receiver parameter to be added to the method declaration
+	 * @exception UnsupportedOperationException if this operation is used below JLS8
+	 * @since 3.9
+
+	 */
+	public void setReceiverType(AnnotatableType receiverType) {
+		unsupportedIn2_3_4();
+		ASTNode oldChild = this.receiverType;
+		preReplaceChild(oldChild, receiverType, RECEIVER_TYPE_PROPERTY);
+		this.receiverType = receiverType;
+		postReplaceChild(oldChild, receiverType, RECEIVER_TYPE_PROPERTY);
+	}
+
+	/**
+	 * Returns the qualifying name, if any, for the explicit receiver or null if not used. This method
+	 * always returns <code>null</code> for a non-constructor.
+	 * This API is supported in JLS8 only.
+	 * 
+	 * @returns the qualifying name or <code>null</code> if a qualifier was not specified
+	 * @exception UnsupportedOperationException if this operation is used below JLS8
+	 * @since 3.9
+	 */
+	public SimpleName getReceiverQualifier() {
+		unsupportedIn2_3_4();
+		return this.receiverQualifier;
+	}
+	
+	/**
+	 * Sets the given simple name as the qualifier for the receiver.
+	 * This API is supported in JLS8 only.
+	 * 
+	 * @param receiverQualifier explicit receiver parameter to be added to the method declaration
+	 * @exception UnsupportedOperationException if this operation is used below JLS8
+	 * @since 3.9
+	 */
+	public void setReceiverQualifier(SimpleName receiverQualifier) {
+		unsupportedIn2_3_4();
+		ASTNode oldChild = this.receiverQualifier;
+		preReplaceChild(oldChild, receiverQualifier, RECEIVER_QUALIFIER_PROPERTY);
+		this.receiverQualifier = receiverQualifier;
+		postReplaceChild(oldChild, receiverQualifier, RECEIVER_QUALIFIER_PROPERTY);
+	}
+	
 	/**
 	 * Returns the live ordered list of method parameter declarations for this
 	 * method declaration.
@@ -965,7 +1094,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 10 * 4;
+		return super.memSize() + 12 * 4;
 	}
 
 	/* (omit javadoc for this method)
@@ -978,6 +1107,8 @@ public class MethodDeclaration extends BodyDeclaration {
 			+ (this.modifiers == null ? 0 : this.modifiers.listSize())
 			+ (this.typeParameters == null ? 0 : this.typeParameters.listSize())
 			+ (this.methodName == null ? 0 : getName().treeSize())
+			+ (this.receiverType == null ? 0 : this.receiverType.treeSize())
+			+ (this.receiverQualifier == null ? 0 : this.receiverQualifier.treeSize())
 			+ (this.returnType == null ? 0 : this.returnType.treeSize())
 			+ this.parameters.listSize()
 			+ (this.ast.apiLevel < AST.JLS8 ? this.thrownExceptions.listSize() : this.thrownExceptionTypes.listSize())
