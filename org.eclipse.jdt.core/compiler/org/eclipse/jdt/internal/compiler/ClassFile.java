@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1861,6 +1861,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contentsOffset = startingContentsOffset;
 			return;
 		}
+		if (annotationTypeBinding.isMemberType()) {
+			this.recordInnerClasses(annotationTypeBinding);
+		}
 		final int typeIndex = this.constantPool.literalIndex(annotationTypeBinding.signature());
 		this.contents[this.contentsOffset++] = (byte) (typeIndex >> 8);
 		this.contents[this.contentsOffset++] = (byte) typeIndex;
@@ -2074,6 +2077,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (defaultValueBinding == null) {
 			this.contentsOffset = attributeOffset;
 		} else {
+			if (defaultValueBinding.isMemberType()) {
+				this.recordInnerClasses(defaultValueBinding);
+			}
+			if (memberValuePairReturnType.isMemberType()) {
+				this.recordInnerClasses(memberValuePairReturnType);
+			}
 			if (memberValuePairReturnType.isArrayType() && !defaultValueBinding.isArrayType()) {
 				// automatic wrapping
 				if (this.contentsOffset + 3 >= this.contents.length) {
