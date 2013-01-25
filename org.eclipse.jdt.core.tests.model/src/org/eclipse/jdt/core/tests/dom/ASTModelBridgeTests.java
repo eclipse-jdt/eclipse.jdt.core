@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2012 IBM Corporation and others.
+ * Copyright (c) 2004, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
@@ -1193,6 +1194,31 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertBindingsEqual(
 			"LX;@LX~MyAnnot;",
 			bindings);
+	}
+	
+	/*
+	 * Ensures that the correct IBinding is created for package-info.class's IType
+	 */
+	public void testCreateBindings24() throws CoreException {
+		createClassFile(
+			"/P/lib",
+			"pack/package-info.class",
+			"@Deprecated\n" +
+			"package pack;");
+		IJavaProject javaProject = getJavaProject("P");
+		IPackageFragment pack = javaProject.findPackageFragment(new Path("/P/lib/pack"));
+		IType type = pack.getClassFile("package-info.class").getType();
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
+		parser.setProject(javaProject);
+		IJavaElement[] elements = new IJavaElement[] {type};
+		IBinding[] bindings = parser.createBindings(elements, null);
+		assertBindingsEqual(
+			"Lpack/package-info;",
+			bindings);
+		IAnnotationBinding[] annotations = ((ITypeBinding) bindings[0]).getAnnotations();
+		assertBindingsEqual(
+			"@Ljava/lang/Deprecated;",
+			annotations);
 	}
 
 	/*
