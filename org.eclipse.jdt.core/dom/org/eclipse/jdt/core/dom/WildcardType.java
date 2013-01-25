@@ -205,7 +205,6 @@ public class WildcardType extends AnnotatableType {
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setBound((Type) ASTNode.copySubtree(target, getBound()), isUpperBound());
 		if (this.ast.apiLevel >= AST.JLS8) {
-			result.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
 			result.annotations.addAll(
 					ASTNode.copySubtrees(target, annotations()));
 		}

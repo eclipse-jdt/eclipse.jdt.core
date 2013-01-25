@@ -165,7 +165,6 @@ public class SimpleType extends AnnotatableType {
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setName((Name) (getName()).clone(target));
 		if (this.ast.apiLevel >= AST.JLS8) {
-			result.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
 			result.annotations.addAll(
 					ASTNode.copySubtrees(target, annotations()));
 		}

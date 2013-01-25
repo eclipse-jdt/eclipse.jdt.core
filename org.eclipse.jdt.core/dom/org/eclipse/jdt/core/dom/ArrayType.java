@@ -172,7 +172,6 @@ public class ArrayType extends AnnotatableType {
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setComponentType((Type) getComponentType().clone(target));
 		if (this.ast.apiLevel >= AST.JLS8) {
-			result.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
 			result.annotations.addAll(
 					ASTNode.copySubtrees(target, annotations()));
 		}
