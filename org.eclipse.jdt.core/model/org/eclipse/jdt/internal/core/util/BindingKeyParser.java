@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 IBM Corporation and others.
+ * Copyright (c) 2005, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -702,6 +702,16 @@ public class BindingKeyParser {
 					default:
 						malformedKey();
 						return;
+				}
+				break;
+			case Scanner.WILDCARD:
+				// support the '-' in "Lpack/package-info;", see bug 398920
+				int start = this.scanner.start;
+				if (this.scanner.nextToken() == Scanner.TYPE) {
+					this.scanner.start = start;
+					this.keyStart = start-1;
+					consumeFullyQualifiedName(this.scanner.getTokenSource());
+					break;
 				}
 				break;
 			default:
