@@ -483,7 +483,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	
-	public void _testDefaultNonclash3() {
+	public void testDefaultNonclash3() {
 		runNegativeTest(
 			new String[] {
 				"X.java",

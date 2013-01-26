@@ -17,6 +17,7 @@
  *									bug 388954 - [1.8][compiler] detect default methods in class files
  *									bug 388281 - [compiler][null] inheritance of null annotations as an option
  *									bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
+ *									bug 390883 - [1.8][compiler] Unable to override default method
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -367,7 +368,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 
 	MethodBinding concreteMethod = this.type.isInterface() || methods[0].isAbstract() ? null : methods[0];
 	if (concreteMethod == null) {
-		MethodBinding bestAbstractMethod = length == 1 ? methods[0] : findBestInheritedAbstractMethod(methods, length);
+		MethodBinding bestAbstractMethod = length == 1 ? methods[0] : findBestInheritedAbstractOrDefaultMethod(methods, length);
 		boolean noMatch = bestAbstractMethod == null;
 		if (noMatch)
 			bestAbstractMethod = methods[0];
@@ -402,7 +403,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 	while (--index > 0 && checkInheritedReturnTypes(concreteMethod, methods[index])) {/*empty*/}
 	if (index > 0) {
 		// concreteMethod is not the best match
-		MethodBinding bestAbstractMethod = findBestInheritedAbstractMethod(methods, length);
+		MethodBinding bestAbstractMethod = findBestInheritedAbstractOrDefaultMethod(methods, length);
 		if (bestAbstractMethod == null)
 			problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length, isOverridden);
 		else // can only happen in >= 1.5 since return types must be equal prior to 1.5
@@ -794,10 +795,10 @@ SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBin
 	return null; // noop in 1.4
 }
 
-MethodBinding findBestInheritedAbstractMethod(MethodBinding[] methods, int length) {
+MethodBinding findBestInheritedAbstractOrDefaultMethod(MethodBinding[] methods, int length) {
 	findMethod : for (int i = 0; i < length; i++) {
 		MethodBinding method = methods[i];
-		if (!method.isAbstract()) continue findMethod;
+		if (!(method.isAbstract() || method.isDefaultMethod())) continue findMethod;
 		for (int j = 0; j < length; j++) {
 			if (i == j) continue;
 			if (!checkInheritedReturnTypes(method, methods[j])) {

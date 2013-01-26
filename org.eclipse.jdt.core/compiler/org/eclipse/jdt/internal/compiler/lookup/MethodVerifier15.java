@@ -17,6 +17,7 @@
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 388795 - [compiler] detection of name clash depends on order of super interfaces
  *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
+ *								bug 390883 - [1.8][compiler] Unable to override default method
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -275,7 +276,8 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 	MethodBinding concreteMethod = null;
 	for (int i = 0; i < length; i++) {
 		if (!methods[i].isAbstract()) {
-			if (concreteMethod != null) {
+			// re-checking compatibility is needed for https://bugs.eclipse.org/346029
+			if (concreteMethod != null && !(isOverridden[i] && areMethodsCompatible(concreteMethod, methods[i]))) {
 				problemReporter().duplicateInheritedMethods(this.type, concreteMethod, methods[i]);
 				continueInvestigation = false;
 			}
