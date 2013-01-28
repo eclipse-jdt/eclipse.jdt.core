@@ -706,8 +706,17 @@ public class BindingKeyParser {
 				break;
 			case Scanner.WILDCARD:
 				// support the '-' in "Lpack/package-info;", see bug 398920
+				if (!CharOperation.endsWith(this.scanner.getTokenSource(), new char[] {'/', 'p', 'a', 'c', 'k', 'a', 'g', 'e', '-'})) {
+					malformedKey();
+					return;
+				}
+				
 				int start = this.scanner.start;
 				if (this.scanner.nextToken() == Scanner.TYPE) {
+					if (!CharOperation.equals(this.scanner.getTokenSource(), new char[] {'i', 'n', 'f', 'o'})) {
+						malformedKey();
+						return;
+					}
 					this.scanner.start = start;
 					this.keyStart = start-1;
 					consumeFullyQualifiedName(this.scanner.getTokenSource());
