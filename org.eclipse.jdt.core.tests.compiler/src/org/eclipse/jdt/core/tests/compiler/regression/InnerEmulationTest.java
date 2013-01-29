@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2012 IBM Corporation and others.
+ * Copyright (c) 2006, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6844,7 +6844,7 @@ public void test172() throws Exception {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
-public void test173() throws Exception {
+public void _test173() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",//=======================
@@ -6869,7 +6869,7 @@ public void test173() throws Exception {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
-public void test174() throws Exception {
+public void _test174() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",//=======================

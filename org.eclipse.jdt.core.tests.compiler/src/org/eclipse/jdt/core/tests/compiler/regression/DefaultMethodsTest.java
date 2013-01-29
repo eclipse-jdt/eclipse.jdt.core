@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 GK Software AG and others.
+ * Copyright (c) 2013 GK Software AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -198,7 +198,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 
 	// class implements interface with default method. 
 	// - no need to implement this interface method as it is not abstract
-	public void testModifiers5() {
+	public void _testModifiers5() {
 		runConformTest(
 			new String[] {
 				"C.java",
