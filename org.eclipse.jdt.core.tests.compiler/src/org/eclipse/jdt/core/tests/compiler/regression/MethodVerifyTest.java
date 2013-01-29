@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1815,7 +1815,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
-	public void test026b() {
+	public void _test026b() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6841,7 +6841,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783
-	public void test091() {
+	public void _test091() {
 		this.runNegativeTest(
 			new String[] {
 				"DataSet.java",//===================
@@ -6964,7 +6964,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783 - variation
-	public void test092() {
+	public void _test092() {
 		this.runNegativeTest(
 			new String[] {
 				"DataSet.java",//===================
@@ -7075,7 +7075,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783 - variation
-	public void test093() {
+	public void _test093() {
 		this.runNegativeTest(
 			new String[] {
 				"DataSet.java",//===================
@@ -11390,7 +11390,7 @@ public void test202() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=292240
-public void test203() {
+public void _test203() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -12260,7 +12260,7 @@ public void test330264() {
 		compilerOptions14);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
-public void test331446() {
+public void _test331446() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
@@ -12331,7 +12331,7 @@ public void test331446() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
-public void test331446a() {
+public void _test331446a() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_4);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
