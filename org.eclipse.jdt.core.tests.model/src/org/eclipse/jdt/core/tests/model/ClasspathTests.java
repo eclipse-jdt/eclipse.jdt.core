@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -344,6 +344,7 @@ public static Test suite() {
 	suite.addTest(new ClasspathTests("testBug287164"));
 	suite.addTest(new ClasspathTests("testBug220928a"));
 	suite.addTest(new ClasspathTests("testBug220928b"));
+	suite.addTest(new ClasspathTests("testBug396299"));
 	return suite;
 }
 public void setUpSuite() throws Exception {
@@ -7418,6 +7419,45 @@ public void testBug220928b() throws CoreException {
 		preferences.setAutoBuilding(autoBuild);
 		getWorkspace().setDescription(preferences);
 		deleteProject("P");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=396299
+public void testBug396299() throws Exception {
+	boolean autoBuild = getWorkspace().isAutoBuilding();
+	IWorkspaceDescription preferences = getWorkspace().getDescription();
+	try {
+		JavaModelManager.EclipsePreferencesListener prefListener = new JavaModelManager.EclipsePreferencesListener();
+		preferences.setAutoBuilding(true);
+		getWorkspace().setDescription(preferences);
+
+		JavaProject proj1 =  (JavaProject) this.createJavaProject("P1", new String[] {}, "");
+		addLibrary(proj1, "abc.jar", null, new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {}\n"},
+				JavaCore.VERSION_1_4);
+		proj1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+
+		Map map = proj1.getOptions(false);
+		map.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
+		proj1.setOptions(map);
+
+		IEclipsePreferences eclipsePreferences = proj1.getEclipsePreferences();
+		eclipsePreferences.addPreferenceChangeListener(prefListener);
+		simulateExitRestart();
+		waitForAutoBuild();
+		assertMarkers("Unexpected markers", "", proj1);
+		map = proj1.getOptions(false);
+		map.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
+		proj1.setOptions(map);
+
+		assertMarkers("Unexpected markers",
+				"Incompatible .class files version in required binaries. Project \'P1\' is targeting a 1.1 runtime, but is compiled against \'P1/abc.jar\' which requires a 1.4 runtime", proj1);
+		 eclipsePreferences.removePreferenceChangeListener(prefListener);
+	} finally {
+		preferences.setAutoBuilding(autoBuild);
+		getWorkspace().setDescription(preferences);
+		deleteProject("P1");
 	}
 }
 }
