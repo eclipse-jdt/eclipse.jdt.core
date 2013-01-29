@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4425,7 +4425,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// 59628
-	public void test0146() {
+	public void _test0146() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6123,7 +6123,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62806
-	public void test0204() {
+	public void _test0204() {
 		this.runConformTest(
 			new String[] {
 				"Function.java",
@@ -8825,7 +8825,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"foo, bar");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72644
-	public void test0298() {
+	public void _test0298() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -10797,7 +10797,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75525
-	public void test0361() {
+	public void _test0361() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
@@ -11369,7 +11369,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71612
-	public void test0379() {
+	public void _test0379() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
@@ -13558,7 +13558,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81757
-	public void test0443() {
+	public void _test0443() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -19885,7 +19885,7 @@ public void test0617() {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93298
-	public void test0635() {
+	public void _test0635() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -24901,7 +24901,7 @@ public void test0778() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103227
-public void test0779() throws Exception {
+public void _test0779() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -25863,7 +25863,7 @@ public void test0808() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106946
-public void test0809() {
+public void _test0809() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -27974,7 +27974,7 @@ public void test0867() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114365
-public void test0868() {
+public void _test0868() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	this.runConformTest(
@@ -34163,7 +34163,7 @@ public void test1029() {
 		true,
 		options);
 }
-public void test1030() {
+public void _test1030() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -34398,7 +34398,7 @@ public void test1034() {
 		JavacTestOptions.EclipseHasABug.EclipseBug236370);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158531
-public void test1035() {
+public void _test1035() {
 	this.runNegativeTest(
 		new String[] {
 			"ComparableComparator.java",
@@ -49688,7 +49688,7 @@ public void test1443() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=263215
-public void test1444() {
+public void _test1444() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", //-----------------------------------------------------------------------
