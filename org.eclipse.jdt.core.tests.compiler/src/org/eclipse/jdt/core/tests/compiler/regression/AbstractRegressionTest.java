@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -82,6 +82,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	static final String ITERABLE_IMPL_JRE8;
 	static final String ITERABLE_RAW_IMPL_JRE8;
 	static final String ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8;
+	static final String ITERATOR_IMPL_JRE8;
 	static final String MAP_IMPL_JRE8;
 	static final String MAP_RAW_IMPL_JRE8;
 	static final String MAP_STREAM_IMPL_JRE8;
@@ -188,6 +189,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			MAP_IMPL_JRE8 = // '!' stands for 'K,V', '*' for 'K'
 				"	public Iterable<BiValue<!>> asIterable() { return null; }\n" +
 				"	public Iterable<*> inputs() { return null; }\n";
+			ITERATOR_IMPL_JRE8 = // replace '*' with your concrete type argument
+				"	public void forEach(java.util.function.Block<? super *> block){}\n";			
 			MAP_RAW_IMPL_JRE8 =
 				"	public Iterable asIterable() { return null; }\n" +
 				"	public Iterable inputs() { return null; }\n";
@@ -241,6 +244,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			ITERABLE_IMPL_JRE8 = "";
 			ITERABLE_RAW_IMPL_JRE8 = "";
 			ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8 = "";
+			ITERATOR_IMPL_JRE8 = "\n";
 			MAP_IMPL_JRE8 = "";
 			MAP_RAW_IMPL_JRE8 = "";
 			MAP_STREAM_IMPL_JRE8 = "";

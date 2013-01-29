@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -2478,6 +2482,7 @@ public class VarargsTest extends AbstractComparableTest {
 					"        public void remove() {\n" +
 					"            throw new UnsupportedOperationException();\n" +
 					"        }\n" +
+					ITERATOR_IMPL_JRE8.replaceAll("\\*", "T") +
 					"    }\n" +
 					"    public static void main(String[] args) {\n" +
 					"        new IteratorChain<Number>(null, null);\n" +
@@ -2486,7 +2491,7 @@ public class VarargsTest extends AbstractComparableTest {
 				},
 				this.complianceLevel < ClassFileConstants.JDK1_7 ?
 				"----------\n" + 
-				"1. WARNING in X.java (at line 18)\n" + 
+				"1. WARNING in X.java (at line 19)\n" + 
 				"	new IteratorChain<Number>(null, null);\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Type safety: A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
@@ -2497,7 +2502,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"	                                                                                                       ^^^^^^^^^^^\n" + 
 				"Type safety: Potential heap pollution via varargs parameter collections\n" + 
 				"----------\n" + 
-				"2. WARNING in X.java (at line 18)\n" + 
+				"2. WARNING in X.java (at line 19)\n" + 
 				"	new IteratorChain<Number>(null, null);\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Type safety: A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1630,6 +1630,7 @@ public void test034() throws Exception {
 			"	}\n" +
 			"	public void remove() {\n" +
 			"	}\n" +
+			ITERATOR_IMPL_JRE8.replaceAll("\\*", "T") +
 			"}\n" +
 			"class Bar implements Iterable<String> {\n" +
 			"	public Iterator<String> iterator() {\n" +
@@ -1724,6 +1725,7 @@ public void test035() throws Exception {
 			"	}\n" +
 			"	public void remove() {\n" +
 			"	}\n" +
+			ITERATOR_IMPL_JRE8.replaceAll("\\*", "T") +
 			"}\n" +
 			"interface IFoo extends Iterable<String> {\n" +
 			"}\n" +
