@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 IBM Corporation and others.
+ * Copyright (c) 2011, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1447,7 +1447,13 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"	i = @Marker W<@Marker Integer>::<@Marker String> new;\n" + 
 				"	^\n" + 
 				"i cannot be resolved to a variable\n" + 
-				"----------\n");
+				"----------\n" +
+				"2. ERROR in X.java (at line 12)\n" +
+				"	i = @Marker W<@Marker Integer>::<@Marker String> new;\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			    "The target type of this expression must be a functional interface\n" +
+			    "----------\n"
+				);
 	}
 	// CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
 	// CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus

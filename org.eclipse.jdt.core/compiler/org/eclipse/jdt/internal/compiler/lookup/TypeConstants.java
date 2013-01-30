@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -85,6 +85,7 @@ public interface TypeConstants {
     char[] UPPER_LOCAL_VARIABLE = "LOCAL_VARIABLE".toCharArray(); //$NON-NLS-1$
     char[] UPPER_ANNOTATION_TYPE = "ANNOTATION_TYPE".toCharArray(); //$NON-NLS-1$
     char[] UPPER_PACKAGE = "PACKAGE".toCharArray(); //$NON-NLS-1$
+    char[] ANONYMOUS_METHOD = " anonymous ".toCharArray(); //$NON-NLS-1$
     
 	// jsr308
 	char[] TYPE_USE_TARGET  = "TYPE_USE".toCharArray(); //$NON-NLS-1$
