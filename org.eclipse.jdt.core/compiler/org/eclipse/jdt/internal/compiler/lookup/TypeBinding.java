@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@
  *      Stephen Herrmann <stephan@cs.tu-berlin.de> -  Contributions for
  *								bug 317046 - Exception during debugging when hover mouse over a field
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+ *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
+ *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1225,4 +1227,14 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType,
 public TypeVariableBinding[] typeVariables() {
 	return Binding.NO_TYPE_VARIABLES;
 }
+
+/**
+ * Return the single abstract method of a functional interface, or null, if the receiver is not a functional interface as defined in JLS 9.8.
+ *  
+ * @return The single abstract method of a functional interface, or null, if the receiver is not a functional interface. 
+ */
+public MethodBinding getSingleAbstractMethod() {
+	return null;
+}
+
 }

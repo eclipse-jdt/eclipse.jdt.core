@@ -161,6 +161,8 @@
  *									DereferencingNullableExpression
  *									NullityMismatchingTypeAnnotation
  *									NullityMismatchingTypeAnnotationUnchecked
+ *      Jesper S Moller  - added the following constants
+ *									TargetTypeNotAFunctionalInterface
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -1331,6 +1333,8 @@ void setSourceStart(int sourceStart);
     int IllegalQualifierForExplicitThis = Internal + Syntax + 651;
     /** @since 3.9 */
     int IllegalQualifierForExplicitThis2 = Internal + Syntax + 652;
+    /** @since 3.9 */
+    int TargetTypeNotAFunctionalInterface = Internal + TypeRelated + 653;
     
 	/**
 	 * More problems in generics

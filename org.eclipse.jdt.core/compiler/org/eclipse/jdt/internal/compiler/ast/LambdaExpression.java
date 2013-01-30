@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,10 +11,15 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper S Moller - Contributions for
+ *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-public class LambdaExpression extends NullLiteral {  // For the time being.
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+
+public class LambdaExpression extends FunctionalExpression {
 	Argument [] arguments;
 	Statement body;
 	
@@ -24,6 +29,11 @@ public class LambdaExpression extends NullLiteral {  // For the time being.
 		this.body = body;
 	}
 	
+	public TypeBinding resolveType(BlockScope blockScope) {
+		super.resolveType(blockScope);
+		return TypeBinding.NULL;
+	}
+
 	public StringBuffer printExpression(int tab, StringBuffer output) {
 		int parenthesesCount = (this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 		String suffix = ""; //$NON-NLS-1$

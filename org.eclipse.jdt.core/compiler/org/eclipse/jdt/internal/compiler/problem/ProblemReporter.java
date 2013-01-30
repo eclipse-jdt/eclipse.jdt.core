@@ -27,6 +27,8 @@
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
+ *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
+ *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -1271,6 +1273,14 @@ public void cannotUseSuperInJavaLangObject(ASTNode reference) {
 		NoArgument,
 		reference.sourceStart,
 		reference.sourceEnd);
+}
+public void targetTypeIsNotAFunctionalInterface(ASTNode target) {
+	this.handle(
+		IProblem.TargetTypeNotAFunctionalInterface,
+		NoArgument,
+		NoArgument,
+		target.sourceStart,
+		target.sourceEnd);
 }
 public void caseExpressionMustBeConstant(Expression expression) {
 	this.handle(

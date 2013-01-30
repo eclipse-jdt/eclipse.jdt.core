@@ -11,11 +11,16 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper S Moller - Contributions for
+ *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.ast;
 
-public class ReferenceExpression extends NullLiteral { // For the time being.
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+
+public class ReferenceExpression extends FunctionalExpression {
 	
 	protected NameReference name;
 	protected TypeReference type;
@@ -58,6 +63,11 @@ public class ReferenceExpression extends NullLiteral { // For the time being.
 		this.type = type;
 		this.typeArguments = typeArguments;
 		this.method = null;
+	}
+	
+	public TypeBinding resolveType(BlockScope blockScope) {
+		super.resolveType(blockScope);
+		return TypeBinding.NULL;
 	}
 	
 	public StringBuffer printExpression(int tab, StringBuffer output) {

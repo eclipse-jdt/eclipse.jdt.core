@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,8 @@
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+ *      Jesper S Moller - Contributions for
+ *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -54,6 +56,7 @@ abstract public class ReferenceBinding extends TypeBinding {
 	private SimpleLookupTable compatibleCache;
 
 	int typeBits; // additional bits characterizing this type
+	private MethodBinding singleAbstractMethod;
 
 	public static final ReferenceBinding LUB_GENERIC = new ReferenceBinding() { /* used for lub computation */
 		public boolean hasTypeBit(int bit) { return false; }
@@ -1573,5 +1576,17 @@ protected int applyCloseableWhitelists() {
 			return TypeIds.BitWrapperCloseable;
 	}	
 	return 0;
+}
+
+public MethodBinding getSingleAbstractMethod() {
+	
+	if (this.singleAbstractMethod != null) {
+		return this.singleAbstractMethod;
+	}
+	MethodBinding [] methods;
+	if (!isInterface() || (methods = methods()).length != 1) {
+		return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NoSuchSingleAbstractMethod);
+	}
+	return this.singleAbstractMethod = methods[0];
 }
 }
