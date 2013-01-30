@@ -27,9 +27,8 @@ public abstract class FunctionalExpression extends Expression {
 	
 	TypeBinding expectedType;
 
-	public FunctionalExpression(int start, int end) {
-		this.sourceStart = start;
-		this.sourceEnd = end;
+	public FunctionalExpression() {
+		super();
 	}
 
 	public void setExpectedType(TypeBinding expectedType) {

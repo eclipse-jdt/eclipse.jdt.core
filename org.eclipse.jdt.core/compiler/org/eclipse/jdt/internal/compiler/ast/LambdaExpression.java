@@ -24,7 +24,6 @@ public class LambdaExpression extends FunctionalExpression {
 	Statement body;
 	
 	public LambdaExpression(Argument [] arguments, Statement body) {
-		super(0, 0);
 		this.arguments = arguments;
 		this.body = body;
 	}

@@ -31,38 +31,43 @@ public class ReferenceExpression extends FunctionalExpression {
 	protected SingleNameReference method; // == null ? "::new" : "::method"
 	
 	public ReferenceExpression(NameReference name, TypeReference[] typeArguments, int sourceEnd) {
-		super(name.sourceStart, sourceEnd);
 		this.name = name;
 		this.typeArguments = typeArguments;
 		this.method = null;
+		this.sourceStart = name.sourceStart;
+		this.sourceEnd = sourceEnd;
 	}
 
 	public ReferenceExpression(NameReference name, TypeReference[] typeArguments, SingleNameReference method) {
-		super(name.sourceStart, method.sourceEnd);
 		this.name = name;
 		this.typeArguments = typeArguments;
 		this.method = method;
+		this.sourceStart = name.sourceStart;
+		this.sourceEnd = method.sourceEnd;
 	}
 
 	public ReferenceExpression(Expression primary, TypeReference [] typeArguments, SingleNameReference method) {
-		super(primary.sourceStart, method.sourceEnd);
 		this.primary = primary;
 		this.typeArguments = typeArguments;
 		this.method = method;
+		this.sourceStart = primary.sourceStart;
+		this.sourceEnd = method.sourceEnd;
 	}
 
 	public ReferenceExpression(TypeReference type, TypeReference[] typeArguments, SingleNameReference method) {
-		super(type.sourceStart, method.sourceEnd);
 		this.type = type;
 		this.typeArguments = typeArguments;
 		this.method = method;
+		this.sourceStart = type.sourceStart;
+		this.sourceEnd = method.sourceEnd;
 	}
 
 	public ReferenceExpression(TypeReference type, TypeReference[] typeArguments, int sourceEnd) {
-		super(type.sourceStart, sourceEnd);
 		this.type = type;
 		this.typeArguments = typeArguments;
 		this.method = null;
+		this.sourceStart = type.sourceStart;
+		this.sourceEnd = sourceEnd;
 	}
 	
 	public TypeBinding resolveType(BlockScope blockScope) {
