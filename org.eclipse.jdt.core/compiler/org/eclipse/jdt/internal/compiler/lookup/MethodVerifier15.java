@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,16 +39,6 @@ class MethodVerifier15 extends MethodVerifier {
 
 MethodVerifier15(LookupEnvironment environment) {
 	super(environment);
-}
-boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
-	// use the original methods to test compatibility, but do not check visibility, etc
-	one = one.original();
-	two = one.findOriginalInheritedMethod(two);
-
-	if (two == null)
-		return false; // method's declaringClass does not inherit from inheritedMethod's
-
-	return isParameterSubsignature(one, two);
 }
 boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two) {
 	if (one.returnType == two.returnType) return true;
@@ -681,64 +671,6 @@ void checkTypeVariableMethods(TypeParameter typeParameter) {
 		}
 	}
 }
-MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBinding currentMethod) {
-	if (inheritedMethod == null) return null;
-	if (currentMethod.parameters.length != inheritedMethod.parameters.length) return null; // no match
-
-	// due to hierarchy & compatibility checks, we need to ensure these 2 methods are resolved
-	if (currentMethod.declaringClass instanceof BinaryTypeBinding)
-		((BinaryTypeBinding) currentMethod.declaringClass).resolveTypesFor(currentMethod);
-	if (inheritedMethod.declaringClass instanceof BinaryTypeBinding)
-		((BinaryTypeBinding) inheritedMethod.declaringClass).resolveTypesFor(inheritedMethod);
-
-	TypeVariableBinding[] inheritedTypeVariables = inheritedMethod.typeVariables;
-	int inheritedLength = inheritedTypeVariables.length;
-	if (inheritedLength == 0) return inheritedMethod; // no substitution needed
-	TypeVariableBinding[] typeVariables = currentMethod.typeVariables;
-	int length = typeVariables.length;
-	if (length == 0)
-		return inheritedMethod.asRawMethod(this.environment);
-	if (length != inheritedLength)
-		return inheritedMethod; // no match JLS 8.4.2
-
-	// interface I { <T> void foo(T t); }
-	// class X implements I { public <T extends I> void foo(T t) {} }
-	// for the above case, we do not want to answer the substitute method since its not a match
-	TypeBinding[] arguments = new TypeBinding[length];
-	System.arraycopy(typeVariables, 0, arguments, 0, length);
-	ParameterizedGenericMethodBinding substitute =
-		this.environment.createParameterizedGenericMethod(inheritedMethod, arguments);
-	for (int i = 0; i < inheritedLength; i++) {
-		TypeVariableBinding inheritedTypeVariable = inheritedTypeVariables[i];
-		TypeBinding argument = arguments[i];
-		if (argument instanceof TypeVariableBinding) {
-			TypeVariableBinding typeVariable = (TypeVariableBinding) argument;
-			if (typeVariable.firstBound == inheritedTypeVariable.firstBound) {
-				if (typeVariable.firstBound == null)
-					continue; // both are null
-			} else if (typeVariable.firstBound != null && inheritedTypeVariable.firstBound != null) {
-				if (typeVariable.firstBound.isClass() != inheritedTypeVariable.firstBound.isClass())
-					return inheritedMethod; // not a match
-			}
-			if (Scope.substitute(substitute, inheritedTypeVariable.superclass) != typeVariable.superclass)
-				return inheritedMethod; // not a match
-			int interfaceLength = inheritedTypeVariable.superInterfaces.length;
-			ReferenceBinding[] interfaces = typeVariable.superInterfaces;
-			if (interfaceLength != interfaces.length)
-				return inheritedMethod; // not a match
-			next : for (int j = 0; j < interfaceLength; j++) {
-				TypeBinding superType = Scope.substitute(substitute, inheritedTypeVariable.superInterfaces[j]);
-				for (int k = 0; k < interfaceLength; k++)
-					if (superType == interfaces[k])
-						continue next;
-				return inheritedMethod; // not a match
-			}
-		} else if (inheritedTypeVariable.boundCheck(substitute, argument) != TypeConstants.OK) {
-	    	return inheritedMethod;
-		}
-	}
-   return substitute;
-}
 boolean detectInheritedNameClash(MethodBinding inherited, MethodBinding otherInherited) {
 	if (!inherited.areParameterErasuresEqual(otherInherited))
 		return false;
@@ -798,9 +730,6 @@ boolean detectNameClash(MethodBinding current, MethodBinding inherited, boolean 
 	problemReporter(current).methodNameClash(current, inherited.declaringClass.isRawType() ? inherited : original, severity);
 	if (severity == ProblemSeverities.Warning) return false;
 	return true;
-}
-public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
-	return couldMethodOverride(method, inheritedMethod) && areMethodsCompatible(method, inheritedMethod);
 }
 boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
 	// one has type variables and substituteTwo did not pass bounds check in computeSubstituteMethod()
@@ -875,21 +804,6 @@ SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBin
 	}
 	return copy;
 }
-boolean hasGenericParameter(MethodBinding method) {
-	if (method.genericSignature() == null) return false;
-
-	// may be only the return type that is generic, need to check parameters
-	TypeBinding[] params = method.parameters;
-	for (int i = 0, l = params.length; i < l; i++) {
-		TypeBinding param = params[i].leafComponentType();
-		if (param instanceof ReferenceBinding) {
-			int modifiers = ((ReferenceBinding) param).modifiers;
-			if ((modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
-				return true;
-		}
-	}
-	return false;
-}
 boolean isAcceptableReturnTypeOverride(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	// called when currentMethod's return type is compatible with inheritedMethod's return type
 
@@ -934,39 +848,6 @@ public boolean isMethodSubsignature(MethodBinding method, MethodBinding inherite
 
 	MethodBinding inheritedOriginal = method.findOriginalInheritedMethod(inheritedMethod);
 	return isParameterSubsignature(method, inheritedOriginal == null ? inheritedMethod : inheritedOriginal);
-}
-boolean isParameterSubsignature(MethodBinding method, MethodBinding inheritedMethod) {
-	MethodBinding substitute = computeSubstituteMethod(inheritedMethod, method);
-	return substitute != null && isSubstituteParameterSubsignature(method, substitute);
-}
-// if method "overrides" substituteMethod then we can skip over substituteMethod while resolving a message send
-// if it does not then a name clash error is likely
-boolean isSubstituteParameterSubsignature(MethodBinding method, MethodBinding substituteMethod) {
-	if (!areParametersEqual(method, substituteMethod)) {
-		// method can still override substituteMethod in cases like :
-		// <U extends Number> void c(U u) {}
-		// @Override void c(Number n) {}
-		// but method cannot have a "generic-enabled" parameter type
-		if (substituteMethod.hasSubstitutedParameters() && method.areParameterErasuresEqual(substituteMethod))
-			return method.typeVariables == Binding.NO_TYPE_VARIABLES && !hasGenericParameter(method);
-
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=279836
-		if (method.declaringClass.isRawType() && substituteMethod.declaringClass.isRawType())
-			if (method.hasSubstitutedParameters() && substituteMethod.hasSubstitutedParameters())
-				return areMethodsCompatible(method, substituteMethod);
-
-		return false;
-	}
-
-	if (substituteMethod instanceof ParameterizedGenericMethodBinding) {
-		if (method.typeVariables != Binding.NO_TYPE_VARIABLES)
-			return !((ParameterizedGenericMethodBinding) substituteMethod).isRaw;
-		// since substituteMethod has substituted type variables, method cannot have a generic signature AND no variables -> its a name clash if it does
-		return !hasGenericParameter(method);
-	}
-
-	// if method has its own variables, then substituteMethod failed bounds check in computeSubstituteMethod()
-	return method.typeVariables == Binding.NO_TYPE_VARIABLES;
 }
 boolean isUnsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	// called when currentMethod's return type is NOT compatible with inheritedMethod's return type

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -68,7 +68,17 @@ MethodVerifier(LookupEnvironment environment) {
 			&& environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_5;
 }
 boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
-	return isParameterSubsignature(one, two) && areReturnTypesCompatible(one, two);
+	return areMethodsCompatible(one, two, this.environment);
+}
+static boolean areMethodsCompatible(MethodBinding one, MethodBinding two, LookupEnvironment environment) {
+	// use the original methods to test compatibility, but do not check visibility, etc
+	one = one.original();
+	two = one.findOriginalInheritedMethod(two);
+
+	if (two == null)
+		return false; // method's declaringClass does not inherit from inheritedMethod's
+
+	return isParameterSubsignature(one, two, environment);
 }
 boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two) {
 	if (one.returnType == two.returnType) return true;
@@ -467,7 +477,6 @@ For each inherited method identifier (message pattern - vm signature minus the r
 					complain about missing implementation only if type is NOT an interface or abstract
 */
 abstract void checkMethods();
-
 void checkPackagePrivateAbstractMethod(MethodBinding abstractMethod) {
 	// check that the inherited abstract method (package private visibility) is implemented within the same package
 	PackageBinding necessaryPackage = abstractMethod.declaringClass.fPackage;
@@ -673,12 +682,69 @@ void computeMethods() {
 }
 
 MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBinding currentMethod) {
-	if (inheritedMethod == null) return null;
-	if (currentMethod.parameters.length != inheritedMethod.parameters.length) return null; // no match
-	return inheritedMethod;
+	return computeSubstituteMethod(inheritedMethod, currentMethod, this.environment);
 }
 
-boolean couldMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
+static MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBinding currentMethod, LookupEnvironment environment) {
+	if (inheritedMethod == null) return null;
+	if (currentMethod.parameters.length != inheritedMethod.parameters.length) return null; // no match
+
+	// due to hierarchy & compatibility checks, we need to ensure these 2 methods are resolved
+	if (currentMethod.declaringClass instanceof BinaryTypeBinding)
+		((BinaryTypeBinding) currentMethod.declaringClass).resolveTypesFor(currentMethod);
+	if (inheritedMethod.declaringClass instanceof BinaryTypeBinding)
+		((BinaryTypeBinding) inheritedMethod.declaringClass).resolveTypesFor(inheritedMethod);
+
+	TypeVariableBinding[] inheritedTypeVariables = inheritedMethod.typeVariables;
+	int inheritedLength = inheritedTypeVariables.length;
+	if (inheritedLength == 0) return inheritedMethod; // no substitution needed
+	TypeVariableBinding[] typeVariables = currentMethod.typeVariables;
+	int length = typeVariables.length;
+	if (length == 0)
+		return inheritedMethod.asRawMethod(environment);
+	if (length != inheritedLength)
+		return inheritedMethod; // no match JLS 8.4.2
+
+	// interface I { <T> void foo(T t); }
+	// class X implements I { public <T extends I> void foo(T t) {} }
+	// for the above case, we do not want to answer the substitute method since its not a match
+	TypeBinding[] arguments = new TypeBinding[length];
+	System.arraycopy(typeVariables, 0, arguments, 0, length);
+	ParameterizedGenericMethodBinding substitute =
+		environment.createParameterizedGenericMethod(inheritedMethod, arguments);
+	for (int i = 0; i < inheritedLength; i++) {
+		TypeVariableBinding inheritedTypeVariable = inheritedTypeVariables[i];
+		TypeBinding argument = arguments[i];
+		if (argument instanceof TypeVariableBinding) {
+			TypeVariableBinding typeVariable = (TypeVariableBinding) argument;
+			if (typeVariable.firstBound == inheritedTypeVariable.firstBound) {
+				if (typeVariable.firstBound == null)
+					continue; // both are null
+			} else if (typeVariable.firstBound != null && inheritedTypeVariable.firstBound != null) {
+				if (typeVariable.firstBound.isClass() != inheritedTypeVariable.firstBound.isClass())
+					return inheritedMethod; // not a match
+			}
+			if (Scope.substitute(substitute, inheritedTypeVariable.superclass) != typeVariable.superclass)
+				return inheritedMethod; // not a match
+			int interfaceLength = inheritedTypeVariable.superInterfaces.length;
+			ReferenceBinding[] interfaces = typeVariable.superInterfaces;
+			if (interfaceLength != interfaces.length)
+				return inheritedMethod; // not a match
+			next : for (int j = 0; j < interfaceLength; j++) {
+				TypeBinding superType = Scope.substitute(substitute, inheritedTypeVariable.superInterfaces[j]);
+				for (int k = 0; k < interfaceLength; k++)
+					if (superType == interfaces[k])
+						continue next;
+				return inheritedMethod; // not a match
+			}
+		} else if (inheritedTypeVariable.boundCheck(substitute, argument) != TypeConstants.OK) {
+	    	return inheritedMethod;
+		}
+	}
+   return substitute;
+}
+
+static boolean couldMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
 	if (!org.eclipse.jdt.core.compiler.CharOperation.equals(method.selector, inheritedMethod.selector))
 		return false;
 	if (method == inheritedMethod || method.isStatic() || inheritedMethod.isStatic())
@@ -700,17 +766,11 @@ boolean couldMethodOverride(MethodBinding method, MethodBinding inheritedMethod)
 // Check the necessary visibility rules & inheritance from the inheritedMethod's declaringClass
 // See isMethodSubsignature() for parameter comparisons
 public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
-	if (!couldMethodOverride(method, inheritedMethod))
-		return false;
-
-	inheritedMethod = inheritedMethod.original();
-	TypeBinding match = method.declaringClass.findSuperTypeOriginatingFrom(inheritedMethod.declaringClass);
-	if (!(match instanceof ReferenceBinding))
-		return false; // method's declaringClass does not inherit from inheritedMethod's
-
-	return isParameterSubsignature(method, inheritedMethod);
+	return doesMethodOverride(method, inheritedMethod, this.environment);
 }
-
+public static boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod, LookupEnvironment environment) {
+	return couldMethodOverride(method, inheritedMethod) && areMethodsCompatible(method, inheritedMethod, environment);
+}
 SimpleSet findSuperinterfaceCollisions(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
 	return null; // noop in 1.4
 }
@@ -807,7 +867,60 @@ public boolean isMethodSubsignature(MethodBinding method, MethodBinding inherite
 }
 
 boolean isParameterSubsignature(MethodBinding method, MethodBinding inheritedMethod) {
-	return areParametersEqual(method, inheritedMethod);
+	return isParameterSubsignature(method, inheritedMethod, this.environment);
+}
+static boolean isParameterSubsignature(MethodBinding method, MethodBinding inheritedMethod, LookupEnvironment environment) {
+	MethodBinding substitute = computeSubstituteMethod(inheritedMethod, method, environment);
+	return substitute != null && isSubstituteParameterSubsignature(method, substitute, environment);
+}
+
+//if method "overrides" substituteMethod then we can skip over substituteMethod while resolving a message send
+//if it does not then a name clash error is likely
+boolean isSubstituteParameterSubsignature(MethodBinding method, MethodBinding substituteMethod) {
+	return isSubstituteParameterSubsignature(method, substituteMethod, this.environment);
+}
+
+static boolean isSubstituteParameterSubsignature(MethodBinding method, MethodBinding substituteMethod, LookupEnvironment environment) {
+	if (!areParametersEqual(method, substituteMethod)) {
+		// method can still override substituteMethod in cases like :
+		// <U extends Number> void c(U u) {}
+		// @Override void c(Number n) {}
+		// but method cannot have a "generic-enabled" parameter type
+		if (substituteMethod.hasSubstitutedParameters() && method.areParameterErasuresEqual(substituteMethod))
+			return method.typeVariables == Binding.NO_TYPE_VARIABLES && !hasGenericParameter(method);
+
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=279836
+		if (method.declaringClass.isRawType() && substituteMethod.declaringClass.isRawType())
+			if (method.hasSubstitutedParameters() && substituteMethod.hasSubstitutedParameters())
+				return areMethodsCompatible(method, substituteMethod, environment);
+
+		return false;
+	}
+
+	if (substituteMethod instanceof ParameterizedGenericMethodBinding) {
+		if (method.typeVariables != Binding.NO_TYPE_VARIABLES)
+			return !((ParameterizedGenericMethodBinding) substituteMethod).isRaw;
+		// since substituteMethod has substituted type variables, method cannot have a generic signature AND no variables -> its a name clash if it does
+		return !hasGenericParameter(method);
+	}
+
+	// if method has its own variables, then substituteMethod failed bounds check in computeSubstituteMethod()
+	return method.typeVariables == Binding.NO_TYPE_VARIABLES;
+}
+static boolean hasGenericParameter(MethodBinding method) {
+	if (method.genericSignature() == null) return false;
+
+	// may be only the return type that is generic, need to check parameters
+	TypeBinding[] params = method.parameters;
+	for (int i = 0, l = params.length; i < l; i++) {
+		TypeBinding param = params[i].leafComponentType();
+		if (param instanceof ReferenceBinding) {
+			int modifiers = ((ReferenceBinding) param).modifiers;
+			if ((modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+				return true;
+		}
+	}
+	return false;
 }
 
 boolean isSameClassOrSubclassOf(ReferenceBinding testClass, ReferenceBinding superclass) {

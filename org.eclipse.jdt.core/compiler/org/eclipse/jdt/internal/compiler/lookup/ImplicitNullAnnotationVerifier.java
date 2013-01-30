@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 GK Software AG and others.
+ * Copyright (c) 2012, 2013 GK Software AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -366,7 +366,7 @@ public class ImplicitNullAnnotationVerifier {
 
 	// ==== minimal set of utility methods previously from MethodVerifier15: ====
 	
-	boolean areParametersEqual(MethodBinding one, MethodBinding two) {
+	static boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 		TypeBinding[] oneArgs = one.parameters;
 		TypeBinding[] twoArgs = two.parameters;
 		if (oneArgs == twoArgs) return true;
@@ -410,7 +410,7 @@ public class ImplicitNullAnnotationVerifier {
 		}
 		return true;
 	}
-	boolean areTypesEqual(TypeBinding one, TypeBinding two) {
+	static boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 		if (one == two) return true;
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=329584
 		switch(one.kind()) {
