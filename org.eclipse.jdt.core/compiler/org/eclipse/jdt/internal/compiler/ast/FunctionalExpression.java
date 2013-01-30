@@ -11,22 +11,27 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper S Moller - Contributions for
+ *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public abstract class FunctionalExpression extends NullLiteral {
+public abstract class FunctionalExpression extends Expression {
 	
 	TypeBinding expectedType;
 
 	public FunctionalExpression(int start, int end) {
-		super(start, end);
+		this.sourceStart = start;
+		this.sourceEnd = end;
 	}
-	
+
 	public void setExpectedType(TypeBinding expectedType) {
 		this.expectedType = expectedType;
 	}
@@ -41,4 +46,16 @@ public abstract class FunctionalExpression extends NullLiteral {
 		return this.expectedType;
 	}
 
+	public int nullStatus(FlowInfo flowInfo) {
+		return FlowInfo.NON_NULL;
+	}
+
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		int pc = codeStream.position;
+		if (valueRequired) {
+			codeStream.aconst_null(); // TODO: Real code
+		}
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
+	}
+	
 }
