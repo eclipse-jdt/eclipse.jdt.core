@@ -1754,7 +1754,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		}
 	}
 
-	public void _test018() {
+	public void test018() {
 		this.runConformTest(
             new String[] {
             		"X.java",

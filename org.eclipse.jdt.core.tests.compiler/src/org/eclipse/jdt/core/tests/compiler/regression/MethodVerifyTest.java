@@ -6841,7 +6841,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		}
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783
-	public void _test091() {
+	public void test091() {
 		this.runNegativeTest(
 			new String[] {
 				"DataSet.java",//===================
@@ -6879,7 +6879,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	public boolean hasNext() {	return false; }\n" +
 				"	public Object next() {	return null; }\n" +
 				"	public void remove() {}\n" +
-				ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8 +
+				ITERABLE_RAW_IMPL_JRE8 +
 				COLLECTION_RAW_IMPL_JRE8 +
 				LIST_RAW_IMPL_JRE8 + 
 				"}\n", // =================
@@ -6964,7 +6964,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783 - variation
-	public void _test092() {
+	public void test092() {
 		this.runNegativeTest(
 			new String[] {
 				"DataSet.java",//===================
@@ -7002,7 +7002,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	public boolean hasNext() {	return false; }\n" +
 				"	public Object next() {	return null; }\n" +
 				"	public void remove() {}\n" +
-				ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8 +
+				ITERABLE_RAW_IMPL_JRE8 +
 				COLLECTION_RAW_IMPL_JRE8 +
 				LIST_RAW_IMPL_JRE8 + 
 				"}\n", // =================
@@ -7075,7 +7075,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=148783 - variation
-	public void _test093() {
+	public void test093() {
 		this.runNegativeTest(
 			new String[] {
 				"DataSet.java",//===================
@@ -7115,7 +7115,7 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	public boolean hasNext() {	return false; }\n" +
 				"	public Object next() {	return null; }\n" +
 				"	public void remove() {}\n" +
-				ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8 +
+				ITERABLE_RAW_IMPL_JRE8 +
 				COLLECTION_RAW_IMPL_JRE8 +
 				LIST_RAW_IMPL_JRE8 + 
 				"}\n", // =================
@@ -11390,7 +11390,7 @@ public void test202() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=292240
-public void _test203() {
+public void test203() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -12260,7 +12260,7 @@ public void test330264() {
 		compilerOptions14);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
-public void _test331446() {
+public void test331446() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
@@ -12331,7 +12331,7 @@ public void _test331446() {
 		null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
-public void _test331446a() {
+public void test331446a() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_4);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);

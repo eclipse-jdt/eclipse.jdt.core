@@ -4425,7 +4425,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	// 59628
-	public void _test0146() {
+	public void test0146() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -6123,7 +6123,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"SUCCESS");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62806
-	public void _test0204() {
+	public void test0204() {
 		this.runConformTest(
 			new String[] {
 				"Function.java",
@@ -11369,7 +11369,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=71612
-	public void _test0379() {
+	public void test0379() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
@@ -27974,7 +27974,7 @@ public void test0867() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114365
-public void _test0868() {
+public void test0868() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	this.runConformTest(
@@ -28038,7 +28038,7 @@ public void _test0868() {
 			"		\n" +
 			"	}" +
 			COLLECTION_RAW_IMPL_JRE8 +
-			ITERABLE_RAW_WITHOUT_IS_EMPTY_IMPL_JRE8 +
+			ITERABLE_RAW_IMPL_JRE8 +
 			"}",
 		},
 		"",
@@ -34163,7 +34163,7 @@ public void test1029() {
 		true,
 		options);
 }
-public void _test1030() {
+public void test1030() {
 	this.runConformTest(
 		new String[] {
 			"X.java",

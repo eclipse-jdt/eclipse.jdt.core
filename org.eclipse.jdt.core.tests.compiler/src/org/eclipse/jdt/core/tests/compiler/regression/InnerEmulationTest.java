@@ -6844,7 +6844,7 @@ public void test172() throws Exception {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
-public void _test173() throws Exception {
+public void test173() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",//=======================
@@ -6869,7 +6869,7 @@ public void _test173() throws Exception {
 		"SUCCESS");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
-public void _test174() throws Exception {
+public void test174() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",//=======================

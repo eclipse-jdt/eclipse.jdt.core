@@ -2542,7 +2542,7 @@ public void test074() {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150758
-public void _test075() {
+public void test075() {
 	this.runConformTest(
 			new String[] {
 				"package1/Test.java",//===================

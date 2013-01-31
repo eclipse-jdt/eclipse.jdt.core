@@ -1089,7 +1089,7 @@ public void test022() throws Exception {
 /*
  * Type mismatch, using non parameterized collection type (indirectly implementing parameterized type)
  */
-public void _test023() {
+public void test023() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1595,7 +1595,7 @@ public void test033() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783 - variation
-public void _test034() throws Exception {
+public void test034() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1690,7 +1690,7 @@ public void _test034() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783 - variation
-public void _test035() throws Exception {
+public void test035() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1787,7 +1787,7 @@ public void _test035() throws Exception {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
-public void _test036() throws Exception {
+public void test036() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
