@@ -646,9 +646,9 @@ public class MethodDeclaration extends BodyDeclaration {
 			}
 			acceptChildren(visitor, this.parameters);
 			if (this.ast.apiLevel() < AST.JLS8) {
-				acceptChildren(visitor, this.extraDimensionInfos);
 				acceptChildren(visitor, this.thrownExceptions);				
 			} else {
+				acceptChildren(visitor, this.extraDimensionInfos);
 				acceptChildren(visitor, this.thrownExceptionTypes);				
 			}
 			acceptChild(visitor, getBody());
