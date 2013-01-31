@@ -60,11 +60,6 @@ public CodeSnippetClassFile(
 	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 
 	long targetVersion = this.targetJDK = this.referenceBinding.scope.compilerOptions().targetJDK;
-	if (this.targetJDK == ClassFileConstants.JDK1_8) {
-		//TODO JAVA8: Version number is not yet updated in the java8 beta...
-		//Remove this after it is upgraded
-		targetVersion = this.targetJDK = ClassFileConstants.JDK1_7;
-	}
 	//TODO: Might have to update even for CLDC_1_1
 	this.header[this.headerOffset++] = (byte) (targetVersion >> 8); // minor high
 	this.header[this.headerOffset++] = (byte) (targetVersion >> 0); // minor low

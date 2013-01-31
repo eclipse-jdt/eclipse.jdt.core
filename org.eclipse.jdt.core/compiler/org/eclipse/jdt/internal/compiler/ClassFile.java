@@ -260,11 +260,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		} else {
 			this.codeStream = new CodeStream(this);
 		}
-		if (this.targetJDK == ClassFileConstants.JDK1_8) {
-			//TODO JAVA8: Version number is not yet updated in the java8 beta...
-			//Remove this after it is upgraded
-			this.targetJDK = ClassFileConstants.JDK1_7;
-		}
 		initByteArrays();
 	}
 
@@ -4162,11 +4157,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		} else if (this.targetJDK == ClassFileConstants.CLDC_1_1) {
 			this.targetJDK = ClassFileConstants.JDK1_1; // put back 45.3
 			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP;
-		}
-		if (this.targetJDK == ClassFileConstants.JDK1_8) {
-			//TODO JAVA8: Version number is not yet updated in the java8 beta...
-			//Remove this after it is upgraded
-			this.targetJDK = ClassFileConstants.JDK1_7;
 		}
 		this.bytes = null;
 		this.constantPool.reset();
