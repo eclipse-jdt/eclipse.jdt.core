@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5126,19 +5126,19 @@ protected void consumeMethodInvocationName() {
 		this.identifierLengthPtr--;
 	} else {
 		this.identifierLengthStack[this.identifierLengthPtr]--;
-		int length = this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr--];
-		Annotation [] typeAnnotations;
-		if (length != 0) {
-			System.arraycopy(
-					this.typeAnnotationStack,
-					(this.typeAnnotationPtr -= length) + 1,
-					typeAnnotations = new Annotation[length],
-					0,
-					length);
-			problemReporter().misplacedTypeAnnotations(typeAnnotations[0], typeAnnotations[typeAnnotations.length - 1]);
-		}
 		m.receiver = getUnspecifiedReference();
 		m.sourceStart = m.receiver.sourceStart;
+	}
+	int length = this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr--];
+	Annotation [] typeAnnotations;
+	if (length != 0) {
+		System.arraycopy(
+				this.typeAnnotationStack,
+				(this.typeAnnotationPtr -= length) + 1,
+				typeAnnotations = new Annotation[length],
+				0,
+				length);
+		problemReporter().misplacedTypeAnnotations(typeAnnotations[0], typeAnnotations[typeAnnotations.length - 1]);
 	}
 	pushOnExpressionStack(m);
 }

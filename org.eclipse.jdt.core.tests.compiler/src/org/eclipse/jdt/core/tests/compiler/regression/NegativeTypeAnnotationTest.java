@@ -3117,4 +3117,40 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"The annotation @Marker2 is disallowed for this location\n" + 
 			"----------\n"); 
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399453
+	public void testBug399453() {
+		this.runNegativeTest(
+				new String[]{
+					"X.java",
+					"import java.lang.annotation.Target;\n" +
+					"import static java.lang.annotation.ElementType.*;\n" +
+					"public class X {\n" +
+					"	public void foo() {\n" +
+					"		int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [@Marker bar()] @Marker @Marker2 [];\n" +
+					"		int @Marker [][][] j = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [@Marker X.bar2(2)] @Marker @Marker2 [];\n" +
+					"	}\n" +
+					"	public int bar() {\n" +
+					"		return 2;\n" +
+					"	}\n" +
+					"	public static int bar2(int k) {\n" +
+					"		return k;\n" + 
+					"	}\n" +
+					"}\n" +
+					"@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@interface Marker {}\n" +
+					"@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@interface Marker2 {}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [@Marker bar()] @Marker @Marker2 [];\n" + 
+				"	                                                                               ^^^^^^^\n" + 
+				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	int @Marker [][][] j = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [@Marker X.bar2(2)] @Marker @Marker2 [];\n" + 
+				"	                                                                               ^^^^^^^\n" + 
+				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n"); 
+	}
 }

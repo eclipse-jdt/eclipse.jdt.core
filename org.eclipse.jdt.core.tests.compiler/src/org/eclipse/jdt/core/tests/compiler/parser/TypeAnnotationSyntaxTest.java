@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 IBM Corporation and others.
+ * Copyright (c) 2009, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3787,6 +3787,50 @@ public void test0137() throws IOException {
 			"  }\n" + 
 			"}\n" + 
 			"@interface Marker {\n" + 
+			"}\n";
+	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0137", expectedUnitToString);
+}
+public void test0138() throws IOException {
+	String source = 
+			"import java.lang.annotation.Target;\n" +
+			"import static java.lang.annotation.ElementType.*;\n" +
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [bar()] @Marker @Marker2 [];\n" +
+			"		int @Marker [][][] j = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [X.bar2(2)] @Marker @Marker2 [];\n" +
+			"	}\n" +
+			"	public int bar() {\n" +
+			"		return 2;\n" +
+			"	}\n" +
+			"	public static int bar2(int k) {\n" +
+			"		return k;\n" + 
+			"	}\n" +
+			"}\n" +
+			"@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+			"@interface Marker {}\n" +
+			"@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+			"@interface Marker2 {}\n";
+	String expectedUnitToString = 
+			"import java.lang.annotation.Target;\n" + 
+			"import static java.lang.annotation.ElementType.*;\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"    super();\n" + 
+			"  }\n" + 
+			"  public void foo() {\n" + 
+			"    int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [bar()] @Marker @Marker2 [];\n" + 
+			"    int @Marker [][][] j = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [X.bar2(2)] @Marker @Marker2 [];\n" + 
+			"  }\n" + 
+			"  public int bar() {\n" + 
+			"    return 2;\n" + 
+			"  }\n" + 
+			"  public static int bar2(int k) {\n" + 
+			"    return k;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"@Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {\n" + 
+			"}\n" + 
+			"@Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker2 {\n" + 
 			"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0137", expectedUnitToString);
 }
