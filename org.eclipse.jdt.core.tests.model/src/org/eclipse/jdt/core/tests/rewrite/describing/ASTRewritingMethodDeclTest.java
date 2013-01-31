@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -29,6 +33,13 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	private static final Class THIS= ASTRewritingMethodDeclTest.class;
+
+	/**
+	 * Internal synonym for deprecated constant MethodDeclaration#EXTRA_DIMENSIONS_PROPERTY
+	 * to alleviate deprecated warnings.
+	 * @deprecated
+	 */
+	static final SimplePropertyDescriptor INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY = MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY;
 
 	public ASTRewritingMethodDeclTest(String name) {
 		super(name);
@@ -1447,7 +1458,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{ // add extra dim, add throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo1");
 
-			rewrite.set(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
 
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
@@ -1456,14 +1467,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{ // add extra dim, remove throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo2");
 
-			rewrite.set(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
 
 			rewrite.remove((ASTNode) methodDecl.thrownExceptions().get(0), null);
 		}
 		{ // remove extra dim, add throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo3");
 
-			rewrite.set(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
 
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
@@ -1472,7 +1483,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{ // add extra dim, remove throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo4");
 
-			rewrite.set(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
 
 			rewrite.remove((ASTNode) methodDecl.thrownExceptions().get(0), null);
 		}
@@ -1483,7 +1494,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertLast(newParam1, null);
 
 
-			rewrite.set(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY, new Integer(4), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(4), null);
 
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
@@ -1494,7 +1505,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			rewrite.remove((ASTNode) methodDecl.parameters().get(0), null);
 
-			rewrite.set(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY, new Integer(4), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(4), null);
 
 			rewrite.remove((ASTNode) methodDecl.thrownExceptions().get(0), null);
 		}
@@ -2006,7 +2017,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "DD");
 
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
-			rewrite.set(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY, new Integer(0), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(0), null);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);

@@ -1017,4 +1017,57 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertNotNull("Incorrect receiver qualfier", method.getReceiverQualifier());
 		assertEquals("Incorrect receiver qualfier", "X", method.getReceiverQualifier().getFullyQualifiedName());
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391895
+	public void test0009() throws JavaModelException {
+		String contents =
+				"import java.lang.annotation.ElementType;\n" +
+						"public class X {\n" +
+						" 	class Y {\n" +
+						"		@Annot int @Annot1 [] a @Annot2 @Annot3 [] @Annot3 @Annot2 [] @Annot4 [], b @Annot2 @Annot3 [] @Annot4 [], c [][][];\n" +  
+						"		public void foo1(@Annot int @Annot1 [] p @Annot2 @Annot3 [] @Annot3 @Annot2 [] @Annot4 @Annot3 []) {}\n" +
+						"		public void foo2(@Annot int p [][]) {}\n" +
+						"		@Annot String @Annot1 [] foo3() @Annot1 @Annot2 [][] { return null; }\n" + 
+						"	}\n" +
+						"}\n" +
+						"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" + 
+						"@interface Annot {}\n" +
+						"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" + 
+						"@interface Annot1 {}\n" +
+						"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
+						"@interface Annot2 {}\n" +
+						"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" + 
+						"@interface Annot3 {}\n" +
+						"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
+						"@interface Annot4 {}";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a type Declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration type = (TypeDeclaration) node;
+		FieldDeclaration field = type.getFields()[0];
+		List fragments = field.fragments();
+		assertEquals("Incorrect no of fragments", 3, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		assertExtraDimensionsEqual("Incorrect dimension info", fragment.getExtraDimensionInfos(), "@Annot2 @Annot3 [] @Annot3 @Annot2 [] @Annot4 []");
+		fragment = (VariableDeclarationFragment) fragments.get(1);
+		assertExtraDimensionsEqual("Incorrect dimension info", fragment.getExtraDimensionInfos(), "@Annot2 @Annot3 [] @Annot4 []");		
+		fragment = (VariableDeclarationFragment) fragments.get(2);
+		assertExtraDimensionsEqual("Incorrect dimension info", fragment.getExtraDimensionInfos(), "[] [] []");
+		MethodDeclaration[] methods = type.getMethods();
+		assertEquals("Incorrect no of methods", 3, methods.length);
+		MethodDeclaration method = methods[0];
+		List parameters = method.parameters();
+		assertEquals("Incorrect no of parameters", 1, parameters.size());
+		assertExtraDimensionsEqual("Incorrect dimension info", ((SingleVariableDeclaration) parameters.get(0)).getExtraDimensionInfos(), "@Annot2 @Annot3 [] @Annot3 @Annot2 [] @Annot4 @Annot3 []");
+
+		method = methods[1];
+		parameters = method.parameters();
+		assertEquals("Incorrect no of parameters", 1, parameters.size());
+		assertExtraDimensionsEqual("Incorrect dimension info", ((SingleVariableDeclaration) parameters.get(0)).getExtraDimensionInfos(), "[] []");
+
+		method = methods[2];
+		assertExtraDimensionsEqual("Incorrect dimension info", method.getExtraDimensionInfos(), "@Annot1 @Annot2 [] []");
+	}
 }

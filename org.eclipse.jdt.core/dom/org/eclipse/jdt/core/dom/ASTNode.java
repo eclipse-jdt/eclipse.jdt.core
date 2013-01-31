@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -773,6 +773,15 @@ public abstract class ASTNode {
 	public static final int UNION_TYPE = 84;
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>DimensionInfo</code>.
+	 *
+	 * @see DimensionInfo
+	 * @since 3.9
+	 */
+	public static final int DIMENSION_INFO = 85;
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -952,6 +961,8 @@ public abstract class ASTNode {
 				return WhileStatement.class;
 			case WILDCARD_TYPE :
 				return WildcardType.class;
+			case DIMENSION_INFO:
+				return DimensionInfo.class;
 		}
 		throw new IllegalArgumentException();
 	}

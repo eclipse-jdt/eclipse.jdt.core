@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1112,6 +1112,25 @@ public final class AST {
 	public ArrayType newArrayType(Type componentType) {
 		ArrayType result = new ArrayType(this);
 		result.setComponentType(componentType);
+		return result;
+	}
+
+	/**
+	 * Creates and returns a new unparented annotatable dimension info node
+	 * (Supported only in JLS8 level).
+	 *
+	 * @return a new unparented annotatable dimension info node
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used
+	 *            in a JLS2, JLS3 or JLS4 AST
+	 * @since 3.9
+	 */
+	public DimensionInfo newDimensionInfo() {
+		DimensionInfo result = new DimensionInfo(this);
 		return result;
 	}
 

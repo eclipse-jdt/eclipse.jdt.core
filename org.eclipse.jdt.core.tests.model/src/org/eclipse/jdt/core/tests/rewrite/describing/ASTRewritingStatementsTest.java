@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -51,7 +55,16 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 //		suite.addTest(new ASTRewritingStatementsTest("testTryStatementWithResources5"));
 //		return suite;
 	}
-
+	/** 
+	 * Internal access method to VariableDeclarationFragment#setExtraDimensions() for avoiding deprecated warnings
+	 *
+	 * @param node
+	 * @param dimensions
+	 * @deprecated
+	 */
+	private void internalSetExtraDimensions(VariableDeclarationFragment node, int dimensions) {
+		node.setExtraDimensions(dimensions);
+	}
 	public void testInsert1() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		/* foo(): append a return statement */
@@ -5156,7 +5169,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			TryStatement tryStatement = (TryStatement) statement;
 
 			VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
-			fragment.setExtraDimensions(0);
+			internalSetExtraDimensions(fragment, 0);
 			fragment.setName(ast.newSimpleName("reader2"));
 			ClassInstanceCreation classInstanceCreation = ast.newClassInstanceCreation();
 			classInstanceCreation.setType(ast.newSimpleType(ast.newSimpleName("FileReader")));
@@ -5234,7 +5247,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			TryStatement tryStatement = (TryStatement) statement;
 
 			VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
-			fragment.setExtraDimensions(0);
+			internalSetExtraDimensions(fragment, 0);
 			fragment.setName(ast.newSimpleName("reader2"));
 			ClassInstanceCreation classInstanceCreation = ast.newClassInstanceCreation();
 			classInstanceCreation.setType(ast.newSimpleType(ast.newSimpleName("FileReader")));

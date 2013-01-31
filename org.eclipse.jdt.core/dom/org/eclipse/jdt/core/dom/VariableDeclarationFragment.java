@@ -25,7 +25,12 @@ import java.util.List;
  * VariableDeclarationFragment:
  *    Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
  * </pre>
- *
+ * For JLS8, variable fragments and extra dimensions on fragments are allowed to have optional 
+ * annotations. The annotatable extra dimensions are represented by {@link DimensionInfo}.
+ * <pre>
+ * VariableDeclarationFragment:
+ *    Identifier { DimensionInfo } [ <b>=</b> Expression ]
+ * </pre>
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -40,10 +45,19 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 
 	/**
 	 * The "extraDimensions" structural property of this node type (type: {@link Integer}).
+	 *
 	 * @since 3.0
+	 * @deprecated in JLS8, use {@link VariableDeclarationFragment#EXTRA_DIMENSION_INFOS_PROPERTY} instead.
 	 */
 	public static final SimplePropertyDescriptor EXTRA_DIMENSIONS_PROPERTY =
 		new SimplePropertyDescriptor(VariableDeclarationFragment.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
+
+	/**
+	 * The "extraDimensionInfos" structural property of this node type (child type: {@link DimensionInfo}) (Added in JLS8 API).
+	 * @since 3.9
+	 */
+	public static final ChildListPropertyDescriptor EXTRA_DIMENSION_INFOS_PROPERTY =
+			new ChildListPropertyDescriptor(VariableDeclarationFragment.class, "extraDimensionInfos", DimensionInfo.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "initializer" structural property of this node type (child type: {@link Expression}).
@@ -60,6 +74,14 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.9
+	 */
+	private static final List PROPERTY_DESCRIPTORS_8_0;
+
 	static {
 		List propertyList = new ArrayList(4);
 		createPropertyList(VariableDeclarationFragment.class, propertyList);
@@ -67,6 +89,13 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 		addProperty(EXTRA_DIMENSIONS_PROPERTY, propertyList);
 		addProperty(INITIALIZER_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+
+		propertyList = new ArrayList(4);
+		createPropertyList(VariableDeclarationFragment.class, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
+		addProperty(EXTRA_DIMENSION_INFOS_PROPERTY, propertyList);
+		addProperty(INITIALIZER_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
 	}
 
 	/**
@@ -80,7 +109,11 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		return PROPERTY_DESCRIPTORS;
+		if (apiLevel >= AST.JLS8) {
+			return PROPERTY_DESCRIPTORS_8_0;
+		} else {
+			return PROPERTY_DESCRIPTORS;
+		}
 	}
 
 	/**
@@ -94,6 +127,13 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 * defaults to 0.
 	 */
 	private int extraArrayDimensions = 0;
+
+	/**
+	 * The extra dimensions this node has with optional annotations.
+	 *
+	 * @since 3.9
+	 */
+	protected ASTNode.NodeList extraDimensionInfos = null;
 
 	/**
 	 * The initializer expression, or <code>null</code> if none;
@@ -113,6 +153,9 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 */
 	VariableDeclarationFragment(AST ast) {
 		super(ast);
+		if (ast.apiLevel >= AST.JLS8) {
+			this.extraDimensionInfos = new ASTNode.NodeList(EXTRA_DIMENSION_INFOS_PROPERTY);
+		}
 	}
 
 	/* (omit javadoc for this method)
@@ -189,6 +232,17 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == EXTRA_DIMENSION_INFOS_PROPERTY) {
+			return getExtraDimensionInfos();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+
+	/* (omit javadoc for this method)
+	 * Method declared on ASTNode.
+	 */
 	final int getNodeType0() {
 		return VARIABLE_DECLARATION_FRAGMENT;
 	}
@@ -200,7 +254,12 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 		VariableDeclarationFragment result = new VariableDeclarationFragment(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setName((SimpleName) getName().clone(target));
-		result.setExtraDimensions(getExtraDimensions());
+		if (this.ast.apiLevel >= AST.JLS8) {
+			result.extraDimensionInfos.addAll(
+					ASTNode.copySubtrees(target, this.extraDimensionInfos));
+		} else {
+			result.setExtraDimensions(getExtraDimensions());
+		}
 		result.setInitializer(
 			(Expression) ASTNode.copySubtree(target, getInitializer()));
 		return result;
@@ -222,6 +281,9 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getName());
+			if (this.ast.apiLevel >= AST.JLS8) {
+				acceptChildren(visitor, this.extraDimensionInfos);
+			}
 			acceptChild(visitor, getInitializer());
 		}
 		visitor.endVisit(this);
@@ -272,6 +334,9 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 * @since 2.0
 	 */
 	public int getExtraDimensions() {
+		if (this.ast.apiLevel >= AST.JLS8) {
+			return this.extraDimensionInfos.size();
+		}
 		return this.extraArrayDimensions;
 	}
 
@@ -287,14 +352,28 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 *
 	 * @param dimensions the given dimensions
 	 * @since 2.0
+	 * @deprecated In the JLS8 API, see: {@link #getExtraDimensionInfos()}.
 	 */
 	public void setExtraDimensions(int dimensions) {
+		supportedOnlyIn2_3_4();
 		if (dimensions < 0) {
 			throw new IllegalArgumentException();
 		}
 		preValueChange(EXTRA_DIMENSIONS_PROPERTY);
 		this.extraArrayDimensions = dimensions;
 		postValueChange(EXTRA_DIMENSIONS_PROPERTY);
+	}
+
+	/**
+	 * Returns the live ordered list of extra dimensions with optional annotations (JLS8 API only).
+	 *
+	 * @return the live list of extra dimensions with optional annotations (element type: {@link DimensionInfo})
+	 * @see AST#newDimensionInfo()
+	 * @since 3.9
+	 */
+	public List getExtraDimensionInfos() {
+		unsupportedIn2_3_4();
+		return this.extraDimensionInfos;
 	}
 
 	/* (omit javadoc for this method)
@@ -319,7 +398,7 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 */
 	int memSize() {
 		// treat Operator as free
-		return BASE_NODE_SIZE + 3 * 4;
+		return BASE_NODE_SIZE + 4 * 4;
 	}
 
 	/* (omit javadoc for this method)
@@ -329,6 +408,7 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 		return
 			memSize()
 			+ (this.variableName == null ? 0 : getName().treeSize())
-			+ (this.optionalInitializer == null ? 0 : getInitializer().treeSize());
+			+ (this.optionalInitializer == null ? 0 : getInitializer().treeSize())
+			+ (this.extraDimensionInfos == null ? 0 : getExtraDimensionInfos().size());
 	}
 }

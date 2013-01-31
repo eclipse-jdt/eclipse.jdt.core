@@ -77,6 +77,25 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+	
+	/**
+	 * Internal synonym for deprecated constant MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY
+	 * to alleviate deprecated warnings.
+	 * @deprecated
+	 */
+	static final SimplePropertyDescriptor INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY = MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY;
+	/**
+	 * Internal synonym for deprecated constant SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY
+	 * to alleviate deprecated warnings.
+	 * @deprecated
+	 */
+	static final SimplePropertyDescriptor INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY = SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY;
+	/**
+	 * Internal synonym for deprecated constant VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY
+	 * to alleviate deprecated warnings.
+	 * @deprecated
+	 */
+	static final SimplePropertyDescriptor INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY = VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY;
 
 	TextEdit currentEdit;
 	final RewriteEventStore eventStore; // used from inner classes
@@ -1832,14 +1851,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 			pos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameRPAREN, pos);
 
-			int extraDims= rewriteExtraDimensions(node, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY, pos);
+			int extraDims= rewriteExtraDimensions(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, pos);
 
 			boolean hasExceptionChanges= isChanged(node, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY);
 
 			int bodyChangeKind= getChangeKind(node, MethodDeclaration.BODY_PROPERTY);
 
 			if ((extraDims > 0) && (hasExceptionChanges || bodyChangeKind == RewriteEvent.INSERTED || bodyChangeKind == RewriteEvent.REMOVED)) {
-				int dim= ((Integer) getOriginalValue(node, MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY)).intValue();
+				int dim= ((Integer) getOriginalValue(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY)).intValue();
 				while (dim > 0) {
 					pos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameRBRACKET, pos);
 					dim--;
@@ -2844,7 +2863,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		pos= rewriteRequiredNode(node, SingleVariableDeclaration.NAME_PROPERTY);
-		int extraDims= rewriteExtraDimensions(node, SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY, pos);
+		int extraDims= rewriteExtraDimensions(node, INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY, pos);
 
 		if (extraDims > 0) {
 			int kind= getChangeKind(node, SingleVariableDeclaration.INITIALIZER_PROPERTY);
@@ -3244,7 +3263,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		int pos= rewriteRequiredNode(node, VariableDeclarationFragment.NAME_PROPERTY);
 
-		int extraDims= rewriteExtraDimensions(node, VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY, pos);
+		int extraDims= rewriteExtraDimensions(node, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY, pos);
 
 		if (extraDims > 0) {
 			int kind= getChangeKind(node, VariableDeclarationFragment.INITIALIZER_PROPERTY);

@@ -789,6 +789,15 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	}
 
 	/**
+	 * Internal access method to VariableDeclarationFragment#setExtraDimensions for avoiding deprecated warnings.
+	 *
+	 * @param node
+	 * @deprecated
+	 */
+	private void setExtraDimensions(VariableDeclarationFragment node, int dimensions) {
+		node.setExtraDimensions(dimensions);
+	}
+	/**
 	 * Snippets that show how to...
 	 * @deprecated using deprecated code
 	 */
@@ -3308,18 +3317,18 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(this.ast.modificationCount() == previousCount);
 
 		previousCount = this.ast.modificationCount();
-		x.setExtraDimensions(1);
+		setExtraDimensions(x, 1);
 		assertTrue(this.ast.modificationCount() > previousCount);
 		assertTrue(x.getExtraDimensions() == 1);
 
 		previousCount = this.ast.modificationCount();
-		x.setExtraDimensions(0);
+		setExtraDimensions(x, 0);
 		assertTrue(this.ast.modificationCount() > previousCount);
 		assertTrue(x.getExtraDimensions() == 0);
 
 		// check that property cannot be set negative
 		try {
-			x.setExtraDimensions(-1);
+			setExtraDimensions(x, -1);
 			assertTrue(false);
 		} catch (RuntimeException e) {
 			// pass

@@ -53,14 +53,15 @@ import java.util.List;
  * 			 { <b>,</b> FormalParameter } ] <b>)</b>
  *        [<b>throws</b> TypeName { <b>,</b> TypeName } ] Block
  * </pre>
- * For JLS8 optional receiver parameter is added:
+ * For JLS8 optional receiver parameter is added and extra dimensions are allowed to have 
+ * type annotations. The annotatable extra dimensions are represented by {@link DimensionInfo}.
  * <pre>
  * MethodDeclaration:
  *    [ Javadoc ] { ExtendedModifier }
  *		  [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
  *        ( Type | <b>void</b> ) Identifier <b>(</b>
  *        	[ ReceiverParameter ]
- *         	[ <b>, </b> FormalParameter { <b>,</b> FormalParameter } ] <b>)</b> {<b>[</b> <b>]</b> }
+ *         	[ <b>, </b> FormalParameter { <b>,</b> FormalParameter } ] <b>)</b> { DimensionInfo }
  *        [ <b>throws</b> TypeName { <b>,</b> TypeName } ] ( Block | <b>;</b> )
  * ConstructorDeclaration:
  *    [ Javadoc ] { ExtendedModifier }
@@ -139,10 +140,19 @@ public class MethodDeclaration extends BodyDeclaration {
 
 	/**
 	 * The "extraDimensions" structural property of this node type (type: {@link Integer}).
+	 *
 	 * @since 3.0
+	 * @deprecated in JLS8, use {@link MethodDeclaration#EXTRA_DIMENSION_INFOS_PROPERTY} instead.
 	 */
 	public static final SimplePropertyDescriptor EXTRA_DIMENSIONS_PROPERTY =
 		new SimplePropertyDescriptor(MethodDeclaration.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "extraDimensionInfos" structural property of this node type (child type: {@link DimensionInfo}) (added in JLS8 API).
+	 * @since 3.9
+	 */
+	public static final ChildListPropertyDescriptor EXTRA_DIMENSION_INFOS_PROPERTY =
+			new ChildListPropertyDescriptor(MethodDeclaration.class, "extraDimensionInfos", DimensionInfo.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "typeParameters" structural property of this node type (element type: {@link TypeParameter}) (added in JLS3 API).
@@ -258,7 +268,7 @@ public class MethodDeclaration extends BodyDeclaration {
 		addProperty(RECEIVER_TYPE_PROPERTY, propertyList);
 		addProperty(RECEIVER_QUALIFIER_PROPERTY, propertyList);
 		addProperty(PARAMETERS_PROPERTY, propertyList);
-		addProperty(EXTRA_DIMENSIONS_PROPERTY, propertyList);
+		addProperty(EXTRA_DIMENSION_INFOS_PROPERTY, propertyList);
 		addProperty(THROWN_EXCEPTION_TYPES_PROPERTY, propertyList);
 		addProperty(BODY_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);	
@@ -344,6 +354,13 @@ public class MethodDeclaration extends BodyDeclaration {
 	private int extraArrayDimensions = 0;
 
 	/**
+	 * The extra dimensions this node has with optional annotations.
+	 * 
+	 * @since 3.9
+	 */
+	protected ASTNode.NodeList extraDimensionInfos = null;
+
+	/**
 	 * The list of thrown exception names (element type: {@link Name}).
 	 * Defaults to an empty list for api levels below JLS8.
 	 */
@@ -381,9 +398,10 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (ast.apiLevel >= AST.JLS3_INTERNAL) {
 			this.typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
 		}
-		if (ast.apiLevel() < AST.JLS8) {
+		if (ast.apiLevel < AST.JLS8) {
 			this.thrownExceptions = new ASTNode.NodeList(THROWN_EXCEPTIONS_PROPERTY);
 		} else {
+			this.extraDimensionInfos = new ASTNode.NodeList(EXTRA_DIMENSION_INFOS_PROPERTY);
 			this.thrownExceptionTypes = new ASTNode.NodeList(THROWN_EXCEPTION_TYPES_PROPERTY);
 		}
 	}
@@ -517,6 +535,9 @@ public class MethodDeclaration extends BodyDeclaration {
 		if (property == THROWN_EXCEPTION_TYPES_PROPERTY) {
 			return thrownExceptionTypes();
 		}		
+		if (property == EXTRA_DIMENSION_INFOS_PROPERTY) {
+			return getExtraDimensionInfos();
+		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
@@ -569,12 +590,15 @@ public class MethodDeclaration extends BodyDeclaration {
 			result.setReturnType2(
 					(Type) ASTNode.copySubtree(target, getReturnType2()));
 		}
+		result.setConstructor(isConstructor());
 		if (this.ast.apiLevel >= AST.JLS8) {
 			result.setReceiverType((AnnotatableType) ASTNode.copySubtree(target, this.receiverType));
 			result.setReceiverQualifier((SimpleName) ASTNode.copySubtree(target, this.receiverQualifier));
+			result.extraDimensionInfos.addAll(
+					ASTNode.copySubtrees(target, this.extraDimensionInfos));
+		} else {
+			result.setExtraDimensions(getExtraDimensions());
 		}
-		result.setConstructor(isConstructor());
-		result.setExtraDimensions(getExtraDimensions());
 		result.setName((SimpleName) getName().clone(target));
 		result.parameters().addAll(
 			ASTNode.copySubtrees(target, parameters()));
@@ -622,6 +646,7 @@ public class MethodDeclaration extends BodyDeclaration {
 			}
 			acceptChildren(visitor, this.parameters);
 			if (this.ast.apiLevel() < AST.JLS8) {
+				acceptChildren(visitor, this.extraDimensionInfos);
 				acceptChildren(visitor, this.thrownExceptions);				
 			} else {
 				acceptChildren(visitor, this.thrownExceptionTypes);				
@@ -1005,6 +1030,9 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @since 2.1
 	 */
 	public int getExtraDimensions() {
+		if (this.ast.apiLevel >= AST.JLS8) {
+			return this.extraDimensionInfos.size();
+		}
 		return this.extraArrayDimensions;
 	}
 
@@ -1024,14 +1052,27 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @exception IllegalArgumentException if the number of dimensions is
 	 *    negative
 	 * @since 2.1
+	 * @deprecated In the JLS8 API, use: {@link #getExtraDimensionInfos()}.
 	 */
 	public void setExtraDimensions(int dimensions) {
+		supportedOnlyIn2_3_4();
 		if (dimensions < 0) {
 			throw new IllegalArgumentException();
 		}
 		preValueChange(EXTRA_DIMENSIONS_PROPERTY);
 		this.extraArrayDimensions = dimensions;
 		postValueChange(EXTRA_DIMENSIONS_PROPERTY);
+	}
+
+	/**
+	 * Returns the live ordered list of extra dimensions with optional annotations (JLS8 API only).
+	 * 
+	 * @return the live list of extra dimensions with optional annotations (element type: {@link DimensionInfo})
+	 * @since 3.9
+	 */
+	public List getExtraDimensionInfos() {
+		unsupportedIn2_3_4();
+		return this.extraDimensionInfos;
 	}
 
 	/**
@@ -1094,7 +1135,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Method declared on ASTNode.
 	 */
 	int memSize() {
-		return super.memSize() + 12 * 4;
+		return super.memSize() + 13 * 4;
 	}
 
 	/* (omit javadoc for this method)
@@ -1111,7 +1152,9 @@ public class MethodDeclaration extends BodyDeclaration {
 			+ (this.receiverQualifier == null ? 0 : this.receiverQualifier.treeSize())
 			+ (this.returnType == null ? 0 : this.returnType.treeSize())
 			+ this.parameters.listSize()
-			+ (this.ast.apiLevel < AST.JLS8 ? this.thrownExceptions.listSize() : this.thrownExceptionTypes.listSize())
+			+ (this.ast.apiLevel < AST.JLS8 ? 
+					this.thrownExceptions.listSize() 
+					: this.extraDimensionInfos.listSize() + this.thrownExceptionTypes.listSize())
 			+ (this.optionalBody == null ? 0 : getBody().treeSize());
 	}
 }

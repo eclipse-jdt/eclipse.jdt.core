@@ -354,6 +354,29 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
+	 * @since 3.9
+	 */
+	public boolean match(DimensionInfo node, Object other) {
+		if (!(other instanceof DimensionInfo))
+			return false;
+		DimensionInfo o = (DimensionInfo) other;
+		return safeSubtreeListMatch(node.annotations(), o.annotations())
+				&& safeSubtreeMatch(node.expression(), o.expression());
+	}
+
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 *
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
 	 */
 	public boolean match(AssertStatement node, Object other) {
 		if (!(other instanceof AssertStatement)) {
@@ -1399,10 +1422,11 @@ public class ASTMatcher {
 				&& safeSubtreeMatch(node.getName(), o.getName())
 				// n.b. compare return type even for constructors
 				&& safeSubtreeListMatch(node.parameters(), o.parameters())
-	 			&& node.getExtraDimensions() == o.getExtraDimensions()
-				&& (node.getAST().apiLevel() < AST.JLS8 ? 
-						safeSubtreeListMatch(node.thrownExceptions(), o.thrownExceptions()) :
-						safeSubtreeListMatch(node.thrownExceptionTypes(), o.thrownExceptionTypes()))
+				&& ((node.getAST().apiLevel < AST.JLS8) ?
+							(node.getExtraDimensions() == o.getExtraDimensions()
+								&& safeSubtreeListMatch(node.thrownExceptions(), o.thrownExceptions())) :
+							(safeSubtreeListMatch(node.getExtraDimensionInfos(), o.getExtraDimensionInfos())
+								&& safeSubtreeListMatch(node.thrownExceptionTypes(), o.thrownExceptionTypes())))
 				&& safeSubtreeMatch(node.getBody(), o.getBody()));
 	}
 
@@ -1878,7 +1902,9 @@ public class ASTMatcher {
 		return
 		    safeSubtreeMatch(node.getType(), o.getType())
 				&& safeSubtreeMatch(node.getName(), o.getName())
-	 			&& node.getExtraDimensions() == o.getExtraDimensions()
+	 			&& ((node.getAST().apiLevel < AST.JLS8) ?
+	 					node.getExtraDimensions() == o.getExtraDimensions() :
+	 						safeSubtreeListMatch(node.getExtraDimensionInfos(), o.getExtraDimensionInfos()))
 				&& safeSubtreeMatch(node.getInitializer(), o.getInitializer())
 				&& (level >= AST.JLS8 && node.isVarargs()) ? safeSubtreeListMatch(node.varargsAnnotations(), o.varargsAnnotations()) : true;		
 	}
@@ -2371,7 +2397,9 @@ public class ASTMatcher {
 		}
 		VariableDeclarationFragment o = (VariableDeclarationFragment) other;
 		return safeSubtreeMatch(node.getName(), o.getName())
-			&& node.getExtraDimensions() == o.getExtraDimensions()
+			&& ((node.getAST().apiLevel < AST.JLS8) ?
+					node.getExtraDimensions() == o.getExtraDimensions() :
+						safeSubtreeListMatch(node.getExtraDimensionInfos(), o.getExtraDimensionInfos()))
 			&& safeSubtreeMatch(node.getInitializer(), o.getInitializer());
 	}
 

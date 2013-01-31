@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -45,7 +49,16 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	public static Test suite() {
 		return allTests();
 	}
-
+	/** 
+	 * Internal access method to VariableDeclarationFragment#setExtraDimensions() for avoiding deprecated warnings
+	 *
+	 * @param node
+	 * @param dimensions
+	 * @deprecated
+	 */
+	private void internalSetExtraDimensions(VariableDeclarationFragment node, int dimensions) {
+		node.setExtraDimensions(dimensions);
+	}
 	public void testNamesWithDelete() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -159,7 +172,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
 		VariableDeclarationFragment newFrag= ast.newVariableDeclarationFragment();
 		newFrag.setName(ast.newSimpleName("newVariable"));
-		newFrag.setExtraDimensions(2);
+		internalSetExtraDimensions(newFrag, 2);
 
 		rewrite.getListRewrite(field, FieldDeclaration.FRAGMENTS_PROPERTY).insertFirst(newFrag, null);
 
