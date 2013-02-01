@@ -1070,4 +1070,26 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		method = methods[2];
 		assertExtraDimensionsEqual("Incorrect dimension info", method.getExtraDimensionInfos(), "@Annot1 @Annot2 [] []");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399600
+	public void test0010() throws JavaModelException {
+		String contents =
+				"import java.lang.annotation.ElementType;\n" +
+						"public class X {\n" +
+						"	@Marker int foo(@Marker(\"Blah\") int z) @Marker [] @Marker [] {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}\n" +
+						"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
+						"@interface Marker {\n" +
+						"	String value() default \"Blah\";\n" +
+						"}";
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration method = (MethodDeclaration) node;
+		assertExtraDimensionsEqual("Incorrect dimension info", method.getExtraDimensionInfos(), "@Marker [] @Marker []");
+	}
 }

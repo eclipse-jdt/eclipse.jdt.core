@@ -4398,10 +4398,18 @@ class ASTConverter {
 		this.scanner.resetTo(start, end);
 		try {
 			int token;
+			int count = 0;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNameRPAREN:
-						return this.scanner.currentPosition;
+						count--;
+						if (count <= 0) return this.scanner.currentPosition;
+						 break;
+					case TerminalTokens.TokenNameLPAREN:
+						count++;
+						//$FALL-THROUGH$
+					default:
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {
