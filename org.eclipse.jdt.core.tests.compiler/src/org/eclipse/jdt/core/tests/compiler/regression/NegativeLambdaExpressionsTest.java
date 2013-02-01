@@ -266,7 +266,7 @@ public void test010() {
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=382701, [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expressions.
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382701, [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expressions.
 public void test011() {
 	// This test checks that common semantic checks are indeed 
 	this.runNegativeTest(
@@ -335,6 +335,78 @@ public void test011() {
 				"Void methods cannot return a value\n" + 
 				"----------\n"
 );
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384600, [1.8] 'this' should not be allowed in lambda expressions in contexts that don't allow it
+public void test012() {
+	// This test checks that common semantic checks are indeed 
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void doit();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	static void foo() {\n" +
+					"		I i = () -> {\n" +
+					"			System.out.println(this);\n" +
+					"			I j = () -> {\n" +
+					"				System.out.println(this);\n" +
+					"				I k = () -> {\n" +
+					"					System.out.println(this);\n" +
+					"				};\n" +
+					"			};\n" +
+					"		};\n" +
+					"	}\n" +
+					"}\n" ,
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	System.out.println(this);\n" + 
+				"	                   ^^^^\n" + 
+				"Cannot use this in a static context\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 9)\n" + 
+				"	System.out.println(this);\n" + 
+				"	                   ^^^^\n" + 
+				"Cannot use this in a static context\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 11)\n" + 
+				"	System.out.println(this);\n" + 
+				"	                   ^^^^\n" + 
+				"Cannot use this in a static context\n" + 
+				"----------\n"
+				);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384600, [1.8] 'this' should not be allowed in lambda expressions in contexts that don't allow it
+public void test013() {
+	// This test checks that common semantic checks are indeed 
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void doit();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	void foo(Zork z) {\n" +
+					"		I i = () -> {\n" +
+					"			System.out.println(this);\n" +
+					"			I j = () -> {\n" +
+					"				System.out.println(this);\n" +
+					"				I k = () -> {\n" +
+					"					System.out.println(this);\n" +
+					"				};\n" +
+					"			};\n" +
+					"		};\n" +
+					"	}\n" +
+					"}\n" ,
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	void foo(Zork z) {\n" + 
+				"	         ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n"
+				);
 }
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
