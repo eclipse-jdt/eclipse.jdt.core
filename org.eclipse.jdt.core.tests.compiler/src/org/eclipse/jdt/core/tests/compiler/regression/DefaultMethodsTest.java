@@ -198,7 +198,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 
 	// class implements interface with default method. 
 	// - no need to implement this interface method as it is not abstract
-	public void _testModifiers5() {
+	public void testModifiers5() {
 		runConformTest(
 			new String[] {
 				"C.java",
