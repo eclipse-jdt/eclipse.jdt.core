@@ -16,21 +16,66 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+import org.eclipse.jdt.internal.compiler.problem.AbortType;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-public class LambdaExpression extends FunctionalExpression {
+public class LambdaExpression extends FunctionalExpression implements ProblemSeverities, ReferenceContext {
 	Argument [] arguments;
 	Statement body;
+	private MethodScope scope;
+	private CompilationResult compilationResult;
+	private boolean ignoreFurtherInvestigation;
 	
-	public LambdaExpression(Argument [] arguments, Statement body) {
+	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
+		this.compilationResult = compilationResult;
 		this.arguments = arguments;
 		this.body = body;
 	}
 	
 	public TypeBinding resolveType(BlockScope blockScope) {
 		super.resolveType(blockScope);
-		return TypeBinding.NULL;
+		this.scope = new MethodScope(blockScope, this, blockScope.methodScope().isStatic);
+
+		TypeBinding expected = this.expectedType();
+		if (expected == null) return TypeBinding.NULL;
+
+		MethodBinding singleAbstractMethod = expected.getSingleAbstractMethod();
+		if (this.arguments != null && singleAbstractMethod != null) {
+			int parameterCount = singleAbstractMethod.parameters != null ? singleAbstractMethod.parameters.length : 0;
+			int lambdaArgumentCount = this.arguments != null ? this.arguments.length : 0;
+
+			if (parameterCount == lambdaArgumentCount) {
+				for (int i = 0, length = this.arguments.length; i < length; i++) {
+					Argument argument = this.arguments[i];
+					if (argument.type != null) {
+						argument.resolve(this.scope); // TODO: Check it!
+					} else {
+						argument.bind(this.scope, singleAbstractMethod.parameters[i], false);
+					}
+				}
+			} /* TODO: else complain */
+		}
+		if (this.body instanceof Expression) {
+			Expression expression = (Expression) this.body;
+			if (singleAbstractMethod != null) {
+				expression.setExpectedType(singleAbstractMethod.returnType); // chain expected type for any nested lambdas.
+				/* TypeBinding expressionType = */ expression.resolveType(this.scope);
+				// TODO: checkExpressionResult(singleAbstractMethod.returnType, expression, expressionType);
+			}
+		} else {
+			this.body.resolve(this.scope);
+		}
+		return expected;
 	}
 
 	public StringBuffer printExpression(int tab, StringBuffer output) {
@@ -50,5 +95,41 @@ public class LambdaExpression extends FunctionalExpression {
 		output.append(") -> " ); //$NON-NLS-1$
 		this.body.print(this.body instanceof Block ? tab : 0, output);
 		return output.append(suffix);
+	}
+
+	public CompilationResult compilationResult() {
+		return this.compilationResult;
+	}
+	
+	public void abort(int abortLevel, CategorizedProblem problem) {
+
+		switch (abortLevel) {
+			case AbortCompilation :
+				throw new AbortCompilation(this.compilationResult, problem);
+			case AbortCompilationUnit :
+				throw new AbortCompilationUnit(this.compilationResult, problem);
+			case AbortType :
+				throw new AbortType(this.compilationResult, problem);
+			default :
+				throw new AbortMethod(this.compilationResult, problem);
+		}
+	}
+
+	public CompilationUnitDeclaration getCompilationUnitDeclaration() {
+		return this.scope == null ? null : this.scope.compilationUnitScope().referenceContext;
+	}
+
+	public boolean hasErrors() {
+		return this.ignoreFurtherInvestigation;
+	}
+
+	public void tagAsHavingErrors() {
+		this.ignoreFurtherInvestigation = true;
+	}
+
+	public TypeBinding expectedResultType() {
+		MethodBinding singleAbstractMethod = expectedType().getSingleAbstractMethod();
+		if (singleAbstractMethod != null) return singleAbstractMethod.returnType;
+		return TypeBinding.NULL;
 	}
 }

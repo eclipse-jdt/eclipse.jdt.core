@@ -16,6 +16,8 @@
  *								bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
+ *     Jesper S Moller - Contributions for
+ *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
@@ -7705,7 +7707,7 @@ protected void consumeLambdaExpression() {
 			problemReporter().illegalThis(arguments[i]);
 		}
 	}
-	LambdaExpression lexp = new LambdaExpression(arguments, body);
+	LambdaExpression lexp = new LambdaExpression(this.compilationUnit.compilationResult, arguments, body);
 	this.intPtr--;  // ')' position, discard for now.
 	lexp.sourceStart = this.intStack[this.intPtr--]; // '(' position or identifier position.
 	lexp.sourceEnd = body.sourceEnd;

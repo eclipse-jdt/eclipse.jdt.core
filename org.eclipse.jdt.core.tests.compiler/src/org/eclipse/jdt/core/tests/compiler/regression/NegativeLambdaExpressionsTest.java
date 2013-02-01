@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 IBM Corporation and others.
+ * Copyright (c) 2011, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper S Moller - Contributions for
+ *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
@@ -219,14 +221,14 @@ public void test009() {
 					"}\n" +
 					"public class X {\n" +
 					"  public void test1(int x) {\n" +
-					"    ActionListener al = (public xyz) -> System.out.println(e); \n" +
+					"    ActionListener al = (public xyz) -> System.out.println(xyz); \n" +
 					"    I f = (abstract final s, @Nullable t) -> System.out.println(s + t); \n" +
 					"  }\n" +
 					"}\n",
 				},
 				"----------\n" + 
 				"1. ERROR in X.java (at line 7)\n" + 
-				"	ActionListener al = (public xyz) -> System.out.println(e); \n" + 
+				"	ActionListener al = (public xyz) -> System.out.println(xyz); \n" + 
 				"	                            ^^^\n" + 
 				"Syntax error, modifiers and annotations are not allowed for the lambda parameter xyz as its type is elided\n" + 
 				"----------\n" + 

@@ -34,6 +34,10 @@ public abstract class FunctionalExpression extends Expression {
 	public void setExpectedType(TypeBinding expectedType) {
 		this.expectedType = expectedType;
 	}
+
+	public TypeBinding expectedType() {
+		return this.expectedType;
+	}
 	
 	public TypeBinding resolveType(BlockScope blockScope) {
 		this.constant = Constant.NotAConstant;
