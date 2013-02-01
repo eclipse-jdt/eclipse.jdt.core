@@ -266,6 +266,76 @@ public void test010() {
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=382701, [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expressions.
+public void test011() {
+	// This test checks that common semantic checks are indeed 
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	Object foo(int [] ia);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	I i = (int [] ia) -> {\n" +
+					"		Zork z;\n" +  // Error: No such type
+					"		unknown = 0;\n;" + // Error: No such variable
+					"		int a = 42 + ia;\n" + // Error: int + int[] is wrong 
+					"		return ia.clone();\n" +
+					"	};\n" +
+					"	static void staticLambda() {\n" +
+					"		I i = (int [] ia) -> this;\n" + // 'this' is static
+					"	}\n" +
+					"	I j = array -> {\n" +
+					"		int a = array[2] + 3;\n" + // No error, ia must be correctly identifies as int[]
+					"		int b = 42 + array;\n" + // Error: int + int[] is wrong - yes it is!
+					"		System.out.println(\"i(array) = \" + i.foo(array));\n" + // fields are accessible!
+					"		return;\n" + // Error here, expecting Object, not void
+					"	};\n" +
+					"	Runnable r = () -> { return 42; };\n" + // Runnable.run not expecting return value
+					"	void anotherLambda() {\n" +
+					"		final int beef = 0;\n" +
+					"		I k = (int [] a) -> a.length + beef;\n" + // No error, beef is in scope
+					"	}\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	unknown = 0;\n" + 
+				"	^^^^^^^\n" + 
+				"unknown cannot be resolved to a variable\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	;		int a = 42 + ia;\n" + 
+				"	 		        ^^^^^^^\n" + 
+				"The operator + is undefined for the argument type(s) int, int[]\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 12)\n" + 
+				"	I i = (int [] ia) -> this;\n" + 
+				"	                     ^^^^\n" + 
+				"Cannot use this in a static context\n" + 
+				"----------\n" +
+				"5. ERROR in X.java (at line 16)\n" + 
+				"	int b = 42 + array;\n" + 
+				"	        ^^^^^^^^^^\n" + 
+				"The operator + is undefined for the argument type(s) int, int[]\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 18)\n" + 
+				"	return;\n" + 
+				"	^^^^^^^\n" + 
+				"This method must return a result of type Object\n" +
+				"----------\n" + 
+				"7. ERROR in X.java (at line 20)\n" + 
+				"	Runnable r = () -> { return 42; };\n" + 
+				"	                     ^^^^^^^^^^\n" + 
+				"Void methods cannot return a value\n" + 
+				"----------\n"
+);
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
