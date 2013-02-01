@@ -16,16 +16,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class FunctionalExpression extends Expression {
 	
 	TypeBinding expectedType;
+	MethodBinding singleAbstractMethod;
+	ReferenceBinding functionalInterfaceType;
 
 	public FunctionalExpression() {
 		super();
@@ -39,14 +45,15 @@ public abstract class FunctionalExpression extends Expression {
 		return this.expectedType;
 	}
 	
-	public TypeBinding resolveType(BlockScope blockScope) {
+	public /* @NonNull */ TypeBinding resolveType(BlockScope blockScope) {
 		this.constant = Constant.NotAConstant;
-		MethodBinding singleAbstractMethod = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod();
-		if (singleAbstractMethod == null || !singleAbstractMethod.isValidBinding()) {
+		this.singleAbstractMethod = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod();
+		if (this.singleAbstractMethod == null || !this.singleAbstractMethod.isValidBinding()) {
 			blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
-			return null;
+			char [][] name = this.expectedType == null ? CharOperation.NO_CHAR_CHAR : CharOperation.splitOn('.', this.expectedType.shortReadableName());
+			return this.functionalInterfaceType = new ProblemReferenceBinding(name, null, ProblemReasons.NotAFunctionalInterface);
 		}
-		return this.expectedType;
+		return this.functionalInterfaceType = (ReferenceBinding) this.expectedType;
 	}
 
 	public int nullStatus(FlowInfo flowInfo) {

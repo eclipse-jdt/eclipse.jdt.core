@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -497,6 +497,12 @@ public abstract class ASTVisitor {
 	public void endVisit(Wildcard wildcard, ClassScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(LambdaExpression lambdaExpression, BlockScope blockScope) {
+		// do nothing by default
+	}
+	public void endVisit(ReferenceExpression referenceExpression, BlockScope blockScope) {
+		// do nothing by default	
+	}
 	public boolean visit(
     		AllocationExpression allocationExpression,
     		BlockScope scope) {
@@ -971,6 +977,12 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(Wildcard wildcard, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(LambdaExpression lambdaExpression, BlockScope blockScope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ReferenceExpression referenceExpression, BlockScope blockScope) {
 		return true; // do nothing by default, keep traversing
 	}
 }

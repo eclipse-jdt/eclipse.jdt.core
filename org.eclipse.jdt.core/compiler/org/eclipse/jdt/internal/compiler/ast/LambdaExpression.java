@@ -17,10 +17,10 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -46,36 +46,35 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 		super.resolveType(blockScope);
 		this.scope = new MethodScope(blockScope, this, blockScope.methodScope().isStatic);
 
-		TypeBinding expected = this.expectedType();
-		if (expected == null) return TypeBinding.NULL;
+		if (this.functionalInterfaceType.isValidBinding()) {
+			// Resolve arguments, validate signature ...
+			if (this.arguments != null && this.singleAbstractMethod != null) {
+				int parameterCount = this.singleAbstractMethod.parameters != null ? this.singleAbstractMethod.parameters.length : 0;
+				int lambdaArgumentCount = this.arguments != null ? this.arguments.length : 0;
 
-		MethodBinding singleAbstractMethod = expected.getSingleAbstractMethod();
-		if (this.arguments != null && singleAbstractMethod != null) {
-			int parameterCount = singleAbstractMethod.parameters != null ? singleAbstractMethod.parameters.length : 0;
-			int lambdaArgumentCount = this.arguments != null ? this.arguments.length : 0;
-
-			if (parameterCount == lambdaArgumentCount) {
-				for (int i = 0, length = this.arguments.length; i < length; i++) {
-					Argument argument = this.arguments[i];
-					if (argument.type != null) {
-						argument.resolve(this.scope); // TODO: Check it!
-					} else {
-						argument.bind(this.scope, singleAbstractMethod.parameters[i], false);
+				if (parameterCount == lambdaArgumentCount) {
+					for (int i = 0, length = this.arguments.length; i < length; i++) {
+						Argument argument = this.arguments[i];
+						if (argument.type != null) {
+							argument.resolve(this.scope); // TODO: Check it!
+						} else {
+							argument.bind(this.scope, this.singleAbstractMethod.parameters[i], false);
+						}
 					}
-				}
-			} /* TODO: else complain */
+				} /* TODO: else complain */
+			}
 		}
 		if (this.body instanceof Expression) {
 			Expression expression = (Expression) this.body;
-			if (singleAbstractMethod != null) {
-				expression.setExpectedType(singleAbstractMethod.returnType); // chain expected type for any nested lambdas.
+			if (this.functionalInterfaceType.isValidBinding()) {
+				expression.setExpectedType(this.singleAbstractMethod.returnType); // chain expected type for any nested lambdas.
 				/* TypeBinding expressionType = */ expression.resolveType(this.scope);
 				// TODO: checkExpressionResult(singleAbstractMethod.returnType, expression, expressionType);
 			}
 		} else {
 			this.body.resolve(this.scope);
 		}
-		return expected;
+		return this.functionalInterfaceType;
 	}
 
 	public StringBuffer printExpression(int tab, StringBuffer output) {
@@ -128,8 +127,22 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 	}
 
 	public TypeBinding expectedResultType() {
-		MethodBinding singleAbstractMethod = expectedType().getSingleAbstractMethod();
-		if (singleAbstractMethod != null) return singleAbstractMethod.returnType;
-		return TypeBinding.NULL;
+		return this.singleAbstractMethod != null && this.singleAbstractMethod.isValidBinding() ? this.singleAbstractMethod.returnType : null;
+	}
+	
+	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
+
+			if (visitor.visit(this, blockScope)) {
+				if (this.arguments != null) {
+					int argumentsLength = this.arguments.length;
+					for (int i = 0; i < argumentsLength; i++)
+						this.arguments[i].traverse(visitor, this.scope);
+				}
+
+				if (this.body != null) {
+					this.body.traverse(visitor, this.scope);
+				}
+			}
+			visitor.endVisit(this, blockScope);
 	}
 }
