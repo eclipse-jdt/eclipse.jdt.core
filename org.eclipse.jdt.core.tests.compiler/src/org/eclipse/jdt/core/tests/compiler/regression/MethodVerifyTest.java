@@ -1815,7 +1815,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			""
 		);
 	}
-	public void _test026b() {
+	public void test026b() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1823,7 +1823,6 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"public class X extends java.util.AbstractMap {\n" +
 				"	public java.util.Set entrySet() { return null; }\n" +
 				MAP_RAW_IMPL_JRE8 +
-				MAP_STREAM_RAW_IMPL_JRE8 +
 				"}\n"
 			},
 			""

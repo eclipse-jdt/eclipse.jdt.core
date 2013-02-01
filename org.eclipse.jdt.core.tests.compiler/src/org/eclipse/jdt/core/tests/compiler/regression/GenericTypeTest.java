@@ -8825,7 +8825,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"foo, bar");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72644
-	public void _test0298() {
+	public void test0298() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java", //---------------------------
@@ -8849,8 +8849,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"   public Set<Map.Entry<String, V>> entrySet() {\n" +
 				"      return this.backingMap.entrySet();\n" +
 				"   }\n" +
-				MAP_STREAM_IMPL_JRE8.replaceAll("\\*", "String").replace('%', 'V') +
-				MAP_IMPL_JRE8.replaceAll("!", "String,V").replaceAll("\\*", "String")+
+				MAP_IMPL_JRE8.replaceAll("\\*", "String").replaceAll("\\%", "V")+
 				"}\n",
 			},
 			"----------\n" +
@@ -10797,7 +10796,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75525
-	public void _test0361() {
+	public void test0361() {
 		this.runConformTest(
 			new String[] {
 				"Test.java",
@@ -10810,6 +10809,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 					"			public boolean hasNext() {return false;}\n" +
 					"			public Entry<String, Integer> next() {return null;}\n" +
 					"			public void remove() {}	\n" +
+					ITERATOR_IMPL_JRE8.replaceAll("\\*", "Entry<String,Integer>") +
 					"		};\n" +
 					"	}\n" +
 					"	public int size() {return 0;}\n" +
@@ -13558,7 +13558,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81757
-	public void _test0443() {
+	public void test0443() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -13567,6 +13567,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    public boolean hasNext() { return false; }\n" +
 				"    public String next() { return null; }\n" +
 				"    public void remove() {}\n" +
+				ITERATOR_IMPL_JRE8.replaceAll("\\*", "String") +
 				"}\n",
 			},
 			"");
@@ -19885,7 +19886,7 @@ public void test0617() {
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93298
-	public void _test0635() {
+	public void test0635() {
 	    this.runConformTest(
             new String[] {
                 "X.java",
@@ -19904,6 +19905,7 @@ public void test0617() {
 				"			}\n" +
 				"			public void remove() {\n" +
 				"			}\n" +
+				ITERATOR_IMPL_JRE8.replaceAll("\\*", "U") +
 				"		}\n" +
 				"	}\n" +
 				"}\n",
@@ -24901,7 +24903,7 @@ public void test0778() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103227
-public void _test0779() throws Exception {
+public void test0779() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -24928,7 +24930,7 @@ public void _test0779() throws Exception {
 		},
 		"SUCCESS");
 
-	String constantPoolIdx = IS_JRE_8 ? "149" : "36"; // depends on whether or not stubs for JRE8 default methods are included
+	String constantPoolIdx = IS_JRE_8 ? "67" : "36"; // depends on whether or not stubs for JRE8 default methods are included
 	String expectedOutput =
 		"  // Method descriptor #31 (I)Ljava/lang/Object;\n" +
 		"  // Stack: 2, Locals: 2\n" +
@@ -25863,7 +25865,7 @@ public void test0808() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106946
-public void _test0809() {
+public void test0809() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25882,6 +25884,7 @@ public void _test0809() {
 			"	}\n" +
 			"	public void remove() {\n" +
 			"	}\n" +
+			ITERATOR_IMPL_JRE8.replaceAll("\\*", "N") +
 			"}\n" +
 			"interface Set3<N extends Node> extends Iterable<N> {\n" +
 			"	SetIterator<N> iterator();\n" +
@@ -25913,27 +25916,27 @@ public void _test0809() {
 			"}\n",
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 21)\n" +
+		"1. WARNING in X.java (at line 22)\n" +
 		"	void f1(Set1 s) {\n" +
 		"	        ^^^^\n" +
 		"Set1 is a raw type. References to generic type Set1<N> should be parameterized\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 22)\n" +
+		"2. ERROR in X.java (at line 23)\n" +
 		"	Node n_ = s.iterator().next();\n" +
 		"	          ^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from Object to Node\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 25)\n" +
+		"3. ERROR in X.java (at line 26)\n" +
 		"	for (Node n : s) {\n" +
 		"	              ^\n" +
 		"Type mismatch: cannot convert from element type Object to Node\n" +
 		"----------\n" +
-		"4. WARNING in X.java (at line 35)\n" +
+		"4. WARNING in X.java (at line 36)\n" +
 		"	void f3(Set3 s) {\n" +
 		"	        ^^^^\n" +
 		"Set3 is a raw type. References to generic type Set3<N> should be parameterized\n" +
 		"----------\n" +
-		"5. ERROR in X.java (at line 38)\n" +
+		"5. ERROR in X.java (at line 39)\n" +
 		"	for (Node n : s) {\n" +
 		"	              ^\n" +
 		"Type mismatch: cannot convert from element type Object to Node\n" +
@@ -34398,7 +34401,7 @@ public void test1034() {
 		JavacTestOptions.EclipseHasABug.EclipseBug236370);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158531
-public void _test1035() {
+public void test1035() {
 	this.runNegativeTest(
 		new String[] {
 			"ComparableComparator.java",
@@ -34421,7 +34424,7 @@ public void _test1035() {
 			"public int compare(T obj1, T obj2) {\n" +
 			"	return obj1.compareTo(obj2);\n" +
 			"}\n" +
-			COMPARATOR_IMPL_JRE8.replace('*', 'T') +
+			COMPARATOR_IMPL_JRE8.replace('*', 'T').replace('%', 'U') +
 			"}\n" +
 			"\n" +
 			"@SuppressWarnings({\"unchecked\", \"rawtypes\"})\n" +
@@ -34472,7 +34475,7 @@ public void _test1035() {
 			"public int compare(V obj1, V obj2) {\n" +
 			"	return 0;\n" +
 			"}\n" +
-			COMPARATOR_IMPL_JRE8.replace('*', 'V') +
+			COMPARATOR_IMPL_JRE8.replace('*', 'V').replace('%', 'U') +
 			"}", // =================
 
 		},
@@ -49688,7 +49691,7 @@ public void test1443() {
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=263215
-public void _test1444() {
+public void test1444() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", //-----------------------------------------------------------------------
@@ -49725,6 +49728,7 @@ public void _test1444() {
 				"			public boolean hasNext() {\n" + 
 				"				return false;\n" + 
 				"			}\n" + 
+				ITERATOR_RAW_IMPL_JRE8 +
 				"		};\n" + 
 				"	}\n" + 
 				"	Zork z;\n" +
@@ -49756,7 +49760,7 @@ public void _test1444() {
 			"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from Iterator to Iterator<String>\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 36)\n" + 
+			"6. ERROR in X.java (at line 37)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 

@@ -82,10 +82,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	static final String ITERABLE_IMPL_JRE8;
 	static final String ITERABLE_RAW_IMPL_JRE8;
 	static final String ITERATOR_IMPL_JRE8;
+	static final String ITERATOR_RAW_IMPL_JRE8;
 	static final String MAP_IMPL_JRE8;
 	static final String MAP_RAW_IMPL_JRE8;
-	static final String MAP_STREAM_IMPL_JRE8;
-	static final String MAP_STREAM_RAW_IMPL_JRE8;
 			
 	static {
 		String javaVersion = System.getProperty("java.specification.version");
@@ -127,6 +126,8 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				"	public @SuppressWarnings(\"rawtypes\") void forEach(java.util.function.Block block) {}\n";
 			ITERATOR_IMPL_JRE8 = // replace '*' with your concrete type argument
 				"	public void forEach(java.util.function.Block<? super *> block){}\n";			
+			ITERATOR_RAW_IMPL_JRE8 = 
+				"	public void forEach(java.util.function.Block block){}\n";			
 			MAP_IMPL_JRE8 = // '*' for 'K', '%' for 'V'
 				"	public boolean remove(Object key, Object value) { return false;}\n" +
 				"	public void forEach(java.util.function.BiBlock<? super *, ? super %> block) {}\n" +
@@ -149,46 +150,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				"	public @SuppressWarnings(\"rawtypes\") Object computeIfPresent(Object key, java.util.function.BiFunction remappingFunction) {  return null;}\n" +
 				"	public @SuppressWarnings(\"rawtypes\") Object compute(Object key, java.util.function.BiFunction remappingFunction) { return null;}\n" +
 				"	public @SuppressWarnings(\"rawtypes\") Object merge(Object key, Object value, java.util.function.BiFunction remappingFunction) { return null;}\n";
-			MAP_STREAM_IMPL_JRE8 = // '*' stands for 'K', '%' for 'V'
-				"	public BiValue<*,%> getOnly() { return null; }\n" +
-				"	public <A extends Map<? super *, ? super %>> A  into(A destination) { return null; }\n" +
-				"	public void forEach(java.util.functions.BiBlock<? super *, ? super %> block) {}\n" +
-				"	public MapStream<*, Iterable<%>> asMultiStream() { return null; }\n" +
-				"	public <W> MapStream<*, Iterable<W>> mapValuesMulti(final java.util.functions.BiMapper<? super *, ? super %, Iterable<W>> mapper) { return null; }\n" +
-				"	public MapStream<*,%> sorted(java.util.Comparator<? super *> comparator) { return null; }\n" +
-				"	public boolean anyMatch(java.util.functions.BiPredicate<? super *, ? super %> predicate) { return false; }\n" +
-				"	public boolean allMatch(java.util.functions.BiPredicate<? super *, ? super %> predicate) { return false; }\n" +
-				"	public boolean noneMatch(java.util.functions.BiPredicate<? super *, ? super %> predicate) { return false; }\n" +
-				"	public MapStream<*,%> merge(MapStream<*,%> other) { return null; }\n" +
-				"	public MapStream<*,%> filter(final java.util.functions.BiPredicate<? super *, ? super %> predicate) { return null; }\n" +
-				"	public MapStream<%,*> swap() { return null; }\n" +
-				"	public BiValue<*,%> getAny() { return null; }\n" +
-				"	public MapStream<*,%> filterKeys(final java.util.functions.Predicate<*> filter) { return null; }\n" +
-				"	public MapStream<*,%> filterValues(final java.util.functions.Predicate<%> filter) { return null; }\n" +
-				"	public <A extends Map<? super *, C>,C extends Collection<? super %>> A intoMulti(A destination, java.util.functions.Factory<C> factory) { return null; }\n" +
-				"	public <W> MapStream<*,W> mapValues(final java.util.functions.Mapper<%,W> mapper) { return null; }\n" +
-				"	public BiValue<*,%> getFirst() { return null; }\n" +
-				"	public <W> MapStream<*, W> map(final java.util.functions.BiMapper<*, %, W> mapper) { return null; }\n";
-			MAP_STREAM_RAW_IMPL_JRE8 =
-				"	public BiValue getOnly() { return null; }\n" +
-				"	public Map into(Map destination) { return null; }\n" +
-				"	public void forEach(java.util.functions.BiBlock block) {}\n" +
-				"	public MapStream asMultiStream() { return null; }\n" +
-				"	public MapStream mapValuesMulti(final java.util.functions.BiMapper mapper) { return null; }\n" +
-				"	public MapStream sorted(java.util.Comparator comparator) { return null; }\n" +
-				"	public boolean anyMatch(java.util.functions.BiPredicate predicate) { return false; }\n" +
-				"	public boolean allMatch(java.util.functions.BiPredicate predicate) { return false; }\n" +
-				"	public boolean noneMatch(java.util.functions.BiPredicate predicate) { return false; }\n" +
-				"	public MapStream merge(MapStream other) { return null; }\n" +
-				"	public MapStream filter(final java.util.functions.BiPredicate predicate) { return null; }\n" +
-				"	public MapStream swap() { return null; }\n" +
-				"	public BiValue getAny() { return null; }\n" +
-				"	public MapStream filterKeys(final java.util.functions.Predicate filter) { return null; }\n" +
-				"	public MapStream filterValues(final java.util.functions.Predicate filter) { return null; }\n" +
-				"	public Map intoMulti(Map destination, java.util.functions.Factory factory) { return null; }\n" +
-				"	public MapStream mapValues(final java.util.functions.Mapper mapper) { return null; }\n" +
-				"	public BiValue getFirst() { return null; }\n" +
-				"	public MapStream map(final java.util.functions.BiMapper mapper) { return null; }\n";
 		} else {
 			COMPARATOR_IMPL_JRE8 = "";			
 			COMPARATOR_RAW_IMPL_JRE8 = "";
@@ -199,10 +160,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 			ITERABLE_IMPL_JRE8 = "";
 			ITERABLE_RAW_IMPL_JRE8 = "";
 			ITERATOR_IMPL_JRE8 = "\n";
+			ITERATOR_RAW_IMPL_JRE8 = "\n";
 			MAP_IMPL_JRE8 = "";
 			MAP_RAW_IMPL_JRE8 = "";
-			MAP_STREAM_IMPL_JRE8 = "";
-			MAP_STREAM_RAW_IMPL_JRE8 = "";
 		}
 	}
 	String getListRawImplJRE8() {

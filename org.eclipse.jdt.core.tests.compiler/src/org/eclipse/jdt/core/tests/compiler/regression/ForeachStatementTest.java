@@ -1990,7 +1990,7 @@ public void test038() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
-public void _test039() throws Exception {
+public void test039() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -2023,6 +2023,7 @@ public void _test039() throws Exception {
 			"				System.out.println(\"remove\");\n" +
 			"				this.iterator.remove();\n" +
 			"			}\n" +
+			ITERATOR_IMPL_JRE8.replaceAll("\\*", "T") +
 			"		}\n" +
 			"		\n" +
 			"        static Set<Object> initForEach()        {\n" +
@@ -2083,7 +2084,7 @@ public void _test039() throws Exception {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150074
-public void _test040() throws Exception {
+public void test040() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
 
@@ -2119,6 +2120,7 @@ public void _test040() throws Exception {
 			"				System.out.println(\"remove\");\n" +
 			"				this.iterator.remove();\n" +
 			"			}\n" +
+			ITERATOR_IMPL_JRE8.replaceAll("\\*", "T") +
 			"		}\n" +
 			"		\n" +
 			"        static Set<Object> initForEach()        {\n" +
