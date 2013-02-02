@@ -19,9 +19,15 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
@@ -30,11 +36,12 @@ import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class LambdaExpression extends FunctionalExpression implements ProblemSeverities, ReferenceContext {
-	Argument [] arguments;
+	public Argument [] arguments;
 	Statement body;
 	private MethodScope scope;
 	private CompilationResult compilationResult;
 	private boolean ignoreFurtherInvestigation;
+	private MethodBinding binding;
 	
 	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
 		this.compilationResult = compilationResult;
@@ -45,8 +52,9 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 	public TypeBinding resolveType(BlockScope blockScope) {
 		super.resolveType(blockScope);
 		this.scope = new MethodScope(blockScope, this, blockScope.methodScope().isStatic);
-
+		this.binding = this.scope.createAnonymousMethodBinding(this);
 		if (this.functionalInterfaceType.isValidBinding()) {
+			this.binding.thrownExceptions = computeKosherThrowables();
 			// Resolve arguments, validate signature ...
 			if (this.arguments != null && this.singleAbstractMethod != null) {
 				int parameterCount = this.singleAbstractMethod.parameters != null ? this.singleAbstractMethod.parameters.length : 0;
@@ -75,6 +83,52 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 			this.body.resolve(this.scope);
 		}
 		return this.functionalInterfaceType;
+	}
+	
+	private ReferenceBinding[] computeKosherThrowables() {
+		return this.singleAbstractMethod == null || !this.singleAbstractMethod.isValidBinding() ? Binding.NO_EXCEPTIONS : this.singleAbstractMethod.thrownExceptions; // for now.
+	}
+
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, final FlowInfo flowInfo) {
+		
+		if (this.ignoreFurtherInvestigation) 
+			return flowInfo;
+		
+		FlowInfo lambdaInfo = flowInfo.copy(); // occurrence context immune to data flow inside lambda.
+		ExceptionHandlingFlowContext methodContext =
+				new ExceptionHandlingFlowContext(
+						flowContext,
+						this,
+						this.binding.thrownExceptions,
+						null,
+						this.scope,
+						FlowInfo.DEAD_END);
+
+		// nullity and mark as assigned
+		AbstractMethodDeclaration.analyseArguments(lambdaInfo, this.arguments, this.binding);
+
+		if (this.arguments != null) {
+			for (int i = 0, count = this.arguments.length; i < count; i++) {
+				this.bits |= (this.arguments[i].bits & ASTNode.HasTypeAnnotations);
+			}
+		}
+		
+		lambdaInfo = this.body.analyseCode(this.scope, methodContext, lambdaInfo);
+		
+		// check for missing returning path for block body's ...
+		if (this.body instanceof Block) {
+			TypeBinding returnTypeBinding = expectedResultType();
+			if ((returnTypeBinding == TypeBinding.VOID)) {
+				if ((lambdaInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0) {
+					this.bits |= ASTNode.NeedFreeReturn;
+				}
+			} else {
+				if (lambdaInfo != FlowInfo.DEAD_END) {
+					this.scope.problemReporter().shouldReturn(returnTypeBinding, this);
+				}
+			}
+		}
+		return flowInfo;
 	}
 
 	public StringBuffer printExpression(int tab, StringBuffer output) {

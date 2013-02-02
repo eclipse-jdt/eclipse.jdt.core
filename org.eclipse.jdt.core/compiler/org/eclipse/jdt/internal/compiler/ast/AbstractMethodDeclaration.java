@@ -190,21 +190,21 @@ public abstract class AbstractMethodDeclaration
 	/**
 	 * Feed null information from argument annotations into the analysis and mark arguments as assigned.
 	 */
-	void analyseArguments(FlowInfo flowInfo) {
-		if (this.arguments != null) {
-			for (int i = 0, count = this.arguments.length; i < count; i++) {
-				if (this.binding.parameterNonNullness != null) {
+	static void analyseArguments(FlowInfo flowInfo, Argument[] methodArguments, MethodBinding methodBinding) {
+		if (methodArguments != null) {
+			for (int i = 0, count = methodArguments.length; i < count; i++) {
+				if (methodBinding.parameterNonNullness != null) {
 					// leverage null-info from parameter annotations:
-					Boolean nonNullNess = this.binding.parameterNonNullness[i];
+					Boolean nonNullNess = methodBinding.parameterNonNullness[i];
 					if (nonNullNess != null) {
 						if (nonNullNess.booleanValue())
-							flowInfo.markAsDefinitelyNonNull(this.arguments[i].binding);
+							flowInfo.markAsDefinitelyNonNull(methodArguments[i].binding);
 						else
-							flowInfo.markPotentiallyNullBit(this.arguments[i].binding);
+							flowInfo.markPotentiallyNullBit(methodArguments[i].binding);
 					}
 				}
 				// tag parameters as being set:
-				flowInfo.markAsDefinitelyAssigned(this.arguments[i].binding);
+				flowInfo.markAsDefinitelyAssigned(methodArguments[i].binding);
 			}
 		}
 	}

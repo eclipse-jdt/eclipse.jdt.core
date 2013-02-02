@@ -2703,6 +2703,15 @@ public void illegalVararg(Argument argType, AbstractMethodDeclaration methodDecl
 		argType.sourceStart,
 		argType.sourceEnd);
 }
+public void illegalVarargInLambda(Argument argType) {
+	String[] arguments = new String[] { CharOperation.toString(argType.type.getTypeName())};
+	this.handle(
+		IProblem.IllegalVarargInLambda,
+		arguments,
+		arguments,
+		argType.sourceStart,
+		argType.sourceEnd);
+}
 public void illegalThisDeclaration(Argument argument) {
 	String[] arguments = NoArgument;
 	this.handle(

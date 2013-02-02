@@ -1335,6 +1335,8 @@ void setSourceStart(int sourceStart);
     int IllegalQualifierForExplicitThis2 = Internal + Syntax + 652;
     /** @since 3.9 */
     int TargetTypeNotAFunctionalInterface = Internal + TypeRelated + 653;
+    /** @since 3.9 */
+    int IllegalVarargInLambda = Internal + TypeRelated + 654;
     
 	/**
 	 * More problems in generics

@@ -550,6 +550,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalUsageOfQualifiedTypeReference", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalUsageOfTypeAnnotations", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalVararg", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("IllegalVarargInLambda", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1284,6 +1285,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalUsageOfQualifiedTypeReference", SKIP);
 		expectedProblemAttributes.put("IllegalUsageOfTypeAnnotations", SKIP);
 		expectedProblemAttributes.put("IllegalVararg", SKIP);
+		expectedProblemAttributes.put("IllegalVarargInLambda", SKIP);
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForField", SKIP);
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForMemberType", SKIP);
 		expectedProblemAttributes.put("IllegalVisibilityModifierCombinationForMethod", SKIP);
