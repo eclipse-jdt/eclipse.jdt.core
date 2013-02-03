@@ -1116,10 +1116,10 @@ public final class AST {
 	}
 
 	/**
-	 * Creates and returns a new unparented annotatable dimension info node
+	 * Creates and returns a new unparented annotatable extra dimension node
 	 * (Supported only in JLS8 level).
 	 *
-	 * @return a new unparented annotatable dimension info node
+	 * @return a new unparented annotatable extra dimension node
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
@@ -1129,8 +1129,8 @@ public final class AST {
 	 *            in a JLS2, JLS3 or JLS4 AST
 	 * @since 3.9
 	 */
-	public DimensionInfo newDimensionInfo() {
-		DimensionInfo result = new DimensionInfo(this);
+	public ExtraDimension newExtraDimension() {
+		ExtraDimension result = new ExtraDimension(this);
 		return result;
 	}
 

@@ -356,12 +356,11 @@ public class ASTMatcher {
 	 *   different node type or is <code>null</code>
 	 * @since 3.9
 	 */
-	public boolean match(DimensionInfo node, Object other) {
-		if (!(other instanceof DimensionInfo))
+	public boolean match(ExtraDimension node, Object other) {
+		if (!(other instanceof ExtraDimension))
 			return false;
-		DimensionInfo o = (DimensionInfo) other;
-		return safeSubtreeListMatch(node.annotations(), o.annotations())
-				&& safeSubtreeMatch(node.expression(), o.expression());
+		ExtraDimension o = (ExtraDimension) other;
+		return safeSubtreeListMatch(node.annotations(), o.annotations());
 	}
 
 	/**
@@ -1425,7 +1424,7 @@ public class ASTMatcher {
 				&& ((node.getAST().apiLevel < AST.JLS8) ?
 							(node.getExtraDimensions() == o.getExtraDimensions()
 								&& safeSubtreeListMatch(node.thrownExceptions(), o.thrownExceptions())) :
-							(safeSubtreeListMatch(node.getExtraDimensionInfos(), o.getExtraDimensionInfos())
+							(safeSubtreeListMatch(node.extraDimensionInfos(), o.extraDimensionInfos())
 								&& safeSubtreeListMatch(node.thrownExceptionTypes(), o.thrownExceptionTypes())))
 				&& safeSubtreeMatch(node.getBody(), o.getBody()));
 	}
@@ -1904,7 +1903,7 @@ public class ASTMatcher {
 				&& safeSubtreeMatch(node.getName(), o.getName())
 	 			&& ((node.getAST().apiLevel < AST.JLS8) ?
 	 					node.getExtraDimensions() == o.getExtraDimensions() :
-	 						safeSubtreeListMatch(node.getExtraDimensionInfos(), o.getExtraDimensionInfos()))
+	 						safeSubtreeListMatch(node.extraDimensionInfos(), o.extraDimensionInfos()))
 				&& safeSubtreeMatch(node.getInitializer(), o.getInitializer())
 				&& (level >= AST.JLS8 && node.isVarargs()) ? safeSubtreeListMatch(node.varargsAnnotations(), o.varargsAnnotations()) : true;		
 	}
@@ -2399,7 +2398,7 @@ public class ASTMatcher {
 		return safeSubtreeMatch(node.getName(), o.getName())
 			&& ((node.getAST().apiLevel < AST.JLS8) ?
 					node.getExtraDimensions() == o.getExtraDimensions() :
-						safeSubtreeListMatch(node.getExtraDimensionInfos(), o.getExtraDimensionInfos()))
+						safeSubtreeListMatch(node.extraDimensionInfos(), o.extraDimensionInfos()))
 			&& safeSubtreeMatch(node.getInitializer(), o.getInitializer());
 	}
 

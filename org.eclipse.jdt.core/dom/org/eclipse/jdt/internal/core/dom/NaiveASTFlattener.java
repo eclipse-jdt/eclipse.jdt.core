@@ -45,7 +45,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.ContinueStatement;
-import org.eclipse.jdt.core.dom.DimensionInfo;
+import org.eclipse.jdt.core.dom.ExtraDimension;
 import org.eclipse.jdt.core.dom.UnionType;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EmptyStatement;
@@ -417,13 +417,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 		return false;
 	}
 
-	public boolean visit(DimensionInfo node) {
+	public boolean visit(ExtraDimension node) {
 		visitAnnotationsList(node.annotations());
-		this.buffer.append("["); //$NON-NLS-1$
-		if (node.expression() != null) {
-			node.expression().accept(this);
-		}
-		this.buffer.append("]"); //$NON-NLS-1$
+		this.buffer.append("[]"); //$NON-NLS-1$
 		return false;
 	}
 
@@ -1050,9 +1046,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append(")");//$NON-NLS-1$
 		int size = node.getExtraDimensions();
 		if (node.getAST().apiLevel() >= AST.JLS8) {
-			List dimensions = node.getExtraDimensionInfos();
+			List dimensions = node.extraDimensionInfos();
 			for (int i = 0; i < size; i++) {
-				visit((DimensionInfo) dimensions.get(i));
+				visit((ExtraDimension) dimensions.get(i));
 			}
 		} else {
 			for (int i = 0; i < size; i++) {
@@ -1394,9 +1390,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 		node.getName().accept(this);
 		int size = node.getExtraDimensions();
 		if (node.getAST().apiLevel() >= AST.JLS8) {
-			List dimensions = node.getExtraDimensionInfos();
+			List dimensions = node.extraDimensionInfos();
 			for (int i = 0; i < size; i++) {
-				visit((DimensionInfo) dimensions.get(i));
+				visit((ExtraDimension) dimensions.get(i));
 			}
 		} else {
 			for (int i = 0; i < size; i++) {
@@ -1823,9 +1819,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 		node.getName().accept(this);
 		int size = node.getExtraDimensions();
 		if (node.getAST().apiLevel() >= AST.JLS8) {
-			List dimensions = node.getExtraDimensionInfos();
+			List dimensions = node.extraDimensionInfos();
 			for (int i = 0; i < size; i++) {
-				visit((DimensionInfo) dimensions.get(i));
+				visit((ExtraDimension) dimensions.get(i));
 			}
 		} else {
 			for (int i = 0; i < size; i++) {

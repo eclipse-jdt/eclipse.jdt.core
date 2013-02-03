@@ -18,12 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The array dimension info node. The array dimension, represented as <b>[]</b>, can have
- * type annotations. It may also include an <code>Expression</code> depending on where it appears.
- * The only node that supports a dimension info with an expression is <code>ArrayCreation</code>.
- * This node type is supported only in JLS8 or later.
+ * The extra dimension node. The extra dimensions, represented as <b>[]</b>, are allowed to have
+ * type annotations. This node type is supported only in JLS8 or later.
  * <p>
- * The dimension info node is used to represent extra dimensions in the following nodes:
+ * The extra dimension node is used to represent extra dimensions in the following nodes:
  * <pre>
  * 	SingleVariableDeclaration
  * 	VariableDeclarationFragment
@@ -31,14 +29,14 @@ import java.util.List;
  * </pre>
  * For JLS8:
  * <pre>
- * DimensionInfo:
- * 	{ Annotations } <b>[</b> [ Expression ] <b>]</b>
+ * ExtraDimension:
+ * 	{ Annotations } <b>[]</b>
  * </pre>
  *</p>
- * @see AST#newDimensionInfo()
+ * @see AST#newExtraDimension()
  * @since 3.9
  */
-public class DimensionInfo extends ASTNode {
+public class ExtraDimension extends ASTNode {
 
 
 	/**
@@ -46,16 +44,7 @@ public class DimensionInfo extends ASTNode {
 	 * @since 3.9
 	 */
 	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
-		new ChildListPropertyDescriptor(DimensionInfo.class, "annotations", Annotation.class, NO_CYCLE_RISK); //$NON-NLS-1$
-
-
-	/**
-	 * The "expression" structural property of this node type (element type: {@link Expression}).
-	 * @since 3.9
-	 */
-	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
-			new ChildPropertyDescriptor(DimensionInfo.class, "expression", Expression.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
-
+		new ChildListPropertyDescriptor(ExtraDimension.class, "annotations", Annotation.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -67,9 +56,8 @@ public class DimensionInfo extends ASTNode {
 
 	static {
 		List propertyList = new ArrayList(3);
-		createPropertyList(DimensionInfo.class, propertyList);
+		createPropertyList(ExtraDimension.class, propertyList);
 		addProperty(ANNOTATIONS_PROPERTY, propertyList);
-		addProperty(EXPRESSION_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
 	}
 
@@ -88,7 +76,7 @@ public class DimensionInfo extends ASTNode {
 	}
 
 	/**
-	 * Create a new instance of DimensionInfo node (Supported only in level
+	 * Create a new instance of ExtraDimension node (Supported only in level
 	 * JLS8 or above).  
 	 *
 	 * @param ast
@@ -96,7 +84,7 @@ public class DimensionInfo extends ASTNode {
 	 *            in a JLS2, JLS3 or JLS4 AST
 	 * @since 3.9
 	 */
-	DimensionInfo(AST ast) {
+	ExtraDimension(AST ast) {
 		super(ast);
 		unsupportedIn2_3_4();
 		this.annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
@@ -118,58 +106,8 @@ public class DimensionInfo extends ASTNode {
 		return this.annotations;
 	}
 
-	private Expression expression = null;
-
-	/**
-	 * Sets the expression to this dimension. This operation will have
-	 * effect only if this dimension info node is part of an array creation
-	 * node.
-	 *
-	 * @param expression the expression for this dimension
-	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
-	 *
-	 * @since 3.9
-	 */
-	public void setExpression(Expression expression) {
-		// an ArrayCreation cannot occur inside a ArrayType - cycles not possible
-		ASTNode oldChild = this.expression;
-		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
-		this.expression = expression;
-		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
-	}
-
-	/**
-	 * Returns the expression in the dimension info or null if not applicable.
-	 *
-	 * @return the expression
-	 * @since 3.9
-	 */
-	public Expression expression() {
-		return this.expression;
-	}
-
 	List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
-	}
-
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
-	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
-		if (property == EXPRESSION_PROPERTY) {
-			if (get) {
-				return expression();
-			} else {
-				setExpression((Expression) child);
-				return null;
-			}
-		}
-		// allow default implementation to flag the error
-		return super.internalGetSetChildProperty(property, get, child);
 	}
 
 	/* (omit javadoc for this method)
@@ -184,7 +122,7 @@ public class DimensionInfo extends ASTNode {
 	}
 
 	int getNodeType0() {
-		return DIMENSION_INFO;
+		return EXTRA_DIMENSION;
 	}
 
 	boolean subtreeMatch0(ASTMatcher matcher, Object other) {
@@ -192,12 +130,9 @@ public class DimensionInfo extends ASTNode {
 	}
 
 	ASTNode clone0(AST target) {
-		DimensionInfo result = new DimensionInfo(target);
+		ExtraDimension result = new ExtraDimension(target);
 		result.annotations.addAll(
 				ASTNode.copySubtrees(target, annotations()));
-		if (this.expression != null) {
-			result.setExpression((Expression)expression().clone(target));
-		}
 		return result;
 	}
 
@@ -205,21 +140,17 @@ public class DimensionInfo extends ASTNode {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			acceptChildren(visitor, this.annotations);
-			if (this.expression != null) {
-				acceptChild(visitor, this.expression);
-			}
 		}
 		visitor.endVisit(this);
 	}
 
 	int treeSize() {
 		int size = memSize()
-				+ this.annotations.listSize()
-				+ (this.expression == null ? 0 : this.expression.treeSize());
+				+ this.annotations.listSize();
 			return size;
 	}
 
 	int memSize() {
-		return BASE_NODE_SIZE + 2 * 4;
+		return BASE_NODE_SIZE + 4;
 	}
 }

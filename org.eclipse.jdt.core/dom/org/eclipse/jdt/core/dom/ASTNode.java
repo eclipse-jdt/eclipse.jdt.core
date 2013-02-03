@@ -774,12 +774,12 @@ public abstract class ASTNode {
 
 	/**
 	 * Node type constant indicating a node of type
-	 * <code>DimensionInfo</code>.
+	 * <code>ExtraDimension</code>.
 	 *
-	 * @see DimensionInfo
+	 * @see ExtraDimension
 	 * @since 3.9
 	 */
-	public static final int DIMENSION_INFO = 85;
+	public static final int EXTRA_DIMENSION = 85;
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -961,8 +961,8 @@ public abstract class ASTNode {
 				return WhileStatement.class;
 			case WILDCARD_TYPE :
 				return WildcardType.class;
-			case DIMENSION_INFO:
-				return DimensionInfo.class;
+			case EXTRA_DIMENSION:
+				return ExtraDimension.class;
 		}
 		throw new IllegalArgumentException();
 	}

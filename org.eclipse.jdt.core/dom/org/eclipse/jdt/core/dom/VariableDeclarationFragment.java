@@ -26,10 +26,10 @@ import java.util.List;
  *    Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
  * </pre>
  * For JLS8, variable fragments and extra dimensions on fragments are allowed to have optional 
- * annotations. The annotatable extra dimensions are represented by {@link DimensionInfo}.
+ * annotations. The annotatable extra dimensions are represented by {@link ExtraDimension}.
  * <pre>
  * VariableDeclarationFragment:
- *    Identifier { DimensionInfo } [ <b>=</b> Expression ]
+ *    Identifier { ExtraDimension } [ <b>=</b> Expression ]
  * </pre>
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
@@ -53,11 +53,11 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 		new SimplePropertyDescriptor(VariableDeclarationFragment.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "extraDimensionInfos" structural property of this node type (child type: {@link DimensionInfo}) (Added in JLS8 API).
+	 * The "extraDimensionInfos" structural property of this node type (child type: {@link ExtraDimension}) (Added in JLS8 API).
 	 * @since 3.9
 	 */
 	public static final ChildListPropertyDescriptor EXTRA_DIMENSION_INFOS_PROPERTY =
-			new ChildListPropertyDescriptor(VariableDeclarationFragment.class, "extraDimensionInfos", DimensionInfo.class, NO_CYCLE_RISK); //$NON-NLS-1$
+			new ChildListPropertyDescriptor(VariableDeclarationFragment.class, "extraDimensionInfos", ExtraDimension.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "initializer" structural property of this node type (child type: {@link Expression}).
@@ -234,7 +234,7 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 */
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == EXTRA_DIMENSION_INFOS_PROPERTY) {
-			return getExtraDimensionInfos();
+			return extraDimensionInfos();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
@@ -352,7 +352,7 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	 *
 	 * @param dimensions the given dimensions
 	 * @since 2.0
-	 * @deprecated In the JLS8 API, see: {@link #getExtraDimensionInfos()}.
+	 * @deprecated In the JLS8 API, see: {@link #extraDimensionInfos()}.
 	 */
 	public void setExtraDimensions(int dimensions) {
 		supportedOnlyIn2_3_4();
@@ -367,11 +367,11 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 	/**
 	 * Returns the live ordered list of extra dimensions with optional annotations (JLS8 API only).
 	 *
-	 * @return the live list of extra dimensions with optional annotations (element type: {@link DimensionInfo})
-	 * @see AST#newDimensionInfo()
+	 * @return the live list of extra dimensions with optional annotations (element type: {@link ExtraDimension})
+	 * @see AST#newExtraDimension()
 	 * @since 3.9
 	 */
-	public List getExtraDimensionInfos() {
+	public List extraDimensionInfos() {
 		unsupportedIn2_3_4();
 		return this.extraDimensionInfos;
 	}
@@ -409,6 +409,6 @@ public class VariableDeclarationFragment extends VariableDeclaration {
 			memSize()
 			+ (this.variableName == null ? 0 : getName().treeSize())
 			+ (this.optionalInitializer == null ? 0 : getInitializer().treeSize())
-			+ (this.extraDimensionInfos == null ? 0 : getExtraDimensionInfos().size());
+			+ (this.extraDimensionInfos == null ? 0 : extraDimensionInfos().size());
 	}
 }

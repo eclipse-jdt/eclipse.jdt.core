@@ -3055,9 +3055,9 @@ class ASTConverter {
 		return variableDecl;
 	}
 
-	private DimensionInfo convertToDimensionInfo(int start, int end, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotation) {
+	private ExtraDimension convertToExtraDimensions(int start, int end, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotation) {
 		int length = annotation == null ? 0 : annotation.length;
-		DimensionInfo dimension = this.ast.newDimensionInfo();
+		ExtraDimension dimension = this.ast.newExtraDimension();
 		for (int i = 0; i < length; i++) {
 			Annotation annot = convert(annotation[i]);
 			dimension.annotations.add(annot);
@@ -3160,7 +3160,7 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDims = type.getAnnotationsOnDimensions();
 			int length = (annotationsOnDims == null) ? 0 : annotationsOnDims.length;
 			for (int i = (length - extraDimension); i < length; i++) {
-				DimensionInfo dim = convertToDimensionInfo(start, end, (annotationsOnDims == null) ? null : annotationsOnDims[i]);
+				ExtraDimension dim = convertToExtraDimensions(start, end, (annotationsOnDims == null) ? null : annotationsOnDims[i]);
 				extraAnnotatedDimensions.add(dim);
 				start = dim.getStartPosition() + dim.getLength();
 			}
@@ -4463,7 +4463,7 @@ class ASTConverter {
 		return dimensions;
 	}
 
-	protected void retrieveDimensionAndSetPositions(int start, int end, DimensionInfo dim) {
+	protected void retrieveDimensionAndSetPositions(int start, int end, ExtraDimension dim) {
 		this.scanner.resetTo(start, end);
 		int token;
 		boolean startSet = false;

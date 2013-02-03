@@ -54,14 +54,14 @@ import java.util.List;
  *        [<b>throws</b> TypeName { <b>,</b> TypeName } ] Block
  * </pre>
  * For JLS8 optional receiver parameter is added and extra dimensions are allowed to have 
- * type annotations. The annotatable extra dimensions are represented by {@link DimensionInfo}.
+ * type annotations. The annotatable extra dimensions are represented by {@link ExtraDimension}.
  * <pre>
  * MethodDeclaration:
  *    [ Javadoc ] { ExtendedModifier }
  *		  [ <b>&lt;</b> TypeParameter { <b>,</b> TypeParameter } <b>&gt;</b> ]
  *        ( Type | <b>void</b> ) Identifier <b>(</b>
  *        	[ ReceiverParameter ]
- *         	[ <b>, </b> FormalParameter { <b>,</b> FormalParameter } ] <b>)</b> { DimensionInfo }
+ *         	[ <b>, </b> FormalParameter { <b>,</b> FormalParameter } ] <b>)</b> { ExtraDimension }
  *        [ <b>throws</b> TypeName { <b>,</b> TypeName } ] ( Block | <b>;</b> )
  * ConstructorDeclaration:
  *    [ Javadoc ] { ExtendedModifier }
@@ -148,11 +148,11 @@ public class MethodDeclaration extends BodyDeclaration {
 		new SimplePropertyDescriptor(MethodDeclaration.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
 	
 	/**
-	 * The "extraDimensionInfos" structural property of this node type (child type: {@link DimensionInfo}) (added in JLS8 API).
+	 * The "extraDimensionInfos" structural property of this node type (child type: {@link ExtraDimension}) (added in JLS8 API).
 	 * @since 3.9
 	 */
 	public static final ChildListPropertyDescriptor EXTRA_DIMENSION_INFOS_PROPERTY =
-			new ChildListPropertyDescriptor(MethodDeclaration.class, "extraDimensionInfos", DimensionInfo.class, NO_CYCLE_RISK); //$NON-NLS-1$
+			new ChildListPropertyDescriptor(MethodDeclaration.class, "extraDimensionInfos", ExtraDimension.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "typeParameters" structural property of this node type (element type: {@link TypeParameter}) (added in JLS3 API).
@@ -536,7 +536,7 @@ public class MethodDeclaration extends BodyDeclaration {
 			return thrownExceptionTypes();
 		}		
 		if (property == EXTRA_DIMENSION_INFOS_PROPERTY) {
-			return getExtraDimensionInfos();
+			return extraDimensionInfos();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
@@ -1052,7 +1052,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @exception IllegalArgumentException if the number of dimensions is
 	 *    negative
 	 * @since 2.1
-	 * @deprecated In the JLS8 API, use: {@link #getExtraDimensionInfos()}.
+	 * @deprecated In the JLS8 API, use: {@link #extraDimensionInfos()}.
 	 */
 	public void setExtraDimensions(int dimensions) {
 		supportedOnlyIn2_3_4();
@@ -1067,10 +1067,10 @@ public class MethodDeclaration extends BodyDeclaration {
 	/**
 	 * Returns the live ordered list of extra dimensions with optional annotations (JLS8 API only).
 	 * 
-	 * @return the live list of extra dimensions with optional annotations (element type: {@link DimensionInfo})
+	 * @return the live list of extra dimensions with optional annotations (element type: {@link ExtraDimension})
 	 * @since 3.9
 	 */
-	public List getExtraDimensionInfos() {
+	public List extraDimensionInfos() {
 		unsupportedIn2_3_4();
 		return this.extraDimensionInfos;
 	}

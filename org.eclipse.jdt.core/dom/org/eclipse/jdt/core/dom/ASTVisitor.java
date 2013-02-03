@@ -216,7 +216,7 @@ public abstract class ASTVisitor {
 	 * be skipped
 	 * @since 3.9
 	 */
-	public boolean visit(DimensionInfo node) {
+	public boolean visit(ExtraDimension node) {
 		return true;
 	}
 
@@ -1622,7 +1622,7 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 * @since 3.9
 	 */
-	public void endVisit(DimensionInfo node) {
+	public void endVisit(ExtraDimension node) {
 		// do nothing by default
 	}
 

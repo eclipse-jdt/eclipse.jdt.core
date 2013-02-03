@@ -37,10 +37,10 @@ import java.util.List;
  *    { ExtendedModifier } Type [ <b>...</b> ] Identifier { <b>[</b><b>]</b> } [ <b>=</b> Expression ]
  * </pre>
  * For JLS8, variable declarations and extra dimensions on variable declarations are allowed to 
- * have optional annotations. The annotatable extra dimensions are represented by {@link DimensionInfo}.
+ * have optional annotations. The annotatable extra dimensions are represented by {@link ExtraDimension}.
  * <pre>
  * SingleVariableDeclaration:
- *    { ExtendedModifier } Type {Annotation} [ <b>...</b> ] Identifier { DimensionInfo } [ <b>=</b> Expression ]
+ *    { ExtendedModifier } Type {Annotation} [ <b>...</b> ] Identifier { ExtraDimension } [ <b>=</b> Expression ]
  * </pre>
  *
  * @since 2.0
@@ -100,11 +100,11 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 		new SimplePropertyDescriptor(SingleVariableDeclaration.class, "extraDimensions", int.class, MANDATORY); //$NON-NLS-1$
 
 	/**
-	 * The "extraDimensionInfos" structural property of this node type (child type: {@link DimensionInfo}) (added in JLS8 API).
+	 * The "extraDimensionInfos" structural property of this node type (child type: {@link ExtraDimension}) (added in JLS8 API).
 	 * @since 3.9
 	 */
 	public static final ChildListPropertyDescriptor EXTRA_DIMENSION_INFOS_PROPERTY =
-			new ChildListPropertyDescriptor(SingleVariableDeclaration.class, "extraDimensionInfos", DimensionInfo.class, NO_CYCLE_RISK); //$NON-NLS-1$
+			new ChildListPropertyDescriptor(SingleVariableDeclaration.class, "extraDimensionInfos", ExtraDimension.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "initializer" structural property of this node type (child type: {@link Expression}).
@@ -389,7 +389,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 			return varargsAnnotations();
 		}
 		if (property == EXTRA_DIMENSION_INFOS_PROPERTY) {
-			return getExtraDimensionInfos();
+			return extraDimensionInfos();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
@@ -684,7 +684,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * @exception IllegalArgumentException if the number of dimensions is
 	 *    negative
 	 * @since 2.1
-	 * @deprecated In the JLS8 API, see: {@link #getExtraDimensionInfos()}.
+	 * @deprecated In the JLS8 API, see: {@link #extraDimensionInfos()}.
 	 */
 	public void setExtraDimensions(int dimensions) {
 		supportedOnlyIn2_3_4();
@@ -699,10 +699,10 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/**
 	 * Returns the live ordered list of extra dimensions with optional annotations (JLS8 API only).
 	 *
-	 * @return the live list of extra dimensions with optional annotations (element type: {@link DimensionInfo})
+	 * @return the live list of extra dimensions with optional annotations (element type: {@link ExtraDimension})
 	 * @since 3.9
 	 */
-	public List getExtraDimensionInfos() {
+	public List extraDimensionInfos() {
 		unsupportedIn2_3_4();
 		return this.extraDimensionInfos;
 	}
