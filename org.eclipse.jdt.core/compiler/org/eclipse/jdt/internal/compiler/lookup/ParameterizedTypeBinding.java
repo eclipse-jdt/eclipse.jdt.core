@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1146,5 +1146,66 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	
 	public FieldBinding[] unResolvedFields() {
 		return this.fields;
+	}
+	public MethodBinding getSingleAbstractMethod(final Scope scope) {
+		MethodBinding theAbstractMethod = genericType().getSingleAbstractMethod(scope);
+		if (theAbstractMethod == null || !theAbstractMethod.isValidBinding())
+			return theAbstractMethod;
+		
+		TypeBinding [] typeArguments = this.arguments; // A1 ... An 
+		TypeVariableBinding [] typeParameters = genericType().typeVariables(); // P1 ... Pn
+		TypeBinding [] types = new TypeBinding[typeArguments.length];  // T1 ... Tn
+		for (int i = 0, length = typeArguments.length; i < length; i++) {
+			TypeBinding typeArgument = typeArguments[i];
+			switch (typeArgument.kind()) {
+				case Binding.WILDCARD_TYPE :
+					WildcardBinding wildcard = (WildcardBinding) typeArgument;
+					switch(wildcard.boundKind) {
+	    				case Wildcard.EXTENDS :
+	    				case Wildcard.SUPER :
+	    					types[i] = wildcard.bound;
+	    					break;
+	    				case Wildcard.UNBOUND :
+	    					// if Pi has upper bound Bi that mentions none of P1...Pn, then Ti = Bi; otherwise, Ti = Object
+	    					final TypeBinding upperBound = typeParameters[i].firstBound;
+							if (upperBound == null || typeParametersMentioned(upperBound)) {
+	    						types[i] = scope.getJavaLangObject();
+	    					} else {
+	    						types[i] = upperBound;
+	    					}
+	    					break;
+					}
+					break;
+				default :
+					types[i] = typeArgument;
+					break;
+			}
+			if (typeParameters[i].boundCheck(null, types[i]) != TypeConstants.OK)
+				return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NoSuchSingleAbstractMethod);
+		}
+		ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(genericType(), types, this.enclosingType);
+		return this.singleAbstractMethod = new ParameterizedMethodBinding(parameterizedType, theAbstractMethod);
+	}
+
+	private boolean typeParametersMentioned(TypeBinding upperBound) {
+		class MentionListener implements Substitution {
+			private boolean typeParametersMentioned = false;
+			public TypeBinding substitute(TypeVariableBinding typeVariable) {
+				this.typeParametersMentioned = true;
+				return typeVariable;
+			}
+			public boolean isRawSubstitution() {
+				return false;
+			}
+			public LookupEnvironment environment() {
+				return null;
+			}
+			public boolean typeParametersMentioned() {
+				return this.typeParametersMentioned;
+			}
+		}
+		MentionListener mentionListener = new MentionListener();
+		Scope.substitute(mentionListener, upperBound);
+		return mentionListener.typeParametersMentioned();
 	}
 }

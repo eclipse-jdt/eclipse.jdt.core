@@ -1230,10 +1230,11 @@ public TypeVariableBinding[] typeVariables() {
 
 /**
  * Return the single abstract method of a functional interface, or null, if the receiver is not a functional interface as defined in JLS 9.8.
+ * @param scope scope
  *  
  * @return The single abstract method of a functional interface, or null, if the receiver is not a functional interface. 
  */
-public MethodBinding getSingleAbstractMethod() {
+public MethodBinding getSingleAbstractMethod(Scope scope) {
 	return null;
 }
 

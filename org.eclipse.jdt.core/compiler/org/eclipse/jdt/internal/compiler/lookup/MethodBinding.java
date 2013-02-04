@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1182,5 +1182,18 @@ public boolean hasNonNullDefault() {
 	if ((this.tagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0)
 		return false;
 	return this.declaringClass.hasNonNullDefault();
+}
+
+public boolean redeclaresPublicObjectMethod(Scope scope) {
+	ReferenceBinding javaLangObject = scope.getJavaLangObject();
+	MethodBinding [] methods = javaLangObject.getMethods(this.selector);
+	for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++) {
+		final MethodBinding method = methods[i];
+		if (!method.isPublic() || method.isStatic() || method.parameters.length != this.parameters.length) 
+			continue;
+		if (MethodVerifier.doesMethodOverride(this, method, scope.environment())) 
+			return true;
+	}
+	return false;
 }
 }

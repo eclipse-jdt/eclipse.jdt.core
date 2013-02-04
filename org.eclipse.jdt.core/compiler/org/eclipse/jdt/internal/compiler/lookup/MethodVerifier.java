@@ -39,8 +39,7 @@ public abstract class MethodVerifier extends ImplicitNullAnnotationVerifier {
 	HashtableOfObject inheritedMethods;
 	HashtableOfObject currentMethods;
 	LookupEnvironment environment;
-	private boolean allowCompatibleReturnTypes;
-/*
+	/*
 Binding creation is responsible for reporting all problems with types:
 	- all modifier problems (duplicates & multiple visibility modifiers + incompatible combinations - abstract/final)
 		- plus invalid modifiers given the context (the verifier did not do this before)
@@ -63,9 +62,6 @@ MethodVerifier(LookupEnvironment environment) {
 	this.inheritedMethods = null;
 	this.currentMethods = null;
 	this.environment = environment;
-	this.allowCompatibleReturnTypes =
-		environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_5
-			&& environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_5;
 }
 boolean areMethodsCompatible(MethodBinding one, MethodBinding two) {
 	return areMethodsCompatible(one, two, this.environment);
@@ -81,26 +77,21 @@ static boolean areMethodsCompatible(MethodBinding one, MethodBinding two, Lookup
 	return isParameterSubsignature(one, two, environment);
 }
 boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two) {
-	if (one.returnType == two.returnType) return true;
-
-	if (areTypesEqual(one.returnType, two.returnType)) return true;
-
-	// when sourceLevel < 1.5 but compliance >= 1.5, allow return types in binaries to be compatible instead of just equal
-	if (this.allowCompatibleReturnTypes &&
-			one.declaringClass instanceof BinaryTypeBinding &&
-			two.declaringClass instanceof BinaryTypeBinding) {
-		return areReturnTypesCompatible0(one, two);
-	}
-	return false;
+	return areReturnTypesCompatible(one, two, this.type.scope.environment());
 }
-boolean areReturnTypesCompatible0(MethodBinding one, MethodBinding two) {
-	// short is compatible with int, but as far as covariance is concerned, its not
-	if (one.returnType.isBaseType()) return false;
+static boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two, LookupEnvironment environment) {
+	if (one.returnType == two.returnType) return true;
+	if (environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_5) {
+		// short is compatible with int, but as far as covariance is concerned, its not
+		if (one.returnType.isBaseType()) return false;
 
-	if (!one.declaringClass.isInterface() && one.declaringClass.id == TypeIds.T_JavaLangObject)
-		return two.returnType.isCompatibleWith(one.returnType); // interface methods inherit from Object
+		if (!one.declaringClass.isInterface() && one.declaringClass.id == TypeIds.T_JavaLangObject)
+			return two.returnType.isCompatibleWith(one.returnType); // interface methods inherit from Object
 
-	return one.returnType.isCompatibleWith(two.returnType);
+		return one.returnType.isCompatibleWith(two.returnType);
+	} else {
+		return areTypesEqual(one.returnType.erasure(), two.returnType.erasure());
+	}
 }
 boolean canSkipInheritedMethods() {
 	if (this.type.superclass() != null && this.type.superclass().isAbstract())

@@ -40,14 +40,6 @@ class MethodVerifier15 extends MethodVerifier {
 MethodVerifier15(LookupEnvironment environment) {
 	super(environment);
 }
-boolean areReturnTypesCompatible(MethodBinding one, MethodBinding two) {
-	if (one.returnType == two.returnType) return true;
-	if (this.type.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-		return areReturnTypesCompatible0(one, two);
-	} else {
-		return areTypesEqual(one.returnType.erasure(), two.returnType.erasure());
-	}
-}
 // Given `overridingMethod' which overrides `inheritedMethod' answer whether some subclass method that
 // differs in erasure from overridingMethod could override `inheritedMethod'
 protected boolean canOverridingMethodDifferInErasure(MethodBinding overridingMethod, MethodBinding inheritedMethod) {

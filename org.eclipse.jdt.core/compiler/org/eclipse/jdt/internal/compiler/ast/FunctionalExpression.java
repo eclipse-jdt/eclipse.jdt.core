@@ -47,7 +47,7 @@ public abstract class FunctionalExpression extends Expression {
 	
 	public /* @NonNull */ TypeBinding resolveType(BlockScope blockScope) {
 		this.constant = Constant.NotAConstant;
-		this.singleAbstractMethod = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod();
+		this.singleAbstractMethod = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope);
 		if (this.singleAbstractMethod == null || !this.singleAbstractMethod.isValidBinding()) {
 			blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
 			char [][] name = this.expectedType == null ? CharOperation.NO_CHAR_CHAR : CharOperation.splitOn('.', this.expectedType.shortReadableName());
