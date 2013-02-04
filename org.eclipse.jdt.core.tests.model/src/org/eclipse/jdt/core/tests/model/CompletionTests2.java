@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6045,6 +6045,59 @@ public void testBug397070() throws JavaModelException {
 		assertNull("Incorrect syper class signature", type.getSuperclassTypeSignature());
 	} catch (IllegalArgumentException iae) {
 		fail("Invalid completion context");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392581
+public void testBug392581() throws CoreException {
+	try {
+		// Create project and jar
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+		createFolder("/P/src/p");
+		refresh(p);
+		// Create working copy
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/p/B.java",
+				"class A {\n" +
+				"	protected String foo1(){\n" +
+				"		return \"From A\";\n" +
+				"  }\n" +
+				"}\n" +
+				"public class B extends A {\n" +
+				"	@Override\n" +
+				"	protected String foo1() {\n" +
+				"  		super. \n" +
+				"	}\n" +
+				"}");
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeVisibleElements(true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+
+	    String str = this.workingCopies[0].getSource();
+	    String completeBehind = "super.";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+	    
+	    assertResults(
+	    	"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
+	    	+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
+	    	+ "finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
+	    	+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
+	    	+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
+	    	+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
+	    	+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
+	    	+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
+	    	+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
+	    	+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
+	    	+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
+	    	+ "foo1[METHOD_REF]{foo1(), Lp.A;, ()Ljava.lang.String;, foo1, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED + R_EXACT_NAME + R_METHOD_OVERIDE) + "}",
+	    	requestor.getResults());
+	} finally {
+		deleteProject("P");
 	}
 }
 }
