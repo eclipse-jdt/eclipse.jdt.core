@@ -34,7 +34,7 @@ private static final String GUAVA_CLOSEABLES_CONTENT = "package com.google.commo
 	"}\n";
 
 static {
-//	TESTS_NAMES = new String[] { "testBug395977" };
+//	TESTS_NAMES = new String[] { "testBug376053" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -4363,6 +4363,48 @@ public void testBug395977_2() {
 		"	m_Writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"))\n" + 
 		"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
+
+// Bug 376053 - [compiler][resource] Strange potential resource leak problems
+// include line number when reporting against <unassigned Closeable value>
+public void testBug376053() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"Try.java",
+			"package xy;\n" + 
+			"\n" + 
+			"import java.io.FileNotFoundException;\n" + 
+			"import java.io.PrintStream;\n" + 
+			"\n" + 
+			"public class Try {\n" + 
+			"    public static void main(String[] args) throws FileNotFoundException {\n" + 
+			"        System.setOut(new PrintStream(\"log.txt\"));\n" + 
+			"        \n" + 
+			"        if (Math.random() > .5) {\n" + 
+			"            return;\n" + 
+			"        }\n" + 
+			"        System.out.println(\"Hello World\");\n" + 
+			"        return;\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in Try.java (at line 11)\n" + 
+		"	return;\n" + 
+		"	^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value from line 8>\' may not be closed at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in Try.java (at line 14)\n" + 
+		"	return;\n" + 
+		"	^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value from line 8>\' may not be closed at this location\n" + 
 		"----------\n",
 		null,
 		true,

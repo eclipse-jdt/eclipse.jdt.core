@@ -25,6 +25,7 @@
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *								bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 376053 - [compiler][resource] Strange potential resource leak problems
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
@@ -8377,7 +8378,7 @@ public void redundantSpecificationOfTypeArguments(ASTNode location, TypeBinding[
     }
 }
 public void potentiallyUnclosedCloseable(FakedTrackingVariable trackVar, ASTNode location) {
-	String[] args = { String.valueOf(trackVar.name) };
+	String[] args = { trackVar.nameForReporting(location, this.referenceContext) };
 	if (location == null) {
 		this.handle(
 			IProblem.PotentiallyUnclosedCloseable,
