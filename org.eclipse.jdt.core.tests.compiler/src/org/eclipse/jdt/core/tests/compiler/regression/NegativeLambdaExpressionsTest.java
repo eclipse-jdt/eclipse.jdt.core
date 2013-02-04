@@ -51,7 +51,14 @@ public void test001() {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	I i = () -> {\n" + 
+			"      int z = 10;\n" + 
+			"    };\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
 			"	i++;\n" + 
 			"	^^^\n" + 
 			"Type mismatch: cannot convert from I to int\n" + 
@@ -121,7 +128,12 @@ public void test004() {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	IX i = () -> 42;\n" + 
+			"	             ^^\n" + 
+			"Void methods cannot return a value\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
 			"	int x\n" + 
 			"	    ^\n" + 
 			"Syntax error, insert \";\" to complete FieldDeclaration\n" + 

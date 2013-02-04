@@ -19,16 +19,21 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
@@ -45,48 +50,144 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 	
 	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
 		this.compilationResult = compilationResult;
-		this.arguments = arguments;
+		this.arguments = arguments != null ? arguments : ASTNode.NO_ARGUMENTS;
 		this.body = body;
 	}
 	
+	/* This code is arranged so that we can continue with as much analysis as possible while avoiding 
+	 * mine fields that would result in a slew of spurious messages. This method is a merger of:
+	 * @see org.eclipse.jdt.internal.compiler.lookup.MethodScope.createMethod(AbstractMethodDeclaration)
+	 * @see org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding.resolveTypesFor(MethodBinding)
+	 * @see org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration.resolve(ClassScope)
+	 */
 	public TypeBinding resolveType(BlockScope blockScope) {
-		super.resolveType(blockScope);
-		this.scope = new MethodScope(blockScope, this, blockScope.methodScope().isStatic);
-		this.binding = this.scope.createAnonymousMethodBinding(this);
-		if (this.functionalInterfaceType.isValidBinding()) {
-			this.binding.thrownExceptions = computeKosherThrowables();
-			// Resolve arguments, validate signature ...
-			if (this.arguments != null && this.singleAbstractMethod != null) {
-				int parameterCount = this.singleAbstractMethod.parameters != null ? this.singleAbstractMethod.parameters.length : 0;
-				int lambdaArgumentCount = this.arguments != null ? this.arguments.length : 0;
+		
+		super.resolveType(blockScope); // compute & capture interface function descriptor in singleAbstractMethod.
+		
+		final boolean argumentsTypeElided = argumentsTypeElided();
+		final boolean haveDescriptor = this.singleAbstractMethod != null;
+		
+		if (!haveDescriptor && argumentsTypeElided) 
+			return null; // FUBAR, bail out...
 
-				if (parameterCount == lambdaArgumentCount) {
-					for (int i = 0, length = this.arguments.length; i < length; i++) {
-						Argument argument = this.arguments[i];
-						if (argument.type != null) {
-							argument.resolve(this.scope); // TODO: Check it!
-						} else {
-							argument.bind(this.scope, this.singleAbstractMethod.parameters[i], false);
-						}
+		this.scope = new MethodScope(blockScope, this, blockScope.methodScope().isStatic);
+		
+		this.binding = new MethodBinding(ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccUnresolved,
+							haveDescriptor ? this.singleAbstractMethod.selector : TypeConstants.ANONYMOUS_METHOD, 
+							haveDescriptor ? this.singleAbstractMethod.returnType : null, 
+							Binding.NO_PARAMETERS, // for now. 
+							haveDescriptor ? this.singleAbstractMethod.thrownExceptions : Binding.NO_EXCEPTIONS, 
+							null); // declaring class.
+		this.binding.typeVariables = Binding.NO_TYPE_VARIABLES; // descriptor may have type variables, but they are useless in lambda and lambda cannot be generic.
+		
+		if (haveDescriptor) {
+			int descriptorParameterCount = this.singleAbstractMethod.parameters.length;
+			int lambdaArgumentCount = this.arguments != null ? this.arguments.length : 0;
+            if (descriptorParameterCount != lambdaArgumentCount) {
+            	this.scope.problemReporter().lambdaSignatureMismatched(this);
+            	if (argumentsTypeElided) 
+            		return null; // FUBAR, bail out ...
+            }
+		}
+		
+		boolean buggyArguments = false;
+		int length = this.arguments == null ? 0 : this.arguments.length;
+		TypeBinding[] newParameters = new TypeBinding[length];
+
+		AnnotationBinding [][] parameterAnnotations = null;
+		for (int i = 0; i < length; i++) {
+			Argument argument = this.arguments[i];
+			if (argument.isVarArgs()) {
+				if (i == length - 1) {
+					this.binding.modifiers |= ClassFileConstants.AccVarargs;
+				} else {
+					this.scope.problemReporter().illegalVarargInLambda(argument);
+					buggyArguments = true;
+				}
+			}
+			if (argument.annotations != null) {
+				this.binding.tagBits |= TagBits.HasParameterAnnotations;
+				if (parameterAnnotations == null) {
+					parameterAnnotations = new AnnotationBinding[length][];
+					for (int j = 0; j < i; j++) {
+						parameterAnnotations[j] = Binding.NO_ANNOTATIONS;
 					}
-				} /* TODO: else complain */
+				}
+				parameterAnnotations[i] = argument.binding.getAnnotations();
+			} else if (parameterAnnotations != null) {
+				parameterAnnotations[i] = Binding.NO_ANNOTATIONS;
+			}
+			
+			TypeBinding parameterType;
+			final TypeBinding expectedParameterType = this.singleAbstractMethod.parameters[i];
+			parameterType = argumentsTypeElided ? expectedParameterType : argument.type.resolveType(this.scope, true /* check bounds*/);
+			if (parameterType == null) {
+				buggyArguments = true;
+			} else if (parameterType == TypeBinding.VOID) {
+				this.scope.problemReporter().argumentTypeCannotBeVoid(this, argument);
+				buggyArguments = true;
+			} else {
+				if (!parameterType.isValidBinding()) {
+					this.binding.tagBits |= TagBits.HasUnresolvedArguments;
+				}
+				if ((parameterType.tagBits & TagBits.HasMissingType) != 0) {
+					this.binding.tagBits |= TagBits.HasMissingType;
+				}
+				if (haveDescriptor && parameterType != expectedParameterType) {
+					this.scope.problemReporter().lambdaParameterTypeMismatched(argument, argument.type, expectedParameterType);
+				}
+
+				TypeBinding leafType = parameterType.leafComponentType();
+				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+					this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+				newParameters[i] = parameterType;
+				argument.bind(this.scope, parameterType, false);
 			}
 		}
+		// only assign parameters if no problems are found
+		if (!buggyArguments) {
+			this.binding.parameters = newParameters;
+			if (parameterAnnotations != null)
+				this.binding.setParameterAnnotations(parameterAnnotations);
+		}
+	
+		if (!argumentsTypeElided && this.binding.isVarargs()) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
+			if (!this.binding.parameters[this.binding.parameters.length - 1].isReifiable()) {
+				this.scope.problemReporter().possibleHeapPollutionFromVararg(this.arguments[this.arguments.length - 1]);
+			}
+		}
+
+		ReferenceBinding [] exceptions = this.binding.thrownExceptions;
+		length = exceptions.length;
+		for (int i = 0; i < length; i++) {
+			ReferenceBinding exception = exceptions[i];
+			if ((exception.tagBits & TagBits.HasMissingType) != 0) {
+				this.binding.tagBits |= TagBits.HasMissingType;
+			}
+			this.binding.modifiers |= (exception.modifiers & ExtraCompilerModifiers.AccGenericSignature);
+		}
+		
+		TypeBinding returnType = this.binding.returnType;
+		if ((returnType.tagBits & TagBits.HasMissingType) != 0) {
+			this.binding.tagBits |= TagBits.HasMissingType;
+		}
+		TypeBinding leafType = returnType.leafComponentType();
+		if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+			this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+
+		this.binding.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+		
 		if (this.body instanceof Expression) {
 			Expression expression = (Expression) this.body;
-			if (this.functionalInterfaceType.isValidBinding()) {
-				expression.setExpectedType(this.singleAbstractMethod.returnType); // chain expected type for any nested lambdas.
-				/* TypeBinding expressionType = */ expression.resolveType(this.scope);
-				// TODO: checkExpressionResult(singleAbstractMethod.returnType, expression, expressionType);
-			}
+			new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd, true).resolve(this.scope); // :-) ;-)
 		} else {
 			this.body.resolve(this.scope);
 		}
-		return this.functionalInterfaceType;
+		return this.resolvedType;
 	}
 	
-	private ReferenceBinding[] computeKosherThrowables() {
-		return this.singleAbstractMethod == null || !this.singleAbstractMethod.isValidBinding() ? Binding.NO_EXCEPTIONS : this.singleAbstractMethod.thrownExceptions; // for now.
+	private boolean argumentsTypeElided() {
+		return this.arguments.length > 0 && this.arguments[0].hasElidedType();
 	}
 
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, final FlowInfo flowInfo) {
@@ -94,7 +195,7 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 		if (this.ignoreFurtherInvestigation) 
 			return flowInfo;
 		
-		FlowInfo lambdaInfo = flowInfo.copy(); // occurrence context immune to data flow inside lambda.
+		FlowInfo lambdaInfo = flowInfo.copy(); // what happens in vegas, stays in vegas ...
 		ExceptionHandlingFlowContext methodContext =
 				new ExceptionHandlingFlowContext(
 						flowContext,

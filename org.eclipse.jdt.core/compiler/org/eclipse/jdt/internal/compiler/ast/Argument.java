@@ -110,6 +110,10 @@ public class Argument extends LocalDeclaration {
 	public boolean isVarArgs() {
 		return this.type != null &&  (this.type.bits & IsVarArgs) != 0;
 	}
+	
+	public boolean hasElidedType() {
+		return (this.bits & IsTypeElided) != 0;
+	}
 
 	public StringBuffer print(int indent, StringBuffer output) {
 

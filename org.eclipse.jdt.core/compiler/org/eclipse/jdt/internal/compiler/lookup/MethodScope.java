@@ -387,27 +387,6 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 	return method.binding;
 }
 
-public MethodBinding createAnonymousMethodBinding(LambdaExpression lambda) {
-	
-	SourceTypeBinding declaringClass = null; // for now.
-	int modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccUnresolved;
-	MethodBinding binding = new MethodBinding(modifiers, TypeConstants.ANONYMOUS_METHOD, null, null, null, declaringClass);
-
-	Argument[] arguments = lambda.arguments;
-	int argLength = arguments == null ? 0 : arguments.length;
-	if (argLength > 0) {
-		Argument argument = arguments[--argLength];
-		if (argument.isVarArgs())
-			binding.modifiers |= ClassFileConstants.AccVarargs;
-		while (--argLength >= 0) {
-			argument = arguments[argLength];
-			if (argument.isVarArgs())
-				problemReporter().illegalVarargInLambda(argument);
-		}
-	}
-	return binding;
-}
-
 /**
  * Overridden to detect the error case inside an explicit constructor call:
 class X {

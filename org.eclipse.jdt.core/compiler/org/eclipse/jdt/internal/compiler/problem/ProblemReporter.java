@@ -939,8 +939,8 @@ public void anonymousClassCannotExtendFinalClass(TypeReference reference, TypeBi
 		reference.sourceStart,
 		reference.sourceEnd);
 }
-public void argumentTypeCannotBeVoid(SourceTypeBinding type, AbstractMethodDeclaration methodDecl, Argument arg) {
-	String[] arguments = new String[] {new String(methodDecl.selector), new String(arg.name)};
+public void argumentTypeCannotBeVoid(ASTNode methodDecl, Argument arg) {
+	String[] arguments = new String[] { new String(arg.name) };
 	this.handle(
 		IProblem.ArgumentTypeCannotBeVoid,
 		arguments,
@@ -1282,6 +1282,34 @@ public void targetTypeIsNotAFunctionalInterface(ASTNode target) {
 		NoArgument,
 		target.sourceStart,
 		target.sourceEnd);
+}
+public void illFormedParameterizationOfFunctionalInterface(ASTNode target) {
+	this.handle(
+		IProblem.illFormedParameterizationOfFunctionalInterface,
+		NoArgument,
+		NoArgument,
+		target.sourceStart,
+		target.sourceEnd);
+}
+public void lambdaSignatureMismatched(ASTNode target) {
+	this.handle(
+		IProblem.lambdaSignatureMismatched,
+		NoArgument,
+		NoArgument,
+		target.sourceStart,
+		target.sourceEnd);
+}
+
+public void lambdaParameterTypeMismatched(Argument argument, TypeReference type, TypeBinding expectedParameterType) {
+	String name = new String(argument.name);
+	String expectedTypeFullName = new String(expectedParameterType.readableName());
+	String expectedTypeShortName = new String(expectedParameterType.shortReadableName());
+	this.handle(
+			IProblem.lambdaParameterTypeMismatched,
+			new String[] { name, expectedTypeFullName },
+			new String[] { name, expectedTypeShortName },
+			type.sourceStart,
+			type.sourceEnd);
 }
 public void caseExpressionMustBeConstant(Expression expression) {
 	this.handle(
@@ -8830,4 +8858,5 @@ public void dereferencingNullableExpression(Expression expression, LookupEnviron
 	this.handle(IProblem.DereferencingNullableExpression, arguments, arguments, expression.sourceStart, expression.sourceEnd);
 	
 }
+
 }

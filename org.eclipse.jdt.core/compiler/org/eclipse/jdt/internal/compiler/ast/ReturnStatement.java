@@ -38,11 +38,17 @@ public class ReturnStatement extends Statement {
 	public SubRoutineStatement[] subroutines;
 	public LocalVariableBinding saveValueVariable;
 	public int initStateIndex = -1;
+	private boolean implicitReturn;
 
 public ReturnStatement(Expression expression, int sourceStart, int sourceEnd) {
+	this(expression, sourceStart, sourceEnd, false);
+}
+
+public ReturnStatement(Expression expression, int sourceStart, int sourceEnd, boolean implicitReturn) {
 	this.sourceStart = sourceStart;
 	this.sourceEnd = sourceEnd;
-	this.expression = expression ;
+	this.expression = expression;
+	this.implicitReturn = implicitReturn;
 }
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {	// here requires to generate a sequence of finally blocks invocations depending corresponding
@@ -272,7 +278,10 @@ public void resolve(BlockScope scope) {
 		// the expression should be null
 		if (this.expression == null)
 			return;
-		if ((expressionType = this.expression.resolveType(scope)) != null)
+		expressionType = this.expression.resolveType(scope);
+		if (this.implicitReturn && expressionType == TypeBinding.VOID)
+			return;
+		if (expressionType != null)
 			scope.problemReporter().attemptToReturnNonVoidExpression(this, expressionType);
 		return;
 	}

@@ -1337,7 +1337,12 @@ void setSourceStart(int sourceStart);
     int TargetTypeNotAFunctionalInterface = Internal + TypeRelated + 653;
     /** @since 3.9 */
     int IllegalVarargInLambda = Internal + TypeRelated + 654;
-    
+    /** @since 3.9 */
+    int illFormedParameterizationOfFunctionalInterface = Internal + TypeRelated + 655;
+    /** @since 3.9 */
+    int lambdaSignatureMismatched = Internal + TypeRelated + 656;
+    /** @since 3.9 */
+    int lambdaParameterTypeMismatched = Internal + TypeRelated + 657;
 	/**
 	 * More problems in generics
 	 */

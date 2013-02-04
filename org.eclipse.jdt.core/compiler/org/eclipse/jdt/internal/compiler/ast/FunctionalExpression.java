@@ -16,23 +16,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class FunctionalExpression extends Expression {
 	
 	TypeBinding expectedType;
 	MethodBinding singleAbstractMethod;
-	ReferenceBinding functionalInterfaceType;
-
+	
 	public FunctionalExpression() {
 		super();
 	}
@@ -45,15 +41,26 @@ public abstract class FunctionalExpression extends Expression {
 		return this.expectedType;
 	}
 	
-	public /* @NonNull */ TypeBinding resolveType(BlockScope blockScope) {
+	public TypeBinding resolveType(BlockScope blockScope) {
 		this.constant = Constant.NotAConstant;
-		this.singleAbstractMethod = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope);
-		if (this.singleAbstractMethod == null || !this.singleAbstractMethod.isValidBinding()) {
+		MethodBinding descriptor = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope);
+		if (descriptor == null) {
 			blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
-			char [][] name = this.expectedType == null ? CharOperation.NO_CHAR_CHAR : CharOperation.splitOn('.', this.expectedType.shortReadableName());
-			return this.functionalInterfaceType = new ProblemReferenceBinding(name, null, ProblemReasons.NotAFunctionalInterface);
+			return null;
 		}
-		return this.functionalInterfaceType = (ReferenceBinding) this.expectedType;
+		if (!descriptor.isValidBinding()) {
+			switch (descriptor.problemId()) {
+				case ProblemReasons.NotAFunctionalInterface:
+					blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
+					break;
+				case ProblemReasons.NotAWellFormedParameterizedType:
+					blockScope.problemReporter().illFormedParameterizationOfFunctionalInterface(this);
+					break;
+			}
+			return null;
+		}
+		this.singleAbstractMethod = descriptor;
+		return this.resolvedType = descriptor.declaringClass;
 	}
 
 	public int nullStatus(FlowInfo flowInfo) {
@@ -67,5 +74,4 @@ public abstract class FunctionalExpression extends Expression {
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
-	
 }

@@ -33,4 +33,5 @@ public interface ProblemReasons {
 	final int VarargsElementTypeNotVisible = 16;
 	final int NoSuchSingleAbstractMethod = 17;
 	final int NotAFunctionalInterface = 18;
+	final int NotAWellFormedParameterizedType = 19;
 }
