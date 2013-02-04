@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4248,6 +4248,24 @@ public final class CompletionEngine
 	private int computeRelevanceForFinal(boolean onlyFinal, boolean isFinal) {
 		if (onlyFinal && isFinal) {
 			return R_FINAL;
+		}
+		return 0;
+	}
+
+	private int computeRelevanceForSuper(MethodBinding method, Scope scope, InvocationSite site) {
+		if (site instanceof CompletionOnMemberAccess) {
+			CompletionOnMemberAccess access = (CompletionOnMemberAccess) site;
+			if (access.isSuperAccess() && this.parser.assistNodeParent == null) {
+				MethodBinding binding = ((MethodDeclaration) scope.referenceContext()).binding;
+				String methodName = String.valueOf(binding.selector);
+				String currentMethodName = String.valueOf(method.selector);
+				if (currentMethodName != null && currentMethodName.equals(methodName)) {
+					if (binding.areParametersEqual(method)) {
+						return R_EXACT_NAME + R_METHOD_OVERIDE;
+					}
+					return R_EXACT_NAME;
+				}
+			}
 		}
 		return 0;
 	}
@@ -8603,7 +8621,7 @@ public final class CompletionEngine
 			if (missingElements != null) {
 				relevance += computeRelevanceForMissingElements(missingElementsHaveProblems);
 			}
-
+			relevance += computeRelevanceForSuper(method, scope, invocationSite);
 			this.noProposal = false;
 
 			if (castedReceiver == null) {
