@@ -22,6 +22,7 @@
  *							bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *							bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *							bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
+ *							bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -271,7 +272,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					if (variableType != initializationType) // must call before computeConversion() and typeMismatchError()
 						scope.compilationUnitScope().recordTypeConversion(variableType, initializationType);
 					if (this.initialization.isConstantValueOfTypeAssignableToType(initializationType, variableType)
-						|| initializationType.isCompatibleWith(variableType)) {
+						|| initializationType.isCompatibleWith(variableType, scope)) {
 						this.initialization.computeConversion(scope, variableType, initializationType);
 						if (initializationType.needsUncheckedConversion(variableType)) {
 						    scope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, variableType);

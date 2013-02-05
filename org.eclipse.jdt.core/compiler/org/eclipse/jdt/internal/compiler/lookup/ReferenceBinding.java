@@ -18,6 +18,7 @@
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
@@ -1102,7 +1103,7 @@ public boolean isClass() {
  * In addition to improving performance, caching also ensures there is no infinite regression
  * since per nature, the compatibility check is recursive through parameterized type arguments (122775)
  */
-public boolean isCompatibleWith(TypeBinding otherType) {
+public boolean isCompatibleWith(TypeBinding otherType, /*@Nullable*/ Scope captureScope) {
 	if (otherType == this)
 		return true;
 	if (otherType.id == TypeIds.T_JavaLangObject)
@@ -1118,9 +1119,17 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 		}
 	}
 	this.compatibleCache.put(otherType, Boolean.FALSE); // protect from recursive call
-	if (isCompatibleWith0(otherType)) {
+	if (isCompatibleWith0(otherType, captureScope)) {
 		this.compatibleCache.put(otherType, Boolean.TRUE);
 		return true;
+	}
+	if (captureScope == null 
+			&& this instanceof TypeVariableBinding 
+			&& ((TypeVariableBinding)this).firstBound instanceof ParameterizedTypeBinding) {
+		// see https://bugs.eclipse.org/395002#c9
+		// in this case a subsequent check with captureScope != null may actually get
+		// a better result, reset this info to ensure we're not blocking that re-check.
+		this.compatibleCache.put(otherType, null);
 	}
 	return false;
 }
@@ -1128,7 +1137,7 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 /**
  * Answer true if the receiver type can be assigned to the argument type (right)
  */
-private boolean isCompatibleWith0(TypeBinding otherType) {
+private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope captureScope) {
 	if (otherType == this)
 		return true;
 	if (otherType.id == TypeIds.T_JavaLangObject)
@@ -1166,8 +1175,17 @@ private boolean isCompatibleWith0(TypeBinding otherType) {
 										// above if same erasure
 			}
 			ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
-			if (otherReferenceType.isInterface()) // could be annotation type
-				return implementsInterface(otherReferenceType, true);
+			if (otherReferenceType.isInterface()) { // could be annotation type
+				if (implementsInterface(otherReferenceType, true))
+					return true;
+				if (this instanceof TypeVariableBinding && captureScope != null) {
+					TypeVariableBinding typeVariable = (TypeVariableBinding) this;
+					if (typeVariable.firstBound instanceof ParameterizedTypeBinding) {
+						TypeBinding bound = typeVariable.firstBound.capture(captureScope, -1); // no position needed as this capture will never escape this context
+						return bound.isCompatibleWith(otherReferenceType);
+					}
+				}
+			}
 			if (isInterface())  // Explicit conversion from an interface
 										// to a class is not allowed
 				return false;

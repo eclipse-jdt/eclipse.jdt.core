@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *      Stephen Herrmann <stephan@cs.tu-berlin.de> -  Contributions for
  *								bug 317046 - Exception during debugging when hover mouse over a field
+ *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
@@ -458,7 +459,11 @@ public boolean isClass() {
 
 /* Answer true if the receiver type can be assigned to the argument type (right)
  */
-public abstract boolean isCompatibleWith(TypeBinding right);
+public boolean isCompatibleWith(TypeBinding right) {
+	return isCompatibleWith(right, null); // delegate from the old signature to the new implementation:
+}
+// version that allows to capture a type bound using 'scope':
+public abstract boolean isCompatibleWith(TypeBinding right, /*@Nullable*/ Scope scope);
 
 public boolean isEnum() {
 	return false;

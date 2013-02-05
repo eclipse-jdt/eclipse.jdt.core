@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -237,7 +239,7 @@ public void resolve(MethodScope initializationScope) {
 				if (fieldType != initializationType) // must call before computeConversion() and typeMismatchError()
 					initializationScope.compilationUnitScope().recordTypeConversion(fieldType, initializationType);
 				if (this.initialization.isConstantValueOfTypeAssignableToType(initializationType, fieldType)
-						|| initializationType.isCompatibleWith(fieldType)) {
+						|| initializationType.isCompatibleWith(fieldType, classScope)) {
 					this.initialization.computeConversion(initializationScope, fieldType, initializationType);
 					if (initializationType.needsUncheckedConversion(fieldType)) {
 						    initializationScope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, fieldType);

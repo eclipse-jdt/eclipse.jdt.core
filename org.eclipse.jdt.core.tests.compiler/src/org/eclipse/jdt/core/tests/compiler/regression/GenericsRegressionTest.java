@@ -7,7 +7,9 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 282152 - [1.5][compiler] Generics code rejected by Eclipse but accepted by javac
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *								bug 282152 - [1.5][compiler] Generics code rejected by Eclipse but accepted by javac
+ *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -28,7 +30,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test347426" };
+//		TESTS_NAMES = new String[] { "testBug395002_combined" };
 //		TESTS_NAMES = new String[] { "test1464" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
@@ -2649,4 +2651,103 @@ public void test385780() {
 		"----------\n",
 		null, true, customOptions);
 }
+
+// https://bugs.eclipse.org/395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+// version with intermediate assignment, always worked
+public void testBug395002_1() {
+	runConformTest(new String[] {
+		"Client.java",
+		"interface SelfBound<S extends SelfBound<S, T>, T> {\n" + 
+		"}\n" +
+		"public class Client {\n" +
+		"	<A extends SelfBound<?,A>> void foo3(A arg3) {\n" + 
+		"		SelfBound<?, A> var3 = arg3;\n" + 
+		"		SelfBound<? extends SelfBound<?, A>, ?> var4 = var3;\n" + 
+		"	}\n" +
+		"}\n"
+		});
+}
+
+// https://bugs.eclipse.org/395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+// version with direct assignment to local
+public void testBug395002_2() {
+	runConformTest(new String[] {
+		"Client.java",
+		"interface SelfBound<S extends SelfBound<S, T>, T> {\n" + 
+		"}\n" +
+		"public class Client {\n" +
+		"	<A extends SelfBound<?,A>> void foo2(A arg2) {\n" + 
+		"		SelfBound<? extends SelfBound<?, A>, ?> var2 = arg2;\n" + 
+		"	}\n" +
+		"}\n"
+		});
+}
+
+// https://bugs.eclipse.org/395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+// version with direct assignment to field
+public void testBug395002_3() {
+	runConformTest(new String[] {
+		"Client.java",
+		"interface SelfBound<S extends SelfBound<S, T>, T> {\n" + 
+		"}\n" +
+		"public class Client<A extends SelfBound<?,A>>  {\n" +
+		"	SelfBound<? extends SelfBound<?, A>, ?> field2;\n" +
+		"	void foo2(A arg2) {\n" + 
+		"		field2 = arg2;\n" + 
+		"	}\n" +
+		"}\n"
+		});
+}
+
+// https://bugs.eclipse.org/395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+// version with argument passing
+public void testBug395002_4() {
+	runConformTest(new String[] {
+		"Client.java",
+		"interface SelfBound<S extends SelfBound<S, T>, T> {\n" + 
+		"}\n" +
+		"public class Client<A extends SelfBound<?,A>>  {\n" +
+		"	void bar(SelfBound<? extends SelfBound<?, A>, ?> argBar) {};\n" +
+		"	void foo2(A arg2) {\n" + 
+		"		bar(arg2);\n" + 
+		"	}\n" +
+		"}\n"
+		});
+}
+
+// https://bugs.eclipse.org/395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+// original problem with invocation of generic type
+public void testBug395002_full() {
+	runConformTest(new String[] {
+		"Bug.java",
+		"interface SelfBound<S extends SelfBound<S, T>, T> {\n" + 
+		"}\n" +
+		"class Test<X extends SelfBound<? extends Y, ?>, Y> {\n" + 
+		"}\n" +
+		"public class Bug<A extends SelfBound<?, A>> {\n" + 
+		"	public Bug() {\n" + 
+		"		new Test<A, SelfBound<?, A>>();\n" + 
+		"	}\n" + 
+		"}\n"
+		});
+}
+
+// https://bugs.eclipse.org/395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+// combined version with direct assignment to local + original problem w/ invocation of generic type
+public void testBug395002_combined() {
+	runConformTest(new String[] {
+		"Client.java",
+		"interface SelfBound<S extends SelfBound<S, T>, T> {\n" + 
+		"}\n" +
+		"class Test<X extends SelfBound<? extends Y, ?>, Y> {\n" + 
+		"}\n" +
+		"public class Client {\n" +
+		"	<A extends SelfBound<?,A>> void foo2(A arg2) {\n" + 
+		"		Object o = new Test<A, SelfBound<?, A>>();\n" + 
+		"		SelfBound<? extends SelfBound<?, A>, ?> var2 = arg2;\n" + 
+		"	}\n" +
+		"}\n"
+		});
+}
+
 }

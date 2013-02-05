@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -78,7 +79,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			TypeVariableBinding[] typeVariables = this.type.typeVariables();
 			if (this.arguments != null && typeVariables != null) { // arguments may be null in error cases
 				for (int i = 0, length = typeVariables.length; i < length; i++) {
-				    if (typeVariables[i].boundCheck(this, this.arguments[i])  != TypeConstants.OK) {
+				    if (typeVariables[i].boundCheck(this, this.arguments[i], scope)  != TypeConstants.OK) {
 				    	hasErrors = true;
 				    	if ((this.arguments[i].tagBits & TagBits.HasMissingType) == 0) {
 				    		// do not report secondary error, if type reference already got complained against
@@ -1180,7 +1181,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 					types[i] = typeArgument;
 					break;
 			}
-			if (typeParameters[i].boundCheck(null, types[i]) != TypeConstants.OK)
+			if (typeParameters[i].boundCheck(null, types[i], scope) != TypeConstants.OK)
 				return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);
 		}
 		ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(genericType(), types, this.enclosingType);

@@ -728,7 +728,7 @@ static MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, Meth
 						continue next;
 				return inheritedMethod; // not a match
 			}
-		} else if (inheritedTypeVariable.boundCheck(substitute, argument) != TypeConstants.OK) {
+		} else if (inheritedTypeVariable.boundCheck(substitute, argument, null) != TypeConstants.OK) {
 	    	return inheritedMethod;
 		}
 	}

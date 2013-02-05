@@ -14,6 +14,7 @@
  *     						Bug 349326 - [1.7] new warning for missing try-with-resources
  *     						Bug 358903 - Filter practically unimportant resource leak warnings
  *							Bug 395977 - [compiler][resource] Resource leak warning behavior possibly incorrect for anonymous inner class
+ *							Bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -970,7 +971,7 @@ public class ClassScope extends Scope {
 		sourceType.tagBits |= (superType.tagBits & TagBits.HierarchyHasProblems); // propagate if missing supertpye
 		sourceType.superclass = superType;
 		// bound check (in case of bogus definition of Enum type)
-		if (refTypeVariables[0].boundCheck(superType, sourceType) != TypeConstants.OK) {
+		if (refTypeVariables[0].boundCheck(superType, sourceType, this) != TypeConstants.OK) {
 			problemReporter().typeMismatchError(rootEnumType, refTypeVariables[0], sourceType, null);
 		}
 		return !foundCycle;
