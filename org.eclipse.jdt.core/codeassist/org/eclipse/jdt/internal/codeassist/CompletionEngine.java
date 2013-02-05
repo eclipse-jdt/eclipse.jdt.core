@@ -4256,14 +4256,17 @@ public final class CompletionEngine
 		if (site instanceof CompletionOnMemberAccess) {
 			CompletionOnMemberAccess access = (CompletionOnMemberAccess) site;
 			if (access.isSuperAccess() && this.parser.assistNodeParent == null) {
-				MethodBinding binding = ((MethodDeclaration) scope.referenceContext()).binding;
-				String methodName = String.valueOf(binding.selector);
-				String currentMethodName = String.valueOf(method.selector);
-				if (currentMethodName != null && currentMethodName.equals(methodName)) {
-					if (binding.areParametersEqual(method)) {
-						return R_EXACT_NAME + R_METHOD_OVERIDE;
+				ReferenceContext referenceContext = scope.referenceContext();
+				if (referenceContext instanceof AbstractMethodDeclaration) {
+					MethodBinding binding = ((AbstractMethodDeclaration) referenceContext).binding;
+					if (binding != null) {
+						if (CharOperation.equals(binding.selector, method.selector)) {
+							if (binding.areParameterErasuresEqual(method)) {
+								return R_EXACT_NAME + R_METHOD_OVERIDE;
+							}
+							return R_EXACT_NAME;
+						}
 					}
-					return R_EXACT_NAME;
 				}
 			}
 		}
