@@ -147,12 +147,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		Iterator iter = dimensions.iterator();
 		while(iter.hasNext()) {
 			ExtraDimension dim = (ExtraDimension) iter.next();
-			Iterator annotations = dim.annotations().iterator();
-			while (annotations.hasNext()) {
-				buffer.append('@');
-				buffer.append(((Annotation) annotations.next()).getTypeName().getFullyQualifiedName());
-				buffer.append(' ');
-			}
+			buffer.append(convertAnnotationsList(dim.annotations()));
 			if (iter.hasNext()) {
 				buffer.append("[] ");
 			} else {
@@ -160,6 +155,17 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			}
 		}
 		assertEquals(message, expected, buffer.toString());
+	}
+
+	protected String convertAnnotationsList(List annotations) {
+		StringBuffer buffer = new StringBuffer();
+		Iterator iter = annotations.iterator();
+		while (iter.hasNext()) {
+			buffer.append('@');
+			buffer.append(((Annotation) iter.next()).getTypeName().getFullyQualifiedName());
+			buffer.append(' ');
+		}
+		return buffer.toString();
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings,

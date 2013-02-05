@@ -972,6 +972,9 @@ class ASTConverter {
 				componentType = (ArrayType) componentType.getParent();
 			}
 		}
+		if (expression.annotationsOnDimensions != null) {
+			annotateType(arrayType, expression.annotationsOnDimensions);
+		}
 		arrayCreation.setType(arrayType);
 		if (this.resolveBindings) {
 			recordNodes(arrayType, expression);
@@ -3202,6 +3205,15 @@ class ASTConverter {
 						type.annotations.add(annotation);
 					}
 				}
+		}
+	}
+	private void annotateType(Type type, org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotations) {
+		int level = annotations.length - 1;
+		while(type.isArrayType()) {
+			ArrayType arrayType = (ArrayType) type;
+			org.eclipse.jdt.internal.compiler.ast.Annotation[] typeAnnotations = annotations[level--];
+			annotateType(arrayType, typeAnnotations);
+			type = arrayType.getComponentType();
 		}
 	}
 

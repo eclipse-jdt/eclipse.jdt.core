@@ -24,11 +24,16 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AnnotatableType;
+import org.eclipse.jdt.core.dom.ArrayCreation;
+import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public class ASTConverter18Test extends ConverterTestSetup {
 
@@ -1091,5 +1096,154 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration method = (MethodDeclaration) node;
 		assertExtraDimensionsEqual("Incorrect extra dimensions", method.extraDimensionInfos(), "@Marker [] @Marker []");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391894
+	public void test0011() throws JavaModelException {
+		String contents =
+				"import java.lang.annotation.ElementType;\n" +
+				"public class X {\n" +
+				" 	public void foo() {\n" +
+				"		int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [2] @Marker2 @Marker3 [bar()] @Marker3 @Marker []; \n" +  
+				"		int @Marker [][][] j = new @Marker int @Marker3 @Marker [2] @Marker @Marker2 [X.bar2(2)] @Marker2 @Marker3 [];\n" +
+				"	}\n" +
+				"	public int bar() {\n" +
+				"		return 2;\n" +
+				"	}\n" +
+				"	public static int bar2(int k) {\n" +
+				"		return k;\n" +
+				"	}\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" + 
+				"@interface Marker {}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" + 
+				"@interface Marker2 {}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" + 
+				"@interface Marker3 {}";
+		
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a Method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration method = (MethodDeclaration) node;
+		List list = method.getBody().statements();
+		assertEquals("Incorrect no of statements", 2, list.size());
+		VariableDeclarationStatement statement1 = (VariableDeclarationStatement) list.get(0);
+		VariableDeclarationStatement statement2 = (VariableDeclarationStatement) list.get(1);
+		list = statement1.fragments();
+		assertEquals("Incorrect no of fragments", 1, list.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) list.get(0);
+		ArrayCreation creation = (ArrayCreation) fragment.getInitializer();
+		Type type = creation.getType();
+		assertEquals("Incorrect type", true, type.isArrayType());
+		checkSourceRange(type, "@Marker2 int @Marker @Marker2 [2] @Marker2 @Marker3 [bar()] @Marker3 @Marker []", contents.toCharArray());
+		assertEquals("Incorrect annotations", "@Marker3 @Marker ", convertAnnotationsList(((ArrayType) type).annotations()));
+		type = ((ArrayType) type).getComponentType();
+		assertEquals("Incorrect type", true, type.isArrayType());
+		assertEquals("Incorrect annotations", "@Marker2 @Marker3 ", convertAnnotationsList(((ArrayType) type).annotations()));
+		type = ((ArrayType) type).getComponentType();
+		assertEquals("Incorrect type", true, type.isArrayType());
+		assertEquals("Incorrect annotations", "@Marker @Marker2 ", convertAnnotationsList(((ArrayType) type).annotations()));
+		List dimensions = creation.dimensions();
+		assertEquals("Incorrect expressions", 2, dimensions.size());
+		assertEquals("Incorrect expressions", "2", dimensions.get(0).toString());
+		assertEquals("Incorrect expressions", "bar()", dimensions.get(1).toString());
+		
+		list = statement2.fragments();
+		assertEquals("Incorrect no of fragments", 1, list.size());
+		fragment = (VariableDeclarationFragment) list.get(0);
+		creation = (ArrayCreation) fragment.getInitializer();
+		checkSourceRange(creation.getType(), "@Marker int @Marker3 @Marker [2] @Marker @Marker2 [X.bar2(2)] @Marker2 @Marker3 []", contents.toCharArray());
+		
+		type = creation.getType();
+		assertEquals("Incorrect type", true, type.isArrayType());
+		assertEquals("Incorrect annotations", "@Marker2 @Marker3 ", convertAnnotationsList(((ArrayType) type).annotations()));
+		type = ((ArrayType) type).getComponentType();
+		assertEquals("Incorrect type", true, type.isArrayType());
+		assertEquals("Incorrect annotations", "@Marker @Marker2 ", convertAnnotationsList(((ArrayType) type).annotations()));
+		type = ((ArrayType) type).getComponentType();
+		assertEquals("Incorrect type", true, type.isArrayType());
+		assertEquals("Incorrect annotations", "@Marker3 @Marker ", convertAnnotationsList(((ArrayType) type).annotations()));
+		dimensions = creation.dimensions();
+		assertEquals("Incorrect expressions", 2, dimensions.size());
+		assertEquals("Incorrect expressions", "2", dimensions.get(0).toString());
+		assertEquals("Incorrect expressions", "X.bar2(2)", dimensions.get(1).toString());
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391894
+	public void test0012() throws JavaModelException {
+		String contents =
+				"import java.lang.annotation.ElementType;\n" +
+				"public class X {\n" +
+				" 	public void foo() {\n" +
+				"		int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [] @Marker2 @Marker3 [] @Marker3 @Marker [] {{{1, 2, 3}}}; \n" +  
+				"	}\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" + 
+				"@interface Marker {}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" + 
+				"@interface Marker2 {}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" + 
+				"@interface Marker3 {}";
+		System.out.println(contents);
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		node = getASTNode(unit, 0, 0);
+		assertEquals("Not a Method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration method = (MethodDeclaration) node;
+		List list = method.getBody().statements();
+		assertEquals("Incorrect no of statements", 1, list.size());
+		VariableDeclarationStatement statement1 = (VariableDeclarationStatement) list.get(0);
+		list = statement1.fragments();
+		assertEquals("Incorrect no of fragments", 1, list.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) list.get(0);
+		ArrayCreation creation = (ArrayCreation) fragment.getInitializer();
+		Type type = creation.getType();
+		assertEquals("Incorrect type", true, type.isArrayType());
+		checkSourceRange(type, "@Marker2 int @Marker @Marker2 [] @Marker2 @Marker3 [] @Marker3 @Marker []", contents.toCharArray());
+		ArrayInitializer initializer = creation.getInitializer();
+		checkSourceRange(initializer, "{{{1, 2, 3}}}", contents.toCharArray());
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391894
+	// Force to use JLS4 and confirm malformed flags are set.
+	public void test0021() throws JavaModelException {
+		String contents =
+				"import java.lang.annotation.ElementType;\n" +
+				"public class X {\n" +
+				" 	public void foo() {\n" +
+				"		int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [] @Marker2 @Marker3 [] @Marker3 @Marker [] {{{1, 2, 3}}}; \n" +  
+				"	}\n" +
+				"}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" + 
+				"@interface Marker {}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" + 
+				"@interface Marker2 {}\n" +
+				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" + 
+				"@interface Marker3 {}";
+		System.out.println(contents);
+		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+		CompilationUnit unit = (CompilationUnit) buildAST(AST.JLS4, contents, this.workingCopy, true, true, true);
+		
+		ASTNode node = getASTNode(unit, 0, 0);
+		assertEquals("Not a Method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration method = (MethodDeclaration) node;
+		List list = method.getBody().statements();
+		assertEquals("Incorrect no of statements", 1, list.size());
+		VariableDeclarationStatement statement1 = (VariableDeclarationStatement) list.get(0);
+		list = statement1.fragments();
+		assertEquals("Incorrect no of fragments", 1, list.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) list.get(0);
+		ArrayCreation creation = (ArrayCreation) fragment.getInitializer();
+		Type type = creation.getType();
+		assertEquals("Incorrect type", true, type.isArrayType());
+		assertEquals("Type should be malformed", ASTNode.MALFORMED, (type.getFlags() & ASTNode.MALFORMED));
+		type = ((ArrayType) type).getComponentType();
+		assertEquals("Incorrect type", true, type.isArrayType());
+		assertEquals("Type should be malformed", ASTNode.MALFORMED, (type.getFlags() & ASTNode.MALFORMED));
+		type = ((ArrayType) type).getComponentType();
+		assertEquals("Incorrect type", true, type.isArrayType());
+		assertEquals("Type should be malformed", ASTNode.MALFORMED, (type.getFlags() & ASTNode.MALFORMED));
 	}
 }

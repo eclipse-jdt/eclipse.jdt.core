@@ -3153,4 +3153,47 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n"); 
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399453
+	public void testBug391894() {
+		this.runNegativeTest(
+				new String[]{
+					"X.java",
+					"import java.lang.annotation.Target;\n" +
+					"import static java.lang.annotation.ElementType.*;\n" +
+					"public class X {\n" +
+					"	public void foo() {\n" +
+					"		int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [@Marker bar()] ;\n" +
+					"		int @Marker [] j = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [@Marker bar()] ;\n" +
+					"	}\n" +
+					"	public int bar() {\n" +
+					"		return 2;\n" +
+					"	}\n" +
+					"}\n" +
+					"@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@interface Marker {}\n" +
+					"@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					"@interface Marker2 {}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [@Marker bar()] ;\n" + 
+				"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from int[][] to int[][][]\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [@Marker bar()] ;\n" + 
+				"	                                                                               ^^^^^^^\n" + 
+				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	int @Marker [] j = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [@Marker bar()] ;\n" + 
+				"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from int[][] to int[]\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 6)\n" + 
+				"	int @Marker [] j = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [@Marker bar()] ;\n" + 
+				"	                                                                           ^^^^^^^\n" + 
+				"Syntax error, type annotations are illegal here\n" + 
+				"----------\n"); 
+	}
 }
