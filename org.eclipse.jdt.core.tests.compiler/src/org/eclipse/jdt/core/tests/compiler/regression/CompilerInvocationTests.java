@@ -22,10 +22,11 @@
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *								bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *     Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
-*******************************************************************************/
+ *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.lang.reflect.Field;
@@ -1537,7 +1538,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("PackageCollidesWithType", SKIP);
 		expectedProblemAttributes.put("PackageIsNotExpectedPackage", SKIP);
 		expectedProblemAttributes.put("ParameterAssignment", new ProblemAttributes(JavaCore.COMPILER_PB_PARAMETER_ASSIGNMENT));
-		expectedProblemAttributes.put("ParameterLackingNonNullAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
+		expectedProblemAttributes.put("ParameterLackingNonNullAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED));
 		expectedProblemAttributes.put("ParameterLackingNullableAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("ParameterMismatch", SKIP);
 		expectedProblemAttributes.put("ParameterizedConstructorArgumentTypeMismatch", SKIP);
