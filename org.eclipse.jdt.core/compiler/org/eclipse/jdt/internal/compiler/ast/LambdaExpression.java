@@ -119,7 +119,7 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 			}
 			
 			TypeBinding parameterType;
-			final TypeBinding expectedParameterType = this.singleAbstractMethod.parameters[i];
+			final TypeBinding expectedParameterType = haveDescriptor ? this.singleAbstractMethod.parameters[i] : null;
 			parameterType = argumentsTypeElided ? expectedParameterType : argument.type.resolveType(this.scope, true /* check bounds*/);
 			if (parameterType == null) {
 				buggyArguments = true;
@@ -151,7 +151,7 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 				this.binding.setParameterAnnotations(parameterAnnotations);
 		}
 	
-		if (!argumentsTypeElided && this.binding.isVarargs()) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
+		if (!argumentsTypeElided && this.binding.isVarargs()) {
 			if (!this.binding.parameters[this.binding.parameters.length - 1].isReifiable()) {
 				this.scope.problemReporter().possibleHeapPollutionFromVararg(this.arguments[this.arguments.length - 1]);
 			}
@@ -168,12 +168,14 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 		}
 		
 		TypeBinding returnType = this.binding.returnType;
-		if ((returnType.tagBits & TagBits.HasMissingType) != 0) {
-			this.binding.tagBits |= TagBits.HasMissingType;
+		if (returnType != null) {
+			if ((returnType.tagBits & TagBits.HasMissingType) != 0) {
+				this.binding.tagBits |= TagBits.HasMissingType;
+			}
+			TypeBinding leafType = returnType.leafComponentType();
+			if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+				this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		}
-		TypeBinding leafType = returnType.leafComponentType();
-		if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
-			this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 
 		this.binding.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 		
