@@ -19,6 +19,7 @@
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 384870 - [compiler] @Deprecated annotation not detected if preceded by other annotation
+ *								bug 393719 - [compiler] inconsistent warnings on iteration variables
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -123,6 +124,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsTypeElided = Bit2;  // type elided lambda argument.
 	public static final int IsArgument = Bit3;
 	public static final int IsLocalDeclarationReachable = Bit31;
+	public static final int IsForeachElementVariable = Bit5;
 
 	// for name refs or local decls
 	public static final int FirstAssignmentToLocal = Bit4;

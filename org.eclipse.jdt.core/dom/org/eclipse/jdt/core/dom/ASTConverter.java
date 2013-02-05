@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 393719 - [compiler] inconsistent warnings on iteration variables
  *******************************************************************************/
 
 package org.eclipse.jdt.core.dom;
@@ -3043,7 +3045,11 @@ class ASTConverter {
 		}
 		Type type = convertType(localDeclaration.type);
 		int typeEnd = type.getStartPosition() + type.getLength() - 1;
-		int rightEnd = Math.max(typeEnd, localDeclaration.declarationSourceEnd);
+		// https://bugs.eclipse.org/393719 - [compiler] inconsistent warnings on iteration variables
+		// compiler considers collectionExpression as within the declarationSourceEnd, DOM AST must use the shorter range to avoid overlap
+		int sourceEnd = ((localDeclaration.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsForeachElementVariable) != 0)  
+				? localDeclaration.sourceEnd : localDeclaration.declarationSourceEnd;
+		int rightEnd = Math.max(typeEnd, sourceEnd);
 		/*
 		 * There is extra work to do to set the proper type positions
 		 * See PR http://bugs.eclipse.org/bugs/show_bug.cgi?id=23284

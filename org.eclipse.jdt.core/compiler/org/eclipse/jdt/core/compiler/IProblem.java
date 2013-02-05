@@ -157,6 +157,7 @@
  *									InheritedDefaultMethodConflictsWithOtherInherited
  *									ConflictingNullAnnotations
  *									ConflictingInheritedNullAnnotations
+ *									UnsafeElementTypeConversion
  *									ArrayReferencePotentialNullReference
  *									DereferencingNullableExpression
  *									NullityMismatchingTypeAnnotation
@@ -1199,7 +1200,10 @@ void setSourceStart(int sourceStart);
 	int DuplicateInheritedMethods = MethodRelated + 583;
 	/** @since 3.8 */
 	int MethodNameClashHidden = MethodRelated + 584;
-	
+
+	/** @since 3.9 */
+	int UnsafeElementTypeConversion = TypeRelated + 585;
+
 	/**
 	 * 1.5 Syntax errors (when source level < 1.5)
 	 */
