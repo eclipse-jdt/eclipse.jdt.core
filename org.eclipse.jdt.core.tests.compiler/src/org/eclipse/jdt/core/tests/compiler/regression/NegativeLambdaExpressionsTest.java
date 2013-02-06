@@ -773,6 +773,77 @@ public void test023() {
 				"Type mismatch: cannot convert from int to J\n" + 
 				"----------\n");
 }
+// Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test024() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I3 {\n" +
+					"  Object foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void main(String[] args) {\n" +
+					"    I3 i = () -> 42; // Warning: Autoboxing, but casting to Object??\n" +
+					"  }\n" +
+					"  Object foo(Zork z) {\n" +
+					"	  return 42;\n" +
+					"  }\n" +
+					"}\n",
+				}, 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	Object foo(Zork z) {\n" + 
+				"	           ^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test025() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface I {\r\n" + 
+			"  String foo();\r\n" + 
+			"}\r\n" + 
+			"public class X {\r\n" + 
+			"  public static void main(String[] args) {\r\n" + 
+			"    I i = () -> 42;\r\n" + 
+			"    I i2 = () -> \"Hello, Lambda\";\r\n" + 
+			"  }\r\n" + 
+			"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	I i = () -> 42;\n" + 
+			"	            ^^\n" + 
+			"Type mismatch: cannot convert from int to String\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test026() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface I {\r\n" + 
+			"  String foo();\r\n" + 
+			"}\r\n" + 
+			"public class X {\r\n" + 
+			"  public static void main(String[] args) {\r\n" + 
+			"    I i = () -> {\r\n" +
+			"      return 42;\r\n" +
+			"    };\r\n" + 
+			"    I i2 = () -> {\r\n" +
+			"      return \"Hello, Lambda as a block!\";\r\n" +
+			"    };\r\n" + 
+			"  }\r\n" + 
+			"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	return 42;\n" + 
+			"	       ^^\n" + 
+			"Type mismatch: cannot convert from int to String\n" + 
+			"----------\n");
+}
+
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
