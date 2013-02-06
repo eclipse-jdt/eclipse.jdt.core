@@ -1095,6 +1095,35 @@ public void test031() {
 			"The method goo() is undefined for the type X\n" + 
 			"----------\n");
 }
+// Bug 399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor
+public void test032() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface IA {\r\n" + 
+			"  void snazz();\r\n" + 
+			"}\r\n" + 
+			"interface IB {\r\n" + 
+			"  void baz() throws java.io.IOException;\r\n" + 
+			"}\r\n" + 
+			"public class X {\r\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    IA i1 = () -> {\n" + 
+			"      throw new java.io.EOFException(); // Error: not declared\n" + 
+			"    };\n" + 
+			"    IB i2 = () -> {\n" + 
+			"      throw new java.io.EOFException(); // Fine: IOException is declared\n" + 
+			"    }; // No error, it's all good\n" + 
+			"  }\n" + 
+			"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	throw new java.io.EOFException(); // Error: not declared\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type EOFException\n" + 
+			"----------\n");
+}
+
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
