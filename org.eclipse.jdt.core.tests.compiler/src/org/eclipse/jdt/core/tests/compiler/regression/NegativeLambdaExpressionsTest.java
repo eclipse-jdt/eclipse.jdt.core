@@ -896,7 +896,43 @@ public void test027() {
 			"Unreachable code\n" + 
 			"----------\n");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test028() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface I {\n" +
+			"  void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"  int data;\n" +
+			"  public void main(String[] args) {\n" +
+			"    I i1 = () -> data++;\n" +
+			"    I i2 = () -> data = 10;\n" +
+			"    I i3 = () -> data += 10;\n" +
+			"    I i4 = () -> --data;\n" +
+			"    I i5 = () -> bar();\n" +
+			"    I i6 = () -> new X();\n" +
+			"    I i7 = () -> 0;\n" +
+			"    I i = () -> 1 + data++;\n" +
+			"  }\n" +
+			"  int bar() {\n" +
+			"	  return 0;\n" +
+			"  }\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	I i7 = () -> 0;\n" + 
+			"	             ^\n" + 
+			"Void methods cannot return a value\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	I i = () -> 1 + data++;\n" + 
+			"	            ^^^^^^^^^^\n" + 
+			"Void methods cannot return a value\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
