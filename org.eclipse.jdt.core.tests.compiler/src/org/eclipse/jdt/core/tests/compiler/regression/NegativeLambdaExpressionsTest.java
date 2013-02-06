@@ -541,6 +541,238 @@ public void test015() {
 				"Lambda expression\'s parameter l is expected to be of type Collection<String>\n" + 
 				"----------\n");
 }
+// Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test016() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  String foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void main(String[] args) {\n" +
+					"    I i1 = () -> 42;\n" +
+					"    I i2 = () -> \"Hello\";\n" +
+					"    I i3 = () -> { return 42; };\n" +
+					"    I i4 = () -> { return \"Hello\"; };\n" +
+					"    I i5 = () -> {};\n" +
+					"  }\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	I i1 = () -> 42;\n" + 
+				"	             ^^\n" + 
+				"Type mismatch: cannot convert from int to String\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	I i3 = () -> { return 42; };\n" + 
+				"	                      ^^\n" + 
+				"Type mismatch: cannot convert from int to String\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 10)\n" + 
+				"	I i5 = () -> {};\n" + 
+				"	       ^^^^^^^^\n" + 
+				"This method must return a result of type String\n" + 
+				"----------\n");
+}
+// Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test017() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  Integer foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void main(String[] args) {\n" +
+					"    I i1 = () -> 42;\n" +
+					"    I i2 = () -> \"Hello\";\n" +
+					"    I i3 = () -> { return 42; };\n" +
+					"    I i4 = () -> { return \"Hello\"; };\n" +
+					"    I i5 = () -> {};\n" +
+					"  }\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	I i2 = () -> \"Hello\";\n" + 
+				"	             ^^^^^^^\n" + 
+				"Type mismatch: cannot convert from String to Integer\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 9)\n" + 
+				"	I i4 = () -> { return \"Hello\"; };\n" + 
+				"	                      ^^^^^^^\n" + 
+				"Type mismatch: cannot convert from String to Integer\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 10)\n" + 
+				"	I i5 = () -> {};\n" + 
+				"	       ^^^^^^^^\n" + 
+				"This method must return a result of type Integer\n" + 
+				"----------\n");
+}
+// Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test018() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  I foo();\n" +
+					"}\n" +
+					"class P implements I {\n" +
+					"   public I foo() { return null; }\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void main(String[] args) {\n" +
+					"    I i1 = () -> 42;\n" +
+					"    I i2 = () -> \"Hello\";\n" +
+					"    I i3 = () -> { return 42; };\n" +
+					"    I i4 = () -> { return \"Hello\"; };\n" +
+					"    I i5 = () -> { return new P(); };\n" +
+					"  }\n" +
+					"}\n",
+				}, 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 9)\n" + 
+				"	I i1 = () -> 42;\n" + 
+				"	             ^^\n" + 
+				"Type mismatch: cannot convert from int to I\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 10)\n" + 
+				"	I i2 = () -> \"Hello\";\n" + 
+				"	             ^^^^^^^\n" + 
+				"Type mismatch: cannot convert from String to I\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 11)\n" + 
+				"	I i3 = () -> { return 42; };\n" + 
+				"	                      ^^\n" + 
+				"Type mismatch: cannot convert from int to I\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 12)\n" + 
+				"	I i4 = () -> { return \"Hello\"; };\n" + 
+				"	                      ^^^^^^^\n" + 
+				"Type mismatch: cannot convert from String to I\n" + 
+				"----------\n");
+}
+// Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test019() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  void foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    I i1 = () -> 42;\n" +
+					"    I i3 = () -> { return 42; };\n" +
+					"    I i4 = () -> System.out.println();\n" +
+					"    I i5 = () -> { System.out.println(); };\n" +
+					"}\n",
+				}, 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	I i1 = () -> 42;\n" + 
+				"	             ^^\n" + 
+				"Void methods cannot return a value\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	I i3 = () -> { return 42; };\n" + 
+				"	               ^^^^^^^^^^\n" + 
+				"Void methods cannot return a value\n" + 
+				"----------\n");
+}
+// Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test020() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  int foo(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    I i5 = (x) -> { if (x == 0) throw new NullPointerException(); };\n" +
+					"}\n",
+				}, 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	I i5 = (x) -> { if (x == 0) throw new NullPointerException(); };\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"This method must return a result of type int\n" + 
+				"----------\n");
+}
+// Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test021() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  int foo(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    I i5 = (x) -> { if (x == 0) throw new NullPointerException(); throw new NullPointerException(); };\n" +
+					"    Zork z;\n" +
+					"}\n",
+				}, 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+}
+// Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test022() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  J foo();\n" +
+					"}\n" +
+					"interface J {\n" +
+					"  int foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    I I = () -> () -> 10;\n" +
+					"    Zork z;\n" +
+					"}\n",
+				}, 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 9)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+}
+// Bug 398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test023() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  J foo();\n" +
+					"}\n" +
+					"interface J {\n" +
+					"  int foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"    I i1 = () -> 10;\n" +
+					"    I i2 = () -> { return 10; };\n" +
+					"    I i3 = () -> () -> 10;\n" +
+					"    I i4 = () -> { return () -> 10; };\n" +
+					"}\n",
+				}, 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	I i1 = () -> 10;\n" + 
+				"	             ^^\n" + 
+				"Type mismatch: cannot convert from int to J\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 9)\n" + 
+				"	I i2 = () -> { return 10; };\n" + 
+				"	                      ^^\n" + 
+				"Type mismatch: cannot convert from int to J\n" + 
+				"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
