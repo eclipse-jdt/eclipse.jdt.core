@@ -843,6 +843,59 @@ public void test026() {
 			"Type mismatch: cannot convert from int to String\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test027() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface I {\r\n" + 
+			"  int baz();\r\n" + 
+			"}\r\n" + 
+			"public class X {\r\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    I i1 = () -> {\n" + 
+			"      System.out.println(\"No return\");\n" + 
+			"    }; // Error: Lambda block should return value\n" + 
+			"    I i2 = () -> {\n" + 
+			"      if (Math.random() < 0.5) return 42;\n" + 
+			"    }; // Error: Lambda block doesn't always return a value\n" + 
+			"    I i3 = () -> {\n" + 
+			"      return 42;\n" + 
+			"      System.out.println(\"Dead!\");\n" + 
+			"    }; // Error: Lambda block has dead code\n" + 
+			"  }\n" + 
+			"  public static I doesFlowInfoEscape() {\n" + 
+			"    I i1 = () -> {\n" + 
+			"      return 42;\n" + 
+			"    };\n" + 
+			"    return i1; // Must not complain about unreachable code!\n" + 
+			"  }\n" + 
+			"  public static I areExpresionsCheckedForReturns() {\n" + 
+			"    I i1 = () -> 42;  // Must not complain about missing return!\n" + 
+			"    return i1;\n" + 
+			"  }\n" + 
+			"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	I i1 = () -> {\n" + 
+			"      System.out.println(\"No return\");\n" + 
+			"    }; // Error: Lambda block should return value\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"This method must return a result of type int\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	I i2 = () -> {\n" + 
+			"      if (Math.random() < 0.5) return 42;\n" + 
+			"    }; // Error: Lambda block doesn\'t always return a value\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"This method must return a result of type int\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 14)\n" + 
+			"	System.out.println(\"Dead!\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unreachable code\n" + 
+			"----------\n");
+}
 
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
