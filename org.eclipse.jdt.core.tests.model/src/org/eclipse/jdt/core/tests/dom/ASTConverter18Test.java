@@ -1246,4 +1246,280 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("Incorrect type", true, type.isArrayType());
 		assertEquals("Type should be malformed", ASTNode.MALFORMED, (type.getFlags() & ASTNode.MALFORMED));
 	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test0013() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test0010/X.java",
+				true/* resolve */);
+		String contents = "package test0010;"
+				+ "import java.lang.annotation.Target;\n"
+				+ "public class X implements One<@Marker1 Integer, @Marker2 Boolean> {\n"
+				+ "}\n" 		
+				+ "class Y implements One<@Marker1 @Marker2 Integer, @Marker2 @Marker1 Double> {\n"
+				+ "}\n" 		
+				+ "interface One<T, U> {}\n" 
+				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
+				+ "@interface Marker1 {}\n"
+				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
+				+ "@interface Marker2 {}\n";
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		// simple types for generic type arguments to parameterized classes
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
+		Type type = (Type)((ParameterizedType) typedeclaration.superInterfaceTypes().get(0)).typeArguments().get(0);
+		assertTrue(type.isSimpleType());
+		SimpleType simpleType = (SimpleType) type;
+		List annotations = simpleType.annotations();
+		assertEquals("wrong number of annotations", 1, annotations.size());
+		assertEquals("@Marker1", annotations.get(0).toString());
+		assertNotNull("No annotation", type);
+		typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
+		type = (Type)((ParameterizedType) typedeclaration.superInterfaceTypes().get(0)).typeArguments().get(0);
+		assertTrue(type.isSimpleType());
+		simpleType = (SimpleType) type;
+		annotations = simpleType.annotations();
+		assertEquals("wrong number of annotations", 2, annotations.size());
+		assertEquals("@Marker2", annotations.get(1).toString());
+		assertNotNull("No annotation", type);	
+		type = (Type)((ParameterizedType) typedeclaration.superInterfaceTypes().get(0)).typeArguments().get(1);
+		assertTrue(type.isSimpleType());
+		simpleType = (SimpleType) type;
+		annotations = simpleType.annotations();
+		assertEquals("wrong number of annotations", 2, annotations.size());
+		assertEquals("@Marker1", annotations.get(1).toString());
+		assertNotNull("No annotation", type);	
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test0014() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test0011/X.java",
+				true/* resolve */);
+		String contents = "package test0011;"
+				+ "import java.lang.annotation.Target;\n"
+				+ "public class X {\n"
+				+ "	public void foo() {\n"
+				+ " 	Y y = new <@Marker2 @Marker1 String> Y(new String(\"Hello\"));\n"
+				+ " 	len = y.<@Marker1 @Marker2 String> bar(new String(\"World\"));\n"
+				+ " }\n"
+				+ "	public int len;\n"
+				+ "}\n" 		
+				+ "class Y {\n"
+				+ "	public <T> Y(T t) {\n"
+				+ "		len = t instanceof String ? ((String)t).length() : 0;\n"
+				+ "	}\n"
+				+ "	public <T> int bar(T t) {\n"
+				+ "		return t instanceof String ? ((String)t).length() : len;\n"
+				+ "	}\n"
+				+ " private int len;\n"
+				+ "}\n"
+				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
+				+ "@interface Marker1 {}\n"
+				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
+				+ "@interface Marker2 {}\n";
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		// simple tye for generic type arguments in a generic method or constructor invocation
+		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(cu, 0, 0);
+		List statements = methodDeclaration.getBody().statements();
+		Statement statement = (Statement)statements.get(0);
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statement;
+		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		Expression expression = variableDeclarationFragment.getInitializer();
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
+		Type type = (Type) classInstanceCreation.typeArguments().get(0);
+		assertEquals("@Marker2 @Marker1 String", type.toString());
+		assertTrue(type.isSimpleType());
+		SimpleType simpleType = (SimpleType) type;
+		List annotations = simpleType.annotations();
+		assertEquals("wrong number of annotations", 2, annotations.size());
+		assertEquals("@Marker2", annotations.get(0).toString());
+		statement = (Statement) statements.get(1);
+		Assignment assignment  = (Assignment) ((ExpressionStatement)statement).getExpression();
+		expression = assignment.getRightHandSide();
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		simpleType = (SimpleType)methodInvocation.typeArguments().get(0);
+		annotations = simpleType.annotations();
+		assertEquals("wrong number of annotations", 2, annotations.size());
+		assertEquals("@Marker1", annotations.get(0).toString());
+	}
+
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	 * 
+	 * @throws JavaModelException
+	 */
+	public void test0015() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter18/src/test0012/X.java",
+				true/* resolve */);
+		String contents = "package test0012;"
+				+ "import java.lang.annotation.Target;\n"
+				+ "import java.io.File;\n"
+				+ "public class X <@Marker1 @Marker3 F extends @Marker1 @Marker2 File> {\n"
+				+ "	public int foo(F f) {\n"
+				+ " 	Y <@Marker2 @Marker3 ? super @Marker1 @Marker2 File> y = new @Marker2 @Marker1 Y<File>();\n"
+				+ "		Outer o = new @Marker1 @Marker2 Outer();\n"	
+				+ "		Outer.Inner inner = o.new @Marker1 @Marker2 Inner();\n"	
+				+  " 	ZZ zz = new <String> @Marker1 @Marker2 ZZ();\n" 
+				+ " 	return f.getName().length() + y.hashCode() + inner.hashCode();\n"
+				+ " }\n"
+				+ "}\n" 		
+				+ "class Y<@Marker3 T> {\n"
+				+ "	public int bar(T t) {\n"
+				+ "		return t instanceof @Marker1 @Marker2 File ? t.toString().length() : 0;\n"
+				+ "	}\n"
+				+ "}\n"
+				+ "class Outer {\n"
+				+ "	public class Inner {\n" 
+				+ "		public class Deeper {\n"
+				+ "		}\n" 
+				+ "	}\n"
+				+ "}\n"
+				+ "class ZZ {\n"
+				+ "public @Marker1 @Marker2 <T> ZZ() {\n"
+				+ "	T t = null;\n"
+				+ "	len =  t instanceof String ? t.hashCode() : 0;\n"
+				+ "}\n"
+				+ "public @Marker1 int  getint(@Marker2 @Marker1 ZZ this) {return len;}\n"
+				+ "public int len;\n"
+				+ "}\n"
+				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
+				+ "@interface Marker1 {}\n"
+				+ "@Target (java.lang.annotation.ElementType.TYPE_USE)\n"
+				+ "@interface Marker2 {}\n"
+				+ "@Target (java.lang.annotation.ElementType.TYPE_PARAMETER)\n"
+				+ "@interface Marker3 {}\n";
+		CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+		
+		TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
+		TypeParameter typeParameter = (TypeParameter) typedeclaration.typeParameters().get(0);
+
+		// TypeParameter with TYPE_USE and TYPE_PARAMETER annotation combination.
+		assertEquals("@Marker1 @Marker3 F extends @Marker1 @Marker2 File", typeParameter.toString());
+		assertTrue(typeParameter.annotations().size() == 2);
+		Annotation annotation = (Annotation)typeParameter.annotations().get(1);
+		assertEquals("@Marker3", annotation.toString());
+		IAnnotationBinding abinding = annotation.resolveAnnotationBinding();
+		assertEquals("@Marker3()", abinding.toString());
+
+		// simpletype for type parameter bounds
+		SimpleType simpleType = (SimpleType) typeParameter.typeBounds().get(0);
+		annotation = (Annotation) simpleType.annotations().get(1);
+		assertEquals("@Marker2", annotation.toString());
+		abinding = annotation.resolveAnnotationBinding();
+		assertEquals("@Marker2()", abinding.toString());
+
+		MethodDeclaration methodDeclaration = (MethodDeclaration) getASTNode(cu, 0, 0);
+		List statements = methodDeclaration.getBody().statements();
+		Statement statement = (Statement)statements.get(0);
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement)statement;
+		Type type = variableDeclarationStatement.getType();
+		assertTrue(type.isParameterizedType());
+		type = (Type)((ParameterizedType)type).typeArguments().get(0);
+		assertTrue(type.isWildcardType());
+		
+		// for constructor invocation results 1/4
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		Expression expression = fragment.getInitializer();
+		assertEquals("new @Marker2 @Marker1 Y<File>()", expression.toString());
+		simpleType = (SimpleType) ((ParameterizedType)((ClassInstanceCreation)expression).getType()).getType();
+		assertEquals("@Marker2 @Marker1 Y", simpleType.toString());
+		annotation = (Annotation) simpleType.annotations().get(1);
+		assertEquals("@Marker1", annotation.toString());
+		abinding = annotation.resolveAnnotationBinding();
+		assertEquals("@Marker1()", abinding.toString());
+		
+		// for constructor invocation results 2/4
+		variableDeclarationStatement = (VariableDeclarationStatement) statements.get(1);
+		fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		expression = fragment.getInitializer();
+		assertEquals("new @Marker1 @Marker2 Outer()", expression.toString());
+		simpleType = (SimpleType) ((ClassInstanceCreation)expression).getType();
+		assertEquals("@Marker1 @Marker2 Outer", simpleType.toString());
+		annotation = (Annotation) simpleType.annotations().get(1);
+		assertEquals("@Marker2", annotation.toString());
+		abinding = annotation.resolveAnnotationBinding();
+		assertEquals("@Marker2()", abinding.toString());
+		
+		// for constructor invocation results 3/4
+		variableDeclarationStatement = (VariableDeclarationStatement) statements.get(2);
+		fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		expression = fragment.getInitializer();
+		assertEquals("o.new @Marker1 @Marker2 Inner()", expression.toString());
+		simpleType = (SimpleType) ((ClassInstanceCreation)expression).getType();
+		assertEquals("@Marker1 @Marker2 Inner", simpleType.toString());
+		annotation = (Annotation) simpleType.annotations().get(1);
+		assertEquals("@Marker2", annotation.toString());
+		abinding = annotation.resolveAnnotationBinding();
+		assertEquals("@Marker2()", abinding.toString());
+
+		// for constructor invocation results 4/4
+		variableDeclarationStatement = (VariableDeclarationStatement) statements.get(3);
+		fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
+		expression = fragment.getInitializer();
+		assertEquals("new <String>@Marker1 @Marker2 ZZ()", expression.toString());
+		simpleType = (SimpleType) ((ClassInstanceCreation)expression).getType();
+		assertEquals("@Marker1 @Marker2 ZZ", simpleType.toString());
+		annotation = (Annotation) simpleType.annotations().get(1);
+		assertEquals("@Marker2", annotation.toString());
+		abinding = annotation.resolveAnnotationBinding();
+		assertEquals("@Marker2()", abinding.toString());
+
+		// annotations on wildcardtypes with TYPE_USE and TYPE_PARAMETER combination.
+		WildcardType wildCardType = (WildcardType) type;
+		assertEquals("@Marker2 @Marker3 ? super @Marker1 @Marker2 File", wildCardType.toString());
+		assertTrue(wildCardType.annotations().size() == 2);
+		annotation = (Annotation) wildCardType.annotations().get(1);
+		assertEquals("@Marker3", annotation.toString());
+		abinding = annotation.resolveAnnotationBinding();
+		assertEquals("@Marker3()", abinding.toString());
+
+		// simpleType for  wildcard bounds
+		simpleType = (SimpleType) wildCardType.getBound();
+		annotation = (Annotation) simpleType.annotations().get(1);
+		assertEquals("@Marker2", annotation.toString());
+		abinding = annotation.resolveAnnotationBinding();
+		assertEquals("@Marker2()", abinding.toString());
+
+		// class declaration with TYPE_PARAMETER annotation
+		typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
+		typeParameter = (TypeParameter) typedeclaration.typeParameters().get(0);
+		assertEquals("@Marker3 T", typeParameter.toString());
+		assertTrue(typeParameter.annotations().size() == 1);
+		annotation = (Annotation)typeParameter.annotations().get(0);
+		assertEquals("@Marker3", annotation.toString());
+		abinding = annotation.resolveAnnotationBinding();
+		assertEquals("@Marker3()", abinding.toString());
+
+		// for type tests
+		methodDeclaration = (MethodDeclaration) getASTNode(cu, 1, 0);
+		statements = methodDeclaration.getBody().statements();
+		statement = (Statement)statements.get(0);
+		ConditionalExpression conditionalExpression = (ConditionalExpression)((ReturnStatement)statement).getExpression();
+		simpleType = (SimpleType) ((InstanceofExpression)conditionalExpression.getExpression()).getRightOperand();
+		assertEquals("@Marker1 @Marker2 File", simpleType.toString());
+		assertTrue(simpleType.annotations().size() == 2);
+		annotation = (Annotation) simpleType.annotations().get(1);
+		assertEquals("@Marker2", annotation.toString());
+
+		// type annotation in front of a constructor declaration
+		methodDeclaration = (MethodDeclaration) getASTNode(cu, 3, 0);
+		annotation = (Annotation) methodDeclaration.modifiers().get(2);
+		assertEquals("@Marker2", annotation.toString());
+		abinding = annotation.resolveAnnotationBinding();
+		assertEquals("@Marker2()", abinding.toString());
+
+		// type annotation on "this"
+		methodDeclaration = (MethodDeclaration) getASTNode(cu, 3, 1);
+		simpleType = (SimpleType) methodDeclaration.getReceiverType();
+		assertEquals("@Marker2 @Marker1 ZZ", simpleType.toString());
+		annotation = (Annotation) simpleType.annotations().get(1);
+		assertEquals("@Marker1", annotation.toString());
+		abinding = annotation.resolveAnnotationBinding();
+		assertEquals("@Marker1()", abinding.toString());
+	}
 }

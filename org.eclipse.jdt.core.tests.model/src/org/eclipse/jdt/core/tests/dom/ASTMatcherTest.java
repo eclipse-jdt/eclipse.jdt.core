@@ -545,6 +545,12 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public boolean match(WildcardType node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
+		public boolean match(ExtraDimension node, Object other) {
+			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(InstanceofExpression node, Object other) {
+			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
+		}
 	}
 
 	/**
@@ -1383,6 +1389,178 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		SimpleType simpleType = this.ast.newSimpleType(this.ast.newSimpleName("SN2"));
 		simpleType.annotations().add(this.ANO2);
 		x1.typeArguments().add(simpleType);
+		basicMatch(x1);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	public void testTypeAnnotations1() {	
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		// simpleType with Annotations
+		SimpleType x1 = this.ast.newSimpleType(this.N1);
+		x1.annotations().add(this.ANO1);
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	public void testTypeAnnotations2() {		
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+  		// Type arguments at parameterized types
+		SimpleType x1 = this.ast.newSimpleType(this.N2);
+		ParameterizedType x2 = this.ast.newParameterizedType(x1);
+		x1 = this.ast.newSimpleType(this.ast.newSimpleName("SN1"));
+		x1.annotations().add(this.ANO1);
+		x1.annotations().add(this.ANO2);		
+		x2.typeArguments().add(x1);
+		basicMatch(x2);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	public void testTypeAnnotations3() {		
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		// type arguments in constructor invocation
+		ConstructorInvocation x1 = this.ast.newConstructorInvocation();
+		SimpleType x2 = this.ast.newSimpleType(this.N1);
+		x2.annotations().add(this.ANO1);
+		x1.typeArguments().add(x2);
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	public void testTypeAnnotations4() {		
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		// annotated simple type at class inheritance
+		TypeDeclaration x1 = this.ast.newTypeDeclaration();
+		SimpleType x2 = this.ast.newSimpleType(this.N1);
+		x2.annotations().add(this.ANO1);
+		x1.setSuperclassType(x2);
+		x1.setName(this.N2);
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	public void testTypeAnnotations5() {	
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		// constructor invocation results
+		ClassInstanceCreation x1 = this.ast.newClassInstanceCreation();
+		SimpleType x2 = this.ast.newSimpleType(this.N1);
+		x2.annotations().add(this.ANO1);
+		x1.setType(x2);
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	public void testTypeAnnotations6() {	
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		// simple type in cast expression
+		CastExpression x1 = this.ast.newCastExpression();
+		SimpleType x2 = this.ast.newSimpleType(this.N1);
+		x2.annotations().add(this.ANO1);
+		x1.setType(x2);
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	public void testTypeAnnotations7() {		
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		// simple type type tests
+		InstanceofExpression x1 = this.ast.newInstanceofExpression();
+		SimpleType x2 = this.ast.newSimpleType(this.N1);
+		x2.annotations().add(this.ANO1);
+		x1.setRightOperand(x2);
+		x1.setLeftOperand(this.E1);
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	public void testTypeAnnotations8() {	
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		// annotations on wildcard type
+		WildcardType x1 = this.ast.newWildcardType();
+		SimpleType x2 = this.ast.newSimpleType(this.N1);
+		x1.setBound(x2);
+		x1.annotations().add(this.ANO1);
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	public void testTypeAnnotations9() {		
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		// annotations on constructor declaration - implying on the object returned.
+		MethodDeclaration x1 = this.ast.newMethodDeclaration();
+		x1.setConstructor(true);
+		x1.setName(this.N1);
+		x1.modifiers().add(this.ANO1);
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	public void testTypeAnnotations10() {		
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		// annotations on constructor declaration - implying on the object returned.
+		MethodDeclaration x1 = this.ast.newMethodDeclaration();
+		x1.setConstructor(true);
+		x1.setName(this.N1);
+		SimpleType x2 = this.ast.newSimpleType(this.N2);
+		x2.annotations().add(this.ANO1);
+		x1.setReceiverType(x2);
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	public void testTypeAnnotations11() {	
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		// annotated simple type at class inheritance
+		TypeDeclaration x1 = this.ast.newTypeDeclaration();
+		TypeParameter x2 = this.ast.newTypeParameter();
+		x2.setName(this.ast.newSimpleName("T"));
+		x2.annotations().add(this.ANO1);
+		x1.typeParameters().add(x2);
+		x1.setName(this.N2);
+		basicMatch(x1);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
+	public void testTypeAnnotations12() {
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		VariableDeclarationFragment x1 = this.ast.newVariableDeclarationFragment();
+		x1.setName(this.N1);
+		ExtraDimension x2 = this.ast.newExtraDimension();
+		Annotation Annot = this.ast.newMarkerAnnotation();
+		Annot.setTypeName(this.ast.newSimpleName("NewAnnot1"));
+		x2.annotations().add(Annot);
+		x1.extraDimensionInfos().add(x2);
+		x2 = this.ast.newExtraDimension();
+		Annot = this.ast.newMarkerAnnotation();
+		Annot.setTypeName(this.ast.newSimpleName("NewAnnot2"));
+		x2.annotations().add(Annot);
+		Annot = this.ast.newMarkerAnnotation();
+		Annot.setTypeName(this.ast.newSimpleName("NewAnnot3"));
+		x2.annotations().add(Annot);
+		x1.extraDimensionInfos().add(x2);
 		basicMatch(x1);
 	}
 }

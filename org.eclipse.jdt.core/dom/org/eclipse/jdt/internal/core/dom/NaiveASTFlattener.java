@@ -418,6 +418,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	public boolean visit(ExtraDimension node) {
+		this.buffer.append(" ");//$NON-NLS-1$
 		visitAnnotationsList(node.annotations());
 		this.buffer.append("[]"); //$NON-NLS-1$
 		return false;
