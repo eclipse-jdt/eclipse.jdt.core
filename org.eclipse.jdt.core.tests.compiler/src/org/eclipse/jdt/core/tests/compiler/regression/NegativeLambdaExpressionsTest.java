@@ -173,7 +173,42 @@ public void test006() {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
+			"	       ^^^^^\n" + 
+			"Outer cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
+			"	             ^^^\n" + 
+			"One cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
+			"	                  ^^^\n" + 
+			"Two cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
+			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
+			"	                             ^^^^^\n" + 
+			"Three cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 5)\n" + 
+			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
+			"	                                    ^^^^\n" + 
+			"Four cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 5)\n" + 
+			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
+			"	                                                 ^^^^\n" + 
+			"Five cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 5)\n" + 
+			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
+			"	                                                       ^^^\n" + 
+			"Six cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 6)\n" + 
 			"	int x\n" + 
 			"	    ^\n" + 
 			"Syntax error, insert \";\" to complete FieldDeclaration\n" + 
@@ -896,7 +931,7 @@ public void test027() {
 			"Unreachable code\n" + 
 			"----------\n");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+// Bug 399979 - [1.8][compiler] Statement expressions should be allowed in non-block lambda body when return type is void (edit) 
 public void test028() {
 	this.runNegativeTest(
 			new String[] {
@@ -931,6 +966,59 @@ public void test028() {
 			"	I i = () -> 1 + data++;\n" + 
 			"	            ^^^^^^^^^^\n" + 
 			"Void methods cannot return a value\n" + 
+			"----------\n");
+}
+// Bug 384600 - [1.8] 'this' should not be allowed in lambda/Reference expressions in contexts that don't allow it
+public void test029() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	void doit();\n" +
+			"}\n" +
+			"public class X extends Y {\n" +
+			"	static void foo() {\n" +
+			"		I i1 = this::zoo;\n" +
+			"		I i2 = super::boo;\n" +
+			"		I i3 = () -> super.zoo();\n" +
+			"		I i4 = () -> this.boo();\n" +
+			"	}\n" +
+			"	void boo () {\n" +
+			"		I i1 = this::zoo;\n" +
+			"		I i2 = super::boo;\n" +
+			"		I i3 = () -> super.zoo();\n" +
+			"		I i4 = () -> this.boo();\n" +
+			"	}\n" +
+			"	void zoo() {\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	void boo() {\n" +
+			"	}\n" +
+			"	void zoo() {\n" +
+			"	}\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	I i1 = this::zoo;\n" + 
+			"	       ^^^^\n" + 
+			"Cannot use this in a static context\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	I i2 = super::boo;\n" + 
+			"	       ^^^^^\n" + 
+			"Cannot use super in a static context\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	I i3 = () -> super.zoo();\n" + 
+			"	             ^^^^^\n" + 
+			"Cannot use super in a static context\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	I i4 = () -> this.boo();\n" + 
+			"	             ^^^^\n" + 
+			"Cannot use this in a static context\n" + 
 			"----------\n");
 }
 public static Class testClass() {

@@ -643,7 +643,17 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"}\n"
 				},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 7)\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	I i = @Marker int @Marker []::<String>clone;\n" + 
+				"	       ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	I i = @Marker int @Marker []::<String>clone;\n" + 
+				"	                   ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -1068,7 +1078,12 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"}\n"
 				},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 8)\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	I i = Y<String>.@Marker Z::foo;\n" + 
+				"	                 ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -1403,7 +1418,32 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"}\n"
 				},
 				"----------\n" + 
-				"1. ERROR in X.java (at line 8)\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	I i = @Marker Y. @Marker Z @Marker [] [] @Marker [] ::foo;\n" + 
+				"	      ^^^^^^^\n" + 
+				"Type annotations are not allowed on type names used to access static members\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	I i = @Marker Y. @Marker Z @Marker [] [] @Marker [] ::foo;\n" + 
+				"	       ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	I i = @Marker Y. @Marker Z @Marker [] [] @Marker [] ::foo;\n" + 
+				"	                  ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 6)\n" + 
+				"	I i = @Marker Y. @Marker Z @Marker [] [] @Marker [] ::foo;\n" + 
+				"	                            ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 6)\n" + 
+				"	I i = @Marker Y. @Marker Z @Marker [] [] @Marker [] ::foo;\n" + 
+				"	                                          ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 8)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
@@ -1447,12 +1487,22 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"	i = @Marker W<@Marker Integer>::<@Marker String> new;\n" + 
 				"	^\n" + 
 				"i cannot be resolved to a variable\n" + 
-				"----------\n" +
-				"2. ERROR in X.java (at line 12)\n" +
-				"	i = @Marker W<@Marker Integer>::<@Marker String> new;\n" +
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			    "The target type of this expression must be a functional interface\n" +
-			    "----------\n"
+				"----------\n" + 
+				"2. ERROR in X.java (at line 12)\n" + 
+				"	i = @Marker W<@Marker Integer>::<@Marker String> new;\n" + 
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The target type of this expression must be a functional interface\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 12)\n" + 
+				"	i = @Marker W<@Marker Integer>::<@Marker String> new;\n" + 
+				"	     ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 12)\n" + 
+				"	i = @Marker W<@Marker Integer>::<@Marker String> new;\n" + 
+				"	               ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n"
 				);
 	}
 	// CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
