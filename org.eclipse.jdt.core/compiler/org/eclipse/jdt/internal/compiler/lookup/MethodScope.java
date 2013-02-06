@@ -525,6 +525,7 @@ public AbstractMethodDeclaration referenceMethod() {
  * It is the nearest enclosing type of this scope.
  */
 public TypeDeclaration referenceType() {
-	return ((ClassScope) this.parent).referenceContext;
+	ClassScope scope = enclosingClassScope();
+	return scope == null ? null : scope.referenceContext;
 }
 }

@@ -77,7 +77,7 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 							haveDescriptor ? this.singleAbstractMethod.returnType : null, 
 							Binding.NO_PARAMETERS, // for now. 
 							haveDescriptor ? this.singleAbstractMethod.thrownExceptions : Binding.NO_EXCEPTIONS, 
-							null); // declaring class.
+							blockScope.enclosingSourceType()); // declaring class, for now - this is needed for annotation holder and such.
 		this.binding.typeVariables = Binding.NO_TYPE_VARIABLES; // descriptor may have type variables, but they are useless in lambda and lambda cannot be generic.
 		
 		if (haveDescriptor) {
@@ -105,18 +105,6 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 					buggyArguments = true;
 				}
 			}
-			if (argument.annotations != null) {
-				this.binding.tagBits |= TagBits.HasParameterAnnotations;
-				if (parameterAnnotations == null) {
-					parameterAnnotations = new AnnotationBinding[length][];
-					for (int j = 0; j < i; j++) {
-						parameterAnnotations[j] = Binding.NO_ANNOTATIONS;
-					}
-				}
-				parameterAnnotations[i] = argument.binding.getAnnotations();
-			} else if (parameterAnnotations != null) {
-				parameterAnnotations[i] = Binding.NO_ANNOTATIONS;
-			}
 			
 			TypeBinding parameterType;
 			final TypeBinding expectedParameterType = haveDescriptor ? this.singleAbstractMethod.parameters[i] : null;
@@ -142,6 +130,18 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 					this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				newParameters[i] = parameterType;
 				argument.bind(this.scope, parameterType, false);
+				if (argument.annotations != null) {
+					this.binding.tagBits |= TagBits.HasParameterAnnotations;
+					if (parameterAnnotations == null) {
+						parameterAnnotations = new AnnotationBinding[length][];
+						for (int j = 0; j < i; j++) {
+							parameterAnnotations[j] = Binding.NO_ANNOTATIONS;
+						}
+					}
+					parameterAnnotations[i] = argument.binding.getAnnotations();
+				} else if (parameterAnnotations != null) {
+					parameterAnnotations[i] = Binding.NO_ANNOTATIONS;
+				}
 			}
 		}
 		// only assign parameters if no problems are found

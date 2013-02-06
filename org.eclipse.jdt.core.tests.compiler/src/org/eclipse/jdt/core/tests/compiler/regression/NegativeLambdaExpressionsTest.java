@@ -391,7 +391,6 @@ public void test012() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384600, [1.8] 'this' should not be allowed in lambda expressions in contexts that don't allow it
 public void test013() {
-	// This test checks that common semantic checks are indeed 
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -419,6 +418,47 @@ public void test013() {
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n"
 				);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384595, Reject illegal modifiers on lambda arguments.
+public void test014() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int x, int y, int z);	\n" +
+					"}\n" +
+					"public class X {\n" +
+					"     I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" +
+					"}\n" +
+					"@interface Marker {\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" + 
+				"	                             ^^^^^^^^^\n" + 
+				"Undefined cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" + 
+				"	                                                              ^^^^^^\n" + 
+				"Lambda expression\'s parameter o is expected to be of type int\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" + 
+				"	                                                                     ^\n" + 
+				"Illegal modifier for parameter o; only final is permitted\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 5)\n" + 
+				"	I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" + 
+				"	                                                                                            ^\n" + 
+				"Illegal modifier for parameter p; only final is permitted\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 5)\n" + 
+				"	I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" + 
+				"	                                                                                                  ^\n" + 
+				"Void methods cannot return a value\n" + 
+				"----------\n");
 }
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
