@@ -1021,6 +1021,34 @@ public void test029() {
 			"Cannot use this in a static context\n" + 
 			"----------\n");
 }
+// Bug 382713 - [1.8][compiler] Compiler should reject lambda expressions when target type is not a functional interface
+public void test030() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface I {\n" +
+			"  void foo();\n" +
+			"  void goo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    X x = () -> 10;\n" +
+			"    I i = () -> 10;\n" +
+			"  }\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	X x = () -> 10;\n" + 
+			"	      ^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	I i = () -> 10;\n" + 
+			"	      ^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

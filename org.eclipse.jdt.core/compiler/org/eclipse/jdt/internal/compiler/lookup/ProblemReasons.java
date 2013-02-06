@@ -32,6 +32,5 @@ public interface ProblemReasons {
 	final int InvalidTypeForAutoManagedResource = 15;
 	final int VarargsElementTypeNotVisible = 16;
 	final int NoSuchSingleAbstractMethod = 17;
-	final int NotAFunctionalInterface = 18;
-	final int NotAWellFormedParameterizedType = 19;
+	final int NotAWellFormedParameterizedType = 18;
 }

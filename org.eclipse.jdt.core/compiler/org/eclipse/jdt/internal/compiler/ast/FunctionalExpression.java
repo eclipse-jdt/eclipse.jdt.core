@@ -50,7 +50,7 @@ public abstract class FunctionalExpression extends Expression {
 		}
 		if (!descriptor.isValidBinding()) {
 			switch (descriptor.problemId()) {
-				case ProblemReasons.NotAFunctionalInterface:
+				case ProblemReasons.NoSuchSingleAbstractMethod:
 					blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
 					break;
 				case ProblemReasons.NotAWellFormedParameterizedType:
