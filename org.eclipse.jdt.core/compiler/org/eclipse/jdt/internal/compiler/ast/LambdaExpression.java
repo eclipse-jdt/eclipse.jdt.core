@@ -107,7 +107,7 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 			}
 			
 			TypeBinding parameterType;
-			final TypeBinding expectedParameterType = haveDescriptor ? this.singleAbstractMethod.parameters[i] : null;
+			final TypeBinding expectedParameterType = haveDescriptor && i < this.singleAbstractMethod.parameters.length ? this.singleAbstractMethod.parameters[i] : null;
 			parameterType = argumentsTypeElided ? expectedParameterType : argument.type.resolveType(this.scope, true /* check bounds*/);
 			if (parameterType == null) {
 				buggyArguments = true;
@@ -121,7 +121,7 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 				if ((parameterType.tagBits & TagBits.HasMissingType) != 0) {
 					this.binding.tagBits |= TagBits.HasMissingType;
 				}
-				if (haveDescriptor && parameterType != expectedParameterType) {
+				if (haveDescriptor && expectedParameterType != null && parameterType != expectedParameterType) {
 					this.scope.problemReporter().lambdaParameterTypeMismatched(argument, argument.type, expectedParameterType);
 				}
 

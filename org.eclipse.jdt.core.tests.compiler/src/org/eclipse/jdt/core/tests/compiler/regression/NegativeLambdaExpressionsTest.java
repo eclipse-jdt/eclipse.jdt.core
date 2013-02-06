@@ -460,6 +460,87 @@ public void test014() {
 				"Void methods cannot return a value\n" + 
 				"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399534, [1.8][compiler] Lambda parameters must be checked for compatibility with the single abstract method of the functional interface.
+public void test015() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.Collection;\n" +
+					"import java.util.List;\n" +
+					"interface I { void run(int x); }\n" +
+					"interface J { void run(int x, String s); }\n" +
+					"interface K { void run(Collection<String> jobs); }\n" +
+					"class X {\n" +
+					"    I i1 = (String y) -> {};\n" +
+					"    I i2 = (y) -> {};\n" +
+					"    I i3 = y -> {};\n" +
+					"    I i4 = (int x, String y) -> {};\n" +
+					"    I i5 = (int x) -> {};\n" +
+					"    J j1 = () -> {};\n" +
+					"    J j2 = (x, s) -> {};\n" +
+					"    J j3 = (String x, int s) -> {};\n" +
+					"    J j4 = (int x, String s) -> {};\n" +
+					"    J j5 = x ->  {};\n" +
+					"    K k1 = (Collection l) -> {};\n" +
+					"    K k2 = (Collection <Integer> l) -> {};\n" +
+					"    K k3 = (Collection <String> l) -> {};\n" +
+					"    K k4 = (List <String> l) -> {};\n" +
+					"    K k5 = (l) -> {};\n" +
+					"    K k6 = l -> {};\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	I i1 = (String y) -> {};\n" + 
+				"	        ^^^^^^\n" + 
+				"Lambda expression\'s parameter y is expected to be of type int\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 10)\n" + 
+				"	I i4 = (int x, String y) -> {};\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 12)\n" + 
+				"	J j1 = () -> {};\n" + 
+				"	       ^^^^^^^^\n" + 
+				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 14)\n" + 
+				"	J j3 = (String x, int s) -> {};\n" + 
+				"	        ^^^^^^\n" + 
+				"Lambda expression\'s parameter x is expected to be of type int\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 14)\n" + 
+				"	J j3 = (String x, int s) -> {};\n" + 
+				"	                  ^^^\n" + 
+				"Lambda expression\'s parameter s is expected to be of type String\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 16)\n" + 
+				"	J j5 = x ->  {};\n" + 
+				"	       ^^^^^^^^\n" + 
+				"Lambda expression\'s signature does not match the signature of the functional interface method\n" + 
+				"----------\n" + 
+				"7. WARNING in X.java (at line 17)\n" + 
+				"	K k1 = (Collection l) -> {};\n" + 
+				"	        ^^^^^^^^^^\n" + 
+				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 17)\n" + 
+				"	K k1 = (Collection l) -> {};\n" + 
+				"	        ^^^^^^^^^^\n" + 
+				"Lambda expression\'s parameter l is expected to be of type Collection<String>\n" + 
+				"----------\n" + 
+				"9. ERROR in X.java (at line 18)\n" + 
+				"	K k2 = (Collection <Integer> l) -> {};\n" + 
+				"	        ^^^^^^^^^^\n" + 
+				"Lambda expression\'s parameter l is expected to be of type Collection<String>\n" + 
+				"----------\n" + 
+				"10. ERROR in X.java (at line 20)\n" + 
+				"	K k4 = (List <String> l) -> {};\n" + 
+				"	        ^^^^\n" + 
+				"Lambda expression\'s parameter l is expected to be of type Collection<String>\n" + 
+				"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
