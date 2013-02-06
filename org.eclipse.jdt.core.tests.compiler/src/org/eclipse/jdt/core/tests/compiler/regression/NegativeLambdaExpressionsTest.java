@@ -1049,6 +1049,52 @@ public void test030() {
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n");
 }
+// Bug 398267 - [1.8][compiler] Variables in the body of the lambda expression should be valid
+public void test031() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface I {\n" +
+			"  void foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"  public void main(String[] args) {\n" +
+			"    I i = () -> {\n" +
+			"            		p = 10;\n" +
+			"            		Zork z = this.blank;\n" +
+			"            		super.foo();\n" +
+			"            		goo();\n" +
+			"           	};\n" +
+			"  }\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	p = 10;\n" + 
+			"	^\n" + 
+			"p cannot be resolved to a variable\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	Zork z = this.blank;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	Zork z = this.blank;\n" + 
+			"	              ^^^^^\n" + 
+			"blank cannot be resolved or is not a field\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	super.foo();\n" + 
+			"	      ^^^\n" + 
+			"The method foo() is undefined for the type Object\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 10)\n" + 
+			"	goo();\n" + 
+			"	^^^\n" + 
+			"The method goo() is undefined for the type X\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
