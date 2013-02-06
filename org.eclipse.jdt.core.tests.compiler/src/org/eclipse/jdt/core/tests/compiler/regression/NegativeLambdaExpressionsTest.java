@@ -1230,6 +1230,55 @@ public void test036() {
 			"Duplicate local variable args\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382702 - [1.8][compiler] Lambda expressions should be rejected in disallowed contexts
+public void test037() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface I {\r\n" + 
+			"  int foo1(String x);\r\n" + 
+			"}\r\n" + 
+			"public class X {\r\n" + 
+			"  public static void main(String[] args) {\r\n" +
+			"    System.out.println(\"Lambda in illegal context: \" + (() -> \"Illegal Lambda\"));\r\n" +
+			"    System.out.println(\"Method Reference in illegal context: \" + System::exit);\r\n" +
+			"    System.out.println(\"Constructor Reference in illegal context: \" + String::new);\r\n" +
+			"    I sam1 = (x) -> x.length(); // OK\r\n" +
+//			"    I sam2 = ((String::length)); // OK\r\n" +
+//			"    I sam3 = (Math.random() > 0.5) ? String::length : String::hashCode; // OK\r\n" +
+//			"    I sam4 = (I)(String::length); // OK\r\n" +
+            "    int x = (x) -> 10;\n" +
+            "    X x2 = (x) -> 10;\n" +
+			"  }\r\n" + 
+			"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	System.out.println(\"Lambda in illegal context: \" + (() -> \"Illegal Lambda\"));\n" + 
+			"	                                                   ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	System.out.println(\"Method Reference in illegal context: \" + System::exit);\n" + 
+			"	                                                             ^^^^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	System.out.println(\"Constructor Reference in illegal context: \" + String::new);\n" + 
+			"	                                                                  ^^^^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 10)\n" + 
+			"	int x = (x) -> 10;\n" + 
+			"	        ^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 11)\n" + 
+			"	X x2 = (x) -> 10;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n");
+}
+
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
