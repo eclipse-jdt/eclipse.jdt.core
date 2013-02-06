@@ -1185,7 +1185,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 				"@interface Marker2 {}\n" +
 				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" + 
 				"@interface Marker3 {}";
-		System.out.println(contents);
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -1222,7 +1221,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 				"@interface Marker2 {}\n" +
 				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" + 
 				"@interface Marker3 {}";
-		System.out.println(contents);
 		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
 		CompilationUnit unit = (CompilationUnit) buildAST(AST.JLS4, contents, this.workingCopy, true, true, true);
 		
