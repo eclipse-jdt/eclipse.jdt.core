@@ -1123,7 +1123,113 @@ public void test032() {
 			"Unhandled exception type EOFException\n" + 
 			"----------\n");
 }
+// Bug 399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor
+public void test033() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface IA {\r\n" + 
+			"  void snazz();\r\n" + 
+			"}\r\n" + 
+			"interface IB {\r\n" + 
+			"  void baz() throws java.io.IOException;\r\n" + 
+			"}\r\n" + 
+			"public class X {\r\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    IA i1 = () -> {\n" + 
+			"      throw new java.io.EOFException(); // Error: not declared\n" + 
+			"    };\n" + 
+			"    IB i2 = () -> {\n" + 
+			"      throw new java.io.EOFException(); // Fine: IOException is declared\n" + 
+			"    }; // No error, it's all good\n" + 
+			"  }\n" + 
+			"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	throw new java.io.EOFException(); // Error: not declared\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type EOFException\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=398734 - [1.8][compiler] Lambda expression type or return type should be checked against the target functional interface method's result type
+public void test034() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface I {\r\n" + 
+			"  int foo(int x, int y);\r\n" + 
+			"}\r\n" + 
+			"public class X {\r\n" + 
+			"  public static void main(String[] args) {\r\n" + 
+			"    int x = 2;\r\n" + 
+			"    I i = (a, b) -> {\r\n" + 
+			"      return 42.0 + a + args.length; // Type mismatch: cannot convert from double to int\r\n" + 
+			"    };\r\n" + 
+			"  }\r\n" + 
+			"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	return 42.0 + a + args.length; // Type mismatch: cannot convert from double to int\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from double to int\n" + 
+			"----------\n");
+}
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=381121,  [] should be accepted in reference expressions.
+public void test035() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	Object foo(int [] ia);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	I i = (int [] ia) -> ia.clone();\n" +
+					"	I i2 = int[]::clone;\n" +
+					"	Zork z;\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727,  Lambda expression parameters and locals cannot shadow variables from context
+public void test036() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface I {\r\n" + 
+			"  void foo(int x, int y);\r\n" + 
+			"}\r\n" + 
+			"public class X {\r\n" + 
+			"  public static void main(String[] args) {\r\n" + 
+			"    int x, y;\r\n" + 
+			"    I i = (x, y) -> { // Error: x,y being redeclared\r\n" + 
+			"      int args = 10; //  Error args is being redeclared\r\n" + 
+			"    };\r\n" + 
+			"  }\r\n" + 
+			"}"}, 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	I i = (x, y) -> { // Error: x,y being redeclared\n" + 
+			"	       ^\n" + 
+			"Duplicate parameter x\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	I i = (x, y) -> { // Error: x,y being redeclared\n" + 
+			"	          ^\n" + 
+			"Duplicate parameter y\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	int args = 10; //  Error args is being redeclared\n" + 
+			"	    ^^^^\n" + 
+			"Duplicate local variable args\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
