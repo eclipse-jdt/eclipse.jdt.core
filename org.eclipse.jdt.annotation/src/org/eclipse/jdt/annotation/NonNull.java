@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.annotation;
 
+import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
@@ -22,7 +23,7 @@ import java.lang.annotation.Target;
  
 /**
  * Qualifier for a type in a method signature or a local variable declaration:
- * The entity (return value, parameter, local variable) whose type has this
+ * The entity (return value, parameter, field, local variable) whose type has this
  * annotation can never have the value <code>null</code> at runtime.
  * <p>
  * This has two consequences:
@@ -44,7 +45,7 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Retention(RetentionPolicy.CLASS)
-@Target({ METHOD, PARAMETER, LOCAL_VARIABLE })
+@Target({ FIELD, METHOD, PARAMETER, LOCAL_VARIABLE })
 public @interface NonNull {
 	// marker annotation with no members
 }

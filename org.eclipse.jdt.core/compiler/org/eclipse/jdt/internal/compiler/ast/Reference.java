@@ -14,6 +14,8 @@
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
  *								bug 185682 - Increment/decrement operators mark local variables as read
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+ *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -43,6 +45,21 @@ public abstract FlowInfo analyseAssignment(BlockScope currentScope, FlowContext 
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	return flowInfo;
+}
+
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	if (flowContext.isNullcheckedFieldAccess(this)) {
+		return true; // enough seen
+	}
+	return super.checkNPE(scope, flowContext, flowInfo);
+}
+
+protected boolean checkNullableFieldDereference(Scope scope, FieldBinding field, long sourcePosition) {
+	if ((field.tagBits & TagBits.AnnotationNullable) != 0) {
+		scope.problemReporter().nullableFieldDereference(field, sourcePosition);
+		return true;
+	}
+	return false;
 }
 
 public FieldBinding fieldBinding() {
@@ -99,7 +116,30 @@ public abstract void generateCompoundAssignment(BlockScope currentScope, CodeStr
 
 public abstract void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired);
 
-public int nullStatus(FlowInfo flowInfo) {
+/** 
+ * Is the given reference equivalent to the receiver, 
+ * meaning that both denote the same path of field reads?
+ * Used from {@link FlowContext#isNullcheckedFieldAccess(Reference)}.
+ */
+public boolean isEquivalent(Reference reference) {
+	return false;
+}
+
+public FieldBinding lastFieldBinding() {
+	// override to answer the field designated by the entire reference
+	// (as opposed to fieldBinding() which answers the first field in a QNR)
+	return null;
+}
+
+public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
+	FieldBinding fieldBinding = lastFieldBinding();
+	if (fieldBinding != null) {
+		if (fieldBinding.isNonNull() || flowContext.isNullcheckedFieldAccess(this)) {
+			return FlowInfo.NON_NULL;
+		} else if (fieldBinding.isNullable()) {
+			return FlowInfo.POTENTIALLY_NULL;
+		}
+	}
 	if (this.resolvedType != null) {
 		if ((this.resolvedType.tagBits & TagBits.AnnotationNonNull) != 0)
 			return FlowInfo.NON_NULL;

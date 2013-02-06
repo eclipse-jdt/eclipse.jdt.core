@@ -17,6 +17,7 @@
  *								bug 365519 - editorial cleanup after bug 186342 and bug 365387
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -123,11 +124,15 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			}
 			// propagate to statements
 			if (this.statements != null) {
+				boolean enableSyntacticNullAnalysisForFields = this.scope.compilerOptions().enableSyntacticNullAnalysisForFields;
 				int complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 				for (int i = 0, count = this.statements.length; i < count; i++) {
 					Statement stat = this.statements[i];
 					if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 						flowInfo = stat.analyseCode(this.scope, methodContext, flowInfo);
+					}
+					if (enableSyntacticNullAnalysisForFields) {
+						methodContext.expireNullCheckedFieldInfo();
 					}
 				}
 			} else {

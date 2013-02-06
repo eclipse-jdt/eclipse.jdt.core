@@ -26,6 +26,8 @@
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *								bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
  *								bug 381445 - [compiler][resource] Can the resource leak check be made aware of Closeables.closeQuietly?
+ *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -190,13 +192,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	manageSyntheticAccessIfNecessary(currentScope, flowInfo);
 	// account for pot. exceptions thrown by method execution
 	flowContext.recordAbruptExit();
+	flowContext.expireNullCheckedFieldInfo(); // no longer trust this info after any message send
 	return flowInfo;
 }
-public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
-	if ((nullStatus(flowInfo) & FlowInfo.POTENTIALLY_NULL) != 0) // note that flowInfo is not used inside nullStatus(..)
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	// message send as a receiver
+	if ((nullStatus(flowInfo, flowContext) & FlowInfo.POTENTIALLY_NULL) != 0) // note that flowInfo is not used inside nullStatus(..)
 		scope.problemReporter().messageSendPotentialNullReference(this.binding, this);
-	else
-		super.checkNPE(scope, flowContext, flowInfo);
+	return true; // done all possible checking
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.ast.Expression#computeConversion(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
@@ -350,7 +353,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		}
 	}
 }
-public int nullStatus(FlowInfo flowInfo) {
+public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 	if (this.binding.isValidBinding()) {
 		// try to retrieve null status of this message send from an annotation of the called method:
 		long tagBits = this.binding.tagBits;

@@ -14,6 +14,8 @@
  *								bug 361407 - Resource leak warning when resource is assigned to a field outside of constructor
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 383690 - [compiler] location of error re uninitialized final field should be aligned
+ *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -150,11 +152,15 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 
 		// propagate to statements
 		if (this.statements != null) {
+			boolean enableSyntacticNullAnalysisForFields = this.scope.compilerOptions().enableSyntacticNullAnalysisForFields;
 			int complaintLevel = (nonStaticFieldInfoReachMode & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 			for (int i = 0, count = this.statements.length; i < count; i++) {
 				Statement stat = this.statements[i];
 				if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 					flowInfo = stat.analyseCode(this.scope, constructorContext, flowInfo);
+				}
+				if (enableSyntacticNullAnalysisForFields) {
+					constructorContext.expireNullCheckedFieldInfo();
 				}
 			}
 		}
@@ -168,21 +174,27 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
 		// flowInfo.setReachMode(initialReachMode);
 
-		// check missing blank final field initializations
+		// check missing blank final field initializations (plus @NonNull)
 		if ((this.constructorCall != null)
 			&& (this.constructorCall.accessMode != ExplicitConstructorCall.This)) {
 			flowInfo = flowInfo.mergedWith(constructorContext.initsOnReturn);
 			FieldBinding[] fields = this.binding.declaringClass.fields();
 			for (int i = 0, count = fields.length; i < count; i++) {
-				FieldBinding field;
-				if ((!(field = fields[i]).isStatic())
-					&& field.isFinal()
-					&& (!flowInfo.isDefinitelyAssigned(fields[i]))) {
-					this.scope.problemReporter().uninitializedBlankFinalField(
-						field,
-						((this.bits & ASTNode.IsDefaultConstructor) != 0)
-								? (ASTNode) this.scope.referenceType().declarationOf(field.original())
-								: this);
+				FieldBinding field = fields[i];
+				if (!field.isStatic() && !flowInfo.isDefinitelyAssigned(field)) {
+					if (field.isFinal()) {
+						this.scope.problemReporter().uninitializedBlankFinalField(
+								field,
+								((this.bits & ASTNode.IsDefaultConstructor) != 0)
+									? (ASTNode) this.scope.referenceType().declarationOf(field.original())
+									: this);
+					} else if (field.isNonNull()) {
+							this.scope.problemReporter().uninitializedNonNullField(
+								field,
+								((this.bits & ASTNode.IsDefaultConstructor) != 0) 
+									? (ASTNode) this.scope.referenceType().declarationOf(field.original())
+									: this);
+					}
 				}
 			}
 		}

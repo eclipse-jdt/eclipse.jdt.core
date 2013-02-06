@@ -8,10 +8,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Perry James - nullStatus method improvement (165346)
+ *     Stephan Herrmann - Contribution for
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class OperatorExpression extends Expression implements OperatorIds {
@@ -1554,10 +1555,6 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 				return "="; //$NON-NLS-1$
 		}
 		return "unknown operator"; //$NON-NLS-1$
-	}
-
-	public int nullStatus(FlowInfo flowInfo) {
-		return FlowInfo.NON_NULL;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output){

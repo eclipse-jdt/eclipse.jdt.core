@@ -7,7 +7,10 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *								bug 185682 - Increment/decrement operators mark local variables as read
+ *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -23,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
@@ -35,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 public class FieldReference extends Reference implements InvocationSite {
 
@@ -107,6 +112,14 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			// assigning a final field outside an initializer or constructor or wrong reference
 			currentScope.problemReporter().cannotAssignToFinalField(this.binding, this);
 		}
+	} else if (this.binding.isNonNull()) {
+		// in a context where it can be assigned?
+		if (   !isCompound
+			&& this.receiver.isThis()
+			&& !(this.receiver instanceof QualifiedThisReference)
+			&& ((this.receiver.bits & ASTNode.ParenthesizedMASK) == 0)) { // (this).x is forbidden
+			flowInfo.markAsDefinitelyAssigned(this.binding);
+		}		
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318682
 	if (!this.binding.isStatic()) {
@@ -147,6 +160,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 	}
 	return flowInfo;
+}
+
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	if (flowContext.isNullcheckedFieldAccess(this)) {
+		return true; // enough seen
+	}
+	return checkNullableFieldDereference(scope, this.binding, this.nameSourcePosition);
 }
 
 /**
@@ -427,12 +447,68 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 public TypeBinding[] genericTypeArguments() {
 	return null;
 }
+
+public boolean isEquivalent(Reference reference) {
+	// only consider field references relative to "this":
+	if (this.receiver.isThis() && !(this.receiver instanceof QualifiedThisReference)) {
+		// current is a simple "this.f1"
+		char[] otherToken = null;
+		// matching 'reference' could be "f1" or "this.f1":
+		if (reference instanceof SingleNameReference) {
+			otherToken = ((SingleNameReference) reference).token;
+		} else if (reference instanceof FieldReference) {
+			FieldReference fr = (FieldReference) reference;
+			if (fr.receiver.isThis() && !(fr.receiver instanceof QualifiedThisReference)) {
+				otherToken = fr.token;
+			}		
+		}
+		return otherToken != null && CharOperation.equals(this.token, otherToken);
+	} else {
+		// search deeper for "this" inside:
+		char[][] thisTokens = getThisFieldTokens(1);
+		if (thisTokens == null) {
+			return false;
+		}
+		// other can be "this.f1.f2", too, or "f1.f2":
+		char[][] otherTokens = null;
+		if (reference instanceof FieldReference) {
+			otherTokens = ((FieldReference) reference).getThisFieldTokens(1);
+		} else if (reference instanceof QualifiedNameReference) {
+			if (((QualifiedNameReference)reference).binding instanceof LocalVariableBinding)
+				return false; // initial variable mismatch: local (from f1.f2) vs. field (from this.f1.f2)
+			otherTokens = ((QualifiedNameReference) reference).tokens;
+		}
+		return CharOperation.equals(thisTokens, otherTokens);
+	}
+}
+
+private char[][] getThisFieldTokens(int nestingCount) {
+	char[][] result = null;
+	if (this.receiver.isThis() && ! (this.receiver instanceof QualifiedThisReference)) {
+		// found an inner-most this-reference, start building the token array:
+		result = new char[nestingCount][];
+		// fill it front to tail while traveling back out:
+		result[0] = this.token;
+	} else if (this.receiver instanceof FieldReference) {
+		result = ((FieldReference)this.receiver).getThisFieldTokens(nestingCount+1);
+		if (result != null) {
+			// front to tail: outermost is last:
+			result[result.length-nestingCount] = this.token;
+		}
+	}
+	return result;
+}
+
 public boolean isSuperAccess() {
 	return this.receiver.isSuper();
 }
 
 public boolean isTypeAccess() {
 	return this.receiver != null && this.receiver.isTypeReference();
+}
+
+public FieldBinding lastFieldBinding() {
+	return this.binding;
 }
 
 /*
@@ -478,10 +554,6 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			return;
 		}
 	}
-}
-
-public int nullStatus(FlowInfo flowInfo) {
-	return FlowInfo.UNKNOWN;
 }
 
 public Constant optimizedBooleanConstant() {
@@ -667,5 +739,15 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 		this.receiver.traverse(visitor, scope);
 	}
 	visitor.endVisit(this, scope);
+}
+
+public VariableBinding nullAnnotatedVariableBinding(boolean supportTypeAnnotations) {
+	if (this.binding != null) {
+		if (supportTypeAnnotations
+				|| ((this.binding.tagBits & (TagBits.AnnotationNonNull|TagBits.AnnotationNullable)) != 0)) {
+			return this.binding;
+		}
+	}
+	return null;
 }
 }

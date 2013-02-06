@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+ *								bug 331649 - [compiler][null] consider null annotations for fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -83,6 +84,16 @@ public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowCon
 				.analyseCode(initializationScope, flowContext, flowInfo)
 				.unconditionalInits();
 		flowInfo.markAsDefinitelyAssigned(this.binding);
+	}
+	if (this.initialization != null) {
+		if (this.binding.isNonNull()) {
+			int nullStatus = this.initialization.nullStatus(flowInfo, flowContext);
+			// check against annotation @NonNull:
+			if (nullStatus != FlowInfo.NON_NULL) {
+				char[][] annotationName = initializationScope.environment().getNonNullAnnotationName();
+				initializationScope.problemReporter().nullityMismatch(this.initialization, this.initialization.resolvedType, this.binding.type, nullStatus, annotationName);
+			}
+		}
 	}
 	return flowInfo;
 }

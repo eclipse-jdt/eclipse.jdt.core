@@ -125,6 +125,7 @@ public static Test suite() {
 	
 	ArrayList since_1_8 = new ArrayList();
 	since_1_8.add(NegativeTypeAnnotationTest.class);
+	since_1_8.add(NullTypeAnnotationTest.class);
 	since_1_8.add(NegativeLambdaExpressionsTest.class);
 	since_1_8.add(DefaultMethodsTest.class);
 	since_1_8.add(GrammarCoverageTests308.class);

@@ -7,6 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -56,6 +59,10 @@ public class ThisReference extends Reference {
 		return true;
 	}
 
+	public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+		return true; // never problematic
+	}
+
 	/*
 	 * @see Reference#generateAssignment(...)
 	 */
@@ -98,7 +105,7 @@ public class ThisReference extends Reference {
 		return true ;
 	}
 
-	public int nullStatus(FlowInfo flowInfo) {
+	public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 		return FlowInfo.NON_NULL;
 	}
 

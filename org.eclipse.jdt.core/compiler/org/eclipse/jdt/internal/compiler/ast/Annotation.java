@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contributions for
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
+ *								bug 331649 - [compiler][null] consider null annotations for fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -809,6 +810,10 @@ public abstract class Annotation extends Expression {
 							sourceType = (SourceTypeBinding) sourceField.declaringClass;
 							FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(sourceField);
 							recordSuppressWarnings(scope, fieldDeclaration.declarationSourceStart, fieldDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
+						}
+						if ((sourceField.tagBits & TAGBITS_NULLABLE_OR_NONNULL) == TAGBITS_NULLABLE_OR_NONNULL) {
+							scope.problemReporter().contradictoryNullAnnotations(this);
+							sourceField.tagBits &= ~TAGBITS_NULLABLE_OR_NONNULL; // avoid secondary problems
 						}
 						break;
 					case Binding.LOCAL :

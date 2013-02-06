@@ -162,6 +162,14 @@
  *									DereferencingNullableExpression
  *									NullityMismatchingTypeAnnotation
  *									NullityMismatchingTypeAnnotationUnchecked
+ *									NullableFieldReference
+ *									UninitializedNonNullField
+ *									UninitializedNonNullFieldHintMissingDefault
+ *									NonNullMessageSendComparisonYieldsFalse
+ *									RedundantNullCheckOnNonNullSpecdField
+ *									NonNullSpecdFieldComparisonYieldsFalse
+ *									NonNullExpressionComparisonYieldsFalse
+ *									RedundantNullCheckOnNonNullExpression
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *******************************************************************************/
@@ -1362,6 +1370,14 @@ void setSourceStart(int sourceStart);
 	int IllegalArrayOfUnionType = TypeRelated + 662;
 
 	/**
+	 * Null analysis for other kinds of expressions, syntactically nonnull
+	 */
+	/** @since 3.9 */
+	int NonNullExpressionComparisonYieldsFalse = Internal + 670;
+	/** @since 3.9 */
+	int RedundantNullCheckOnNonNullExpression = Internal + 671;
+
+	/**
 	 * Corrupted binaries
 	 */
 	/** @since 3.1 */
@@ -1552,6 +1568,8 @@ void setSourceStart(int sourceStart);
 	int RedundantNullAnnotation = MethodRelated + 922;
 	/** @since 3.8 */
 	int IllegalAnnotationForBaseType = TypeRelated + 923;
+	/** @since 3.9 */
+	int NullableFieldReference = FieldRelated + 924;
 	/** @since 3.8 */
 	int RedundantNullDefaultAnnotation = Internal + 925; // shouldn't actually occur any more after bug 366063
 	/** @since 3.8 */
@@ -1570,6 +1588,16 @@ void setSourceStart(int sourceStart);
 	int SpecdNonNullLocalVariableComparisonYieldsFalse = Internal + 932;
 	/** @since 3.8 */
 	int RequiredNonNullButProvidedSpecdNullable = Internal + 933;
+	/** @since 3.9 */
+	int UninitializedNonNullField = FieldRelated + 934;
+	/** @since 3.9 */
+	int UninitializedNonNullFieldHintMissingDefault = FieldRelated + 935;
+	/** @since 3.9 */
+	int NonNullMessageSendComparisonYieldsFalse = Internal + 936;
+	/** @since 3.9 */
+	int RedundantNullCheckOnNonNullSpecdField = Internal + 937;
+	/** @since 3.9 */
+	int NonNullSpecdFieldComparisonYieldsFalse = Internal + 938;
 	/** @since 3.9 */
 	int ConflictingNullAnnotations = MethodRelated + 939;
 	/** @since 3.9 */

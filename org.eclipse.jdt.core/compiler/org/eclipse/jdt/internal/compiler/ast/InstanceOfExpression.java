@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -41,6 +43,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.expression, FlowContext.CAN_ONLY_NULL | FlowContext.IN_INSTANCEOF, flowInfo);
 		// no impact upon enclosing try context
 		return FlowInfo.conditional(initsWhenTrue, flowInfo.copy());
+	}
+	if (this.expression instanceof Reference && currentScope.compilerOptions().enableSyntacticNullAnalysisForFields) {
+		FieldBinding field = ((Reference)this.expression).lastFieldBinding();
+		if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
+			flowContext.recordNullCheckedFieldReference((Reference) this.expression, 1);
+		}
 	}
 	return this.expression.analyseCode(currentScope, flowContext, flowInfo).
 			unconditionalInits();

@@ -20,6 +20,8 @@
  *								bug 370930 - NonNull annotation not considered for enhanced for loops
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+ *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -109,7 +111,7 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 					currentScope.problemReporter().nullityMismatchingTypeAnnotation(argument, argument.resolvedType, expectedType, severity==1, currentScope.environment());
 					// next check flow-based null status against null JDK15-style annotations:
 				} else if (hasJDK15NullAnnotations && methodBinding.parameterNonNullness[i] == Boolean.TRUE) {
-					int nullStatus = argument.nullStatus(flowInfo); // slight loss of precision: should also use the null info from the receiver.
+					int nullStatus = argument.nullStatus(flowInfo, flowContext); // slight loss of precision: should also use the null info from the receiver.
 					if (nullStatus != FlowInfo.NON_NULL) // if required non-null is not provided
 						flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
 				}
@@ -119,7 +121,7 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 				if (methodBinding.parameterNonNullness[i] == Boolean.TRUE) {
 					TypeBinding expectedType = methodBinding.parameters[i];
 					Expression argument = arguments[i];
-					int nullStatus = argument.nullStatus(flowInfo); // slight loss of precision: should also use the null info from the receiver.
+					int nullStatus = argument.nullStatus(flowInfo, flowContext); // slight loss of precision: should also use the null info from the receiver.
 					if (nullStatus != FlowInfo.NON_NULL) // if required non-null is not provided
 						flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
 				}
@@ -128,22 +130,20 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 	}
 }
 
-/** Check null-ness of 'local' against a possible null annotation */
+/** Check null-ness of 'var' against a possible null annotation */
 protected int checkAssignmentAgainstNullAnnotation(BlockScope currentScope, FlowContext flowContext,
-												   LocalVariableBinding local, int nullStatus, Expression expression, TypeBinding providedType)
+												   VariableBinding var, int nullStatus, Expression expression, TypeBinding providedType)
 {
-	if (local != null) {
-		int severity = 0;
-		if ((local.tagBits & TagBits.AnnotationNonNull) != 0
-				&& nullStatus != FlowInfo.NON_NULL) {
-			flowContext.recordNullityMismatch(currentScope, expression, providedType, local.type, nullStatus);
-			return FlowInfo.NON_NULL;
-		} else if ((severity = findNullTypeAnnotationMismatch(local.type, providedType)) > 0) {
-			currentScope.problemReporter().nullityMismatchingTypeAnnotation(expression, providedType, local.type, severity==1, currentScope.environment());
-		} else if ((local.tagBits & TagBits.AnnotationNullable) != 0
-				&& nullStatus == FlowInfo.UNKNOWN) {	// provided a legacy type?
-			return FlowInfo.POTENTIALLY_NULL;			// -> use more specific info from the annotation
-		}
+	int severity = 0;
+	if ((var.tagBits & TagBits.AnnotationNonNull) != 0
+			&& nullStatus != FlowInfo.NON_NULL) {
+		flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, nullStatus);
+		return FlowInfo.NON_NULL;
+	} else if ((severity = findNullTypeAnnotationMismatch(var.type, providedType)) > 0) {
+		currentScope.problemReporter().nullityMismatchingTypeAnnotation(expression, providedType, var.type, severity==1, currentScope.environment());
+	} else if ((var.tagBits & TagBits.AnnotationNullable) != 0
+			&& nullStatus == FlowInfo.UNKNOWN) {	// provided a legacy type?
+		return FlowInfo.POTENTIALLY_NULL;			// -> use more specific info from the annotation
 	}
 	return nullStatus;
 }

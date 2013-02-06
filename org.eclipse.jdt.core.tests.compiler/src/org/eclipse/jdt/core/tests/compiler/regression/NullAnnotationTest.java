@@ -1517,7 +1517,12 @@ public void test_nonnull_return_008() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	if (getObject() == null)\n" +
 		"	    ^^^^^^^^^^^\n" +
-		"Redundant null check: The method getObject() cannot return null\n" +
+		"Null comparison always yields false: The method getObject() cannot return null\n" +
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	throw new RuntimeException();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
 		"----------\n");
 }
 // a result from a nonnull method is directly checked for null (from local): redundant
@@ -2668,6 +2673,87 @@ public void test_default_nullness_015() {
 		"----------\n");
 }
 
+// default nullness applied to fields, class-level:
+public void test_default_nullness_016() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class X {\n" +
+			"    Object foo;\n" +
+			"    void doFoo() {\n" +
+			"        foo = null;\n" +
+			"    }\n" +
+			"    class Inner {\n" +
+			"        Object iFoo;\n" +
+			"        void diFoo(@Nullable Object arg) {\n" +
+			"            iFoo = arg;\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Object foo;\n" + 
+		"	       ^^^\n" + 
+		"The @NonNull field foo may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	foo = null;\n" + 
+		"	      ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	Object iFoo;\n" + 
+		"	       ^^^^\n" + 
+		"The @NonNull field iFoo may not have been initialized\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	iFoo = arg;\n" + 
+		"	       ^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is specified as @Nullable\n" + 
+		"----------\n");
+}
+
+// default nullness applied to fields, method level applied to local class + redundant annotation
+public void test_default_nullness_017() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @NonNullByDefault\n" +
+			"    Object doFoo() {\n" +
+			"        class Local {\n" +
+			"            Object foo;\n" +
+			"            @NonNull Object goo;\n" +
+			"        };" +
+			"        return new Local();\n" +
+			"    }\n" +
+			"}\n",
+		},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Object foo;\n" + 
+		"	       ^^^\n" + 
+		"The @NonNull field foo may not have been initialized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	@NonNull Object goo;\n" + 
+		"	^^^^^^^^^^^^^^^\n" + 
+		"The nullness annotation is redundant with a default that applies to this location\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	@NonNull Object goo;\n" + 
+		"	                ^^^\n" + 
+		"The @NonNull field goo may not have been initialized\n" + 
+		"----------\n");
+}
+
 // redundant default annotations - class vs. inner class
 public void test_redundant_annotation_01() {
 	Map customOptions = getCompilerOptions();
@@ -2987,6 +3073,27 @@ public void test_contradictory_annotations_01() {
 		"----------\n");
 }
 
+// contradictory null annotations on a field
+public void test_contradictory_annotations_02() {
+	Map customOptions = getCompilerOptions();
+	runNegativeTestWithLibs(
+		new String[] {
+			"p2/Y.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y {\n" +
+			"    @NonNull @Nullable Object o;\n" +
+			"}\n"
+		},
+		customOptions,
+		"----------\n" + 
+		"1. ERROR in p2\\Y.java (at line 4)\n" + 
+		"	@NonNull @Nullable Object o;\n" + 
+		"	         ^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n");
+}
+
 // a nonnull variable is dereferenced in a loop
 public void test_nonnull_var_in_constrol_structure_1() {
 	Map customOptions = getCompilerOptions();
@@ -3220,6 +3327,7 @@ public void test_message_send_in_control_structure_01() {
 		"Null comparison always yields false: The variable enclosingSourceType cannot be null at this location\n" +
 		"----------\n");
 }
+
 // Bug 370930 - NonNull annotation not considered for enhanced for loops
 public void test_message_send_in_control_structure_02() {
 	runNegativeTestWithLibs(
@@ -3494,6 +3602,1339 @@ public void test_options_03() {
 		"Dead code\n" + 
 		"----------\n");
 }
+// access to a non-null field
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_1() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @NonNull Object o = new Object();\n" +
+			"    public String oString() {\n" +
+			"         return o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"");
+}
+
+// a non-null field is not properly initialized
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_2() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @NonNull Object o;\n" +
+			"    public String oString() {\n" +
+			"         return o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	@NonNull Object o;\n" +
+		"	                ^\n" +
+		"The @NonNull field o may not have been initialized\n" +
+		"----------\n");
+}
+
+// a non-null field is not properly initialized - explicit constructor
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_2a() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @NonNull Object o;\n" +
+			"    X (boolean b) { // only potentially initialized\n" +
+			"        if (b)\n" +
+			"            o = this;\n" +
+			"    }\n" +
+			"    X (@NonNull Object other) {\n" + // no problem
+			"        o = other;\n" +
+			"    }\n" +
+			"    public String oString() {\n" +
+			"        return o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	X (boolean b) { // only potentially initialized\n" + 
+		"	^^^^^^^^^^^^^\n" + 
+		"The @NonNull field o may not have been initialized\n" + 
+		"----------\n");
+}
+
+// a non-null field is not properly initialized - explicit constructor - incomplete switch
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_2b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"enum Color { BLACK, GREEN }\n" +
+			"public class X {\n" +
+			"    @NonNull Object o;\n" +
+			"    X (Color c) { // only potentially initialized\n" +
+			"        switch (c) {\n" +
+			"            case BLACK: o = this; break;\n" +
+			"            case GREEN: o = new Object(); break;\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public String oString() {\n" +
+			"        return o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	X (Color c) { // only potentially initialized\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"The @NonNull field o may not have been initialized. Note that a problem regarding missing \'default:\' on \'switch\' has been suppressed, which is perhaps related to this problem\n" + 
+		"----------\n");
+}
+
+// a non-null static field is not properly initialized
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_2c() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    static @NonNull Object o;\n" +
+			"    static {\n" +
+			"        if (new Object().hashCode() == 42)\n" +
+			"            o = new Object();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	static @NonNull Object o;\n" + 
+		"	                       ^\n" + 
+		"The @NonNull field o may not have been initialized\n" + 
+		"----------\n");
+}
+
+// a non-null static field is properly initialized
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_2d() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    static @NonNull Object o;\n" +
+			"    static {\n" +
+			"         o = new Object();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"");
+}
+
+// a non-null field is properly initialized - using this.f reference
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_2e() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @NonNull Object f;\n" +
+			"    {\n" +
+			"         this.f = new Object();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"");
+}
+
+// a non-null field is initialized to null
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_3() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @NonNull Object o = null;\n" +
+			"    public String oString() {\n" +
+			"         return o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	@NonNull Object o = null;\n" + 
+		"	                    ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n");
+}
+// a non-null field is assigned to null
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_4() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @NonNull Object o = new Object();\n" +
+			"    void breakIt1() {\n" +
+			"         o = null;\n" +
+			"    }\n" +
+			"    void breakIt2() {\n" +
+			"         this.o = null;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	o = null;\n" + 
+		"	    ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	this.o = null;\n" + 
+		"	         ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n");
+}
+// a non-null field is checked for null
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_5() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @NonNull Object o = new Object();\n" +
+			"    boolean checkIt1() {\n" +
+			"         return o == null;\n" +
+			"    }\n" +
+			"    boolean checkIt() {\n" +
+			"         return this.o != null;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return o == null;\n" + 
+		"	       ^\n" + 
+		"Null comparison always yields false: The field o is declared as @NonNull\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	return this.o != null;\n" + 
+		"	            ^\n" + 
+		"Redundant null check: The field o is declared as @NonNull\n" + 
+		"----------\n");
+}
+
+// a non-null field is checked for null twice - method call inbetween
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_6() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @NonNull Object o = new Object();\n" +
+			"    boolean checkIt1() {\n" +
+			"         if (o != null)\n" +
+			"             System.out.print(\"not null\");\n" +
+			"         System.out.print(\"continue\");\n" +
+			"         return this.o == null;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (o != null)\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The field o is declared as @NonNull\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	return this.o == null;\n" + 
+		"	            ^\n" + 
+		"Null comparison always yields false: The field o is declared as @NonNull\n" + 
+		"----------\n");
+}
+
+// a non-null field is accessed via a qualified name reference - static field
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_7() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"class Objects {\n" +
+			"    static @NonNull Object o = new Object();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    @NonNull Object getIt1() {\n" +
+			"         if (Objects.o != null) // redundant\n" +
+			"             System.out.print(\"not null\");\n" +
+			"         System.out.print(\"continue\");\n" +
+			"         return Objects.o;\n" +
+			"    }\n" +
+			"    @NonNull Object getIt2() {\n" +
+			"         if (null != Objects.o) // redundant\n" +
+			"             System.out.print(\"not null\");\n" +
+			"         System.out.print(\"continue\");\n" +
+			"         return Objects.o;\n" +
+			"    }\n" +
+			"    String getIt3() {\n" +
+			"         return Objects.o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	if (Objects.o != null) // redundant\n" + 
+		"	            ^\n" + 
+		"Redundant null check: The field o is declared as @NonNull\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	if (null != Objects.o) // redundant\n" + 
+		"	                    ^\n" + 
+		"Redundant null check: The field o is declared as @NonNull\n" + 
+		"----------\n");
+}
+
+// a non-null field is accessed via a qualified name reference - instance field
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_8() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"class Objects {\n" +
+			"    @NonNull Object o = new Object();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    @NonNull Object getIt1(@NonNull Objects objs) {\n" +
+			"         if (objs.o == null) // always false\n" +
+			"             System.out.print(\"not null\");\n" +
+			"         System.out.print(\"continue\");\n" +
+			"         return objs.o;\n" +
+			"    }\n" +
+			"    String getIt2(@NonNull Objects objs) {\n" +
+			"         return objs.o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	if (objs.o == null) // always false\n" + 
+		"	         ^\n" + 
+		"Null comparison always yields false: The field o is declared as @NonNull\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	System.out.print(\"not null\");\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n");
+}
+
+// a non-null field is accessed via an indirect field reference - instance field
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_9() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"class Objects {\n" +
+			"    @NonNull Object o = new Object();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    Objects objs = new Objects();\n" +
+			"    @NonNull Object getIt1() {\n" +
+			"         if (this.objs.o != null) // redundant\n" +
+			"             System.out.print(\"not null\");\n" +
+			"         System.out.print(\"continue\");\n" +
+			"         if (getObjs().o != null) // redundant\n" +
+			"             System.out.print(\"not null\");\n" +
+			"         return this.objs.o;\n" +
+			"    }\n" +
+			"    Objects getObjs() { return this.objs; }\n" +
+			"    String getIt2() {\n" +
+			"         return this.objs.o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	if (this.objs.o != null) // redundant\n" + 
+		"	              ^\n" + 
+		"Redundant null check: The field o is declared as @NonNull\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	if (getObjs().o != null) // redundant\n" + 
+		"	              ^\n" + 
+		"Redundant null check: The field o is declared as @NonNull\n" + 
+		"----------\n");
+}
+
+// trying to assign null to a nonnull field via a single / a qualified name reference
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_11() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"class Objects {\n" +
+			"    @NonNull Object o = new Object();\n" +
+			"    void test0(@Nullable Object x) {\n" +
+			"         o = x;\n" +
+			"    }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    void test(@NonNull Objects objs) {\n" +
+			"         objs.o = null;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	o = x;\n" + 
+		"	    ^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is specified as @Nullable\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	objs.o = null;\n" + 
+		"	         ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n");
+}
+
+// @NonNull is applied to a field with primitive type
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_12() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @NonNull int o = 1;\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	@NonNull int o = 1;\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"The nullness annotation @NonNull is not applicable for the primitive type int\n" + 
+		"----------\n");
+}
+
+// A final field is initialized to non-null, treat as effectively @NonNull
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void _test_nonnull_field_13() {
+	// withdrawn as of https://bugs.eclipse.org/331649#c75
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    final String s1 = \"\";\n" +
+			"    @NonNull String s2;\n" +
+			"    X() {\n" +
+			"        s2 = s1;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"");
+}
+
+// A field in a different CU is implicitly @NonNull (by type default) - that class is read from binary
+// Assignment to other @NonNull field should not raise a warning
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_14() {
+	runConformTestWithLibs(
+		new String[] {
+			"p1/X.java",
+			"package p1;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class X {\n" +
+			"    public String s1 = \"\";\n" +
+			"}\n",
+		},
+		null /*customOptions*/,
+		"");
+	runConformTestWithLibs(
+			new String[] {
+			"p2/Y.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import p1.X;\n" +
+			"public class Y {\n" +
+			"    @NonNull String s2 = \"\";\n" +
+			"    void foo(X other) {\n" +
+			"        s2 = other.s1;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"");
+}
+
+// A field in a different CU is implicitly @NonNull (by package default) - that class is read from binary
+// Assignment to other @NonNull field should not raise a warning
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nonnull_field_14b() {
+	runConformTestWithLibs(
+		new String[] {
+			"p1/package-info.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"package p1;\n",
+			"p1/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"    public String s1 = \"\";\n" +
+			"}\n",
+		},
+		null /*customOptions*/,
+		"");
+	runConformTestWithLibs(
+			new String[] {
+			"p2/Y.java",
+			"package p2;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import p1.X;\n" +
+			"public class Y {\n" +
+			"    @NonNull String s2 = \"\";\n" +
+			"    void foo(X other) {\n" +
+			"        s2 = other.s1;\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"");
+}
+
+// access to a nullable field - field reference
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_1() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o = new Object();\n" +
+			"    public String oString() {\n" +
+			"         return this.o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return this.o.toString();\n" + 
+		"	            ^\n" + 
+		"Potential null pointer access: The field o is declared as @Nullable\n" + 
+		"----------\n");
+}
+// access to a nullable field - single name reference
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_2() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o = new Object();\n" +
+			"    public String oString() {\n" +
+			"         return o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return o.toString();\n" + 
+		"	       ^\n" + 
+		"Potential null pointer access: The field o is declared as @Nullable\n" + 
+		"----------\n");
+}
+// access to a nullable field - qualified name reference
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_3() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o = new Object();\n" +
+			"    @Nullable X other;\n" +
+			"    public String oString() {\n" +
+			"         return other.o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	return other.o.toString();\n" +
+		"	       ^^^^^\n" +
+		"Potential null pointer access: The field other is declared as @Nullable\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	return other.o.toString();\n" +
+		"	             ^\n" +
+		"Potential null pointer access: The field o is declared as @Nullable\n" +
+		"----------\n");
+}
+// access to a nullable field - qualified name reference - multiple segments
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_3m() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o = new Object();\n" +
+			"    @Nullable X other;\n" +
+			"    public String oString() {\n" +
+			"         return other.other.o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	return other.other.o.toString();\n" +
+		"	       ^^^^^\n" +
+		"Potential null pointer access: The field other is declared as @Nullable\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	return other.other.o.toString();\n" +
+		"	             ^^^^^\n" +
+		"Potential null pointer access: The field other is declared as @Nullable\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 6)\n" +
+		"	return other.other.o.toString();\n" +
+		"	                   ^\n" +
+		"Potential null pointer access: The field o is declared as @Nullable\n" +
+		"----------\n");
+}
+// access to a nullable field - dereference after check
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_4() {
+	// currently no flow analysis for fields is implemented,
+	// but the direct sequence of null-check + dereference is optionally supported as a special case
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o = new Object();\n" +
+			"    public String oString() {\n" +
+			"         if (this.o != null)\n" +
+			"             return this.o.toString();\n" + // silent after check
+			"         if (o != null)\n" +
+			"             return o.toString();\n" + // silent after check
+			"         return \"\";\n" +
+			"    }\n" +
+			"    public String oString2() {\n" +
+			"         String local = o.toString();\n" +
+			"         if (this.o != null) {\n" +
+			"             this.toString();\n" + // method call wipes null info
+			"             return this.o.toString(); // warn here\n" +
+			"         }\n" +
+			"         return \"\";\n" +
+			"    }\n" +
+			"}\n"
+		},
+		options /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	String local = o.toString();\n" + 
+		"	               ^\n" + 
+		"Potential null pointer access: The field o is declared as @Nullable\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 15)\n" + 
+		"	return this.o.toString(); // warn here\n" + 
+		"	            ^\n" + 
+		"Potential null pointer access: The field o is declared as @Nullable\n" + 
+		"----------\n");
+}
+
+// access to a nullable field - intermediate component in a QNR
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_5() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @NonNull Y y = new Y();\n" +
+			"    public String oString() {\n" +
+			"         return y.z.o.toString(); // pot.NPE on z\n" +
+			"    }\n" +
+			"}\n",
+			"Y.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y {\n" +
+			"    @Nullable Z z = new Z();\n" +
+			"}\n",
+			"Z.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Z {\n" +
+			"    @NonNull Object o = new Object();\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return y.z.o.toString(); // pot.NPE on z\n" + 
+		"	         ^\n" + 
+		"Potential null pointer access: The field z is declared as @Nullable\n" + 
+		"----------\n");
+}
+
+// access to a nullable field - intermediate component in a QNR - inverse of test_nullable_field_5
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_6() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Y y = new Y();\n" +
+			"    public String oString() {\n" +
+			"         return y.z.o.toString(); // pot.NPE on y and o\n" +
+			"    }\n" +
+			"}\n",
+			"Y.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y {\n" +
+			"    @NonNull Z z = new Z();\n" +
+			"}\n",
+			"Z.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Z {\n" +
+			"    Object dummy;\n" + // ensure different interal fieldId
+			"    @Nullable Object o = new Object();\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return y.z.o.toString(); // pot.NPE on y and o\n" + 
+		"	       ^\n" + 
+		"Potential null pointer access: The field y is declared as @Nullable\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	return y.z.o.toString(); // pot.NPE on y and o\n" + 
+		"	           ^\n" + 
+		"Potential null pointer access: The field o is declared as @Nullable\n" + 
+		"----------\n");
+}
+
+// access to a nullable field - intermediate component in a double field reference
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_7() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Y y = new Y();\n" +
+			"    public String oString() {\n" +
+			"         return this.y.o.toString(); // pot.NPE on y and o\n" +
+			"    }\n" +
+			"}\n",
+			"Y.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y {\n" +
+			"    @Nullable Object o = new Object();\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return this.y.o.toString(); // pot.NPE on y and o\n" + 
+		"	            ^\n" + 
+		"Potential null pointer access: The field y is declared as @Nullable\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	return this.y.o.toString(); // pot.NPE on y and o\n" + 
+		"	              ^\n" + 
+		"Potential null pointer access: The field o is declared as @Nullable\n" + 
+		"----------\n");
+}
+
+// static access to a nullable field - qualified name reference
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_8() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable static final Object o = null;\n" +
+			"    public void foo() {\n" +
+			"         if (X.o == null){\n" +
+			"				System.out.println(X.o);\n" +
+			"		  }\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null /*customOptions*/,
+		"");
+}
+
+// illegal use of @Nullable for a field of primitive type
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_9() {
+	runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X {\n" +
+				"    @Nullable int i;\n" +
+				"}\n"
+			},
+			null /*customOptions*/,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	@Nullable int i;\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"The nullness annotation @Nullable is not applicable for the primitive type int\n" + 
+			"----------\n");	
+}
+
+// protected access to nullable fields - different kinds of references
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_10a() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o1, o2, o3;\n" +
+			"    @NonNull X x = new X();\n" +
+			"    public void foo(X other) {\n" +
+			"         if (other.o1 != null){\n" +						// qualified reference -> block
+			"             System.out.println(other.o1.toString());\n" +
+			"         }\n" +
+			"         if (this.o2 != null)\n" + 						// field reference -> statement
+			"             System.out.println(o2.toString());\n" +
+			"         if (this.o2 != null)\n" + 						// identical field references
+			"             System.out.println(this.o2.toString());\n" +
+			"         System.out.println (null != o3 ? o3.toString() : \"nothing\");\n" + // ternary
+			"         if (this.x.o1 != null)\n" +						// nested field reference ...
+			"             System.out.println(x.o1.toString());\n" + 	// ... equiv qualified name reference
+			"         if (x.o1 != null)\n" +							// qualified name reference ...
+			"             System.out.println(this.x.o1.toString());\n" +// ... equiv nested field reference
+			"         if (this.x.o1 != null)\n" +						// identical nested field references
+			"             System.out.println(this.x.o1.toString());\n" +
+			"    }\n" +
+			"}\n"
+		},
+		options,
+		"");
+}
+
+// protected access to nullable fields - different kinds of references - option not enabled
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_10b() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.DISABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o1, o2, o3;\n" +
+			"    @NonNull X x = new X();\n" +
+			"    public void foo(X other) {\n" +
+			"         if (other.o1 != null){\n" +						// qualified reference -> block
+			"             System.out.println(other.o1.toString());\n" +
+			"         }\n" +
+			"         if (this.o2 != null)\n" + 						// field reference -> statement
+			"             System.out.println(o2.toString());\n" +
+			"         if (this.o2 != null)\n" + 						// identical field references
+			"             System.out.println(this.o2.toString());\n" +
+			"         System.out.println (null != o3 ? o3.toString() : \"nothing\");\n" + // ternary
+			"         if (this.x.o1 != null)\n" +						// nested field reference ...
+			"             System.out.println(x.o1.toString());\n" + 	// ... equiv qualified name reference
+			"         if (x.o1 != null)\n" +							// qualified name reference ...
+			"             System.out.println(this.x.o1.toString());\n" +// ... equiv nested field reference
+			"         if (this.x.o1 != null)\n" +						// identical nested field references
+			"             System.out.println(this.x.o1.toString());\n" +
+			"    }\n" +
+			"}\n"
+		},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	System.out.println(other.o1.toString());\n" + 
+		"	                         ^^\n" + 
+		"Potential null pointer access: The field o1 is declared as @Nullable\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	System.out.println(o2.toString());\n" + 
+		"	                   ^^\n" + 
+		"Potential null pointer access: The field o2 is declared as @Nullable\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 12)\n" + 
+		"	System.out.println(this.o2.toString());\n" + 
+		"	                        ^^\n" + 
+		"Potential null pointer access: The field o2 is declared as @Nullable\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 13)\n" + 
+		"	System.out.println (null != o3 ? o3.toString() : \"nothing\");\n" + 
+		"	                                 ^^\n" + 
+		"Potential null pointer access: The field o3 is declared as @Nullable\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 15)\n" + 
+		"	System.out.println(x.o1.toString());\n" + 
+		"	                     ^^\n" + 
+		"Potential null pointer access: The field o1 is declared as @Nullable\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 17)\n" + 
+		"	System.out.println(this.x.o1.toString());\n" + 
+		"	                          ^^\n" + 
+		"Potential null pointer access: The field o1 is declared as @Nullable\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 19)\n" + 
+		"	System.out.println(this.x.o1.toString());\n" + 
+		"	                          ^^\n" + 
+		"Potential null pointer access: The field o1 is declared as @Nullable\n" + 
+		"----------\n");
+}
+
+// protected access to nullable fields - different boolean operators
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_10c() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o1, o2, o3;\n" +
+			"    public void foo(X other) {\n" +
+			"         if (o1 != null && o2 != null & o3 != null) \n" + // conjunction: OK
+			"             System.out.println(o2.toString());\n" +
+			"         if (o1 != null || o2 != null || o3 != null) \n" +
+			"             System.out.println(o2.toString()); // warn here: disjunktion is no protection\n" +
+			"         if (!(o1 != null)) \n" +
+			"             System.out.println(o1.toString()); // warn here: negation is no protection\n" +
+			"    }\n" +
+			"}\n"
+		},
+		options,
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	System.out.println(o2.toString()); // warn here: disjunktion is no protection\n" +
+		"	                   ^^\n" +
+		"Potential null pointer access: The field o2 is declared as @Nullable\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	System.out.println(o1.toString()); // warn here: negation is no protection\n" +
+		"	                   ^^\n" +
+		"Potential null pointer access: The field o1 is declared as @Nullable\n" +
+		"----------\n");
+}
+
+// protected access to nullable fields - assignment as expression
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_10d() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o1;\n" +
+			"    public void foo(@NonNull X other, X last) {\n" +
+			"         o1 = other;\n" +		// reference test case: assignment as statement
+			"         if (o1 == last) \n" +	// no expiry
+			"             System.out.println(o1.toString());\n" +
+			"         if ((o1 = other) == last) \n" + // no expiry
+			"             System.out.println(o1.toString());\n" +
+			"         if ((o1 = other) == last) {\n" +
+			"             o1 = null;\n" + // expire here
+			"             System.out.println(o1.toString()); // info is expired\n" +
+			"         }\n" +
+			"    }\n" +
+			"}\n"
+		},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	System.out.println(o1.toString()); // info is expired\n" + 
+		"	                   ^^\n" + 
+		"Potential null pointer access: The field o1 is declared as @Nullable\n" + 
+		"----------\n");
+}
+
+// protected access to nullable fields - distinguish local and field
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_10e() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"class Y {\n" +
+			"    @Nullable Object o2;\n" +
+			"    void bar(Object o2) {\n" +
+			"        if (o2 != null)\n" +
+			"            System.out.println(this.o2.toString()); // field access is not protected\n" +
+			"    }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    @NonNull Y o1 = new Y();\n" +
+			"    public void foo() {\n" +
+			"         Y o1 = new Y();\n" +
+			"         if (o1.o2 != null) \n" +	// check via local
+			"             System.out.println(this.o1.o2.toString()); // field access via other field not protected\n" +
+			"         if (this.o1.o2 != null) \n" +	// check via field
+			"             System.out.println(o1.o2.toString()); // field access via local not protected\n" +
+			"    }\n" +
+			"}\n"
+		},
+		options,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	void bar(Object o2) {\n" + 
+		"	                ^^\n" + 
+		"The parameter o2 is hiding a field from type Y\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	System.out.println(this.o2.toString()); // field access is not protected\n" + 
+		"	                        ^^\n" + 
+		"Potential null pointer access: The field o2 is declared as @Nullable\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 12)\n" + 
+		"	Y o1 = new Y();\n" + 
+		"	  ^^\n" + 
+		"The local variable o1 is hiding a field from type X\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 14)\n" + 
+		"	System.out.println(this.o1.o2.toString()); // field access via other field not protected\n" + 
+		"	                           ^^\n" + 
+		"Potential null pointer access: The field o2 is declared as @Nullable\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 16)\n" + 
+		"	System.out.println(o1.o2.toString()); // field access via local not protected\n" + 
+		"	                      ^^\n" + 
+		"Potential null pointer access: The field o2 is declared as @Nullable\n" + 
+		"----------\n");
+}
+
+// protected access to nullable fields - duplicate comparison
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_10f() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o1;\n" +
+			"    public void foo(X other) {\n" +
+			"         if (o1 != null && o1 != null) // second term is redundant\n" +
+			"             System.out.println(o1.toString());\n" +
+			"         if (o1 != null)\n" +
+			"             if (o1 != null) // this if is redundant\n" +
+			"                 System.out.println(o1.toString());\n" +
+			"    }\n" +
+			"}\n"
+		},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (o1 != null && o1 != null) // second term is redundant\n" + 
+		"	                  ^^\n" + 
+		"Redundant null check: this expression cannot be null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	if (o1 != null) // this if is redundant\n" + 
+		"	    ^^\n" + 
+		"Redundant null check: this expression cannot be null\n" + 
+		"----------\n");
+}
+
+// combined test from comment 20 in https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_11() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"class X {\n" + 
+				"    @Nullable Object o;\n" + 
+				"    public @NonNull Object foo(X x) {\n" + 
+				"    	return  x.o != null ? x.o : new Object();\n" + 
+				"	 }\n" + 
+				"    public void goo(X x) {\n" + 
+				"    	if (x.o != null) {\n" + 
+				"    		x.o.toString();\n" + 
+				"    	}\n" + 
+				"    }\n" + 
+				"    public void boo(X x) {\n" + 
+				"    	if (x.o instanceof String) {\n" + 
+				"    		x.o.toString();\n" + 
+				"    	}\n" + 
+				"    }\n" + 
+				"    public void zoo(X x) {\n" + 
+				"    	x.o = new Object();\n" + 
+				"    	System.out.println(\"hashCode of new Object = \" + x.o.hashCode());\n" + 
+				"    }\n" + 
+				"    public void doo(X x) {\n" + 
+				"    	x.o = foo(x); // foo is guaranteed to return @NonNull Object.\n" + 
+				"    	System.out.println(\"hashCode of new Object = \" + x.o.hashCode());\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			options,
+			"");
+}
+
+// combined test from comment 20 in https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+//  - version with 'this' field references
+public void test_nullable_field_11a() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"class X {\n" + 
+				"    @Nullable Object o;\n" + 
+				"    public @NonNull Object foo() {\n" + 
+				"    	return  o != null ? o : new Object();\n" + 
+				"    }\n" + 
+				"    public void goo() {\n" + 
+				"    	if (o != null) {\n" + 
+				"    		o.toString();\n" + 
+				"    	}\n" + 
+				"    }\n" + 
+				"    public void boo() {\n" + 
+				"    	if (o instanceof String) {\n" + 
+				"    		o.toString();\n" + 
+				"    	}\n" + 
+				"    }\n" + 
+				"    public void zoo() {\n" + 
+				"    	o = new Object();\n" + 
+				"    	System.out.println(\"hashCode of new Object = \" + o.hashCode());\n" + 
+				"    }\n" + 
+				"    public void doo() {\n" + 
+				"    	o = foo(); // foo is guaranteed to return @NonNull Object.\n" + 
+				"    	System.out.println(\"hashCode of new Object = \" + o.hashCode());\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			options,
+			"");
+}
+
+// protected access to nullable field - expiration of information
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_12() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o1, o2, o3, o4;\n" +
+			"    public void foo(X other) {\n" +
+			"         if (other.o1 != null){\n" +
+			"				System.out.println(goo()+other.o1.toString()); // warn here: expired by call to goo()\n" +
+			"		  }\n" +
+			"         Object x = o2 != null ? o2 : o1;\n" +
+			"         System.out.println(o2.toString()); // warn here: not protected\n" +
+			"         if (o3 != null) /*nop*/;\n" +
+			"         System.out.println(o3.toString()); // warn here: expired by empty statement\n" +
+			"         if (o4 != null && hoo())\n" +
+			"             System.out.println(o4.toString()); // warn here: expired by call to hoo()\n" +
+			"    }\n" +
+			"    String goo() { return \"\"; }\n" +
+			"    boolean hoo() { return false; }\n" +
+			"}\n"
+		},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	System.out.println(goo()+other.o1.toString()); // warn here: expired by call to goo()\n" + 
+		"	                               ^^\n" + 
+		"Potential null pointer access: The field o1 is declared as @Nullable\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	System.out.println(o2.toString()); // warn here: not protected\n" +
+		"	                   ^^\n" + 
+		"Potential null pointer access: The field o2 is declared as @Nullable\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	System.out.println(o3.toString()); // warn here: expired by empty statement\n" + 
+		"	                   ^^\n" + 
+		"Potential null pointer access: The field o3 is declared as @Nullable\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 13)\n" + 
+		"	System.out.println(o4.toString()); // warn here: expired by call to hoo()\n" + 
+		"	                   ^^\n" + 
+		"Potential null pointer access: The field o4 is declared as @Nullable\n" + 
+		"----------\n");
+}
+
+// example from comment 47
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_13() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o1;\n" +
+			"    @NonNull Object o2 = new Object();\n" +
+			"    public void foo(X other) {\n" +
+			"         if (other.o1 == null){\n" +
+			"				this.o2 = other.o1; // warn here: assign @Nullable to @NonNull\n" +
+			"		  }\n" +
+			"    }\n" +
+			"}\n"
+		},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	this.o2 = other.o1; // warn here: assign @Nullable to @NonNull\n" + 
+		"	          ^^^^^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is specified as @Nullable\n" + 
+		"----------\n");
+}
+
+// access to a nullable field - protected by check against a @NonNull value
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_14() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o = new Object();\n" +
+			"    public String oString(@NonNull Object a) {\n" +
+			"         if (this.o == a)\n" +
+			"             return this.o.toString();\n" + // silent after check
+			"         return \"\";\n" +
+			"    }\n" +
+			"}\n"
+		},
+		options,
+		"");
+}
+
+// access to a nullable field - not protected by negative check against a @NonNull value
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331649
+public void test_nullable_field_14a() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o = new Object();\n" +
+			"    public String oString(@NonNull Object a) {\n" +
+			"         if (this.o != a)\n" +
+			"             return this.o.toString(); // warn here, check has no effect\n" +
+			"         return \"\";\n" +
+			"    }\n" +
+			"}\n"
+		},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	return this.o.toString(); // warn here, check has no effect\n" + 
+		"	            ^\n" + 
+		"Potential null pointer access: The field o is declared as @Nullable\n" + 
+		"----------\n");
+}
+
+// an enum is declared within the scope of a null-default
+// https://bugs.eclipse.org/331649#c61
+public void test_enum_field_01() {
+	runConformTestWithLibs(
+		new String[] {
+			"tests/X.java",
+			"package tests;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class X {\n" +
+			"    enum A { B }\n" +
+			"    public static void main(String ... args) {\n" +
+			"         System.out.println(A.B);\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null,
+		"",
+		"B");
+}
+
+// Bug 380896 - Enum constants not recognised as being NonNull.
+// see also https://bugs.eclipse.org/331649#c61
+public void test_enum_field_02() {
+	runConformTestWithLibs(
+		new String[] {
+			"tests/X.java",
+			"package tests;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    enum A { B }\n" +
+			"    public static void main(String ... args) {\n" +
+			"         test(A.B);\n" +
+			"    }\n" +
+			"    static void test(@NonNull A a) {\n" +
+			"        System.out.println(a.ordinal());\n" +
+			"    }\n" +
+			"}\n"
+		},
+		null,
+		"",
+		"0");
+}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372011
 // Test whether @NonNullByDefault on a binary package or an enclosing type is respected from enclosed elements.
 public void testBug372011() {

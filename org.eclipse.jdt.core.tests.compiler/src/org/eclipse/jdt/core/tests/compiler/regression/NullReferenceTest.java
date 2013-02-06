@@ -25,6 +25,8 @@
  * 							bug 383690 - [compiler] location of error re uninitialized final field should be aligned
  *							bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *							bug 376263 - Bogus "Potential null pointer access" warning
+ *							bug 331649 - [compiler][null] consider null annotations for fields
+ *							bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -9637,9 +9639,9 @@ public void test1023() {
 			"X.java",
 			"public class X {\n" +
 			"\n" +
-			"  void foo() {\n" +
+			"  void foo(Object that) {\n" +
 			"    Object o = new Object();\n" +
-			"    while (this != null) {\n" +
+			"    while (that != null) {\n" +
 			"      try {\n" +
 			"        o = null;\n" +
 			"        break;\n" +
@@ -9656,7 +9658,7 @@ public void test1023() {
 		"	    ^\n" +
 		"Null comparison always yields false: The variable o cannot be null at this location\n" +
 		"----------\n" +
-		"2. WARNING in X.java (at line 13)\n" + 
+		"2. WARNING in X.java (at line 13)\n" +
 		"	if (o == null) return;\n" + 
 		"	               ^^^^^^^\n" + 
 		"Dead code\n" + 
@@ -15660,6 +15662,155 @@ public void testBug376263() {
 		null/*vmArgs*/,
 		customOptions,
 		null/*requestor*/);
+}
+//object/array allocation
+public void testExpressions01() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	 void foo() {\n" +
+			"		if (new Object() == null)\n" +
+			"           System.out.println(\"null\");\n" +
+			"    }\n" +
+			"	 void goo() {\n" +
+			"		if (null != this.new I())\n" +
+			"           System.out.println(\"nonnull\");\n" +
+			"    }\n" +
+			"    void hoo() {\n" +
+			"		if (null != new Object[3])\n" +
+			"           System.out.println(\"nonnull\");\n" +
+			"    }\n" +
+			"    class I {}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	if (new Object() == null)\n" + 
+		"	    ^^^^^^^^^^^^\n" + 
+		"Null comparison always yields false: this expression cannot be null\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	System.out.println(\"null\");\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	if (null != this.new I())\n" + 
+		"	            ^^^^^^^^^^^^\n" + 
+		"Redundant null check: this expression cannot be null\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 11)\n" + 
+		"	if (null != new Object[3])\n" + 
+		"	            ^^^^^^^^^^^^^\n" + 
+		"Redundant null check: this expression cannot be null\n" + 
+		"----------\n"
+	);
+}
+//'this' expressions (incl. qualif.)
+public void testExpressions02() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	 void foo() {\n" +
+			"		if (this == null)\n" +
+			"           System.out.println(\"null\");\n" +
+			"    }\n" +
+			"    class I {\n" +
+			"        void goo() {\n" +
+			"		     if (null != X.this)\n" +
+			"                System.out.println(\"nonnull\");\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	if (this == null)\n" + 
+		"	    ^^^^\n" + 
+		"Null comparison always yields false: this expression cannot be null\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	System.out.println(\"null\");\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	if (null != X.this)\n" + 
+		"	            ^^^^^^\n" + 
+		"Redundant null check: this expression cannot be null\n" + 
+		"----------\n"
+	);
+}
+//various non-null expressions: class-literal, string-literal, casted 'this'
+public void testExpressions03() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	 void foo() {\n" +
+			"		if (X.class == null)\n" +
+			"           System.out.println(\"null\");\n" +
+			"    }\n" +
+			"    void goo() {\n" +
+			"        if (null != \"STRING\")\n" +
+			"            System.out.println(\"nonnull\");\n" +
+			"        if (null == (Object)this)\n" +
+			"            System.out.println(\"I'm null\");\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	if (X.class == null)\n" + 
+		"	    ^^^^^^^\n" + 
+		"Null comparison always yields false: this expression cannot be null\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 4)\n" + 
+		"	System.out.println(\"null\");\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	if (null != \"STRING\")\n" + 
+		"	            ^^^^^^^^\n" + 
+		"Redundant null check: this expression cannot be null\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
+		"	if (null == (Object)this)\n" + 
+		"	            ^^^^^^^^^^^^\n" + 
+		"Null comparison always yields false: this expression cannot be null\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 10)\n" + 
+		"	System.out.println(\"I\'m null\");\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Dead code\n" + 
+		"----------\n"
+	);
+}
+
+//a non-null ternary expression
+public void testExpressions04() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    void foo(boolean b) {\n" + 
+			"		Object o1 = new Object();\n" + 
+			"		Object o2 = new Object();\n" + 
+			"		if ((b ? o1 : o2) != null)\n" + 
+			"			System.out.println(\"null\");\n" + 
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if ((b ? o1 : o2) != null)\n" + 
+		"	    ^^^^^^^^^^^^^\n" + 
+		"Redundant null check: this expression cannot be null\n" + 
+		"----------\n"
+	);
 }
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"

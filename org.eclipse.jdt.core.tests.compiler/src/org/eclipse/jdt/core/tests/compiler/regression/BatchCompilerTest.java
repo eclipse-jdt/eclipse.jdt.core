@@ -26,6 +26,7 @@
  *								bug 375366 - ECJ ignores unusedParameterIncludeDocCommentReference unless enableJavadoc option is set
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1977,6 +1978,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarnings\" value=\"enabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntacticNullAnalysisForFields\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.tasks\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.typeParameterHiding\" value=\"warning\"/>\n" + 

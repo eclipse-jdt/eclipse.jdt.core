@@ -28,7 +28,8 @@ import java.lang.annotation.Target;
  * <code>@NonNullByDefault</code> are:
  * <ul>
  * <li>method return values</li>
- * <li>parameters of a method or constructor.</li>
+ * <li>parameters of a method or constructor</li>
+ * <li>fields.</li>
  * </ul>
  * Local variables are <em>not</em> affected.
  * <dl>

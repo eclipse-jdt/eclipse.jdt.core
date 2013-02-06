@@ -14,6 +14,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+ *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -53,7 +54,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			flowContext,
 			analyseCode(currentScope, flowContext, flowInfo).unconditionalInits());
 	if ((this.resolvedType.tagBits & TagBits.AnnotationNonNull) != 0) {
-		int nullStatus = assignment.expression.nullStatus(flowInfo);
+		int nullStatus = assignment.expression.nullStatus(flowInfo, flowContext);
 		if (nullStatus != FlowInfo.NON_NULL) {
 			currentScope.problemReporter().nullityMismatch(this, assignment.expression.resolvedType, this.resolvedType, nullStatus, currentScope.environment().getNonNullAnnotationName());
 		}
@@ -70,11 +71,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return flowInfo;
 }
 
-public void checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
 	if ((this.resolvedType.tagBits & TagBits.AnnotationNullable) != 0) {
 		scope.problemReporter().arrayReferencePotentialNullReference(this);
+		return true;
 	} else {
-		super.checkNPE(scope, flowContext, flowInfo);
+		return super.checkNPE(scope, flowContext, flowInfo);
 	}
 }
 
