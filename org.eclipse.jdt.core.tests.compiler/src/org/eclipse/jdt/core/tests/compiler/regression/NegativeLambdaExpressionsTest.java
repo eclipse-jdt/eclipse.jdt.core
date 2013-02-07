@@ -1434,6 +1434,85 @@ public void test040() {
 			"Unhandled exception type Exception\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor 
+public void test041() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"import java.sql.SQLException;\n" +
+			"interface G1 {\n" +
+			"  <E extends Exception> Object m(E p) throws E;\n" +
+			"}\n" +
+			"interface G2 {\n" +
+			"  <F extends Exception> String m(F q) throws Exception;\n" +
+			"}\n" +
+			"interface G extends G1, G2 {} // G has descriptor <F extends Exception> ()->String throws F\n" +
+			"public class X {\n" +
+			"	G g = (x) -> { // Elided type is inferred from descriptor to be F\n" +
+			"	    throw x;    // ~== throw new F()\n" + // javac 8b74 complains here.
+			"	};\n" +
+			"}\n" +
+			"class Y implements G {\n" +
+			"	public <T extends Exception> String m(T t) throws T {\n" +
+			"		throw t;\n" +
+			"	}\n" +
+			"	void foo(G1 g1) {\n" +
+			"			g1.m(new IOException());\n" +
+			"	}\n" +
+			"	void foo(G2 g2) {\n" +
+			"			g2.m(new SQLException());\n" +
+			"	}\n" +
+			"}\n"
+
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 20)\n" + 
+			"	g1.m(new IOException());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type IOException\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 23)\n" + 
+			"	g2.m(new SQLException());\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type Exception\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor 
+public void test042() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"import java.sql.SQLException;\n" +
+			"interface G1 {\n" +
+			"  <E extends Exception> Object m(E p) throws E;\n" +
+			"}\n" +
+			"interface G2 {\n" +
+			"  <F extends Exception> String m(F q) throws Exception;\n" +
+			"}\n" +
+			"interface G extends G1, G2 {} // G has descriptor <F extends Exception> ()->String throws F\n" +
+			"public class X {\n" +
+			"	G g1 = (F x) -> {\n" +
+			"	    throw x;\n" +
+			"	};\n" +
+			"	G g2 = (IOException x) -> {\n" +
+			"	    throw x;\n" +
+			"	};\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	G g1 = (F x) -> {\n" + 
+			"	        ^\n" + 
+			"F cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	G g2 = (IOException x) -> {\n" + 
+			"	        ^^^^^^^^^^^\n" + 
+			"Incompatible type specified for lambda expression\'s parameter x\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

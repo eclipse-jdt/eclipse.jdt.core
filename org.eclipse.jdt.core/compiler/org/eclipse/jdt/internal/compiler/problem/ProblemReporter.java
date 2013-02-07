@@ -1311,7 +1311,7 @@ public void lambdaParameterTypeMismatched(Argument argument, TypeReference type,
 	String expectedTypeFullName = new String(expectedParameterType.readableName());
 	String expectedTypeShortName = new String(expectedParameterType.shortReadableName());
 	this.handle(
-			IProblem.lambdaParameterTypeMismatched,
+			expectedParameterType.isTypeVariable() ? IProblem.IncompatibleLambdaParameterType : IProblem.lambdaParameterTypeMismatched,
 			new String[] { name, expectedTypeFullName },
 			new String[] { name, expectedTypeShortName },
 			type.sourceStart,

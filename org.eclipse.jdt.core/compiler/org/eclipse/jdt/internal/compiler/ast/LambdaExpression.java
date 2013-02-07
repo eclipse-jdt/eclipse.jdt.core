@@ -121,7 +121,7 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 				if ((parameterType.tagBits & TagBits.HasMissingType) != 0) {
 					this.binding.tagBits |= TagBits.HasMissingType;
 				}
-				if (haveDescriptor && expectedParameterType != null && parameterType != expectedParameterType) {
+				if (haveDescriptor && expectedParameterType != null && parameterType.isValidBinding() && parameterType != expectedParameterType) {
 					this.scope.problemReporter().lambdaParameterTypeMismatched(argument, argument.type, expectedParameterType);
 				}
 

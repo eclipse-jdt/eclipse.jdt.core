@@ -1347,7 +1347,9 @@ void setSourceStart(int sourceStart);
     int lambdaSignatureMismatched = Internal + TypeRelated + 656;
     /** @since 3.9 */
     int lambdaParameterTypeMismatched = Internal + TypeRelated + 657;
-	/**
+    /** @since 3.9 */
+    int IncompatibleLambdaParameterType = Internal + TypeRelated + 658;
+    /**
 	 * More problems in generics
 	 */
     /** @since 3.4 */
