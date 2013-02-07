@@ -1278,7 +1278,162 @@ public void test037() {
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor 
+public void test038() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"import java.io.EOFException;\n" +
+			"import java.io.IOException;\n" +
+			"interface I { void m() throws IOException; }\n" +
+			"interface J { void m() throws EOFException; }\n" +
+			"interface K { void m() throws ClassNotFoundException; }\n" +
+			"interface IJ extends I, J {}\n" +
+			"interface IJK extends I, J, K {}\n" +
+			"public class X {\n" +
+			"	int var;\n" +
+			"	IJ ij = () -> {\n" +
+			"		if (var == 0) {\n" +
+			"			throw new IOException();\n" +
+			"		} else if (var == 2) {\n" +
+			"			throw new EOFException();\n" +
+			"		} else {\n" +
+			"			throw new ClassNotFoundException(); \n" +
+			"		}\n" +
+			"	};\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	throw new IOException();\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type IOException\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 16)\n" + 
+			"	throw new ClassNotFoundException(); \n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type ClassNotFoundException\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor 
+public void test039() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"import java.io.EOFException;\n" +
+			"import java.io.IOException;\n" +
+			"import java.sql.SQLException;\n" +
+			"import java.sql.SQLTransientException;\n" +
+			"import java.util.List;\n" +
+			"import java.util.concurrent.TimeoutException;\n" +
+			"interface A {\n" +
+			"  List<String> foo(List<String> arg) throws IOException, SQLTransientException;\n" +
+			"}\n" +
+			"interface B {\n" +
+			"  List foo(List<String> arg) throws EOFException, SQLException, TimeoutException;\n" +
+			"}\n" +
+			"interface C {\n" +
+			"  List foo(List arg) throws Exception;\n" +
+			"}\n" +
+			"interface D extends A, B {}\n" +
+			"interface E extends A, B, C {}\n" +
+			"public class X {\n" +
+			"	int var;\n" +
+			"	D d = (x) -> {\n" +
+			"		switch (var) {\n" +
+			"		case 0 : throw new EOFException();\n" +
+			"		case 1: throw new IOException();\n" +
+			"		case 2: throw new SQLException();\n" +
+			"		case 3: throw new SQLTransientException();\n" +
+			"		case 4: throw new TimeoutException();\n" +
+			"		default: throw new NullPointerException();\n" +
+			"		}\n" +
+			"	};\n" +
+			"	E e = (x) -> {\n" +
+			"		switch (var) {\n" +
+			"		case 0 : throw new EOFException();\n" +
+			"		case 1: throw new IOException();\n" +
+			"		case 2: throw new SQLException();\n" +
+			"		case 3: throw new SQLTransientException();\n" +
+			"		case 4: throw new TimeoutException();\n" +
+			"		default: throw new NullPointerException();\n" +
+			"		}\n" +
+			"	};\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 11)\n" + 
+			"	List foo(List<String> arg) throws EOFException, SQLException, TimeoutException;\n" + 
+			"	^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 14)\n" + 
+			"	List foo(List arg) throws Exception;\n" + 
+			"	^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 14)\n" + 
+			"	List foo(List arg) throws Exception;\n" + 
+			"	         ^^^^\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 23)\n" + 
+			"	case 1: throw new IOException();\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type IOException\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 24)\n" + 
+			"	case 2: throw new SQLException();\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type SQLException\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 26)\n" + 
+			"	case 4: throw new TimeoutException();\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type TimeoutException\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 33)\n" + 
+			"	case 1: throw new IOException();\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type IOException\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 34)\n" + 
+			"	case 2: throw new SQLException();\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type SQLException\n" + 
+			"----------\n" + 
+			"9. ERROR in X.java (at line 36)\n" + 
+			"	case 4: throw new TimeoutException();\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type TimeoutException\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor 
+public void test040() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface I {\n" +
+			"  <P extends Exception> Object m() throws P;\n" +
+			"}\n" +
+			"interface J {\n" +
+			"  <Q extends Exception> String m() throws Exception;\n" +
+			"}\n" +
+			"interface G extends I, J {}\n" +
+			"public class X {\n" +
+			"	int var;\n" +
+			"	G g1 = () -> {\n" +
+			"	    throw new Exception(); \n" +
+			"	};\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	throw new Exception(); \n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type Exception\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

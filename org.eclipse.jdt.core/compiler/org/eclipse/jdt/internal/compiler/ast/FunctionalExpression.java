@@ -60,7 +60,7 @@ public abstract class FunctionalExpression extends Expression {
 			return null;
 		}
 		this.singleAbstractMethod = descriptor;
-		return this.resolvedType = descriptor.declaringClass;
+		return this.resolvedType = this.expectedType;  // if interface IJ extends I, J() & IJ's descriptor is I.foo, can't return I
 	}
 
 	public int nullStatus(FlowInfo flowInfo) {
