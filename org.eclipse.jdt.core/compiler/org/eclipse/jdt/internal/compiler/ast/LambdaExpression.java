@@ -65,23 +65,27 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 		super.resolveType(blockScope); // compute & capture interface function descriptor in singleAbstractMethod.
 		
 		final boolean argumentsTypeElided = argumentsTypeElided();
-		final boolean haveDescriptor = this.singleAbstractMethod != null;
+		final boolean haveDescriptor = this.descriptor != null;
 		
+		if (haveDescriptor && this.descriptor.typeVariables != Binding.NO_TYPE_VARIABLES) {
+			blockScope.problemReporter().lambdaExpressionCannotImplementGenericMethod(this, this.descriptor);
+			return this.resolvedType = null;
+		}
 		if (!haveDescriptor && argumentsTypeElided) 
 			return null; // FUBAR, bail out...
 
 		this.scope = new MethodScope(blockScope, this, blockScope.methodScope().isStatic);
 		
 		this.binding = new MethodBinding(ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccUnresolved,
-							haveDescriptor ? this.singleAbstractMethod.selector : TypeConstants.ANONYMOUS_METHOD, 
-							haveDescriptor ? this.singleAbstractMethod.returnType : null, 
+							haveDescriptor ? this.descriptor.selector : TypeConstants.ANONYMOUS_METHOD, 
+							haveDescriptor ? this.descriptor.returnType : null, 
 							Binding.NO_PARAMETERS, // for now. 
-							haveDescriptor ? this.singleAbstractMethod.thrownExceptions : Binding.NO_EXCEPTIONS, 
+							haveDescriptor ? this.descriptor.thrownExceptions : Binding.NO_EXCEPTIONS, 
 							blockScope.enclosingSourceType()); // declaring class, for now - this is needed for annotation holder and such.
 		this.binding.typeVariables = Binding.NO_TYPE_VARIABLES; // descriptor may have type variables, but they are useless in lambda and lambda cannot be generic.
 		
 		if (haveDescriptor) {
-			int descriptorParameterCount = this.singleAbstractMethod.parameters.length;
+			int descriptorParameterCount = this.descriptor.parameters.length;
 			int lambdaArgumentCount = this.arguments != null ? this.arguments.length : 0;
             if (descriptorParameterCount != lambdaArgumentCount) {
             	this.scope.problemReporter().lambdaSignatureMismatched(this);
@@ -107,7 +111,7 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 			}
 			
 			TypeBinding parameterType;
-			final TypeBinding expectedParameterType = haveDescriptor && i < this.singleAbstractMethod.parameters.length ? this.singleAbstractMethod.parameters[i] : null;
+			final TypeBinding expectedParameterType = haveDescriptor && i < this.descriptor.parameters.length ? this.descriptor.parameters[i] : null;
 			parameterType = argumentsTypeElided ? expectedParameterType : argument.type.resolveType(this.scope, true /* check bounds*/);
 			if (parameterType == null) {
 				buggyArguments = true;
@@ -284,7 +288,7 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 	}
 
 	public TypeBinding expectedResultType() {
-		return this.singleAbstractMethod != null && this.singleAbstractMethod.isValidBinding() ? this.singleAbstractMethod.returnType : null;
+		return this.descriptor != null && this.descriptor.isValidBinding() ? this.descriptor.returnType : null;
 	}
 	
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {

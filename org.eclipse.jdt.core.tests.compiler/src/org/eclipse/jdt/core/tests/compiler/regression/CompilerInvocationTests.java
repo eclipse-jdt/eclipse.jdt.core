@@ -762,6 +762,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("NeedToEmulateMethodAccess", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("NoAdditionalBoundAfterTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("NoFieldOnBaseType", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("NoGenericLambda", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("NoImplicitStringConversionForCharArrayExpression", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NoMessageSendOnArrayType", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NoMessageSendOnBaseType", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1503,6 +1504,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NeedToEmulateMethodAccess", new ProblemAttributes(JavaCore.COMPILER_PB_SYNTHETIC_ACCESS_EMULATION));
 		expectedProblemAttributes.put("NoAdditionalBoundAfterTypeVariable", SKIP);
 		expectedProblemAttributes.put("NoFieldOnBaseType", SKIP);
+		expectedProblemAttributes.put("NoGenericLambda", SKIP);
 		expectedProblemAttributes.put("NoImplicitStringConversionForCharArrayExpression", new ProblemAttributes(JavaCore.COMPILER_PB_CHAR_ARRAY_IN_STRING_CONCATENATION));
 		expectedProblemAttributes.put("NoMessageSendOnArrayType", SKIP);
 		expectedProblemAttributes.put("NoMessageSendOnBaseType", SKIP);

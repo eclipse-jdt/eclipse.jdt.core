@@ -1684,7 +1684,13 @@ public MethodBinding getSingleAbstractMethod(Scope scope) {
 			otherMethod = methods[j];
 			if (otherMethod.typeVariables != Binding.NO_TYPE_VARIABLES)
 				genericMethodSeen = true;
-			if (!MethodVerifier.isParameterSubsignature(method, otherMethod, environment) || !MethodVerifier.areReturnTypesCompatible(method, otherMethod, environment)) 
+			
+			if (genericMethodSeen) { // adapt type parameters.
+				otherMethod = MethodVerifier.computeSubstituteMethod(otherMethod, method, environment);
+				if (otherMethod == null)
+					continue next;
+			}
+			if (!MethodVerifier.isSubstituteParameterSubsignature(method, otherMethod, environment) || !MethodVerifier.areReturnTypesCompatible(method, otherMethod, environment)) 
 				continue next; 
 		}
 		// If we reach here, we found a method that is override equivalent with every other method and is also return type substitutable. Compute kosher exceptions now ...

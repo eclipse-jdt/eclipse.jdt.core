@@ -17,6 +17,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 import junit.framework.Test;
 public class NegativeLambdaExpressionsTest extends AbstractRegressionTest {
 
@@ -1428,10 +1432,12 @@ public void test040() {
 			"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\n" + 
-			"	throw new Exception(); \n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unhandled exception type Exception\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	G g1 = () -> {\n" + 
+			"	    throw new Exception(); \n" + 
+			"	};\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Illegal lambda expression: Method m of type J is generic \n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399537 - [1.8][compiler] Exceptions thrown from lambda body must match specification per function descriptor 
@@ -1450,7 +1456,7 @@ public void test041() {
 			"interface G extends G1, G2 {} // G has descriptor <F extends Exception> ()->String throws F\n" +
 			"public class X {\n" +
 			"	G g = (x) -> { // Elided type is inferred from descriptor to be F\n" +
-			"	    throw x;    // ~== throw new F()\n" + // javac 8b74 complains here.
+			"	    throw x;    // ~== throw new F()\n" +
 			"	};\n" +
 			"}\n" +
 			"class Y implements G {\n" +
@@ -1467,12 +1473,19 @@ public void test041() {
 
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 20)\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	G g = (x) -> { // Elided type is inferred from descriptor to be F\n" + 
+			"	    throw x;    // ~== throw new F()\n" + 
+			"	};\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Illegal lambda expression: Method m of type G2 is generic \n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 20)\n" + 
 			"	g1.m(new IOException());\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unhandled exception type IOException\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 23)\n" + 
+			"3. ERROR in X.java (at line 23)\n" + 
 			"	g2.m(new SQLException());\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unhandled exception type Exception\n" + 
@@ -1504,14 +1517,205 @@ public void test042() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	G g1 = (F x) -> {\n" + 
-			"	        ^\n" + 
-			"F cannot be resolved to a type\n" + 
+			"	    throw x;\n" + 
+			"	};\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Illegal lambda expression: Method m of type G2 is generic \n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 14)\n" + 
 			"	G g2 = (IOException x) -> {\n" + 
-			"	        ^^^^^^^^^^^\n" + 
-			"Incompatible type specified for lambda expression\'s parameter x\n" + 
+			"	    throw x;\n" + 
+			"	};\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Illegal lambda expression: Method m of type G2 is generic \n" + 
 			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399224 - [1.8][compiler][internal] Implement TypeBinding.getSingleAbstractMethod 
+public void test043() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.IGNORE);
+
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+            "import java.util.List;\n" +
+			"interface A { void foo(); }\n" +  // yes
+			"interface B { boolean equals(Object obj); }\n" + // no
+			"interface C extends B { void foo(); }\n" + // yes
+			"interface D<T> { boolean equals(Object obj); void foo(); }\n" + // yes
+			"interface E { void foo(); Object clone(); }\n" + // no
+			"interface F { void foo(List<String> p); }\n" + // yes
+            "interface G { void foo(List<String> p); }\n" + // yes
+            "interface H extends F, G {}\n" + // yes
+            "interface I { List foo(List<String> p); }\n" + // yes
+            "interface J { List<String> foo(List arg); }\n" + // yes
+            "interface K extends I, J {}\n" + // yes
+            "interface L { void foo(List<Integer> p); }\n" +  // yes
+            "interface M extends I, L {}\n" + // no
+            "interface N { void foo(List<String> p, Class q); }\n" + // yes
+            "interface O { void foo(List p, Class<?> q); }\n" + // yes
+            "interface P extends N, O {}\n" + // no
+            "interface Q { long foo(); }\n" + // yes
+            "interface R { int foo(); }\n" + // yes
+            "interface S extends Q, R {}\n" + // no
+            "interface T<P> { void foo(P p); }\n" + // yes
+            "interface U<P> { void foo(P p); }\n" + // yes
+            "interface V<P, Q> extends T<P>, U<Q> {}\n" + // no
+            "interface W<T, N extends Number> { void m(T arg); void m(N arg); }\n" + // no
+            "interface X extends W<String, Integer> {}\n" + // no
+            "interface Y extends W<Integer, Integer> {}\n" + // yes
+
+            "class Z {\n" +
+            "    A a              =    () -> {};\n" +
+            "    B b              =    () -> {};\n" +
+            "    C c              =    () -> {};\n" +
+            "    D<?> d           =    () -> {};\n" +
+            "    E e              =    () -> {};\n" +
+            "    F f              =    (p0) -> {};\n" +
+            "    G g              =    (p0) -> {};\n" +
+            "    H h              =    (p0) -> {};\n" +
+            "    I i              =    (p0) -> { return null; };\n" +
+            "    J j              =    (p0) -> { return null; };\n" +
+            "    K k              =    (p0) -> { return null; };\n" +
+            "    L l              =    (p0) -> {};\n" +
+            "    M m              =    (p0) -> {};\n" +
+            "    N n              =    (p0, q0) -> {};\n" +
+            "    O o              =    (p0, q0) -> {};\n" +
+            "    P p              =    (p0, q0) -> {};\n" +
+            "    Q q              =    () -> { return 0;};\n" +
+            "    R r              =    () -> { return 0;};\n" +
+            "    S s              =    () -> {};\n" +
+            "    T<?> t           =    (p0) -> {};\n" +
+            "    U<?> u           =    (p0) -> {};\n" +
+            "    V<?,?> v         =    (p0) -> {};\n" +
+            "    W<?,?> w         =    (p0) -> {};\n" +
+            "    X x              =    (p0) -> {};\n" +
+            "    Y y              =    (p0) -> {};\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 17)\n" + 
+			"	interface P extends N, O {}\n" + 
+			"	          ^\n" + 
+			"Name clash: The method foo(List, Class<?>) of type O has the same erasure as foo(List<String>, Class) of type N but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 20)\n" + 
+			"	interface S extends Q, R {}\n" + 
+			"	          ^\n" + 
+			"The return types are incompatible for the inherited methods Q.foo(), R.foo()\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 23)\n" + 
+			"	interface V<P, Q> extends T<P>, U<Q> {}\n" + 
+			"	          ^\n" + 
+			"Name clash: The method foo(P) of type U<P> has the same erasure as foo(P) of type T<P> but does not override it\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 29)\n" + 
+			"	B b              =    () -> {};\n" + 
+			"	                      ^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 32)\n" + 
+			"	E e              =    () -> {};\n" + 
+			"	                      ^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 40)\n" + 
+			"	M m              =    (p0) -> {};\n" + 
+			"	                      ^^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 43)\n" + 
+			"	P p              =    (p0, q0) -> {};\n" + 
+			"	                      ^^^^^^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 46)\n" + 
+			"	S s              =    () -> {};\n" + 
+			"	                      ^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"9. ERROR in X.java (at line 49)\n" + 
+			"	V<?,?> v         =    (p0) -> {};\n" + 
+			"	                      ^^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"10. ERROR in X.java (at line 50)\n" + 
+			"	W<?,?> w         =    (p0) -> {};\n" + 
+			"	                      ^^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"11. ERROR in X.java (at line 51)\n" + 
+			"	X x              =    (p0) -> {};\n" + 
+			"	                      ^^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n",
+			null,
+			false,
+			options);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399224 - [1.8][compiler][internal] Implement TypeBinding.getSingleAbstractMethod 
+public void test044() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.IGNORE);
+
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"interface A { <T> T foo(List<T> p); }\n" +
+			"interface B { <S> S foo(List<S> p); }\n" +
+			"interface C { <T, S> S foo(List<T> p); }\n" +
+			"interface D extends A, B {}\n" +
+			"interface E extends A, C {}\n" +
+
+			"class Z {\n" +
+	        "    A a              =    (p) -> { return null;};\n" +
+	        "    B b              =    (p) -> { return null;};\n" +
+	        "    C c              =    (p) -> { return null;};\n" +
+	        "    D d              =    (p) -> { return null;};\n" +
+	        "    E e              =    (p) -> { return null;};\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	interface E extends A, C {}\n" + 
+			"	          ^\n" + 
+			"Name clash: The method foo(List<T>) of type C has the same erasure as foo(List<T>) of type A but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	A a              =    (p) -> { return null;};\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Illegal lambda expression: Method foo of type A is generic \n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
+			"	B b              =    (p) -> { return null;};\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Illegal lambda expression: Method foo of type B is generic \n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 10)\n" + 
+			"	C c              =    (p) -> { return null;};\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Illegal lambda expression: Method foo of type C is generic \n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 11)\n" + 
+			"	D d              =    (p) -> { return null;};\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Illegal lambda expression: Method foo of type A is generic \n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 12)\n" + 
+			"	E e              =    (p) -> { return null;};\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n",
+			null,
+			false,
+			options);
 }
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;

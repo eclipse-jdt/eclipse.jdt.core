@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public abstract class FunctionalExpression extends Expression {
 	
 	TypeBinding expectedType;
-	MethodBinding singleAbstractMethod;
+	MethodBinding descriptor;
 	
 	public FunctionalExpression() {
 		super();
@@ -43,13 +43,13 @@ public abstract class FunctionalExpression extends Expression {
 	
 	public TypeBinding resolveType(BlockScope blockScope) {
 		this.constant = Constant.NotAConstant;
-		MethodBinding descriptor = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope);
-		if (descriptor == null) {
+		MethodBinding sam = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope);
+		if (sam == null) {
 			blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
 			return null;
 		}
-		if (!descriptor.isValidBinding()) {
-			switch (descriptor.problemId()) {
+		if (!sam.isValidBinding()) {
+			switch (sam.problemId()) {
 				case ProblemReasons.NoSuchSingleAbstractMethod:
 					blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
 					break;
@@ -59,7 +59,7 @@ public abstract class FunctionalExpression extends Expression {
 			}
 			return null;
 		}
-		this.singleAbstractMethod = descriptor;
+		this.descriptor = sam;
 		return this.resolvedType = this.expectedType;  // if interface IJ extends I, J() & IJ's descriptor is I.foo, can't return I
 	}
 
