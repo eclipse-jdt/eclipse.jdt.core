@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class LambdaExpression extends FunctionalExpression implements ProblemSeverities, ReferenceContext {
 	public Argument [] arguments;
-	Statement body;
+	public Statement body;
 	private MethodScope scope;
 	private CompilationResult compilationResult;
 	private boolean ignoreFurtherInvestigation;
@@ -82,7 +82,7 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 							Binding.NO_PARAMETERS, // for now. 
 							haveDescriptor ? this.descriptor.thrownExceptions : Binding.NO_EXCEPTIONS, 
 							blockScope.enclosingSourceType()); // declaring class, for now - this is needed for annotation holder and such.
-		this.binding.typeVariables = Binding.NO_TYPE_VARIABLES; // descriptor may have type variables, but they are useless in lambda and lambda cannot be generic.
+		this.binding.typeVariables = Binding.NO_TYPE_VARIABLES;
 		
 		if (haveDescriptor) {
 			int descriptorParameterCount = this.descriptor.parameters.length;
