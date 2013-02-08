@@ -33,6 +33,8 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
 				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS2));
 				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS3));
+				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS4));
+				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS8));
 			}
 		}
 		return suite;
@@ -303,15 +305,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	/** @deprecated using deprecated code */
 	public String getName() {
-		String name = super.getName();
-		switch (this.API_LEVEL) {
-			case AST.JLS2:
-				name = "JLS2 - " + name;
-				break;
-			case AST.JLS3:
-				name = "JLS3 - " + name;
-				break;
-		}
+		String name = super.getName() + " - JLS" + this.API_LEVEL;
 		return name;
 	}
 
@@ -1641,8 +1635,8 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			x1.thrownExceptions().add(this.N2);
 			x1.thrownExceptions().add(this.N3);			
 		} else {
-			x1.thrownExceptions().add(this.T3);
-			x1.thrownExceptions().add(this.T4);			
+			x1.thrownExceptionTypes().add(this.T3);
+			x1.thrownExceptionTypes().add(this.T4);			
 		}
 		x1.setBody(this.B1);
 		TestVisitor v1 = new TestVisitor();
