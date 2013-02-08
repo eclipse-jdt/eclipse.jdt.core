@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2012 IBM Corporation and others.
+# Copyright (c) 2013 IBM Corporation and others.
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ AdditionalBound1=AdditionalBound1
 AdditionalBound=AdditionalBound
 AdditionalBoundList1=AdditionalBoundList1
 AdditionalBoundList=AdditionalBoundList
+AdditionalBoundsListOpt=AdditionalBoundsListOpt
 AdditiveExpression=Expression
 AdditiveExpression_NotName=Expression
 AllocationHeader=AllocationHeader
@@ -59,6 +60,7 @@ BlockStatementsopt=BlockStatements
 BooleanLiteral=BooleanLiteral
 BreakStatement=BreakStatement
 CastExpression=CastExpression
+CastNameAndBounds=CastNameAndBounds
 CatchClause=CatchClause
 CatchFormalParameter=FormalParameter
 CatchHeader=CatchHeader
@@ -172,6 +174,7 @@ InclusiveOrExpression_NotName=Expression
 Initializer=Initializer
 InsideCastExpression=InsideCastExpression
 InsideCastExpressionLL1=InsideCastExpression
+InsideCastExpressionLL1WithBounds=InsideCastExpression
 InsideCastExpressionWithQualifiedGenerics=InsideCastExpression
 InstanceofExpression=Expression
 InstanceofExpression_NotName=Expression
@@ -197,6 +200,7 @@ LabeledStatement=LabeledStatement
 LabeledStatementNoShortIf=LabeledStatement
 LambdaBody=LambdaBody
 LambdaExpression=LambdaExpression
+LambdaParameterList=LambdaParameterList
 LambdaParameters=TypeElidedFormalParameter
 Literal=Literal
 LocalVariableDeclaration=LocalVariableDeclaration
@@ -239,6 +243,7 @@ PackageComment=PackageComment
 PackageDeclaration=PackageDeclaration
 PackageDeclarationName=PackageDeclarationName
 ParenthesizedLambdaParameterList=ParenthesizedLambdaParameterList
+ParenthesizedLambdaParameterListOrCastNameAndBounds=ParenthesizedLambdaParameterListOrCastNameAndBounds
 PostDecrementExpression=PostDecrementExpression
 PostIncrementExpression=PostIncrementExpression
 PostfixExpression=Expression
@@ -264,6 +269,7 @@ RecoveryMethodHeader=MethodHeader
 RecoveryMethodHeaderName=MethodHeaderName
 ReduceImports=ReduceImports
 ReferenceExpression=ReferenceExpression
+ReferenceExpressionTypeArgumentsAndTrunk0=ReferenceExpressionTypeArgumentsAndTrunk
 ReferenceExpressionTypeArgumentsAndTrunk=ReferenceExpressionTypeArgumentsAndTrunk
 ReferenceType1=ReferenceType1
 ReferenceType2=ReferenceType2
@@ -311,6 +317,7 @@ TryStatementWithResources=TryStatementWithResources
 Type=Type
 TypeAnnotation=TypeAnnotation
 TypeAnnotationName=AnnotationName
+TypeAnnotations0=TypeAnnotations
 TypeAnnotations=TypeAnnotations
 TypeAnnotationsopt=TypeAnnotationsopt
 TypeArgument1=TypeArgument1

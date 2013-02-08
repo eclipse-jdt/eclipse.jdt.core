@@ -108,6 +108,7 @@ $Terminals
 	ARROW
 	COLON_COLON
 	BeginLambda
+	BeginIntersectionCast
 	BeginTypeArguments
 	ElidedSemicolonAndRightBrace
 	AT308
@@ -208,10 +209,10 @@ Goal ::= '||' MemberValue
 -- syntax diagnosis
 Goal ::= '?' AnnotationTypeMemberDeclaration
 -- JSR 335 Reconnaissance missions.
-Goal ::= '->' ParenthesizedLambdaParameterList
-Goal ::= '::' ReferenceExpressionTypeArgumentsAndTrunk
+Goal ::= '(' ParenthesizedLambdaParameterListOrCastNameAndBounds
+Goal ::= '<' ReferenceExpressionTypeArgumentsAndTrunk
 -- JSR 308 Reconnaissance mission.
-Goal ::= '...' TypeAnnotations
+Goal ::= '@' TypeAnnotations
 /:$readableName Goal:/
 
 Literal -> IntegerLiteral
@@ -335,9 +336,13 @@ TypeAnnotationsopt -> TypeAnnotations
 /:$compliance 1.8:/
 /:$readableName TypeAnnotationsopt:/
 
-TypeAnnotations -> TypeAnnotation
+-- Production name hardcoded in parser. Must be ::= and not -> 
+TypeAnnotations ::= TypeAnnotations0
+/:$readableName TypeAnnotations:/
+
+TypeAnnotations0 -> TypeAnnotation
 /:$compliance 1.8:/
-TypeAnnotations ::= TypeAnnotations TypeAnnotation
+TypeAnnotations0 ::= TypeAnnotations0 TypeAnnotation
 /. $putCase consumeOneMoreTypeAnnotation(); $break ./
 /:$compliance 1.8:/
 /:$readableName TypeAnnotations:/
@@ -1331,10 +1336,14 @@ PrimaryNoNewArray -> LambdaExpression
 PrimaryNoNewArray -> ReferenceExpression
 /:$readableName Expression:/
 
-ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments Dimsopt 
+-- Production name hardcoded in parser. Must be ::= and not -> 
+ReferenceExpressionTypeArgumentsAndTrunk ::= ReferenceExpressionTypeArgumentsAndTrunk0
+/:$readableName ReferenceExpressionTypeArgumentsAndTrunk:/
+
+ReferenceExpressionTypeArgumentsAndTrunk0 ::= OnlyTypeArguments Dimsopt 
 /.$putCase consumeReferenceExpressionTypeArgumentsAndTrunk(false); $break ./
 /:$compliance 1.8:/
-ReferenceExpressionTypeArgumentsAndTrunk ::= OnlyTypeArguments '.' ClassOrInterfaceType Dimsopt 
+ReferenceExpressionTypeArgumentsAndTrunk0 ::= OnlyTypeArguments '.' ClassOrInterfaceType Dimsopt 
 /.$putCase consumeReferenceExpressionTypeArgumentsAndTrunk(true); $break ./
 /:$readableName ReferenceExpressionTypeArgumentsAndTrunk:/
 /:$compliance 1.8:/
@@ -1386,13 +1395,21 @@ LambdaParameters ::= Identifier
 
 -- to make the grammar LALR(1), the scanner transforms the input string to
 -- contain synthetic tokens to signal start of lambda parameter list.
-LambdaParameters -> BeginLambda ParenthesizedLambdaParameterList
+LambdaParameters -> BeginLambda LambdaParameterList
 /:$readableName LambdaParameters:/
 /:$compliance 1.8:/
 
-ParenthesizedLambdaParameterList -> PushLPAREN FormalParameterListopt PushRPAREN
-ParenthesizedLambdaParameterList -> PushLPAREN TypeElidedFormalParameterList PushRPAREN
+ParenthesizedLambdaParameterListOrCastNameAndBounds -> ParenthesizedLambdaParameterList
+ParenthesizedLambdaParameterListOrCastNameAndBounds -> CastNameAndBounds
+/:$readableName ParenthesizedLambdaParameterListOrCastNameAndBounds:/
+
+-- Production name hardcoded in parser. Must be ::= and not -> 
+ParenthesizedLambdaParameterList ::= LambdaParameterList
 /:$readableName ParenthesizedLambdaParameterList:/
+
+LambdaParameterList -> PushLPAREN FormalParameterListopt PushRPAREN
+LambdaParameterList -> PushLPAREN TypeElidedFormalParameterList PushRPAREN
+/:$readableName LambdaParameterList:/
 /:$compliance 1.8:/
 
 TypeElidedFormalParameterList -> TypeElidedFormalParameter
@@ -1613,17 +1630,31 @@ UnaryExpressionNotPlusMinus ::= '!' PushPosition UnaryExpression
 UnaryExpressionNotPlusMinus -> CastExpression
 /:$readableName Expression:/
 
-CastExpression ::= PushLPAREN PrimitiveType Dimsopt PushRPAREN InsideCastExpression UnaryExpression
+CastExpression ::= PushLPAREN PrimitiveType Dimsopt AdditionalBoundsListOpt PushRPAREN InsideCastExpression UnaryExpression
 /.$putCase consumeCastExpressionWithPrimitiveType(); $break ./
-CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression Dimsopt PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression Dimsopt AdditionalBoundsListOpt PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithGenericsArray(); $break ./
-CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType Dimsopt PushRPAREN InsideCastExpressionWithQualifiedGenerics UnaryExpressionNotPlusMinus
+CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType Dimsopt AdditionalBoundsListOpt PushRPAREN InsideCastExpressionWithQualifiedGenerics UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithQualifiedGenericsArray(); $break ./
 CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionLL1(); $break ./
-CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
+CastExpression ::=  BeginIntersectionCast PushLPAREN CastNameAndBounds PushRPAREN InsideCastExpressionLL1WithBounds UnaryExpressionNotPlusMinus
+/.$putCase consumeCastExpressionLL1WithBounds(); $break ./
+CastExpression ::= PushLPAREN Name Dims AdditionalBoundsListOpt PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithNameArray(); $break ./
 /:$readableName CastExpression:/
+
+AdditionalBoundsListOpt ::= $empty
+/.$putCase consumeZeroAdditionalBounds(); $break ./
+/:$readableName AdditionalBoundsListOpt:/
+AdditionalBoundsListOpt -> AdditionalBoundList
+/:$compliance 1.8:/
+/:$readableName AdditionalBoundsListOpt:/
+
+-- Production name hardcoded in parser. Must be ::= and not -> 
+CastNameAndBounds ::= Name AdditionalBoundList
+/:$compliance 1.8:/
+/:$readableName CastNameAndBounds:/
 
 OnlyTypeArgumentsForCastExpression ::= OnlyTypeArguments
 /.$putCase consumeOnlyTypeArgumentsForCastExpression(); $break ./
@@ -1634,6 +1665,9 @@ InsideCastExpression ::= $empty
 /:$readableName InsideCastExpression:/
 InsideCastExpressionLL1 ::= $empty
 /.$putCase consumeInsideCastExpressionLL1(); $break ./
+/:$readableName InsideCastExpression:/
+InsideCastExpressionLL1WithBounds ::= $empty
+/.$putCase consumeInsideCastExpressionLL1WithBounds (); $break ./
 /:$readableName InsideCastExpression:/
 InsideCastExpressionWithQualifiedGenerics ::= $empty
 /.$putCase consumeInsideCastExpressionWithQualifiedGenerics(); $break ./

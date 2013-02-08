@@ -503,6 +503,12 @@ public abstract class ASTVisitor {
 	public void endVisit(ReferenceExpression referenceExpression, BlockScope blockScope) {
 		// do nothing by default	
 	}
+	public void endVisit(IntersectionCastTypeReference intersectionCastTypeReference, ClassScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(IntersectionCastTypeReference intersectionCastTypeReference, BlockScope scope) {
+		// do nothing by default
+	}
 	public boolean visit(
     		AllocationExpression allocationExpression,
     		BlockScope scope) {
@@ -983,6 +989,12 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(ReferenceExpression referenceExpression, BlockScope blockScope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(IntersectionCastTypeReference intersectionCastTypeReference, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(IntersectionCastTypeReference intersectionCastTypeReference, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 }

@@ -220,6 +220,13 @@ protected void consumeCastExpressionLL1() {
 		this.patternLocator.match(castExpression.type, this.nodeSet);
 	}
 }
+protected void consumeCastExpressionLL1WithBounds() {
+	super.consumeCastExpressionLL1WithBounds();
+	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
+		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
+		this.patternLocator.match(castExpression.type, this.nodeSet);
+	}
+}
 protected void consumeCastExpressionWithGenericsArray() {
 	super.consumeCastExpressionWithGenericsArray();
 	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {

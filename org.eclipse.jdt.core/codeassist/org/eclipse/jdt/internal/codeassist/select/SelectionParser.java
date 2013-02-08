@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -269,6 +269,10 @@ protected void consumeArrayCreationExpressionWithInitializer() {
 protected void consumeCastExpressionLL1() {
 	popElement(K_CAST_STATEMENT);
 	super.consumeCastExpressionLL1();
+}
+protected void consumeCastExpressionLL1WithBounds() {
+	popElement(K_CAST_STATEMENT);
+	super.consumeCastExpressionLL1WithBounds();
 }
 protected void consumeCastExpressionWithGenericsArray() {
 	popElement(K_CAST_STATEMENT);
@@ -695,6 +699,10 @@ protected void consumeInsideCastExpression() {
 }
 protected void consumeInsideCastExpressionLL1() {
 	super.consumeInsideCastExpressionLL1();
+	pushOnElementStack(K_CAST_STATEMENT);
+}
+protected void consumeInsideCastExpressionLL1WithBounds() {
+	super.consumeInsideCastExpressionLL1WithBounds();
 	pushOnElementStack(K_CAST_STATEMENT);
 }
 protected void consumeInsideCastExpressionWithQualifiedGenerics() {

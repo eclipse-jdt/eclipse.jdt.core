@@ -1143,26 +1143,13 @@ public int getNextToken() throws InvalidInputException {
 		this.nextToken = TokenNameNotAToken;
 		return token; // presumed to be unambiguous.
 	}
-	
 	token = getNextToken0();
 	if (this.activeParser == null) { // anybody interested in the grammatical structure of the program should have registered.
 		return token;
 	}
-
-	if (token == TokenNameLPAREN && atLambdaParameterList()) {
-		this.nextToken = token;
-		token = TokenNameBeginLambda;
-	} else if (token == TokenNameLESS && atReferenceExpression()) {
-		this.nextToken = token;
-		token = TokenNameBeginTypeArguments;
-	} else if (token == TokenNameAT && atTypeAnnotation()) {
-		token = TokenNameAT308;
-		if (atEllipsisAnnotation()) {
-			this.nextToken = token;
-			token = TokenNameAT308DOTDOTDOT;
-		}
+	if (token == TokenNameLPAREN || token == TokenNameLESS || token == TokenNameAT) {
+		token = disambiguatedToken(token);
 	}
-
 	this.lookBack[0] = this.lookBack[1];
 	this.lookBack[1] = token;
 	return token;
@@ -4202,16 +4189,6 @@ public static boolean isKeyword(int token) {
 // Vanguard Scanner - A Private utility helper class for the scanner.
 private static class VanguardScanner extends Scanner {
 	
-	/* A lambda parameter list will/can NEVER contain ->, likewise the trunk of a reference expression will/can never contain ::, 
-	   We morph one or the other specific token into EOF and see if the parser enters accept state. On true EOF, we return fake
-	   EOF to force an error. This is so that the interim goal reduction actually happens only when -> or :: occur in input at
-	   the expected place.
-	   
-	   To make matters interesting, type annotations can occur inside both lambda parameter list and reference expression trunks
-	   and declarative annotations can occur in lambda parameter lists. We need to discriminate between them. Sigh.
-	*/
-	private int fakeEofToken = TokenNameNotAToken; // if encountered in input stream, will be exposed as EOF instead.
-
 	public VanguardScanner(long sourceLevel, long complianceLevel) {
 		super (false /*comment*/, false /*whitespace*/, false /*nls*/, sourceLevel, complianceLevel, null/*taskTag*/, null/*taskPriorities*/, false /*taskCaseSensitive*/);
 	}
@@ -4221,26 +4198,87 @@ private static class VanguardScanner extends Scanner {
 		if (token == TokenNameAT && atTypeAnnotation()) {
 			token = TokenNameAT308;
 		}
-		return token == this.fakeEofToken ? TokenNameEOF : token == TokenNameEOF ? this.fakeEofToken : token; 
-	}
-
-	public void setFakeEofToken(int eofToken) {
-		this.fakeEofToken = eofToken;
+		return token == TokenNameEOF ? TokenNameNotAToken : token; 
 	}
 }
 
+private static class Goal {
+	
+	int first;      // steer the parser towards a single minded pursuit.
+	int [] follow;  // the definite terminal symbols that signal the successful reduction to goal.
+	int rule;
+
+	static int LambdaParameterListRule = 0;
+	static int IntersectionCastRule = 0;
+	static int ReferenceExpressionRule = 0;
+	static int VarargTypeAnnotationsRule  = 0;
+	
+	static Goal LambdaParameterListGoal;
+	static Goal IntersectionCastGoal;
+	static Goal VarargTypeAnnotationGoal;
+	static Goal ReferenceExpressionGoal;
+	static Goal FailedGoal;
+	
+
+	static {
+		
+		for (int i = 1; i <= ParserBasicInformation.NUM_RULES; i++) {  // 0 == $acc
+			if ("ParenthesizedLambdaParameterList".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				LambdaParameterListRule = i;
+			else 
+			if ("CastNameAndBounds".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				IntersectionCastRule = i;
+			else 
+			if ("ReferenceExpressionTypeArgumentsAndTrunk".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				ReferenceExpressionRule = i;
+			else 
+			if ("TypeAnnotations".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				VarargTypeAnnotationsRule = i;
+		}
+		
+		LambdaParameterListGoal =  new Goal(TokenNameLPAREN, new int[] { TokenNameARROW }, LambdaParameterListRule);
+		IntersectionCastGoal =     new Goal(TokenNameLPAREN, followSetOfCast(), IntersectionCastRule);
+		VarargTypeAnnotationGoal = new Goal(TokenNameAT, new int[] { TokenNameELLIPSIS }, VarargTypeAnnotationsRule);
+		ReferenceExpressionGoal =  new Goal(TokenNameLESS, new int[] { TokenNameCOLON_COLON }, ReferenceExpressionRule);
+		FailedGoal =               new Goal(TokenNameNotAToken, null, 0);
+	}
+
+
+	Goal(int first, int [] follow, int rule) {
+		this.first = first;
+		this.follow = follow;
+		this.rule = rule;
+	}
+	
+	boolean hasBeenReached(int act, int token) {
+		if (act == this.rule) {
+			for (int i = 0, length = this.follow.length; i < length; i++)
+				if (this.follow[i] == token)
+					return true;
+		}
+		return false;
+	}
+	
+	private static int [] followSetOfCast() {
+		return new int [] { TokenNameIdentifier, TokenNamenew, TokenNamesuper, TokenNamethis,
+				TokenNamefalse, TokenNametrue, TokenNamenull, 
+				TokenNameIntegerLiteral, TokenNameLongLiteral, TokenNameFloatingPointLiteral, TokenNameDoubleLiteral, TokenNameCharacterLiteral, TokenNameStringLiteral, 
+				TokenNameNOT, TokenNameTWIDDLE, TokenNameLPAREN
+		};
+	}
+}
 // Vanguard Parser - A Private utility helper class for the scanner.
 private static class VanguardParser extends Parser {
 	
 	public VanguardParser(VanguardScanner scanner) {
 		this.scanner = scanner;
 	}
-	protected boolean parse(int specialToken) { // Canonical LALR pushdown automaton identical to Parser.parse() minus side effects of any kind.
-		this.scanner.setFakeEofToken(specialToken);
+	// Canonical LALR pushdown automaton identical to Parser.parse() minus side effects of any kind, returns the rule reduced.
+	protected Goal parse(Goal goal, Goal alternateGoal) {
 		try {
 			int act = START_STATE;
 			this.stateStackTop = -1;
-			this.currentToken = specialToken; // steer the parser towards a single minded goal. 
+			this.currentToken = goal.first; 
 			ProcessTerminals : for (;;) {
 				int stackLength = this.stack.length;
 				if (++this.stateStackTop >= stackLength) {
@@ -4253,7 +4291,7 @@ private static class VanguardParser extends Parser {
 
 				act = Parser.tAction(act, this.currentToken);
 				if (act == ERROR_ACTION) {
-					return false;
+					return Goal.FailedGoal;
 				}
 				if (act <= NUM_RULES) {
 					this.stateStackTop--;
@@ -4275,17 +4313,21 @@ private static class VanguardParser extends Parser {
 						}
 						continue ProcessTerminals;
 					}
-				    return true; // accept !
+				    return Goal.FailedGoal; // accept - we should never reach this state, we accept at reduce with a right member of follow set below.
 				}
 
 				// ProcessNonTerminals :
 				do { /* reduce */
+					if (goal.hasBeenReached(act, this.currentToken))
+						return goal;
+					if (alternateGoal != null && alternateGoal.hasBeenReached(act,  this.currentToken))
+						return alternateGoal;
 					this.stateStackTop -= (Parser.rhs[act] - 1);
 					act = Parser.ntAction(this.stack[this.stateStackTop], Parser.lhs[act]);
 				} while (act <= NUM_RULES);
 			}
 		} catch (Exception e) {
-			return false;
+			return Goal.FailedGoal;
 		}
 	}
 	public String toString() {
@@ -4304,32 +4346,27 @@ private VanguardParser getVanguardParser() {
 	return this.vanguardParser;
 }
 
-public void setFakeEofToken(int specialToken) {
-	throw new UnsupportedOperationException();   // for specific specializations only.
-}
-
-protected final boolean atLambdaParameterList() { // Did the '(' we saw just now herald a lambda parameter list ?
+protected final boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now herald a lambda parameter list or a cast expression ? (the possible locations for both are identical.)
 
 	switch (this.lookBack[1]) {
-		case TokenNameEQUAL : 
-		case TokenNamereturn:
-		case TokenNameLPAREN:
-		case TokenNameRPAREN:
-		case TokenNameCOMMA:
-		case TokenNameARROW:
-		case TokenNameQUESTION:
-		case TokenNameCOLON:
-		case TokenNameLBRACE:
-		case TokenNameNotAToken: // Not kosher, don't touch.
-			break;
+		case TokenNameIdentifier:
+		case TokenNamecatch:
+		case TokenNamethis:
+		case TokenNamesuper:
+		case TokenNameif:
+		case TokenNameswitch:
+		case TokenNamewhile:
+		case TokenNamefor:
+		case TokenNamesynchronized:
+		case TokenNametry:
+			return false; // not a viable prefix for cast or lambda.
 		default:
-			return false; // Not a viable prefix for lambda.
-
+			return this.activeParser.atConflictScenario(TokenNameLPAREN);
 	}
-	return this.activeParser.atConflictScenario(TokenNameLPAREN) && getVanguardParser().parse(TokenNameARROW);
 }
+		
 
-protected final boolean atReferenceExpression() { // Did the '<' we saw just now herald a reference expression ?
+protected final boolean maybeAtReferenceExpression() { // Did the '<' we saw just now herald a reference expression's type arguments and trunk ?
 	switch (this.lookBack[1]) {
 		case TokenNameIdentifier:
 			switch (this.lookBack[0]) {
@@ -4365,9 +4402,9 @@ protected final boolean atReferenceExpression() { // Did the '<' we saw just now
 		default:
 			return false;
 	}
-	return this.activeParser.atConflictScenario(TokenNameLESS) && getVanguardParser().parse(TokenNameCOLON_COLON);
+	return this.activeParser.atConflictScenario(TokenNameLESS);
 }
-protected final boolean atEllipsisAnnotation() { // Did the '@' we saw just now herald a type annotation on a ... ? Presumed to be at type annotation already.
+protected final boolean maybeAtEllipsisAnnotation() { // Did the '@' we saw just now herald a type annotation on a ... ? Presumed to be at type annotation already.
 	switch (this.lookBack[1]) {
 		case TokenNamenew:
 		case TokenNameCOMMA:
@@ -4382,8 +4419,9 @@ protected final boolean atEllipsisAnnotation() { // Did the '@' we saw just now 
 		case TokenNameAND:
 		case TokenNamethrows:
 			return false;
+		default:
+			return true;
 	}
-	return getVanguardParser().parse(TokenNameELLIPSIS);
 }
 protected final boolean atTypeAnnotation() { // Did the '@' we saw just now herald a type annotation ? We should not ask the parser whether it would shift @308 !
 	return !this.activeParser.atConflictScenario(TokenNameAT);
@@ -4392,5 +4430,35 @@ protected final boolean atTypeAnnotation() { // Did the '@' we saw just now hera
 public void setActiveParser(ConflictedParser parser) {
 	this.activeParser  = parser;
 	this.lookBack[0] = this.lookBack[1] = TokenNameNotAToken;  // no hand me downs please.
+}
+private int disambiguatedToken(int token) {
+	Goal goal;
+	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
+		goal = getVanguardParser().parse(Goal.LambdaParameterListGoal, Goal.IntersectionCastGoal);
+		if (goal == Goal.LambdaParameterListGoal) {
+			this.nextToken = TokenNameLPAREN;
+			return TokenNameBeginLambda;
+		}
+		if (goal == Goal.IntersectionCastGoal) {
+			this.nextToken = token;
+			return TokenNameBeginIntersectionCast;
+		}
+	} else if (token == TokenNameLESS && maybeAtReferenceExpression()) {
+		goal = getVanguardParser().parse(Goal.ReferenceExpressionGoal, null);
+		if (goal == Goal.ReferenceExpressionGoal) {
+			this.nextToken = TokenNameLESS;
+			return TokenNameBeginTypeArguments;
+		}
+	} else if (token == TokenNameAT && atTypeAnnotation()) {
+		token = TokenNameAT308;
+		if (maybeAtEllipsisAnnotation()) {
+			goal = getVanguardParser().parse(Goal.VarargTypeAnnotationGoal, null);
+			if (goal == Goal.VarargTypeAnnotationGoal) {
+				this.nextToken = token;
+				return TokenNameAT308DOTDOTDOT;
+			}
+		}
+	}
+	return token;
 }
 }

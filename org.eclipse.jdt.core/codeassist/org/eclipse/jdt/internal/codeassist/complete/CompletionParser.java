@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2736,6 +2736,14 @@ protected void consumeStatementIfWithElse() {
 	}
 }
 protected void consumeInsideCastExpression() {
+	TypeReference[] bounds = null;
+	int additionalBoundsLength = this.genericsLengthStack[this.genericsLengthPtr--];
+	if (additionalBoundsLength > 0) {
+		bounds = new TypeReference[additionalBoundsLength + 1];
+		this.genericsPtr -= additionalBoundsLength;
+		System.arraycopy(this.genericsStack, this.genericsPtr + 1, bounds, 1, additionalBoundsLength);
+	}
+	
 	int end = this.intStack[this.intPtr--];
 	boolean isParameterized =(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_CAST);
 	if(isParameterized) {
@@ -2751,6 +2759,10 @@ protected void consumeInsideCastExpression() {
 		}
 	}
 	Expression castType = getTypeReference(this.intStack[this.intPtr--]);
+	if (additionalBoundsLength > 0) {
+		bounds[0] = getTypeReference(this.intStack[this.intPtr--]);
+		castType = new IntersectionCastTypeReference(bounds); 
+	}
 	if(isParameterized) {
 		this.intPtr--;
 	}
@@ -2783,6 +2795,29 @@ protected void consumeInsideCastExpressionLL1() {
 	}
 	pushOnElementStack(K_CAST_STATEMENT);
 }
+protected void consumeInsideCastExpressionLL1WithBounds() {
+	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_CAST) {
+		popElement(K_PARAMETERIZED_CAST);
+	}
+	if (!this.record) {
+		super.consumeInsideCastExpressionLL1WithBounds();
+	} else {
+		boolean temp = this.skipRecord;
+		try {
+			this.skipRecord = true;
+			super.consumeInsideCastExpressionLL1WithBounds();
+			if (this.record) {
+				Expression typeReference = this.expressionStack[this.expressionPtr];
+				if (!isAlreadyPotentialName(typeReference.sourceStart)) {
+					addPotentialName(null, typeReference.sourceStart, typeReference.sourceEnd);
+				}
+			}
+		} finally {
+			this.skipRecord = temp;
+		}
+	}
+	pushOnElementStack(K_CAST_STATEMENT);
+}
 protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	popElement(K_PARAMETERIZED_CAST);
 
@@ -2791,9 +2826,22 @@ protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 
 	int dim = this.intStack[this.intPtr--];
 	Annotation[][] annotationsOnDimensions = dim == 0 ? null : getAnnotationsOnDimensions(dim);
+	
+	TypeReference[] bounds = null;
+	int additionalBoundsLength = this.genericsLengthStack[this.genericsLengthPtr--];
+	if (additionalBoundsLength > 0) {
+		bounds = new TypeReference[additionalBoundsLength + 1];
+		this.genericsPtr -= additionalBoundsLength;
+		System.arraycopy(this.genericsStack, this.genericsPtr + 1, bounds, 1, additionalBoundsLength);
+	}
+	
 	TypeReference rightSide = getTypeReference(0);
 
 	castType = computeQualifiedGenericsFromRightSide(rightSide, dim, annotationsOnDimensions);
+	if (additionalBoundsLength > 0) {
+		bounds[0] = (TypeReference) castType;
+		castType = new IntersectionCastTypeReference(bounds); 
+	} 
 	this.intPtr--;
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = this.intStack[this.intPtr--] + 1;
