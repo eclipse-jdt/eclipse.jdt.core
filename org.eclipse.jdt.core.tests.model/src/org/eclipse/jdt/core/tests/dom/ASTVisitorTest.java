@@ -16,9 +16,10 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.Method;
+
 import junit.framework.Test;
+
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.ASTNode;
 
 public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
@@ -137,6 +138,18 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public ASTVisitorTest(String name, int apiLevel) {
 		super(name);
 		this.API_LEVEL = apiLevel;
+	}
+	
+	public ASTVisitorTest(String name) {
+		super(name.substring(0, name.indexOf(" - JLS")));
+		name.indexOf(" - JLS");
+		this.API_LEVEL = Integer.parseInt(name.substring(name.indexOf(" - JLS") + 6));
+	}
+
+	/** @deprecated using deprecated code */
+	public String getName() {
+		String name = super.getName() + " - JLS" + this.API_LEVEL;
+		return name;
 	}
 
 	/**
@@ -301,12 +314,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	protected void tearDown() throws Exception {
 		this.ast = null;
 		super.tearDown();
-	}
-
-	/** @deprecated using deprecated code */
-	public String getName() {
-		String name = super.getName() + " - JLS" + this.API_LEVEL;
-		return name;
 	}
 
 	class TestVisitor extends ASTVisitor {
@@ -1644,11 +1651,11 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.accept(v1);
 		String result = this.b.toString();
 		if (this.ast.apiLevel() == AST.JLS2) {
-			assertTrue(result.equals("[(MD"+this.JD1S+this.T1S+this.N1S+this.V1S+this.V2S+this.N2S+this.N3S+this.B1S+"MD)]")); //$NON-NLS-1$ //$NON-NLS-2$
+			assertEquals("[(MD"+this.JD1S+this.T1S+this.N1S+this.V1S+this.V2S+this.N2S+this.N3S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (this.ast.apiLevel() < AST.JLS8) {
-			assertTrue(result.equals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.N1S+this.V1S+this.V2S+this.N2S+this.N3S+this.B1S+"MD)]")); //$NON-NLS-1$ //$NON-NLS-2$
+			assertEquals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.N1S+this.V1S+this.V2S+this.N2S+this.N3S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			assertTrue(result.equals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.T3S+this.V1S+this.V2S+this.T4S+this.N3S+this.B1S+"MD)]")); //$NON-NLS-1$ //$NON-NLS-2$			
+			assertEquals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.N1S+this.V1S+this.V2S+this.T3S+this.T4S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$			
 		}
 	}
 	/** @deprecated using deprecated code */
