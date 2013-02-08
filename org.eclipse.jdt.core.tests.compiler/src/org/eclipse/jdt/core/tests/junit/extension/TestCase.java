@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,23 +10,35 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.junit.extension;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.util.*;
-
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.batch.Main;
-import org.eclipse.test.performance.Performance;
-import org.eclipse.test.performance.PerformanceTestCase;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.ComparisonFailure;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.test.internal.performance.PerformanceMeterFactory;
+import org.eclipse.test.performance.Performance;
+import org.eclipse.test.performance.PerformanceTestCase;
 
 public class TestCase extends PerformanceTestCase {
 
@@ -843,6 +855,21 @@ private String format(long number) {
 		buffer.append(',').append(DIGIT_FORMAT.format(values[i]));
 	}
 	return buffer.toString();
+}
+
+/**
+ * This method is called by the Eclipse JUnit test runner when a test is re-run from the
+ * JUnit view's context menu (with "Keep JUnit running after a test run when debugging")
+ * enabled in the launch configuration).
+ */
+public static Test setUpTest(Test test) throws Exception {
+	// reset the PerformanceMeterFactory, so that the same scenario can be run again:
+	Field field = PerformanceMeterFactory.class.getDeclaredField("fScenarios");
+	field.setAccessible(true);
+	Set set = (Set) field.get(null);
+	set.clear();
+	
+	return test;
 }
 
 public void startMeasuring() {
