@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -173,7 +173,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		return null;
 	}
 
-	public static SingleVariableDeclaration createNewParam(AST ast, String name) {
+	protected static SingleVariableDeclaration createNewParam(AST ast, String name) {
 		SingleVariableDeclaration newParam= ast.newSingleVariableDeclaration();
 		newParam.setType(ast.newPrimitiveType(PrimitiveType.FLOAT));
 		newParam.setName(ast.newSimpleName(name));
@@ -181,16 +181,16 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	}
 
 	/** @deprecated using deprecated code */
-	private void setModifiers(BodyDeclaration bodyDeclaration, int modifiers) {
+	private static void setModifiers(BodyDeclaration bodyDeclaration, int modifiers) {
 		bodyDeclaration.setModifiers(modifiers);
 	}
 
 	/** @deprecated using deprecated code */
-	private void setReturnType(MethodDeclaration methodDeclaration, Type type) {
+	private static void setReturnType(MethodDeclaration methodDeclaration, Type type) {
 		methodDeclaration.setReturnType(type);
 	}
 
-	protected FieldDeclaration createNewField(AST ast, String name) {
+	protected static FieldDeclaration createNewField(AST ast, String name) {
 		VariableDeclarationFragment frag= ast.newVariableDeclarationFragment();
 		frag.setName(ast.newSimpleName(name));
 		FieldDeclaration newFieldDecl= ast.newFieldDeclaration(frag);
@@ -203,7 +203,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		return newFieldDecl;
 	}
 
-	protected MethodDeclaration createNewMethod(AST ast, String name, boolean isAbstract) {
+	protected static MethodDeclaration createNewMethod(AST ast, String name, boolean isAbstract) {
 		MethodDeclaration decl= ast.newMethodDeclaration();
 		decl.setName(ast.newSimpleName(name));
 		if (ast.apiLevel() == AST_INTERNAL_JLS2) {
