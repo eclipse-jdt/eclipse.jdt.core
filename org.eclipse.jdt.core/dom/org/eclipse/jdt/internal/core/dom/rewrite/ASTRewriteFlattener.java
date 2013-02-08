@@ -645,7 +645,10 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		for (int i = 0; i < extraDims; i++) {
 			this.result.append("[]"); //$NON-NLS-1$
 		}
-		visitList(node, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY, String.valueOf(','), " throws ", Util.EMPTY_STRING); //$NON-NLS-1$
+
+		ChildListPropertyDescriptor exceptionsProperty = node.getAST().apiLevel() <	AST.JLS8 ? 
+				MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY;
+		visitList(node, exceptionsProperty, String.valueOf(','), " throws ", Util.EMPTY_STRING); //$NON-NLS-1$			
 		ASTNode body= getChildNode(node, MethodDeclaration.BODY_PROPERTY);
 		if (body == null) {
 			this.result.append(';');

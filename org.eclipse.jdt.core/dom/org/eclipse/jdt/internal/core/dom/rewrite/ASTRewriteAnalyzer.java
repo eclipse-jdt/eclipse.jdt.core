@@ -1853,7 +1853,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 			int extraDims= rewriteExtraDimensions(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, pos);
 
-			boolean hasExceptionChanges= isChanged(node, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY);
+			ChildListPropertyDescriptor exceptionsProperty = node.getAST().apiLevel() < AST.JLS8 ? MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY;
+			boolean hasExceptionChanges= isChanged(node, exceptionsProperty);
 
 			int bodyChangeKind= getChangeKind(node, MethodDeclaration.BODY_PROPERTY);
 
@@ -1865,7 +1866,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 			}
 
-			pos= rewriteNodeList(node, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY, pos, " throws ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
+			pos= rewriteNodeList(node, exceptionsProperty, pos, " throws ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
+			
 			rewriteMethodBody(node, pos);
 		} catch (CoreException e) {
 			// ignore
