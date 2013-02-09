@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -152,15 +156,15 @@ public final class BaseTypeBinding extends TypeBinding {
 	
 	/* Answer true if the receiver type can be assigned to the argument type (right)
 	*/
-	public final boolean isCompatibleWith(TypeBinding left, Scope captureScope) {
-		if (this == left)
+	public final boolean isCompatibleWith(TypeBinding right, Scope captureScope) {
+		if (this == right)
 			return true;
-		int right2left = this.id + (left.id<<4);
+		int right2left = this.id + (right.id<<4);
 		if (right2left >= 0 
 				&& right2left < MAX_CONVERSIONS 
 				&& (CONVERSIONS[right2left] & (IDENTITY|WIDENING)) != 0)
 			return true;
-		return this == TypeBinding.NULL && !left.isBaseType();
+		return this == TypeBinding.NULL && !right.isBaseType();
 	}
 	
 	/**

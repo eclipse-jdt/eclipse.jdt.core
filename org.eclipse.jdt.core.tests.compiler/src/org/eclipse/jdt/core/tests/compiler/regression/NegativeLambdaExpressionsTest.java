@@ -1717,6 +1717,47 @@ public void test044() {
 			false,
 			options);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400386 - [1.8][spec] Broken example in 9.8, discussion box - bullet 2 ?
+public void test045() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"interface I { Object m(); }\n" +
+			"interface J<S> { S m(); }\n" +
+			"interface K<T> { T m(); }\n" +
+			"interface Functional<S,T> extends I, J<S>, K<T> {}\n" +
+			"class X {\n" +
+			"    Functional<String,Integer> f = () -> { };\n" +
+			"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	interface Functional<S,T> extends I, J<S>, K<T> {}\n" + 
+			"	          ^^^^^^^^^^\n" + 
+			"The return types are incompatible for the inherited methods I.m(), J<S>.m(), K<T>.m()\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	Functional<String,Integer> f = () -> { };\n" + 
+			"	                               ^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n");
+}
+public void test046() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"interface A { void f(List<String> ls); }\n" +
+			"interface B { void f(List<Integer> li); }\n" +
+			"interface C extends A,B {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	interface C extends A,B {}\n" + 
+			"	          ^\n" + 
+			"Name clash: The method f(List<Integer>) of type B has the same erasure as f(List<String>) of type A but does not override it\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

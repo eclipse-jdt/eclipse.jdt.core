@@ -21,6 +21,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -486,17 +487,16 @@ public StringBuffer printExpression(int indent, StringBuffer output) {
 public TypeBinding resolveType(BlockScope scope) {
 	// compute a new constant if the cast is effective
 
-	// due to the fact an expression may start with ( and that a cast can also start with (
-	// the field is an expression....it can be a TypeReference OR a NameReference Or
-	// any kind of Expression <-- this last one is invalid.......
-
 	this.constant = Constant.NotAConstant;
 	this.implicitConversion = TypeIds.T_undefined;
 
 	boolean exprContainCast = false;
 
 	TypeBinding castType = this.resolvedType = this.type.resolveType(scope);
-	//expression.setExpectedType(this.resolvedType); // needed in case of generic method invocation
+	if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
+		if (this.expression.isPolyExpressionInCastingContext())
+			this.expression.setExpectedType(this.resolvedType);
+	}
 	if (this.expression instanceof CastExpression) {
 		this.expression.bits |= ASTNode.DisableUnnecessaryCastCheck;
 		exprContainCast = true;

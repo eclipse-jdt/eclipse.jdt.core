@@ -64,6 +64,8 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 		
 		super.resolveType(blockScope); // compute & capture interface function descriptor in singleAbstractMethod.
 		
+		// Visibility checks for elided parameters and return type
+		
 		final boolean argumentsTypeElided = argumentsTypeElided();
 		final boolean haveDescriptor = this.descriptor != null;
 		

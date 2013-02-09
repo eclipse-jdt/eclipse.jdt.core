@@ -81,6 +81,7 @@ abstract public class ReferenceBinding extends TypeBinding {
 			return c == 0 ? m1.parameters.length - m2.parameters.length : c;
 		}
 	};
+	static protected ProblemMethodBinding samProblemBinding = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NoSuchSingleAbstractMethod);
 
 public static FieldBinding binarySearch(char[] name, FieldBinding[] sortedFields) {
 	if (sortedFields == null)
@@ -1668,7 +1669,7 @@ public MethodBinding getSingleAbstractMethod(Scope scope) {
 	try {
 		methods = getInterfaceAbstractContracts(scope);
 	} catch (InvalidInputException e) {
-		return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NoSuchSingleAbstractMethod);
+		return this.singleAbstractMethod = samProblemBinding;
 	}
 	if (methods != null && methods.length == 1)
 		return this.singleAbstractMethod = methods[0];
@@ -1764,6 +1765,6 @@ public MethodBinding getSingleAbstractMethod(Scope scope) {
 	    this.singleAbstractMethod.typeVariables = theAbstractMethod.typeVariables;
 		return this.singleAbstractMethod;
 	}
-	return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NoSuchSingleAbstractMethod);
+	return this.singleAbstractMethod = samProblemBinding;
 }
 }

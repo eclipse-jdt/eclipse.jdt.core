@@ -9036,5 +9036,47 @@ public void dereferencingNullableExpression(Expression expression, LookupEnviron
 	this.handle(IProblem.DereferencingNullableExpression, arguments, arguments, expression.sourceStart, expression.sourceEnd);
 	
 }
+public void onlyReferenceTypesInIntersectionCast(TypeReference typeReference) {
+	this.handle(
+			IProblem.IllegalBasetypeInIntersectionCast,
+			NoArgument,
+			NoArgument,
+			typeReference.sourceStart,
+			typeReference.sourceEnd);
+}
+public void illegalArrayTypeInIntersectionCast(TypeReference typeReference) {
+	this.handle(
+			IProblem.IllegalArrayTypeInIntersectionCast,
+			NoArgument,
+			NoArgument,
+			typeReference.sourceStart,
+			typeReference.sourceEnd);
+}
+public void intersectionCastNotBelow18(TypeReference[] typeReferences) {
+	int length = typeReferences.length;
+	this.handle(
+			IProblem.IntersectionCastNotBelow18,
+			NoArgument,
+			NoArgument,
+			typeReferences[0].sourceStart,
+			typeReferences[length -1].sourceEnd);
+}
 
+public void duplicateBoundInIntersectionCast(TypeReference typeReference) {
+	this.handle(
+			IProblem.DuplicateBoundInIntersectionCast,
+			NoArgument,
+			NoArgument,
+			typeReference.sourceStart,
+			typeReference.sourceEnd);
+}
+
+public void multipleFunctionalInterfaces(FunctionalExpression functionalExpression) {
+	this.handle(
+			IProblem.MultipleFunctionalInterfaces,
+			NoArgument,
+			NoArgument,
+			functionalExpression.sourceStart,
+			functionalExpression.sourceEnd);
+}
 }

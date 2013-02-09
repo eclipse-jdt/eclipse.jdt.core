@@ -23,8 +23,8 @@ package org.eclipse.jdt.internal.compiler.parser;
 public interface ParserBasicInformation {
 
 	int ERROR_SYMBOL = 118,
-		MAX_NAME_LENGTH = 51,
-		NUM_STATES = 1073,
+		MAX_NAME_LENGTH = 41,
+		NUM_STATES = 1076,
 
 		NT_OFFSET = 118,
 		SCOPE_UBOUND = 276,
@@ -35,7 +35,7 @@ public interface ParserBasicInformation {
 		NUM_TERMINALS = 118,
 		NUM_NON_TERMINALS = 354,
 		NUM_SYMBOLS = 472,
-		START_STATE = 873,
+		START_STATE = 841,
 		EOFT_SYMBOL = 60,
 		EOLT_SYMBOL = 60,
 		ACCEPT_ACTION = 16024,

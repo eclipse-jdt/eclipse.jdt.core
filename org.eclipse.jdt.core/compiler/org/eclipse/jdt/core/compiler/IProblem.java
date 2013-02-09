@@ -1537,6 +1537,17 @@ void setSourceStart(int sourceStart);
 	int ExplicitlyClosedAutoCloseable = Internal + 889;
 	/** @since 3.8 */
 	int SwitchOnEnumNotBelow15 = TypeRelated + 890;	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=360317
+	/** @since 3.9 */
+	int IntersectionCastNotBelow18 = TypeRelated + 891;
+	/** @since 3.9 */
+	int IllegalBasetypeInIntersectionCast = TypeRelated + 892;
+	/** @since 3.9 */
+	int IllegalArrayTypeInIntersectionCast = TypeRelated + 893;
+	/** @since 3.9 */
+	int DuplicateBoundInIntersectionCast = TypeRelated + 894;
+	/** @since 3.9 */
+	int MultipleFunctionalInterfaces = TypeRelated + 895;
+	
 	/**
 	 * Errors/warnings from annotation based null analysis
 	 */

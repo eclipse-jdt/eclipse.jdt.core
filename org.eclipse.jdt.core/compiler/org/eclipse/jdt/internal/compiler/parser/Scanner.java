@@ -4187,7 +4187,7 @@ public static boolean isKeyword(int token) {
 }
 
 // Vanguard Scanner - A Private utility helper class for the scanner.
-private static class VanguardScanner extends Scanner {
+private static final class VanguardScanner extends Scanner {
 	
 	public VanguardScanner(long sourceLevel, long complianceLevel) {
 		super (false /*comment*/, false /*whitespace*/, false /*nls*/, sourceLevel, complianceLevel, null/*taskTag*/, null/*taskPriorities*/, false /*taskCaseSensitive*/);
@@ -4202,7 +4202,7 @@ private static class VanguardScanner extends Scanner {
 	}
 }
 
-private static class Goal {
+private static final class Goal {
 	
 	int first;      // steer the parser towards a single minded pursuit.
 	int [] follow;  // the definite terminal symbols that signal the successful reduction to goal.
@@ -4217,16 +4217,14 @@ private static class Goal {
 	static Goal IntersectionCastGoal;
 	static Goal VarargTypeAnnotationGoal;
 	static Goal ReferenceExpressionGoal;
-	static Goal FailedGoal;
 	
-
 	static {
 		
 		for (int i = 1; i <= ParserBasicInformation.NUM_RULES; i++) {  // 0 == $acc
 			if ("ParenthesizedLambdaParameterList".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				LambdaParameterListRule = i;
 			else 
-			if ("CastNameAndBounds".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+			if ("ParenthesizedCastNameAndBounds".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				IntersectionCastRule = i;
 			else 
 			if ("ReferenceExpressionTypeArgumentsAndTrunk".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
@@ -4236,11 +4234,10 @@ private static class Goal {
 				VarargTypeAnnotationsRule = i;
 		}
 		
-		LambdaParameterListGoal =  new Goal(TokenNameLPAREN, new int[] { TokenNameARROW }, LambdaParameterListRule);
+		LambdaParameterListGoal =  new Goal(TokenNameARROW, new int[] { TokenNameARROW }, LambdaParameterListRule);
 		IntersectionCastGoal =     new Goal(TokenNameLPAREN, followSetOfCast(), IntersectionCastRule);
 		VarargTypeAnnotationGoal = new Goal(TokenNameAT, new int[] { TokenNameELLIPSIS }, VarargTypeAnnotationsRule);
 		ReferenceExpressionGoal =  new Goal(TokenNameLESS, new int[] { TokenNameCOLON_COLON }, ReferenceExpressionRule);
-		FailedGoal =               new Goal(TokenNameNotAToken, null, 0);
 	}
 
 
@@ -4251,6 +4248,10 @@ private static class Goal {
 	}
 	
 	boolean hasBeenReached(int act, int token) {
+		/*
+		System.out.println("[Goal = " + Parser.name[Parser.non_terminal_index[Parser.lhs[this.rule]]] + "]  " + "Saw: " + Parser.name[Parser.non_terminal_index[Parser.lhs[act]]] + "::" +  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				Parser.name[Parser.terminal_index[token]]);
+		*/
 		if (act == this.rule) {
 			for (int i = 0, length = this.follow.length; i < length; i++)
 				if (this.follow[i] == token)
@@ -4268,13 +4269,17 @@ private static class Goal {
 	}
 }
 // Vanguard Parser - A Private utility helper class for the scanner.
-private static class VanguardParser extends Parser {
+private static final class VanguardParser extends Parser {
+	
+	public static final boolean SUCCESS = true;
+	public static final boolean FAILURE = false;
 	
 	public VanguardParser(VanguardScanner scanner) {
 		this.scanner = scanner;
 	}
+	
 	// Canonical LALR pushdown automaton identical to Parser.parse() minus side effects of any kind, returns the rule reduced.
-	protected Goal parse(Goal goal, Goal alternateGoal) {
+	protected boolean parse(Goal goal) {
 		try {
 			int act = START_STATE;
 			this.stateStackTop = -1;
@@ -4291,7 +4296,7 @@ private static class VanguardParser extends Parser {
 
 				act = Parser.tAction(act, this.currentToken);
 				if (act == ERROR_ACTION) {
-					return Goal.FailedGoal;
+					return FAILURE;
 				}
 				if (act <= NUM_RULES) {
 					this.stateStackTop--;
@@ -4313,21 +4318,19 @@ private static class VanguardParser extends Parser {
 						}
 						continue ProcessTerminals;
 					}
-				    return Goal.FailedGoal; // accept - we should never reach this state, we accept at reduce with a right member of follow set below.
+				    return FAILURE; // accept - we should never reach this state, we accept at reduce with a right member of follow set below.
 				}
 
 				// ProcessNonTerminals :
 				do { /* reduce */
 					if (goal.hasBeenReached(act, this.currentToken))
-						return goal;
-					if (alternateGoal != null && alternateGoal.hasBeenReached(act,  this.currentToken))
-						return alternateGoal;
+						return SUCCESS;
 					this.stateStackTop -= (Parser.rhs[act] - 1);
 					act = Parser.ntAction(this.stack[this.stateStackTop], Parser.lhs[act]);
 				} while (act <= NUM_RULES);
 			}
 		} catch (Exception e) {
-			return Goal.FailedGoal;
+			return FAILURE;
 		}
 	}
 	public String toString() {
@@ -4432,29 +4435,27 @@ public void setActiveParser(ConflictedParser parser) {
 	this.lookBack[0] = this.lookBack[1] = TokenNameNotAToken;  // no hand me downs please.
 }
 private int disambiguatedToken(int token) {
-	Goal goal;
+	final VanguardParser parser = getVanguardParser();
 	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
-		goal = getVanguardParser().parse(Goal.LambdaParameterListGoal, Goal.IntersectionCastGoal);
-		if (goal == Goal.LambdaParameterListGoal) {
+		if (parser.parse(Goal.LambdaParameterListGoal) == VanguardParser.SUCCESS) {
 			this.nextToken = TokenNameLPAREN;
 			return TokenNameBeginLambda;
 		}
-		if (goal == Goal.IntersectionCastGoal) {
-			this.nextToken = token;
+		this.vanguardScanner.resetTo(this.startPosition, this.eofPosition - 1);
+		if (parser.parse(Goal.IntersectionCastGoal) == VanguardParser.SUCCESS) {
+			this.nextToken = TokenNameLPAREN;
 			return TokenNameBeginIntersectionCast;
 		}
 	} else if (token == TokenNameLESS && maybeAtReferenceExpression()) {
-		goal = getVanguardParser().parse(Goal.ReferenceExpressionGoal, null);
-		if (goal == Goal.ReferenceExpressionGoal) {
+		if (parser.parse(Goal.ReferenceExpressionGoal) == VanguardParser.SUCCESS) {
 			this.nextToken = TokenNameLESS;
 			return TokenNameBeginTypeArguments;
 		}
 	} else if (token == TokenNameAT && atTypeAnnotation()) {
 		token = TokenNameAT308;
 		if (maybeAtEllipsisAnnotation()) {
-			goal = getVanguardParser().parse(Goal.VarargTypeAnnotationGoal, null);
-			if (goal == Goal.VarargTypeAnnotationGoal) {
-				this.nextToken = token;
+			if (parser.parse(Goal.VarargTypeAnnotationGoal) == VanguardParser.SUCCESS) {
+				this.nextToken = TokenNameAT308;
 				return TokenNameAT308DOTDOTDOT;
 			}
 		}

@@ -65,6 +65,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public ITypeRequestor typeRequestor;
 
 	private ArrayBinding[][] uniqueArrayBindings;
+	private IntersectionCastTypeBinding[][] uniqueIntersectionCastTypeBindings;
 	private SimpleLookupTable uniqueParameterizedTypeBindings;
 	private SimpleLookupTable uniqueRawTypeBindings;
 	private SimpleLookupTable uniqueWildcardBindings;
@@ -109,6 +110,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.knownPackages = new HashtableOfPackage();
 	this.uniqueArrayBindings = new ArrayBinding[5][];
 	this.uniqueArrayBindings[0] = new ArrayBinding[50]; // start off the most common 1 dimension array @ 50
+	this.uniqueIntersectionCastTypeBindings = new IntersectionCastTypeBinding[0][0];
 	this.uniqueParameterizedTypeBindings = new SimpleLookupTable(3);
 	this.uniqueRawTypeBindings = new SimpleLookupTable(3);
 	this.uniqueWildcardBindings = new SimpleLookupTable(3);
@@ -682,6 +684,47 @@ public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimension
 		length);
 	this.uniqueArrayBindings[dimIndex] = arrayBindings;
 	return arrayBindings[length] = new ArrayBinding(leafComponentType, dimensionCount, this, nullTagBitsPerDimension);
+}
+public TypeBinding createIntersectionCastType(ReferenceBinding[] intersectingTypes) {
+	
+	// this is perhaps an overkill, but since what is worth doing is worth doing well ...
+	
+	int count = intersectingTypes.length;
+	int length = this.uniqueIntersectionCastTypeBindings.length;
+	IntersectionCastTypeBinding[] intersectionCastTypeBindings;
+
+	if (count < length) {
+		if ((intersectionCastTypeBindings = this.uniqueIntersectionCastTypeBindings[count]) == null)
+			this.uniqueIntersectionCastTypeBindings[count] = intersectionCastTypeBindings = new IntersectionCastTypeBinding[10];
+	} else {
+		System.arraycopy(
+			this.uniqueIntersectionCastTypeBindings, 0,
+			this.uniqueIntersectionCastTypeBindings = new IntersectionCastTypeBinding[count + 1][], 0,
+			length);
+		this.uniqueIntersectionCastTypeBindings[count] = intersectionCastTypeBindings = new IntersectionCastTypeBinding[10];
+	}
+
+	int index = -1;
+	length = intersectionCastTypeBindings.length;
+	next:while (++index < length) {
+		IntersectionCastTypeBinding priorBinding = intersectionCastTypeBindings[index];
+		if (priorBinding == null) // no matching intersection type, but space left
+			return intersectionCastTypeBindings[index] = new IntersectionCastTypeBinding(intersectingTypes, this);
+		ReferenceBinding [] priorIntersectingTypes = priorBinding.intersectingTypes;
+		for (int i = 0; i < count; i++) {
+			if (intersectingTypes[i] != priorIntersectingTypes[i])
+					continue next;
+		}	
+		return priorBinding;
+	}
+
+	// no matching cached binding & no space left
+	System.arraycopy(
+		intersectionCastTypeBindings, 0,
+		(intersectionCastTypeBindings = new IntersectionCastTypeBinding[length * 2]), 0,
+		length);
+	this.uniqueIntersectionCastTypeBindings[count] = intersectionCastTypeBindings;
+	return intersectionCastTypeBindings[length] = new IntersectionCastTypeBinding(intersectingTypes, this);
 }
 public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 	return createBinaryTypeFrom(binaryType, packageBinding, true, accessRestriction);

@@ -2761,7 +2761,7 @@ protected void consumeInsideCastExpression() {
 	Expression castType = getTypeReference(this.intStack[this.intPtr--]);
 	if (additionalBoundsLength > 0) {
 		bounds[0] = getTypeReference(this.intStack[this.intPtr--]);
-		castType = new IntersectionCastTypeReference(bounds); 
+		castType = createIntersectionCastTypeReference(bounds); 
 	}
 	if(isParameterized) {
 		this.intPtr--;
@@ -2840,7 +2840,7 @@ protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	castType = computeQualifiedGenericsFromRightSide(rightSide, dim, annotationsOnDimensions);
 	if (additionalBoundsLength > 0) {
 		bounds[0] = (TypeReference) castType;
-		castType = new IntersectionCastTypeReference(bounds); 
+		castType = createIntersectionCastTypeReference(bounds); 
 	} 
 	this.intPtr--;
 	castType.sourceEnd = end - 1;

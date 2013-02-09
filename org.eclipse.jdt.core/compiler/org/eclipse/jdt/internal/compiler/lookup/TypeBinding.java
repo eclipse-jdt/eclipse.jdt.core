@@ -543,6 +543,10 @@ public final boolean isParameterizedType() {
 	return kind() == Binding.PARAMETERIZED_TYPE;
 }
 
+public boolean isIntersectionCastType() {
+	return false;
+}
+
 /**
  * Returns true if the type is parameterized, e.g. List<String>
  * Note that some instances of ParameterizedTypeBinding do answer false to {@link #isParameterizedType()}
@@ -1240,6 +1244,10 @@ public TypeVariableBinding[] typeVariables() {
  * @return The single abstract method of a functional interface, or null, if the receiver is not a functional interface. 
  */
 public MethodBinding getSingleAbstractMethod(Scope scope) {
+	return null;
+}
+
+public ReferenceBinding[] getIntersectingTypes() {
 	return null;
 }
 

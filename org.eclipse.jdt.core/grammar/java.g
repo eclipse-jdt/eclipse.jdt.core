@@ -209,7 +209,8 @@ Goal ::= '||' MemberValue
 -- syntax diagnosis
 Goal ::= '?' AnnotationTypeMemberDeclaration
 -- JSR 335 Reconnaissance missions.
-Goal ::= '(' ParenthesizedLambdaParameterListOrCastNameAndBounds
+Goal ::= '->' ParenthesizedLambdaParameterList
+Goal ::= '(' ParenthesizedCastNameAndBounds
 Goal ::= '<' ReferenceExpressionTypeArgumentsAndTrunk
 -- JSR 308 Reconnaissance mission.
 Goal ::= '@' TypeAnnotations
@@ -1399,10 +1400,6 @@ LambdaParameters -> BeginLambda LambdaParameterList
 /:$readableName LambdaParameters:/
 /:$compliance 1.8:/
 
-ParenthesizedLambdaParameterListOrCastNameAndBounds -> ParenthesizedLambdaParameterList
-ParenthesizedLambdaParameterListOrCastNameAndBounds -> CastNameAndBounds
-/:$readableName ParenthesizedLambdaParameterListOrCastNameAndBounds:/
-
 -- Production name hardcoded in parser. Must be ::= and not -> 
 ParenthesizedLambdaParameterList ::= LambdaParameterList
 /:$readableName ParenthesizedLambdaParameterList:/
@@ -1652,7 +1649,10 @@ AdditionalBoundsListOpt -> AdditionalBoundList
 /:$readableName AdditionalBoundsListOpt:/
 
 -- Production name hardcoded in parser. Must be ::= and not -> 
-CastNameAndBounds ::= Name AdditionalBoundList
+ParenthesizedCastNameAndBounds ::= '(' CastNameAndBounds ')'
+/:$readableName ParenthesizedCastNameAndBounds:/
+
+CastNameAndBounds -> Name AdditionalBoundList
 /:$compliance 1.8:/
 /:$readableName CastNameAndBounds:/
 

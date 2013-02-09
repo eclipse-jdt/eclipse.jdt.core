@@ -41,6 +41,10 @@ public abstract class FunctionalExpression extends Expression {
 		return this.expectedType;
 	}
 	
+	public boolean isPolyExpressionInCastingContext() {
+		return true;
+	}
+	
 	public TypeBinding resolveType(BlockScope blockScope) {
 		this.constant = Constant.NotAConstant;
 		MethodBinding sam = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope);
@@ -56,11 +60,14 @@ public abstract class FunctionalExpression extends Expression {
 				case ProblemReasons.NotAWellFormedParameterizedType:
 					blockScope.problemReporter().illFormedParameterizationOfFunctionalInterface(this);
 					break;
+				case ProblemReasons.IntersectionHasMultipleFunctionalInterfaces:
+					blockScope.problemReporter().multipleFunctionalInterfaces(this);
+					break;
 			}
 			return null;
 		}
 		this.descriptor = sam;
-		return this.resolvedType = this.expectedType;  // if interface IJ extends I, J() & IJ's descriptor is I.foo, can't return I
+		return this.resolvedType = this.expectedType;
 	}
 
 	public int nullStatus(FlowInfo flowInfo) {

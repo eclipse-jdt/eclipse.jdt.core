@@ -292,6 +292,15 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 		return true;
 	}
 
+	if (castType.isIntersectionCastType()) {
+		ReferenceBinding [] intersectingTypes = castType.getIntersectingTypes();
+		for (int i = 0, length = intersectingTypes.length; i < length; i++) {
+			if (!checkCastTypesCompatibility(scope, intersectingTypes[i], expressionType, expression))
+				return false;
+		}
+		return true;
+	}
+	
 	switch(expressionType.kind()) {
 		case Binding.BASE_TYPE :
 			//-----------cast to something which is NOT a base type--------------------------
@@ -1146,5 +1155,9 @@ public boolean statementExpression() {
 */
 public VariableBinding nullAnnotatedVariableBinding(boolean supportTypeAnnotations) {
 	return null;
+}
+
+public boolean isPolyExpressionInCastingContext() {
+	return false;
 }
 }

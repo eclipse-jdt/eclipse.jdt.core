@@ -17,7 +17,9 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class IntersectionCastTypeReference extends TypeReference {
@@ -56,7 +58,47 @@ public class IntersectionCastTypeReference extends TypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
 	 */
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
-		return (this.resolvedType = null);
+
+		int length = this.typeReferences.length;
+		ReferenceBinding[] intersectingTypes = new ReferenceBinding[length];
+		boolean hasError = false;
+		
+		for (int i = 0; i < length; i++) {
+			final TypeReference typeReference = this.typeReferences[i];
+			TypeBinding type = typeReference.resolveType(scope, checkBounds);
+			if (type == null || ((type.tagBits & TagBits.HasMissingType) != 0)) {
+				hasError = true;
+				continue;
+			}
+			if (i == 0) {
+				if (type.isBaseType()) { // rejected in grammar for i > 0
+					scope.problemReporter().onlyReferenceTypesInIntersectionCast(typeReference);
+					hasError = true;
+					continue;
+				}
+				if (type.isArrayType()) { // javac rejects the pedantic cast: (X[] & Serializable & Cloneable) new X[0], what is good for the goose ...
+					scope.problemReporter().illegalArrayTypeInIntersectionCast(typeReference);
+					hasError = true;
+					continue;
+				}
+			} else if (!type.isInterface()) {  // TODO: understand how annotations play here ...
+				scope.problemReporter().boundMustBeAnInterface(typeReference, type);
+				hasError = true;
+				continue;
+			}
+			for (int j = 0; j < i; j++) {
+				if (intersectingTypes[j] == type) {
+					scope.problemReporter().duplicateBoundInIntersectionCast(typeReference);
+					hasError = true;
+					continue;
+				}
+			}
+			intersectingTypes[i] = (ReferenceBinding) type;
+		}
+		if (hasError) {
+			return null;
+		}
+		return (this.resolvedType = scope.environment().createIntersectionCastType(intersectingTypes));
 	}
 
 	/* (non-Javadoc)
