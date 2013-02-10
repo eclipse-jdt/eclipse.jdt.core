@@ -13,7 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
- 
+ *							bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1758,6 +1758,163 @@ public void test046() {
 			"Name clash: The method f(List<Integer>) of type B has the same erasure as f(List<String>) of type A but does not override it\n" + 
 			"----------\n");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test047() {
+	// This test checks that the simple cases are OK
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" + 
+					"	void doit();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    int var = 2;\n" + 
+					"    I x = new I() {\n" + 
+					"      public void doit() {\n" + 
+					"        System.out.println(args); // OK: args is not re-assignment since declaration/first assignment\n" + 
+					"        System.out.println(var); // Error: var is not effectively final\n" + 
+					"      }\n" + 
+					"    };\n" + 
+					"    I x2 = () -> {\n" + 
+					"      System.out.println(args); // OK: args is not re-assignment since declaration/first assignment\n" + 
+					"      System.out.println(var); // Error: var is not effectively final\n" + 
+					"    };\n" + 
+					"    var=2;\n" + 
+					"  }\n" + 
+					"}" ,
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 10)\n" + 
+				"	System.out.println(var); // Error: var is not effectively final\n" + 
+				"	                   ^^^\n" + 
+				"The variable var must be must be final or effectively final if used in a lambda expression\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 15)\n" + 
+				"	System.out.println(var); // Error: var is not effectively final\n" + 
+				"	                   ^^^\n" + 
+				"The variable var must be must be final or effectively final if used in an inner class\n" + 
+				"----------\n"
+				);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test048() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" + 
+					"	void doit();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    try {\n" + 
+					"      new java.io.File(\"dweep\").getCanonicalPath();\n" + 
+					"    } catch (java.io.IOException ioe) {\n" + 
+					"      I x2 = () -> {\n" + 
+					"        System.out.println(ioe.getMessage()); // OK: args is not re-assignment since declaration/first assignment\n" + 
+					"      };\n" + 
+					"    };\n" + 
+					"    java.util.List<String> list = new java.util.ArrayList<>();\n" + 
+					"    for (String s : list) {\n" + 
+					"      I x2 = () -> {\n" + 
+					"        System.out.println(s); // OK: args is not re-assignment since declaration/first assignment\n" + 
+					"      };\n" + 
+					"    };\n" + 
+					"    for (String s2 : list) {\n" + 
+					"      s2 = \"Nice!\";\n" + 
+					"      I x2 = () -> {\n" + 
+					"        System.out.println(s2); // Error: var is not effectively final\n" + 
+					"      };\n" + 
+					"    };\n" + 
+					"  }\n" + 
+					"\n" +
+					"  void foo() {\n" + 
+					"    try {\n" + 
+					"      \n" + 
+					"  } catch (NullPointerException | ArrayIndexOutOfBoundsException e) {\n" + 
+					"    I i = () -> {\n" + 
+					"      System.out.println(e);\n" + 
+					"     };\n" + 
+					"    }\n" + 
+					"  }\n" +
+					"}\n" ,
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 22)\n" + 
+				"	System.out.println(s2); // Error: var is not effectively final\n" + 
+				"	                   ^^\n" + 
+				"The variable s2 must be must be final or effectively final if used in an inner class\n" + 
+				"----------\n"
+				);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test049() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" + 
+					"	void doit();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  public static void main(String[] args) {\n" + 
+					"    try {\n" + 
+					"      new java.io.File(\"dweep\").getCanonicalPath();\n" + 
+					"    } catch (java.io.IOException ioe) {\n" + 
+					"      I x2 = () -> {\n" + 
+					"        System.out.println(ioe.getMessage()); // OK: args is not re-assignment since declaration/first assignment\n" + 
+					"      };\n" + 
+					"    };\n" + 
+					"    java.util.List<String> list = new java.util.ArrayList<>();\n" + 
+					"    for (String s : list) {\n" + 
+					"      I x2 = () -> {\n" + 
+					"        System.out.println(s); // OK: args is not re-assignment since declaration/first assignment\n" + 
+					"      };\n" + 
+					"    };\n" + 
+					"    for (String s2 : list) {\n" + 
+					"      s2 = \"Nice!\";\n" + 
+					"      I x2 = () -> {\n" + 
+					"        System.out.println(s2); // Error: var is not effectively final\n" + 
+					"      };\n" + 
+					"    };\n" + 
+					"  }\n" + 
+					"\n" +
+					"  void foo() {\n" + 
+					"    try {\n" + 
+					"      \n" + 
+					"  } catch (NullPointerException | ArrayIndexOutOfBoundsException e) {\n" + 
+					"    I i = () -> {\n" + 
+					"      System.out.println(e);\n" + 
+					"     };\n" + 
+					"    }\n" + 
+					"  }\n" +
+					"  void foo2(String[] args) {\n" + 
+					"   int var;\n" + 
+					"   if (args != null)\n" + 
+					"      var = args.length;\n" + 
+					"   else\n" + 
+					"      var = 2;\n" + 
+					"   I x = new I() {\n" + 
+					"     public void doit() {\n" + 
+					"       System.out.println(var);\n" + 
+					"     }\n" + 
+					"   };\n" + 
+					"  }\n" +
+					"}\n" ,
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 22)\n" + 
+				"	System.out.println(s2); // Error: var is not effectively final\n" + 
+				"	                   ^^\n" + 
+				"The variable s2 must be must be final or effectively final if used in an inner class\n" + 
+				"----------\n"
+				);
+}
+
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

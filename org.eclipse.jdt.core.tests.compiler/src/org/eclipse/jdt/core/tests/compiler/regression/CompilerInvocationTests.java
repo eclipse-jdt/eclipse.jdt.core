@@ -28,6 +28,7 @@
  *								bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
  *     Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
+ *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -805,6 +806,8 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ObjectCannotHaveSuperTypes", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ObjectHasNoSuperclass", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ObjectMustBeClass", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("OuterLocalMustBeEffectivelyFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("OuterLocalUnderLambdaMustBeEffectivelyFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("OuterLocalMustBeFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("OverridingDeprecatedMethod", new ProblemAttributes(CategorizedProblem.CAT_DEPRECATION));
 		expectedProblemAttributes.put("OverridingMethodWithoutSuperInvocation", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -1560,7 +1563,9 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ObjectCannotHaveSuperTypes", SKIP);
 		expectedProblemAttributes.put("ObjectHasNoSuperclass", SKIP);
 		expectedProblemAttributes.put("ObjectMustBeClass", SKIP);
+		expectedProblemAttributes.put("OuterLocalMustBeEffectivelyFinal", SKIP);
 		expectedProblemAttributes.put("OuterLocalMustBeFinal", SKIP);
+		expectedProblemAttributes.put("OuterLocalUnderLambdaMustBeEffectivelyFinal", SKIP);
 		expectedProblemAttributes.put("OverridingDeprecatedMethod", new ProblemAttributes(JavaCore.COMPILER_PB_DEPRECATION));
 		expectedProblemAttributes.put("OverridingMethodWithoutSuperInvocation", new ProblemAttributes(JavaCore.COMPILER_PB_OVERRIDING_METHOD_WITHOUT_SUPER_INVOCATION));
 		expectedProblemAttributes.put("OverridingNonVisibleMethod", new ProblemAttributes(JavaCore.COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD));
