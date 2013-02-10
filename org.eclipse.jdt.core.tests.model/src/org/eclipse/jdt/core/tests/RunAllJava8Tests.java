@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.compiler.parser.LambdaExpressionSyntaxTest;
 import org.eclipse.jdt.core.tests.compiler.parser.ReferenceExpressionSyntaxTest;
 import org.eclipse.jdt.core.tests.compiler.parser.TypeAnnotationSyntaxTest;
+import org.eclipse.jdt.core.tests.compiler.regression.CastingContextTest;
 import org.eclipse.jdt.core.tests.compiler.regression.CompilerInvocationTests;
 import org.eclipse.jdt.core.tests.compiler.regression.DefaultMethodsTest;
 import org.eclipse.jdt.core.tests.compiler.regression.GrammarCoverageTests308;
@@ -59,7 +60,8 @@ public class RunAllJava8Tests extends TestCase {
 			ComplianceDiagnoseTest.class,
 			GrammarCoverageTests308.class,
 			NullTypeAnnotationTest.class,
-			CompilerInvocationTests.class
+			CompilerInvocationTests.class,
+			CastingContextTest.class,
 		};
 	}
 	

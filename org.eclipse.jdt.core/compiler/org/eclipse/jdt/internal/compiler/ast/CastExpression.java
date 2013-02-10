@@ -494,8 +494,10 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	TypeBinding castType = this.resolvedType = this.type.resolveType(scope);
 	if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
-		if (this.expression.isPolyExpressionInCastingContext())
+		if (this.expression.isPolyExpressionInCastingContext()) {
 			this.expression.setExpectedType(this.resolvedType);
+			this.bits |= ASTNode.DisableUnnecessaryCastCheck;
+		}
 	}
 	if (this.expression instanceof CastExpression) {
 		this.expression.bits |= ASTNode.DisableUnnecessaryCastCheck;

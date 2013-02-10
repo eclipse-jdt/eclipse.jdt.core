@@ -66,6 +66,9 @@ public abstract class FunctionalExpression extends Expression {
 			}
 			return null;
 		}
+		
+		// Visibility checks should go here ...
+		
 		this.descriptor = sam;
 		return this.resolvedType = this.expectedType;
 	}

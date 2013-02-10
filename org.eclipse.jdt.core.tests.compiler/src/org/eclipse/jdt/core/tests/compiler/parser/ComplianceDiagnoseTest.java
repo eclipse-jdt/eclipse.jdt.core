@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2962,6 +2962,57 @@ public void testBug391201() {
 			"	@Marker\n" + 
 			"	^^^^^^^\n" + 
 			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
+			"----------\n";
+
+	runComplianceParserTest(
+		testFiles,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog
+	);
+}
+public void testBug399773() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+		return;
+	String[] testFiles = new String[] {
+		"X.java",
+		"interface I {\n" +
+		"	void doit();\n" +
+		"	void doitalso () default {}\n" +
+		"}\n" +
+		"interface J {\n" +
+		"	void doit();\n" +
+		"	void doitalso () default {}\n" +
+		"}\n" +
+		"public class X {\n" +
+		"	Object p = (I & J) () -> {};\n" +
+		"}\n" ,
+	};
+
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java\n" + 
+			"Default methods are allowed only at source level 1.8 or above\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java\n" + 
+			"Default methods are allowed only at source level 1.8 or above\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	Object p = (I & J) () -> {};\n" + 
+			"	            ^^^^^\n" + 
+			"Additional bounds are not allowed in cast operator at source levels below 1.8\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 10)\n" + 
+			"	Object p = (I & J) () -> {};\n" + 
+			"	                   ^^^^^^^^\n" + 
+			"Lambda expressions are allowed only at source level 1.8 or above\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 10)\n" + 
+			"	Object p = (I & J) () -> {};\n" + 
+			"	                   ^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
 			"----------\n";
 
 	runComplianceParserTest(
