@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@
  *								bug 185682 - Increment/decrement operators mark local variables as read
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *     Jesper S Moller - <jesper@selskabet.org>   - Contributions for bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -394,6 +395,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 }
 
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+	checkEffectivelyFinalAccess(currentScope);
 	int pc = codeStream.position;
 	if (this.constant != Constant.NotAConstant) {
 		if (valueRequired) {
@@ -984,9 +986,6 @@ public TypeBinding resolveType(BlockScope scope) {
 					if (this.binding instanceof LocalVariableBinding) {
 						this.bits &= ~ASTNode.RestrictiveFlagMASK;  // clear bits
 						this.bits |= Binding.LOCAL;
-						if (!variable.isFinal() && (this.bits & ASTNode.DepthMASK) != 0) {
-							scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding)variable, this);
-						}
 						variableType = variable.type;
 						this.constant = (this.bits & ASTNode.IsStrictlyAssigned) == 0 ? variable.constant() : Constant.NotAConstant;
 					} else {

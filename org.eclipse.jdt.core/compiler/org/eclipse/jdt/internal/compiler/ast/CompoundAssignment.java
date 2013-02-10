@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,8 @@
  *     Stephan Herrmann - Contribution for
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *     Jesper S Moller - Contributions for
+ *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -39,6 +41,10 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		FlowInfo flowInfo) {
+	LocalVariableBinding localVariableBinding = this.lhs.localVariableBinding();
+	if (localVariableBinding != null && flowInfo.isPotentiallyAssigned(localVariableBinding)) {
+		localVariableBinding.tagBits &= ~TagBits.IsEffectivelyFinal;
+	}
 	// record setting a variable: various scenarii are possible, setting an array reference,
 	// a field reference, a blank final field reference, a field of an enclosing instance or
 	// just a local variable.
@@ -130,10 +136,6 @@ public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 		TypeBinding originalExpressionType = this.expression.resolveType(scope);
 		if (originalLhsType == null || originalExpressionType == null)
 			return null;
-		LocalVariableBinding localVariableBinding = this.lhs.localVariableBinding();
-		if (localVariableBinding != null) {
-			localVariableBinding.tagBits &= ~TagBits.IsEffectivelyFinal;
-		}
 		// autoboxing support
 		LookupEnvironment env = scope.environment();
 		TypeBinding lhsType = originalLhsType, expressionType = originalExpressionType;

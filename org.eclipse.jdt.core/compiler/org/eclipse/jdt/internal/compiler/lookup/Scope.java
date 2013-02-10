@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,8 @@
  *	 							bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 387612 - Unreachable catch block...exception is never thrown from the try
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+ *     Jesper S Moller - Contributions for
+ *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1715,6 +1717,7 @@ public abstract class Scope {
 				Scope scope = this;
 				int depth = 0;
 				int foundDepth = 0;
+				boolean isInsideLambda = false;
 				ReferenceBinding foundActualReceiverType = null;
 				done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 					switch (scope.kind) {
@@ -1737,6 +1740,10 @@ public abstract class Scope {
 										ProblemReasons.InheritedNameHidesEnclosingName);
 								if (depth > 0)
 									invocationSite.setDepth(depth);
+								if (isInsideLambda && invocationSite instanceof NameReference) {
+									NameReference nameReference = (NameReference) invocationSite;
+									nameReference.bits |= ASTNode.IsFromOutsideLambda;
+								}
 								return variableBinding;
 							}
 							break;
@@ -1825,6 +1832,9 @@ public abstract class Scope {
 							break;
 						case COMPILATION_UNIT_SCOPE :
 							break done;
+					}
+					if (scope.kind == METHOD_SCOPE && scope.parent != null && scope.parent.kind != CLASS_SCOPE) {
+						isInsideLambda = true;
 					}
 					scope = scope.parent;
 				}

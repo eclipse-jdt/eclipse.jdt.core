@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
+ *							bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -20,6 +21,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -54,6 +56,11 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 		this.body = body;
 	}
 	
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		super.generateCode(currentScope, codeStream, valueRequired);
+		if (!this.ignoreFurtherInvestigation) this.body.generateCode(this.scope, codeStream); // TODO put into new method
+	}
+
 	/* This code is arranged so that we can continue with as much analysis as possible while avoiding 
 	 * mine fields that would result in a slew of spurious messages. This method is a merger of:
 	 * @see org.eclipse.jdt.internal.compiler.lookup.MethodScope.createMethod(AbstractMethodDeclaration)

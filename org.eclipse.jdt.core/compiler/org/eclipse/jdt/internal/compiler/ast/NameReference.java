@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,9 +13,12 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 331649 - [compiler][null] consider null annotations for fields
+ *     Jesper S Moller - Contributions for
+ *							bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class NameReference extends Reference implements InvocationSite {
@@ -84,4 +87,19 @@ public void setFieldIndex(int index){
 public abstract String unboundReferenceErrorName();
 
 public abstract char[][] getName();
+
+protected void checkEffectivelyFinalAccess(BlockScope currentScope) {
+	if (this.binding instanceof LocalVariableBinding) {
+		LocalVariableBinding localBinding = (LocalVariableBinding) this.binding;
+		if (!localBinding.isFinal() && ((this.bits & ASTNode.DepthMASK) != 0 || (this.bits & ASTNode.IsFromOutsideLambda) != 0)) {
+			if (currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_8) {
+				if (!localBinding.isEffectivelyFinal()) {
+					currentScope.problemReporter().cannotReferToNonEffectivelyFinalOuterLocal(localBinding, this);
+				}
+			} else {
+				currentScope.problemReporter().cannotReferToNonFinalOuterLocal(localBinding, this);
+			}
+		}
+	}
+}
 }

@@ -34,6 +34,7 @@
  *								bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
+ *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -1233,6 +1234,15 @@ public void cannotReferToNonFinalOuterLocal(LocalVariableBinding local, ASTNode 
 	String[] arguments =new String[]{ new String(local.readableName())};
 	this.handle(
 		IProblem.OuterLocalMustBeFinal,
+		arguments,
+		arguments,
+		nodeSourceStart(local, location),
+		nodeSourceEnd(local, location));
+}
+public void cannotReferToNonEffectivelyFinalOuterLocal(LocalVariableBinding local, ASTNode location) {
+	String[] arguments =new String[]{ new String(local.readableName())};
+	this.handle(
+		(location.bits & ASTNode.IsFromOutsideLambda) != 0 ? IProblem.OuterLocalMustBeEffectivelyFinal : IProblem.OuterLocalUnderLambdaMustBeEffectivelyFinal, 
 		arguments,
 		arguments,
 		nodeSourceStart(local, location),
