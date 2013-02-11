@@ -521,6 +521,24 @@ public abstract class Scope {
 		} while (scope != null);
 		return (CompilationUnitScope) lastScope;
 	}
+	
+	public boolean isLambdaScope() {
+		return false;
+	}
+	
+	public boolean isLambdaSubscope() {
+		for (Scope scope = this; scope != null; scope = scope.parent) {
+			switch (scope.kind) {
+				case BLOCK_SCOPE:
+			        continue;
+				case METHOD_SCOPE:
+					return scope.isLambdaScope();
+				default:
+					return false;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * Finds the most specific compiler options
@@ -1717,7 +1735,7 @@ public abstract class Scope {
 				Scope scope = this;
 				int depth = 0;
 				int foundDepth = 0;
-				boolean isInsideLambda = false;
+				boolean shouldCaptureOuterLocals = false;
 				ReferenceBinding foundActualReceiverType = null;
 				done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 					switch (scope.kind) {
@@ -1740,9 +1758,9 @@ public abstract class Scope {
 										ProblemReasons.InheritedNameHidesEnclosingName);
 								if (depth > 0)
 									invocationSite.setDepth(depth);
-								if (isInsideLambda && invocationSite instanceof NameReference) {
-									NameReference nameReference = (NameReference) invocationSite;
-									nameReference.bits |= ASTNode.IsFromOutsideLambda;
+								if (shouldCaptureOuterLocals && invocationSite instanceof NameReference) {
+										NameReference nameReference = (NameReference) invocationSite;
+										nameReference.bits |= ASTNode.IsCapturedOuterLocal;
 								}
 								return variableBinding;
 							}
@@ -1823,6 +1841,7 @@ public abstract class Scope {
 							}
 							insideTypeAnnotation = false;
 							depth++;
+							shouldCaptureOuterLocals = true;
 							insideStaticContext |= receiverType.isStatic();
 							// 1EX5I8Z - accessing outer fields within a constructor call is permitted
 							// in order to do so, we change the flag as we exit from the type, not the method
@@ -1833,9 +1852,8 @@ public abstract class Scope {
 						case COMPILATION_UNIT_SCOPE :
 							break done;
 					}
-					if (scope.kind == METHOD_SCOPE && scope.parent != null && scope.parent.kind != CLASS_SCOPE) {
-						isInsideLambda = true;
-					}
+					if (scope.isLambdaScope()) // Not in Kansas anymore ...
+						shouldCaptureOuterLocals = true;
 					scope = scope.parent;
 				}
 

@@ -55,7 +55,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit17 = 0x10000;			// compound assigned (reference lhs) | unchecked (msg, alloc, explicit constr call)
 	public final static int Bit18 = 0x20000;			// non null (expression) | onDemand (import reference)
 	public final static int Bit19 = 0x40000;			// didResolve (parameterized qualified type ref/parameterized single type ref)  | empty (javadoc return statement) | needReceiverGenericCast (msg/fieldref)
-	public final static int Bit20 = 0x80000;			// contains syntax errors (method declaration, type declaration, field declarations, initializer)
+	public final static int Bit20 = 0x80000;			// contains syntax errors (method declaration, type declaration, field declarations, initializer), typeref: <> name ref: lambda capture)
 	public final static int Bit21 = 0x100000;
 	public final static int Bit22 = 0x200000;			// parenthesis count (expression) | used (import reference)
 	public final static int Bit23 = 0x400000;			// parenthesis count (expression)
@@ -140,7 +140,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for single name references
 	public static final int DepthSHIFT = 5;	// Bit6 -> Bit13
 	public static final int DepthMASK = Bit6|Bit7|Bit8|Bit9|Bit10|Bit11|Bit12|Bit13; // 8 bits for actual depth value (max. 255)
-	public static final int IsFromOutsideLambda = Bit14;
+	public static final int IsCapturedOuterLocal = Bit20;
 
 	// for statements
 	public static final int IsReachable = Bit32;

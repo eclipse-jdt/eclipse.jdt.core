@@ -438,6 +438,10 @@ public boolean isInsideInitializer() {
 	return (this.referenceContext instanceof TypeDeclaration);
 }
 
+public boolean isLambdaScope() {
+	return this.referenceContext instanceof LambdaExpression;
+}
+
 public boolean isInsideInitializerOrConstructor() {
 	return (this.referenceContext instanceof TypeDeclaration)
 		|| (this.referenceContext instanceof ConstructorDeclaration);

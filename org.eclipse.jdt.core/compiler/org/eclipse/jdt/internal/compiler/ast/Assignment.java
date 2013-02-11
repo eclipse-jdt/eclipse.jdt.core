@@ -58,9 +58,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 // a field reference, a blank final field reference, a field of an enclosing instance or
 // just a local variable.
 	LocalVariableBinding local = this.lhs.localVariableBinding();
-	if (local != null && flowInfo.isPotentiallyAssigned(local)) {
-		local.tagBits &= ~TagBits.IsEffectivelyFinal;
-	}
 	if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
 		this.expression.checkNPE(currentScope, flowContext, flowInfo);
 	}
@@ -197,6 +194,10 @@ public TypeBinding resolveType(BlockScope scope) {
 	this.expression.setExpectedType(lhsType); // needed in case of generic method invocation
 	if (lhsType != null) {
 		this.resolvedType = lhsType.capture(scope, this.sourceEnd);
+	}
+	LocalVariableBinding localVariableBinding = this.lhs.localVariableBinding();
+	if (localVariableBinding != null && localVariableBinding.isCatchParameter()) { 
+		localVariableBinding.tagBits &= ~TagBits.IsEffectivelyFinal;  // as it is already definitely assigned, we can conclude already. Also note: catch parameter cannot be compound assigned.
 	}
 	TypeBinding rhsType = this.expression.resolveType(scope);
 	if (lhsType == null || rhsType == null) {

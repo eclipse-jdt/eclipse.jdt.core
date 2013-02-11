@@ -173,7 +173,6 @@
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
- *									OuterLocalUnderLambdaMustBeEffectivelyFinal
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -1372,8 +1371,6 @@ void setSourceStart(int sourceStart);
 	int IllegalArrayOfUnionType = TypeRelated + 662;
 	/** @since 3.9 */
 	int OuterLocalMustBeEffectivelyFinal = Internal + 663;
-	/** @since 3.9 */
-	int OuterLocalUnderLambdaMustBeEffectivelyFinal = Internal + 664;
 
 	/**
 	 * Null analysis for other kinds of expressions, syntactically nonnull

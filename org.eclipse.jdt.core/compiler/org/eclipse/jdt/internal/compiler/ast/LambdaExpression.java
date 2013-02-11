@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -57,8 +58,11 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 	}
 	
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		if (this.ignoreFurtherInvestigation) {
+			return;
+		}
 		super.generateCode(currentScope, codeStream, valueRequired);
-		if (!this.ignoreFurtherInvestigation) this.body.generateCode(this.scope, codeStream); // TODO put into new method
+		this.body.generateCode(this.scope, codeStream);
 	}
 
 	/* This code is arranged so that we can continue with as much analysis as possible while avoiding 
@@ -292,6 +296,18 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 
 	public void tagAsHavingErrors() {
 		this.ignoreFurtherInvestigation = true;
+		Scope parent = this.scope.parent;
+		while (parent != null) {
+			switch(parent.kind) {
+				case Scope.CLASS_SCOPE:
+				case Scope.METHOD_SCOPE:
+					parent.referenceContext().tagAsHavingErrors();
+					return;
+				default:
+					parent = parent.parent;
+					break;
+			}
+		}
 	}
 
 	public TypeBinding expectedResultType() {

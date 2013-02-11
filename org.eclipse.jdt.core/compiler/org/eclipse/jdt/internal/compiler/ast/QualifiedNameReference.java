@@ -343,7 +343,6 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 }
 
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-	checkEffectivelyFinalAccess(currentScope);
 	int pc = codeStream.position;
 	if (this.constant != Constant.NotAConstant) {
 		if (valueRequired) {
@@ -592,7 +591,8 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 				// no implicit conversion
 			} else {
 				// outer local?
-				if ((this.bits & ASTNode.DepthMASK) != 0) {
+				if ((this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
+					checkEffectiveFinality(localBinding, currentScope);
 					// outer local can be reached either through a synthetic arg or a synthetic field
 					VariableBinding[] path = currentScope.getEmulationPath(localBinding);
 					codeStream.generateOuterAccess(path, this, localBinding, currentScope);
@@ -1009,6 +1009,10 @@ public TypeBinding resolveType(BlockScope scope) {
 					this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
 					this.bits |= Binding.LOCAL;
 					LocalVariableBinding local = (LocalVariableBinding) this.binding;
+					if (!local.isFinal() && ((this.bits & ASTNode.IsCapturedOuterLocal) != 0)) { 
+						if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) // for 8, defer till effective finality could be ascertained.
+							scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding) this.binding, this);
+					}
 					if (local.type != null && (local.type.tagBits & TagBits.HasMissingType) != 0) {
 						// only complain if field reference (for local, its type got flagged already)
 						return null;

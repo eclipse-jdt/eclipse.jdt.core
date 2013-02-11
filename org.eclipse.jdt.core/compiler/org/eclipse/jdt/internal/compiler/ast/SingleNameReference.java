@@ -137,12 +137,19 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			break;
 		case Binding.LOCAL : // assigning to a local variable
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.binding;
+			final boolean isFinal = localBinding.isFinal();
 			if (!flowInfo.isDefinitelyAssigned(localBinding)){// for local variable debug attributes
 				this.bits |= ASTNode.FirstAssignmentToLocal;
 			} else {
 				this.bits &= ~ASTNode.FirstAssignmentToLocal;
 			}
-			if (localBinding.isFinal()) {
+			if (flowInfo.isPotentiallyAssigned(localBinding)) {
+				localBinding.tagBits &= ~TagBits.IsEffectivelyFinal;
+				if (!isFinal && (this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
+					currentScope.problemReporter().cannotReferToNonEffectivelyFinalOuterLocal(localBinding, this);
+				}
+			}
+			if (isFinal) {
 				if ((this.bits & ASTNode.DepthMASK) == 0) {
 					// tolerate assignment to final local in unreachable code (45674)
 					if ((isReachable && isCompound) || !localBinding.isBlankFinal()){
@@ -395,7 +402,6 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 }
 
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-	checkEffectivelyFinalAccess(currentScope);
 	int pc = codeStream.position;
 	if (this.constant != Constant.NotAConstant) {
 		if (valueRequired) {
@@ -475,7 +481,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					return;
 				}
 				// outer local?
-				if ((this.bits & ASTNode.DepthMASK) != 0) {
+				if ((this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
+					checkEffectiveFinality(localBinding, currentScope);
 					// outer local can be reached either through a synthetic arg or a synthetic field
 					VariableBinding[] path = currentScope.getEmulationPath(localBinding);
 					codeStream.generateOuterAccess(path, this, localBinding, currentScope);
@@ -986,6 +993,10 @@ public TypeBinding resolveType(BlockScope scope) {
 					if (this.binding instanceof LocalVariableBinding) {
 						this.bits &= ~ASTNode.RestrictiveFlagMASK;  // clear bits
 						this.bits |= Binding.LOCAL;
+						if (!variable.isFinal() && (this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
+							if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) // for 8, defer till effective finality could be ascertained.
+								scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding)variable, this);
+						}
 						variableType = variable.type;
 						this.constant = (this.bits & ASTNode.IsStrictlyAssigned) == 0 ? variable.constant() : Constant.NotAConstant;
 					} else {

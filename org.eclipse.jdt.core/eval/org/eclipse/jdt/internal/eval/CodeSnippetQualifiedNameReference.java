@@ -340,7 +340,8 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 				// no implicit conversion
 			} else {
 				// outer local?
-				if ((this.bits & DepthMASK) != 0) {
+				if ((this.bits & IsCapturedOuterLocal) != 0) {
+					checkEffectiveFinality(localBinding, currentScope);
 					// outer local can be reached either through a synthetic arg or a synthetic field
 					VariableBinding[] path = currentScope.getEmulationPath(localBinding);
 					codeStream.generateOuterAccess(path, this, localBinding, currentScope);

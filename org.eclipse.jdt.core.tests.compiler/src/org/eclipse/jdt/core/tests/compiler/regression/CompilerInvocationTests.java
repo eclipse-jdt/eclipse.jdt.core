@@ -807,7 +807,6 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ObjectHasNoSuperclass", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ObjectMustBeClass", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("OuterLocalMustBeEffectivelyFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
-		expectedProblemAttributes.put("OuterLocalUnderLambdaMustBeEffectivelyFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("OuterLocalMustBeFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("OverridingDeprecatedMethod", new ProblemAttributes(CategorizedProblem.CAT_DEPRECATION));
 		expectedProblemAttributes.put("OverridingMethodWithoutSuperInvocation", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -1565,7 +1564,6 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ObjectMustBeClass", SKIP);
 		expectedProblemAttributes.put("OuterLocalMustBeEffectivelyFinal", SKIP);
 		expectedProblemAttributes.put("OuterLocalMustBeFinal", SKIP);
-		expectedProblemAttributes.put("OuterLocalUnderLambdaMustBeEffectivelyFinal", SKIP);
 		expectedProblemAttributes.put("OverridingDeprecatedMethod", new ProblemAttributes(JavaCore.COMPILER_PB_DEPRECATION));
 		expectedProblemAttributes.put("OverridingMethodWithoutSuperInvocation", new ProblemAttributes(JavaCore.COMPILER_PB_OVERRIDING_METHOD_WITHOUT_SUPER_INVOCATION));
 		expectedProblemAttributes.put("OverridingNonVisibleMethod", new ProblemAttributes(JavaCore.COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD));

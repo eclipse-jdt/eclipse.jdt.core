@@ -1240,9 +1240,9 @@ public void cannotReferToNonFinalOuterLocal(LocalVariableBinding local, ASTNode 
 		nodeSourceEnd(local, location));
 }
 public void cannotReferToNonEffectivelyFinalOuterLocal(LocalVariableBinding local, ASTNode location) {
-	String[] arguments =new String[]{ new String(local.readableName())};
+	String[] arguments = new String[] { new String(local.readableName()) };
 	this.handle(
-		(location.bits & ASTNode.IsFromOutsideLambda) != 0 ? IProblem.OuterLocalMustBeEffectivelyFinal : IProblem.OuterLocalUnderLambdaMustBeEffectivelyFinal, 
+		IProblem.OuterLocalMustBeEffectivelyFinal, 
 		arguments,
 		arguments,
 		nodeSourceStart(local, location),

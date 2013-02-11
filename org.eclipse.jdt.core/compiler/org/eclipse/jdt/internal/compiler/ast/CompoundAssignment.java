@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -41,10 +45,6 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		FlowInfo flowInfo) {
-	LocalVariableBinding localVariableBinding = this.lhs.localVariableBinding();
-	if (localVariableBinding != null && flowInfo.isPotentiallyAssigned(localVariableBinding)) {
-		localVariableBinding.tagBits &= ~TagBits.IsEffectivelyFinal;
-	}
 	// record setting a variable: various scenarii are possible, setting an array reference,
 	// a field reference, a blank final field reference, a field of an enclosing instance or
 	// just a local variable.
