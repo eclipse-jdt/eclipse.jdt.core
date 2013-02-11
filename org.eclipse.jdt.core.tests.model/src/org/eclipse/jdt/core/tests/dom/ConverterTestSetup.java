@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,6 +70,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			this.deleteProject("Converter15"); //$NON-NLS-1$
 			this.deleteProject("Converter16"); //$NON-NLS-1$
 			this.deleteProject("Converter17"); //$NON-NLS-1$
+			PROJECT_SETUP = false;
 		} else {
 			TEST_SUITES.remove(getClass());
 			if (TEST_SUITES.size() == 0) {
@@ -77,6 +78,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 				this.deleteProject("Converter15"); //$NON-NLS-1$
 				this.deleteProject("Converter16"); //$NON-NLS-1$
 				this.deleteProject("Converter17"); //$NON-NLS-1$
+				PROJECT_SETUP = false;
 			}
 		}
 

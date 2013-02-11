@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -27,7 +28,44 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTMatcher;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.Comment;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IPackageBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.MemberRef;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.MethodRef;
+import org.eclipse.jdt.core.dom.MethodRefParameter;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.TagElement;
+import org.eclipse.jdt.core.dom.TextElement;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 /**
@@ -109,7 +147,17 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @param name
 	 */
 	public ASTConverterJavadocTest(String name) {
-		this(name, JavaCore.ENABLED, UNIX_SUPPORT);
+		this(name.substring(0, name.indexOf(" - ")),
+				name.substring(name.indexOf(" - Doc ") + 7, name.lastIndexOf("abled") + 5),
+				name.indexOf(" - Unix") != -1 ? "true" : "false");
+	}
+
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#getName()
+	 */
+	public String getName() {
+		String strUnix = this.unix ? " - Unix" : "";
+		return super.getName()+" - Doc "+this.docCommentSupport+strUnix;
 	}
 
 	public static Test suite() {
@@ -173,13 +221,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			targetFile.createNewFile();
 			copy(sourceFile, targetFile);
 		}
-	}
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#getName()
-	 */
-	public String getName() {
-		String strUnix = this.unix ? " - Unix" : "";
-		return "Doc "+this.docCommentSupport+strUnix+" - "+super.getName();
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
@@ -3298,5 +3339,34 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug336821() throws JavaModelException {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug336821", "Try.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		verifyComments(unit);
+	}
+	
+	public void testBug347100() throws Exception {
+		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug347100", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		CompilationUnit compilUnit = verifyComments(unit);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			Javadoc comment = (Javadoc) compilUnit.getCommentList().get(0);
+			List tags = comment.tags();
+			assertEquals(4, tags.size());
+			
+			List mainTags = ((TagElement) tags.get(0)).fragments();
+			assertEquals(8, mainTags.size());
+			
+			TagElement link1 = (TagElement) mainTags.get(1);
+			assertEquals(TagElement.TAG_LINK, link1.getTagName());
+			SimpleName javadocRef = (SimpleName) link1.fragments().get(0);
+			assertTrue(javadocRef.resolveBinding() instanceof IPackageBinding);
+			link1.subtreeMatch(new ASTMatcher(true), tags.get(1));
+			
+			TagElement link2 = (TagElement) mainTags.get(4);
+			assertEquals(TagElement.TAG_LINK, link2.getTagName());
+			TextElement stringRef = (TextElement) link2.fragments().get(0);
+			assertEquals(" \"Hello World\"", stringRef.getText());
+			link2.subtreeMatch(new ASTMatcher(true), tags.get(2));
+			
+			TagElement link3 = (TagElement) mainTags.get(7);
+			assertEquals(TagElement.TAG_LINK, link3.getTagName());
+			link3.subtreeMatch(new ASTMatcher(true), tags.get(3));
+		}
 	}
 }
