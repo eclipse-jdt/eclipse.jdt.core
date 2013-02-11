@@ -13827,4 +13827,37 @@ public void test354229d() {
 		"Method e(Action<S>) has the same erasure e(Action<T>) as another method in type X\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384580, Apply changes in JLS 8.4.5 to calculation of duplicate method return types
+public void testBug384580() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"interface X { <T> List<T> m(); }\n" +
+			"interface Y<K> { List<K> m(); }\n" +
+			"interface Z extends X, Y {}  \n" +
+			"class Foo implements Z {\n" +
+			"	public <T> List<T> m() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	interface Z extends X, Y {}  \n" + 
+		"	                       ^\n" + 
+		"Y is a raw type. References to generic type Y<K> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	class Foo implements Z {\n" + 
+		"	      ^^^\n" + 
+		"The type Foo must implement the inherited abstract method Y.m()\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	public <T> List<T> m() {\n" + 
+		"	                   ^^^\n" + 
+		"Name clash: The method m() of type Foo has the same erasure as m() of type Y but does not override it\n" + 
+		"----------\n");
+}
 }
