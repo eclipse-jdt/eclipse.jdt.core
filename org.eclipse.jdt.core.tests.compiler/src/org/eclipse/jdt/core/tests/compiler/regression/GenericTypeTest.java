@@ -6725,7 +6725,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 13)\n" +
 			"	} catch (T t) {\n" +
 			"	           ^\n" +
-			"The parameter t is hiding another local variable defined in an enclosing type scope\n" +
+			"The parameter t is hiding another local variable defined in an enclosing scope\n" +
 			"----------\n" +
 			"3. WARNING in X.java (at line 19)\n" +
 			"	class EX extends Exception {\n" +
@@ -37146,7 +37146,7 @@ public void test1089() {
 		"2. WARNING in X.java (at line 5)\n" +
 		"	T t = t;\n" +
 		"	  ^\n" +
-		"The field T.t is hiding another local variable defined in an enclosing type scope\n" +
+		"The field T.t is hiding another local variable defined in an enclosing scope\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 5)\n" +
 		"	T t = t;\n" +

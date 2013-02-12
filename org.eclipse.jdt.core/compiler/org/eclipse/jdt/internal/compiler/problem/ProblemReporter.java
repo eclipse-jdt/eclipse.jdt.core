@@ -9089,4 +9089,22 @@ public void multipleFunctionalInterfaces(FunctionalExpression functionalExpressi
 			functionalExpression.sourceStart,
 			functionalExpression.sourceEnd);
 }
+public void lambdaRedeclaresArgument(Argument argument) {
+	String[] arguments = new String[] {new String(argument.name)};
+	this.handle(
+		IProblem.LambdaRedeclaresArgument,
+		arguments,
+		arguments,
+		argument.sourceStart,
+		argument.sourceEnd);
+}
+public void lambdaRedeclaresLocal(LocalDeclaration local) {
+	String[] arguments = new String[] {new String(local.name)};
+	this.handle(
+		IProblem.LambdaRedeclaresLocal,
+		arguments,
+		arguments,
+		local.sourceStart,
+		local.sourceEnd);
+}
 }

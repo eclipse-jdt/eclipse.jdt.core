@@ -719,6 +719,8 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("JavadocUsingDeprecatedMethod", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedType", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("LambdaExpressionNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("LambdaRedeclaresArgument", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("LambdaRedeclaresLocal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("LocalVariableCanOnlyBeNull", DEPRECATED);
 		expectedProblemAttributes.put("LocalVariableCannotBeNull", DEPRECATED);
 		expectedProblemAttributes.put("LocalVariableHidingField", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
@@ -1475,6 +1477,8 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("JavadocUsingDeprecatedMethod", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedType", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("LambdaExpressionNotBelow18", SKIP);
+		expectedProblemAttributes.put("LambdaRedeclaresArgument", SKIP);
+		expectedProblemAttributes.put("LambdaRedeclaresLocal", SKIP);
 		expectedProblemAttributes.put("LocalVariableCanOnlyBeNull", SKIP);
 		expectedProblemAttributes.put("LocalVariableCannotBeNull", SKIP);
 		expectedProblemAttributes.put("LocalVariableHidingField", new ProblemAttributes(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING));

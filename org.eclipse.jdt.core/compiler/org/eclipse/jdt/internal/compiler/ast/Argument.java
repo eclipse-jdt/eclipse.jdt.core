@@ -75,7 +75,10 @@ public class Argument extends LocalDeclaration {
 		// record the resolved type into the type reference
 		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
-			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
+			final boolean localExists = existingVariable instanceof LocalVariableBinding;
+			if (localExists && (this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope()) {
+				scope.problemReporter().lambdaRedeclaresArgument(this);
+			} else if (localExists && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineArgument(this);
 			} else {
 				boolean isSpecialArgument = false;

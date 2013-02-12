@@ -1735,7 +1735,7 @@ public abstract class Scope {
 				Scope scope = this;
 				int depth = 0;
 				int foundDepth = 0;
-				boolean shouldCaptureOuterLocals = false;
+				boolean shouldTrackOuterLocals = false;
 				ReferenceBinding foundActualReceiverType = null;
 				done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 					switch (scope.kind) {
@@ -1758,9 +1758,14 @@ public abstract class Scope {
 										ProblemReasons.InheritedNameHidesEnclosingName);
 								if (depth > 0)
 									invocationSite.setDepth(depth);
-								if (shouldCaptureOuterLocals && invocationSite instanceof NameReference) {
+								if (shouldTrackOuterLocals) {
+									if (invocationSite instanceof NameReference) {
 										NameReference nameReference = (NameReference) invocationSite;
 										nameReference.bits |= ASTNode.IsCapturedOuterLocal;
+									} else if (invocationSite instanceof AbstractVariableDeclaration) {
+										AbstractVariableDeclaration variableDeclaration = (AbstractVariableDeclaration) invocationSite;
+										variableDeclaration.bits |= ASTNode.ShadowsOuterLocal;
+									}
 								}
 								return variableBinding;
 							}
@@ -1841,7 +1846,7 @@ public abstract class Scope {
 							}
 							insideTypeAnnotation = false;
 							depth++;
-							shouldCaptureOuterLocals = true;
+							shouldTrackOuterLocals = true;
 							insideStaticContext |= receiverType.isStatic();
 							// 1EX5I8Z - accessing outer fields within a constructor call is permitted
 							// in order to do so, we change the flag as we exit from the type, not the method
@@ -1853,7 +1858,7 @@ public abstract class Scope {
 							break done;
 					}
 					if (scope.isLambdaScope()) // Not in Kansas anymore ...
-						shouldCaptureOuterLocals = true;
+						shouldTrackOuterLocals = true;
 					scope = scope.parent;
 				}
 
@@ -3535,6 +3540,16 @@ public abstract class Scope {
 		Scope scope = this;
 		do {
 			if (scope instanceof MethodScope)
+				return (MethodScope) scope;
+			scope = scope.parent;
+		} while (scope != null);
+		return null;
+	}
+	
+	public final MethodScope namedMethodScope() {
+		Scope scope = this;
+		do {
+			if (scope instanceof MethodScope && !scope.isLambdaScope())
 				return (MethodScope) scope;
 			scope = scope.parent;
 		} while (scope != null);

@@ -431,6 +431,10 @@ void setSourceStart(int sourceStart);
 	int ArgumentHidingField = Internal + 95;
 	/** @since 3.1 */
 	int MissingSerialVersion = Internal + 96;
+	/** @since 3.9 */
+	int LambdaRedeclaresArgument = Internal + 97;
+	/** @since 3.9 */
+	int LambdaRedeclaresLocal = Internal + 98;
 
 	// methods
 	int UndefinedMethod = MethodRelated + 100;

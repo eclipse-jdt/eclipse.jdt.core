@@ -459,6 +459,8 @@ public class ClassScope extends Scope {
 				switch (scope.kind) {
 					case METHOD_SCOPE :
 						MethodScope methodScope = (MethodScope) scope;
+						if (methodScope.isLambdaScope()) 
+							methodScope = methodScope.namedMethodScope();
 						if (methodScope.isInsideInitializer()) {
 							SourceTypeBinding type = ((TypeDeclaration) methodScope.referenceContext).binding;
 

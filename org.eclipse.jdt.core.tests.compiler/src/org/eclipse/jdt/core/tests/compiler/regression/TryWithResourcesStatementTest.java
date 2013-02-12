@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 IBM Corporation and others.
+ * Copyright (c) 2011, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -438,12 +442,12 @@ public void test013() {
 		"1. WARNING in X.java (at line 5)\n" + 
 		"	public void foo(int p) {\n" + 
 		"	                    ^\n" + 
-		"The parameter p is hiding another local variable defined in an enclosing type scope\n" + 
+		"The parameter p is hiding another local variable defined in an enclosing scope\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 8)\n" + 
 		"	} catch (Exception y) {\n" + 
 		"	                   ^\n" + 
-		"The parameter y is hiding another local variable defined in an enclosing type scope\n" + 
+		"The parameter y is hiding another local variable defined in an enclosing scope\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 13)\n" + 
 		"	System.out.println(y);\n" + 

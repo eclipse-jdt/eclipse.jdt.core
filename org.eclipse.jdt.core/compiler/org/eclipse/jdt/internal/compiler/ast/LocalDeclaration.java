@@ -236,8 +236,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
-			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
-				scope.problemReporter().redefineLocal(this);
+			boolean localExists = existingVariable instanceof LocalVariableBinding; 
+			if (localExists && (this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope()) {
+					scope.problemReporter().lambdaRedeclaresLocal(this);
+			} else if (localExists && this.hiddenVariableDepth == 0) {
+					scope.problemReporter().redefineLocal(this);
 			} else {
 				scope.problemReporter().localVariableHiding(this, existingVariable, false);
 			}
