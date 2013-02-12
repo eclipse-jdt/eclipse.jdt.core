@@ -1976,7 +1976,399 @@ public void test054() {
 				"Variable args is required to be final or effectively final\n" + 
 				"----------\n");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test055() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" + 
+					"	void doit();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  void foo(final int x) {\n" + 
+					"    I i = () -> {\n" + 
+					"      x = 10;\n" + 
+					"     };\n" + 
+					"  }\n" +
+					"}\n" ,
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	x = 10;\n" + 
+				"	^\n" + 
+				"The final local variable x cannot be assigned. It must be blank and not using a compound assignment\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test056() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" + 
+					"	void doit();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  void foo(final int x) {\n" + 
+					"    X i = new X() {\n" + 
+					"      { x = 10; }\n" + 
+					"     };\n" + 
+					"  }\n" +
+					"}\n" ,
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	{ x = 10; }\n" + 
+				"	  ^\n" + 
+				"The final local variable x cannot be assigned, since it is defined in an enclosing type\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test057() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" + 
+					"	void doit();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  void foo(int x) {\n" + 
+					"    I i = () -> {\n" + 
+					"      x = 10;\n" + 
+					"     };\n" + 
+					"  }\n" +
+					"}\n" ,
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	x = 10;\n" + 
+				"	^\n" + 
+				"Variable x is required to be final or effectively final\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test058() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" + 
+					"	void doit();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  void foo(int x) {\n" + 
+					"    X i = new X() {\n" + 
+					"      { x = 10; }\n" + 
+					"     };\n" + 
+					"  }\n" +
+					"}\n" ,
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	{ x = 10; }\n" + 
+				"	  ^\n" + 
+				"Variable x is required to be final or effectively final\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test059() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo();\n" +
+					"}\n" +
+					"class X {\n" +
+					"	void foo(int [] p) {\n" +
+					"		for (int is : p) {\n" +
+					"			I j = new I () {\n" +
+					"				public void foo() {\n" +
+					"					System.out.println(is);\n" +
+					"				};\n" +
+					"			};\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test060() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo();\n" +
+					"}\n" +
+					"class X {\n" +
+					"	void foo(int [] p) {\n" +
+					"		for (int is : p) {\n" +
+					"			I j = () -> {\n" +
+					"					System.out.println(is);\n" +
+					"			};\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	System.out.println(is);\n" + 
+				"	                   ^^\n" + 
+				"Missing code implementation in the compiler\n" + // expected. 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test061() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" + 
+					"	void doit();\n" + 
+					"}\n" + 
+					"public class X {\n" + 
+					"  void foo2(String[] args) {\n" + 
+					"   int var;\n" + 
+					"   if (args != null)\n" + 
+					"      var = args.length;\n" + 
+					"   else\n" + 
+					"      var = 2;\n" + 
+					"   I x = () ->  {\n" + 
+					"       System.out.println(var);\n" +  // no error here.
+					"       args = null;\n" + // error here.
+					"   };\n" + 
+					"  }\n" +
+					"}\n" ,
+				}, 		
+				"----------\n" + 
+				"1. ERROR in X.java (at line 13)\n" + 
+				"	args = null;\n" + 
+				"	^^^^\n" + 
+				"Variable args is required to be final or effectively final\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test062() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void doit();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void main(String[] args) {\n" +
+					"    int var;\n" +
+					"    if (args != null) {\n" +
+					"       var = args.length;\n" +
+					"       I x = new I() {\n" +
+					"         public void doit() {\n" +
+					"           System.out.println(var);\n" +
+					"         }\n" +
+					"       };\n" +
+					"    } else {\n" +
+					"       var = 2; // HERE\n" +
+					"    }\n" +
+					"  }\n" +
+					"}\n",
+				},
+				"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test063() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.io.IOException;\n" +
+					"interface I {\n" +
+					"    void doit();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void main(String[] args) throws IOException {\n" +
+					"\n" +
+					"	try {\n" +
+					"		throw new IOException();\n" +
+					"	} catch (Exception e) {\n" +
+					"		if (args == null) {\n" +
+					"			throw e;\n" +
+					"		} \n" +
+					"                else {\n" +
+					"			e = null;\n" +
+					"		}\n" +
+					"	}\n" +
+					"  }\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 12)\n" + 
+				"	throw e;\n" + 
+				"	^^^^^^^^\n" + 
+				"Unhandled exception type Exception\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 14)\n" + 
+				"	else {\n" + 
+				"			e = null;\n" + 
+				"		}\n" + 
+				"	     ^^^^^^^^^^^^^^^^^^\n" + 
+				"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test064() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.io.IOException;\n" +
+					"interface I {\n" +
+					"    void doit();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void main(String[] args) throws IOException {\n" +
+					"\n" +
+					"	try {\n" +
+					"		throw new IOException();\n" +
+					"	} catch (Exception e) {\n" +
+					"		if (args == null) {\n" +
+					"			throw e;\n" +
+					"		} \n" +
+					"	}\n" +
+					"  }\n" +
+					"}\n",
+				},
+				"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test065() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo();\n" +
+					"}\n" +
+					"class X {\n" +
+					"	void foo() {\n" +
+					"		int x = 10;\n" +
+					"		I i = () -> {\n" +
+					"			System.out.println(x++);\n" +
+					"		};\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	System.out.println(x++);\n" + 
+				"	                   ^\n" + 
+				"Variable x is required to be final or effectively final\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test066() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.io.IOException;\n" +
+					"class X {\n" +
+					"	void foo(int x) throws IOException {\n" +
+					"		try {\n" +
+					"			throw new IOException();\n" +
+					"		} catch (Exception e) {\n" +
+					"			if (x == 0) {\n" +
+					"				throw e;\n" +
+					"			} else {\n" +
+					"				e = null;\n" +
+					"			}\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n" ,
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	throw e;\n" + 
+				"	^^^^^^^^\n" + 
+				"Unhandled exception type Exception\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 9)\n" + 
+				"	} else {\n" + 
+				"				e = null;\n" + 
+				"			}\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test067() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void doit ();\n" +
+					"}\n" +
+					"class X {\n" +
+					"	int p;\n" +
+					"	void foo(int p) {\n" +
+					"		int i = 10;\n" +
+					"		X x = new X();\n" +
+					"		x = new X();\n" +
+					"		I l = () -> {\n" +
+					"			x.p = i++;\n" +
+					"		};\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 6)\n" + 
+				"	void foo(int p) {\n" + 
+				"	             ^\n" + 
+				"The parameter p is hiding a field from type X\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 11)\n" + 
+				"	x.p = i++;\n" + 
+				"	      ^\n" + 
+				"Variable i is required to be final or effectively final\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
+public void test068() {
+	// This test checks that common semantic checks are indeed run
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void doit ();\n" +
+					"}\n" +
+					"class X {\n" +
+					"	int p;\n" +
+					"	void foo(int p) {\n" +
+					"		int i = 10;\n" +
+					"		X x = new X();\n" +
+					"		x = new X();\n" +
+					"		I l = () -> {\n" +
+					"			x.p = i;\n" +
+					"		};\n" +
+					"	}\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 6)\n" + 
+				"	void foo(int p) {\n" + 
+				"	             ^\n" + 
+				"The parameter p is hiding a field from type X\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 11)\n" + 
+				"	x.p = i;\n" + 
+				"	^\n" + 
+				"Variable x is required to be final or effectively final\n" + 
+				"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

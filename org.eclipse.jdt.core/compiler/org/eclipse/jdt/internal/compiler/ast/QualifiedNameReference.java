@@ -1009,7 +1009,7 @@ public TypeBinding resolveType(BlockScope scope) {
 					this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
 					this.bits |= Binding.LOCAL;
 					LocalVariableBinding local = (LocalVariableBinding) this.binding;
-					if (!local.isFinal() && ((this.bits & ASTNode.IsCapturedOuterLocal) != 0)) { 
+					if (!local.isFinal() && (this.bits & ASTNode.IsCapturedOuterLocal) != 0) { 
 						if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) // for 8, defer till effective finality could be ascertained.
 							scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding) this.binding, this);
 					}
