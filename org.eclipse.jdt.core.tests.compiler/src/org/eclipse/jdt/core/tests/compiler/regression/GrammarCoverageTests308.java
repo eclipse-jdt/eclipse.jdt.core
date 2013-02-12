@@ -1502,8 +1502,12 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"	i = @Marker W<@Marker Integer>::<@Marker String> new;\n" + 
 				"	               ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 
-				"----------\n"
-				);
+				"----------\n" + 
+				"5. ERROR in X.java (at line 12)\n" + 
+				"	i = @Marker W<@Marker Integer>::<@Marker String> new;\n" + 
+				"	                                  ^^^^^^\n" + 
+				"Marker cannot be resolved to a type\n" + 
+				"----------\n");
 	}
 	// CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
 	// CastExpression ::= PushLPAREN Name Dims PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus

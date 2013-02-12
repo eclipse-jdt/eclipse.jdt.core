@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,11 +13,13 @@
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
+ *                          Bug 384687 - [1.8] Wildcard type arguments should be rejected for lambda and reference expressions
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -27,13 +29,14 @@ public class ReferenceExpression extends FunctionalExpression {
 	protected TypeReference type;
 	protected Expression primary;
 	
-	protected TypeReference [] typeParameters;
+	protected TypeReference [] typeArguments;
 	
 	protected SingleNameReference method; // == null ? "::new" : "::method"
+	private TypeBinding[] genericTypeArguments;
 	
 	public ReferenceExpression(NameReference name, TypeReference[] typeArguments, int sourceEnd) {
 		this.name = name;
-		this.typeParameters = typeArguments;
+		this.typeArguments = typeArguments;
 		this.method = null;
 		this.sourceStart = name.sourceStart;
 		this.sourceEnd = sourceEnd;
@@ -41,7 +44,7 @@ public class ReferenceExpression extends FunctionalExpression {
 
 	public ReferenceExpression(NameReference name, TypeReference[] typeArguments, SingleNameReference method) {
 		this.name = name;
-		this.typeParameters = typeArguments;
+		this.typeArguments = typeArguments;
 		this.method = method;
 		this.sourceStart = name.sourceStart;
 		this.sourceEnd = method.sourceEnd;
@@ -49,7 +52,7 @@ public class ReferenceExpression extends FunctionalExpression {
 
 	public ReferenceExpression(Expression primary, TypeReference [] typeArguments, SingleNameReference method) {
 		this.primary = primary;
-		this.typeParameters = typeArguments;
+		this.typeArguments = typeArguments;
 		this.method = method;
 		this.sourceStart = primary.sourceStart;
 		this.sourceEnd = method.sourceEnd;
@@ -57,7 +60,7 @@ public class ReferenceExpression extends FunctionalExpression {
 
 	public ReferenceExpression(TypeReference type, TypeReference[] typeArguments, SingleNameReference method) {
 		this.type = type;
-		this.typeParameters = typeArguments;
+		this.typeArguments = typeArguments;
 		this.method = method;
 		this.sourceStart = type.sourceStart;
 		this.sourceEnd = method.sourceEnd;
@@ -65,7 +68,7 @@ public class ReferenceExpression extends FunctionalExpression {
 
 	public ReferenceExpression(TypeReference type, TypeReference[] typeArguments, int sourceEnd) {
 		this.type = type;
-		this.typeParameters = typeArguments;
+		this.typeArguments = typeArguments;
 		this.method = null;
 		this.sourceStart = type.sourceStart;
 		this.sourceEnd = sourceEnd;
@@ -80,6 +83,21 @@ public class ReferenceExpression extends FunctionalExpression {
 		} else if (this.type != null) {
 			this.type.resolveType(blockScope);
 		}
+		if (this.typeArguments != null) {
+			int length = this.typeArguments.length;
+			boolean argHasError = blockScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5;
+			this.genericTypeArguments = new TypeBinding[length];
+			for (int i = 0; i < length; i++) {
+				TypeReference typeReference = this.typeArguments[i];
+				if ((this.genericTypeArguments[i] = typeReference.resolveType(blockScope, true /* check bounds*/)) == null) {
+					argHasError = true;
+				}
+				if (argHasError && typeReference instanceof Wildcard) {
+					blockScope.problemReporter().illegalUsageOfWildcard(typeReference);
+				}
+			}
+		}
+
 		return this.resolvedType;
 	}
 	
@@ -93,14 +111,14 @@ public class ReferenceExpression extends FunctionalExpression {
 			this.primary.print(0, output);
 		}
 		output.append("::"); //$NON-NLS-1$
-		if (this.typeParameters != null) {
+		if (this.typeArguments != null) {
 			output.append('<');
-			int max = this.typeParameters.length - 1;
+			int max = this.typeArguments.length - 1;
 			for (int j = 0; j < max; j++) {
-				this.typeParameters[j].print(0, output);
+				this.typeArguments[j].print(0, output);
 				output.append(", ");//$NON-NLS-1$
 			}
-			this.typeParameters[max].print(0, output);
+			this.typeArguments[max].print(0, output);
 			output.append('>');
 		}
 		if (this.method == null) {
@@ -129,9 +147,9 @@ public class ReferenceExpression extends FunctionalExpression {
 			if (this.primary != null)
 				this.primary.traverse(visitor, blockScope);
 
-			int length = this.typeParameters == null ? 0 : this.typeParameters.length;
+			int length = this.typeArguments == null ? 0 : this.typeArguments.length;
 			for (int i = 0; i < length; i++) {
-				this.typeParameters[i].traverse(visitor, blockScope);
+				this.typeArguments[i].traverse(visitor, blockScope);
 			}
 
 			if (this.method != null)

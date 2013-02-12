@@ -14,6 +14,7 @@
  *     Jesper S Moller - Contributions for
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *							bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
+ *                          Bug 384687 - [1.8] Wildcard type arguments should be rejected for lambda and reference expressions
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -168,6 +169,13 @@ public void test006() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
+				"interface One{}\n" +
+				"interface Two{}\n" +
+				"interface Three{}\n" +
+				"interface Four{}\n" +
+				"interface Five{}\n" +
+				"interface Blah{}\n" +
+				"interface Outer<T1,T2>{interface Inner<T3,T4>{interface Leaf{ <T> void method(); } } }\n" +
 				"interface IX{\n" +
 				"	public void foo();\n" +
 				"}\n" +
@@ -177,42 +185,22 @@ public void test006() {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
 			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
-			"	       ^^^^^\n" + 
-			"Outer cannot be resolved to a type\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The member type Outer<One,Two>.Inner cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Outer<One,Two>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
 			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
-			"	             ^^^\n" + 
-			"One cannot be resolved to a type\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Outer.Inner.Deeper cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
-			"	                  ^^^\n" + 
-			"Two cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 5)\n" + 
-			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
-			"	                             ^^^^^\n" + 
-			"Three cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 5)\n" + 
-			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
-			"	                                    ^^^^\n" + 
-			"Four cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"6. ERROR in X.java (at line 5)\n" + 
-			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
-			"	                                                 ^^^^\n" + 
-			"Five cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"7. ERROR in X.java (at line 5)\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
 			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
 			"	                                                       ^^^\n" + 
 			"Six cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"8. ERROR in X.java (at line 6)\n" + 
+			"4. ERROR in X.java (at line 13)\n" + 
 			"	int x\n" + 
 			"	    ^\n" + 
 			"Syntax error, insert \";\" to complete FieldDeclaration\n" + 
@@ -3213,6 +3201,60 @@ public void test096() {
 				"	                                                          ^^\n" + 
 				"Duplicate local variable x2\n" + 
 				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384687 [1.8] Wildcard type arguments should be rejected for lambda and reference expressions
+public void test097() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"class Action<K> {\r\n" + 
+			"  static <T1> int fooMethod(Object x) { return 0; }\r\n" + 
+			"}\r\n" + 
+			"interface I {\r\n" + 
+			"  int foo(Object x);\r\n" + 
+			"}\r\n" + 
+			"public class X {\r\n" + 
+			"  public static void main(String[] args) {\r\n" + 
+			"    I functional = Action::<?>fooMethod;\r\n" + 
+			"  }\r\n" + 
+			"}"},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 9)\n" + 
+			"	I functional = Action::<?>fooMethod;\n" + 
+			"	               ^^^^^^\n" + 
+			"Action is a raw type. References to generic type Action<K> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	I functional = Action::<?>fooMethod;\n" + 
+			"	                        ^\n" + 
+			"Wildcard is not allowed at this location\n" + 
+			"----------\n");
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=384687 [1.8] Wildcard type arguments should be rejected for lambda and reference expressions
+public void test098() {
+	this.runNegativeTest(
+			new String[] {
+			"X.java",
+			"class Action<K> {\r\n" + 
+			"  int foo(Object x, Object y, Object z) { return 0; }\r\n" + 
+			"}\r\n" + 
+			"interface I {\r\n" + 
+			"  void foo(Object x);\r\n" + 
+			"}\r\n" + 
+			"public class X {\r\n" + 
+			"  public static void main(String[] args) {\r\n" + 
+			"    Action<Object> exp = new Action<Object>();\r\n" + 
+			"    int x,y,z;\r\n" + 
+			"    I len6 = foo->exp.<?>method(x, y, z);\r\n" + 
+			"  }\r\n" + 
+			"}"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	I len6 = foo->exp.<?>method(x, y, z);\n" + 
+			"	                   ^\n" + 
+			"Wildcard is not allowed at this location\n" + 
+			"----------\n");
 }
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
