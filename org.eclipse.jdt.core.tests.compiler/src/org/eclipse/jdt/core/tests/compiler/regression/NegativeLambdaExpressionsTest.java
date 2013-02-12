@@ -2920,6 +2920,300 @@ public void test087() {
 				"The parameter f is hiding a field from type X\n" + 
 				"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+public void test088() {
+	// class inside lambda (!) redeclares a field.
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int p, int q);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"   int f;\n" +
+					"	void foo(int a) {\n" +
+					"       int loc;\n" +
+					"		I i = (int p, int q)  -> {\n" +
+					"           I i2 = new I() { public void foo(int f, int p0) {};\n" +
+					"		};};\n" +
+					"	}	\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 9)\n" + 
+				"	I i2 = new I() { public void foo(int f, int p0) {};\n" + 
+				"	                                     ^\n" + 
+				"The parameter f is hiding a field from type X\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+public void test089() {
+	// class inside lambda redeclares outer method's argument.
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int p, int q);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"   int f;\n" +
+					"	void foo(int outerp) {\n" +
+					"       int loc;\n" +
+					"		I i = (int p, int q)  -> {\n" +
+					"           I i2 = new I() { public void foo(int f, int outerp) {}};\n" +
+					"		};\n" +
+					"	}	\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 9)\n" + 
+				"	I i2 = new I() { public void foo(int f, int outerp) {}};\n" + 
+				"	                                     ^\n" + 
+				"The parameter f is hiding a field from type X\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 9)\n" + 
+				"	I i2 = new I() { public void foo(int f, int outerp) {}};\n" + 
+				"	                                            ^^^^^^\n" + 
+				"The parameter outerp is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+public void test090() {
+	// class inside lambda redeclares outer method's local.
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int p, int q);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"   int f;\n" +
+					"	void foo(int outerp) {\n" +
+					"       int locouter;\n" +
+					"		I i = (int p, int q)  -> {\n" +
+					"           I i2 = new I() { public void foo(int locouter, int outerp)  {}};\n" +
+					"		};\n" +
+					"	}	\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 9)\n" + 
+				"	I i2 = new I() { public void foo(int locouter, int outerp)  {}};\n" + 
+				"	                                     ^^^^^^^^\n" + 
+				"The parameter locouter is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 9)\n" + 
+				"	I i2 = new I() { public void foo(int locouter, int outerp)  {}};\n" + 
+				"	                                                   ^^^^^^\n" + 
+				"The parameter outerp is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+public void test091() {
+	// class inside lambda redeclares outer lambda's argument.
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int p, int q);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"   int f;\n" +
+					"	void foo(int outerp) {\n" +
+					"       int locouter;\n" +
+					"		I i = (int p, int q)  -> {\n" +
+					"           I i2 = new I() { public void foo (int p, int q) {}};\n" +
+					"		};\n" +
+					"	}	\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 9)\n" + 
+				"	I i2 = new I() { public void foo (int p, int q) {}};\n" + 
+				"	                                      ^\n" + 
+				"The parameter p is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 9)\n" + 
+				"	I i2 = new I() { public void foo (int p, int q) {}};\n" + 
+				"	                                             ^\n" + 
+				"The parameter q is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+public void test092() {
+	// class inside lambda redeclares outer lambda's local.
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int p, int q);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"   int f;\n" +
+					"	void foo(int outerp) {\n" +
+					"       int locouter;\n" +
+					"		I i = (int p, int q)  -> {\n" +
+					"       int lamlocal;\n" +
+					"           I i2 = new I() { public void foo (int lamlocal, int q)  {} };\n" +
+					"		};\n" +
+					"	}	\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo (int lamlocal, int q)  {} };\n" + 
+				"	                                      ^^^^^^^^\n" + 
+				"The parameter lamlocal is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo (int lamlocal, int q)  {} };\n" + 
+				"	                                                    ^\n" + 
+				"The parameter q is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+public void test093() {
+	// local of class inside lambda redeclares a field.
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int p, int q);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"   int f;\n" +
+					"	void foo(int outerp) {\n" +
+					"       int locouter;\n" +
+					"		I i = (int p, int q)  -> {\n" +
+					"       int lamlocal;\n" +
+					"           I i2 = new I() { public void foo (int lamlocal, int q) {int f;}};\n" +
+					"		};\n" +
+					"	}	\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo (int lamlocal, int q) {int f;}};\n" + 
+				"	                                      ^^^^^^^^\n" + 
+				"The parameter lamlocal is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo (int lamlocal, int q) {int f;}};\n" + 
+				"	                                                    ^\n" + 
+				"The parameter q is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo (int lamlocal, int q) {int f;}};\n" + 
+				"	                                                            ^\n" + 
+				"The local variable f is hiding a field from type X\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+public void test094() {
+	// local of class under lambda redeclares outer methods local.
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int p, int q);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"   int f;\n" +
+					"	void foo(int outerp) {\n" +
+					"       int locouter;\n" +
+					"		I i = (int p, int q)  -> {\n" +
+					"       int lamlocal;\n" +
+					"           I i2 = new I() { public void foo(int lamlocal, int q) {int locouter;}};\n" +
+					"		};\n" +
+					"	}	\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo(int lamlocal, int q) {int locouter;}};\n" + 
+				"	                                     ^^^^^^^^\n" + 
+				"The parameter lamlocal is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo(int lamlocal, int q) {int locouter;}};\n" + 
+				"	                                                   ^\n" + 
+				"The parameter q is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo(int lamlocal, int q) {int locouter;}};\n" + 
+				"	                                                           ^^^^^^^^\n" + 
+				"The local variable locouter is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+public void test095() {
+	// local of class under lambda redeclares outer lambda's argument & local
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int p, int q);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"   int f;\n" +
+					"	void foo(int outerp) {\n" +
+					"       int locouter;\n" +
+					"		I i = (int p, int q)  -> {\n" +
+					"       int lamlocal;\n" +
+					"           I i2 = new I() { public void foo(int j, int q) {int p, lamlocal;}};\n" +
+					"		};\n" +
+					"	}	\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo(int j, int q) {int p, lamlocal;}};\n" + 
+				"	                                            ^\n" + 
+				"The parameter q is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo(int j, int q) {int p, lamlocal;}};\n" + 
+				"	                                                    ^\n" + 
+				"The local variable p is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo(int j, int q) {int p, lamlocal;}};\n" + 
+				"	                                                       ^^^^^^^^\n" + 
+				"The local variable lamlocal is hiding another local variable defined in an enclosing scope\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
+public void test096() {
+	// local of class under lambda redeclares its own argument & local
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo(int p, int q);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"   int f;\n" +
+					"	void foo(int outerp) {\n" +
+					"       int locouter;\n" +
+					"		I i = (int p, int q)  -> {\n" +
+					"       int lamlocal;\n" +
+					"           I i2 = new I() { public void foo(int x1, int x2) {int x1, x2;}};\n" +
+					"		};\n" +
+					"	}	\n" +
+					"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo(int x1, int x2) {int x1, x2;}};\n" + 
+				"	                                                      ^^\n" + 
+				"Duplicate local variable x1\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 10)\n" + 
+				"	I i2 = new I() { public void foo(int x1, int x2) {int x1, x2;}};\n" + 
+				"	                                                          ^^\n" + 
+				"Duplicate local variable x2\n" + 
+				"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
