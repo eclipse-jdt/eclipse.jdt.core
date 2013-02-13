@@ -5766,6 +5766,15 @@ public void missingDeprecatedAnnotationForType(TypeDeclaration type) {
 		type.sourceStart,
 		type.sourceEnd);
 }
+public void notAFunctionalInterface(TypeDeclaration type) {
+	TypeBinding binding = type.binding;
+	this.handle(
+		IProblem.InterfaceNotFunctionalInterface,
+		new String[] {new String(binding.readableName()), },
+		new String[] {new String(binding.shortReadableName()),},
+		type.sourceStart,
+		type.sourceEnd);
+}
 public void missingEnumConstantCase(SwitchStatement switchStatement, FieldBinding enumConstant) {
 	this.handle(
 		switchStatement.defaultCase == null ? IProblem.MissingEnumConstantCase : IProblem.MissingEnumConstantCaseDespiteDefault,

@@ -149,6 +149,9 @@ public interface TagBits {
 	long AnnotationNonNullByDefault = ASTNode.Bit58L;
 	/** @since 3.8 canceling null-default annotation for PackageBinding or TypeBinding or MethodBinding: */
 	long AnnotationNullUnspecifiedByDefault = ASTNode.Bit59L;
+	/** From Java 8 */
+	long AnnotationFunctionalInterface = ASTNode.Bit60L;
+
 
 	long AllStandardAnnotationsMask =
 				  AnnotationTargetMASK

@@ -600,6 +600,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InterfaceInheritedNameHidesEnclosingName", DEPRECATED);
 		expectedProblemAttributes.put("InterfaceInternalNameProvided", DEPRECATED);
 		expectedProblemAttributes.put("InterfaceNotFound", DEPRECATED);
+		expectedProblemAttributes.put("InterfaceNotFunctionalInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InterfaceNotVisible", DEPRECATED);
 		expectedProblemAttributes.put("InternalTypeNameProvided", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IntersectionCastNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1357,6 +1358,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InterfaceInheritedNameHidesEnclosingName", SKIP);
 		expectedProblemAttributes.put("InterfaceInternalNameProvided", SKIP);
 		expectedProblemAttributes.put("InterfaceNotFound", SKIP);
+		expectedProblemAttributes.put("InterfaceNotFunctionalInterface", SKIP);
 		expectedProblemAttributes.put("InterfaceNotVisible", SKIP);
 		expectedProblemAttributes.put("InternalTypeNameProvided", SKIP);
 		expectedProblemAttributes.put("IntersectionCastNotBelow18", SKIP);

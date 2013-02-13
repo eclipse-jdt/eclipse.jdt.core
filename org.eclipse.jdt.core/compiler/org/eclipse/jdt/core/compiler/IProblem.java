@@ -1375,6 +1375,9 @@ void setSourceStart(int sourceStart);
 	int IllegalArrayOfUnionType = TypeRelated + 662;
 	/** @since 3.9 */
 	int OuterLocalMustBeEffectivelyFinal = Internal + 663;
+	/** @since Java 3.9*/
+	int InterfaceNotFunctionalInterface = Internal + TypeRelated + 664;
+
 
 	/**
 	 * Null analysis for other kinds of expressions, syntactically nonnull

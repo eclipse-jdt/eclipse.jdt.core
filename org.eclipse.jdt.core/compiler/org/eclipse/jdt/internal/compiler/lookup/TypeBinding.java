@@ -500,6 +500,10 @@ public boolean isInterface() {
 	return false;
 }
 
+public boolean isFunctionalInterface() {
+	return false;
+}
+
 /**
  * Returns true if the current type denotes an intersection type: Number & Comparable<?>
  */

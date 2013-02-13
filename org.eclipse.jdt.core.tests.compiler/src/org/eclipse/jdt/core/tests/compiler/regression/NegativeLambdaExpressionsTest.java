@@ -3256,6 +3256,68 @@ public void test098() {
 			"Wildcard is not allowed at this location\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399770: [1.8][compiler] Implement support for @FunctionalInterface
+public void test_bug399770_1() {
+	this.runConformTest(
+			new String[] {
+					"YYY.java",
+					"interface BASE { void run(); }\n" +
+					"@FunctionalInterface\n" +
+					"interface DERIVED extends BASE {void run();}" +
+					"public class YYY {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.println(\"Hello\");" +
+					"	}\n" +
+					"}",
+			},
+			"Hello"
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399770: [1.8][compiler] Implement support for @FunctionalInterface
+public void test_bug399770_2() {
+	this.runNegativeTest(
+			new String[] {
+					"YYY.java",
+					"interface BASE { void run(); }\n" +
+					"@FunctionalInterface\n" +
+					"interface DERIVED extends BASE {void run1();}" +
+					"@FunctionalInterface public class YYY {\n" +
+					"   @FunctionalInterface int x;" +
+					"	@FunctionalInterface public static void main(String[] args) {\n" +
+					"       @FunctionalInterface int y;" +
+					"		System.out.println(\"Hello\");" +
+					"	}\n" +
+					"}",
+			},
+			"----------\n" + 
+			"1. ERROR in YYY.java (at line 3)\n" + 
+			"	interface DERIVED extends BASE {void run1();}@FunctionalInterface public class YYY {\n" + 
+			"	          ^^^^^^^\n" + 
+			"Invalid \'@FunctionalInterface\' annotation; DERIVED is not a functional interface\n" + 
+			"----------\n" + 
+			"2. ERROR in YYY.java (at line 3)\n" + 
+			"	interface DERIVED extends BASE {void run1();}@FunctionalInterface public class YYY {\n" + 
+			"	                                                                               ^^^\n" + 
+			"Invalid \'@FunctionalInterface\' annotation; YYY is not a functional interface\n" + 
+			"----------\n" + 
+			"3. ERROR in YYY.java (at line 4)\n" + 
+			"	@FunctionalInterface int x;	@FunctionalInterface public static void main(String[] args) {\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The annotation @FunctionalInterface is disallowed for this location\n" + 
+			"----------\n" + 
+			"4. ERROR in YYY.java (at line 4)\n" + 
+			"	@FunctionalInterface int x;	@FunctionalInterface public static void main(String[] args) {\n" + 
+			"	                           	^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The annotation @FunctionalInterface is disallowed for this location\n" + 
+			"----------\n" + 
+			"5. ERROR in YYY.java (at line 5)\n" + 
+			"	@FunctionalInterface int y;		System.out.println(\"Hello\");	}\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The annotation @FunctionalInterface is disallowed for this location\n" + 
+			"----------\n"
+	);
+}
+
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

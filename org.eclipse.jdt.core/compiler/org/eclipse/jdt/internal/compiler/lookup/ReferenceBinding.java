@@ -524,6 +524,8 @@ public void computeId() {
 				case 'F' :
 					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_FLOAT[2]))
 						this.id = TypeIds.T_JavaLangFloat;
+					else if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_FUNCTIONAL_INTERFACE[2]))
+						this.id = TypeIds.T_JavaLangFunctionalInterface;
 					return;
 				case 'I' :
 					switch (typeName.length) {
@@ -1245,6 +1247,11 @@ public boolean isHierarchyConnected() {
 public boolean isInterface() {
 	// consider strict interfaces and annotation types
 	return (this.modifiers & ClassFileConstants.AccInterface) != 0;
+}
+
+public boolean isFunctionalInterface(Scope scope) {
+	MethodBinding method;
+	return isInterface() && (method = getSingleAbstractMethod(scope)) != null && method.isValidBinding();
 }
 
 /**

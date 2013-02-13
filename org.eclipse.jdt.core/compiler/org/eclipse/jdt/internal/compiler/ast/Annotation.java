@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -507,6 +507,9 @@ public abstract class Annotation extends Expression {
 				break;
 			case TypeIds.T_JavaLangOverride :
 				tagBits |= TagBits.AnnotationOverride;
+				break;
+			case TypeIds.T_JavaLangFunctionalInterface :
+				tagBits |= TagBits.AnnotationFunctionalInterface;
 				break;
 			case TypeIds.T_JavaLangSuppressWarnings :
 				tagBits |= TagBits.AnnotationSuppressWarnings;
