@@ -132,7 +132,7 @@ public class IntersectionCastTypeBinding extends ReferenceBinding {
 		return true;
 	}
 	public int kind() {
-		return Binding.TYPE;
+		return Binding.INTERSECTION_CAST_TYPE;
 	}
 	public String debugName() {
 		StringBuffer debugName = new StringBuffer(16);

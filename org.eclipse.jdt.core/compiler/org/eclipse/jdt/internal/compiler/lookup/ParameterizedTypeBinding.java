@@ -1149,12 +1149,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return this.fields;
 	}
 	public MethodBinding getSingleAbstractMethod(final Scope scope) {
-		MethodBinding theAbstractMethod = genericType().getSingleAbstractMethod(scope);
+		final ReferenceBinding genericType = genericType();
+		MethodBinding theAbstractMethod = genericType.getSingleAbstractMethod(scope);
 		if (theAbstractMethod == null || !theAbstractMethod.isValidBinding())
 			return theAbstractMethod;
 		
 		TypeBinding [] typeArguments = this.arguments; // A1 ... An 
-		TypeVariableBinding [] typeParameters = genericType().typeVariables(); // P1 ... Pn
+		TypeVariableBinding [] typeParameters = genericType.typeVariables(); // P1 ... Pn
 		TypeBinding [] types = new TypeBinding[typeArguments.length];  // T1 ... Tn
 		for (int i = 0, length = typeArguments.length; i < length; i++) {
 			TypeBinding typeArgument = typeArguments[i];
@@ -1184,7 +1185,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			if (typeParameters[i].boundCheck(null, types[i], scope) != TypeConstants.OK)
 				return this.singleAbstractMethod = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);
 		}
-		ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(genericType(), types, this.enclosingType);
+		ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(genericType, types, genericType.enclosingType());
 		MethodBinding [] choices = parameterizedType.getMethods(theAbstractMethod.selector);
 		for (int i = 0, length = choices.length; i < length; i++) {
 			MethodBinding method = choices[i];
@@ -1196,24 +1197,18 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	private boolean typeParametersMentioned(TypeBinding upperBound) {
-		class MentionListener implements Substitution {
+		class MentionListener extends TypeBindingVisitor {
 			private boolean typeParametersMentioned = false;
-			public TypeBinding substitute(TypeVariableBinding typeVariable) {
+			public boolean visit(TypeVariableBinding typeVariable) {
 				this.typeParametersMentioned = true;
-				return typeVariable;
-			}
-			public boolean isRawSubstitution() {
 				return false;
-			}
-			public LookupEnvironment environment() {
-				return null;
 			}
 			public boolean typeParametersMentioned() {
 				return this.typeParametersMentioned;
 			}
 		}
 		MentionListener mentionListener = new MentionListener();
-		Scope.substitute(mentionListener, upperBound);
+		TypeBindingVisitor.visit(mentionListener, upperBound);
 		return mentionListener.typeParametersMentioned();
 	}
 }

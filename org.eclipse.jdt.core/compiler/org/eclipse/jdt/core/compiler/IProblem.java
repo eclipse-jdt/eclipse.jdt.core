@@ -435,6 +435,8 @@ void setSourceStart(int sourceStart);
 	int LambdaRedeclaresArgument = Internal + 97;
 	/** @since 3.9 */
 	int LambdaRedeclaresLocal = Internal + 98;
+	/** @since 3.9 */
+	int LambdaDescriptorMentionsUnmentionable = 99;
 
 	// methods
 	int UndefinedMethod = MethodRelated + 100;

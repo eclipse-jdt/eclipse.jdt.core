@@ -9116,4 +9116,13 @@ public void lambdaRedeclaresLocal(LocalDeclaration local) {
 		local.sourceStart,
 		local.sourceEnd);
 }
+
+public void descriptorHasInvisibleType(FunctionalExpression expression, ReferenceBinding referenceBinding) {
+	this.handle(
+		IProblem.LambdaDescriptorMentionsUnmentionable,
+		new String[] { new String(referenceBinding.readableName()) },
+		new String[] { new String(referenceBinding.shortReadableName()) },
+		expression.sourceStart,
+		expression.sourceEnd);
+}
 }

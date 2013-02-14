@@ -370,7 +370,13 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 			}
 			// recursively on the type variable upper bound
 			return checkCastTypesCompatibility(scope, castType, ((WildcardBinding)expressionType).bound, expression);
-
+		case Binding.INTERSECTION_CAST_TYPE:
+			ReferenceBinding [] intersectingTypes = expressionType.getIntersectingTypes();
+			for (int i = 0, length = intersectingTypes.length; i < length; i++) {
+				if (checkCastTypesCompatibility(scope, castType, intersectingTypes[i], expression))
+					return true;
+			}
+			return false;
 		default:
 			if (expressionType.isInterface()) {
 				switch (castType.kind()) {

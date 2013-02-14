@@ -21,8 +21,13 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
 
 public abstract class FunctionalExpression extends Expression {
 	
@@ -67,10 +72,77 @@ public abstract class FunctionalExpression extends Expression {
 			return null;
 		}
 		
-		// Visibility checks should go here ...
-		
 		this.descriptor = sam;
-		return this.resolvedType = this.expectedType;
+		if (kosherDescriptor(blockScope, sam, true)) {
+			return this.resolvedType = this.expectedType;		
+		}
+		
+		return this.resolvedType = null;
+	}
+
+	class VisibilityInspector extends TypeBindingVisitor {
+
+		private Scope scope;
+		private boolean shouldChatter;
+        private boolean visible = true;
+		private FunctionalExpression expression;
+        
+		public VisibilityInspector(FunctionalExpression expression, Scope scope, boolean shouldChatter) {
+			this.scope = scope;
+			this.shouldChatter = shouldChatter;
+			this.expression = expression;
+		}
+
+		private void checkVisibility(ReferenceBinding referenceBinding) {
+			if (!referenceBinding.canBeSeenBy(this.scope)) {
+				this.visible = false;
+				if (this.shouldChatter)
+					this.scope.problemReporter().descriptorHasInvisibleType(this.expression, referenceBinding);
+			}
+		}
+		
+		public boolean visit(ReferenceBinding referenceBinding) {
+			checkVisibility(referenceBinding);
+			return true;
+		}
+
+		
+		public boolean visit(ParameterizedTypeBinding parameterizedTypeBinding) {
+			checkVisibility(parameterizedTypeBinding);
+			return true;
+		}
+		
+		public boolean visit(RawTypeBinding rawTypeBinding) {
+			checkVisibility(rawTypeBinding);
+			return true;
+		}
+
+		public boolean visible(TypeBinding type) {
+			TypeBindingVisitor.visit(this, type);
+			return this.visible;
+		}
+
+		public boolean visible(TypeBinding[] types) {
+			TypeBindingVisitor.visit(this, types);
+			return this.visible;
+		}
+		
+	}
+
+	public boolean kosherDescriptor(Scope scope, MethodBinding sam, boolean shouldChatter) {
+	
+		VisibilityInspector inspector = new VisibilityInspector(this, scope, shouldChatter);
+		
+		boolean status = true;
+		
+		if (!inspector.visible(sam.returnType))
+			status = false;
+		if (!inspector.visible(sam.parameters))
+			status = false;
+		if (!inspector.visible(sam.thrownExceptions))
+			status = false;
+		
+		return status;
 	}
 
 	public int nullStatus(FlowInfo flowInfo) {

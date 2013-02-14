@@ -3416,6 +3416,103 @@ public void test400745a() {
 			"The type Y is never used locally\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+public void test400556() {
+	this.runNegativeTest(
+			new String[] {
+					"p/I.java",
+					"package p;\n" +
+					"public interface I<P extends ParameterType> {\n" +
+					"	<T extends ExceptionType , R extends ReturnType> R doit(P p) throws T;\n" +
+					"}\n" +
+					"\n" +
+					"class ReturnType {\n" +
+					"}\n" +
+					"\n" +
+					"class ParameterType {\n" +
+					"}\n" +
+					"\n" +
+					"class ExceptionType extends Exception {\n" +
+					"}\n",
+					"X.java",
+					"import p.I;\n" +
+					"public class X {\n" +
+					"	I i = (p) -> { return null; };\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\I.java (at line 12)\n" + 
+			"	class ExceptionType extends Exception {\n" + 
+			"	      ^^^^^^^^^^^^^\n" + 
+			"The serializable class ExceptionType does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	I i = (p) -> { return null; };\n" + 
+			"	^\n" + 
+			"I is a raw type. References to generic type I<P> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	I i = (p) -> { return null; };\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type ReturnType from the descriptor computed for the target context is not visible here.  \n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 3)\n" + 
+			"	I i = (p) -> { return null; };\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type ParameterType from the descriptor computed for the target context is not visible here.  \n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 3)\n" + 
+			"	I i = (p) -> { return null; };\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type ExceptionType from the descriptor computed for the target context is not visible here.  \n" + 
+			"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+public void test400556a() {
+	this.runNegativeTest(
+			new String[] {
+					"p/I.java",
+					"package p;\n" +
+					"public interface I<P extends ParameterType> {\n" +
+					"	<T extends ExceptionType , R extends ReturnType> R doit(P p) throws T;\n" +
+					"}\n",
+					"p/ReturnType.java",
+					"package p;\n" +
+					"public class ReturnType {\n" +
+					"}\n" +
+					"\n" +
+					"class ParameterType {\n" +
+					"}\n",
+					"p/ExceptionType.java",
+					"package p;\n" +
+					"public class ExceptionType extends Exception {\n" +
+					"}\n",
+					"X.java",
+					"import p.I;\n" +
+					"public class X {\n" +
+					"	I i = (p) -> { return null; };\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\ExceptionType.java (at line 2)\n" + 
+			"	public class ExceptionType extends Exception {\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"The serializable class ExceptionType does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	I i = (p) -> { return null; };\n" + 
+			"	^\n" + 
+			"I is a raw type. References to generic type I<P> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	I i = (p) -> { return null; };\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type ParameterType from the descriptor computed for the target context is not visible here.  \n" + 
+			"----------\n");
+}
 
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;

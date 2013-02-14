@@ -65,6 +65,15 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 		this.body.generateCode(this.scope, codeStream);
 	}
 
+	public boolean kosherDescriptor(Scope currentScope, MethodBinding sam, boolean shouldChatter) {
+		if (sam.typeVariables != Binding.NO_TYPE_VARIABLES) {
+			if (shouldChatter)
+				currentScope.problemReporter().lambdaExpressionCannotImplementGenericMethod(this, sam);
+			return false;
+		}
+		return super.kosherDescriptor(currentScope, sam, shouldChatter);
+	}
+	
 	/* This code is arranged so that we can continue with as much analysis as possible while avoiding 
 	 * mine fields that would result in a slew of spurious messages. This method is a merger of:
 	 * @see org.eclipse.jdt.internal.compiler.lookup.MethodScope.createMethod(AbstractMethodDeclaration)
@@ -78,10 +87,9 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 		final boolean argumentsTypeElided = argumentsTypeElided();
 		final boolean haveDescriptor = this.descriptor != null;
 		
-		if (haveDescriptor && this.descriptor.typeVariables != Binding.NO_TYPE_VARIABLES) {
-			blockScope.problemReporter().lambdaExpressionCannotImplementGenericMethod(this, this.descriptor);
-			return this.resolvedType = null;
-		}
+		if (haveDescriptor && this.descriptor.typeVariables != Binding.NO_TYPE_VARIABLES) // already complained in kosher*
+			return null;
+		
 		if (!haveDescriptor && argumentsTypeElided) 
 			return null; // FUBAR, bail out...
 

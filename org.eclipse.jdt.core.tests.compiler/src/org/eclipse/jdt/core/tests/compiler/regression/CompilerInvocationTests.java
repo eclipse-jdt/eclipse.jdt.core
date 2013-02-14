@@ -719,6 +719,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("JavadocUsingDeprecatedField", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedMethod", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedType", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
+		expectedProblemAttributes.put("LambdaDescriptorMentionsUnmentionable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("LambdaExpressionNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("LambdaRedeclaresArgument", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("LambdaRedeclaresLocal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1478,6 +1479,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("JavadocUsingDeprecatedField", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedMethod", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedType", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
+		expectedProblemAttributes.put("LambdaDescriptorMentionsUnmentionable", SKIP);
 		expectedProblemAttributes.put("LambdaExpressionNotBelow18", SKIP);
 		expectedProblemAttributes.put("LambdaRedeclaresArgument", SKIP);
 		expectedProblemAttributes.put("LambdaRedeclaresLocal", SKIP);
