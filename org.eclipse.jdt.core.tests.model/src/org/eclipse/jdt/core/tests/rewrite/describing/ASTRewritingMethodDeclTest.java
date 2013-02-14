@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -47,12 +46,6 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	public static Test allTests() {
 		return new Suite(THIS);
-	}
-
-	public static Test setUpTest(Test someTest) {
-		TestSuite suite= new Suite("one test");
-		suite.addTest(someTest);
-		return suite;
 	}
 
 	public static Test suite() {
@@ -2877,6 +2870,18 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("package test1;\n");
 		buf.append("class E {\n");
 		buf.append("    public void foo(@X @A int a, @B2 int b, @X int c, @X int d) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+		
+		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER, JavaCore.INSERT);
+		
+		preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("class E {\n");
+		buf.append("    public void foo(@X\n    @A int a, @B2 int b, @X\n    int c, @X int d) {\n");
 		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());

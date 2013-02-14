@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -549,7 +553,7 @@ import org.eclipse.text.edits.TextEdit;
 
 	public final Prefix FIRST_ENUM_CONST= new FormattingPrefix("enum E { X;}", "{ X" , CodeFormatter.K_COMPILATION_UNIT); //$NON-NLS-1$ //$NON-NLS-2$
 	public final Prefix ANNOTATION_SEPARATION= new FormattingPrefix("@A @B class C {}", "A @" , CodeFormatter.K_COMPILATION_UNIT); //$NON-NLS-1$ //$NON-NLS-2$
-	public final Prefix PARAM_ANNOTATION_SEPARATION= new FormattingPrefix("void foo(@A @B p) { }", "A @" , CodeFormatter.K_CLASS_BODY_DECLARATIONS); //$NON-NLS-1$ //$NON-NLS-2$
+	public final Prefix PARAM_ANNOTATION_SEPARATION= new FormattingPrefix("void foo(@A @B C p) { }", "A @" , CodeFormatter.K_CLASS_BODY_DECLARATIONS); //$NON-NLS-1$ //$NON-NLS-2$
 	public final Prefix TRY_RESOURCES = new FormattingPrefix("try (A a = new A(); B b = new B()) {}", "; B" , CodeFormatter.K_STATEMENTS); //$NON-NLS-1$ //$NON-NLS-2$
 	public final Prefix TRY_RESOURCES_PAREN = new FormattingPrefix("try (A a = new A(); B b = new B()) {}", "y (" , CodeFormatter.K_STATEMENTS); //$NON-NLS-1$ //$NON-NLS-2$
 	
