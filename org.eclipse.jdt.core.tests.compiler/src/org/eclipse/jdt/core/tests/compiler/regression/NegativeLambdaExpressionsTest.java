@@ -2481,7 +2481,7 @@ public void test073() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test074() {
-	// Lambda local redelares the enclosing method's argument
+	// Lambda local redeclares the enclosing method's argument
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -2506,7 +2506,7 @@ public void test074() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test075() {
-	// Lambda local redelares the enclosing method's local
+	// Lambda local redeclares the enclosing method's local
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -2532,7 +2532,7 @@ public void test075() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test076() {
-	// Lambda local redelares its own parameter
+	// Lambda local redeclares its own parameter
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -2558,7 +2558,7 @@ public void test076() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test077() {
-	// Lambda local redelares its own self
+	// Lambda local redeclares its own self
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -3316,6 +3316,105 @@ public void test_bug399770_2() {
 			"The annotation @FunctionalInterface is disallowed for this location\n" + 
 			"----------\n"
 	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400745, [1.8][compiler] Compiler incorrectly allows shadowing of local class names.
+public void test400745() {
+	// Lambda redeclares a local class from its outer scope.
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public void foo() {\n" +
+					"		class Y {};\n" + 
+					"		I i = ()  -> {\n" +
+					"			class Y{} ;\n" +
+					"		};\n" +
+					"	}\n" +	
+					"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	class Y{} ;\n" + 
+			"	      ^\n" + 
+			"Duplicate nested type Y\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400745, [1.8][compiler] Compiler incorrectly allows shadowing of local class names.
+public void test400745a() {
+	// local type hiding scenario 
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void foo();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	private void foo() {\n" +
+					"		class Y {}\n" +
+					"		X x = new X() {\n" +
+					"			private void foo() {\n" +
+					"				class Y {};\n" +
+					"			}\n" +
+					"		};\n" +
+					"		I i = () -> {\n" +
+					"			class LX {\n" +
+					"				void foo() {\n" +
+					"					class Y {};\n" +
+					"				}\n" +
+					"			};\n" +
+					"		};\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	private void foo() {\n" + 
+			"	             ^^^^^\n" + 
+			"The method foo() from the type X is never used locally\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	class Y {}\n" + 
+			"	      ^\n" + 
+			"The type Y is never used locally\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
+			"	private void foo() {\n" + 
+			"	             ^^^^^\n" + 
+			"The method foo() from the type new X(){} is never used locally\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	class Y {};\n" + 
+			"	      ^\n" + 
+			"The type Y is hiding the type Y\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 9)\n" + 
+			"	class Y {};\n" + 
+			"	      ^\n" + 
+			"The type Y is never used locally\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 13)\n" + 
+			"	class LX {\n" + 
+			"	      ^^\n" + 
+			"The type LX is never used locally\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 14)\n" + 
+			"	void foo() {\n" + 
+			"	     ^^^^^\n" + 
+			"The method foo() from the type LX is never used locally\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 15)\n" + 
+			"	class Y {};\n" + 
+			"	      ^\n" + 
+			"The type Y is hiding the type Y\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 15)\n" + 
+			"	class Y {};\n" + 
+			"	      ^\n" + 
+			"The type Y is never used locally\n" + 
+			"----------\n");
 }
 
 public static Class testClass() {

@@ -1261,7 +1261,7 @@ checkOuterScope:while (outerScope != null) {
 					outerScope = outerScope.parent;
 				}
 			} else if (existingType instanceof LocalTypeBinding
-						&& ((LocalTypeBinding) existingType).scope.methodScope() == blockScope.methodScope()) {
+						&& (((LocalTypeBinding) existingType).scope.methodScope() == blockScope.methodScope() || blockScope.isLambdaSubscope())) {
 					// dup in same method
 					blockScope.problemReporter().duplicateNestedType(this);
 			} else if (blockScope.isDefinedInType(existingType)) {
