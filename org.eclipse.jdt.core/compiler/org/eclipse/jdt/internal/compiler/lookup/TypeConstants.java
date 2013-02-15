@@ -11,6 +11,7 @@
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 381445 - [compiler][resource] Can the resource leak check be made aware of Closeables.closeQuietly?
+ *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -233,6 +234,14 @@ public interface TypeConstants {
 	char[] CORE = "core".toCharArray(); //$NON-NLS-1$
 	char[] RUNTIME = "runtime".toCharArray(); //$NON-NLS-1$
 	char[][] ORG_ECLIPSE_CORE_RUNTIME_ASSERT = new char[][] { ORG, ECLIPSE, CORE, RUNTIME, "Assert".toCharArray()}; //$NON-NLS-1$
+
+	// different @Inject annotations are relevant for @NonNull fields
+	char[] INJECT_PACKAGE = "inject".toCharArray(); //$NON-NLS-1$
+	char[] INJECT_TYPE = "Inject".toCharArray(); //$NON-NLS-1$
+	char[][] JAVAX_ANNOTATION_INJECT_INJECT = new char[][] { JAVAX, INJECT_PACKAGE, INJECT_TYPE };
+	char[][] COM_GOOGLE_INJECT_INJECT = new char[][] {"com".toCharArray(), "google".toCharArray(), INJECT_PACKAGE, INJECT_TYPE }; //$NON-NLS-1$ //$NON-NLS-2$
+	//    detail for the above:
+	char[] OPTIONAL = "optional".toCharArray(); //$NON-NLS-1$
 
 	// Constraints for generic type argument inference
 	int CONSTRAINT_EQUAL = 0;		// Actual = Formal

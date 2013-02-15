@@ -12,6 +12,7 @@
  *     							bug 359362 - FUP of bug 349326: Resource leak on non-Closeable resource
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 358903 - Filter practically unimportant resource leak warnings
+ *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -109,6 +110,10 @@ public interface TypeIds {
 	
 	// new in 3.8 to identify org.eclipse.core.runtime.Assert
 	final int T_OrgEclipseCoreRuntimeAssert = 68;
+
+	// new in 3.9 to identify known @Inject annotations
+	final int T_JavaxInjectInject = 69;
+	final int T_ComGoogleInjectInject = 70;
 
 	final int NoId = Integer.MAX_VALUE;
 

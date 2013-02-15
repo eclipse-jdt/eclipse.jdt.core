@@ -16,6 +16,7 @@
  *								bug 383690 - [compiler] location of error re uninitialized final field should be aligned
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -189,10 +190,12 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 									? (ASTNode) this.scope.referenceType().declarationOf(field.original())
 									: this);
 					} else if (field.isNonNull()) {
+						FieldDeclaration fieldDecl = this.scope.referenceType().declarationOf(field.original());
+						if (!isValueProvidedUsingAnnotation(fieldDecl))
 							this.scope.problemReporter().uninitializedNonNullField(
 								field,
 								((this.bits & ASTNode.IsDefaultConstructor) != 0) 
-									? (ASTNode) this.scope.referenceType().declarationOf(field.original())
+									? (ASTNode) fieldDecl
 									: this);
 					}
 				}
@@ -206,6 +209,29 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 	} catch (AbortMethod e) {
 		this.ignoreFurtherInvestigation = true;
 	}
+}
+
+boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {
+	// a member field annotated with @Inject is considered to be initialized by the injector 
+	if (fieldDecl.annotations != null) {
+		int length = fieldDecl.annotations.length;
+		for (int i = 0; i < length; i++) {
+			Annotation annotation = fieldDecl.annotations[i];
+			if (annotation.resolvedType.id == TypeIds.T_JavaxInjectInject) {
+				return true; // no concept of "optional"
+			} else if (annotation.resolvedType.id == TypeIds.T_ComGoogleInjectInject) {
+				MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
+				if (memberValuePairs == Annotation.NoValuePairs)
+					return true;
+				for (int j = 0; j < memberValuePairs.length; j++) {
+					// if "optional=false" is specified, don't rely on initialization by the injector:
+					if (CharOperation.equals(memberValuePairs[j].name, TypeConstants.OPTIONAL))
+						return memberValuePairs[j].value instanceof FalseLiteral;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 /**
