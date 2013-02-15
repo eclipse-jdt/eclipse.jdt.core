@@ -46,31 +46,6 @@ private static final String CUSTOM_NULLABLE_CONTENT = "package org.foo;\n" +
 	"public @interface Nullable {\n" +
 	"}\n";
 
-private static final String GOOGLE_INJECT_NAME = "com/google/inject/Inject.java";
-private static final String GOOGLE_INJECT_CONTENT = 
-	"package com.google.inject;\n" + 
-	"import static java.lang.annotation.ElementType.*;\n" + 
-	"import java.lang.annotation.Retention;\n" + 
-	"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-	"import java.lang.annotation.Target;\n" +
-	"@Target({ METHOD, CONSTRUCTOR, FIELD })\n" + 
-	"@Retention(RUNTIME)\n" + 
-	"public @interface Inject {\n" + 
-	"\n" + 
-	"  boolean optional() default false;\n" + 
-	"}";
-
-private static final String JAVAX_INJECT_NAME = "javax/inject/Inject.java";
-private static final String JAVAX_INJECT_CONTENT = 
-	"package javax.inject;\n" + 
-	"import static java.lang.annotation.ElementType.*;\n" + 
-	"import java.lang.annotation.Retention;\n" + 
-	"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-	"import java.lang.annotation.Target;\n" +
-	"@Target({ METHOD, CONSTRUCTOR, FIELD })\n" + 
-	"@Retention(RUNTIME)\n" + 
-	"public @interface Inject {}\n";
-
 public NullAnnotationTest(String name) {
 	super(name);
 }

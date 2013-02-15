@@ -14,6 +14,7 @@
  *								bug 384663 - Package Based Annotation Compilation Error in JDT 3.8/4.2 (works in 3.7.2) 
  *								bug 386356 - Type mismatch error with annotations and generics
  *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								bug 376590 - Private fields with @Inject are ignored by unused field validation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -10520,6 +10521,119 @@ public void testBug365437f() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
+
+// https://bugs.eclipse.org/376590 - Private fields with @Inject are ignored by unused field validation
+// using com.google.inject.Inject
+public void testBug376590a() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		true,
+		new String[] {
+			GOOGLE_INJECT_NAME,
+			GOOGLE_INJECT_CONTENT,
+			"Example.java",
+			"import com.google.inject.Inject;\n" +
+			"class Example {\n" +
+			"  private @Inject Object o;\n" +
+			"  private @Inject Example() {}\n" + // no warning on constructor
+			"  public Example(Object o) { this.o = o; }\n" +
+			"  private @Inject void setO(Object o) { this.o = o;}\n" + // no warning on method
+			"}\n"
+		},
+		null, customOptions,
+		"----------\n" + 
+		"1. ERROR in Example.java (at line 3)\n" + 
+		"	private @Inject Object o;\n" + 
+		"	                       ^\n" + 
+		"The value of the field Example.o is not used\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);	
+}
+// https://bugs.eclipse.org/376590 - Private fields with @Inject are ignored by unused field validation
+// using javax.inject.Inject - slight variation
+public void testBug376590b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		true,
+		new String[] {
+			JAVAX_INJECT_NAME,
+			JAVAX_INJECT_CONTENT,
+			"Example.java",
+			"class Example {\n" +
+			"  private @javax.inject.Inject Object o;\n" +
+			"  private Example() {} // also warn here: no @Inject\n" +
+			"  public Example(Object o) { this.o = o; }\n" +
+			"  private @javax.inject.Inject void setO(Object o) { this.o = o;}\n" +
+			"}\n"
+		},
+		null, customOptions,
+		"----------\n" + 
+		"1. ERROR in Example.java (at line 2)\n" + 
+		"	private @javax.inject.Inject Object o;\n" + 
+		"	                                    ^\n" + 
+		"The value of the field Example.o is not used\n" + 
+		"----------\n" + 
+		"2. ERROR in Example.java (at line 3)\n" + 
+		"	private Example() {} // also warn here: no @Inject\n" + 
+		"	        ^^^^^^^^^\n" + 
+		"The constructor Example() is never used locally\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);	
+}
+// https://bugs.eclipse.org/376590 - Private fields with @Inject are ignored by unused field validation
+// using javax.inject.Inject, combined with standard as well as custom annotations
+public void testBug376590c() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
+	customOptions.put(CompilerOptions.OPTION_NonNullAnnotationName, "p.NonNull");
+	this.runNegativeTest(
+		true,
+		new String[] {
+			JAVAX_INJECT_NAME,
+			JAVAX_INJECT_CONTENT,
+			"Example.java",
+			"import javax.inject.Inject;\n" +
+			"class Example {\n" +
+			"  private @Inject @p.NonNull Object o; // do warn, annotations don't signal a read\n" +
+			"  private @Deprecated @Inject String old; // do warn, annotations don't signal a read\n" +
+			"  private @Inject @p.Annot Object o2;\n" + // don't warn, custom annotation could imply a read access
+			"}\n",
+			"p/NonNull.java",
+			"package p;\n" +
+			"import static java.lang.annotation.ElementType.*;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Target({TYPE, METHOD,PARAMETER,LOCAL_VARIABLE,FIELD})\n" +
+			"public @interface NonNull {\n" +
+			"}",
+			"p/Annot.java",
+			"package p;\n" +
+			"import static java.lang.annotation.ElementType.*;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Target({TYPE, METHOD,PARAMETER,LOCAL_VARIABLE, CONSTRUCTOR, FIELD})\n" +
+			"public @interface Annot {\n" +
+			"}"
+		},
+		null, customOptions,
+		"----------\n" + 
+		"1. ERROR in Example.java (at line 3)\n" + 
+		"	private @Inject @p.NonNull Object o; // do warn, annotations don't signal a read\n" + 
+		"	                                  ^\n" + 
+		"The value of the field Example.o is not used\n" + 
+		"----------\n" + 
+		"2. ERROR in Example.java (at line 4)\n" + 
+		"	private @Deprecated @Inject String old; // do warn, annotations don't signal a read\n" + 
+		"	                                   ^^^\n" + 
+		"The value of the field Example.old is not used\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);	
+}
+
 public void testBug376429a() {
 	this.runNegativeTest(
 			new String[] {

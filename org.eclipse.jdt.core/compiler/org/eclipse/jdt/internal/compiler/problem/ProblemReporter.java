@@ -24,6 +24,7 @@
  *								bug 393719 - [compiler] inconsistent warnings on iteration variables
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
+ *								bug 376590 - Private fields with @Inject are ignored by unused field validation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -7831,7 +7832,7 @@ public void unusedPrivateConstructor(ConstructorDeclaration constructorDecl) {
 	int severity = computeSeverity(IProblem.UnusedPrivateConstructor);
 	if (severity == ProblemSeverities.Ignore) return;
 	
-	if (excludeDueToAnnotation(constructorDecl.annotations)) return;
+	if (excludeDueToAnnotation(constructorDecl.annotations, IProblem.UnusedPrivateConstructor)) return;
 	
 	MethodBinding constructor = constructorDecl.binding;
 	this.handle(
@@ -7878,7 +7879,7 @@ public void unusedPrivateField(FieldDeclaration fieldDecl) {
 			}
 		}
 	}
-	if (excludeDueToAnnotation(fieldDecl.annotations)) return;
+	if (excludeDueToAnnotation(fieldDecl.annotations, IProblem.UnusedPrivateField)) return;
 	this.handle(
 			IProblem.UnusedPrivateField,
 		new String[] {
@@ -7932,7 +7933,7 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 			&& CharOperation.equals(method.selector, TypeConstants.WRITEREPLACE)) {
 		return;
 	}
-	if (excludeDueToAnnotation(methodDecl.annotations)) return;
+	if (excludeDueToAnnotation(methodDecl.annotations, IProblem.UnusedPrivateMethod)) return;
 	
 	this.handle(
 			IProblem.UnusedPrivateMethod,
@@ -7954,9 +7955,10 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 /**
  * Returns true if a private member should not be warned as unused if
  * annotated with a non-standard annotation.
- * https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
+ * https://bugs.eclipse.org/365437
+ * https://bugs.eclipse.org/376590
  */
-private boolean excludeDueToAnnotation(Annotation[] annotations) {
+private boolean excludeDueToAnnotation(Annotation[] annotations, int problemId) {
 	int annotationsLen = 0;
 	if (annotations != null) {
 		annotationsLen = annotations.length;
@@ -7975,6 +7977,11 @@ private boolean excludeDueToAnnotation(Annotation[] annotations) {
 				case TypeIds.T_ConfiguredAnnotationNullable:
 				case TypeIds.T_ConfiguredAnnotationNonNullByDefault:
 					break;
+				case TypeIds.T_JavaxInjectInject:
+				case TypeIds.T_ComGoogleInjectInject:
+					if (problemId != IProblem.UnusedPrivateField)
+						return true; // @Inject on method/ctor does constitute a relevant use, just on fields it doesn't
+					break;
 				default:
 					// non-standard annotation found, don't warn
 					return true;
@@ -7986,7 +7993,7 @@ private boolean excludeDueToAnnotation(Annotation[] annotations) {
 public void unusedPrivateType(TypeDeclaration typeDecl) {
 	int severity = computeSeverity(IProblem.UnusedPrivateType);
 	if (severity == ProblemSeverities.Ignore) return;
-	if (excludeDueToAnnotation(typeDecl.annotations)) return;
+	if (excludeDueToAnnotation(typeDecl.annotations, IProblem.UnusedPrivateType)) return;
 	ReferenceBinding type = typeDecl.binding;
 	this.handle(
 			IProblem.UnusedPrivateType,
