@@ -70,7 +70,12 @@ public class TypeBindingVisitor {
 		switch (type.kind()) {
 			
 			case Binding.TYPE_PARAMETER:
-				visitor.visit((TypeVariableBinding) type);
+				TypeVariableBinding typeVariableBinding = (TypeVariableBinding) type;
+				if (visitor.visit(typeVariableBinding)) {
+					visit(visitor, typeVariableBinding.firstBound);
+					visit(visitor, typeVariableBinding.superclass);
+					visit(visitor, typeVariableBinding.superInterfaces);
+				}
 	            break;
 	            
 			case Binding.PARAMETERIZED_TYPE:

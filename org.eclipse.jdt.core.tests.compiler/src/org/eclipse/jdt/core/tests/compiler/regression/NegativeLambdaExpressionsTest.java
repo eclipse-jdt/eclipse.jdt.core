@@ -3513,7 +3513,479 @@ public void test400556a() {
 			"The type ParameterType from the descriptor computed for the target context is not visible here.  \n" + 
 			"----------\n");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+public void test400556b() {
+	this.runNegativeTest(
+			new String[] {
+					"p/I.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"public interface I<P extends ParameterType> {\n" +
+					"	<T extends ExceptionType , R extends ReturnType> R doit(List<? extends List<P>>[] p) throws T;\n" +
+					"}\n" +
+					"\n" +
+					"class ReturnType {\n" +
+					"}\n" +
+					"\n" +
+					"class ParameterType {\n" +
+					"}\n" +
+					"\n" +
+					"class ExceptionType extends Exception {\n" +
+					"}\n",
+					"X.java",
+					"import p.I;\n" +
+					"public class X {\n" +
+					"	I i = (p) -> { return null; };\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\I.java (at line 13)\n" + 
+			"	class ExceptionType extends Exception {\n" + 
+			"	      ^^^^^^^^^^^^^\n" + 
+			"The serializable class ExceptionType does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	I i = (p) -> { return null; };\n" + 
+			"	^\n" + 
+			"I is a raw type. References to generic type I<P> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	I i = (p) -> { return null; };\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type ReturnType from the descriptor computed for the target context is not visible here.  \n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 3)\n" + 
+			"	I i = (p) -> { return null; };\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type ExceptionType from the descriptor computed for the target context is not visible here.  \n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+public void test400556c() {
+	this.runNegativeTest(
+			new String[] {
+					"p/I.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"public interface I<P extends ParameterType, T extends ExceptionType , R extends ReturnType> {\n" +
+					"	R doit(List<? extends List<P>>[] p) throws T;\n" +
+					"}\n" +
+					"class ParameterType {\n" +
+					"}\n" +
+					"class ReturnType {\n" +
+					"}\n" +
+					"class ExceptionType extends Exception {\n" +
+					"}\n",
+					"X.java",
+					"import p.I;\n" +
+					"public class X {\n" +
+					"	I<?, ?, ?> i = (p) -> { return null; };\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\I.java (at line 10)\n" + 
+			"	class ExceptionType extends Exception {\n" + 
+			"	      ^^^^^^^^^^^^^\n" + 
+			"The serializable class ExceptionType does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	I<?, ?, ?> i = (p) -> { return null; };\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type ReturnType from the descriptor computed for the target context is not visible here.  \n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	I<?, ?, ?> i = (p) -> { return null; };\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type ParameterType from the descriptor computed for the target context is not visible here.  \n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 3)\n" + 
+			"	I<?, ?, ?> i = (p) -> { return null; };\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type ExceptionType from the descriptor computed for the target context is not visible here.  \n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+public void test400556d() {
+	this.runNegativeTest(
+			new String[] {
+					"p/I.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"public interface I<P extends ParameterType, T extends ExceptionType , R extends ReturnType> {\n" +
+					"	R doit(List<? extends List<P>>[] p) throws T;\n" +
+					"}\n",
+					"p/ParameterType.java",
+					"package p;\n" +
+					"public class ParameterType {\n" +
+					"}\n",
+					"p/ReturnType.java",
+					"package p;\n" +
+					"public class ReturnType {\n" +
+					"}\n",
+					"p/ExceptionType.java",
+					"package p;\n" +
+					"public class ExceptionType extends Exception {\n" +
+					"}\n",
+					"X.java",
+					"import p.I;\n" +
+					"public class X {\n" +
+					"	I<?, ?, ?> i = (p) -> { return null; };\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\ExceptionType.java (at line 2)\n" + 
+			"	public class ExceptionType extends Exception {\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"The serializable class ExceptionType does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+public void test400556e() {
+	this.runNegativeTest(
+			new String[] {
+					"p/I.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"public interface I<P extends ParameterType, T extends ExceptionType , R extends ReturnType> {\n" +
+					"	R doit(List<? extends List<P>>[] p) throws T;\n" +
+					"}\n",
+					"p/ParameterType.java",
+					"package p;\n" +
+					"public class ParameterType {\n" +
+					"}\n",
+					"p/ReturnType.java",
+					"package p;\n" +
+					"public class ReturnType {\n" +
+					"}\n",
+					"p/ExceptionType.java",
+					"package p;\n" +
+					"public class ExceptionType extends Exception {\n" +
+					"}\n",
+					"X.java",
+					"import p.I;\n" +
+					"public class X {\n" +
+					"	I<?, ?, ?> i = (String p) -> { return null; };\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\ExceptionType.java (at line 2)\n" + 
+			"	public class ExceptionType extends Exception {\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"The serializable class ExceptionType does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	I<?, ?, ?> i = (String p) -> { return null; };\n" + 
+			"	                ^^^^^^\n" + 
+			"Lambda expression\'s parameter p is expected to be of type List<? extends List<ParameterType>>[]\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+public void test400556f() {
+	this.runNegativeTest(
+			new String[] {
+					"p/I.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"public interface I<P extends ParameterType, T extends ExceptionType , R extends ReturnType> {\n" +
+					"	R doit(List<? extends List<P>>[] p) throws T;\n" +
+					"}\n",
+					"p/ParameterType.java",
+					"package p;\n" +
+					"public class ParameterType {\n" +
+					"}\n",
+					"p/ReturnType.java",
+					"package p;\n" +
+					"public class ReturnType {\n" +
+					"}\n",
+					"p/ExceptionType.java",
+					"package p;\n" +
+					"public class ExceptionType extends Exception {\n" +
+					"}\n",
+					"X.java",
+					"import p.I;\n" +
+					"public class X {\n" +
+					"	I<? extends p.ParameterType, ? extends p.ExceptionType, ? extends p.ReturnType> i = (String p) -> { return null; };\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\ExceptionType.java (at line 2)\n" + 
+			"	public class ExceptionType extends Exception {\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"The serializable class ExceptionType does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	I<? extends p.ParameterType, ? extends p.ExceptionType, ? extends p.ReturnType> i = (String p) -> { return null; };\n" + 
+			"	                                                                                     ^^^^^^\n" + 
+			"Lambda expression\'s parameter p is expected to be of type List<? extends List<ParameterType>>[]\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+public void test400556g() {
+	this.runNegativeTest(
+			new String[] {
+					"p/I.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"public interface I<P extends ParameterType, T extends ExceptionType , R extends ReturnType> {\n" +
+					"	R doit(List<? extends List<P>>[] p) throws T;\n" +
+					"}\n",
+					"p/ParameterType.java",
+					"package p;\n" +
+					"public class ParameterType {\n" +
+					"}\n",
+					"p/ReturnType.java",
+					"package p;\n" +
+					"public class ReturnType {\n" +
+					"}\n",
+					"p/ExceptionType.java",
+					"package p;\n" +
+					"public class ExceptionType extends Exception {\n" +
+					"}\n",
+					"X.java",
+					"import p.I;\n" +
+					"class P extends p.ParameterType {}\n" +
+					"class T extends p.ExceptionType {}\n" +
+					"class R extends p.ReturnType {}\n" +
+					"public class X {\n" +
+					"	I<P, T, R> i = (String p) -> { return null; };\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\ExceptionType.java (at line 2)\n" + 
+			"	public class ExceptionType extends Exception {\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"The serializable class ExceptionType does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	class T extends p.ExceptionType {}\n" + 
+			"	      ^\n" + 
+			"The serializable class T does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	I<P, T, R> i = (String p) -> { return null; };\n" + 
+			"	                ^^^^^^\n" + 
+			"Lambda expression\'s parameter p is expected to be of type List<? extends List<P>>[]\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+public void test400556h() {
+	this.runNegativeTest(
+			new String[] {
+					"p/I.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"public interface I<P extends ParameterType, T extends ExceptionType , R extends ReturnType> {\n" +
+					"	R doit(List<? extends List<P>>[] p) throws T;\n" +
+					"}\n",
+					"p/ParameterType.java",
+					"package p;\n" +
+					"public class ParameterType {\n" +
+					"}\n",
+					"p/ReturnType.java",
+					"package p;\n" +
+					"public class ReturnType {\n" +
+					"}\n",
+					"p/ExceptionType.java",
+					"package p;\n" +
+					"public class ExceptionType extends Exception {\n" +
+					"}\n",
+					"X.java",
+					"import p.I;\n" +
+					"class P extends p.ParameterType {}\n" +
+					"class T extends p.ExceptionType {}\n" +
+					"class R extends p.ReturnType {}\n" +
+					"public class X {\n" +
+					"	I<T, R, P> i = (String p) -> { return null; };\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\ExceptionType.java (at line 2)\n" + 
+			"	public class ExceptionType extends Exception {\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"The serializable class ExceptionType does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	class T extends p.ExceptionType {}\n" + 
+			"	      ^\n" + 
+			"The serializable class T does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	I<T, R, P> i = (String p) -> { return null; };\n" + 
+			"	  ^\n" + 
+			"Bound mismatch: The type T is not a valid substitute for the bounded parameter <P extends ParameterType> of the type I<P,T,R>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	I<T, R, P> i = (String p) -> { return null; };\n" + 
+			"	     ^\n" + 
+			"Bound mismatch: The type R is not a valid substitute for the bounded parameter <T extends ExceptionType> of the type I<P,T,R>\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	I<T, R, P> i = (String p) -> { return null; };\n" + 
+			"	        ^\n" + 
+			"Bound mismatch: The type P is not a valid substitute for the bounded parameter <R extends ReturnType> of the type I<P,T,R>\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 6)\n" + 
+			"	I<T, R, P> i = (String p) -> { return null; };\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+public void test400556i() {
+	this.runNegativeTest(
+			new String[] {
+					"p/I.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"public interface I<P extends ParameterType, T extends ExceptionType , R extends ReturnType> {\n" +
+					"	R doit(List<? extends List<P>>[] p) throws T;\n" +
+					"}\n",
+					"p/ParameterType.java",
+					"package p;\n" +
+					"public class ParameterType {\n" +
+					"}\n",
+					"p/ReturnType.java",
+					"package p;\n" +
+					"public class ReturnType {\n" +
+					"}\n",
+					"p/ExceptionType.java",
+					"package p;\n" +
+					"public class ExceptionType extends Exception {\n" +
+					"}\n",
+					"X.java",
+					"import p.I;\n" +
+					"class P extends p.ParameterType {}\n" +
+					"class T extends p.ExceptionType {}\n" +
+					"class R extends p.ReturnType {}\n" +
+					"public class X {\n" +
+					"	I<? super P, ? super T, ? super R> i = (String p) -> { return null; };\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\ExceptionType.java (at line 2)\n" + 
+			"	public class ExceptionType extends Exception {\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"The serializable class ExceptionType does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	class T extends p.ExceptionType {}\n" + 
+			"	      ^\n" + 
+			"The serializable class T does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	I<? super P, ? super T, ? super R> i = (String p) -> { return null; };\n" + 
+			"	                                        ^^^^^^\n" + 
+			"Lambda expression\'s parameter p is expected to be of type List<? extends List<P>>[]\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+public void test400556j() {
+	this.runNegativeTest(
+			new String[] {
+					"p/I.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"public interface I<P extends ParameterType, T extends P , R extends T> {\n" +
+					"	R doit(List<? extends List<P>>[] p) throws T;\n" +
+					"}\n",
+					"p/ParameterType.java",
+					"package p;\n" +
+					"public class ParameterType {\n" +
+					"}\n",
+					"p/ReturnType.java",
+					"package p;\n" +
+					"public class ReturnType {\n" +
+					"}\n",
+					"p/ExceptionType.java",
+					"package p;\n" +
+					"public class ExceptionType extends Exception {\n" +
+					"}\n",
+					"X.java",
+					"import p.I;\n" +
+					"class P extends p.ParameterType {}\n" +
+					"class T extends p.ExceptionType {}\n" +
+					"class R extends p.ReturnType {}\n" +
+					"public class X {\n" +
+					"	I<?, ?, ?> i = (String p) -> { return null; };\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in p\\I.java (at line 4)\n" + 
+			"	R doit(List<? extends List<P>>[] p) throws T;\n" + 
+			"	                                           ^\n" + 
+			"No exception of type T can be thrown; an exception type must be a subclass of Throwable\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in p\\ExceptionType.java (at line 2)\n" + 
+			"	public class ExceptionType extends Exception {\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"The serializable class ExceptionType does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	class T extends p.ExceptionType {}\n" + 
+			"	      ^\n" + 
+			"The serializable class T does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	I<?, ?, ?> i = (String p) -> { return null; };\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400556, [1.8][compiler] Visibility checks are missing for lambda/reference expressions
+public void test400556k() {
+	this.runNegativeTest(
+			new String[] {
+					"p/I.java",
+					"package p;\n" +
+					"import java.util.List;\n" +
+					"public interface I<P extends ParameterType, T extends ExceptionType , R extends ReturnType> {\n" +
+					"	R doit(List<? extends List<P>>[] p) throws T;\n" +
+					"}\n",
+					"p/ParameterType.java",
+					"package p;\n" +
+					"public class ParameterType {\n" +
+					"}\n",
+					"p/ReturnType.java",
+					"package p;\n" +
+					"public class ReturnType {\n" +
+					"}\n",
+					"p/ExceptionType.java",
+					"package p;\n" +
+					"public class ExceptionType extends Exception {\n" +
+					"}\n",
+					"X.java",
+					"import p.I;\n" +
+					"public class X {\n" +
+					"	I i = (String p) -> { return null; };\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\ExceptionType.java (at line 2)\n" + 
+			"	public class ExceptionType extends Exception {\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"The serializable class ExceptionType does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	I i = (String p) -> { return null; };\n" + 
+			"	^\n" + 
+			"I is a raw type. References to generic type I<P,T,R> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	I i = (String p) -> { return null; };\n" + 
+			"	       ^^^^^^\n" + 
+			"Lambda expression\'s parameter p is expected to be of type List[]\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
