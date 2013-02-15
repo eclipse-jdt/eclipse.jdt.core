@@ -21,6 +21,31 @@ import org.eclipse.jdt.core.JavaCore;
 // see bug 186342 - [compiler][null] Using annotations for null checking
 public class NullAnnotationTest extends AbstractNullAnnotationTest {
 
+private static final String GOOGLE_INJECT_NAME = "com/google/inject/Inject.java";
+private static final String GOOGLE_INJECT_CONTENT = 
+	"package com.google.inject;\n" + 
+	"import static java.lang.annotation.ElementType.*;\n" + 
+	"import java.lang.annotation.Retention;\n" + 
+	"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+	"import java.lang.annotation.Target;\n" +
+	"@Target({ METHOD, CONSTRUCTOR, FIELD })\n" + 
+	"@Retention(RUNTIME)\n" + 
+	"public @interface Inject {\n" + 
+	"\n" + 
+	"  boolean optional() default false;\n" + 
+	"}";
+
+private static final String JAVAX_INJECT_NAME = "javax/inject/Inject.java";
+private static final String JAVAX_INJECT_CONTENT = 
+	"package javax.inject;\n" + 
+	"import static java.lang.annotation.ElementType.*;\n" + 
+	"import java.lang.annotation.Retention;\n" + 
+	"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+	"import java.lang.annotation.Target;\n" +
+	"@Target({ METHOD, CONSTRUCTOR, FIELD })\n" + 
+	"@Retention(RUNTIME)\n" + 
+	"public @interface Inject {}\n";
+
 public NullAnnotationTest(String name) {
 	super(name);
 }
@@ -4133,6 +4158,87 @@ public void test_nonnull_field_14b() {
 		},
 		null /*customOptions*/,
 		"");
+}
+
+// A @NonNull field is assumed to be initialized by the injection framework
+// [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400421
+public void test_nonnull_field_15() {
+	runConformTestWithLibs(
+		new String[] {
+			GOOGLE_INJECT_NAME,
+			GOOGLE_INJECT_CONTENT,
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import com.google.inject.Inject;\n" +
+			"public class X {\n" +
+			"    @NonNull @Inject Object o;\n" +
+			"    @NonNullByDefault class Inner {\n" +
+			"        @Inject String s;\n" +
+			"    }\n" +
+			"}\n",
+		},
+		null /*customOptions*/,
+		"");
+}
+
+// Injection is optional, don't rely on the framework
+// [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400421
+public void test_nonnull_field_16() {
+	runNegativeTestWithLibs(
+		new String[] {
+			GOOGLE_INJECT_NAME,
+			GOOGLE_INJECT_CONTENT,
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import com.google.inject.Inject;\n" +
+			"public class X {\n" +
+			"    @Inject(optional=true) @NonNull Object o;\n" +
+			"    @NonNullByDefault class Inner {\n" +
+			"        @Inject(optional=true) String s;\n" +
+			"        @Inject(optional=false) String t;\n" + // don't complain here
+			"    }\n" +
+			"}\n",
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	@Inject(optional=true) @NonNull Object o;\n" + 
+		"	                                       ^\n" + 
+		"The @NonNull field o may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	@Inject(optional=true) String s;\n" + 
+		"	                              ^\n" + 
+		"The @NonNull field s may not have been initialized\n" + 
+		"----------\n");
+}
+
+// Using javax.inject.Inject, slight variations
+// [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400421
+public void test_nonnull_field_17() {
+	runNegativeTestWithLibs(
+		new String[] {
+			JAVAX_INJECT_NAME,
+			JAVAX_INJECT_CONTENT,
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import javax.inject.Inject;\n" +
+			"public class X {\n" +
+			"    @NonNull @Inject static String s; // warn since injection of static field is less reliable\n" + // variation: static field
+			"    @NonNull @Inject @Deprecated Object o;\n" +
+			"    public X() {}\n" + // variation: with explicit constructor
+			"}\n",
+		},
+		null /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	@NonNull @Inject static String s; // warn since injection of static field is less reliable\n" + 
+		"	                               ^\n" + 
+		"The @NonNull field s may not have been initialized\n" + 
+		"----------\n");
 }
 
 // access to a nullable field - field reference

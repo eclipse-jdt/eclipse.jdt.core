@@ -20,6 +20,7 @@
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
+ *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -389,10 +390,22 @@ public void computeId() {
 	switch (this.compoundName.length) {
 
 		case 3 :
-			if (!CharOperation.equals(TypeConstants.JAVA, this.compoundName[0]))
-				return;
+			char[] packageName = this.compoundName[0];
+			// expect only java.*.* and javax.*.*
+			switch (packageName.length) {
+				case 4:
+					if (!CharOperation.equals(TypeConstants.JAVA, packageName))
+						return;
+					break; // continue below ...
+				case 5:
+					if (CharOperation.equals(TypeConstants.JAVAX_ANNOTATION_INJECT_INJECT, this.compoundName))
+						this.id = TypeIds.T_JavaxInjectInject;
+					return;
+				default: return;
+			}
+			// ... at this point we know it's java.*.*
 			
-			char[] packageName = this.compoundName[1];
+			packageName = this.compoundName[1];
 			if (packageName.length == 0) return; // just to be safe
 			char[] typeName = this.compoundName[2];
 			if (typeName.length == 0) return; // just to be safe
@@ -609,6 +622,12 @@ public void computeId() {
 		break;
 
 		case 4:
+			// expect one type from com.*.*.*:
+			if (CharOperation.equals(TypeConstants.COM_GOOGLE_INJECT_INJECT, this.compoundName)) {
+				this.id = TypeIds.T_ComGoogleInjectInject;
+				return;
+			}
+			// otherwise only expect java.*.*.*
 			if (!CharOperation.equals(TypeConstants.JAVA, this.compoundName[0]))
 				return;
 			packageName = this.compoundName[1];
