@@ -1171,7 +1171,7 @@ public void cannotImportPackage(ImportReference importRef) {
 		importRef.sourceStart,
 		importRef.sourceEnd);
 }
-public void cannotInstantiate(TypeReference typeRef, TypeBinding type) {
+public void cannotInstantiate(Expression typeRef, TypeBinding type) {
 	this.handle(
 		IProblem.InvalidClassInstantiation,
 		new String[] {new String(type.readableName())},
@@ -2018,6 +2018,26 @@ public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeB
 		new String[] {new String(recType.shortReadableName()), new String(messageSend.selector), shortBuffer.toString()},
 		messageSend.sourceStart,
 		messageSend.sourceEnd);
+}
+public void errorNoMethodFor(Expression expression, TypeBinding recType, char [] selector, TypeBinding[] params) {
+	StringBuffer buffer = new StringBuffer();
+	StringBuffer shortBuffer = new StringBuffer();
+	for (int i = 0, length = params.length; i < length; i++) {
+		if (i != 0){
+			buffer.append(", "); //$NON-NLS-1$
+			shortBuffer.append(", "); //$NON-NLS-1$
+		}
+		buffer.append(new String(params[i].readableName()));
+		shortBuffer.append(new String(params[i].shortReadableName()));
+	}
+
+	int id = recType.isArrayType() ? IProblem.NoMessageSendOnArrayType : IProblem.NoMessageSendOnBaseType;
+	this.handle(
+		id,
+		new String[] { new String(recType.readableName()), new String(selector), buffer.toString() },
+		new String[] { new String(recType.shortReadableName()), new String(selector), shortBuffer.toString() },
+		expression.sourceStart,
+		expression.sourceEnd);
 }
 public void errorThisSuperInStatic(ASTNode reference) {
 	String[] arguments = new String[] {reference.isSuper() ? "super" : "this"}; //$NON-NLS-2$ //$NON-NLS-1$

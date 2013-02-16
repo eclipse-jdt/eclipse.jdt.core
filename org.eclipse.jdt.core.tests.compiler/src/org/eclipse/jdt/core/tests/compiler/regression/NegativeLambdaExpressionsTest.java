@@ -3986,6 +3986,228 @@ public void test400556k() {
 			"Lambda expression\'s parameter p is expected to be of type List[]\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  void zoo(int x, String p);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	int x = 0;\n" +
+					"	I i = x::zoo;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	I i = x::zoo;\n" + 
+			"	      ^\n" + 
+			"Cannot invoke zoo(int, String) on the primitive type int\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750a() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  void zoo(int x, String p);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	int x = 0;\n" +
+					"	I i = I::new;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	I i = I::new;\n" + 
+			"	      ^\n" + 
+			"Cannot instantiate the type I\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750b() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  void zoo(int x, String p);\n" +
+					"}\n" +
+					"abstract public class X {\n" +
+					"	int x = 0;\n" +
+					"	I i = X::new;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	I i = X::new;\n" + 
+			"	      ^\n" + 
+			"Cannot instantiate the type X\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750c() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  void zoo(int x, String p);\n" +
+					"}\n" +
+					"abstract public class X {\n" +
+					"	int x = 0;\n" +
+					"	I i = E::new;\n" +
+					"}\n" +
+					"enum E {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	I i = E::new;\n" + 
+			"	      ^\n" + 
+			"Cannot instantiate the type E\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750d() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  X<?> zoo(int x, String p);\n" +
+					"}\n" +
+					"public class X<T> {\n" +
+					"	X(int x, String p) {}\n" +
+					"	I i = X<? extends String>::new;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	I i = X<? extends String>::new;\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot instantiate the type X<? extends String>\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750e() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  X<?> zoo(int x, String p);\n" +
+					"}\n" +
+					"public class X<T> {\n" +
+					"	X(int x, String p) {}\n" +
+					"	I i = T::new;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	I i = T::new;\n" + 
+			"	      ^\n" + 
+			"Cannot instantiate the type T\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750f() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  X<?> zoo(int x, String p);\n" +
+					"}\n" +
+					"public class X<T> {\n" +
+					"	X(int x, String p) {}\n" +
+					"	I i = Annot::new;\n" +
+					"}\n" +
+					"@interface Annot {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	I i = Annot::new;\n" + 
+			"	      ^^^^^\n" + 
+			"Cannot instantiate the type Annot\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750g() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  X<?> zoo(int x, String p);\n" +
+					"}\n" +
+					"public class X<T> {\n" +
+					"	X(int x, String p) {}\n" +
+					"   static {\n" +
+					"	    I i = this::foo;\n" +
+					"   }\n" +
+					"   X<?> foo(int x, String p) { return null; }\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	I i = this::foo;\n" + 
+			"	      ^^^^\n" + 
+			"Cannot use this in a static context\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750h() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  X<?> zoo(int x, String p);\n" +
+					"}\n" +
+					"public class X<T> {\n" +
+					"	X(int x, String p) {}\n" +
+					"	I i = this::foo;\n" +
+					"   X<?> foo(int x, String p) { return null; }\n" +
+					"}\n"
+			},
+			"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750i() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  X<?> zoo(int x, String p);\n" +
+					"}\n" +
+					"public class X<T> extends Y {\n" +
+					"   static {\n" +
+					"	    I i = super::foo;\n" +
+					"   }\n" +
+					"}\n" +
+					"class Y {\n" +
+					"    X<?> foo(int x, String p) { return null; }\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 6)\n" + 
+					"	I i = super::foo;\n" + 
+					"	      ^^^^^\n" + 
+					"Cannot use super in a static context\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750j() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  X<?> zoo(int x, String p);\n" +
+					"}\n" +
+					"public class X<T> extends Y {\n" +
+					"	I i = super::foo;\n" +
+					"}\n" +
+					"class Y {\n" +
+					"    X<?> foo(int x, String p) { return null; }\n" +
+					"}\n"
+					},
+					"");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

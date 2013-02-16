@@ -20,76 +20,50 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ReferenceExpression extends FunctionalExpression {
 	
-	protected NameReference name;
-	protected TypeReference type;
-	protected Expression primary;
+	public Expression lhs;
+	public TypeReference [] typeArguments;
+	public SingleNameReference method; // == null ? "::new" : "::method"
 	
-	protected TypeReference [] typeArguments;
+	private TypeBinding receiverType;
+	private boolean haveReceiver;
+	public TypeBinding[] resolvedTypeArguments;
 	
-	protected SingleNameReference method; // == null ? "::new" : "::method"
-	private TypeBinding[] genericTypeArguments;
-	
-	public ReferenceExpression(NameReference name, TypeReference[] typeArguments, int sourceEnd) {
-		this.name = name;
+	public ReferenceExpression(Expression lhs, TypeReference [] typeArguments, SingleNameReference method, int sourceEnd) {
+		this.lhs = lhs;
 		this.typeArguments = typeArguments;
-		this.method = null;
-		this.sourceStart = name.sourceStart;
+		this.method = method;
+		this.sourceStart = lhs.sourceStart;
 		this.sourceEnd = sourceEnd;
 	}
 
-	public ReferenceExpression(NameReference name, TypeReference[] typeArguments, SingleNameReference method) {
-		this.name = name;
-		this.typeArguments = typeArguments;
-		this.method = method;
-		this.sourceStart = name.sourceStart;
-		this.sourceEnd = method.sourceEnd;
-	}
-
-	public ReferenceExpression(Expression primary, TypeReference [] typeArguments, SingleNameReference method) {
-		this.primary = primary;
-		this.typeArguments = typeArguments;
-		this.method = method;
-		this.sourceStart = primary.sourceStart;
-		this.sourceEnd = method.sourceEnd;
-	}
-
-	public ReferenceExpression(TypeReference type, TypeReference[] typeArguments, SingleNameReference method) {
-		this.type = type;
-		this.typeArguments = typeArguments;
-		this.method = method;
-		this.sourceStart = type.sourceStart;
-		this.sourceEnd = method.sourceEnd;
-	}
-
-	public ReferenceExpression(TypeReference type, TypeReference[] typeArguments, int sourceEnd) {
-		this.type = type;
-		this.typeArguments = typeArguments;
-		this.method = null;
-		this.sourceStart = type.sourceStart;
-		this.sourceEnd = sourceEnd;
-	}
-	
 	public TypeBinding resolveType(BlockScope blockScope) {
 		super.resolveType(blockScope);
-		if (this.primary != null) {
-			this.primary.resolveType(blockScope);
-		} else if (this.name != null) {
-			this.name.resolveType(blockScope);
-		} else if (this.type != null) {
-			this.type.resolveType(blockScope);
+
+		this.receiverType = this.lhs.resolveType(blockScope);
+		this.haveReceiver = true;
+		if (this.lhs instanceof NameReference) {
+			if ((this.lhs.bits & ASTNode.RestrictiveFlagMASK) == Binding.TYPE) {
+				this.haveReceiver = false;
+				if (this.receiverType.isRawType())
+					blockScope.problemReporter().rawTypeReference(this.lhs, this.receiverType);
+			}
+		} else if (this.lhs instanceof TypeReference) {
+			this.haveReceiver = false;
 		}
+
 		if (this.typeArguments != null) {
 			int length = this.typeArguments.length;
 			boolean argHasError = blockScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5;
-			this.genericTypeArguments = new TypeBinding[length];
+			this.resolvedTypeArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				TypeReference typeReference = this.typeArguments[i];
-				if ((this.genericTypeArguments[i] = typeReference.resolveType(blockScope, true /* check bounds*/)) == null) {
+				if ((this.resolvedTypeArguments[i] = typeReference.resolveType(blockScope, true /* check bounds*/)) == null) {
 					argHasError = true;
 				}
 				if (argHasError && typeReference instanceof Wildcard) {
@@ -97,19 +71,27 @@ public class ReferenceExpression extends FunctionalExpression {
 				}
 			}
 		}
+		
+		if (this.receiverType == null || !this.receiverType.isValidBinding()) 
+			return this.resolvedType;
+		
+		if (this.receiverType.isBaseType()) {
+			blockScope.problemReporter().errorNoMethodFor(this.lhs, this.receiverType, this.method.token, this.descriptor != null ? this.descriptor.parameters : Binding.NO_TYPES);
+			return null;
+		}
+		
+		if (isConstructorReference() && !this.receiverType.canBeInstantiated()) {
+			blockScope.problemReporter().cannotInstantiate(this.lhs, this.receiverType);
+			return this.resolvedType;
+		}
+
 
 		return this.resolvedType;
 	}
 	
 	public StringBuffer printExpression(int tab, StringBuffer output) {
 		
-		if (this.type != null) {
-			this.type.print(0, output);
-		} else if (this.name != null) {
-			this.name.print(0, output);
-		} else {
-			this.primary.print(0, output);
-		}
+		this.lhs.print(0, output);
 		output.append("::"); //$NON-NLS-1$
 		if (this.typeArguments != null) {
 			output.append('<');
@@ -128,30 +110,26 @@ public class ReferenceExpression extends FunctionalExpression {
 		}
 		return output;
 	}
+	
 	public boolean isConstructorReference() {
 		return this.method == null;
 	}
+	
 	public boolean isMethodReference() {
 		return this.method != null;
 	}
+	
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 
 		if (visitor.visit(this, blockScope)) {
-
-			if (this.name != null)
-				this.name.traverse(visitor, blockScope);
-
-			if (this.type != null)
-				this.type.traverse(visitor, blockScope);
-
-			if (this.primary != null)
-				this.primary.traverse(visitor, blockScope);
-
+			
+			this.lhs.traverse(visitor, blockScope);
+			
 			int length = this.typeArguments == null ? 0 : this.typeArguments.length;
 			for (int i = 0; i < length; i++) {
 				this.typeArguments[i].traverse(visitor, blockScope);
 			}
-
+			
 			if (this.method != null)
 				this.method.traverse(visitor, blockScope);
 

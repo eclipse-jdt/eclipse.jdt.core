@@ -7925,23 +7925,24 @@ protected void consumeEmptyTypeArguments() {
 	// NonWildTypeArgumentsopt ::= $empty
 	pushOnGenericsLengthStack(0); // signal absence of type arguments.
 }
-protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) {
+protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) { // actually Name or Type form.
 	
 	// ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew
 	// ReferenceExpression ::= Name Dimsopt '::' NonWildTypeArgumentsopt IdentifierOrNew
 
-	ReferenceExpression rexp;
-	TypeReference type = null;
+	ReferenceExpression referenceExpression;
 	TypeReference [] typeArguments = null;
-	SingleNameReference methodReference = null;
-	int newEnd = -1;
+	SingleNameReference method;
+	int sourceEnd;
 	
 	boolean newForm = this.intStack[this.intPtr--] != 0; // flag pushed in consumeIdentifierOrNew(boolean)
 	if (newForm) {
-		newEnd = this.intStack[this.intPtr--] + 3; // "new"
+		method = null;
+		sourceEnd = this.intStack[this.intPtr--] + 3; // "new"
 	} else {
-		methodReference = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
+		method = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
 		this.identifierLengthPtr--;
+		sourceEnd = method.sourceEnd;
 	}
 	
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
@@ -7951,34 +7952,39 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) {
 		this.intPtr--;  // pop type arguments source start.
 	}
 	
-	// TODO(Srikanth) : Handle ambiguity with NameReference.
+	int dimension = this.intStack[this.intPtr--];
+	boolean typeAnnotatedName = false;
+	for (int i = this.identifierLengthStack[this.identifierLengthPtr], j = 0; i > 0 && this.typeAnnotationLengthPtr >= 0; --i, j++) {
+		length = this.typeAnnotationLengthStack[this.typeAnnotationLengthPtr - j];
+		if (length != 0) {
+			typeAnnotatedName = true;
+			break;
+		}
+	}
 	
-	if (!isPrimitive) { // handle type arguments
-		pushOnGenericsLengthStack(0);
-		pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
-	}
-
-	type = getTypeReference(this.intStack[this.intPtr--]);
-
-	if (newForm) {
-		rexp = new ReferenceExpression(type, typeArguments, newEnd);
+	if (dimension > 0 || typeAnnotatedName) {
+		if (!isPrimitive) {
+			pushOnGenericsLengthStack(0);
+			pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
+		}
+		referenceExpression = new ReferenceExpression(getTypeReference(dimension), typeArguments, method, sourceEnd);
 	} else {
-		rexp = new ReferenceExpression(type, typeArguments, methodReference);
+		referenceExpression = new ReferenceExpression(getUnspecifiedReference(), typeArguments, method, sourceEnd);
 	}
+	pushOnExpressionStack(referenceExpression);
 
-	pushOnExpressionStack(rexp);
 	if (!this.parsingJava8Plus) {
-		problemReporter().referenceExpressionsNotBelow18(rexp);
+		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
 	}
 }
 protected void consumeReferenceExpressionPrimaryForm() {
 	// ReferenceExpression ::= Primary '::' NonWildTypeArgumentsopt Identifier
 
-	ReferenceExpression rexp;
+	ReferenceExpression referenceExpression;
 	TypeReference [] typeArguments = null;
-	SingleNameReference methodReference;
+	SingleNameReference method;
 	
-	methodReference = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
+	method = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
 	this.identifierLengthPtr--;
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	if (length > 0) {
@@ -7989,20 +7995,20 @@ protected void consumeReferenceExpressionPrimaryForm() {
 	
 	Expression primary = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
-	rexp = new ReferenceExpression(primary, typeArguments, methodReference);
-	pushOnExpressionStack(rexp);
+	referenceExpression = new ReferenceExpression(primary, typeArguments, method, method.sourceEnd);
+	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {
-		problemReporter().referenceExpressionsNotBelow18(rexp);
+		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
 	}
 }
 protected void consumeReferenceExpressionSuperForm() {
 	// ReferenceExpression ::= 'super' '::' NonWildTypeArgumentsopt Identifier
 
-	ReferenceExpression rexp;
+	ReferenceExpression referenceExpression;
 	TypeReference [] typeArguments = null;
-	SingleNameReference methodReference;
+	SingleNameReference method;
 	
-	methodReference = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
+	method = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
 	this.identifierLengthPtr--;
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	if (length > 0) {
@@ -8012,10 +8018,10 @@ protected void consumeReferenceExpressionSuperForm() {
 	}
 	
 	SuperReference superReference = new SuperReference(this.intStack[this.intPtr--], this.endPosition);
-	rexp = new ReferenceExpression(superReference, typeArguments, methodReference);
-	pushOnExpressionStack(rexp);
+	referenceExpression = new ReferenceExpression(superReference, typeArguments, method, method.sourceEnd);
+	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {
-		problemReporter().referenceExpressionsNotBelow18(rexp);
+		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
 	}
 }
 protected void consumeReferenceExpressionTypeArgumentsAndTrunk(boolean qualified) {
@@ -8028,17 +8034,19 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 
 	// ReferenceExpression ::= Name BeginTypeArguments ReferenceExpressionTypeArgumentsAndTrunk '::' NonWildTypeArgumentsopt IdentifierOrNew
 	
-	ReferenceExpression rexp;
-	TypeReference type = null;
+	ReferenceExpression referenceExpression;
+	TypeReference type;
 	TypeReference [] typeArguments = null;
-	SingleNameReference methodReference = null;
-	int newEnd = -1;
+	SingleNameReference method;
+	int sourceEnd;
 	
 	boolean newForm = this.intStack[this.intPtr--] != 0; // flag pushed in consumeIdentifierOrNew(boolean)
 	if (newForm) {
-		newEnd = this.intStack[this.intPtr--] + 3; // "new"
+		sourceEnd = this.intStack[this.intPtr--] + 3; // "new"
+		method = null;
 	} else {
-		methodReference = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
+		method = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
+		sourceEnd = method.sourceEnd;
 		this.identifierLengthPtr--;
 	}
 	
@@ -8063,11 +8071,11 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 	this.intPtr--; // pop '<' position
 	type.sourceEnd = typeSourceEnd;
 	
-	rexp = newForm ? new ReferenceExpression(type, typeArguments, newEnd) : new ReferenceExpression(type, typeArguments, methodReference);
+	referenceExpression = new ReferenceExpression(type, typeArguments, method, sourceEnd);
 
-	pushOnExpressionStack(rexp);
+	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {
-		problemReporter().referenceExpressionsNotBelow18(rexp);
+		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
 	}
 }
 protected void consumeEnterInstanceCreationArgumentList() {
