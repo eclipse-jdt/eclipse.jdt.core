@@ -230,7 +230,29 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"default"
 			);
 	}
-	
+
+	// class implements interface with default method. 
+	// - witness for NoSuchMethodError in synthetic method (SuperMethodAccess)
+	public void testModifiers5a() {
+		runConformTest(
+			new String[] {
+				"C.java",
+				"interface I {\n" +
+				"    public default void foo() {\n" +
+				"        System.out.println(\"default\");\n" +
+				"    }\n" +
+				"}\n" +
+				"public class C implements I {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        C c = new C();\n" +
+				"        c.foo();\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"default"
+			);
+	}
+
 	// class implements interface with default method. 
 	// - no need to implement this interface method as it is not abstract, but other abstract method exists
 	public void testModifiers6() {
