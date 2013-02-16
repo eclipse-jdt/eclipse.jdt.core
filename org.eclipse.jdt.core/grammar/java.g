@@ -714,11 +714,26 @@ MethodHeader ::= MethodHeaderName FormalParameterListopt MethodHeaderRightParen 
 /.$putCase consumeMethodHeader(); $break ./
 /:$readableName MethodDeclaration:/
 
+DefaultMethodHeader ::= DefaultMethodHeaderName FormalParameterListopt MethodHeaderRightParen MethodHeaderExtendedDims MethodHeaderThrowsClauseopt
+/.$putCase consumeMethodHeader(); $break ./
+/:$readableName MethodDeclaration:/
+
 MethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
 /.$putCase consumeMethodHeaderNameWithTypeParameters(false); $break ./
 MethodHeaderName ::= Modifiersopt Type 'Identifier' '('
 /.$putCase consumeMethodHeaderName(false); $break ./
 /:$readableName MethodHeaderName:/
+
+DefaultMethodHeaderName ::= ModifiersWithDefault TypeParameters Type 'Identifier' '('
+/.$putCase consumeMethodHeaderNameWithTypeParameters(false); $break ./
+DefaultMethodHeaderName ::= ModifiersWithDefault Type 'Identifier' '('
+/.$putCase consumeMethodHeaderName(false); $break ./
+/:$readableName MethodHeaderName:/
+
+ModifiersWithDefault ::= Modifiersopt 'default' Modifiersopt
+/.$putCase consumePushCombineModifiers(); $break ./
+/:$readableName Modifiers:/
+/:$compliance 1.8:/
 
 MethodHeaderRightParen ::= ')'
 /.$putCase consumeMethodHeaderRightParen(); $break ./
@@ -907,17 +922,13 @@ InterfaceMemberDeclaration ::= ';'
 /.$putCase consumeEmptyTypeDeclaration(); $break ./
 /:$readableName InterfaceMemberDeclaration:/
 
-PushDefault ::= $empty
-/.$putCase consumeInterfaceMethodDefault(); $break ./
-/:$readableName PushDefault:/
-/:$compliance 1.8:/
 
 InterfaceMemberDeclaration -> ConstantDeclaration
-InterfaceMemberDeclaration ::= MethodHeader 'default' PushDefault MethodBody
+InterfaceMemberDeclaration ::= DefaultMethodHeader MethodBody
 /:$compliance 1.8:/
-/.$putCase consumeInterfaceMethodDeclaration(true); $break ./
+/.$putCase consumeInterfaceMethodDeclaration(); $break ./
 InterfaceMemberDeclaration ::= MethodHeader MethodBody
-/.$putCase consumeInterfaceMethodDeclaration(false); $break ./
+/.$putCase consumeInterfaceMethodDeclaration(); $break ./
 /:$readableName InterfaceMemberDeclaration:/
 
 -- These rules are added to be able to parse constructors inside interface and then report a relevent error message

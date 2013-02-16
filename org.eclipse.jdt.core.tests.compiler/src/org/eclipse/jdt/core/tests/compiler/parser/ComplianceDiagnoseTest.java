@@ -11,6 +11,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper S Moller - realigned with bug 399695
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
@@ -2645,14 +2646,14 @@ public void test0057() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"interface I {\n" +
-		"  public void foo() default { System.out.println(); }\n" +
+		"  public default void foo() { System.out.println(); }\n" +
 		"}\n"
 	};
 
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
-			"	public void foo() default { System.out.println(); }\n" + 
+			"	public default void foo() { System.out.println(); }\n" + 
 			"	                           ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Default methods are allowed only at source level 1.8 or above\n" + 
 			"----------\n";
@@ -2980,11 +2981,11 @@ public void testBug399773() {
 		"X.java",
 		"interface I {\n" +
 		"	void doit();\n" +
-		"	void doitalso () default {}\n" +
+		"	default void doitalso () {}\n" +
 		"}\n" +
 		"interface J {\n" +
 		"	void doit();\n" +
-		"	void doitalso () default {}\n" +
+		"	default void doitalso () {}\n" +
 		"}\n" +
 		"public class X {\n" +
 		"	Object p = (I & J) () -> {};\n" +

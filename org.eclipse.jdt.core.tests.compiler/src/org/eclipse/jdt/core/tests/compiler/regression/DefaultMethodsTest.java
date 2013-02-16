@@ -11,6 +11,7 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Jesper S Moller - realigned with bug 399695
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -51,11 +52,11 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"import java.lang.annotation.*;\n" +
 			"@Target(ElementType.METHOD) @interface Annot{}\n" +
 			"public interface I {\n" +
-			"    void foo1() default {}\n" +
-			"    public synchronized void foo2() default { System.exit(0); }\n" +
-			"    strictfp void foo3() default {}\n" +
-			"    public strictfp synchronized void foo4() default {}\n" +
-			"    public strictfp synchronized @Annot void foo5() default {}\n" +
+			"    default void foo1()  {}\n" +
+			"    public default synchronized void foo2() { System.exit(0); }\n" +
+			"    strictfp default void foo3() {}\n" +
+			"    public default strictfp synchronized void foo4() {}\n" +
+			"    public default strictfp synchronized @Annot void foo5() {}\n" +
 			"}\n" +
 			"public class Wrong{}\n"}, // TODO remove me
 		// TODO remove me:
@@ -75,11 +76,11 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"import java.lang.annotation.*;\n" +
 			"@Target(ElementType.METHOD) @interface Annot{}\n" +
 			"public interface I {\n" +
-			"    void foo1() default {}\n" +
-			"    public synchronized void foo2() default {}\n" +
-			"    stritfp void foo3() default {}\n" + // typo in strictfp
-			"    public strictfp synchronized void foo4() default {}\n" +
-			"    public strictfp synchronized @Annot void foo5() default {}\n" +
+			"    default void foo1() {}\n" +
+			"    public default synchronized void foo2() {}\n" +
+			"    stritfp default void foo3() {}\n" + // typo in strictfp
+			"    default public strictfp synchronized void foo4() {}\n" +
+			"    public strictfp  default synchronized @Annot void foo5() {}\n" +
 			"}\n"},
 	    "Some nice and few syntax errors - TODO -");
 	}
@@ -129,8 +130,10 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"public interface I {\n" +
 			"    native void foo1();\n" +
 			"    static void foo2();\n" +
-			"    native void foo3() default {}\n" +
-			"    static void foo4() default {}\n" +
+			"    native default void foo3() {}\n" +
+			"    default native void foo4() {}\n" +
+			"    static default void foo5() {}\n" +
+			"    default static void foo6() {}\n" +
 			"}\n"},
 			"----------\n" +
 			"1. ERROR in I.java (at line 2)\n" +
@@ -144,14 +147,24 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"Illegal modifier for the interface method foo2; only public & abstract are permitted\n" +
 			"----------\n" +
 			"3. ERROR in I.java (at line 4)\n" +
-			"	native void foo3() default {}\n" +
-			"	            ^^^^^^\n" +
+			"	native default void foo3() {}\n" +
+			"	                    ^^^^^^\n" +
 			"Illegal modifier for the interface method foo3; only public, abstract, strictfp & synchronized are permitted\n" +
 			"----------\n" +
 			"4. ERROR in I.java (at line 5)\n" +
-			"	static void foo4() default {}\n" +
-			"	            ^^^^^^\n" +
+			"	default native void foo4() {}\n" +
+			"	                    ^^^^^^\n" +
 			"Illegal modifier for the interface method foo4; only public, abstract, strictfp & synchronized are permitted\n" +
+			"----------\n" +
+			"5. ERROR in I.java (at line 6)\n" +
+			"	static default void foo5() {}\n" +
+			"	                    ^^^^^^\n" +
+			"Illegal modifier for the interface method foo5; only public, abstract, strictfp & synchronized are permitted\n" +
+			"----------\n" +
+			"6. ERROR in I.java (at line 7)\n" +
+			"	default static void foo6() {}\n" +
+			"	                    ^^^^^^\n" +
+			"Illegal modifier for the interface method foo6; only public, abstract, strictfp & synchronized are permitted\n" +
 			"----------\n");
 	}
 
@@ -163,20 +176,20 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"import java.lang.annotation.*;\n" +
 			"public interface I {\n" +
 			"    abstract void foo1();\n" + // OK
-			"    public abstract void foo2() default {}\n" +
-			"    abstract void foo3() default {}\n" +
+			"    public abstract default void foo2() {}\n" +
+			"    default abstract void foo3() {}\n" +
 			"    void foo4() { }\n" + // implicit "abstract" without "default" doesn't allow a body, either
-			"    abstract static void foo5() default {}\n" + // double fault
+			"    abstract static default void foo5() {}\n" + // double fault
 			"}\n"},
 			"----------\n" +
 			"1. ERROR in I.java (at line 4)\n" +
-			"	public abstract void foo2() default {}\n" +
-			"	                     ^^^^^^\n" +
+			"	public abstract default void foo2() {}\n" +
+			"	                             ^^^^^^\n" +
 			"Abstract methods do not specify a body\n" +
 			"----------\n" +
 			"2. ERROR in I.java (at line 5)\n" +
-			"	abstract void foo3() default {}\n" +
-			"	              ^^^^^^\n" +
+			"	default abstract void foo3() {}\n" +
+			"	                      ^^^^^^\n" +
 			"Abstract methods do not specify a body\n" +
 			"----------\n" +
 			"3. ERROR in I.java (at line 6)\n" +
@@ -185,13 +198,13 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"Abstract methods do not specify a body\n" +
 			"----------\n" +
 			"4. ERROR in I.java (at line 7)\n" +
-			"	abstract static void foo5() default {}\n" +
-			"	                     ^^^^^^\n" +
+			"	abstract static default void foo5() {}\n" +
+			"	                             ^^^^^^\n" +
 			"Illegal modifier for the interface method foo5; only public, abstract, strictfp & synchronized are permitted\n" +
 			"----------\n" +
 			"5. ERROR in I.java (at line 7)\n" +
-			"	abstract static void foo5() default {}\n" +
-			"	                     ^^^^^^\n" +
+			"	abstract static default void foo5() {}\n" +
+			"	                             ^^^^^^\n" +
 			"Abstract methods do not specify a body\n" +
 			"----------\n");
 	}
@@ -209,7 +222,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"}\n",
 				"I.java",
 				"public interface I {\n" +
-				"    void foo() default {\n" +
+				"    default void foo() {\n" +
 				"        System.out.println(\"default\");\n" +
 				"    }\n" +
 				"}\n"
@@ -225,7 +238,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			new String[] {
 				"I.java",
 				"public interface I {\n" +
-				"    void foo() default {}\n" +
+				"    default void foo() {}\n" +
 				"    void bar();\n" +
 				"}\n",
 				"C.java",
@@ -247,13 +260,13 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			new String[] {
 				"I.java",
 				"public interface I {\n" +
-				"    public String toString () default { return \"\";}\n" + 
+				"    public default String toString () { return \"\";}\n" + 
 				"}\n"
 			},
 			"----------\n" + 
 			"1. ERROR in I.java (at line 2)\n" + 
-			"	public String toString () default { return \"\";}\n" + 
-			"	              ^^^^^^^^^^^\n" + 
+			"	public default String toString () { return \"\";}\n" + 
+			"	                      ^^^^^^^^^^^\n" + 
 			"A default method cannot override a method from java.lang.Object \n" + 
 			"----------\n");
 	}
@@ -266,13 +279,13 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			new String[] {
 				"I.java",
 				"public interface I<T> {\n" +
-				"    public boolean equals (T other) default { return false;}\n" + 
+				"    public default boolean equals (T other) { return false;}\n" + 
 				"}\n"
 			},
 			"----------\n" + 
 			"1. ERROR in I.java (at line 2)\n" + 
-			"	public boolean equals (T other) default { return false;}\n" + 
-			"	               ^^^^^^^^^^^^^^^^\n" + 
+			"	public default boolean equals (T other) { return false;}\n" + 
+			"	                       ^^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method equals(T) of type I<T> has the same erasure as equals(Object) of type Object but does not override it\n" + 
 			"----------\n");
 	}
@@ -286,13 +299,13 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"I.java",
 				"public interface I<T> {\n" +
 				"    @Override\n" +
-				"    public Class<?> getClass() default { return null;}\n" + 
+				"    default public Class<?> getClass() { return null;}\n" + 
 				"}\n"
 			},
 			"----------\n" + 
 			"1. ERROR in I.java (at line 3)\n" + 
-			"	public Class<?> getClass() default { return null;}\n" + 
-			"	                ^^^^^^^^^^\n" + 
+			"	default public Class<?> getClass() { return null;}\n" + 
+			"	                        ^^^^^^^^^^\n" + 
 			"Cannot override the final method from Object\n" + 
 			"----------\n");
 	}
@@ -310,7 +323,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"}\n",
 				"I2.java",
 				"public interface I2 {\n" +
-				"	String foo() default { return \"\"; }\n" +
+				"	default String foo() { return \"\"; }\n" +
 				"}\n",
 				"I3.java",
 				"public interface I3 extends I1, I2 {\n" +
@@ -337,7 +350,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"}\n",
 				"I2.java",
 				"public interface I2 {\n" +
-				"	String foo() default { return \"\"; }\n" +
+				"	default String foo() { return \"\"; }\n" +
 				"}\n",
 				"I1A.java",
 				"public interface I1A extends I1 {\n" +
@@ -372,7 +385,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"import java.util.List;\n" +
 				"public interface I2 {\n" +
 				"   @SuppressWarnings(\"rawtypes\")\n" +
-				"	String foo(List l) default { return \"\"; }\n" +
+				"	default String foo(List l) { return \"\"; }\n" +
 				"}\n",
 				"I3.java",
 				"import java.util.List;\n" +
@@ -398,7 +411,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"I1.java",
 				"import java.util.List;\n" +
 				"public interface I1 {\n" +
-				"	String foo(List<String> l) default { return \"\"; }\n" +
+				"	default String foo(List<String> l) { return \"\"; }\n" +
 				"}\n",
 				"I2.java",
 				"import java.util.List;\n" +
@@ -431,7 +444,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"\n" +
 				"interface Map<K,V> extends MapStream<K, V>  {\n" +
 				"   @Override\n" +
-				"	Iterable<BiValue<K, V>> asIterable() default {\n" +
+				"	default Iterable<BiValue<K, V>> asIterable() {\n" +
 				"		return null;\n" +
 				"	}\n" +
 				"}\n" +
@@ -465,7 +478,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"	Iterable<BiValue<K, V>> asIterable();\n" +
 				"}\n" +
 				"interface MapStream<K, V> {\n" +
-				"	Iterable<BiValue<K, V>> asIterable() default {\n" +
+				"	default Iterable<BiValue<K, V>> asIterable() {\n" +
 				"       return null;\n" +
 				"   }\n" +
 				"}\n" +
@@ -493,12 +506,12 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"\n" +
 				"interface Map<K,V> extends MapStream<K, V>  {\n" +
 				"   @Override\n" +
-				"	Iterable<BiValue<K, V>> asIterable() default {\n" +
+				"	default Iterable<BiValue<K, V>> asIterable() {\n" +
 				"       return null;\n" +
 				"   }\n" +
 				"}\n" +
 				"interface MapStream<K, V> {\n" +
-				"	Iterable<BiValue<K, V>> asIterable() default {\n" +
+				"	default Iterable<BiValue<K, V>> asIterable() {\n" +
 				"       return null;\n" +
 				"   }\n" +
 				"}\n" +
@@ -585,7 +598,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"}\n",
 				"I1.java",
 				"public interface I1 extends I2 {\n" +
-				"    void test() default {}\n" +
+				"    default void test() {}\n" +
 				"}\n",
 				"C.java",
 				"public class C implements I1 {\n" +
@@ -604,7 +617,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"}\n",
 				"I2.java",
 				"public interface I2 {\n" +
-				"    void test() default {}\n" +
+				"    default void test() {}\n" +
 				"}\n",
 				"C.java",
 				"public class C implements I1, I2 {\n" +
@@ -624,7 +637,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"}\n",
 				"I2.java",
 				"public interface I2 {\n" +
-				"    void test() default {}\n" +
+				"    default void test() {}\n" +
 				"}\n",
 				"C.java",
 				"public class C implements I2, I1 {\n" +
@@ -644,7 +657,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"I2.java",
 				"public interface I2 extends I1 {\n" +
 				"    @Override\n" +
-				"    void test() default {}\n" +
+				"    default void test() {}\n" +
 				"}\n",
 				"C.java",
 				"public class C implements I1, I2 {\n" +
@@ -665,7 +678,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 				"I2.java",
 				"public interface I2 extends I1 {\n" +
 				"    @Override\n" +
-				"    void test() default {}\n" +
+				"    default void test() {}\n" +
 				"}\n",
 				"C.java",
 				"public class C implements I2, I1 {\n" +
@@ -680,7 +693,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			new String[] {
 				"I1.java",
 				"public interface I1 {\n" +
-				"    void test() default {}\n" +
+				"    default void test() {}\n" +
 				"}\n",
 				"I2.java",
 				"public interface I2 extends I1 {\n" +
@@ -707,7 +720,7 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			new String[] {
 				"I1.java",
 				"public interface I1 {\n" +
-				"    void test() default {}\n" +
+				"    default void test() {}\n" +
 				"}\n",
 				"I2.java",
 				"public interface I2 extends I1 {\n" +

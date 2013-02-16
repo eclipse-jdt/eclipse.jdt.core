@@ -11,6 +11,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper S Moller - realigned with bug 399695
  *******************************************************************************/
 
 package org.eclipse.jdt.core.tests.compiler.regression;
@@ -51,7 +52,7 @@ public void test001() {
 				"X.java",
 				"interface I {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"public class X {\n" +
 				"	Object o = () -> {};\n" +
@@ -72,11 +73,11 @@ public void test002() {
 				"X.java",
 				"interface I {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"interface J {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"public class X {\n" +
 				"	Object p = (I & J) () -> {};\n" +
@@ -96,11 +97,11 @@ public void test003() {
 				"X.java",
 				"interface I {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"interface J {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"public class X {\n" +
 				"	Object p = (int & I & J) () -> {};\n" +
@@ -125,11 +126,11 @@ public void test004() {
 				"X.java",
 				"interface I {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"interface J {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"public class X {\n" +
 				"	Object p = (X[] & Serializable & Cloneable) new X[0];\n" +
@@ -154,11 +155,11 @@ public void test005() {
 				"X.java",
 				"interface I {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"interface J {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"public class X {\n" +
 				"	Object p = (I & X) () -> {};\n" +
@@ -183,11 +184,11 @@ public void test006() {
 				"X.java",
 				"interface I {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"interface J {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"public class X {\n" +
 				"	Object p = (I & J & I) () -> {};\n" +
@@ -213,7 +214,7 @@ public void test007() {
 				"import java.util.List;\n" +
 				"interface I<T> {\n" +
 				"	void doit(List<T> x);\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"	boolean equals(Object o);\n" +
 				"}\n" +
 				"public class X {\n" +
@@ -235,11 +236,11 @@ public void test008() {
 				"X.java",
 				"interface I {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"interface J {\n" +
 				"	void doit();\n" +
-				"	void doitalso () default {}\n" +
+				"	default void doitalso () {}\n" +
 				"}\n" +
 				"public class X {\n" +
 				"	Object p = (@Marker java.lang. @Readonly String & I & J) () -> {};\n" +
