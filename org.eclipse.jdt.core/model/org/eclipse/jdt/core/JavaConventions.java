@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -387,7 +387,7 @@ public final class JavaConventions {
 	 * 
 	 * <p>The source level and compliance level values should be taken from the constant defined inside
 	 * {@link JavaCore} class. The constants are named <code>JavaCore#VERSION_1_x</code>, x being set
-	 * between '1' and '7'.
+	 * between '1' and '8'.
 	 * </p>
 	 *
 	 * @param name the name of a type
@@ -407,6 +407,7 @@ public final class JavaConventions {
 	 * @see JavaCore#VERSION_1_5
 	 * @see JavaCore#VERSION_1_6
 	 * @see JavaCore#VERSION_1_7
+	 * @see JavaCore#VERSION_1_8
 	 */
 	public static IStatus validateJavaTypeName(String name, String sourceLevel, String complianceLevel) {
 		if (name == null) {

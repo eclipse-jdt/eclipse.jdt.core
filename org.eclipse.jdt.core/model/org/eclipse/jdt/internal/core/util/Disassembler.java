@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -769,6 +769,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				versionNumber = JavaCore.VERSION_1_6;
 			} else if (minorVersion == 0 && majorVersion == 51) {
 				versionNumber = JavaCore.VERSION_1_7;
+			} else if (minorVersion == 0 && majorVersion == 52) {
+				versionNumber = JavaCore.VERSION_1_8;
 			}
 			buffer.append(
 				Messages.bind(Messages.classfileformat_versiondetails,
