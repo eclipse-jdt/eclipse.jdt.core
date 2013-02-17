@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 GK Software AG and others.
+ * Copyright (c) 2010, 2013 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5980,6 +5980,91 @@ public void testBug388281_10() {
 		"	      ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n"); 
-	}
+}
 
+// https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+// junit's assertNull vs. a @NonNull field / expression
+public void testBug382069_j() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.ERROR);
+	runNegativeTestWithLibs(
+		new String[] {
+			NullReferenceTestAsserts.JUNIT_ASSERT_NAME,
+			NullReferenceTestAsserts.JUNIT_ASSERT_CONTENT,		
+			"X.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"public class X {\n" +
+			"  @NonNull String o1 = \"\";\n" +
+			"  boolean foo() {\n" +
+			"    junit.framework.Assert.assertNull(\"something's wrong\", o1);\n" + // always fails due to @NonNull
+			"    return false; // dead code\n" +
+			"  }\n" +
+			"  void bar() {\n" +
+			"      junit.framework.Assert.assertNull(\"\");\n" + // constantly false
+			"      return; // dead code\n" +
+			"  }\n" +
+			"  void zork() {\n" +
+			"      junit.framework.Assert.assertNotNull(null);\n" + // constantly false
+			"      return; // dead code\n" +
+			"  }\n" +
+			"}\n"},
+			options,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	return false; // dead code\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	return; // dead code\n" + 
+			"	^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 14)\n" + 
+			"	return; // dead code\n" + 
+			"	^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n");
+}
+
+// https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+// junit's assertNonNull et al. affecting a @Nullable field using syntactic analysis
+public void testBug382069_k() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.ERROR);
+	runNegativeTestWithLibs(
+		new String[] {
+			NullReferenceTestAsserts.JUNIT_ASSERT_NAME,
+			NullReferenceTestAsserts.JUNIT_ASSERT_CONTENT,		
+			"X.java",
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"public class X {\n" +
+			"  @Nullable String o1;\n" +
+			"  int foo() {\n" +
+			"    junit.framework.Assert.assertNotNull(\"something's wrong\", o1);\n" +
+			"    return o1.length();\n" +
+			"  }\n" +
+			"  int bar(int i) {\n" +
+			"    junit.framework.Assert.assertNotNull(o1);\n" +
+			"    i++;\n" + // expire
+			"    return o1.length(); // no longer protected\n" +
+			"  }\n" +
+			"  int garp() {\n" +
+			"    junit.framework.Assert.assertFalse(\"something's wrong\", o1 == null);\n" +
+			"    return o1.length();\n" +
+			"  }\n" +
+			"  int zipp() {\n" +
+			"    junit.framework.Assert.assertTrue(\"something's wrong\", o1 != null);\n" +
+			"    return o1.length();\n" +
+			"  }\n" +
+			"}\n"},
+			options,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	return o1.length(); // no longer protected\n" + 
+			"	       ^^\n" + 
+			"Potential null pointer access: The field o1 is declared as @Nullable\n" + 
+			"----------\n");
+}
 }

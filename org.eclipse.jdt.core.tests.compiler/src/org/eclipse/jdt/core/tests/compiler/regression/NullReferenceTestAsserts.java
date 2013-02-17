@@ -1,12 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2012 IBM Corporation and others.
+ * Copyright (c) 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *		IBM Corporation - initial API and implementation
+ *		Stephan Herrmann - Contribution for
+ *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -35,10 +37,60 @@ public NullReferenceTestAsserts(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug373953" };
+//		TESTS_NAMES = new String[] { "testBug382069" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
+
+static final String JUNIT_ASSERT_NAME = "junit/framework/Assert.java";
+static final String JUNIT_ASSERT_CONTENT = "package junit.framework;\n" +
+		"public class Assert {\n" +
+		"    static public void assertNull(Object object) {}\n" +
+		"    static public void assertNull(String message, Object object) {}\n" +
+		"    static public void assertNotNull(Object object) {}\n" +
+		"    static public void assertNotNull(String message, Object object) {}\n" +
+		"    static public void assertTrue(boolean expression) {}\n" +
+		"    static public void assertTrue(String message, boolean expression) {}\n" +
+		"    static public void assertFalse(boolean expression) {}\n" +
+		"    static public void assertFalse(String message, boolean expression) {}\n" +
+		"}\n";
+
+static final String APACHE_VALIDATE_NAME = "org/apache/commons/lang/Validate.java";
+static final String APACHE_VALIDATE_CONTENT = "package org.apache.commons.lang;\n" +
+		"public class Validate {\n" +
+		"    static public void notNull(Object object) {}\n" +
+		"    static public void notNull(Object object, String message) {}\n" +
+		"    static public void isTrue(boolean expression) {}\n" +
+		"    static public void isTrue(boolean expression, String message) {}\n" +
+		"    static public void isTrue(boolean expression, String message, double value) {}\n" +
+		"    static public void isTrue(boolean expression, String message, long value) {}\n" +
+		"    static public void isTrue(boolean expression, String message, Object value) {}\n" +
+		"}\n";
+
+static final String APACHE_3_VALIDATE_NAME = "org/apache/commons/lang3/Validate.java";
+static final String APACHE_3_VALIDATE_CONTENT = "package org.apache.commons.lang3;\n" +
+		"public class Validate {\n" +
+		"    static public <T> T notNull(T object) { return object; }\n" +
+		"    static public <T> T notNull(T object, String message, Object... values) { return object; }\n" +
+		"    static public void isTrue(boolean expression) {}\n" +
+		"    static public void isTrue(boolean expression, String message, double value) {}\n" +
+		"    static public void isTrue(boolean expression, String message, long value) {}\n" +
+		"    static public void isTrue(boolean expression, String message, Object value) {}\n" +
+		"}\n";
+
+static final String GOOGLE_PRECONDITIONS_NAME = "com/google/common/base/Preconditions.java";
+static final String GOOGLE_PRECONDITIONS_CONTENT = "package com.google.common.base;\n" +
+		"public class Preconditions {\n" +
+		"    static public <T> T checkNotNull(T object) { return object; }\n" +
+		"    static public <T> T checkNotNull(T object, Object message) { return object; }\n" +
+		"    static public <T> T checkNotNull(T object, String message, Object... values) { return object; }\n" +
+		"    static public void checkArgument(boolean expression) {}\n" +
+		"    static public void checkArgument(boolean expression, Object message) {}\n" +
+		"    static public void checkArgument(boolean expression, String msgTmpl, Object... messageArgs) {}\n" +
+		"    static public void checkState(boolean expression) {}\n" +
+		"    static public void checkState(boolean expression, Object message) {}\n" +
+		"    static public void checkState(boolean expression, String msgTmpl, Object... messageArgs) {}\n" +
+		"}\n";
 
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());
@@ -91,7 +143,7 @@ public void testBug127575a() throws IOException {
 				"}\n"},
 			"",
 			this.assertLib,
-			false,
+			true,
 			null);
 }
 
@@ -750,5 +802,222 @@ public void testBug373953() throws IOException {
 			"	^\n" + 
 			"Potential null pointer access: The variable o may be null at this location\n" + 
 			"----------\n");
+}
+
+// https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+// junit's assertNotNull
+public void testBug382069a() throws IOException {
+	this.runConformTest(
+		new String[] {
+			JUNIT_ASSERT_NAME,
+			JUNIT_ASSERT_CONTENT,
+			"X.java",
+			"public class X {\n" +
+			"  void foo(Object o1, String o2) {\n" +
+			"    boolean b = o1 != null;\n" + // sheds doubts upon o1
+			"    junit.framework.Assert.assertNotNull(o1);\n" + 	// protection
+			"    o1.toString();\n" + 		// quiet
+			"    b = o2 != null;\n" + // sheds doubts upon o2
+			"    junit.framework.Assert.assertNotNull(\"msg\", o2);\n" + 	// protection
+			"    o2.toString();\n" + 		// quiet
+			"  }\n" +
+			"}\n"},
+		"");
+}
+
+// https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+// org.eclipse.core.runtime.Assert.isNotNull
+public void testBug382069b() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runConformTest(
+			new String[] {
+		"X.java",
+				"public class X {\n" + 
+				"  void foo(Object o1, String o2) {\n" +
+				"    boolean b = o1 != null;\n" + // sheds doubts upon o1
+				"    org.eclipse.core.runtime.Assert.isNotNull(o1);\n" + 	// protection
+				"    o1.toString();\n" + 		// quiet
+				"    b = o2 != null;\n" + // sheds doubts upon o2
+				"    org.eclipse.core.runtime.Assert.isNotNull(o2, \"msg\");\n" + 	// protection
+				"    o2.toString();\n" + 		// quiet
+				"  }\n" +
+				"}"	
+			},
+			"",
+			this.assertLib,
+			true,
+			null);
+	}
+}
+
+// https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+// junit's assertNull and dead code analysis
+public void testBug382069c() throws IOException {
+	this.runNegativeTest(
+		new String[] {
+			JUNIT_ASSERT_NAME,
+			JUNIT_ASSERT_CONTENT,
+			"X.java",
+			"public class X {\n" +
+			"  boolean foo(String o1, String o2) {\n" +
+			"    junit.framework.Assert.assertNull(\"something's wrong\", o1);\n" + 	// establish nullness
+			"    if (o2 == null)\n" +
+			"        return o1 != null;\n" +
+			"    junit.framework.Assert.assertNull(o2);\n" + // will always throw
+			"    return false; // dead code\n" +
+			"  }\n" +
+			"  void bar(X x) {\n" +
+			"    if (x == null) {\n" +
+			"      junit.framework.Assert.assertNotNull(x);\n" +
+			"      return; // dead code\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	return o1 != null;\n" + 
+			"	       ^^\n" + 
+			"Null comparison always yields false: The variable o1 can only be null at this location\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	return false; // dead code\n" + 
+			"	^^^^^^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 12)\n" + 
+			"	return; // dead code\n" + 
+			"	^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+// various asserts from org.apache.commons.lang.Validate
+public void testBug382069d() throws IOException {
+	this.runNegativeTest(
+		new String[] {
+			APACHE_VALIDATE_NAME,
+			APACHE_VALIDATE_CONTENT,
+			"X.java",
+			"import org.apache.commons.lang.Validate;\n" +
+			"public class X {\n" +
+			"  void foo(Object o1, String o2, X x) {\n" +
+			"    boolean b = o1 != null;\n" + // sheds doubts upon o1
+			"    Validate.notNull(o1);\n" + 	// protection
+			"    o1.toString();\n" + 		// quiet
+			"    b = o2 != null;\n" + // sheds doubts upon o2
+			"    Validate.notNull(o2, \"msg\");\n" + 	// protection
+			"    o2.toString();\n" + 		// quiet
+			"    Validate.isTrue(x == null, \"ups\", x);\n" +
+			"    x.foo(null, null, null); // definite NPE\n" +
+			"  }\n" +
+			"}\n"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	x.foo(null, null, null); // definite NPE\n" + 
+			"	^\n" + 
+			"Null pointer access: The variable x can only be null at this location\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+// various asserts from org.apache.commons.lang3Validate
+public void testBug382069e() throws IOException {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+				APACHE_3_VALIDATE_NAME,
+				APACHE_3_VALIDATE_CONTENT,
+				"X.java",
+				"import org.apache.commons.lang3.Validate;\n" +
+				"public class X {\n" +
+				"  void foo(Object o1, String o2, X x) {\n" +
+				"    boolean b = o1 != null;\n" + // sheds doubts upon o1
+				"    Validate.notNull(o1);\n" + 	// protection
+				"    o1.toString();\n" + 		// quiet
+				"    b = o2 != null;\n" + // sheds doubts upon o2
+				"    Validate.notNull(o2, \"msg\");\n" + 	// protection
+				"    o2.toString();\n" + 		// quiet
+				"    Validate.isTrue(x == null, \"ups\", x);\n" +
+				"    x.foo(null, null, null); // definite NPE\n" +
+				"  }\n" +
+				"}\n"},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 11)\n" + 
+				"	x.foo(null, null, null); // definite NPE\n" + 
+				"	^\n" + 
+				"Null pointer access: The variable x can only be null at this location\n" + 
+				"----------\n");
+	}
+}
+// https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+// various asserts from com.google.common.base.Preconditions
+public void testBug382069f() throws IOException {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runNegativeTest(
+			new String[] {
+				GOOGLE_PRECONDITIONS_NAME,
+				GOOGLE_PRECONDITIONS_CONTENT,
+				"X.java",
+				"import com.google.common.base.Preconditions;\n" +
+				"public class X {\n" +
+				"  void foo(Object o1, String o2, X x) {\n" +
+				"    boolean b = o1 != null;\n" + // sheds doubts upon o1
+				"    Preconditions.checkNotNull(o1);\n" + 	// protection
+				"    o1.toString();\n" + 		// quiet
+				"    b = o2 != null;\n" + // sheds doubts upon o2
+				"    Preconditions.checkNotNull(o2, \"msg {0}.{1}\", o1, o2);\n" + 	// protection
+				"    o2.toString();\n" + 		// quiet
+				"    Preconditions.checkArgument(x == null, \"ups\");\n" +
+				"    x.foo(null, null, null); // definite NPE\n" +
+				"  }\n" +
+				"}\n"},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 11)\n" + 
+				"	x.foo(null, null, null); // definite NPE\n" + 
+				"	^\n" + 
+				"Null pointer access: The variable x can only be null at this location\n" + 
+				"----------\n");
+	}
+}
+// https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+// java.util.Objects#requireNonNull
+public void testBug382069g() throws IOException {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static java.util.Objects.requireNonNull;\n" +
+				"public class X {\n" +
+				"  void foo(Object o1, String o2, X x) {\n" +
+				"    boolean b = o1 != null;\n" + // sheds doubts upon o1
+				"    requireNonNull(o1);\n" + 	// protection
+				"    o1.toString();\n" + 		// quiet
+				"    b = o2 != null;\n" + // sheds doubts upon o2
+				"    requireNonNull(o2, \"msg\");\n" + 	// protection
+				"    o2.toString();\n" + 		// quiet
+				"  }\n" +
+				"}\n"},
+				"");
+	}
+}
+
+// https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+// junit's assertTrue / assertFalse
+public void testBug382069h() throws IOException {
+	this.runConformTest(
+		new String[] {
+			JUNIT_ASSERT_NAME,
+			JUNIT_ASSERT_CONTENT,
+			"X.java",
+			"public class X {\n" +
+			"  void foo(Object o1, String o2) {\n" +
+			"    boolean b = o1 != null;\n" + // sheds doubts upon o1
+			"    junit.framework.Assert.assertTrue(o1 != null);\n" + 	// protection
+			"    o1.toString();\n" + 		// quiet
+			"    b = o2 != null;\n" + // sheds doubts upon o2
+			"    junit.framework.Assert.assertFalse(\"msg\", o2 == null);\n" + 	// protection
+			"    o2.toString();\n" + 		// quiet
+			"  }\n" +
+			"}\n"},
+		"");
 }
 }
