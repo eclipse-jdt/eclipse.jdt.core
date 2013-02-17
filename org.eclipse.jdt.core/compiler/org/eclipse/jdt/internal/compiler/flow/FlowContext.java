@@ -84,6 +84,8 @@ public class FlowContext implements TypeConstants {
 
 	public static final int DEFER_NULL_DIAGNOSTIC = 0x1;
 	public static final int PREEMPT_NULL_DIAGNOSTIC = 0x2;
+	// inside an assertFalse checks for equality / inequality have reversed meaning for syntactic analysis for fields:
+	public static final int INSIDE_NEGATIVE_ASSERT = 0x4;
 	/**
 	 * used to hide null comparison related warnings inside assert statements 
 	 */
@@ -154,6 +156,13 @@ public void recordNullCheckedFieldReference(Reference reference, int timeToLive)
 		this.nullCheckedFieldReferences[len] = reference;
 	}
 }
+
+/** If a null checked field has been recorded recently, increase its time to live. */
+public void extendTimeToLiveForNullCheckedField(int t) {
+	if (this.timeToLiveForNullCheckInfo > 0)
+		this.timeToLiveForNullCheckInfo += t;
+}
+
 /**
  * Forget any information about fields that were previously known to be non-null.
  * 

@@ -21,6 +21,7 @@
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
+ *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -391,15 +392,23 @@ public void computeId() {
 
 		case 3 :
 			char[] packageName = this.compoundName[0];
-			// expect only java.*.* and javax.*.*
+			// expect only java.*.* and javax.*.* and junit.*.*
 			switch (packageName.length) {
 				case 4:
 					if (!CharOperation.equals(TypeConstants.JAVA, packageName))
 						return;
 					break; // continue below ...
 				case 5:
-					if (CharOperation.equals(TypeConstants.JAVAX_ANNOTATION_INJECT_INJECT, this.compoundName))
-						this.id = TypeIds.T_JavaxInjectInject;
+					switch (packageName[1]) {
+						case 'a':
+							if (CharOperation.equals(TypeConstants.JAVAX_ANNOTATION_INJECT_INJECT, this.compoundName))
+								this.id = TypeIds.T_JavaxInjectInject;
+							return;
+						case 'u':
+							if (CharOperation.equals(TypeConstants.JUNIT_FRAMEWORK_ASSERT, this.compoundName))
+								this.id = TypeIds.T_JunitFrameworkAssert;
+							return;
+					}
 					return;
 				default: return;
 			}
@@ -452,6 +461,10 @@ public void computeId() {
 								case 'I' :
 									if (CharOperation.equals(typeName, TypeConstants.JAVA_UTIL_ITERATOR[2]))
 										this.id = TypeIds.T_JavaUtilIterator;
+									return;
+								case 'O' :
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_UTIL_OBJECTS[2]))
+										this.id = TypeIds.T_JavaUtilObjects;
 									return;
 							}
 						}
@@ -745,28 +758,48 @@ public void computeId() {
 					packageName = this.compoundName[1];
 					if (packageName.length == 0) return; // just to be safe
 
-					if (CharOperation.equals(TypeConstants.ECLIPSE, packageName)) {
-						packageName = this.compoundName[2];
-						if (packageName.length == 0) return; // just to be safe
-						switch (packageName[0]) {
-							case 'c' :
-								if (CharOperation.equals(packageName, TypeConstants.CORE)) { 
-									typeName = this.compoundName[3];
-									if (typeName.length == 0) return; // just to be safe
-									switch (typeName[0]) {
-										case 'r' :
-											char[] memberTypeName = this.compoundName[4];
-											if (memberTypeName.length == 0) return; // just to be safe
-											if (CharOperation.equals(typeName, TypeConstants.ORG_ECLIPSE_CORE_RUNTIME_ASSERT[3])
-													&& CharOperation.equals(memberTypeName, TypeConstants.ORG_ECLIPSE_CORE_RUNTIME_ASSERT[4]))
-												this.id = TypeIds.T_OrgEclipseCoreRuntimeAssert;
-											return;
-									}
+					switch (packageName[0]) {
+						case 'e':
+							if (CharOperation.equals(TypeConstants.ECLIPSE, packageName)) {
+								packageName = this.compoundName[2];
+								if (packageName.length == 0) return; // just to be safe
+								switch (packageName[0]) {
+									case 'c' :
+										if (CharOperation.equals(packageName, TypeConstants.CORE)) { 
+											typeName = this.compoundName[3];
+											if (typeName.length == 0) return; // just to be safe
+											switch (typeName[0]) {
+												case 'r' :
+													char[] memberTypeName = this.compoundName[4];
+													if (memberTypeName.length == 0) return; // just to be safe
+													if (CharOperation.equals(typeName, TypeConstants.ORG_ECLIPSE_CORE_RUNTIME_ASSERT[3])
+															&& CharOperation.equals(memberTypeName, TypeConstants.ORG_ECLIPSE_CORE_RUNTIME_ASSERT[4]))
+														this.id = TypeIds.T_OrgEclipseCoreRuntimeAssert;
+													return;
+											}
+										}
+										return;
 								}
 								return;
-						}
-						return;
+							}
+							return;
+						case 'a':
+							if (CharOperation.equals(TypeConstants.APACHE, packageName)) {
+								if (CharOperation.equals(TypeConstants.COMMONS, this.compoundName[2])) {
+									if (CharOperation.equals(TypeConstants.ORG_APACHE_COMMONS_LANG_VALIDATE, this.compoundName))
+										this.id = TypeIds.T_OrgApacheCommonsLangValidate;
+									else if (CharOperation.equals(TypeConstants.ORG_APACHE_COMMONS_LANG3_VALIDATE, this.compoundName))
+										this.id = TypeIds.T_OrgApacheCommonsLang3Validate;
+								}
+							}
+							return;
 					}
+					return;
+				case 'c':
+					if (!CharOperation.equals(TypeConstants.COM, this.compoundName[0]))
+						return;
+					if (CharOperation.equals(TypeConstants.COM_GOOGLE_COMMON_BASE_PRECONDITIONS, this.compoundName))
+						this.id = TypeIds.T_ComGoogleCommonBasePreconditions;
 					return;
 			}
 			break;

@@ -17,6 +17,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
+ *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -114,13 +115,20 @@ public interface TypeIds {
 	
 	// new in 3.8 to identify org.eclipse.core.runtime.Assert
 	final int T_OrgEclipseCoreRuntimeAssert = 68;
+	// new in 3.9 to identify more assertion utilities:
+	final int T_JunitFrameworkAssert = 69;
+	final int T_OrgApacheCommonsLangValidate = 70;
+	final int T_OrgApacheCommonsLang3Validate = 71;
+	final int T_ComGoogleCommonBasePreconditions = 72;
+	final int T_JavaUtilObjects = 73;
 
 	// java 8
 	final int T_JavaLangFunctionalInterface = 69;
 
 	// new in 3.9 to identify known @Inject annotations
-	final int T_JavaxInjectInject = 69;
-	final int T_ComGoogleInjectInject = 70;
+	final int T_JavaxInjectInject = 80;
+	final int T_ComGoogleInjectInject = 81;
+
 
 	final int NoId = Integer.MAX_VALUE;
 

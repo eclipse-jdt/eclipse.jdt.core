@@ -16,6 +16,7 @@
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 381445 - [compiler][resource] Can the resource leak check be made aware of Closeables.closeQuietly?
  *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
+ *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -91,6 +92,17 @@ public interface TypeConstants {
 	// jsr308
 	char[] TYPE_USE_TARGET  = "TYPE_USE".toCharArray(); //$NON-NLS-1$
 	char[] TYPE_PARAMETER_TARGET = "TYPE_PARAMETER".toCharArray(); //$NON-NLS-1$
+    
+    // common 3rd party package components:
+    char[] ORG = "org".toCharArray(); //$NON-NLS-1$
+    char[] ECLIPSE = "eclipse".toCharArray(); //$NON-NLS-1$
+    char[] CORE = "core".toCharArray(); //$NON-NLS-1$
+    char[] RUNTIME = "runtime".toCharArray(); //$NON-NLS-1$
+    char[] APACHE = "apache".toCharArray(); //$NON-NLS-1$
+    char[] COMMONS = "commons".toCharArray(); //$NON-NLS-1$
+    char[] LANG3 = "lang3".toCharArray(); //$NON-NLS-1$
+    char[] COM = "com".toCharArray(); //$NON-NLS-1$
+    char[] GOOGLE = "google".toCharArray(); //$NON-NLS-1$
 
 	// Constant compound names
 	char[][] JAVA_LANG = {JAVA, LANG};
@@ -127,6 +139,7 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_VOID = {JAVA, LANG, "Void".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_UTIL_COLLECTION = {JAVA, UTIL, "Collection".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_UTIL_ITERATOR = {JAVA, UTIL, "Iterator".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_UTIL_OBJECTS = {JAVA, UTIL, "Objects".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_DEPRECATED = {JAVA, LANG, "Deprecated".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ANNOTATION_DOCUMENTED = {JAVA, LANG, ANNOTATION, "Documented".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ANNOTATION_INHERITED = {JAVA, LANG, ANNOTATION, "Inherited".toCharArray()}; //$NON-NLS-1$
@@ -178,12 +191,13 @@ public interface TypeConstants {
 			this.selector = selector;
 		}
 	}
-	char[][] GUAVA_CLOSEABLES = { "com".toCharArray(), "google".toCharArray(), "common".toCharArray(), "io".toCharArray(), "Closeables".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-	char[][] APACHE_IOUTILS = { "org".toCharArray(), "apache".toCharArray(), "commons".toCharArray(), "io".toCharArray(), "IOUtils".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+	char[][] GUAVA_CLOSEABLES = { COM, GOOGLE, "common".toCharArray(), IO, "Closeables".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$
+	char[][] APACHE_IOUTILS = { ORG, APACHE, COMMONS, IO, "IOUtils".toCharArray() }; //$NON-NLS-1$
+	char[] CLOSE_QUIETLY = "closeQuietly".toCharArray(); //$NON-NLS-1$
 	CloseMethodRecord[] closeMethods = new CloseMethodRecord[] {
-		new CloseMethodRecord(GUAVA_CLOSEABLES, "closeQuietly".toCharArray()), //$NON-NLS-1$
-		new CloseMethodRecord(GUAVA_CLOSEABLES, "close".toCharArray()), //$NON-NLS-1$
-		new CloseMethodRecord(APACHE_IOUTILS, "closeQuietly".toCharArray()) //$NON-NLS-1$
+		new CloseMethodRecord(GUAVA_CLOSEABLES, CLOSE_QUIETLY),
+		new CloseMethodRecord(GUAVA_CLOSEABLES, CLOSE),
+		new CloseMethodRecord(APACHE_IOUTILS, CLOSE_QUIETLY)
 	};
 	// white lists of closeables:
 	char[][] JAVA_IO_WRAPPER_CLOSEABLES = new char[][] {
@@ -239,17 +253,43 @@ public interface TypeConstants {
 		"StringBufferInputStream".toCharArray(), //$NON-NLS-1$
 	};
 	
-	char[] ORG = "org".toCharArray(); //$NON-NLS-1$
-	char[] ECLIPSE = "eclipse".toCharArray(); //$NON-NLS-1$
-	char[] CORE = "core".toCharArray(); //$NON-NLS-1$
-	char[] RUNTIME = "runtime".toCharArray(); //$NON-NLS-1$
-	char[][] ORG_ECLIPSE_CORE_RUNTIME_ASSERT = new char[][] { ORG, ECLIPSE, CORE, RUNTIME, "Assert".toCharArray()}; //$NON-NLS-1$
+	// different assertion utilities:
+	char[] ASSERT_CLASS = "Assert".toCharArray(); //$NON-NLS-1$
+	char[][] ORG_ECLIPSE_CORE_RUNTIME_ASSERT = new char[][] { ORG, ECLIPSE, CORE, RUNTIME, ASSERT_CLASS };
+	// ... methods:
+	char[] IS_NOTNULL = "isNotNull".toCharArray(); //$NON-NLS-1$
+	
+	char[] JUNIT = "junit".toCharArray(); //$NON-NLS-1$
+	char[] FRAMEWORK = "framework".toCharArray(); //$NON-NLS-1$
+	char[][] JUNIT_FRAMEWORK_ASSERT = new char[][] { JUNIT, FRAMEWORK, ASSERT_CLASS };
+	// ... methods:
+	char[] ASSERT_NULL = "assertNull".toCharArray(); //$NON-NLS-1$
+	char[] ASSERT_NOTNULL = "assertNotNull".toCharArray(); //$NON-NLS-1$
+	char[] ASSERT_TRUE = "assertTrue".toCharArray(); //$NON-NLS-1$
+	char[] ASSERT_FALSE = "assertFalse".toCharArray(); //$NON-NLS-1$
+	
+	char[] VALIDATE_CLASS = "Validate".toCharArray(); //$NON-NLS-1$
+	char[][] ORG_APACHE_COMMONS_LANG_VALIDATE = new char[][] { ORG, APACHE, COMMONS, LANG, VALIDATE_CLASS };
+	char[][] ORG_APACHE_COMMONS_LANG3_VALIDATE = new char[][] { ORG, APACHE, COMMONS, LANG3, VALIDATE_CLASS };
+	// ... methods:
+	char[] IS_TRUE = "isTrue".toCharArray(); //$NON-NLS-1$
+	char[] NOT_NULL = "notNull".toCharArray(); //$NON-NLS-1$
+	
+	char[][] COM_GOOGLE_COMMON_BASE_PRECONDITIONS = new char[][] { 
+			COM, GOOGLE, "common".toCharArray(), "base".toCharArray(), "Preconditions".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	// ... methods:
+	char[] CHECK_NOT_NULL = "checkNotNull".toCharArray(); //$NON-NLS-1$
+	char[] CHECK_ARGUMENT = "checkArgument".toCharArray(); //$NON-NLS-1$
+	char[] CHECK_STATE = "checkState".toCharArray(); //$NON-NLS-1$
 
+	// ... methods in java.util.Objects:
+	char[] REQUIRE_NON_NULL = "requireNonNull".toCharArray(); //$NON-NLS-1$
+	
 	// different @Inject annotations are relevant for @NonNull fields
 	char[] INJECT_PACKAGE = "inject".toCharArray(); //$NON-NLS-1$
 	char[] INJECT_TYPE = "Inject".toCharArray(); //$NON-NLS-1$
 	char[][] JAVAX_ANNOTATION_INJECT_INJECT = new char[][] { JAVAX, INJECT_PACKAGE, INJECT_TYPE };
-	char[][] COM_GOOGLE_INJECT_INJECT = new char[][] {"com".toCharArray(), "google".toCharArray(), INJECT_PACKAGE, INJECT_TYPE }; //$NON-NLS-1$ //$NON-NLS-2$
+	char[][] COM_GOOGLE_INJECT_INJECT = new char[][] {COM, GOOGLE, INJECT_PACKAGE, INJECT_TYPE };
 	//    detail for the above:
 	char[] OPTIONAL = "optional".toCharArray(); //$NON-NLS-1$
 
