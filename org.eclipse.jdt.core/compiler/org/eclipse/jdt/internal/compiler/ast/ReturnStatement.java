@@ -22,6 +22,7 @@
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -52,9 +53,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	MethodScope methodScope = currentScope.methodScope();
 	if (this.expression != null) {
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
-		if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
-			this.expression.checkNPE(currentScope, flowContext, flowInfo);
-		}
+		this.expression.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 		if (flowInfo.reachMode() == FlowInfo.REACHABLE)
 			checkAgainstNullAnnotation(currentScope, flowContext, this.expression.nullStatus(flowInfo, flowContext));
 		if (currentScope.compilerOptions().analyseResourceLeaks) {

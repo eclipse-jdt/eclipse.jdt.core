@@ -12,6 +12,7 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -556,6 +557,17 @@ public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flow
 		return true;
 	}
 	return false; // not checked
+}
+
+/** If this expression requires unboxing check if that operation can throw NPE. */
+protected void checkNPEbyUnboxing(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	if ((this.implicitConversion & UNBOXING) != 0) {
+		int status = nullStatus(flowInfo, flowContext);
+		if ((status & FlowInfo.NULL) != 0)
+			scope.problemReporter().nullUnboxing(this, this.resolvedType);
+		else if ((status & FlowInfo.POTENTIALLY_NULL) != 0)
+			scope.problemReporter().potentialNullUnboxing(this, this.resolvedType);
+	}
 }
 
 public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {

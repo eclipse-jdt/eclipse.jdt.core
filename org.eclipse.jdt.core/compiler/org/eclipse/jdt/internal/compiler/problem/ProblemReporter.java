@@ -25,6 +25,7 @@
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
  *								bug 376590 - Private fields with @Inject are ignored by unused field validation
+ *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -306,10 +307,14 @@ public static int getIrritant(int problemID) {
 
 		case IProblem.NullLocalVariableReference:
 		case IProblem.NullableFieldReference:
+		case IProblem.NullExpressionReference:
+		case IProblem.NullUnboxing:
 			return CompilerOptions.NullReference;
 
 		case IProblem.PotentialNullLocalVariableReference:
 		case IProblem.PotentialNullMessageSendReference:
+		case IProblem.PotentialNullExpressionReference:
+		case IProblem.PotentialNullUnboxing:
 			return CompilerOptions.PotentialNullReference;
 
 		case IProblem.RedundantLocalVariableNullAssignment:
@@ -5277,6 +5282,10 @@ public void localVariableNullInstanceof(LocalVariableBinding local, ASTNode loca
 }
 
 public void localVariableNullReference(LocalVariableBinding local, ASTNode location) {
+	if (location instanceof Expression && (((Expression)location).implicitConversion & TypeIds.UNBOXING) != 0) {
+		nullUnboxing(location, local.type);
+		return;
+	}
 	int severity = computeSeverity(IProblem.NullLocalVariableReference);
 	if (severity == ProblemSeverities.Ignore) return;
 	String[] arguments = new String[] {new String(local.name)  };
@@ -5290,6 +5299,10 @@ public void localVariableNullReference(LocalVariableBinding local, ASTNode locat
 }
 
 public void localVariablePotentialNullReference(LocalVariableBinding local, ASTNode location) {
+	if (location instanceof Expression && (((Expression)location).implicitConversion & TypeIds.UNBOXING) != 0) {
+		potentialNullUnboxing(location, local.type);
+		return;
+	}
 	int severity = computeSeverity(IProblem.PotentialNullLocalVariableReference);
 	if (severity == ProblemSeverities.Ignore) return;
 	String[] arguments = new String[] {new String(local.name)};
@@ -5301,7 +5314,16 @@ public void localVariablePotentialNullReference(LocalVariableBinding local, ASTN
 		nodeSourceStart(local, location),
 		nodeSourceEnd(local, location));
 }
-
+public void potentialNullUnboxing(ASTNode expression, TypeBinding boxType) {
+	String[] arguments = new String[] { String.valueOf(boxType.readableName()) };
+	String[] argumentsShort = new String[] { String.valueOf(boxType.shortReadableName()) };
+	this.handle(IProblem.PotentialNullUnboxing, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
+}
+public void nullUnboxing(ASTNode expression, TypeBinding boxType) {
+	String[] arguments = new String[] { String.valueOf(boxType.readableName()) };
+	String[] argumentsShort = new String[] { String.valueOf(boxType.shortReadableName()) };
+	this.handle(IProblem.NullUnboxing, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
+}
 public void nullableFieldDereference(VariableBinding variable, long position) {
 	String[] arguments = new String[] {new String(variable.name)};
 	char[][] nullableName = this.options.nullableAnnotationName;
@@ -8531,6 +8553,22 @@ public void messageSendRedundantCheckOnNonNull(MethodBinding method, ASTNode loc
 		IProblem.RedundantNullCheckOnNonNullMessageSend,
 		arguments,
 		arguments,
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void expressionNullReference(ASTNode location) {
+	this.handle(
+		IProblem.NullExpressionReference,
+		NoArgument,
+		NoArgument,
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void expressionPotentialNullReference(ASTNode location) {
+	this.handle(
+		IProblem.PotentialNullExpressionReference,
+		NoArgument,
+		NoArgument,
 		location.sourceStart,
 		location.sourceEnd);
 }

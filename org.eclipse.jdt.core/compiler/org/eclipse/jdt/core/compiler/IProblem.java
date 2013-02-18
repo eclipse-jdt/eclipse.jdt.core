@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -160,6 +160,10 @@
  *									ConflictingNullAnnotations
  *									ConflictingInheritedNullAnnotations
  *									UnsafeElementTypeConversion
+ *									PotentialNullUnboxing
+ *									NullUnboxing
+ *									NullExpressionReference
+ *									PotentialNullExpressionReference
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -900,6 +904,10 @@ void setSourceStart(int sourceStart);
 	int RedundantNullCheckOnNonNullLocalVariable = Internal + 457;
 	/** @since 3.3 */
 	int NonNullLocalVariableComparisonYieldsFalse = Internal + 458;
+	/** @since 3.9 */
+	int PotentialNullUnboxing = Internal + 459;
+	/** @since 3.9 */
+	int NullUnboxing = Internal + 461;
 
 	// block
 	/** @since 3.0 */
@@ -1319,6 +1327,10 @@ void setSourceStart(int sourceStart);
 	int NonNullExpressionComparisonYieldsFalse = Internal + 670;
 	/** @since 3.9 */
 	int RedundantNullCheckOnNonNullExpression = Internal + 671;
+	/** @since 3.9 */
+	int NullExpressionReference = Internal + 672;
+	/** @since 3.9 */
+	int PotentialNullExpressionReference = Internal + 673;
 
 	/**
 	 * Corrupted binaries

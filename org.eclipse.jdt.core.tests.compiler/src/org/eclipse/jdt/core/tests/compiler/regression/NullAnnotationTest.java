@@ -53,7 +53,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test_nullable_field_10e" };
+//		TESTS_NAMES = new String[] { "test_conditional_expression" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -6104,5 +6104,27 @@ public void testBug382069_k() {
 			"	       ^^\n" + 
 			"Potential null pointer access: The field o1 is declared as @Nullable\n" + 
 			"----------\n");
+}
+//https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
+public void test_conditional_expression_1() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	boolean badFunction5(int i) {\n" + 
+			"		// expected a potential null problem:\n" + 
+			"		return i > 0 ? true : getBoolean();\n" + 
+			"	}\n" +
+			"	private @Nullable Boolean getBoolean() {\n" + 
+			"		return null;\n" + 
+			"	}\n" +
+			"}\n"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return i > 0 ? true : getBoolean();\n" + 
+		"	                      ^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" + 
+		"----------\n");
 }
 }

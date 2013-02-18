@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2012 IBM Corporation and others.
+ * Copyright (c) 2006, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
+ *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -754,10 +755,12 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("NotVisibleMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NotVisibleType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("NullableFieldReference", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("NullExpressionReference", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NullLocalVariableComparisonYieldsFalse", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NullLocalVariableInstanceofYieldsFalse", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NullLocalVariableReference", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NullSourceString", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("NullUnboxing", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NumericValueOutOfRange", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ObjectCannotBeGeneric", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ObjectCannotHaveSuperTypes", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -798,7 +801,9 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("PotentiallyUnclosedCloseable", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("PotentiallyUnclosedCloseableAtExit", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("PotentialNullLocalVariableReference", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("PotentialNullExpressionReference", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("PotentialNullMessageSendReference", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("PotentialNullUnboxing", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("PublicClassMustMatchFileName", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("RawMemberTypeCannotBeParameterized", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("RawTypeReference", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
@@ -1472,10 +1477,12 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NotVisibleMethod", SKIP);
 		expectedProblemAttributes.put("NotVisibleType", SKIP);
 		expectedProblemAttributes.put("NullableFieldReference", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_REFERENCE));
+		expectedProblemAttributes.put("NullExpressionReference", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_REFERENCE));
 		expectedProblemAttributes.put("NullLocalVariableComparisonYieldsFalse", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
 		expectedProblemAttributes.put("NullLocalVariableInstanceofYieldsFalse", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
 		expectedProblemAttributes.put("NullLocalVariableReference", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_REFERENCE));
 		expectedProblemAttributes.put("NullSourceString", SKIP);
+		expectedProblemAttributes.put("NullUnboxing", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_REFERENCE));
 		expectedProblemAttributes.put("NumericValueOutOfRange", SKIP);
 		expectedProblemAttributes.put("ObjectCannotBeGeneric", SKIP);
 		expectedProblemAttributes.put("ObjectCannotHaveSuperTypes", SKIP);
@@ -1515,7 +1522,9 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("PotentialHeapPollutionFromVararg", new ProblemAttributes(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION));
 		expectedProblemAttributes.put("PotentiallyUnclosedCloseable", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE));
 		expectedProblemAttributes.put("PotentiallyUnclosedCloseableAtExit", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE));
+		expectedProblemAttributes.put("PotentialNullExpressionReference", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE));
 		expectedProblemAttributes.put("PotentialNullLocalVariableReference", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE));
+		expectedProblemAttributes.put("PotentialNullUnboxing", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE));
 		expectedProblemAttributes.put("PotentialNullMessageSendReference", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE));
 		expectedProblemAttributes.put("PublicClassMustMatchFileName", SKIP);
 		expectedProblemAttributes.put("RawMemberTypeCannotBeParameterized", SKIP);
