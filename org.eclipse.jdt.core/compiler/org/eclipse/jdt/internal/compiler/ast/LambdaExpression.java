@@ -49,7 +49,6 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 	private MethodScope scope;
 	private CompilationResult compilationResult;
 	private boolean ignoreFurtherInvestigation;
-	private MethodBinding binding;
 	
 	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
 		this.compilationResult = compilationResult;

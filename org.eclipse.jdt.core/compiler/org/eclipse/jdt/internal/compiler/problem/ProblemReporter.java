@@ -9145,4 +9145,167 @@ public void descriptorHasInvisibleType(FunctionalExpression expression, Referenc
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+
+public void methodReferenceSwingsBothWays(ReferenceExpression expression, MethodBinding instanceMethod, MethodBinding nonInstanceMethod) {
+	char [] selector = instanceMethod.selector;
+	TypeBinding receiverType = instanceMethod.declaringClass;
+	StringBuffer buffer1 = new StringBuffer();
+	StringBuffer shortBuffer1 = new StringBuffer();
+	TypeBinding [] parameters = instanceMethod.parameters;
+	for (int i = 0, length = parameters.length; i < length; i++) {
+		if (i != 0){
+			buffer1.append(", "); //$NON-NLS-1$
+			shortBuffer1.append(", "); //$NON-NLS-1$
+		}
+		buffer1.append(new String(parameters[i].readableName()));
+		shortBuffer1.append(new String(parameters[i].shortReadableName()));
+	}
+	StringBuffer buffer2 = new StringBuffer();
+	StringBuffer shortBuffer2 = new StringBuffer();
+	parameters = nonInstanceMethod.parameters;
+	for (int i = 0, length = parameters.length; i < length; i++) {
+		if (i != 0){
+			buffer2.append(", "); //$NON-NLS-1$
+			shortBuffer2.append(", "); //$NON-NLS-1$
+		}
+		buffer2.append(new String(parameters[i].readableName()));
+		shortBuffer2.append(new String(parameters[i].shortReadableName()));
+	}
+
+	int id = IProblem.MethodReferenceSwingsBothWays;
+	this.handle(
+		id,
+		new String[] { new String(receiverType.readableName()), new String(selector), buffer1.toString(), new String(selector), buffer2.toString() },
+		new String[] { new String(receiverType.shortReadableName()), new String(selector), shortBuffer1.toString(), new String(selector), shortBuffer2.toString() },
+		expression.sourceStart,
+		expression.sourceEnd);
+}
+
+public void methodMustBeAccessedStatically(ReferenceExpression expression, MethodBinding nonInstanceMethod) {
+	TypeBinding receiverType = nonInstanceMethod.declaringClass;
+	char [] selector = nonInstanceMethod.selector;
+	StringBuffer buffer = new StringBuffer();
+	StringBuffer shortBuffer = new StringBuffer();
+	TypeBinding [] parameters = nonInstanceMethod.parameters;
+	for (int i = 0, length = parameters.length; i < length; i++) {
+		if (i != 0){
+			buffer.append(", "); //$NON-NLS-1$
+			shortBuffer.append(", "); //$NON-NLS-1$
+		}
+		buffer.append(new String(parameters[i].readableName()));
+		shortBuffer.append(new String(parameters[i].shortReadableName()));
+	}
+	int id = IProblem.StaticMethodShouldBeAccessedStatically;
+	this.handle(
+		id,
+		new String[] { new String(receiverType.readableName()), new String(selector), buffer.toString() },
+		new String[] { new String(receiverType.shortReadableName()), new String(selector), shortBuffer.toString() },
+		expression.sourceStart,
+		expression.sourceEnd);
+}
+
+public void methodMustBeAccessedWithInstance(ReferenceExpression expression, MethodBinding instanceMethod) {
+	TypeBinding receiverType = instanceMethod.declaringClass;
+	char [] selector = instanceMethod.selector;
+	StringBuffer buffer = new StringBuffer();
+	StringBuffer shortBuffer = new StringBuffer();
+	TypeBinding [] parameters = instanceMethod.parameters;
+	for (int i = 0, length = parameters.length; i < length; i++) {
+		if (i != 0) {
+			buffer.append(", "); //$NON-NLS-1$
+			shortBuffer.append(", "); //$NON-NLS-1$
+		}
+		buffer.append(new String(parameters[i].readableName()));
+		shortBuffer.append(new String(parameters[i].shortReadableName()));
+	}
+	int id = IProblem.StaticMethodRequested;
+	this.handle(
+		id,
+		new String[] { new String(receiverType.readableName()), new String(selector), buffer.toString() },
+		new String[] { new String(receiverType.shortReadableName()), new String(selector), shortBuffer.toString() },
+		expression.sourceStart,
+		expression.sourceEnd);
+}
+
+public void invalidArrayConstructorReference(ReferenceExpression expression, TypeBinding lhsType, TypeBinding[] parameters) {
+	StringBuffer buffer = new StringBuffer();
+	StringBuffer shortBuffer = new StringBuffer();
+	for (int i = 0, length = parameters.length; i < length; i++) {
+		if (i != 0) {
+			buffer.append(", "); //$NON-NLS-1$
+			shortBuffer.append(", "); //$NON-NLS-1$
+		}
+		buffer.append(new String(parameters[i].readableName()));
+		shortBuffer.append(new String(parameters[i].shortReadableName()));
+	}
+	int id = IProblem.InvalidArrayConstructorReference;
+	this.handle(
+		id,
+		new String[] { new String(lhsType.readableName()), buffer.toString() },
+		new String[] { new String(lhsType.shortReadableName()), shortBuffer.toString() },
+		expression.sourceStart,
+		expression.sourceEnd);
+}
+
+public void constructedArrayIncompatible(ReferenceExpression expression, TypeBinding receiverType, TypeBinding returnType) {
+	this.handle(
+			IProblem.ConstructedArrayIncompatible,
+			new String[] { new String(receiverType.readableName()), new String(returnType.readableName()) },
+			new String[] { new String(receiverType.shortReadableName()), new String(returnType.shortReadableName()) },
+			expression.sourceStart,
+			expression.sourceEnd);
+}
+
+public void danglingReference(ReferenceExpression expression, TypeBinding receiverType, char[] selector, TypeBinding[] descriptorParameters) {
+	StringBuffer buffer = new StringBuffer();
+	StringBuffer shortBuffer = new StringBuffer();
+	TypeBinding [] parameters = descriptorParameters;
+	for (int i = 0, length = parameters.length; i < length; i++) {
+		if (i != 0) {
+			buffer.append(", "); //$NON-NLS-1$
+			shortBuffer.append(", "); //$NON-NLS-1$
+		}
+		buffer.append(new String(parameters[i].readableName()));
+		shortBuffer.append(new String(parameters[i].shortReadableName()));
+	}
+	
+	int id = IProblem.DanglingReference;
+	this.handle(
+		id,
+		new String[] { new String(receiverType.readableName()), new String(selector), buffer.toString() },
+		new String[] { new String(receiverType.shortReadableName()), new String(selector), shortBuffer.toString() },
+		expression.sourceStart,
+		expression.sourceEnd);
+}
+public void unhandledException(TypeBinding exceptionType, ReferenceExpression location) {
+	this.handle(IProblem.UnhandledException,
+		new String[] {new String(exceptionType.readableName())},
+		new String[] {new String(exceptionType.shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
+
+public void cannotReferToAbstractMethod(ReferenceExpression expression, MethodBinding method) {
+	TypeBinding receiverType = method.declaringClass;
+	char [] selector = method.selector;
+	StringBuffer buffer = new StringBuffer();
+	StringBuffer shortBuffer = new StringBuffer();
+	TypeBinding [] parameters = method.parameters;
+	for (int i = 0, length = parameters.length; i < length; i++) {
+		if (i != 0) {
+			buffer.append(", "); //$NON-NLS-1$
+			shortBuffer.append(", "); //$NON-NLS-1$
+		}
+		buffer.append(new String(parameters[i].readableName()));
+		shortBuffer.append(new String(parameters[i].shortReadableName()));
+	}
+	
+	int id = IProblem.UndefinedMethod;
+	this.handle(
+		id,
+		new String[] { new String(receiverType.readableName()), new String(selector), buffer.toString() },
+		new String[] { new String(receiverType.shortReadableName()), new String(selector), shortBuffer.toString() },
+		expression.sourceStart,
+		expression.sourceEnd);
+}
 }

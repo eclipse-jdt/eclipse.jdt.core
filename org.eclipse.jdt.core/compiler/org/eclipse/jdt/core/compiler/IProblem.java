@@ -467,6 +467,16 @@ void setSourceStart(int sourceStart);
 	int MethodCanBeStatic = Internal + MethodRelated + 121;
 	/** @since 3.7 */
 	int MethodCanBePotentiallyStatic = Internal + MethodRelated + 122;
+	/** @since 3.9 */
+	int MethodReferenceSwingsBothWays = Internal + MethodRelated + 123;
+	/** @since 3.9 */
+	int StaticMethodShouldBeAccessedStatically = Internal + MethodRelated + 124;
+	/** @since 3.9 */
+	int InvalidArrayConstructorReference = Internal + MethodRelated + 125;
+	/** @since 3.9 */
+	int ConstructedArrayIncompatible = Internal + MethodRelated + 126;
+	/** @since 3.9 */
+	int DanglingReference = Internal + MethodRelated + 127;
 
 	// constructors
 	/** @since 3.4 */

@@ -33,6 +33,7 @@ public abstract class FunctionalExpression extends Expression {
 	
 	TypeBinding expectedType;
 	MethodBinding descriptor;
+	MethodBinding binding;
 	
 	public FunctionalExpression() {
 		super();

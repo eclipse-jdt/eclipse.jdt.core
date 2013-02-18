@@ -3215,16 +3215,11 @@ public void test097() {
 			"}\r\n" + 
 			"public class X {\r\n" + 
 			"  public static void main(String[] args) {\r\n" + 
-			"    I functional = Action::<?>fooMethod;\r\n" + 
+			"    I functional = Action::<?>fooMethod;\r\n" + // no raw type warning here, Action:: is really Action<>::
 			"  }\r\n" + 
 			"}"},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 9)\n" + 
-			"	I functional = Action::<?>fooMethod;\n" + 
-			"	               ^^^^^^\n" + 
-			"Action is a raw type. References to generic type Action<K> should be parameterized\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
 			"	I functional = Action::<?>fooMethod;\n" + 
 			"	                        ^\n" + 
 			"Wildcard is not allowed at this location\n" + 
@@ -4205,6 +4200,49 @@ public void test384750j() {
 					"class Y {\n" +
 					"    X<?> foo(int x, String p) { return null; }\n" +
 					"}\n"
+					},
+					"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750k() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  void zoo();\n" +
+					"}\n" +
+					"class Z {\n" +
+					"	void zoo() {}\n" +
+					"}\n" +
+					"class X extends Z {\n" +
+					"    static class N {\n" +
+					"    	I i = X.super::zoo;\n" +
+					"    }\n" +
+					"}\n" 
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 9)\n" + 
+					"	I i = X.super::zoo;\n" + 
+					"	      ^^^^^^^\n" + 
+					"No enclosing instance of the type X is accessible in scope\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750l() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  void zoo();\n" +
+					"}\n" +
+					"class Z {\n" +
+					"	void zoo() {}\n" +
+					"}\n" +
+					"class X extends Z {\n" +
+					"    class N {\n" +
+					"    	I i = X.super::zoo;\n" +
+					"    }\n" +
+					"}\n" 
 					},
 					"");
 }

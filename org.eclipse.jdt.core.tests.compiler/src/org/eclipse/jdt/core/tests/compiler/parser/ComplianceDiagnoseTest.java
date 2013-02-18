@@ -2724,6 +2724,11 @@ public void test0059() {
 			"	I i = super::goo;\n" + 
 			"	      ^^^^^^^^^^\n" + 
 			"Method references are allowed only at source level 1.8 or above\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	I i = super::goo;\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"The method goo(int) from the type Y should be accessed in a static way \n" + 
 			"----------\n";
 
 	runComplianceParserTest(
@@ -2867,11 +2872,16 @@ public void test0063() {
 			"	      ^^^^^^^^^^^^^^\n" + 
 			"Method references are allowed only at source level 1.8 or above\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	I i = X<String>::foo;\n" + 
+			"	      ^^^^^^^^^^^^^^\n" + 
+			"The method foo(int) from the type X<String> should be accessed in a static way \n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
 			"	I i2 = (p) -> 10;\n" + 
 			"	       ^^^^^^^^^\n" + 
 			"Lambda expressions are allowed only at source level 1.8 or above\n" + 
-				"----------\n";
+			"----------\n";
 
 	runComplianceParserTest(
 		testFiles,

@@ -4217,6 +4217,18 @@ public abstract class Scope {
 		return level;
 	}
 
+	public int parameterCompatibilityLevel(TypeBinding arg, TypeBinding param) {
+		if (arg.isCompatibleWith(param))
+			return COMPATIBLE;
+		
+		if (arg.isBaseType() != param.isBaseType()) {
+			TypeBinding convertedType = environment().computeBoxingType(arg);
+			if (convertedType == param || convertedType.isCompatibleWith(param))
+				return AUTOBOX_COMPATIBLE;
+		}
+		return NOT_COMPATIBLE;
+	}
+	
 	private int parameterCompatibilityLevel(TypeBinding arg, TypeBinding param, LookupEnvironment env, boolean tieBreakingVarargsMethods) {
 		// only called if env.options.sourceLevel >= ClassFileConstants.JDK1_5
 		if (arg.isCompatibleWith(param, this))
