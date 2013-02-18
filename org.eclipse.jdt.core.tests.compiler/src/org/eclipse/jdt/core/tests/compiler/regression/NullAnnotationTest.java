@@ -5100,6 +5100,44 @@ public void test_nullable_field_14a() {
 		"----------\n");
 }
 
+// https://bugs.eclipse.org/401017: [compiler][null] casted reference to @Nullable field lacks a warning
+public void test_nullable_field_15() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable\n" + 
+			"    private Object nullable;\n" + 
+			"\n" + 
+			"    public void test() {\n" + 
+			"        if (nullable instanceof Number) {\n" + 
+			"            ((Number)nullable).intValue(); // A\n" + 
+			"        }\n" + 
+			"        if (nullable != null) {\n" + 
+			"            nullable.toString(); // B\n" + 
+			"        }\n" + 
+			"        nullable.toString(); // C\n" + 
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	((Number)nullable).intValue(); // A\n" + 
+		"	         ^^^^^^^^\n" + 
+		"Potential null pointer access: The field nullable is declared as @Nullable\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	nullable.toString(); // B\n" + 
+		"	^^^^^^^^\n" + 
+		"Potential null pointer access: The field nullable is declared as @Nullable\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
+		"	nullable.toString(); // C\n" + 
+		"	^^^^^^^^\n" + 
+		"Potential null pointer access: The field nullable is declared as @Nullable\n" + 
+		"----------\n");
+}
 // an enum is declared within the scope of a null-default
 // https://bugs.eclipse.org/331649#c61
 public void test_enum_field_01() {

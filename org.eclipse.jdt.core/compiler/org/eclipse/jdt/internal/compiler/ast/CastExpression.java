@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								bug 401017 - [compiler][null] casted reference to @Nullable field lacks a warning
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -244,6 +245,10 @@ public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int
 			if (rightIsCast) scope.problemReporter().unnecessaryCast((CastExpression)right);
 		}
 	}
+}
+
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	return this.expression.checkNPE(scope, flowContext, flowInfo);
 }
 
 private static void checkAlternateBinding(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] originalArgumentTypes, TypeBinding[] alternateArgumentTypes, final InvocationSite invocationSite) {
