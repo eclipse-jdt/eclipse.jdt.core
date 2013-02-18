@@ -10,7 +10,9 @@
  * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *		IBM Corporation - initial API and implementation
+ *		Stephan Herrmann - Contribution for
+ *								bug 401035 - [1.8] A few tests have started failing recently
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
@@ -39,7 +41,9 @@ public class GenericDietRecoveryTest extends AbstractCompilerTest {
 public GenericDietRecoveryTest(String testName){
 	super(testName);
 }
-
+static {
+//	TESTS_NAMES = new String[] { "test0025" };
+}
 /*
  * Toggle compiler in mode -1.5
  */
@@ -1181,7 +1185,7 @@ public void test0025() {
 	String expectedDietUnitToString =
 		"import java.util.*;\n" +
 		"public interface X<T> {\n" +
-		"  <K>Map<K, T> foo();\n" +
+		"  public <K>Map<K, T> foo();\n" +
 		"}\n";
 
 	String expectedDietPlusBodyUnitToString =

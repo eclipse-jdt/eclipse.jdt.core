@@ -1,12 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *		IBM Corporation - initial API and implementation
+ *		Stephan Herrmann - Contribution for
+ *								bug 401035 - [1.8] A few tests have started failing recently
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -2114,8 +2120,7 @@ public void testMethodWithError01() throws CoreException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertWorkingCopyDeltas(
 		"Unexpected delta after syntax error",
-		"X[*]: {CHILDREN | FINE GRAINED}\n" +
-		"	foo()[*]: {MODIFIERS CHANGED}"
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
 	);
 	assertProblems(
 		"Unexpected problems",
@@ -2124,6 +2129,60 @@ public void testMethodWithError01() throws CoreException {
 		"	public.void foo() {\n" +
 		"	      ^\n" +
 		"Syntax error on token \".\", delete this token\n" +
+		"----------\n"
+	);
+
+	// Fix the syntax error
+	clearDeltas();
+	String contents =
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}";
+	setWorkingCopyContents(contents);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertWorkingCopyDeltas(
+		"Unexpected delta after fixing syntax error",
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED}"
+	);
+	assertProblems(
+		"Unexpected problems",
+		"----------\n" +
+		"1. WARNING in /Reconciler/src/p1/X.java (at line 2)\n" +
+		"	import p2.*;\n" +
+		"	       ^^\n" +
+		"The import p2 is never used\n" +
+		"----------\n"
+	);
+}
+/**
+ * Introduces a syntax error in the modifiers of a method.
+ * Variant to force the expected modifier change.
+ */
+public void testMethodWithError01a() throws CoreException {
+	// Introduce syntax error
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public_ void foo() {\n" +
+		"  }\n" +
+		"}");
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertWorkingCopyDeltas(
+		"Unexpected delta after syntax error",
+		"X[*]: {CHILDREN | FINE GRAINED}\n" +
+		"	foo()[*]: {MODIFIERS CHANGED}"
+	);
+	assertProblems(
+		"Unexpected problems",
+		"----------\n" + 
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
+		"	public_ void foo() {\n" + 
+		"	^^^^^^^\n" + 
+		"Syntax error on token \"public_\", public expected\n" + 
 		"----------\n"
 	);
 

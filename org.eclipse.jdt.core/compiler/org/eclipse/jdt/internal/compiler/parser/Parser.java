@@ -18,6 +18,7 @@
  *								bug 393719 - [compiler] inconsistent warnings on iteration variables
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *								bug 383973 - [1.8][compiler] syntax recovery in the presence of default methods
+ *								bug 401035 - [1.8] A few tests have started failing recently
  *     Jesper S Moller - Contributions for
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *							bug 399695 - [1.8][compiler] [1.8][compiler] migrate parser to other syntax for default methods
@@ -1232,7 +1233,7 @@ protected void checkAndSetModifiers(int flag){
 
 	if (this.modifiersSourceStart < 0) this.modifiersSourceStart = this.scanner.startPosition;
 
-	if (this.currentElement != null && this.annotationRecoveryActivated) {
+	if (this.currentElement != null) {
 		this.currentElement.addModifier(flag, this.modifiersSourceStart);
 	}
 }
@@ -5743,7 +5744,7 @@ protected void consumePushCombineModifiers() {
 	this.intStack[this.intPtr - 1] |= newModifiers; // merge them in place
 	// Also fix number of annotations-modifiers:
 	this.expressionLengthStack[this.expressionLengthPtr - 1] += this.expressionLengthStack[this.expressionLengthPtr--];
-	if (this.currentElement != null && this.annotationRecoveryActivated) {
+	if (this.currentElement != null) {
 		this.currentElement.addModifier(newModifiers, this.intStack[this.intPtr]);
 	}
 }

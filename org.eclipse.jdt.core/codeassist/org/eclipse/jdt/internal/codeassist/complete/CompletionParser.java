@@ -10,7 +10,9 @@
  * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *		IBM Corporation - initial API and implementation
+ *		Stephan Herrmann - Contribution for
+ *								bug 401035 - [1.8] A few tests have started failing recently
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
@@ -1289,6 +1291,13 @@ public int bodyEnd(Initializer initializer){
 }
 protected void checkAndSetModifiers(int flag) {
 	super.checkAndSetModifiers(flag);
+
+	if (isInsideMethod()) {
+		this.hasUnusedModifiers = true;
+	}
+}
+protected void consumePushCombineModifiers() {
+	super.consumePushCombineModifiers();
 
 	if (isInsideMethod()) {
 		this.hasUnusedModifiers = true;
