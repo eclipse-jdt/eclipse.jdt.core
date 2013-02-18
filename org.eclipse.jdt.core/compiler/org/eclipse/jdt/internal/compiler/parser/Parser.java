@@ -7943,9 +7943,11 @@ protected void consumeExpression() {
 protected void consumeIdentifierOrNew(boolean newForm) {
 	// IdentifierOrNew ::= 'Identifier'
 	// IdentifierOrNew ::= 'new'
-	pushOnIntStack(newForm ? 1 : 0);  // to discriminate between the two forms downstream.
-	if (!newForm)
-		pushOnTypeAnnotationLengthStack(0);
+	if (newForm) {
+		int newStart = this.intStack[this.intPtr--];
+		pushIdentifier(ConstantPool.Init, (((long) newStart << 32)) + (newStart + 3));
+	}
+	pushOnTypeAnnotationLengthStack(0);
 }
 protected void consumeEmptyTypeArguments() {
 	// NonWildTypeArgumentsopt ::= $empty
@@ -7961,14 +7963,8 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) { // actu
 	SingleNameReference method;
 	int sourceEnd;
 	
-	boolean newForm = this.intStack[this.intPtr--] != 0; // flag pushed in consumeIdentifierOrNew(boolean)
-	if (newForm) {
-		method = null;
-		sourceEnd = this.intStack[this.intPtr--] + 3; // "new"
-	} else {
-		method = (SingleNameReference) getUnspecifiedReference();
-		sourceEnd = method.sourceEnd;
-	}
+	method = (SingleNameReference) getUnspecifiedReference();
+	sourceEnd = method.sourceEnd;
 	
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	if (length > 0) {
@@ -8063,15 +8059,9 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 	SingleNameReference method;
 	int sourceEnd;
 	
-	boolean newForm = this.intStack[this.intPtr--] != 0; // flag pushed in consumeIdentifierOrNew(boolean)
-	if (newForm) {
-		sourceEnd = this.intStack[this.intPtr--] + 3; // "new"
-		method = null;
-	} else {
-		method = (SingleNameReference) getUnspecifiedReference();
-		sourceEnd = method.sourceEnd;
-	}
-	
+	method = (SingleNameReference) getUnspecifiedReference();
+	sourceEnd = method.sourceEnd;
+
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	if (length > 0) {
 		this.genericsPtr -= length;

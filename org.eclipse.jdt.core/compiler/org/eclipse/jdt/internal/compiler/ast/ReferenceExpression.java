@@ -21,6 +21,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
@@ -78,7 +79,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			return null;
 		
 		final TypeBinding[] descriptorParameters = this.descriptor != null ? this.descriptor.parameters : Binding.NO_PARAMETERS;
-		final char[] selector = this.method != null ? this.method.token : CharOperation.NO_CHAR;
+		final char[] selector = this.method.token;
 		if (lhsType.isBaseType()) {
 			scope.problemReporter().errorNoMethodFor(this.lhs, lhsType, selector, this.descriptor != null ? descriptorParameters : Binding.NO_TYPES);
 			return null;
@@ -209,18 +210,17 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         if (throwsTantrum)
         	return null;
         
-        if (this.method != null)
-        	this.method.binding = this.binding;
+        this.method.binding = this.binding;
  
         return this.resolvedType;
 	}
 	
 	public final boolean isConstructorReference() {
-		return this.method == null;
+		return CharOperation.equals(this.method.token,  ConstantPool.Init);
 	}
 	
 	public final boolean isMethodReference() {
-		return this.method != null;
+		return !CharOperation.equals(this.method.token,  ConstantPool.Init);
 	}
 	
 	public TypeBinding[] genericTypeArguments() {
@@ -261,11 +261,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			this.typeArguments[max].print(0, output);
 			output.append('>');
 		}
-		if (this.method == null) {
-			output.append("new"); //$NON-NLS-1$	
-		} else {
+		if (isConstructorReference())
+			output.append("new"); //$NON-NLS-1$
+		else 
 			this.method.print(0, output);
-		}
+		
 		return output;
 	}
 		
@@ -280,8 +280,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 				this.typeArguments[i].traverse(visitor, blockScope);
 			}
 			
-			if (this.method != null)
-				this.method.traverse(visitor, blockScope);
+			this.method.traverse(visitor, blockScope);
 
 		}
 		visitor.endVisit(this, blockScope);
