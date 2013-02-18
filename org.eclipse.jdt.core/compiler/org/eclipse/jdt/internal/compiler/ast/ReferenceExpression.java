@@ -208,6 +208,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         }
         if (throwsTantrum)
         	return null;
+        
+        if (this.method != null)
+        	this.method.binding = this.binding;
  
         return this.resolvedType;
 	}

@@ -7944,6 +7944,8 @@ protected void consumeIdentifierOrNew(boolean newForm) {
 	// IdentifierOrNew ::= 'Identifier'
 	// IdentifierOrNew ::= 'new'
 	pushOnIntStack(newForm ? 1 : 0);  // to discriminate between the two forms downstream.
+	if (!newForm)
+		pushOnTypeAnnotationLengthStack(0);
 }
 protected void consumeEmptyTypeArguments() {
 	// NonWildTypeArgumentsopt ::= $empty
@@ -7964,8 +7966,7 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) { // actu
 		method = null;
 		sourceEnd = this.intStack[this.intPtr--] + 3; // "new"
 	} else {
-		method = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
-		this.identifierLengthPtr--;
+		method = (SingleNameReference) getUnspecifiedReference();
 		sourceEnd = method.sourceEnd;
 	}
 	
@@ -8008,8 +8009,7 @@ protected void consumeReferenceExpressionPrimaryForm() {
 	TypeReference [] typeArguments = null;
 	SingleNameReference method;
 	
-	method = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
-	this.identifierLengthPtr--;
+	method = (SingleNameReference) getUnspecifiedReference();
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	if (length > 0) {
 		this.genericsPtr -= length;
@@ -8032,8 +8032,7 @@ protected void consumeReferenceExpressionSuperForm() {
 	TypeReference [] typeArguments = null;
 	SingleNameReference method;
 	
-	method = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
-	this.identifierLengthPtr--;
+	method = (SingleNameReference) getUnspecifiedReference();
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
 	if (length > 0) {
 		this.genericsPtr -= length;
@@ -8069,9 +8068,8 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 		sourceEnd = this.intStack[this.intPtr--] + 3; // "new"
 		method = null;
 	} else {
-		method = new SingleNameReference(this.identifierStack[this.identifierPtr], this.identifierPositionStack[this.identifierPtr--]);
+		method = (SingleNameReference) getUnspecifiedReference();
 		sourceEnd = method.sourceEnd;
-		this.identifierLengthPtr--;
 	}
 	
 	int length = this.genericsLengthStack[this.genericsLengthPtr--];
