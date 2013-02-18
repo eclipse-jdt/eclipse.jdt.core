@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
@@ -29,7 +30,10 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class ReferenceExpression extends FunctionalExpression implements InvocationSite {
 	
@@ -49,17 +53,18 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		this.sourceEnd = sourceEnd;
 	}
 
-	// Structured to report as many errors as possible in bail out situations.
 	public TypeBinding resolveType(BlockScope scope) {
+		
 		super.resolveType(scope);
-
-		if (isConstructorReference()) {
+		
+		final CompilerOptions compilerOptions = scope.compilerOptions();
+    	if (isConstructorReference()) {
 			this.lhs.bits |= ASTNode.IgnoreRawTypeCheck; // raw types in constructor references are to be treated as though <> were specified.
 		}
 		TypeBinding lhsType = this.lhs.resolveType(scope);
 		if (this.typeArguments != null) {
 			int length = this.typeArguments.length;
-			boolean argHasError = scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5;
+			boolean argHasError = compilerOptions.sourceLevel < ClassFileConstants.JDK1_5;
 			this.resolvedTypeArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				TypeReference typeReference = this.typeArguments[i];
@@ -125,8 +130,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		if (this.lhs instanceof NameReference) {
 			if ((this.lhs.bits & ASTNode.RestrictiveFlagMASK) == Binding.TYPE) {
 				this.haveReceiver = false;
-				if (isMethodReference() && this.receiverType.isRawType())
-					scope.problemReporter().rawTypeReference(this.lhs, this.receiverType);
+				if (isMethodReference() && this.receiverType.isRawType()) {
+					if ((this.lhs.bits & ASTNode.IgnoreRawTypeCheck) == 0 && compilerOptions.getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
+						scope.problemReporter().rawTypeReference(this.lhs, this.receiverType);
+					}
+				}
 			}
 		} else if (this.lhs instanceof TypeReference) {
 			this.haveReceiver = false;
@@ -181,6 +189,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         }
 
         this.binding = someMethod != null && someMethod.isValidBinding() ? someMethod : anotherMethod != null && anotherMethod.isValidBinding() ? anotherMethod : null;
+        this.method.binding = this.binding;
         if (this.binding == null) {
         	scope.problemReporter().danglingReference(this, this.receiverType, selector, descriptorParameters);
 			return null;
@@ -191,28 +200,58 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         // OK, we have a compile time declaration, see if it passes muster.
         TypeBinding [] methodExceptions = this.binding.thrownExceptions;
         TypeBinding [] kosherExceptions = this.descriptor.thrownExceptions;
-        boolean throwsTantrum = false;
         next: for (int i = 0, iMax = methodExceptions.length; i < iMax; i++) {
         	for (int j = 0, jMax = kosherExceptions.length; j < jMax; j++) {
         		if (methodExceptions[i].isCompatibleWith(kosherExceptions[j], scope))
         			continue next;
         	}
         	scope.problemReporter().unhandledException(methodExceptions[i], this);
-        	throwsTantrum = true;
         }
         
-        if (this.binding.isAbstract()) {
-        	if (this.lhs instanceof SuperReference || this.lhs instanceof QualifiedSuperReference) {
-        		scope.problemReporter().cannotReferToAbstractMethod(this, this.binding);
-        		return null;
-        	}
-        }
-        if (throwsTantrum)
+        if (this.binding.isAbstract() && this.lhs.isSuper()) {
+        	scope.problemReporter().cannotDireclyInvokeAbstractMethod(this, this.binding);
         	return null;
+        }
         
-        this.method.binding = this.binding;
- 
-        return this.resolvedType;
+        if (this.binding.isStatic() && this.binding.declaringClass != this.receiverType) {
+			scope.problemReporter().indirectAccessToStaticMethod(this, this.binding);
+		}
+            	
+    	if (checkInvocationArguments(scope, null, this.receiverType, this.binding, null, descriptorParameters, false, this)) {
+    		this.bits |= ASTNode.Unchecked;
+    	}
+
+    	if (isMethodUseDeprecated(this.binding, scope, true))
+    		scope.problemReporter().deprecatedMethod(this.binding, this);
+
+    	if (this.descriptor.returnType.id != TypeIds.T_void) {
+    		// from 1.5 source level on, array#clone() returns the array type (but binding still shows Object)
+    		TypeBinding returnType = null;
+    		if (this.binding == scope.environment().arrayClone) {
+    			returnType = this.receiverType;
+    		} else {
+    			if ((this.bits & ASTNode.Unchecked) != 0 && this.resolvedTypeArguments == null) {
+    				returnType = this.binding.returnType;
+    				if (returnType != null) {
+    					returnType = scope.environment().convertToRawType(returnType.erasure(), true);
+    				}
+    			} else {
+    				returnType = this.binding.returnType;
+    				if (returnType != null) {
+    					returnType = returnType.capture(scope, this.sourceEnd);
+    				}
+    			}
+    		}
+    		if (!returnType.isCompatibleWith(this.descriptor.returnType, scope)) {
+    			scope.problemReporter().incompatibleReturnType(this, this.binding, this.descriptor.returnType);
+    		}
+    	}
+    	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
+    		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.resolvedTypeArguments, this.typeArguments);
+    	}
+    	return (this.resolvedType.tagBits & TagBits.HasMissingType) == 0
+    				? this.resolvedType
+    				: null;	
 	}
 	
 	public final boolean isConstructorReference() {

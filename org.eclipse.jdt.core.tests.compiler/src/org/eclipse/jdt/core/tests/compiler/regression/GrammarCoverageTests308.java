@@ -653,7 +653,12 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"	                   ^^^^^^\n" + 
 				"Marker cannot be resolved to a type\n" + 
 				"----------\n" + 
-				"3. ERROR in X.java (at line 7)\n" + 
+				"3. WARNING in X.java (at line 6)\n" + 
+				"	I i = @Marker int @Marker []::<String>clone;\n" + 
+				"	                               ^^^^^^\n" + 
+				"Unused type arguments for the non generic method clone() of type Object; it should not be parameterized with arguments <String>\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 7)\n" + 
 				"	Zork z;\n" + 
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 

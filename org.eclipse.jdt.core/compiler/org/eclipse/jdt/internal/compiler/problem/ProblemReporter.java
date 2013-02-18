@@ -1142,13 +1142,13 @@ public void cannotDefineDimensionsAndInitializer(ArrayAllocationExpression expre
 		expresssion.sourceStart,
 		expresssion.sourceEnd);
 }
-public void cannotDireclyInvokeAbstractMethod(MessageSend messageSend, MethodBinding method) {
+public void cannotDireclyInvokeAbstractMethod(ASTNode invocationSite, MethodBinding method) {
 	this.handle(
 		IProblem.DirectInvocationOfAbstractMethod,
 		new String[] {new String(method.declaringClass.readableName()), new String(method.selector), typesAsString(method, false)},
 		new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), typesAsString(method, true)},
-		messageSend.sourceStart,
-		messageSend.sourceEnd);
+		invocationSite.sourceStart,
+		invocationSite.sourceEnd);
 }
 public void cannotExtendEnum(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
@@ -9285,9 +9285,7 @@ public void unhandledException(TypeBinding exceptionType, ReferenceExpression lo
 		location.sourceEnd);
 }
 
-public void cannotReferToAbstractMethod(ReferenceExpression expression, MethodBinding method) {
-	TypeBinding receiverType = method.declaringClass;
-	char [] selector = method.selector;
+public void incompatibleReturnType(ReferenceExpression expression, MethodBinding method, TypeBinding returnType) {
 	StringBuffer buffer = new StringBuffer();
 	StringBuffer shortBuffer = new StringBuffer();
 	TypeBinding [] parameters = method.parameters;
@@ -9299,13 +9297,11 @@ public void cannotReferToAbstractMethod(ReferenceExpression expression, MethodBi
 		buffer.append(new String(parameters[i].readableName()));
 		shortBuffer.append(new String(parameters[i].shortReadableName()));
 	}
-	
-	int id = IProblem.UndefinedMethod;
-	this.handle(
-		id,
-		new String[] { new String(receiverType.readableName()), new String(selector), buffer.toString() },
-		new String[] { new String(receiverType.shortReadableName()), new String(selector), shortBuffer.toString() },
-		expression.sourceStart,
-		expression.sourceEnd);
+	String selector = new String(method.selector);
+	this.handle(IProblem.IncompatibleMethodReference,
+			new String[] { selector, buffer.toString(), new String(method.declaringClass.readableName()), new String(method.returnType.readableName()), new String(returnType.readableName())},
+			new String[] { selector, shortBuffer.toString(), new String(method.declaringClass.shortReadableName()), new String(method.returnType.shortReadableName()), new String(returnType.shortReadableName())},
+			expression.sourceStart,
+			expression.sourceEnd);
 }
 }

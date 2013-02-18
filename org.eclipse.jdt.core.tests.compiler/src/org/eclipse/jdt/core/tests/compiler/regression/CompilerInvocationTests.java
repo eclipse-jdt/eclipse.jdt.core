@@ -572,6 +572,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IncompatibleExceptionInThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
 		expectedProblemAttributes.put("IncompatibleLambdaParameterType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("IncompatibleMethodReference", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IncompatibleReturnType", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IncompatibleReturnTypeForNonInheritedInterfaceMethod", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
 		expectedProblemAttributes.put("IncompatibleTypesInConditionalOperator", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1342,6 +1343,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IncompatibleTypesInEqualityOperator", SKIP);
 		expectedProblemAttributes.put("IncompatibleTypesInForeach", SKIP);
 		expectedProblemAttributes.put("IncompatibleLambdaParameterType", SKIP);
+		expectedProblemAttributes.put("IncompatibleMethodReference", SKIP);
 		expectedProblemAttributes.put("IncorrectArityForParameterizedConstructor", SKIP);
 		expectedProblemAttributes.put("IncorrectArityForParameterizedMethod", SKIP);
 		expectedProblemAttributes.put("IncorrectArityForParameterizedType", SKIP);

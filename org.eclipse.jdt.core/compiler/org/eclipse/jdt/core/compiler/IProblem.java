@@ -477,6 +477,8 @@ void setSourceStart(int sourceStart);
 	int ConstructedArrayIncompatible = Internal + MethodRelated + 126;
 	/** @since 3.9 */
 	int DanglingReference = Internal + MethodRelated + 127;
+	/** @since 3.9 */
+	int IncompatibleMethodReference = Internal + MethodRelated + 128;
 
 	// constructors
 	/** @since 3.4 */
