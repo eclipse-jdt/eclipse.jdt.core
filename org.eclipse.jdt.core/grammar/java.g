@@ -926,10 +926,14 @@ InterfaceMemberDeclaration ::= ';'
 InterfaceMemberDeclaration -> ConstantDeclaration
 InterfaceMemberDeclaration ::= DefaultMethodHeader MethodBody
 /:$compliance 1.8:/
-/.$putCase consumeInterfaceMethodDeclaration(); $break ./
+/.$putCase consumeInterfaceMethodDeclaration(false); $break ./
 InterfaceMemberDeclaration ::= MethodHeader MethodBody
-/.$putCase consumeInterfaceMethodDeclaration(); $break ./
+/.$putCase consumeInterfaceMethodDeclaration(false); $break ./
 /:$readableName InterfaceMemberDeclaration:/
+-- the next rule is illegal but allows to give a more canonical error message from inside consumeInterfaceMethodDeclaration():
+InterfaceMemberDeclaration ::= DefaultMethodHeader ';'
+/:$compliance 1.8:/
+/.$putCase consumeInterfaceMethodDeclaration(true); $break ./
 
 -- These rules are added to be able to parse constructors inside interface and then report a relevent error message
 InvalidConstructorDeclaration ::= ConstructorHeader MethodBody
@@ -2587,6 +2591,12 @@ RecoveryMethodHeaderName ::= Modifiersopt TypeParameters Type 'Identifier' '('
 /.$putCase consumeRecoveryMethodHeaderNameWithTypeParameters(); $break ./
 /:$compliance 1.5:/
 RecoveryMethodHeaderName ::= Modifiersopt Type 'Identifier' '('
+/.$putCase consumeRecoveryMethodHeaderName(); $break ./
+/:$readableName MethodHeaderName:/
+RecoveryMethodHeaderName ::= ModifiersWithDefault TypeParameters Type 'Identifier' '('
+/.$putCase consumeRecoveryMethodHeaderNameWithTypeParameters(); $break ./
+/:$compliance 1.5:/
+RecoveryMethodHeaderName ::= ModifiersWithDefault Type 'Identifier' '('
 /.$putCase consumeRecoveryMethodHeaderName(); $break ./
 /:$readableName MethodHeaderName:/
 

@@ -15,6 +15,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Map;
+
+import org.eclipse.jdt.core.JavaCore;
+
 import junit.framework.Test;
 
 // See https://bugs.eclipse.org/380501
@@ -69,20 +73,36 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 	}
 
 	// default methods with various modifiers, simple syntax error blows the parser
-	public void _testModifiers1a() {
+	public void testModifiers1a() {
 		runNegativeTest(
 		new String[] {
 			"I.java",
 			"import java.lang.annotation.*;\n" +
 			"@Target(ElementType.METHOD) @interface Annot{}\n" +
 			"public interface I {\n" +
-			"    default void foo1() {}\n" +
+			"    default void foo1() { System.out.println(3); }\n" +
 			"    public default synchronized void foo2() {}\n" +
 			"    stritfp default void foo3() {}\n" + // typo in strictfp
 			"    default public strictfp synchronized void foo4() {}\n" +
 			"    public strictfp  default synchronized @Annot void foo5() {}\n" +
+			"    public default <T> T foo6(T t) { return t; }\n" +
 			"}\n"},
-	    "Some nice and few syntax errors - TODO -");
+			"----------\n" +
+			"1. ERROR in I.java (at line 6)\n" +
+			"	stritfp default void foo3() {}\n" +
+			"	^^^^^^^\n" +
+			"Syntax error, insert \"Identifier (\" to complete MethodHeaderName\n" +
+			"----------\n" +
+			"2. ERROR in I.java (at line 6)\n" +
+			"	stritfp default void foo3() {}\n" +
+			"	^^^^^^^\n" +
+			"Syntax error, insert \")\" to complete MethodDeclaration\n" +
+			"----------\n" +
+			"3. ERROR in I.java (at line 6)\n" +
+			"	stritfp default void foo3() {}\n" +
+			"	^^^^^^^\n" +
+			"Syntax error, insert \";\" to complete MethodDeclaration\n" +
+			"----------\n");
 	}
 
 	// regular interface with illegal modifiers
@@ -273,7 +293,36 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"The type C must implement the inherited abstract method I.bar()\n" + 
 			"----------\n");
 	}
-	
+
+	// a default method has a semicolon body / an undocumented empty body
+	public void testModifiers7() {
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNDOCUMENTED_EMPTY_BLOCK, JavaCore.ERROR);
+		runNegativeTest(
+			new String[] {
+				"I.java",
+				"public interface I {\n" +
+				"    default void foo();\n" +
+				"    default void bar() {}\n" +
+				"    default void zork() { /* nop */ }\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in I.java (at line 2)\n" +
+			"	default void foo();\n" +
+			"	             ^^^^^\n" +
+			"This method requires a body instead of a semicolon\n" +
+			"----------\n" +
+			"2. ERROR in I.java (at line 3)\n" +
+			"	default void bar() {}\n" +
+			"	                   ^^\n" +
+			"Empty block should be documented\n" +
+			"----------\n",
+			null/*classLibs*/,
+			true/*shouldFlush*/,
+			options);
+	}
+
 	// JLS 9.4.2  - default method cannot override method from Object
 	// Bug 382355 - [1.8][compiler] Compiler accepts erroneous default method
 	// new error message
@@ -758,6 +807,23 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"	public class C implements I2, I1 {\n" + 
 			"	             ^\n" + 
 			"The type C must implement the inherited abstract method I2.test()\n" + 
+			"----------\n");
+	}
+
+	// an annotation type cannot have default methods
+	public void testAnnotation1() {
+		runNegativeTest(
+			new String[] {
+				"I.java",
+				"public @interface I {\n" +
+				"    default String id() { return \"1\"; }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in I.java (at line 2)\n" + 
+			"	default String id() { return \"1\"; }\n" + 
+			"	^^^^^^^\n" + 
+			"Syntax error on token \"default\", @ expected\n" + 
 			"----------\n");
 	}
 }
