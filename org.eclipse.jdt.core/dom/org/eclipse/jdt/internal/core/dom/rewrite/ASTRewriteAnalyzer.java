@@ -1237,6 +1237,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		voidVisit(parent, MethodDeclaration.BODY_PROPERTY);
 	}
 
+	protected int rewriteExtraDimensionsInfo(ASTNode node, int pos, ChildListPropertyDescriptor property) {
+		if (isChanged(node, property)) {
+			return rewriteNodeList(node, property, pos, " ", " "); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			return doVisit(node, property, pos);
+		}
+	}
+
 	private int rewriteExtraDimensions(ASTNode parent, StructuralPropertyDescriptor property, int pos) {
 		RewriteEvent event= getEvent(parent, property);
 		if (event == null || event.getChangeKind() == RewriteEvent.UNCHANGED) {
@@ -1816,6 +1824,16 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 	}
 
+	public boolean visit(ExtraDimension node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		int pos= node.getStartPosition();
+		if (isChanged(node, ExtraDimension.ANNOTATIONS_PROPERTY)) {
+			rewriteNodeList(node, ExtraDimension.ANNOTATIONS_PROPERTY, pos, Util.EMPTY_STRING, " "); //$NON-NLS-1$
+		}
+		return false;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(MethodDeclaration)
@@ -1825,7 +1843,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		int pos= rewriteJavadoc(node, MethodDeclaration.JAVADOC_PROPERTY);
-		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
+		int apiLevel= node.getAST().apiLevel();
+		if (apiLevel == JLS2_INTERNAL) {
 			rewriteModifiers(node, MethodDeclaration.MODIFIERS_PROPERTY, pos);
 		} else {
 			pos= rewriteModifiers2(node, MethodDeclaration.MODIFIERS2_PROPERTY, pos);
@@ -1850,20 +1869,24 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			}
 
 			pos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameRPAREN, pos);
+			ChildListPropertyDescriptor exceptionsProperty = apiLevel < AST.JLS8 ? MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY;
 
-			int extraDims= rewriteExtraDimensions(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, pos);
+			if (apiLevel < AST.JLS8) {
+				int extraDims= rewriteExtraDimensions(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, pos);
 
-			ChildListPropertyDescriptor exceptionsProperty = node.getAST().apiLevel() < AST.JLS8 ? MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY;
-			boolean hasExceptionChanges= isChanged(node, exceptionsProperty);
+				boolean hasExceptionChanges= isChanged(node, exceptionsProperty);
 
-			int bodyChangeKind= getChangeKind(node, MethodDeclaration.BODY_PROPERTY);
+				int bodyChangeKind= getChangeKind(node, MethodDeclaration.BODY_PROPERTY);
 
-			if ((extraDims > 0) && (hasExceptionChanges || bodyChangeKind == RewriteEvent.INSERTED || bodyChangeKind == RewriteEvent.REMOVED)) {
-				int dim= ((Integer) getOriginalValue(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY)).intValue();
-				while (dim > 0) {
-					pos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameRBRACKET, pos);
-					dim--;
+				if ((extraDims > 0) && (hasExceptionChanges || bodyChangeKind == RewriteEvent.INSERTED || bodyChangeKind == RewriteEvent.REMOVED)) {
+					int dim= ((Integer) getOriginalValue(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY)).intValue();
+					while (dim > 0) {
+						pos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameRBRACKET, pos);
+						dim--;
+					}
 				}
+			} else {
+				pos= rewriteExtraDimensionsInfo(node, pos, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
 			}
 
 			pos= rewriteNodeList(node, exceptionsProperty, pos, " throws ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
@@ -2838,13 +2861,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		int pos= node.getStartPosition();
-		if (node.getAST().apiLevel() == JLS2_INTERNAL) {
+		int apiLevel= node.getAST().apiLevel();
+		if (apiLevel == JLS2_INTERNAL) {
 			rewriteModifiers(node, SingleVariableDeclaration.MODIFIERS_PROPERTY, pos);
 		} else {
 			rewriteModifiers2(node, SingleVariableDeclaration.MODIFIERS2_PROPERTY, pos);
 		}
 		pos= rewriteRequiredNode(node, SingleVariableDeclaration.TYPE_PROPERTY);
-		if (node.getAST().apiLevel() >= JLS3_INTERNAL) {
+		if (apiLevel >= JLS3_INTERNAL) {
 			if (isChanged(node, SingleVariableDeclaration.VARARGS_PROPERTY)) {
 				if (getNewValue(node, SingleVariableDeclaration.VARARGS_PROPERTY).equals(Boolean.TRUE)) {
 					doTextInsert(pos, "...", getEditGroup(node, SingleVariableDeclaration.VARARGS_PROPERTY)); //$NON-NLS-1$
@@ -2865,19 +2889,23 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		pos= rewriteRequiredNode(node, SingleVariableDeclaration.NAME_PROPERTY);
-		int extraDims= rewriteExtraDimensions(node, INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY, pos);
+		if (apiLevel < AST.JLS8) {
+			int extraDims= rewriteExtraDimensions(node, INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY, pos);
 
-		if (extraDims > 0) {
-			int kind= getChangeKind(node, SingleVariableDeclaration.INITIALIZER_PROPERTY);
-			if (kind == RewriteEvent.REMOVED) {
-				try {
-					pos= getScanner().getPreviousTokenEndOffset(TerminalTokens.TokenNameEQUAL, pos);
-				} catch (CoreException e) {
-					handleException(e);
+			if (extraDims > 0) {
+				int kind= getChangeKind(node, SingleVariableDeclaration.INITIALIZER_PROPERTY);
+				if (kind == RewriteEvent.REMOVED) {
+					try {
+						pos= getScanner().getPreviousTokenEndOffset(TerminalTokens.TokenNameEQUAL, pos);
+					} catch (CoreException e) {
+						handleException(e);
+					}
+				} else {
+					pos= node.getStartPosition() + node.getLength(); // insert pos
 				}
-			} else {
-				pos= node.getStartPosition() + node.getLength(); // insert pos
 			}
+		} else {
+			pos = rewriteExtraDimensionsInfo(node, pos, SingleVariableDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
 		}
 
 		rewriteNode(node, SingleVariableDeclaration.INITIALIZER_PROPERTY, pos, this.formatter.VAR_INITIALIZER);
@@ -3265,19 +3293,22 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		int pos= rewriteRequiredNode(node, VariableDeclarationFragment.NAME_PROPERTY);
 
-		int extraDims= rewriteExtraDimensions(node, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY, pos);
-
-		if (extraDims > 0) {
-			int kind= getChangeKind(node, VariableDeclarationFragment.INITIALIZER_PROPERTY);
-			if (kind == RewriteEvent.REMOVED) {
-				try {
-					pos= getScanner().getPreviousTokenEndOffset(TerminalTokens.TokenNameEQUAL, pos);
-				} catch (CoreException e) {
-					handleException(e);
+		if (node.getAST().apiLevel() < AST.JLS8) {
+			int extraDims= rewriteExtraDimensions(node, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY, pos);
+			if (extraDims > 0) {
+				int kind= getChangeKind(node, VariableDeclarationFragment.INITIALIZER_PROPERTY);
+				if (kind == RewriteEvent.REMOVED) {
+					try {
+						pos= getScanner().getPreviousTokenEndOffset(TerminalTokens.TokenNameEQUAL, pos);
+					} catch (CoreException e) {
+						handleException(e);
+					}
+				} else {
+					pos= node.getStartPosition() + node.getLength(); // insert pos
 				}
-			} else {
-				pos= node.getStartPosition() + node.getLength(); // insert pos
 			}
+		} else {
+			pos = rewriteExtraDimensionsInfo(node, pos, VariableDeclarationFragment.EXTRA_DIMENSION_INFOS_PROPERTY);
 		}
 		rewriteNode(node, VariableDeclarationFragment.INITIALIZER_PROPERTY, pos, this.formatter.VAR_INITIALIZER);
 		return false;

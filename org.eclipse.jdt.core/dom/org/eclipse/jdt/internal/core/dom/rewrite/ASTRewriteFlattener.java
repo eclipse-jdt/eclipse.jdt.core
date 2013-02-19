@@ -171,6 +171,16 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 	}
 
+	private void visitExtraDimensions(ASTNode node, SimplePropertyDescriptor dimensions, ChildListPropertyDescriptor dimensionsInfo) {
+		if (node.getAST().apiLevel() < AST.JLS8) {
+			int extraDimensions= getIntAttribute(node, dimensions);
+			for (int i = 0; i < extraDimensions; i++) {
+				this.result.append("[]"); //$NON-NLS-1$
+			}
+		} else {
+			visitList(node, dimensionsInfo, String.valueOf(' '), String.valueOf(' '), Util.EMPTY_STRING);
+		}
+	}
 
 	/*
 	 * @see ASTVisitor#visit(AnonymousClassDeclaration)
@@ -607,7 +617,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		getChildNode(node, LabeledStatement.BODY_PROPERTY).accept(this);
 		return false;
 	}
-
+	public boolean visit(ExtraDimension node) {
+		visitList(node, ExtraDimension.ANNOTATIONS_PROPERTY, String.valueOf(' '), String.valueOf(' '), String.valueOf(' '));
+		this.result.append("[]"); //$NON-NLS-1$
+		return false;
+	}
 	/*
 	 * @see ASTVisitor#visit(MethodDeclaration)
 	 */
@@ -641,10 +655,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append('(');
 		visitList(node, MethodDeclaration.PARAMETERS_PROPERTY, String.valueOf(','));
 		this.result.append(')');
-		int extraDims= getIntAttribute(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY);
-		for (int i = 0; i < extraDims; i++) {
-			this.result.append("[]"); //$NON-NLS-1$
-		}
+		visitExtraDimensions(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
 
 		ChildListPropertyDescriptor exceptionsProperty = node.getAST().apiLevel() <	AST.JLS8 ? 
 				MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY;
@@ -810,10 +821,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 		this.result.append(' ');
 		getChildNode(node, SingleVariableDeclaration.NAME_PROPERTY).accept(this);
-		int extraDimensions= getIntAttribute(node, INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY);
-		for (int i = 0; i < extraDimensions; i++) {
-			this.result.append("[]"); //$NON-NLS-1$
-		}
+		visitExtraDimensions(node, INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY, SingleVariableDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
 		ASTNode initializer= getChildNode(node, SingleVariableDeclaration.INITIALIZER_PROPERTY);
 		if (initializer != null) {
 			this.result.append('=');
@@ -1055,10 +1063,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(VariableDeclarationFragment node) {
 		getChildNode(node, VariableDeclarationFragment.NAME_PROPERTY).accept(this);
-		int extraDimensions= getIntAttribute(node, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY);
-		for (int i = 0; i < extraDimensions; i++) {
-			this.result.append("[]"); //$NON-NLS-1$
-		}
+		visitExtraDimensions(node, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY, VariableDeclarationFragment.EXTRA_DIMENSION_INFOS_PROPERTY);
 		ASTNode initializer= getChildNode(node, VariableDeclarationFragment.INITIALIZER_PROPERTY);
 		if (initializer != null) {
 			this.result.append('=');
