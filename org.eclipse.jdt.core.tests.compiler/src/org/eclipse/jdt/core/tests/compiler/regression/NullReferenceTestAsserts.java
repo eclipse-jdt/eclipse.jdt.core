@@ -55,6 +55,19 @@ static final String JUNIT_ASSERT_CONTENT = "package junit.framework;\n" +
 		"    static public void assertFalse(String message, boolean expression) {}\n" +
 		"}\n";
 
+static final String ORG_JUNIT_ASSERT_NAME = "org/junit/Assert.java";
+static final String ORG_JUNIT_ASSERT_CONTENT = "package org.junit;\n" +
+		"public class Assert {\n" +
+		"    static public void assertNull(Object object) {}\n" +
+		"    static public void assertNull(String message, Object object) {}\n" +
+		"    static public void assertNotNull(Object object) {}\n" +
+		"    static public void assertNotNull(String message, Object object) {}\n" +
+		"    static public void assertTrue(boolean expression) {}\n" +
+		"    static public void assertTrue(String message, boolean expression) {}\n" +
+		"    static public void assertFalse(boolean expression) {}\n" +
+		"    static public void assertFalse(String message, boolean expression) {}\n" +
+		"}\n";
+
 static final String APACHE_VALIDATE_NAME = "org/apache/commons/lang/Validate.java";
 static final String APACHE_VALIDATE_CONTENT = "package org.apache.commons.lang;\n" +
 		"public class Validate {\n" +
@@ -1019,5 +1032,33 @@ public void testBug382069h() throws IOException {
 			"  }\n" +
 			"}\n"},
 		"");
+}
+// Bug 401159 - [null] Respect org.junit.Assert for control flow
+// various asserts from org.junit.Assert
+public void testBug401159() throws IOException {
+	this.runNegativeTest(
+		new String[] {
+			ORG_JUNIT_ASSERT_NAME,
+			ORG_JUNIT_ASSERT_CONTENT,
+			"X.java",
+			"import org.junit.Assert;\n" +
+			"public class X {\n" +
+			"  void foo(Object o1, String o2, X x) {\n" +
+			"    boolean b = o1 != null;\n" + // sheds doubts upon o1
+			"    Assert.assertNotNull(o1);\n" + 	// protection
+			"    o1.toString();\n" + 		// quiet
+			"    b = o2 != null;\n" + // sheds doubts upon o2
+			"    Assert.assertNotNull(\"msg\", o2);\n" + 	// protection
+			"    o2.toString();\n" + 		// quiet
+			"    Assert.assertTrue(\"ups\", x == null);\n" +
+			"    x.foo(null, null, null); // definite NPE\n" +
+			"  }\n" +
+			"}\n"},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	x.foo(null, null, null); // definite NPE\n" + 
+			"	^\n" + 
+			"Null pointer access: The variable x can only be null at this location\n" + 
+			"----------\n");
 }
 }

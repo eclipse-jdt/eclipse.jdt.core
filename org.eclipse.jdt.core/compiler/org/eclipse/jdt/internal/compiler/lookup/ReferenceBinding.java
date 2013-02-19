@@ -392,8 +392,12 @@ public void computeId() {
 
 		case 3 :
 			char[] packageName = this.compoundName[0];
-			// expect only java.*.* and javax.*.* and junit.*.*
+			// expect only java.*.* and javax.*.* and junit.*.* and org.junit.*
 			switch (packageName.length) {
+				case 3: // only one type in this group, yet:
+					if (CharOperation.equals(TypeConstants.ORG_JUNIT_ASSERT, this.compoundName))
+						this.id = TypeIds.T_OrgJunitAssert;
+					return;						
 				case 4:
 					if (!CharOperation.equals(TypeConstants.JAVA, packageName))
 						return;
