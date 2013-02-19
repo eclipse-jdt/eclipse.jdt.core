@@ -199,6 +199,7 @@ private int detectAssertionUtility(int argumentIdx) {
 						return NONNULL_ASSERTION;
 					break;
 				case TypeIds.T_JunitFrameworkAssert:
+				case TypeIds.T_OrgJunitAssert:
 					if (parameterType.id == TypeIds.T_boolean) {
 						if (CharOperation.equals(TypeConstants.ASSERT_TRUE, this.selector))
 							return TRUE_ASSERTION;

@@ -113,10 +113,11 @@ public interface TypeIds {
 	final int T_OrgEclipseCoreRuntimeAssert = 68;
 	// new in 3.9 to identify more assertion utilities:
 	final int T_JunitFrameworkAssert = 69;
-	final int T_OrgApacheCommonsLangValidate = 70;
-	final int T_OrgApacheCommonsLang3Validate = 71;
-	final int T_ComGoogleCommonBasePreconditions = 72;
-	final int T_JavaUtilObjects = 73;
+	final int T_OrgJunitAssert = 70;
+	final int T_OrgApacheCommonsLangValidate = 71;
+	final int T_OrgApacheCommonsLang3Validate = 72;
+	final int T_ComGoogleCommonBasePreconditions = 73;
+	final int T_JavaUtilObjects = 74;
 
 	// new in 3.9 to identify known @Inject annotations
 	final int T_JavaxInjectInject = 80;

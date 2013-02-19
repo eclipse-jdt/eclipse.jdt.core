@@ -252,6 +252,7 @@ public interface TypeConstants {
 	char[] JUNIT = "junit".toCharArray(); //$NON-NLS-1$
 	char[] FRAMEWORK = "framework".toCharArray(); //$NON-NLS-1$
 	char[][] JUNIT_FRAMEWORK_ASSERT = new char[][] { JUNIT, FRAMEWORK, ASSERT_CLASS };
+	char[][] ORG_JUNIT_ASSERT = new char[][] { ORG, JUNIT, ASSERT_CLASS };
 	// ... methods:
 	char[] ASSERT_NULL = "assertNull".toCharArray(); //$NON-NLS-1$
 	char[] ASSERT_NOTNULL = "assertNotNull".toCharArray(); //$NON-NLS-1$
