@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -37,7 +38,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	
 	public Expression lhs;
 	public TypeReference [] typeArguments;
-	public SingleNameReference method; // == null ? "::new" : "::method"
+	public SingleNameReference method;
 	
 	private TypeBinding receiverType;
 	private boolean haveReceiver;
@@ -212,6 +213,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 
     	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES)
     		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.resolvedTypeArguments, this.typeArguments);
+    	
+    	if ((this.binding.tagBits & TagBits.HasMissingType) != 0)
+    		scope.problemReporter().missingTypeInMethod(this, this.binding);
     	
 
         // OK, we have a compile time declaration, see if it passes muster.

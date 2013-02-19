@@ -5917,7 +5917,16 @@ public void missingTypeInConstructor(ASTNode location, MethodBinding constructor
 			end);
 }
 
-public void missingTypeInMethod(MessageSend messageSend, MethodBinding method) {
+public void missingTypeInMethod(ASTNode astNode, MethodBinding method) {
+	int nameSourceStart, nameSourceEnd;
+	if (astNode instanceof MessageSend) {
+		MessageSend messageSend = astNode instanceof MessageSend ? (MessageSend) (astNode) : null;
+		nameSourceStart = (int) (messageSend.nameSourcePosition >>> 32);
+		nameSourceEnd = (int) messageSend.nameSourcePosition;
+	} else {
+		nameSourceStart = astNode.sourceStart;
+		nameSourceEnd = astNode.sourceEnd;
+	}
 	List missingTypes = method.collectMissingTypes(null);
 	if (missingTypes == null) {
 		System.err.println("The method " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -5938,8 +5947,8 @@ public void missingTypeInMethod(MessageSend messageSend, MethodBinding method) {
 			        typesAsString(method, true),
 			       	new String(missingType.shortReadableName()),
 			},
-			(int) (messageSend.nameSourcePosition >>> 32),
-			(int) messageSend.nameSourcePosition);
+			nameSourceStart,
+			nameSourceEnd);
 }
 public void missingValueForAnnotationMember(Annotation annotation, char[] memberName) {
 	String memberString = new String(memberName);

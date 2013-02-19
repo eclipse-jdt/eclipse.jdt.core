@@ -4945,6 +4945,37 @@ this.runNegativeTest(
 				},
 				"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750z9() {
+this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int [] doit(X x);\n" +
+				"}\n" +
+				"public class X {\n" +
+    			"	Zork foo() {\n" +
+    			"	}\n" +
+    			"   I i = X::foo;\n" +
+    			"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	Zork foo() {\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	I i = X::foo;\n" + 
+				"	      ^^^^^^\n" + 
+				"The method foo() from the type X refers to the missing type Zork\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	I i = X::foo;\n" + 
+				"	      ^^^^^^\n" + 
+				"The type of foo() from the type X is Zork, this is incompatible with the descriptor\'s return type: int[]\n" + 
+				"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
