@@ -13,6 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
+ *								bug 399567 - [1.8] Different error message from the reference compiler
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -497,12 +498,59 @@ sure, yet neither overrides the other
 			"----------\n"
 		);
 	}
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=123943 - case 2
-	public void _test009() {
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123943 - case 2
+	// see also Bug 399567 - [1.8] Different error message from the reference compiler
+	public void test009() {
+		String[] testFiles = 
+				new String[] {
+				"T.java",
+				"import java.util.*;\n" +
+						"public class T {\n" +
+						"   void test() {\n" +
+						"   	OrderedSet<String> os = null;\n" +
+						"   	os.add(\"hello\");\n" +
+						"   	OrderedSet<Integer> os2 = null;\n" +
+						"   	os2.add(1);\n" +
+						"   }\n" +
+						"}\n" +
+						"interface OrderedSet<E> extends List<E>, Set<E> { boolean add(E o); }\n"
+		};
+		if (!IS_JRE_8 || this.complianceLevel < ClassFileConstants.JDK1_8)
+			this.runConformTest(testFiles, "");
+		else
+			this.runNegativeTest(
+				testFiles,
+				"----------\n" + 
+			  "1. WARNING in T.java (at line 5)\n" + 
+			  "	os.add(\"hello\");\n" + 
+			  "	^^\n" + 
+			  "Null pointer access: The variable os can only be null at this location\n" + 
+			  "----------\n" + 
+			  "2. WARNING in T.java (at line 7)\n" + 
+			  "	os2.add(1);\n" + 
+			  "	^^^\n" + 
+			  "Null pointer access: The variable os2 can only be null at this location\n" + 
+			  "----------\n" + 
+			  "3. ERROR in T.java (at line 10)\n" + 
+			  "	interface OrderedSet<E> extends List<E>, Set<E> { boolean add(E o); }\n" + 
+			  "	          ^^^^^^^^^^\n" + 
+			  "Duplicate methods named stream with the parameters () and () are inherited from the types Set<E> and List<E>\n" + 
+			  "----------\n" + 
+			  "4. ERROR in T.java (at line 10)\n" + 
+			  "	interface OrderedSet<E> extends List<E>, Set<E> { boolean add(E o); }\n" + 
+			  "	          ^^^^^^^^^^\n" + 
+			  "Duplicate methods named parallelStream with the parameters () and () are inherited from the types Set<E> and List<E>\n" + 
+			  "----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123943 variant to make it pass on JRE8
+	public void test009a() {
+		if (!IS_JRE_8 || this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
 		this.runConformTest(
 			new String[] {
 				"T.java",
 				"import java.util.*;\n" +
+				"import java.util.stream.Stream;\n" +
 				"public class T {\n" +
 				"   void test() {\n" +
 				"   	OrderedSet<String> os = null;\n" +
@@ -510,8 +558,12 @@ sure, yet neither overrides the other
 				"   	OrderedSet<Integer> os2 = null;\n" +
 				"   	os2.add(1);\n" +
 				"   }\n" +
-				"}" +
-				"interface OrderedSet<E> extends List<E>, Set<E> { boolean add(E o); }\n"
+				"}\n" +
+				"interface OrderedSet<E> extends List<E>, Set<E> {\n" +
+				"	boolean add(E o);\n" +
+				"	default Stream<E> stream() { return null;}\n" +
+				"	default Stream<E> parallelStream() { return null;}\n" +
+				"}\n"
 			},
 			""
 		);
