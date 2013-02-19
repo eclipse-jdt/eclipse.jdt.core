@@ -19,6 +19,7 @@
  *								bug 388739 - [1.8][compiler] consider default methods when detecting whether a class needs to be declared abstract
  *								bug 390883 - [1.8][compiler] Unable to override default method
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+ *								bug 401246 - [1.8][compiler] abstract class method should now trump conflicting default methods
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -257,12 +258,29 @@ void checkInheritedMethods(MethodBinding inheritedMethod, MethodBinding otherInh
 void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOverridden) {
 	boolean continueInvestigation = true;
 	MethodBinding concreteMethod = null;
+	MethodBinding superClassMethod = null;
+	for (int i = 0; i < length; i++) {
+		if (!methods[i].declaringClass.isInterface() && methods[i].declaringClass != this.type) {
+			superClassMethod = methods[i];
+			break;
+		}
+	}
 	for (int i = 0; i < length; i++) {
 		if (!methods[i].isAbstract()) {
 			// re-checking compatibility is needed for https://bugs.eclipse.org/346029
 			if (concreteMethod != null && !(isOverridden[i] && areMethodsCompatible(concreteMethod, methods[i]))) {
-				problemReporter().duplicateInheritedMethods(this.type, concreteMethod, methods[i]);
-				continueInvestigation = false;
+				// 8.4.8.4 defines an exception for default methods if
+				// (a) there exists an abstract method declared in a superclass of C and inherited by C
+				// (b) that is override-equivalent with the two methods.
+				if (methods[i].isDefaultMethod() 
+						&& superClassMethod != null							// condition (a)
+						&& areParametersEqual(superClassMethod, methods[i]) // condition (b)...
+						&& areParametersEqual(superClassMethod, concreteMethod)) {
+					// skip, class method trumps this default method
+				} else {
+					problemReporter().duplicateInheritedMethods(this.type, concreteMethod, methods[i]);
+					continueInvestigation = false;
+				}
 			}
 			concreteMethod = methods[i];
 		}

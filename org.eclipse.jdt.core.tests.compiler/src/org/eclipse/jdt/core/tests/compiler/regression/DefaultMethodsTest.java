@@ -716,6 +716,30 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			});
 	}
 
+	// same as above but for interfaces this is illegal
+	public void testAbstract02b() {
+		runNegativeTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"    void test();\n" +
+				"}\n",
+				"I2.java",
+				"public interface I2 {\n" +
+				"    default void test() {}\n" +
+				"}\n",
+				"I3.java",
+				"public interface I3 extends I1, I2 {\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in I3.java (at line 1)\n" + 
+			"	public interface I3 extends I1, I2 {\n" + 
+			"	                 ^^\n" + 
+			"The default method test() inherited from I2 conflicts with another method inherited from I1\n" + 
+			"----------\n");
+	}
+
 	// JLS 8.1.1.1 abstract Classes
 	// Default method overrides an abstract method from its super interface - class implements both
 	public void testAbstract03() {
@@ -807,6 +831,68 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"	public class C implements I2, I1 {\n" + 
 			"	             ^\n" + 
 			"The type C must implement the inherited abstract method I2.test()\n" + 
+			"----------\n");
+	}
+
+	// abstract class method trumps otherwise conflicting default methods: the conflict scenario
+	public void testAbstract05() {
+		runNegativeTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"	default String value1() { return null; }\n" +
+				"}\n",
+				"I2.java",
+				"public interface I2 {\n" +
+				"	default String value1() { return \"\"; }\n" + // conflicts with other default method
+				"}\n",
+				"C2.java",
+				"public abstract class C2 implements I1, I2 {\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in C2.java (at line 1)\n" + 
+			"	public abstract class C2 implements I1, I2 {\n" + 
+			"	                      ^^\n" + 
+			"Duplicate methods named value1 with the parameters () and () are inherited from the types I2 and I1\n" + 
+			"----------\n");
+	}
+
+	// abstract class method trumps otherwise conflicting default methods: conflict resolved
+	public void testAbstract06() {
+		runNegativeTest(
+			new String[] {
+				"I1.java",
+				"public interface I1 {\n" +
+				"	default String value1() { return null; }\n" +
+				"}\n",
+				"I2.java",
+				"public interface I2 {\n" +
+				"	default String value1() { return \"\"; }\n" + // conflicts with other default method
+				"}\n",
+				"C1.java",
+				"public abstract class C1 {\n" +
+				"	abstract Object value1();\n" + // trumps the conflicting methods (without overriding)
+				"}\n",
+				"C2.java",
+				"public abstract class C2 extends C1 implements I1, I2 {\n" +
+				"}\n",
+				"C3.java",
+				"public class C3 extends C2 {\n" +
+				"	@Override\n" +
+				"	public Object value1() { return this; } // too week, need a method returning String\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in C3.java (at line 3)\n" + 
+			"	public Object value1() { return this; } // too week, need a method returning String\n" + 
+			"	       ^^^^^^\n" + 
+			"The return type is incompatible with I1.value1()\n" + 
+			"----------\n" + 
+			"2. ERROR in C3.java (at line 3)\n" + 
+			"	public Object value1() { return this; } // too week, need a method returning String\n" + 
+			"	       ^^^^^^\n" + 
+			"The return type is incompatible with I2.value1()\n" + 
 			"----------\n");
 	}
 
