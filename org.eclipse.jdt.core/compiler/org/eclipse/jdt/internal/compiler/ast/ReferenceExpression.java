@@ -27,10 +27,8 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -58,9 +56,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		super.resolveType(scope);
 		
 		final CompilerOptions compilerOptions = scope.compilerOptions();
-    	if (isConstructorReference()) {
+    	if (isConstructorReference())
 			this.lhs.bits |= ASTNode.IgnoreRawTypeCheck; // raw types in constructor references are to be treated as though <> were specified.
-		}
+		
 		TypeBinding lhsType = this.lhs.resolveType(scope);
 		if (this.typeArguments != null) {
 			int length = this.typeArguments.length;
@@ -75,9 +73,8 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 					scope.problemReporter().illegalUsageOfWildcard(typeReference);
 				}
 			}
-			if (argHasError) {
+			if (argHasError)
 				return this.resolvedType;
-			}
 		}
 		
 		if (lhsType == null || !lhsType.isValidBinding()) 
@@ -86,7 +83,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		final TypeBinding[] descriptorParameters = this.descriptor != null ? this.descriptor.parameters : Binding.NO_PARAMETERS;
 		final char[] selector = this.method.token;
 		if (lhsType.isBaseType()) {
-			scope.problemReporter().errorNoMethodFor(this.lhs, lhsType, selector, this.descriptor != null ? descriptorParameters : Binding.NO_TYPES);
+			scope.problemReporter().errorNoMethodFor(this.lhs, lhsType, selector, descriptorParameters);
 			return null;
 		}
 		
@@ -130,11 +127,6 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		if (this.lhs instanceof NameReference) {
 			if ((this.lhs.bits & ASTNode.RestrictiveFlagMASK) == Binding.TYPE) {
 				this.haveReceiver = false;
-				if (isMethodReference() && this.receiverType.isRawType()) {
-					if ((this.lhs.bits & ASTNode.IgnoreRawTypeCheck) == 0 && compilerOptions.getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
-						scope.problemReporter().rawTypeReference(this.lhs, this.receiverType);
-					}
-				}
 			}
 		} else if (this.lhs instanceof TypeReference) {
 			this.haveReceiver = false;
@@ -153,7 +145,7 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         
         if (someMethod != null && someMethod.isValidBinding()) {
         	final boolean isStatic = someMethod.isStatic();
-        	if (isStatic && (this.haveReceiver || this.receiverType instanceof ParameterizedTypeBinding)) {
+        	if (isStatic && (this.haveReceiver || this.receiverType.isParameterizedType())) {
     			scope.problemReporter().methodMustBeAccessedStatically(this, someMethod);
     			return null;
     		}
@@ -163,13 +155,24 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         			return null;
         		}
         	} 
+        } else {
+        	if (this.lhs instanceof NameReference && !this.haveReceiver && isMethodReference() && this.receiverType.isRawType()) {
+        		if ((this.lhs.bits & ASTNode.IgnoreRawTypeCheck) == 0 && compilerOptions.getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
+        			scope.problemReporter().rawTypeReference(this.lhs, this.receiverType);
+        		}
+        	}
         }
         
         MethodBinding anotherMethod = null;
         if (!this.haveReceiver && isMethodReference && parametersLength > 0) {
-        	TypeBinding superType = descriptorParameters[0].findSuperTypeOriginatingFrom(this.receiverType);
-        	if (superType != null) {
-        		TypeBinding typeToSearch = this.receiverType.isRawType() ? superType : this.receiverType;
+        	final TypeBinding potentialReceiver = descriptorParameters[0];
+        	if (potentialReceiver.isCompatibleWith(this.receiverType, scope)) {
+        		TypeBinding typeToSearch = this.receiverType;
+        		if (this.receiverType.isRawType()) {
+        			TypeBinding superType = potentialReceiver.findSuperTypeOriginatingFrom(this.receiverType);
+        			if (superType != null)
+        				typeToSearch = superType;
+        		}
         		TypeBinding [] parameters = Binding.NO_PARAMETERS;
         		if (parametersLength > 1) {
         			parameters = new TypeBinding[parametersLength - 1];
@@ -191,12 +194,26 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         this.binding = someMethod != null && someMethod.isValidBinding() ? someMethod : anotherMethod != null && anotherMethod.isValidBinding() ? anotherMethod : null;
         this.method.binding = this.binding;
         if (this.binding == null) {
-        	scope.problemReporter().danglingReference(this, this.receiverType, selector, descriptorParameters);
+        	char [] visibleName = isConstructorReference() ? this.receiverType.sourceName() : selector;
+        	scope.problemReporter().danglingReference(this, this.receiverType, visibleName, descriptorParameters);
 			return null;
         }
         
         // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=382350#c2, I.super::abstractMethod will be handled there.
+
+        if (this.binding.isAbstract() && this.lhs.isSuper())
+        	scope.problemReporter().cannotDireclyInvokeAbstractMethod(this, this.binding);
         
+        if (this.binding.isStatic() && this.binding.declaringClass != this.receiverType)
+			scope.problemReporter().indirectAccessToStaticMethod(this, this.binding);
+    
+    	if (isMethodUseDeprecated(this.binding, scope, true))
+    		scope.problemReporter().deprecatedMethod(this.binding, this);
+
+    	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES)
+    		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.resolvedTypeArguments, this.typeArguments);
+    	
+
         // OK, we have a compile time declaration, see if it passes muster.
         TypeBinding [] methodExceptions = this.binding.thrownExceptions;
         TypeBinding [] kosherExceptions = this.descriptor.thrownExceptions;
@@ -208,26 +225,13 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	scope.problemReporter().unhandledException(methodExceptions[i], this);
         }
         
-        if (this.binding.isAbstract() && this.lhs.isSuper()) {
-        	scope.problemReporter().cannotDireclyInvokeAbstractMethod(this, this.binding);
-        	return null;
-        }
-        
-        if (this.binding.isStatic() && this.binding.declaringClass != this.receiverType) {
-			scope.problemReporter().indirectAccessToStaticMethod(this, this.binding);
-		}
-            	
-    	if (checkInvocationArguments(scope, null, this.receiverType, this.binding, null, descriptorParameters, false, this)) {
+    	if (checkInvocationArguments(scope, null, this.receiverType, this.binding, null, descriptorParameters, false, this))
     		this.bits |= ASTNode.Unchecked;
-    	}
-
-    	if (isMethodUseDeprecated(this.binding, scope, true))
-    		scope.problemReporter().deprecatedMethod(this.binding, this);
 
     	if (this.descriptor.returnType.id != TypeIds.T_void) {
     		// from 1.5 source level on, array#clone() returns the array type (but binding still shows Object)
     		TypeBinding returnType = null;
-    		if (this.binding == scope.environment().arrayClone) {
+    		if (this.binding == scope.environment().arrayClone || this.binding.isConstructor()) {
     			returnType = this.receiverType;
     		} else {
     			if ((this.bits & ASTNode.Unchecked) != 0 && this.resolvedTypeArguments == null) {
@@ -242,16 +246,11 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     				}
     			}
     		}
-    		if (!returnType.isCompatibleWith(this.descriptor.returnType, scope)) {
+    		if (!returnType.isCompatibleWith(this.descriptor.returnType, scope))
     			scope.problemReporter().incompatibleReturnType(this, this.binding, this.descriptor.returnType);
-    		}
     	}
-    	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
-    		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.resolvedTypeArguments, this.typeArguments);
-    	}
-    	return (this.resolvedType.tagBits & TagBits.HasMissingType) == 0
-    				? this.resolvedType
-    				: null;	
+
+    	return this.resolvedType; // Phew !
 	}
 	
 	public final boolean isConstructorReference() {

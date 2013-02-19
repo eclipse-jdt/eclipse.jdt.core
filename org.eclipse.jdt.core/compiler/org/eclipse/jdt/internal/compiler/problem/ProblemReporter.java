@@ -9286,22 +9286,31 @@ public void unhandledException(TypeBinding exceptionType, ReferenceExpression lo
 }
 
 public void incompatibleReturnType(ReferenceExpression expression, MethodBinding method, TypeBinding returnType) {
-	StringBuffer buffer = new StringBuffer();
-	StringBuffer shortBuffer = new StringBuffer();
-	TypeBinding [] parameters = method.parameters;
-	for (int i = 0, length = parameters.length; i < length; i++) {
-		if (i != 0) {
-			buffer.append(", "); //$NON-NLS-1$
-			shortBuffer.append(", "); //$NON-NLS-1$
+	if (method.isConstructor()) {
+		this.handle(IProblem.ConstructionTypeMismatch,
+				new String[] { new String(method.declaringClass.readableName()), new String(returnType.readableName())},
+				new String[] { new String(method.declaringClass.shortReadableName()), new String(returnType.shortReadableName())},
+				expression.sourceStart,
+				expression.sourceEnd);
+		
+	} else {
+		StringBuffer buffer = new StringBuffer();
+		StringBuffer shortBuffer = new StringBuffer();
+		TypeBinding [] parameters = method.parameters;
+		for (int i = 0, length = parameters.length; i < length; i++) {
+			if (i != 0) {
+				buffer.append(", "); //$NON-NLS-1$
+				shortBuffer.append(", "); //$NON-NLS-1$
+			}
+			buffer.append(new String(parameters[i].readableName()));
+			shortBuffer.append(new String(parameters[i].shortReadableName()));
 		}
-		buffer.append(new String(parameters[i].readableName()));
-		shortBuffer.append(new String(parameters[i].shortReadableName()));
+		String selector = new String(method.selector);
+		this.handle(IProblem.IncompatibleMethodReference,
+				new String[] { selector, buffer.toString(), new String(method.declaringClass.readableName()), new String(method.returnType.readableName()), new String(returnType.readableName())},
+				new String[] { selector, shortBuffer.toString(), new String(method.declaringClass.shortReadableName()), new String(method.returnType.shortReadableName()), new String(returnType.shortReadableName())},
+				expression.sourceStart,
+				expression.sourceEnd);
 	}
-	String selector = new String(method.selector);
-	this.handle(IProblem.IncompatibleMethodReference,
-			new String[] { selector, buffer.toString(), new String(method.declaringClass.readableName()), new String(method.returnType.readableName()), new String(returnType.readableName())},
-			new String[] { selector, shortBuffer.toString(), new String(method.declaringClass.shortReadableName()), new String(method.returnType.shortReadableName()), new String(returnType.shortReadableName())},
-			expression.sourceStart,
-			expression.sourceEnd);
 }
 }

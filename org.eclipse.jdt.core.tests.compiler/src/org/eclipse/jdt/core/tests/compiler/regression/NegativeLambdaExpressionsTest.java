@@ -4246,6 +4246,705 @@ public void test384750l() {
 					},
 					"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750m() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.ArrayList;\n" +
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	List<String> doit();\n" +
+					"}\n" +
+					"interface J {\n" +
+					"	int size(ArrayList<String> als);\n" +
+					"}\n" +
+					"class X {\n" +
+					"   I i1 = ArrayList::new;\n" +
+					"   I i2 = ArrayList<String>::new;\n" +
+					"   I i3 = ArrayList<Integer>::new;\n" +
+					"   I i4 = List<String>::new;\n" +
+					"   J j1 = String::length;\n" +
+					"   J j2 = List::size;\n" +
+					"   J j3 = List<String>::size;\n" +
+					"   J j4 = List<Integer>::size;\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 12)\n" + 
+					"	I i3 = ArrayList<Integer>::new;\n" + 
+					"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"The constructed object of type ArrayList<Integer> is incompatible with the descriptor\'s return type: List<String>\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 13)\n" + 
+					"	I i4 = List<String>::new;\n" + 
+					"	       ^^^^^^^^^^^^\n" + 
+					"Cannot instantiate the type List<String>\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 14)\n" + 
+					"	J j1 = String::length;\n" + 
+					"	       ^^^^^^^^^^^^^^\n" + 
+					"The type String does not define length(ArrayList<String>) that is applicable here\n" + 
+					"----------\n" + 
+					"4. WARNING in X.java (at line 15)\n" + 
+					"	J j2 = List::size;\n" + 
+					"	       ^^^^\n" + 
+					"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+					"----------\n" + 
+					"5. ERROR in X.java (at line 17)\n" + 
+					"	J j4 = List<Integer>::size;\n" + 
+					"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+					"The type List<Integer> does not define size(ArrayList<String>) that is applicable here\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750n() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.ArrayList;\n" +
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	List<String> doit();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"   I i1 = ArrayList<String>[]::new;\n" +
+					"   I i2 = List<String>[]::new;\n" +
+					"   I i3 = ArrayList<String>::new;\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 7)\n" + 
+					"	I i1 = ArrayList<String>[]::new;\n" + 
+					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Cannot create a generic array of ArrayList<String>\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 8)\n" + 
+					"	I i2 = List<String>[]::new;\n" + 
+					"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Cannot create a generic array of List<String>\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750o() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.ArrayList;\n" +
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	List<String> [] doit();\n" +
+					"}\n" +
+					"interface J {\n" +
+					"	List<String> [] doit(long l);\n" +
+					"}\n" +
+					"interface K {\n" +
+					"	List<String> [] doit(String s, long l);\n" +
+					"}\n" +
+					"interface L {\n" +
+					"	List<String> [] doit(short s);\n" +
+					"}\n" +
+					"interface M {\n" +
+					"	List<String> [] doit(byte b);\n" +
+					"}\n" +
+					"interface N {\n" +
+					"	List<String> [] doit(int i);\n" +
+					"}\n" +
+					"interface O {\n" +
+					"	List<String> [] doit(Integer i);\n" +
+					"}\n" +
+					"interface P {\n" +
+					"	List<String> [] doit(Short i);\n" +
+					"}\n" +
+					"interface Q {\n" +
+					"	List<String> [] doit(Float i);\n" +
+					"}\n" +
+					"interface R {\n" +
+					"	List<String> [] doit(int i);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"   I i = List[]::new;\n" +
+					"   J j = ArrayList[]::new;\n" +
+					"   K k = ArrayList[]::new;\n" +
+					"   L l = ArrayList[]::new;\n" +
+					"   M m = ArrayList[]::new;\n" +
+					"   N n = ArrayList[]::new;\n" +
+					"   O o = ArrayList[]::new;\n" +
+					"   P p = ArrayList[]::new;\n" +
+					"   Q q = ArrayList[]::new;\n" +
+					"   R r = ArrayList[][][]::new;\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 34)\n" + 
+					"	I i = List[]::new;\n" + 
+					"	      ^^^^^^^^^^^^\n" + 
+					"Incompatible parameter list for array constructor. Expected (int), but found ()\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 35)\n" + 
+					"	J j = ArrayList[]::new;\n" + 
+					"	      ^^^^^^^^^^^^^^^^^\n" + 
+					"Incompatible parameter list for array constructor. Expected (int), but found (long)\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 36)\n" + 
+					"	K k = ArrayList[]::new;\n" + 
+					"	      ^^^^^^^^^^^^^^^^^\n" + 
+					"Incompatible parameter list for array constructor. Expected (int), but found (String, long)\n" + 
+					"----------\n" + 
+					"4. ERROR in X.java (at line 42)\n" + 
+					"	Q q = ArrayList[]::new;\n" + 
+					"	      ^^^^^^^^^^^^^^^^^\n" + 
+					"Incompatible parameter list for array constructor. Expected (int), but found (Float)\n" + 
+					"----------\n" + 
+					"5. ERROR in X.java (at line 43)\n" + 
+					"	R r = ArrayList[][][]::new;\n" + 
+					"	      ^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"Constructed array ArrayList[][][] cannot be assigned to List<String>[] as required in the interface descriptor  \n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750p() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	List<String> doit();\n" +
+					"}\n" +
+					"class X<T> {\n" +
+					"	static void foo() {}\n" +
+					"	{\n" +
+					"		X<String> x = new X<String>();\n" +
+					"		I i1 = x::foo;\n" +
+					"		I i2 = X<String>::foo;\n" +
+					"		I i3 = X::foo;\n" +
+					"	}\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 9)\n" + 
+					"	I i1 = x::foo;\n" + 
+					"	       ^^^^^^\n" + 
+					"The method foo() from the type X<String> should be accessed in a static way \n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 10)\n" + 
+					"	I i2 = X<String>::foo;\n" + 
+					"	       ^^^^^^^^^^^^^^\n" + 
+					"The method foo() from the type X<String> should be accessed in a static way \n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 11)\n" + 
+					"	I i3 = X::foo;\n" + 
+					"	       ^^^^^^\n" + 
+					"The type of foo() from the type X is void, this is incompatible with the descriptor\'s return type: List<String>\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750q() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	List<String> doit();\n" +
+					"}\n" +
+					"class X<T> {\n" +
+					"	void foo() {}\n" +
+					"	{\n" +
+					"		X<String> x = new X<String>();\n" +
+					"		I i1 = x::foo;\n" +
+					"		I i2 = X<String>::foo;\n" +
+					"		I i3 = X::foo;\n" +
+					"	}\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 9)\n" + 
+					"	I i1 = x::foo;\n" + 
+					"	       ^^^^^^\n" + 
+					"The type of foo() from the type X<String> is void, this is incompatible with the descriptor\'s return type: List<String>\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 10)\n" + 
+					"	I i2 = X<String>::foo;\n" + 
+					"	       ^^^^^^^^^^^^^^\n" + 
+					"Cannot make a static reference to the non-static method foo() from the type X<String>\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 11)\n" + 
+					"	I i3 = X::foo;\n" + 
+					"	       ^^^^^^\n" + 
+					"Cannot make a static reference to the non-static method foo() from the type X\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750r() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	List<String> doit(X<String> xs);\n" +
+					"}\n" +
+					"class X<T> {\n" +
+					"	void foo() {}\n" +
+					"	{\n" +
+					"		X<String> x = new X<String>();\n" +
+					"		I i1 = X::foo;\n" +
+					"	}\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. WARNING in X.java (at line 9)\n" + 
+					"	I i1 = X::foo;\n" + 
+					"	       ^\n" + 
+					"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 9)\n" + 
+					"	I i1 = X::foo;\n" + 
+					"	       ^^^^^^\n" + 
+					"The type of foo() from the type X<String> is void, this is incompatible with the descriptor\'s return type: List<String>\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750s() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	List<String> doit(X<String> xs);\n" +
+					"}\n" +
+					"class X<T> {\n" +
+					"	void foo() {}\n" +
+					"	{\n" +
+					"		X<String> x = new X<String>();\n" +
+					"		I i1 = X<String>::foo;\n" +
+					"	}\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 9)\n" + 
+					"	I i1 = X<String>::foo;\n" + 
+					"	       ^^^^^^^^^^^^^^\n" + 
+					"The type of foo() from the type X<String> is void, this is incompatible with the descriptor\'s return type: List<String>\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750t() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	List<String> doit(X<String> xs);\n" +
+					"}\n" +
+					"class X<T> {\n" +
+					"	static List<String> foo() {}\n" +
+					"	{\n" +
+					"		X<String> x = new X<String>();\n" +
+					"		I i1 = X<String>::foo;\n" +
+					"	}\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 9)\n" + 
+					"	I i1 = X<String>::foo;\n" + 
+					"	       ^^^^^^^^^^^^^^\n" + 
+					"The method foo() from the type X<String> should be accessed in a static way \n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750u() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	List<String> doit(X<String> xs, int x);\n" +
+					"}\n" +
+					"class X<T> {\n" +
+					"	static List<String> foo() {}\n" +
+					"	{\n" +
+					"		X<String> x = new X<String>();\n" +
+					"		I i1 = X::foo;\n" +
+					"	}\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. WARNING in X.java (at line 9)\n" + 
+					"	I i1 = X::foo;\n" + 
+					"	       ^\n" + 
+					"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 9)\n" + 
+					"	I i1 = X::foo;\n" + 
+					"	       ^^^^^^\n" + 
+					"The type X does not define foo(X<String>, int) that is applicable here\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750v() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	List<String> doit(X<String> xs, int x);\n" +
+					"}\n" +
+					"class X<T> {\n" +
+					"	static List<String> foo(X<String> xs, int x) {}\n" +
+					"	List<String> foo(int x) {}\n" +
+					"	{\n" +
+					"		X<String> x = new X<String>();\n" +
+					"		I i1 = X::foo;\n" +
+					"	}\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 10)\n" + 
+					"	I i1 = X::foo;\n" + 
+					"	       ^^^^^^\n" + 
+					"Ambiguous method reference: both foo(int) and foo(X<String>, int) from the type X<String> are eligible\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750w() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	X<String> doit(int x);\n" +
+					"}\n" +
+					"interface J {\n" +
+					"	X<String> doit(int x, int p);\n" +
+					"}\n" +
+					"interface K {\n" +
+					"	X<String> doit(int x);\n" +
+					"   void goo();\n" +
+					"}\n" +
+					"interface L {\n" +
+					"	X<String> doit(short x);\n" +
+					"}\n" +
+					"interface M {\n" +
+					"	X<String> doit(String s);\n" +
+					"}\n" +
+					"class X<T> {\n" +
+					"	X(int x, int y) {}\n" +
+					"	X(int x) {}\n" +
+					"	{\n" +
+					"		I i = X::new;\n" +
+					"       J j = X<Integer>::new;\n" +
+					"       K k = X::new;\n" +
+					"       L l = X<String>::new;\n" +
+					"       M m = X<String>::new;\n" +
+					"	}\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 23)\n" + 
+					"	J j = X<Integer>::new;\n" + 
+					"	      ^^^^^^^^^^^^^^^^\n" + 
+					"The constructed object of type X<Integer> is incompatible with the descriptor\'s return type: X<String>\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 24)\n" + 
+					"	K k = X::new;\n" + 
+					"	      ^^^^^^^\n" + 
+					"The target type of this expression must be a functional interface\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 26)\n" + 
+					"	M m = X<String>::new;\n" + 
+					"	      ^^^^^^^^^^^^^^^\n" + 
+					"The type X<String> does not define X(String) that is applicable here\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750x() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"import java.io.IOException;\n" +
+					"import java.io.FileNotFoundException;\n" +		
+					"interface I {\n" +
+					"	X<String> doit(int x);\n" +
+					"}\n" +
+					"interface J {\n" +
+					"	X<String> doit(int x) throws IOException;\n" +
+					"}\n" +
+					"interface K {\n" +
+					"	X<String> doit(int x) throws FileNotFoundException;\n" +
+					"}\n" +
+					"interface L {\n" +
+					"	X<String> doit(short x) throws Exception;\n" +
+					"}\n" +
+					"class X<T> {\n" +
+					"	X(int x) throws IOException, FileNotFoundException {}\n" +
+					"	{\n" +
+					"		I i = X::new;\n" +
+					"       J j = X<Integer>::new;\n" +
+					"       K k = X::new;\n" +
+					"       L l = X<String>::new;\n" +
+					"	}\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 19)\n" + 
+					"	I i = X::new;\n" + 
+					"	      ^^^^^^^\n" + 
+					"Unhandled exception type IOException\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 19)\n" + 
+					"	I i = X::new;\n" + 
+					"	      ^^^^^^^\n" + 
+					"Unhandled exception type FileNotFoundException\n" + 
+					"----------\n" + 
+					"3. ERROR in X.java (at line 20)\n" + 
+					"	J j = X<Integer>::new;\n" + 
+					"	      ^^^^^^^^^^^^^^^^\n" + 
+					"The constructed object of type X<Integer> is incompatible with the descriptor\'s return type: X<String>\n" + 
+					"----------\n" + 
+					"4. ERROR in X.java (at line 21)\n" + 
+					"	K k = X::new;\n" + 
+					"	      ^^^^^^^\n" + 
+					"Unhandled exception type IOException\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750y() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	void doit();\n" +
+					"}\n" +
+					"abstract class Y {\n" +
+					"    abstract void foo();\n" +
+					"}\n" +
+					"class X extends Y {\n" +
+					"	void foo() {}\n" +
+					"   I i = super::foo;\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 10)\n" + 
+					"	I i = super::foo;\n" + 
+					"	      ^^^^^^^^^^\n" + 
+					"Cannot directly invoke the abstract method foo() for the type Y\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750z() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void doit();\n" +
+					"}\n" +
+					"class Y {\n" +
+					"    static void foo() {}\n" +
+					"}\n" +
+					"class X extends Y {\n" +
+					"   I i = X::foo;\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. WARNING in X.java (at line 8)\n" + 
+					"	I i = X::foo;\n" + 
+					"	      ^^^^^^\n" + 
+					"The static method foo() from the type Y should be accessed directly \n" + 
+					"----------\n",
+					null, false, customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750z1() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void doit();\n" +
+					"}\n" +
+					"class X extends Y {\n" +
+					"   I i = X::foo;\n" +
+					"}\n",
+					"Y.java", 
+					"@Deprecated class Y {\n" +
+					"    @Deprecated static void foo() {}\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. WARNING in X.java (at line 4)\n" + 
+					"	class X extends Y {\n" + 
+					"	                ^\n" + 
+					"The type Y is deprecated\n" + 
+					"----------\n" + 
+					"2. WARNING in X.java (at line 5)\n" + 
+					"	I i = X::foo;\n" + 
+					"	      ^^^^^^\n" + 
+					"The method foo() from the type Y is deprecated\n" + 
+					"----------\n",
+					null, false, customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750z2() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void doit();\n" +
+					"}\n" +
+					"class X extends Y {\n" +
+					"   I i = X::<String>foo;\n" +
+					"}\n",
+					"Y.java", 
+					"@Deprecated class Y {\n" +
+					"    @Deprecated static void foo() {}\n" +
+					"}\n"
+					},
+					"----------\n" + 
+					"1. WARNING in X.java (at line 4)\n" + 
+					"	class X extends Y {\n" + 
+					"	                ^\n" + 
+					"The type Y is deprecated\n" + 
+					"----------\n" + 
+					"2. WARNING in X.java (at line 5)\n" + 
+					"	I i = X::<String>foo;\n" + 
+					"	      ^^^^^^^^^^^^^^\n" + 
+					"The method foo() from the type Y is deprecated\n" + 
+					"----------\n" + 
+					"3. WARNING in X.java (at line 5)\n" + 
+					"	I i = X::<String>foo;\n" + 
+					"	          ^^^^^^\n" + 
+					"Unused type arguments for the non generic method foo() of type Y; it should not be parameterized with arguments <String>\n" + 
+					"----------\n",
+					null, false, customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750z3() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"	void doit();\n" +
+					"}\n" +
+					"class X {\n" +
+					"   String foo() { return null; }\n" +
+					"   I i = new X()::foo;\n" +
+					"}\n",
+					},
+					"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750z4() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"interface I {\n" +
+					"	List<String> doit();\n" +
+					"}\n" +
+					"class X {\n" +
+					"   void foo() { return; }\n" +
+					"   I i = new X()::foo;\n" +
+					"}\n",
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 7)\n" + 
+					"	I i = new X()::foo;\n" + 
+					"	      ^^^^^^^^^^^^\n" + 
+					"The type of foo() from the type X is void, this is incompatible with the descriptor\'s return type: List<String>\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750z5() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"import java.util.ArrayList;\n" +
+					"interface I {\n" +
+					"	List<String> doit();\n" +
+					"}\n" +
+					"class X {\n" +
+					"   ArrayList<Integer> foo() { return null; }\n" +
+					"   I i = new X()::foo;\n" +
+					"}\n",
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 8)\n" + 
+					"	I i = new X()::foo;\n" + 
+					"	      ^^^^^^^^^^^^\n" + 
+					"The type of foo() from the type X is ArrayList<Integer>, this is incompatible with the descriptor\'s return type: List<String>\n" + 
+					"----------\n");
+}
+//  https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750z6() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"import java.util.ArrayList;\n" +
+					"interface I {\n" +
+					"	List<String> doit(X<String> x, int y);\n" +
+					"}\n" +
+					"class X<T> {\n" +
+					"   ArrayList<String> foo(int x) { return null; }\n" +
+					"   I i = X::foo;\n" +
+					"}\n",
+					},
+					"----------\n" + 
+					"1. WARNING in X.java (at line 8)\n" + 
+					"	I i = X::foo;\n" + 
+					"	      ^\n" + 
+					"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+					"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750z7() {
+this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"import java.util.ArrayList;\n" +
+				"interface I {\n" +
+				"	List<String> doit(X x, int y);\n" +
+				"}\n" +
+				"class X<T> {\n" +
+				"   ArrayList<Integer> foo(int x) { return null; }\n" +
+				"   I i = X::foo;\n" +
+				"}\n",
+				},
+				"----------\n" + 
+				"1. WARNING in X.java (at line 4)\n" + 
+				"	List<String> doit(X x, int y);\n" + 
+				"	                  ^\n" + 
+				"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 8)\n" + 
+				"	I i = X::foo;\n" + 
+				"	      ^\n" + 
+				"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
+public void test384750z8() {
+this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	int [] doit(int [] ia);\n" +
+				"}\n" +
+				"class X<T> {\n" +
+				"   I i = int []::clone;\n" +
+				"}\n",
+				},
+				"");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
