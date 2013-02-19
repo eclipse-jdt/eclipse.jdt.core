@@ -941,4 +941,40 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"OK!"
 		);
 	}
+	
+	// Bug 401235 - [1.8][compiler] 'this' reference must be allowed in default methods and local classes
+	public void testThisReference1() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X implements I1, I2 {\n" +
+				"	@Override\n" +
+				"	public String s1() { return \"O\"; }\n" +
+				"	@Override\n" +
+				"	public String s2() { return \"K\"; }\n" +
+				"	public static void main(String... args) {\n" +
+				"		X x = new X();\n" +
+				"		x.print1();\n" +
+				"		x.print2();\n" +
+				"	}\n" +
+				"}\n" +
+				"interface I1 {\n" +
+				"	String s1();" +
+				"	default void print1() {\n" +
+				"		System.out.print(this.s1());\n" + // 'this' as a receiver
+				"	}\n" +
+				"}\n" +
+				"interface I2 {\n" +
+				"	String s2();\n" +
+				"	default void print2() {\n" +
+				"		class Inner {\n" +
+				"			String value() { return I2.this.s2(); }\n" + // qualified 'this' refering to the enclosing interface type
+				"		}\n" +
+				"		System.out.print(new Inner().value());\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"OK"
+		);
+	}
 }
