@@ -826,4 +826,119 @@ public class DefaultMethodsTest extends AbstractComparableTest {
 			"Syntax error on token \"default\", @ expected\n" + 
 			"----------\n");
 	}
+	
+	// basic situation similar to AmbiguousMethodTest.test009()
+	public void testSuperCall1() {
+		this.runConformTest(
+			new String[] {
+				"OrderedSet.java",
+				"import java.util.*;\n" +
+				"import java.util.stream.Stream;\n" +
+				"public interface OrderedSet<E> extends List<E>, Set<E> {\n" +
+				"	@Override\n" +
+				"	boolean add(E o);\n" +
+				"	@Override\n" +
+				"	default Stream<E> stream() { return List.super.stream();}\n" +
+				"	@Override\n" +
+				"	default Stream<E> parallelStream() { return Set.super.parallelStream();}\n" +
+				"}\n"
+			},
+			""
+		);
+	}
+
+	// some illegal cases
+	// - call to indirect super
+	// - call to super of outer
+	// - target method is not a default method
+	// - attempt to use this syntax for a super-ctor call
+	public void testSuperCall2() {
+		this.runNegativeTest(
+			new String[] {
+				"T.java",
+				"import java.util.*;\n" +
+				"import java.util.stream.Stream;\n" +
+				"public abstract class T<E> implements OrderedSet<E> {\n" +
+				"	@Override\n" +
+				"	public Stream<E> stream() {\n" +
+				"		return List.super.stream(); // List is not a direct super interface\n" +
+				"	}\n" +
+				"	@Override\n" +
+				"	public Stream<E> parallelStream() { return OrderedSet.super.parallelStream();}\n" + // OK
+				"   class Inner {\n" +
+				"		public Stream<E> stream() {\n" +
+				"			return OrderedSet.super.stream(); // not a super interface of the direct enclosing class\n" +
+				"		}\n" +
+				"	}\n" +
+				"	@Override\n" +
+				"	public boolean add(E o) {\n" +
+				"		OrderedSet.super.add(o); // target not a default method\n" +
+				"	}\n" +
+				"	T() {\n" +
+				"		OrderedSet.super(); // not applicable for super ctor call\n" +
+				"	}\n" +
+				"}\n" +
+				"interface OrderedSet<E> extends List<E>, Set<E> {\n" +
+				"	@Override\n" +
+				"	boolean add(E o);\n" +
+				"	@Override\n" +
+				"	default Stream<E> stream() { return List.super.stream();}\n" +
+				"	@Override\n" +
+				"	default Stream<E> parallelStream() { return Set.super.parallelStream();}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in T.java (at line 6)\n" + 
+			"	return List.super.stream(); // List is not a direct super interface\n" + 
+			"	       ^^^^^^^^^^\n" + 
+			"No enclosing instance of the type List<E> is accessible in scope\n" + 
+			"----------\n" + 
+			"2. ERROR in T.java (at line 12)\n" + 
+			"	return OrderedSet.super.stream(); // not a super interface of the direct enclosing class\n" + 
+			"	       ^^^^^^^^^^^^^^^^\n" + 
+			"No enclosing instance of the type OrderedSet<E> is accessible in scope\n" + 
+			"----------\n" + 
+			"3. ERROR in T.java (at line 17)\n" + 
+			"	OrderedSet.super.add(o); // target not a default method\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot directly invoke the abstract method add(E) for the type OrderedSet<E>\n" + 
+			"----------\n" + 
+			"4. ERROR in T.java (at line 20)\n" + 
+			"	OrderedSet.super(); // not applicable for super ctor call\n" + 
+			"	^^^^^^^^^^\n" + 
+			"Illegal enclosing instance specification for type Object\n" + 
+			"----------\n"
+		);
+	}
+
+	// with execution
+	public void testSuperCall3() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X implements I2 {\n" +
+				"	@Override\n" +
+				"	public void print() {\n" +
+				"		I2.super.print();\n" +
+				"		System.out.print(\"!\");" +
+				"	}\n" +
+				"	public static void main(String... args) {\n" +
+				"		new X().print();\n" +
+				"	}\n" +
+				"}\n" +
+				"interface I1 {\n" +
+				"	default void print() {\n" +
+				"		System.out.print(\"O\");\n" +
+				"	}\n" +
+				"}\n" +
+				"interface I2 extends I1 {\n" +
+				"	default void print() {\n" +
+				"		I1.super.print();\n" +
+				"		System.out.print(\"K\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"OK!"
+		);
+	}
 }

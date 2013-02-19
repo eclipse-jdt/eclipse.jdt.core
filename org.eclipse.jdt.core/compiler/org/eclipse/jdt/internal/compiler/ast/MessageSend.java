@@ -28,6 +28,7 @@
  *								bug 381445 - [compiler][resource] Can the resource leak check be made aware of Closeables.closeQuietly?
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
+ *								bug 382350 - [1.8][compiler] Unable to invoke inherited default method via I.super.m() syntax
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -332,8 +333,9 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 			return;
 		}
 
-	} else if (this.receiver instanceof QualifiedSuperReference){ // qualified super
-
+	} else if (this.receiver instanceof QualifiedSuperReference) { 	// qualified super
+		if (this.actualReceiverType.isInterface()) 
+			return; // invoking an overridden default method, which is accessible/public by definition
 		// qualified super need emulation always
 		SourceTypeBinding destinationType = (SourceTypeBinding)(((QualifiedSuperReference)this.receiver).currentCompatibleType);
 		this.syntheticAccessor = destinationType.addSyntheticMethod(codegenBinding, isSuperAccess());

@@ -5,8 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								bug 382350 - [1.8][compiler] Unable to invoke inherited default method via I.super.m() syntax
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -44,7 +50,24 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().cannotUseSuperInJavaLangObject(this);
 		return null;
 	}
-	return this.resolvedType = this.currentCompatibleType.superclass();
+	return this.resolvedType = (this.currentCompatibleType.isInterface()
+			? this.currentCompatibleType
+			: this.currentCompatibleType.superclass());
+}
+
+int findCompatibleEnclosing(ReferenceBinding enclosingType, TypeBinding type) {
+	if (type.isInterface()) {
+		// super call to an overridden default method? (not considering outer enclosings)
+		ReferenceBinding[] supers = enclosingType.superInterfaces();
+		int length = supers.length;
+		for (int i = 0; i < length; i++) {
+			this.currentCompatibleType = supers[i];
+			if (this.currentCompatibleType.erasure() == type) {
+				return 0;
+			}
+		}
+	}
+	return super.findCompatibleEnclosing(enclosingType, type);
 }
 
 public void traverse(
