@@ -18,9 +18,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 
@@ -30,24 +27,12 @@ import org.eclipse.jdt.core.dom.rewrite.ITrackedNodePosition;
 
 public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
-	private static final Class THIS= ASTRewritingTrackingTest.class;
-
 	public ASTRewritingTrackingTest(String name) {
 		super(name);
 	}
 
-	public static Test allTests() {
-		return new Suite(THIS);
-	}
-
-	public static Test setUpTest(Test someTest) {
-		TestSuite suite= new Suite("one test");
-		suite.addTest(someTest);
-		return suite;
-	}
-
-	public static Test suite() {
-		return allTests();
+	public ASTRewritingTrackingTest(String name, int apiLevel) {
+		super(name, apiLevel);
 	}
 	/** 
 	 * Internal access method to VariableDeclarationFragment#setExtraDimensions() for avoiding deprecated warnings
@@ -126,7 +111,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 		}
 	}
 
-	public void testNamesWithInsert() throws Exception {
+	public void testNamesWithInsert_only_2_3_4() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -198,7 +183,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
 	}
 
-	public void testNamesWithReplace() throws Exception {
+	public void testNamesWithReplace_only_2() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -275,7 +260,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 		assertCorrectTracking(names, positions, expected);
 	}
 
-	public void testNamesWithMove1() throws Exception {
+	public void testNamesWithMove1_only_2_3_4() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -418,7 +403,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 		assertCorrectTracking(names, positions, expected);
 	}
 
-	public void testNamesWithMove3() throws Exception {
+	public void testNamesWithMove3_only_2_3_4() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();

@@ -15,9 +15,6 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -32,29 +29,13 @@ import org.eclipse.text.edits.TextEdit;
 
 public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
-	private static final Class THIS= ASTRewritingStatementsTest.class;
-
 	public ASTRewritingStatementsTest(String name) {
 		super(name);
 	}
-	public static Test allTests() {
-		return new Suite(THIS);
+	public ASTRewritingStatementsTest(String name, int apiLevel) {
+		super(name, apiLevel);
 	}
 
-	public static Test setUpTest(Test someTest) {
-		TestSuite suite= new Suite("one test");
-		suite.addTest(someTest);
-		return suite;
-	}
-
-	public static Test suite() {
-		return buildModelTestSuite(THIS);
-//		TestSuite suite= new Suite(THIS.getClass().getName());
-//		suite.addTest(new ASTRewritingStatementsTest("testTryStatementWithResources3"));
-//		suite.addTest(new ASTRewritingStatementsTest("testTryStatementWithResources4"));
-//		suite.addTest(new ASTRewritingStatementsTest("testTryStatementWithResources5"));
-//		return suite;
-	}
 	/** 
 	 * Internal access method to VariableDeclarationFragment#setExtraDimensions() for avoiding deprecated warnings
 	 *
@@ -1086,7 +1067,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	}
 
-	public void testConstructorInvocation2() throws Exception {
+	public void testConstructorInvocation2_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1100,7 +1081,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 
 		AST ast= astRoot.getAST();
@@ -4523,7 +4504,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	}
 
 	/** @deprecated using deprecated code */
-	public void testThrowStatement() throws Exception {
+	public void testThrowStatement_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -5288,7 +5269,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	}
 
 	/** @deprecated using deprecated code */
-	public void testTypeDeclarationStatement() throws Exception {
+	public void testTypeDeclarationStatement_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -5336,7 +5317,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	}
 
-	public void testVariableDeclarationStatement() throws Exception {
+	public void testVariableDeclarationStatement_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");

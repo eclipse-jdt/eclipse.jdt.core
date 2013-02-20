@@ -1,17 +1,19 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
@@ -25,24 +27,12 @@ import org.eclipse.jdt.internal.core.dom.rewrite.SourceModifier;
  */
 public class SourceModifierTest extends ASTRewritingTest {
 
-	private static final Class THIS= SourceModifierTest.class;
-
 	public SourceModifierTest(String name) {
 		super(name);
 	}
 
-	public static Test allTests() {
-		return new Suite(THIS);
-	}
-
-	public static Test setUpTest(Test someTest) {
-		TestSuite suite= new Suite("one test");
-		suite.addTest(someTest);
-		return suite;
-	}
-
-	public static Test suite() {
-		return allTests();
+	public SourceModifierTest(String name, int apiLevel) {
+		super(name, apiLevel);
 	}
 
 	public void testRemoveIndents() throws Exception {

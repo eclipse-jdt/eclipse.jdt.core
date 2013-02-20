@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -13,9 +17,6 @@ package org.eclipse.jdt.core.tests.rewrite.describing;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -34,24 +35,12 @@ import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer.SourceRange;
 
 public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
-	private static final Class THIS= ASTRewritingInsertBoundTest.class;
-
 	public ASTRewritingInsertBoundTest(String name) {
 		super(name);
 	}
 
-	public static Test allTests() {
-		return new Suite(THIS);
-	}
-
-	public static Test setUpTest(Test someTest) {
-		TestSuite suite= new Suite("one test");
-		suite.addTest(someTest);
-		return suite;
-	}
-
-	public static Test suite() {
-		return allTests();
+	public ASTRewritingInsertBoundTest(String name, int apiLevel) {
+		super(name, apiLevel);
 	}
 
 	/** @deprecated using deprecated code */
@@ -73,7 +62,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 
 	/** @deprecated using deprecated code */
-	public void testInsert1() throws Exception {
+	public void testInsert1_only_2() throws Exception {
 		// insert first and last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -138,7 +127,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	}
 
 	/** @deprecated using deprecated code */
-	public void testInsert3() throws Exception {
+	public void testInsert3_only_2() throws Exception {
 		// insert 2 x before
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -207,7 +196,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	}
 
 
-	public void testInsert2() throws Exception {
+	public void testInsert2_only_2() throws Exception {
 		// insert 2 x first and 2 x last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -279,7 +268,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testInsert1Before() throws Exception {
+	public void testInsert1Before_only_2_3_4() throws Exception {
 		// insert first and last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -342,7 +331,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testInsert2Before() throws Exception {
+	public void testInsert2Before_only_2_3_4() throws Exception {
 		// insert 2x first and 2 x last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -415,7 +404,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testInsert3Before() throws Exception {
+	public void testInsert3Before_only_2_3_4() throws Exception {
 		// insert 2 x after
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -704,7 +693,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	}
 
 
-	public void testRemoveInsert1() throws Exception {
+	public void testRemoveInsert1_only_2() throws Exception {
 		// remove first add before first, remove last add after last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -770,7 +759,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testRemoveInsert2() throws Exception {
+	public void testRemoveInsert2_only_2() throws Exception {
 		// remove first add 2x first, remove last add 2x  last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -847,7 +836,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testRemoveInsert3() throws Exception {
+	public void testRemoveInsert3_only_2() throws Exception {
 		// remove middle, add before, add after
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -917,7 +906,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	}
 
 
-	public void testRemoveInsert1Before() throws Exception {
+	public void testRemoveInsert1Before_only_2_3_4() throws Exception {
 		// remove first add before first, remove last add after last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -984,7 +973,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testRemoveInsert2Before() throws Exception {
+	public void testRemoveInsert2Before_only_2_3_4() throws Exception {
 		// remove first add 2x first, remove last add 2x  last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1060,7 +1049,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testRemoveInsert3Before() throws Exception {
+	public void testRemoveInsert3Before_only_2_3_4() throws Exception {
 		// remove middle, add before, add after
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1129,7 +1118,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testRemoveInsert4() throws Exception {
+	public void testRemoveInsert4_only_2() throws Exception {
 		// remove first and add after first, remove last and add before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1199,7 +1188,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testRemoveInsert4Before() throws Exception {
+	public void testRemoveInsert4Before_only_2_3_4() throws Exception {
 		// remove first and add after first, remove last and add before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1268,7 +1257,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testRemoveInsert5() throws Exception {
+	public void testRemoveInsert5_only_2() throws Exception {
 		// remove first and add after and before first, remove last and add after and before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1347,7 +1336,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testRemoveInsert5Before() throws Exception {
+	public void testRemoveInsert5Before_only_2_3_4() throws Exception {
 		// remove first and add after first, remove last and add before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1426,7 +1415,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	}
 
 
-	public void testRemoveInsert6() throws Exception {
+	public void testRemoveInsert6_only_2() throws Exception {
 		// remove all, add before first and after last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1493,7 +1482,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testRemoveInsert6Before() throws Exception {
+	public void testRemoveInsert6Before_only_2_3_4() throws Exception {
 		// remove all, add before first and after last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1561,7 +1550,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 	}
 
 
-	public void testRemoveInsert7() throws Exception {
+	public void testRemoveInsert7_only_2() throws Exception {
 		// remove all, add after first and before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1630,7 +1619,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	}
 
-	public void testRemoveInsert7Before() throws Exception {
+	public void testRemoveInsert7Before_only_2_3_4() throws Exception {
 		// remove all, add after first and before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

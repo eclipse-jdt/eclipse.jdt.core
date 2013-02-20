@@ -19,8 +19,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
@@ -31,29 +29,23 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
-	private static final Class THIS= ASTRewritingMethodDeclTest.class;
-
 	/**
 	 * Internal synonym for deprecated constant MethodDeclaration#EXTRA_DIMENSIONS_PROPERTY
 	 * to alleviate deprecated warnings.
 	 * @deprecated
 	 */
-	static final SimplePropertyDescriptor INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY = MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY;
+	private static final SimplePropertyDescriptor INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY = MethodDeclaration.EXTRA_DIMENSIONS_PROPERTY;
 
 	public ASTRewritingMethodDeclTest(String name) {
 		super(name);
 	}
 
-	public static Test allTests() {
-		return new Suite(THIS);
-	}
-
-	public static Test suite() {
-		return allTests();
+	public ASTRewritingMethodDeclTest(String name, int apiLevel) {
+		super(name, apiLevel);
 	}
 
 	/** @deprecated using deprecated code */
-	public void testMethodDeclChanges() throws Exception {
+	public void testMethodDeclChanges_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -168,7 +160,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testMethodTypeParameterAdds() throws Exception {
+	public void testMethodTypeParameterAdds_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -188,7 +180,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -224,7 +216,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testMethodTypeParameterRemoves() throws Exception {
+	public void testMethodTypeParameterRemoves_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -245,7 +237,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 
@@ -281,7 +273,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 
 
-	public void testMethodReturnTypeChanges() throws Exception {
+	public void testMethodReturnTypeChanges_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -384,7 +376,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testMethodReturnTypeChanges2() throws Exception {
+	public void testMethodReturnTypeChanges2_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -489,7 +481,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 
 
-	public void testMethodReturnTypeChangesAST3() throws Exception {
+	public void testMethodReturnTypeChangesAST3_only_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -505,7 +497,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -603,7 +595,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testMethodReturnTypeChanges2AST3() throws Exception {
+	public void testMethodReturnTypeChanges2AST3_only_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -619,7 +611,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 		List list= type.bodyDeclarations();
@@ -705,7 +697,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 
 
-	public void testListRemoves() throws Exception {
+	public void testListRemoves_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -816,7 +808,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testListRemoves2() throws Exception {
+	public void testListRemoves2_only_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -899,7 +891,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 	}
 
-	public void testListInserts() throws Exception {
+	public void testListInserts_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1087,7 +1079,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testListInsert() throws Exception {
+	public void testListInsert_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1137,7 +1129,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testListCombinations() throws Exception {
+	public void testListCombinations_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1247,7 +1239,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testListCombination() throws Exception {
+	public void testListCombination_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1297,7 +1289,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testListCombination2() throws Exception {
+	public void testListCombination2_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1352,7 +1344,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 
 
-	public void testMethodBody() throws Exception {
+	public void testMethodBody_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1428,7 +1420,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testMethodDeclarationExtraDimensions() throws Exception {
+	public void testMethodDeclarationExtraDimensions_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1524,7 +1516,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testModifiersAST3() throws Exception {
+	public void testModifiersAST3_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1546,7 +1538,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -1645,7 +1637,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testModifiersAST3WithAnnotations() throws Exception {
+	public void testModifiersAST3WithAnnotations_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1663,7 +1655,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -1710,7 +1702,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testModifiersAST3WithAnnotations2() throws Exception {
+	public void testModifiersAST3WithAnnotations2_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1722,7 +1714,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -1770,7 +1762,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 
 
-	public void testFieldDeclaration() throws Exception {
+	public void testFieldDeclaration_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1849,7 +1841,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testInitializer() throws Exception {
+	public void testInitializer_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1910,7 +1902,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 
 
-	public void testMethodDeclarationParamShuffel() throws Exception {
+	public void testMethodDeclarationParamShuffel_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1954,7 +1946,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 
 
-	public void testMethodDeclarationParamShuffel1() throws Exception {
+	public void testMethodDeclarationParamShuffel1_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1992,7 +1984,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testMethodDeclaration_bug24916() throws Exception {
+	public void testMethodDeclaration_bug24916_only_2_3_4() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -2073,7 +2065,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testMethodComments2() throws Exception {
+	public void testMethodComments2_only_2_3_4() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -2230,7 +2222,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testMethodComments4() throws Exception {
+	public void testMethodComments4_only_2_3_4() throws Exception {
 
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -2298,7 +2290,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 
 	/** @deprecated using deprecated code */
-	public void testInsertFieldAfter() throws Exception {
+	public void testInsertFieldAfter_only_2() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -2348,7 +2340,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 
 
-	public void testVarArgs() throws Exception {
+	public void testVarArgs_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -2361,7 +2353,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "DD");
@@ -2390,7 +2382,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testAnnotationTypeMember() throws Exception {
+	public void testAnnotationTypeMember_since_4() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -2402,7 +2394,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AnnotationTypeDeclaration type= (AnnotationTypeDeclaration) findAbstractTypeDeclaration(astRoot, "DD");
@@ -2436,7 +2428,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testEnumConstantDeclaration1() throws Exception {
+	public void testEnumConstantDeclaration1_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -2446,7 +2438,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		EnumDeclaration type= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "DD");
@@ -2482,7 +2474,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testEnumConstantDeclaration2() throws Exception {
+	public void testEnumConstantDeclaration2_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -2514,7 +2506,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		AST ast= astRoot.getAST();
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		EnumDeclaration type= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "DD");
@@ -2643,7 +2635,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testEnumConstantDeclaration_bug114119() throws Exception {
+	public void testEnumConstantDeclaration_bug114119_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -2652,7 +2644,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		EnumDeclaration type= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "DD");
 		{
@@ -2725,7 +2717,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertFalse("Invalid extended length for "+body, astRoot.getExtendedLength(body)<0);
 	}
 
-	public void testAnnotations() throws Exception {
+	public void testAnnotations_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -2738,7 +2730,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
@@ -2817,7 +2809,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testParameterAnnotations() throws Exception {
+	public void testParameterAnnotations_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -2827,7 +2819,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		MethodDeclaration methodDecl= (MethodDeclaration) findTypeDeclaration(astRoot, "E").bodyDeclarations().get(0);

@@ -16,8 +16,6 @@ package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.util.List;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
@@ -29,35 +27,28 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
-	private static final Class THIS= ASTRewritingTypeDeclTest.class;
-
 	/**
 	 * Internal synonym for deprecated constant SingleVariableDeclaration#EXTRA_DIMENSIONS_PROPERTY
 	 * to alleviate deprecated warnings.
 	 * @deprecated
 	 */
-	static final SimplePropertyDescriptor INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY = SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY;
+	private static final SimplePropertyDescriptor INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY = SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY;
 	/**
 	 * Internal synonym for deprecated constant VariableDeclarationFragment#EXTRA_DIMENSIONS_PROPERTY
 	 * to alleviate deprecated warnings.
 	 * @deprecated
 	 */
-	static final SimplePropertyDescriptor INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY = VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY;
+	private static final SimplePropertyDescriptor INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY = VariableDeclarationFragment.EXTRA_DIMENSIONS_PROPERTY;
 
 	public ASTRewritingTypeDeclTest(String name) {
 		super(name);
 	}
-
-	public static Test allTests() {
-		return new Suite(THIS);
-	}
-
-	public static Test suite() {
-		return allTests();
+	public ASTRewritingTypeDeclTest(String name, int apiLevel) {
+		super(name, apiLevel);
 	}
 
 	/** @deprecated using deprecated code */
-	public void testTypeDeclChanges() throws Exception {
+	public void testTypeDeclChanges_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -196,14 +187,14 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=308754
-	public void testTypeDeclarationChange2() throws Exception {
+	public void testTypeDeclarationChange2_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("@A(X.class) public class C {}");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		{
 			// change to interface
@@ -220,7 +211,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("@A(X.class) public interface C {}");
 		assertEqualString(preview, buf.toString());
 	}
-	public void testTypeDeclChanges2() throws Exception {
+	public void testTypeDeclChanges2_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -246,7 +237,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 
@@ -331,7 +322,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	}
 
 	/** @deprecated using deprecated code */
-	public void testTypeDeclRemoves() throws Exception {
+	public void testTypeDeclRemoves_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -432,7 +423,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testTypeDeclInserts() throws Exception {
+	public void testTypeDeclInserts_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -548,7 +539,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testTypeDeclInsertFields1() throws Exception {
+	public void testTypeDeclInsertFields1_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -612,7 +603,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	}
 
 
-	public void testTypeParameters() throws Exception {
+	public void testTypeParameters_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -624,7 +615,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("class J<T>extends A {}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 		List types= astRoot.types();
@@ -686,7 +677,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testAnonymousClassDeclaration() throws Exception {
+	public void testAnonymousClassDeclaration_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -776,7 +767,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testImportDeclaration() throws Exception {
+	public void testImportDeclaration_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -790,7 +781,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("Z.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 
@@ -943,7 +934,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	}
 	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=262517
-	public void testSingleMemberAnnotation1() throws Exception {
+	public void testSingleMemberAnnotation1_since_3() throws Exception {
 		String previousValue = null;
 		try {
 			previousValue = this.project1.getOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_ANNOTATION, false);
@@ -957,7 +948,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			buf.append("}\n");
 			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 	
-			CompilationUnit astRoot= createAST3(cu);
+			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 			AST ast= astRoot.getAST();
 	
@@ -991,7 +982,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		}
 	}
 
-	public void testSingleVariableDeclaration() throws Exception {
+	public void testSingleVariableDeclaration_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1052,7 +1043,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testVariableDeclarationFragment() throws Exception {
+	public void testVariableDeclarationFragment_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1133,7 +1124,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testTypeDeclSpacingMethods1() throws Exception {
+	public void testTypeDeclSpacingMethods1_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1177,7 +1168,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testTypeDeclSpacingMethods2() throws Exception {
+	public void testTypeDeclSpacingMethods2_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1224,7 +1215,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testTypeDeclSpacingFields() throws Exception {
+	public void testTypeDeclSpacingFields_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1274,7 +1265,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testEnumDeclaration() throws Exception {
+	public void testEnumDeclaration_since_3() throws Exception {
 		// test the creation of an enum declaration
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1284,7 +1275,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 
@@ -1328,7 +1319,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	}
 
 
-	public void testEnumDeclaration1() throws Exception {
+	public void testEnumDeclaration1_since_3() throws Exception {
 		// test the creation of an enum declaration
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1338,7 +1329,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 
@@ -1365,7 +1356,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	}
 
 
-	public void testEnumDeclaration2() throws Exception {
+	public void testEnumDeclaration2_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1375,7 +1366,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 
@@ -1409,7 +1400,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testEnumDeclaration3() throws Exception {
+	public void testEnumDeclaration3_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1419,7 +1410,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 
@@ -1453,7 +1444,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testEnumDeclaration4() throws Exception {
+	public void testEnumDeclaration4_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1465,7 +1456,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 
 		EnumDeclaration declaration= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "E");
@@ -1484,7 +1475,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testEnumDeclaration5() throws Exception {
+	public void testEnumDeclaration5_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -1499,7 +1490,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 
 		EnumDeclaration declaration= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "E");
@@ -1526,7 +1517,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testEnumDeclaration6() throws Exception {
+	public void testEnumDeclaration6_since_3() throws Exception {
 		// test the creation of an enum declaration
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1537,7 +1528,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		EnumDeclaration declaration= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "E");
 
@@ -1556,7 +1547,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testEnumDeclaration7() throws Exception {
+	public void testEnumDeclaration7_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1564,7 +1555,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		EnumDeclaration declaration= (EnumDeclaration) findAbstractTypeDeclaration(astRoot, "E");
 
@@ -1587,7 +1578,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	}
 
 
-	public void testAnnotationTypeDeclaration1() throws Exception {
+	public void testAnnotationTypeDeclaration1_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1598,7 +1589,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 
@@ -1636,7 +1627,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testWildcardType() throws Exception {
+	public void testWildcardType_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1645,7 +1636,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createAST3(cu);
+		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
 

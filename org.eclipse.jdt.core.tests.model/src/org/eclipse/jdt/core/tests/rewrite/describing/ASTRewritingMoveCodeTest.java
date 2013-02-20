@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -11,9 +15,6 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.util.List;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -24,27 +25,14 @@ import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
 public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
-	private static final Class THIS= ASTRewritingMoveCodeTest.class;
-
 	public ASTRewritingMoveCodeTest(String name) {
 		super(name);
 	}
-
-	public static Test allTests() {
-		return new Suite(THIS);
+	public ASTRewritingMoveCodeTest(String name, int apiLevel) {
+		super(name, apiLevel);
 	}
 
-	public static Test setUpTest(Test someTest) {
-		TestSuite suite= new Suite("one test");
-		suite.addTest(someTest);
-		return suite;
-	}
-
-	public static Test suite() {
-		return allTests();
-	}
-
-	public void testMove() throws Exception {
+	public void testMove_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -299,7 +287,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	}
 
 
-	public void testMoveDeclDifferentLevelCD() throws Exception {
+	public void testMoveDeclDifferentLevelCD_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -419,7 +407,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	}
 
-	public void testMoveDeclDifferentLevel() throws Exception {
+	public void testMoveDeclDifferentLevel_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1857,7 +1845,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	}
 
-	public void testNestedCopies() throws Exception {
+	public void testNestedCopies_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 
 		StringBuffer buf= new StringBuffer();
