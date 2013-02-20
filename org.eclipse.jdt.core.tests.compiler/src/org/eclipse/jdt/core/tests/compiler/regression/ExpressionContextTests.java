@@ -21,7 +21,7 @@ import java.util.Map;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import junit.framework.Test;
 
-public class CastingContextTest extends AbstractRegressionTest {
+public class ExpressionContextTests extends AbstractRegressionTest {
 
 static {
 	//	TESTS_NAMES = new String[] { "test380112e"};
@@ -29,7 +29,7 @@ static {
 	//	TESTS_RANGE = new int[] { 11, -1 };
 }
 
-public CastingContextTest(String name) {
+public ExpressionContextTests(String name) {
 	super(name);
 }
 
@@ -503,7 +503,134 @@ public void test017() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778, [1.8][compiler] Conditional operator expressions should propagate target types
+public void test018() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void doit();\n" +
+				"}\n" +
+				"class X {\n" +
+				"	Object o = (I) () -> {};\n" +
+				"	I k = (()->{});\n" +
+				"	I i = 1 == 2 ? () -> {} : () -> {};\n" +
+				"	I j = () -> {};\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	I i = 1 == 2 ? () -> {} : () -> {};\n" + 
+			"	               ^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778, [1.8][compiler] Conditional operator expressions should propagate target types
+public void test019() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void doit();\n" +
+				"}\n" +
+				"class X {\n" +
+				"	I [] k = {(()->{}), ()->{}, 1 == 2 ? () -> {} : ()->{}};\n" +
+				"	I [][] i = {{()->{}}};\n" +
+				"	void foo() {\n" +
+				"       I i = () -> {};\n" +
+			    "   }\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	I [] k = {(()->{}), ()->{}, 1 == 2 ? () -> {} : ()->{}};\n" + 
+			"	                                     ^^^^^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	I i = () -> {};\n" + 
+			"	  ^\n" + 
+			"The local variable i is hiding a field from type X\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778, [1.8][compiler] Conditional operator expressions should propagate target types
+public void test020() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	J doit(int x);\n" +
+				"}\n" +
+				"interface J {\n" +
+				"	K doit();\n" +
+				"}\n" +
+				"interface K {\n" +
+				"   I doit();\n" +
+				"}" +
+				"class X {\n" +
+				"	I foo() {\n" +
+				"       return x -> { return () -> () -> \"Hello\"; };\n" +
+			    "   }\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	return x -> { return () -> () -> \"Hello\"; };\n" + 
+			"	                                 ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from String to I\n" + 
+			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778, [1.8][compiler] Conditional operator expressions should propagate target types
+public void test021() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	void doit();\n" +
+				"}\n" +
+				"class X {\n" +
+				"	I foo() {\n" +
+				"       return \"Hello\" + () -> {};\n" +
+			    "   }\n" +
+			    "	I goo() {\n" +
+				"       return \"Hello\" + (I)(() -> {});\n" +
+			    "   }\n" +
+			    "	I zoo() {\n" +
+				"       return 10 + (() -> {});\n" +
+			    "   }\n" +
+			    "	I boo() {\n" +
+				"       return 10 + (I) (() -> {});\n" +
+			    "   }\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	return \"Hello\" + () -> {};\n" + 
+			"	                 ^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	return \"Hello\" + (I)(() -> {});\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from String to I\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	return \"Hello\" + (I)(() -> {});\n" + 
+			"	                 ^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from I to I\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 12)\n" + 
+			"	return 10 + (() -> {});\n" + 
+			"	            ^^^^^^^^^^\n" + 
+			"The target type of this expression must be a functional interface\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 15)\n" + 
+			"	return 10 + (I) (() -> {});\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+			"The operator + is undefined for the argument type(s) int, I\n" + 
+			"----------\n");
+}
 public static Class testClass() {
-	return CastingContextTest.class;
+	return ExpressionContextTests.class;
 }
 }

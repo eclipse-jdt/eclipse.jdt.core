@@ -50,7 +50,7 @@ import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 
-public abstract class Expression extends Statement {
+public abstract class Expression extends Statement implements ExpressionContext {
 
 	public Constant constant;
 
@@ -1105,6 +1105,14 @@ public void setExpectedType(TypeBinding expectedType) {
     // do nothing by default
 }
 
+public void setExpressionContext(ExpressionContext context) {
+	// don't care. Subclasses that are poly expressions in specific contexts should listen in and make note.
+}
+
+public boolean isPolyExpression() {
+	return false; // Subclasses that are poly expressions should answer appropriately based on the context they feature in.
+}
+
 public void tagAsNeedCheckCast() {
     // do nothing by default
 }
@@ -1161,9 +1169,5 @@ public boolean statementExpression() {
 */
 public VariableBinding nullAnnotatedVariableBinding(boolean supportTypeAnnotations) {
 	return null;
-}
-
-public boolean isPolyExpressionInCastingContext() {
-	return false;
 }
 }

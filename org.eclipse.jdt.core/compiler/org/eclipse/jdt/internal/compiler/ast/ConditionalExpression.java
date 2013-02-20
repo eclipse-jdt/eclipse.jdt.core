@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephen Herrmann <stephan@cs.tu-berlin.de> -  Contributions for
@@ -39,6 +43,8 @@ public class ConditionalExpression extends OperatorExpression {
 	
 	// we compute and store the null status during analyseCode (https://bugs.eclipse.org/324178):
 	private int nullStatus = FlowInfo.UNKNOWN;
+	private TypeBinding expectedType;
+	private ExpressionContext expressionContext = VANILLA_CONTEXT;
 
 	public ConditionalExpression(
 		Expression condition,
@@ -409,11 +415,21 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		// JLS3 15.25
 		this.constant = Constant.NotAConstant;
 		LookupEnvironment env = scope.environment();
-		boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
+		final long sourceLevel = scope.compilerOptions().sourceLevel;
+		boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
+		boolean use18specifics = sourceLevel >= ClassFileConstants.JDK1_8;
 		TypeBinding conditionType = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 		this.condition.computeConversion(scope, TypeBinding.BOOLEAN, conditionType);
 
 		if (this.valueIfTrue instanceof CastExpression) this.valueIfTrue.bits |= DisableUnnecessaryCastCheck; // will check later on
+		
+		if (use18specifics) { 
+			if (this.valueIfTrue.isPolyExpression()) // context propagated already.
+				this.valueIfTrue.setExpectedType(this.expectedType);
+			if (this.valueIfFalse.isPolyExpression())
+				this.valueIfFalse.setExpectedType(this.expectedType);
+		}
+		
 		TypeBinding originalValueIfTrueType = this.valueIfTrue.resolveType(scope);
 
 		if (this.valueIfFalse instanceof CastExpression) this.valueIfFalse.bits |= DisableUnnecessaryCastCheck; // will check later on
@@ -591,6 +607,21 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			valueIfTrueType,
 			valueIfFalseType);
 		return null;
+	}
+
+	public void setExpectedType(TypeBinding expectedType) {
+		this.expectedType = expectedType;
+	}
+	
+	public void setExpressionContext(ExpressionContext context) {
+		this.expressionContext = context;
+		this.valueIfTrue.setExpressionContext(context);
+		this.valueIfFalse.setExpressionContext(context);
+	}
+	
+	public boolean isPolyExpression() {
+		return (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) &&
+				this.valueIfTrue.isPolyExpression() && this.valueIfFalse.isPolyExpression();
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

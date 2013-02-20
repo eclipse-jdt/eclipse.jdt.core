@@ -78,6 +78,7 @@ public class MessageSend extends Expression implements InvocationSite {
 	public TypeBinding valueCast; // extra reference type cast to perform on method returned value
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
+	private ExpressionContext expressionContext = VANILLA_CONTEXT;
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	boolean nonStatic = !this.binding.isStatic();
@@ -481,6 +482,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				argument.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 				argsContainCast = true;
 			}
+			argument.setExpressionContext(INVOCATION_CONTEXT);
 			if ((argumentTypes[i] = argument.resolveType(scope)) == null){
 				argHasError = true;
 			}
@@ -688,6 +690,26 @@ public void setDepth(int depth) {
 public void setExpectedType(TypeBinding expectedType) {
     this.expectedType = expectedType;
 }
+
+public void setExpressionContext(ExpressionContext context) {
+	this.expressionContext = context;
+}
+
+public boolean isPolyExpression() {
+	
+	/* 15.12 has four requirements: (1) The invocation appears in an assignment context or an invocation context
+       (2) The invocation elides NonWildTypeArguments (3) the method to be invoked is a generic method (8.4.4).
+       (4) The return type of the method to be invoked mentions at least one of the method's type parameters.
+    
+       We are in no position to ascertain the last two now - until the method call is fully resolved, there is no
+       way to know this. Instead, we simply claim we are a poly expression if the first two stipulations are met, 
+       grab the expected type with the proviso that we will not touch it until the two conditions we are unable to
+       verify right now are seen to indeed hold.
+ */
+	return (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) &&
+			(this.typeArguments == null || this.typeArguments.length == 0);		
+}
+
 public void setFieldIndex(int depth) {
 	// ignore for here
 }

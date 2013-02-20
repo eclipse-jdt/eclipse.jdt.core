@@ -37856,12 +37856,19 @@ public void test1109() {
 			"  }\n" +
 			"}\n",
 		},
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? 
 		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
 		"	return true ? Z.bar() : null;\n" +
 		"	       ^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from Y<Object> to Y<String>\n" +
-		"----------\n");
+		"----------\n" :
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	return true ? Z.bar() : null;\n" + 
+			"	                        ^^^^\n" + 
+			"Dead code\n" + 
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=176591
 //variant

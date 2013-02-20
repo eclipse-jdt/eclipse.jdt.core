@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
-public class ExplicitConstructorCall extends Statement implements InvocationSite {
+public class ExplicitConstructorCall extends Statement implements InvocationSite, ExpressionContext {
 
 	public Expression[] arguments;
 	public Expression qualification;
@@ -368,6 +368,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 						argument.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 						argsContainCast = true;
 					}
+					argument.setExpressionContext(INVOCATION_CONTEXT);
 					if ((argumentTypes[i] = argument.resolveType(scope)) == null) {
 						argHasError = true;
 					}

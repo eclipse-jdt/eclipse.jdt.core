@@ -85,6 +85,28 @@ public void runComplianceParserTest(
 			this.runNegativeTest(testFiles, expected17ProblemLog);
 		}
 	}
+public void runComplianceParserTest(
+		String[] testFiles,
+		String expected13ProblemLog,
+		String expected14ProblemLog,
+		String expected15ProblemLog,
+		String expected16ProblemLog,
+		String expected17ProblemLog,
+		String expected18ProblemLog){
+		if (this.complianceLevel == ClassFileConstants.JDK1_3) {
+			this.runNegativeTest(testFiles, expected13ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_4) {
+			this.runNegativeTest(testFiles, expected14ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_5) {
+			this.runNegativeTest(testFiles, expected15ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_6) {
+			this.runNegativeTest(testFiles, expected16ProblemLog);
+		} else if(this.complianceLevel < ClassFileConstants.JDK1_8) {
+			this.runNegativeTest(testFiles, expected17ProblemLog);
+		} else {
+			this.runNegativeTest(testFiles, expected18ProblemLog);
+		}
+	}
 public void test0001() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -3033,6 +3055,68 @@ public void testBug399773() {
 		expectedProblemLog,
 		expectedProblemLog,
 		expectedProblemLog
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778,  [1.8][compiler] Conditional operator expressions should propagate target types
+public void testBug399778() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	String[] testFiles = new String[] {
+		"X.java",
+		"import java.util.Arrays;\n" +
+		"import java.util.List;\n" +
+		"public class X  {\n" +
+		"		List<String> l = null == null ? Arrays.asList() : Arrays.asList(\"Hello\",\"world\");\n" +
+		"}\n",
+	};
+
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	List<String> l = null == null ? Arrays.asList() : Arrays.asList(\"Hello\",\"world\");\n" + 
+			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<capture#1-of ? extends Object> to List<String>\n" + 
+			"----------\n";
+
+	runComplianceParserTest(
+		testFiles,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		""   // 1.8 should compile this fine.
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778,  [1.8][compiler] Conditional operator expressions should propagate target types
+public void testBug399778a() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	String[] testFiles = new String[] {
+		"X.java",
+		"import java.util.Arrays;\n" +
+		"import java.util.List;\n" +
+		"public class X  {\n" +
+		"		List<String> l = (List<String>) (null == null ? Arrays.asList() : Arrays.asList(\"Hello\",\"world\"));\n" +
+		"}\n",
+	};
+
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	List<String> l = (List<String>) (null == null ? Arrays.asList() : Arrays.asList(\"Hello\",\"world\"));\n" + 
+			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from List<capture#1-of ? extends Object> to List<String>\n" + 
+			"----------\n";
+
+	runComplianceParserTest(
+		testFiles,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog   // 1.8 also issue type safety warning.
 	);
 }
 }

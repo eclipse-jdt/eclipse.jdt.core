@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public abstract class AbstractVariableDeclaration extends Statement implements InvocationSite {
+public abstract class AbstractVariableDeclaration extends Statement implements InvocationSite, ExpressionContext {
 	public int declarationEnd;
 	/**
 	 * For local declarations (outside of for statement initialization) and field declarations,

@@ -34,6 +34,7 @@ public abstract class FunctionalExpression extends Expression {
 	TypeBinding expectedType;
 	MethodBinding descriptor;
 	MethodBinding binding;
+	private ExpressionContext expressionContext = VANILLA_CONTEXT;
 	
 	public FunctionalExpression() {
 		super();
@@ -42,13 +43,17 @@ public abstract class FunctionalExpression extends Expression {
 	public void setExpectedType(TypeBinding expectedType) {
 		this.expectedType = expectedType;
 	}
+	
+	public void setExpressionContext(ExpressionContext context) {
+		this.expressionContext = context;
+	}
+	
+	public boolean isPolyExpression() {
+		return this.expressionContext != VANILLA_CONTEXT;
+	}
 
 	public TypeBinding expectedType() {
 		return this.expectedType;
-	}
-	
-	public boolean isPolyExpressionInCastingContext() {
-		return true;
 	}
 	
 	public TypeBinding resolveType(BlockScope blockScope) {

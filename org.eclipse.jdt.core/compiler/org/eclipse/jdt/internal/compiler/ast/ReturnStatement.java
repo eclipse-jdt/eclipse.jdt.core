@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class ReturnStatement extends Statement {
+public class ReturnStatement extends Statement implements ExpressionContext {
 
 	public Expression expression;
 	public SubRoutineStatement[] subroutines;
@@ -279,6 +279,12 @@ public void resolve(BlockScope scope) {
 				: methodBinding.returnType)
 			: TypeBinding.VOID;
 	TypeBinding expressionType;
+	
+	if (this.expression != null) {
+		this.expression.setExpressionContext(ASSIGNMENT_CONTEXT);
+		this.expression.setExpectedType(methodType);
+	}
+	
 	if (methodType == TypeBinding.VOID) {
 		// the expression should be null
 		if (this.expression == null)
@@ -294,7 +300,6 @@ public void resolve(BlockScope scope) {
 		if (methodType != null) scope.problemReporter().shouldReturn(methodType, this);
 		return;
 	}
-	this.expression.setExpectedType(methodType); // needed in case of generic method invocation
 	if ((expressionType = this.expression.resolveType(scope)) == null) return;
 	if (expressionType == TypeBinding.VOID) {
 		scope.problemReporter().attemptToReturnVoidValue(this);

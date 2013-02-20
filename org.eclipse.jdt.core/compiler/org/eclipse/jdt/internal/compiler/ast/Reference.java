@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -195,7 +195,7 @@ static void reportOnlyUselesslyReadLocal(BlockScope currentScope, LocalVariableB
 	if (localBinding.declaration instanceof Argument) {
 		// check compiler options to report against unused arguments
 		MethodScope methodScope = currentScope.methodScope();
-		if (methodScope != null) {
+		if (methodScope != null && !methodScope.isLambdaScope()) { // lambda must be congruent with the descriptor.
 			MethodBinding method = ((AbstractMethodDeclaration)methodScope.referenceContext()).binding;
 			
 			boolean shouldReport = !method.isMain();

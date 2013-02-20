@@ -47,6 +47,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 	public boolean inferredReturnType;
 
 	public FakedTrackingVariable closeTracker;	// when allocation a Closeable store a pre-liminary tracking variable here
+	private ExpressionContext expressionContext = VANILLA_CONTEXT;
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	// check captured variables are initialized in current context (26134)
@@ -355,6 +356,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				argument.bits |= DisableUnnecessaryCastCheck; // will check later on
 				argsContainCast = true;
 			}
+			argument.setExpressionContext(INVOCATION_CONTEXT);
 			if ((argumentTypes[i] = argument.resolveType(scope)) == null) {
 				argHasError = true;
 			}
@@ -521,6 +523,16 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 public void setExpectedType(TypeBinding expectedType) {
 	this.typeExpected = expectedType;
 }
+
+public void setExpressionContext(ExpressionContext context) {
+	this.expressionContext = context;
+}
+
+public boolean isPolyExpression() {
+	return (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) &&
+			this.type != null && (this.type.bits & ASTNode.IsDiamond) != 0;
+}
+
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#expectedType()
  */
