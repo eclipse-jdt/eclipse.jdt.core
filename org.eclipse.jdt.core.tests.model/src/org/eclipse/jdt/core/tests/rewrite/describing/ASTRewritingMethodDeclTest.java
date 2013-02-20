@@ -2878,6 +2878,143 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
+	public void testExtraDimwithAnnotations_since_8() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public Object foo1()[] throws ArrayStoreException { return null; }\n");
+		buf.append("    public Object foo2()[] { return null; }\n");
+		buf.append("    public Object foo3() @Annot1 [] @Annot2 [] { return null; }\n");
+		buf.append("    public Object foo4()@Annot1 [] @Annot2 [] throws IllegalArgumentException { return null; }\n");
+		buf.append("    public Object foo5() @Annot1 []   @Annot2 [] { return null; }\n");
+		buf.append("    public Object foo6(int i)  @Annot1 [] @Annot2 [] throws IllegalArgumentException { return null; }\n");
+		buf.append("    public Object foo7(int i) @Annot1 []  @Annot2 [] { return null; }\n");
+		buf.append("}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n"); 
+		buf.append("@interface Annot1 {}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot2 {}\n");
 
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
 
+		{
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo1");
+
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+			ExtraDimension dim= ast.newExtraDimension();
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
+			dim.annotations().add(markerAnnotation);
+			listRewrite.insertAt(dim, 1, null);
+
+			dim= ast.newExtraDimension();
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
+			dim.annotations().add(markerAnnotation);
+			listRewrite.insertAt(dim, 2, null);
+			
+			ASTNode exception = (ASTNode) methodDecl.thrownExceptionTypes().get(0);
+			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY).remove(exception, null);
+		}
+		{
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo2");
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+
+			ExtraDimension dim= ast.newExtraDimension();
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
+			dim.annotations().add(markerAnnotation);
+
+			listRewrite.insertAt(dim, 1, null);
+			
+			Type exception= ast.newSimpleType(ast.newSimpleName("ArrayStoreException"));
+			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY).insertFirst(exception, null);
+		}
+		{
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo3");
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+
+			ExtraDimension dim= ast.newExtraDimension();
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
+			dim.annotations().add(markerAnnotation);
+
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
+			dim.annotations().add(markerAnnotation);
+			listRewrite.insertAt(dim, 1, null);
+		}
+		{
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo4");
+			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(0);
+			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
+			listRewrite.insertAt(markerAnnotation, 0, null);
+
+			dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(1);
+			listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
+			listRewrite.insertAt(markerAnnotation, 1, null);
+		}
+		{
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo5");
+			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(0);
+			Annotation annot= (Annotation) dim.annotations().get(0);
+			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			listRewrite.remove(annot, null);
+
+			dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(1);
+			listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			listRewrite.insertAt(annot, 1, null);
+		}
+		{
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo6");
+			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(0);
+			Annotation annot= (Annotation) dim.annotations().get(0);
+			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			listRewrite.remove(annot, null);
+
+			dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(1);
+			annot= (Annotation) dim.annotations().get(0);
+			listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			listRewrite.remove(annot, null);
+		}
+		{
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo7");
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+			ExtraDimension dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(0);
+			listRewrite.remove(dim, null);
+			dim= (ExtraDimension) methodDecl.extraDimensionInfos().get(1);
+			listRewrite.remove(dim, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public Object foo1()[] @Annot1 [] @Annot2 [] { return null; }\n");
+		buf.append("    public Object foo2()[] @Annot1 [] throws ArrayStoreException { return null; }\n");
+		buf.append("    public Object foo3() @Annot1 [] @Annot1 @Annot2 [] @Annot2 [] { return null; }\n");
+		buf.append("    public Object foo4()@Annot2 @Annot1 [] @Annot2 @Annot1 [] throws IllegalArgumentException { return null; }\n");
+		buf.append("    public Object foo5()  []   @Annot2 @Annot1 [] { return null; }\n");
+		buf.append("    public Object foo6(int i)   []  [] throws IllegalArgumentException { return null; }\n");
+		buf.append("    public Object foo7(int i) { return null; }\n");
+		buf.append("}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n"); 
+		buf.append("@interface Annot1 {}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot2 {}\n");
+		assertEqualString(preview, buf.toString());
+	}
 }

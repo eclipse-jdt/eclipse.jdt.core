@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.tests.dom.ASTConverterBugsTestJLS8;
 import org.eclipse.jdt.core.tests.dom.ASTConverterTestAST8_2;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.dom.TypeAnnotationsConverterTest;
+import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
 
 public class RunAllJava8Tests extends TestCase {
 	
@@ -73,6 +74,7 @@ public class RunAllJava8Tests extends TestCase {
 				ASTConverterBugsTestJLS8.class,
 				ASTConverter15JLS8Test.class,
 				ASTConverter18Test.class,
+				ASTRewritingTest.class,
 		};
 	}
 	public static Test suite() {

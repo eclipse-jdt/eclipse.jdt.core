@@ -1684,7 +1684,209 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=396576
+	public void testVariableDeclarationFragmentWithAnnot_since_8() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        int i, j, k = 0, x, y [] [] [], z @Annot1 [], zz @Annot2 @Annot2[] = {0, 1};\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot1 {}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot2 {}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
 
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED)== 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List statements= block.statements();
+		assertTrue("Number of statements not 1", statements.size()== 1);
+
+		VariableDeclarationStatement variableDeclStatement= (VariableDeclarationStatement) statements.get(0);
+		List fragments= variableDeclStatement.fragments();
+		assertTrue("Number of fragments not 7", fragments.size()== 7);
+
+		{ // rename var, add dimension with annotations
+			VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(0);
+			ASTNode name= ast.newSimpleName("a");
+			rewrite.replace(fragment.getName(), name, null);
+
+			ListRewrite listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSION_INFOS_PROPERTY);
+			ExtraDimension dim= ast.newExtraDimension();
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
+			dim.annotations().add(markerAnnotation);
+
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
+			dim.annotations().add(markerAnnotation);
+			listRewrite.insertAt(dim, 0, null);
+		}
+		{ // add initializer
+			VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(1);
+			assertTrue("Has initializer", fragment.getInitializer()== null);
+			Expression initializer= ast.newNumberLiteral("1");
+			rewrite.set(fragment, VariableDeclarationFragment.INITIALIZER_PROPERTY, initializer, null);
+		}
+		{ // remove initializer and add extra dimensions with annotations
+			VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(2);
+			assertTrue("Has no initializer", fragment.getInitializer() != null);
+			rewrite.remove(fragment.getInitializer(), null);
+
+			ListRewrite listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSION_INFOS_PROPERTY);
+			ExtraDimension dim= ast.newExtraDimension();
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
+			dim.annotations().add(markerAnnotation);
+			
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
+			dim.annotations().add(markerAnnotation);
+			listRewrite.insertAt(dim, 0, null);
+		}
+		{ // add dimension, add initializer
+			VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(3);
+			assertTrue("Has initializer", fragment.getInitializer()== null);
+			Expression initializer= ast.newNullLiteral();
+			rewrite.set(fragment, VariableDeclarationFragment.INITIALIZER_PROPERTY, initializer, null);
+
+			ListRewrite listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSION_INFOS_PROPERTY);
+
+			ExtraDimension dim= ast.newExtraDimension();
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
+			dim.annotations().add(markerAnnotation);
+
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
+			dim.annotations().add(markerAnnotation);
+			listRewrite.insertAt(dim, 0, null);
+		}
+		{ // remove one dimension and add annotations for the rest of the dimensions
+			VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(4);
+
+			ExtraDimension dim= (ExtraDimension) fragment.extraDimensionInfos().get(1);
+			ListRewrite listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
+			listRewrite.insertAt(markerAnnotation, 0, null);
+
+			dim= (ExtraDimension) fragment.extraDimensionInfos().get(2);
+			markerAnnotation= ast.newMarkerAnnotation();
+			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
+			listRewrite= rewrite.getListRewrite(dim, ExtraDimension.ANNOTATIONS_PROPERTY);
+			listRewrite.insertAt(markerAnnotation, 0, null);
+
+			listRewrite= rewrite.getListRewrite(fragment, VariableDeclarationFragment.EXTRA_DIMENSION_INFOS_PROPERTY);
+			listRewrite.remove((ExtraDimension) fragment.extraDimensionInfos().get(0), null);
+		}
+		{ // remove a fragment
+			ListRewrite listRewrite= rewrite.getListRewrite(variableDeclStatement, VariableDeclarationStatement.FRAGMENTS_PROPERTY);
+			VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(5);
+			listRewrite.remove(fragment, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        int a @Annot1 @Annot2 [], j = 1, k @Annot1 @Annot2 [], x @Annot1 @Annot2 [] = null, y @Annot1[] @Annot2[], zz @Annot2 @Annot2[] = {0, 1};\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot1 {}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot2 {}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=396576
+	public void testSingleVariableDeclarationWithAnnotations_since_8() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo(int i, final int[] j @Annot1 @Annot2 [], int[] k @Annot1 @Annot3 [] @Annot2 @Annot3 [], int l []) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot1 {}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot2 {}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot2 {}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		System.out.println(buf.toString());
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED)== 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		List arguments= methodDecl.parameters();
+
+		{ // add modifier, move extra dimensions from one variable to another
+			SingleVariableDeclaration decl= (SingleVariableDeclaration) arguments.get(0);
+			SingleVariableDeclaration decl2= (SingleVariableDeclaration) arguments.get(1);
+			ExtraDimension dim= (ExtraDimension) decl2.extraDimensionInfos().get(0);
+			ListRewrite listRewrite= rewrite.getListRewrite(decl, SingleVariableDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.insertFirst(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+
+			listRewrite= rewrite.getListRewrite(decl2, SingleVariableDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+			listRewrite.remove(dim, null);
+			listRewrite= rewrite.getListRewrite(decl, SingleVariableDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+			listRewrite.insertAt(dim, 0, null);
+		}
+		{ // move annotations from one dim to another
+			SingleVariableDeclaration decl= (SingleVariableDeclaration) arguments.get(2);
+			ExtraDimension dim1= (ExtraDimension) decl.extraDimensionInfos().get(0);
+			ExtraDimension dim2= (ExtraDimension) decl.extraDimensionInfos().get(1);
+			Annotation annot1= (Annotation) dim1.annotations().get(0);
+			Annotation annot2= (Annotation) dim2.annotations().get(0);
+
+			ListRewrite listRewrite= rewrite.getListRewrite(dim1, ExtraDimension.ANNOTATIONS_PROPERTY);
+			listRewrite.replace(annot1, annot2, null);
+
+			listRewrite= rewrite.getListRewrite(dim2, ExtraDimension.ANNOTATIONS_PROPERTY);
+			listRewrite.replace(annot2, annot1, null);
+		}
+		{ // remove extra dim
+			SingleVariableDeclaration decl= (SingleVariableDeclaration) arguments.get(3);
+			ListRewrite listRewrite= rewrite.getListRewrite(decl, SingleVariableDeclaration.EXTRA_DIMENSION_INFOS_PROPERTY);
+			listRewrite.remove((ExtraDimension) decl.extraDimensionInfos().get(0), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo(final int i @Annot1 @Annot2 [], final int[] j, int[] k @Annot2 @Annot3 [] @Annot1 @Annot3 [], int l) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot1 {}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot2 {}\n");
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
+		buf.append("@interface Annot2 {}\n");
+		assertEqualString(preview, buf.toString());
+	}
 
 
 }
