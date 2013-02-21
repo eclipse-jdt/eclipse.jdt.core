@@ -45,7 +45,28 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 
 	/** @deprecated using deprecated code */
-	public void testMethodDeclChanges_only_2() throws Exception {
+   private  Type getReturnType(MethodDeclaration methodDecl) { 
+    	return this.apiLevel < AST.JLS3 ? methodDecl.getReturnType() : methodDecl.getReturnType2(); 
+    } 
+
+   /** @deprecated using deprecated code */
+   private ChildPropertyDescriptor getMethodReturnTypeProperty(AST ast) { 
+   	return ast.apiLevel() < AST.JLS3 ? MethodDeclaration.RETURN_TYPE_PROPERTY : MethodDeclaration.RETURN_TYPE2_PROPERTY; 
+   } 
+
+   private ASTNode createNewExceptionType(AST ast, String name) {
+    	return ast.apiLevel() < AST.JLS8 ? ast.newSimpleName(name) : (ASTNode) ast.newSimpleType(ast.newSimpleName(name));
+    }
+
+    private List getThrownExceptions(MethodDeclaration methodDecl) { 
+    	return this.apiLevel < AST.JLS8 ? methodDecl.thrownExceptions() : methodDecl.thrownExceptionTypes(); 
+    } 
+
+    private ChildListPropertyDescriptor getMethodThrownExceptionsProperty(AST ast) { 
+    	return ast.apiLevel() < AST.JLS8 ? MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY; 
+    } 
+
+	public void testMethodDeclChanges() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -71,20 +92,20 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
 			// from constructor to method
-			rewrite.set(methodDecl, MethodDeclaration.RETURN_TYPE_PROPERTY, newReturnType, null);
+			rewrite.set(methodDecl, getMethodReturnTypeProperty(ast), newReturnType, null);
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.FALSE, null);
 		}
 		{ // change return type
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "gee");
-			assertTrue("Has no return type: gee", methodDecl.getReturnType() != null);
+			assertTrue("Has no return type: gee", getReturnType(methodDecl) != null);
 
-			Type returnType= methodDecl.getReturnType();
+			Type returnType= getReturnType(methodDecl);
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 			rewrite.replace(returnType, newReturnType, null);
 		}
 		{ // remove return type
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "hee");
-			assertTrue("Has no return type: hee", methodDecl.getReturnType() != null);
+			assertTrue("Has no return type: hee", getReturnType(methodDecl) != null);
 
 			// from method to constructor
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
@@ -104,9 +125,9 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			SingleVariableDeclaration newParam= createNewParam(ast, "m");
 			rewrite.replace((ASTNode) parameters.get(0), newParam, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 2 thrown exceptions", thrownExceptions.size() == 2);
-			Name newThrownException= ast.newSimpleName("ArrayStoreException");
+			ASTNode newThrownException= createNewExceptionType(ast, "ArrayStoreException");
 			rewrite.replace((ASTNode) thrownExceptions.get(1), newThrownException, null);
 		}
 		{ // rename first and second param & rename first and last exception
@@ -118,10 +139,10 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.replace((ASTNode) parameters.get(0), newParam1, null);
 			rewrite.replace((ASTNode) parameters.get(1), newParam2, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
-			Name newThrownException1= ast.newSimpleName("ArrayStoreException");
-			Name newThrownException2= ast.newSimpleName("InterruptedException");
+			ASTNode newThrownException1= createNewExceptionType(ast, "ArrayStoreException");
+			ASTNode newThrownException2= createNewExceptionType(ast, "InterruptedException");
 			rewrite.replace((ASTNode) thrownExceptions.get(0), newThrownException1, null);
 			rewrite.replace((ASTNode) thrownExceptions.get(2), newThrownException2, null);
 		}
@@ -136,9 +157,9 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.replace((ASTNode) parameters.get(1), newParam2, null);
 			rewrite.replace((ASTNode) parameters.get(2), newParam3, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
-			Name newThrownException= ast.newSimpleName("ArrayStoreException");
+			ASTNode newThrownException= createNewExceptionType(ast, "ArrayStoreException");
 			rewrite.replace((ASTNode) thrownExceptions.get(1), newThrownException, null);
 		}
 
@@ -1079,7 +1100,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testListInsert_only_2_3_4() throws Exception {
+	public void testListInsert() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1105,14 +1126,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			listRewrite.insertFirst(newParam1, null);
 			listRewrite.insertLast(newParam2, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 3 thrown exceptions", thrownExceptions.size() == 3);
 
 			rewrite.remove((ASTNode) thrownExceptions.get(1), null);
 			rewrite.remove((ASTNode) thrownExceptions.get(2), null);
 
-			Name newThrownException= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException, null);
+			ASTNode newThrownException= createNewExceptionType(ast, "InterruptedException");
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertLast(newThrownException, null);
 		}
 
 
@@ -1129,7 +1150,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testListCombinations_only_2_3_4() throws Exception {
+	public void testListCombinations() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1162,14 +1183,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertLast(newParam, null);
 
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 0 thrown exceptions", thrownExceptions.size() == 0);
 
-			Name newThrownException1= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException1, null);
+			ASTNode newThrownException1= createNewExceptionType(ast, "InterruptedException");
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertLast(newThrownException1, null);
 
-			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
+			ASTNode newThrownException2= createNewExceptionType(ast, "ArrayStoreException");
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertLast(newThrownException2, null);
 
 		}
 		{ // delete first 2, replace last and insert after & replace first exception and insert before
@@ -1187,14 +1208,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertLast(newParam2, null);
 
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 1 thrown exceptions", thrownExceptions.size() == 1);
 
-			Name modifiedThrownException= ast.newSimpleName("InterruptedException");
+			ASTNode modifiedThrownException= createNewExceptionType(ast, "InterruptedException");
 			rewrite.replace((ASTNode) thrownExceptions.get(0), modifiedThrownException, null);
 
-			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
+			ASTNode newThrownException2= createNewExceptionType(ast, "ArrayStoreException");
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertLast(newThrownException2, null);
 
 		}
 		{ // delete first 2, replace last and insert at first & remove first and insert before
@@ -1211,13 +1232,13 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			SingleVariableDeclaration newParam2= createNewParam(ast, "m2");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertFirst(newParam2, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 1 thrown exceptions", thrownExceptions.size() == 1);
 
 			rewrite.remove((ASTNode) thrownExceptions.get(0), null);
 
-			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
+			ASTNode newThrownException2= createNewExceptionType(ast, "ArrayStoreException");
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertLast(newThrownException2, null);
 		}
 
 
@@ -1239,7 +1260,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testListCombination_only_2_3_4() throws Exception {
+	public void testListCombination() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -1265,14 +1286,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			SingleVariableDeclaration newParam= createNewParam(ast, "m");
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertLast(newParam, null);
 
-			List thrownExceptions= methodDecl.thrownExceptions();
+			List thrownExceptions= getThrownExceptions(methodDecl);
 			assertTrue("must be 0 thrown exceptions", thrownExceptions.size() == 0);
 
-			Name newThrownException1= ast.newSimpleName("InterruptedException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException1, null);
+			ASTNode newThrownException1= createNewExceptionType(ast, "InterruptedException");
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertLast(newThrownException1, null);
 
-			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
-			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
+			ASTNode newThrownException2= createNewExceptionType(ast, "ArrayStoreException");
+			rewrite.getListRewrite(methodDecl, getMethodThrownExceptionsProperty(ast)).insertLast(newThrownException2, null);
 
 
 		}
@@ -1289,7 +1310,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 	}
 
-	public void testListCombination2_only_2_3_4() throws Exception {
+	public void testListCombination2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
