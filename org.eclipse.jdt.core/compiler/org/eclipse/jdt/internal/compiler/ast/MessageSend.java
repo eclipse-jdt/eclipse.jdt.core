@@ -704,9 +704,8 @@ public boolean isPolyExpression() {
        (4) The return type of the method to be invoked mentions at least one of the method's type parameters.
     
        We are in no position to ascertain the last two now - until the method call is fully resolved, there is no
-       way to know this. Instead, we simply claim we are a poly expression if the first two stipulations are met, 
-       grab the expected type with the proviso that we will not touch it until the two conditions we are unable to
-       verify right now are seen to indeed hold.
+       way to know this. Instead, we simply claim we are a poly expression if the first two stipulations are met.
+       This should a harmless lie.
  */
 	return (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) &&
 			(this.typeArguments == null || this.typeArguments.length == 0);		

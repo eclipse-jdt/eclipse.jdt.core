@@ -33,7 +33,7 @@ public abstract class FunctionalExpression extends Expression {
 	
 	TypeBinding expectedType;
 	MethodBinding descriptor;
-	MethodBinding binding;
+	public MethodBinding binding;
 	private ExpressionContext expressionContext = VANILLA_CONTEXT;
 	
 	public FunctionalExpression() {
