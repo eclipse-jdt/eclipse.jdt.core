@@ -15,6 +15,8 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -27,6 +29,10 @@ public class ASTRewritePropertyTest extends ASTRewritingTest {
 	}
 	public ASTRewritePropertyTest(String name, int apiLevel) {
 		super(name, apiLevel);
+	}
+
+	public static Test suite() {
+		return createSuite(ASTRewritePropertyTest.class);
 	}
 
 	public void testProperties() throws Exception {

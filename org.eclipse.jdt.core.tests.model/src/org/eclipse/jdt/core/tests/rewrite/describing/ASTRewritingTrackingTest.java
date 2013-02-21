@@ -18,9 +18,10 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ITrackedNodePosition;
@@ -34,6 +35,11 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 	public ASTRewritingTrackingTest(String name, int apiLevel) {
 		super(name, apiLevel);
 	}
+
+	public static Test suite() {
+		return createSuite(ASTRewritingTrackingTest.class);
+	}
+
 	/** 
 	 * Internal access method to VariableDeclarationFragment#setExtraDimensions() for avoiding deprecated warnings
 	 *

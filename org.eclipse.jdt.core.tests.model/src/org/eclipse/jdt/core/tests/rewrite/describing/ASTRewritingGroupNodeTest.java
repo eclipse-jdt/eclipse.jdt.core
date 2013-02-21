@@ -15,9 +15,10 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
@@ -38,6 +39,10 @@ public class ASTRewritingGroupNodeTest extends ASTRewritingTest {
 
 	public ASTRewritingGroupNodeTest(String name, int apiLevel) {
 		super(name, apiLevel);
+	}
+
+	public static Test suite() {
+		return createSuite(ASTRewritingGroupNodeTest.class);
 	}
 
 	public void testCollapsedTargetNodes() throws Exception {

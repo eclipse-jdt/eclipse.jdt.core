@@ -15,12 +15,59 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 import java.util.List;
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AssertStatement;
+import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
+import org.eclipse.jdt.core.dom.BreakStatement;
+import org.eclipse.jdt.core.dom.CatchClause;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
+import org.eclipse.jdt.core.dom.ContinueStatement;
+import org.eclipse.jdt.core.dom.DoStatement;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.LabeledStatement;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.SwitchCase;
+import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.SynchronizedStatement;
+import org.eclipse.jdt.core.dom.ThrowStatement;
+import org.eclipse.jdt.core.dom.TryStatement;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
+import org.eclipse.jdt.core.dom.UnionType;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
@@ -36,15 +83,19 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		super(name, apiLevel);
 	}
 
-	/** 
-	 * Internal access method to VariableDeclarationFragment#setExtraDimensions() for avoiding deprecated warnings
-	 *
-	 * @param node
-	 * @param dimensions
-	 * @deprecated
-	 */
+	public static Test suite() {
+		return createSuite(ASTRewritingStatementsTest.class);
+	}
+
+	/** @deprecated using deprecated code */
 	private void internalSetExtraDimensions(VariableDeclarationFragment node, int dimensions) {
-		node.setExtraDimensions(dimensions);
+		if (this.apiLevel < AST.JLS8) {
+			node.setExtraDimensions(dimensions);
+		} else {
+			while (dimensions > 0) {
+				node.extraDimensionInfos().add(node.getAST().newExtraDimension());
+			}
+		}
 	}
 	public void testInsert1() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1375,7 +1426,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
-	public void testDoStatement2() throws Exception {
+	public void testDoStatement2_since_4() throws Exception {
 		createProject("P_17", JavaCore.VERSION_1_7);
 		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
 
@@ -1392,7 +1443,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("}\n");
 			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 	
-			CompilationUnit astRoot= createAST(AST.JLS4, cu, true);
+			CompilationUnit astRoot= createAST(cu, true);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 			AST ast= astRoot.getAST();
 	
@@ -4715,7 +4766,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	public void testTryStatement2() throws Exception {
+	public void testTryStatement2_since_4() throws Exception {
 		createProject("P_17", JavaCore.VERSION_1_7);
 		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
 
@@ -4733,7 +4784,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("}\n");
 			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 	
-			CompilationUnit astRoot= createAST(AST.JLS4, cu, false);
+			CompilationUnit astRoot= createAST(cu);
 			AST ast= astRoot.getAST();
 			ASTRewrite rewrite= ASTRewrite.create(ast);
 
@@ -4773,7 +4824,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			deleteProject("P_17");
 		}
 	}
-	public void testTryStatement3() throws Exception {
+	public void testTryStatement3_since_4() throws Exception {
 		createProject("P_17", JavaCore.VERSION_1_7);
 		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
 
@@ -4791,7 +4842,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("}\n");
 			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 	
-			CompilationUnit astRoot= createAST(AST.JLS4, cu, false);
+			CompilationUnit astRoot= createAST(cu);
 			AST ast= astRoot.getAST();
 			ASTRewrite rewrite= ASTRewrite.create(ast);
 	
@@ -4835,7 +4886,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			deleteProject("P_17");
 		}
 	}
-	public void testTryStatement4() throws Exception {
+	public void testTryStatement4_since_4() throws Exception {
 		createProject("P_17", JavaCore.VERSION_1_7);
 		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
 
@@ -4854,7 +4905,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("}\n");
 			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 	
-			CompilationUnit astRoot= createAST(AST.JLS4, cu, false);
+			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 
 			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
@@ -4886,7 +4937,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			deleteProject("P_17");
 		}
 	}
-	public void testTryStatementWithResources() throws Exception {
+	public void testTryStatementWithResources_since_4() throws Exception {
 		createProject("P_17", JavaCore.VERSION_1_7);
 		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
 
@@ -4907,7 +4958,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("}\n");
 			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 	
-			CompilationUnit astRoot= createAST(AST.JLS4, cu, false);
+			CompilationUnit astRoot= createAST(cu);
 			AST ast= astRoot.getAST();
 			ASTRewrite rewrite= ASTRewrite.create(ast);
 
@@ -4983,7 +5034,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		}
 	}
 
-	public void testTryStatementWithResources2() throws Exception {
+	public void testTryStatementWithResources2_since_4() throws Exception {
 		createProject("P_17", JavaCore.VERSION_1_7);
 		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
 
@@ -5001,7 +5052,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("}\n");
 			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 	
-			CompilationUnit astRoot= createAST(AST.JLS4, cu, false);
+			CompilationUnit astRoot= createAST(cu);
 			AST ast= astRoot.getAST();
 			ASTRewrite rewrite= ASTRewrite.create(ast);
 
@@ -5042,7 +5093,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351170
 	 */
-	public void testTryStatementWithResources3() throws Exception {
+	public void testTryStatementWithResources3_since_4() throws Exception {
 
 		createProject("P_17", JavaCore.VERSION_1_7);
 		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
@@ -5066,7 +5117,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("}");
 
 			ICompilationUnit cu = pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-			CompilationUnit astRoot= createAST(AST.JLS4, cu, true, true);
+			CompilationUnit astRoot= createAST(cu, true, true);
 			AST ast= astRoot.getAST();
 			ASTRewrite rewrite= ASTRewrite.create(ast);
 
@@ -5115,7 +5166,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351170
 	 */
-	public void testTryStatementWithResources4() throws Exception {
+	public void testTryStatementWithResources4_since_4() throws Exception {
 
 		createProject("P_17", JavaCore.VERSION_1_7);
 		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
@@ -5138,7 +5189,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("}");
 
 			ICompilationUnit cu = pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-			CompilationUnit astRoot= createAST(AST.JLS4, cu, true, true);
+			CompilationUnit astRoot= createAST(cu, true, true);
 			AST ast= astRoot.getAST();
 			ASTRewrite rewrite= ASTRewrite.create(ast);
 
@@ -5193,7 +5244,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351170
 	 */
-	public void testTryStatementWithResources5() throws Exception {
+	public void testTryStatementWithResources5_since_4() throws Exception {
 
 		createProject("P_17", JavaCore.VERSION_1_7);
 		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
@@ -5216,7 +5267,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("}");
 
 			ICompilationUnit cu = pack1.createCompilationUnit("X.java", buf.toString(), false, null);
-			CompilationUnit astRoot= createAST(AST.JLS4, cu, true, true);
+			CompilationUnit astRoot= createAST(cu, true, true);
 			AST ast= astRoot.getAST();
 			ASTRewrite rewrite= ASTRewrite.create(ast);
 
@@ -5693,7 +5744,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350285
 	// Test that converting a multi catch into a normal catch using complete block copy doesn't change indentation
-	public void testTryStatementWithMultiCatch1() throws Exception {
+	public void testTryStatementWithMultiCatch1_since_4() throws Exception {
 		createProject("P_17", JavaCore.VERSION_1_7);
 		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
 		try {
@@ -5711,7 +5762,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("}\n");
 			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-			CompilationUnit astRoot= createAST(AST.JLS4, cu, false);
+			CompilationUnit astRoot= createAST(cu);
 			AST ast= astRoot.getAST();
 			ASTRewrite rewrite= ASTRewrite.create(ast);
 
@@ -5766,7 +5817,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=350285
 	// similar to testTryStatementWithMultiCatch1() but has a different brace position
-	public void testTryStatementWithMultiCatch2() throws Exception {
+	public void testTryStatementWithMultiCatch2_since_4() throws Exception {
 		IJavaProject project = createProject("P_17", JavaCore.VERSION_1_7);
 		project.setOption(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK, DefaultCodeFormatterConstants.NEXT_LINE);
 		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
@@ -5786,7 +5837,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			buf.append("}\n");
 			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
 
-			CompilationUnit astRoot= createAST(AST.JLS4, cu, false);
+			CompilationUnit astRoot= createAST(cu);
 			AST ast= astRoot.getAST();
 			ASTRewrite rewrite= ASTRewrite.create(ast);
 

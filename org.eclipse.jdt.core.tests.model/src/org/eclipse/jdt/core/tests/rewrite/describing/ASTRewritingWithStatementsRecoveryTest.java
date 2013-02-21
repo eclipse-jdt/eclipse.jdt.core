@@ -15,9 +15,10 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 import java.util.List;
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
@@ -30,6 +31,10 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 
 	public ASTRewritingWithStatementsRecoveryTest(String name, int apiLevel) {
 		super(name, apiLevel);
+	}
+
+	public static Test suite() {
+		return createSuite(ASTRewritingWithStatementsRecoveryTest.class);
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=272711

@@ -15,24 +15,26 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.internal.core.dom.rewrite.SourceModifier;
+import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
-
-import org.eclipse.jface.text.Document;
-
-import org.eclipse.jdt.internal.core.dom.rewrite.SourceModifier;
 
 /**
  *
  */
-public class SourceModifierTest extends ASTRewritingTest {
+public class SourceModifierTest extends AbstractJavaModelTests {
 
 	public SourceModifierTest(String name) {
 		super(name);
 	}
 
-	public SourceModifierTest(String name, int apiLevel) {
-		super(name, apiLevel);
+	public static Test suite() {
+		return new TestSuite(SourceModifierTest.class);
 	}
 
 	public void testRemoveIndents() throws Exception {
@@ -83,7 +85,7 @@ public class SourceModifierTest extends ASTRewritingTest {
 		buf.append("}\n");
 		String expected= buf.toString();
 
-		assertEqualString(preview, expected);
+		StringAsserts.assertEqualString(preview, expected);
 	}
 
 	public void testAddIndents() throws Exception {
@@ -134,6 +136,6 @@ public class SourceModifierTest extends ASTRewritingTest {
 		buf.append("}\n");
 		String expected= buf.toString();
 
-		assertEqualString(preview, expected);
+		StringAsserts.assertEqualString(preview, expected);
 	}
 }

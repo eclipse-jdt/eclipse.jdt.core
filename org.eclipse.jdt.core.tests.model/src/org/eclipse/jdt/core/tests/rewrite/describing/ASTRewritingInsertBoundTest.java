@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.dom.AST;
@@ -41,6 +43,10 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 	public ASTRewritingInsertBoundTest(String name, int apiLevel) {
 		super(name, apiLevel);
+	}
+
+	public static Test suite() {
+		return createSuite(ASTRewritingInsertBoundTest.class);
 	}
 
 	/** @deprecated using deprecated code */

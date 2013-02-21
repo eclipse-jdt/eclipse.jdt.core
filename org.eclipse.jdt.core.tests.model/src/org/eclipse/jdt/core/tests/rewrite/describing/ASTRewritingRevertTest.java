@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.dom.AST;
@@ -33,6 +35,10 @@ public class ASTRewritingRevertTest extends ASTRewritingTest {
 
 	public ASTRewritingRevertTest(String name, int apiLevel) {
 		super(name, apiLevel);
+	}
+
+	public static Test suite() {
+		return createSuite(ASTRewritingRevertTest.class);
 	}
 
 	public void testRemoveInserted_since_3() throws Exception {

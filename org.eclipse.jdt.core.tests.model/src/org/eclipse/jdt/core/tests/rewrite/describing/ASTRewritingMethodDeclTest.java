@@ -19,6 +19,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
@@ -44,27 +46,31 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		super(name, apiLevel);
 	}
 
+	public static Test suite() {
+		return createSuite(ASTRewritingMethodDeclTest.class);
+	}
+
 	/** @deprecated using deprecated code */
-   private  Type getReturnType(MethodDeclaration methodDecl) { 
-    	return this.apiLevel < AST.JLS3 ? methodDecl.getReturnType() : methodDecl.getReturnType2(); 
-    } 
+	private Type getReturnType(MethodDeclaration methodDecl) { 
+		return this.apiLevel < AST.JLS3 ? methodDecl.getReturnType() : methodDecl.getReturnType2(); 
+	} 
 
-   /** @deprecated using deprecated code */
-   private ChildPropertyDescriptor getMethodReturnTypeProperty(AST ast) { 
-   	return ast.apiLevel() < AST.JLS3 ? MethodDeclaration.RETURN_TYPE_PROPERTY : MethodDeclaration.RETURN_TYPE2_PROPERTY; 
-   } 
+	/** @deprecated using deprecated code */
+	private ChildPropertyDescriptor getMethodReturnTypeProperty(AST ast) { 
+		return ast.apiLevel() < AST.JLS3 ? MethodDeclaration.RETURN_TYPE_PROPERTY : MethodDeclaration.RETURN_TYPE2_PROPERTY; 
+	} 
 
-   private ASTNode createNewExceptionType(AST ast, String name) {
-    	return ast.apiLevel() < AST.JLS8 ? ast.newSimpleName(name) : (ASTNode) ast.newSimpleType(ast.newSimpleName(name));
-    }
+	private ASTNode createNewExceptionType(AST ast, String name) {
+		return ast.apiLevel() < AST.JLS8 ? ast.newSimpleName(name) : (ASTNode) ast.newSimpleType(ast.newSimpleName(name));
+	}
 
-    private List getThrownExceptions(MethodDeclaration methodDecl) { 
-    	return this.apiLevel < AST.JLS8 ? methodDecl.thrownExceptions() : methodDecl.thrownExceptionTypes(); 
-    } 
+	private List getThrownExceptions(MethodDeclaration methodDecl) { 
+		return this.apiLevel < AST.JLS8 ? methodDecl.thrownExceptions() : methodDecl.thrownExceptionTypes(); 
+	} 
 
-    private ChildListPropertyDescriptor getMethodThrownExceptionsProperty(AST ast) { 
-    	return ast.apiLevel() < AST.JLS8 ? MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY; 
-    } 
+	private ChildListPropertyDescriptor getMethodThrownExceptionsProperty(AST ast) { 
+		return ast.apiLevel() < AST.JLS8 ? MethodDeclaration.THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY; 
+	} 
 
 	public void testMethodDeclChanges() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
