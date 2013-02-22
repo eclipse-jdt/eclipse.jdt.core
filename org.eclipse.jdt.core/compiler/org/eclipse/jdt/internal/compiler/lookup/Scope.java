@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *	 							bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 387612 - Unreachable catch block...exception is never thrown from the try
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+ *								bug 401456 - Code compiles from javac/intellij, but fails from eclipse
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -353,13 +354,12 @@ public abstract class Scope {
 	/**
 	 * Returns a type, where original type was substituted using the receiver
 	 * parameterized type.
-	 * In raw mode, all parameterized type denoting same original type are converted
-	 * to raw types. e.g.
-	 * class X <T> {
-	 *   X<T> foo;
-	 *   X<String> bar;
-	 * } when used in raw fashion, then type of both foo and bar is raw type X.
-	 *
+	 * In raw mode (see {@link Substitution#isRawSubstitution()}),
+	 * all parameterized types are converted to raw types.
+	 * Cf. 4.8: "The type of a constructor (8.8), instance method (8.4, 9.4),
+	 *  or non-static field (8.3) M of a raw type C that is not inherited from its 
+	 *  superclasses or superinterfaces is the raw type that corresponds to the erasure
+	 *  of its type in the generic declaration corresponding to C." 
 	 */
 	public static TypeBinding substitute(Substitution substitution, TypeBinding originalType) {
 		if (originalType == null) return null;
@@ -374,6 +374,9 @@ public abstract class Scope {
 				ReferenceBinding substitutedEnclosing = originalEnclosing;
 				if (originalEnclosing != null) {
 					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
+					if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
+						return originalParameterizedType.environment.createRawType(
+								originalParameterizedType.genericType(), substitutedEnclosing);
 				}
 				TypeBinding[] originalArguments = originalParameterizedType.arguments;
 				TypeBinding[] substitutedArguments = originalArguments;
@@ -437,6 +440,8 @@ public abstract class Scope {
 				substitutedEnclosing = originalEnclosing;
 				if (originalEnclosing != null) {
 					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
+					if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
+						return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing);
 				}
 
 			    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
@@ -452,6 +457,8 @@ public abstract class Scope {
 				substitutedEnclosing = originalEnclosing;
 				if (originalEnclosing != null) {
 					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
+					if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
+						return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing);
 				}
 
 				if (substitution.isRawSubstitution()) {
@@ -463,6 +470,19 @@ public abstract class Scope {
 				return substitution.environment().createParameterizedType(originalReferenceType, substitutedArguments, substitutedEnclosing);
 		}
 		return originalType;
+	}
+
+	private static boolean isMemberTypeOfRaw(TypeBinding originalType, ReferenceBinding substitutedEnclosing) {
+		// 4.8:
+		// "a raw type is defined to be one of:
+		// ...
+	    // * A non-static member type of a raw type R that is not 
+		//   inherited from a superclass or superinterface of R."
+
+		// Due to staticness, e.g., Map.Entry<String,Object> is *not* considered as a raw type
+
+		return (substitutedEnclosing != null && substitutedEnclosing.isRawType()) 
+				&& ((originalType instanceof ReferenceBinding) && !((ReferenceBinding)originalType).isStatic());
 	}
 
 	/**

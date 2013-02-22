@@ -10,6 +10,7 @@
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
  *								bug 282152 - [1.5][compiler] Generics code rejected by Eclipse but accepted by javac
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+ *								bug 401456 - Code compiles from javac/intellij, but fails from eclipse
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -30,7 +31,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug395002_combined" };
+//		TESTS_NAMES = new String[] { "test401456" };
 //		TESTS_NAMES = new String[] { "test1464" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
@@ -2816,5 +2817,44 @@ public void test397888b() {
 		"Unused type parameter S\n" + 
 		"----------\n",
 		null, true, customOptions);
+}
+// Bug 401456 - Code compiles from javac/intellij, but fails from eclipse
+public void test401456() {
+	runConformTest(
+		new String[] {
+			"App.java",
+			"import java.util.List;\n" +
+			"\n" +
+			"public class App {\n" +
+			"\n" +
+			"    public interface Command_1<T> {\n" +
+			"        public void execute(T o);\n" +
+			"    }\n" +
+			"    public static class ObservableEventWithArg<T> {\n" +
+			"        public class Monitor {\n" +
+			"            public Object addListener(final Command_1<T> l) {\n" +
+			"                return null;\n" +
+			"            }\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static class Context<T> {\n" +
+			"          public ObservableEventWithArg<String>.Monitor getSubmissionErrorEventMonitor() {\n" +
+			"              return new ObservableEventWithArg<String>().new Monitor();\n" +
+			"        }\n" +
+			"    }\n" +
+			"\n" +
+			"    public static void main(String[] args) {\n" +
+			"        compileError(new Context<List<String>>());\n" +
+			"    }\n" +
+			"\n" +
+			"    private static void compileError(Context context) {\n" +
+			"        context.getSubmissionErrorEventMonitor().addListener(\n" + // here the inner message send bogusly resolved to ObservableEventWithArg#RAW.Monitor
+			"            new Command_1<String>() {\n" +
+			"                public void execute(String o) {\n" +
+			"                }\n" +
+			"            });\n" +
+			"    }\n" +
+			"}\n"
+		});
 }
 }
