@@ -630,6 +630,33 @@ public void test021() {
 			"The operator + is undefined for the argument type(s) int, I\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401222, [1.8][compiler] Conditional operator expressions results differ from 8b76
+public void test022() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" +
+				"import java.util.List;\n" +
+				"class X {\n" +
+				"	int foo(int x) {\n" +
+				"		List<String> l = x == 2 ? (List<String>)(null) : 1;\n" +
+				"		List<String> m = x == 2 ? 1 : (List<String>)(null);\n" +
+				"		return 1;\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	List<String> l = x == 2 ? (List<String>)(null) : 1;\n" + 
+			"	                                                 ^\n" + 
+			"Type mismatch: cannot convert from int to List<String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	List<String> m = x == 2 ? 1 : (List<String>)(null);\n" + 
+			"	                          ^\n" + 
+			"Type mismatch: cannot convert from int to List<String>\n" + 
+			"----------\n");
+}
 public static Class testClass() {
 	return ExpressionContextTests.class;
 }

@@ -31,11 +31,11 @@ public interface ExpressionContext {
 	
 	/* Invocation context: potential poly-expressions are: method invocations, lambdas, reference expressions, 
 	   conditional expressions and allocation expressions. At this point, we don't distinguish between strict 
-	   and loose invocation contexts.
+	   and loose invocation contexts - we may have to cross the bridge some day.
 	   
 	   Context induced by: AllocationExpression, QualifiedAllocationExpression, ExplicitConstructorCall, MessageSend
 	   CodeSnippetAllocationExpression and CodeSnippetMessageSend.
-	*/
+	*/													
 	public static final ExpressionContext INVOCATION_CONTEXT = 
 								new ExpressionContext() {
 									public String toString() {

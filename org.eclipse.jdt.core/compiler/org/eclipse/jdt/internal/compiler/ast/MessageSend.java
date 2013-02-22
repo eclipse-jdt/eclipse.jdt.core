@@ -50,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -699,16 +700,28 @@ public void setExpressionContext(ExpressionContext context) {
 
 public boolean isPolyExpression() {
 	
-	/* 15.12 has four requirements: (1) The invocation appears in an assignment context or an invocation context
-       (2) The invocation elides NonWildTypeArguments (3) the method to be invoked is a generic method (8.4.4).
-       (4) The return type of the method to be invoked mentions at least one of the method's type parameters.
-    
-       We are in no position to ascertain the last two now - until the method call is fully resolved, there is no
-       way to know this. Instead, we simply claim we are a poly expression if the first two stipulations are met.
-       This should a harmless lie.
- */
-	return (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) &&
-			(this.typeArguments == null || this.typeArguments.length == 0);		
+	/* 15.12 has four requirements: 1) The invocation appears in an assignment context or an invocation context
+       2) The invocation elides NonWildTypeArguments 3) the method to be invoked is a generic method (8.4.4).
+       4) The return type of the method to be invoked mentions at least one of the method's type parameters.
+
+       We are in no position to ascertain the last two until after resolution has happened. So no client should
+       depend on asking this question before resolution.
+	*/
+	if (this.expressionContext != ASSIGNMENT_CONTEXT && this.expressionContext != INVOCATION_CONTEXT)
+		return false;
+	
+	if (this.typeArguments != null && this.typeArguments.length > 0)
+		return false;
+	
+	if (this.constant != Constant.NotAConstant)
+		throw new UnsupportedOperationException("Unresolved MessageSend can't be queried if it is a polyexpression"); //$NON-NLS-1$
+	
+	if (this.binding != null && this.binding instanceof ParameterizedGenericMethodBinding) {
+		ParameterizedGenericMethodBinding pgmb = (ParameterizedGenericMethodBinding) this.binding;
+		return pgmb.inferredReturnType;
+	}
+	
+	return false;
 }
 
 public void setFieldIndex(int depth) {

@@ -1109,8 +1109,13 @@ public void setExpressionContext(ExpressionContext context) {
 	// don't care. Subclasses that are poly expressions in specific contexts should listen in and make note.
 }
 
-public boolean isPolyExpression() {
-	return false; // Subclasses that are poly expressions should answer appropriately based on the context they feature in.
+/* Answer if the receiver is a poly expression in the prevailing context. Caveat emptor: Some constructs (notably method calls)
+   cannot answer this question until after resolution is over and may throw unsupported operation exception if queried ahead of 
+   resolution. Default implementation here returns false which is true for vast majority of AST nodes. The ones that are poly
+   expressions under one or more contexts should override and return suitable value.  
+ */
+public boolean isPolyExpression() throws UnsupportedOperationException {
+	return false;
 }
 
 public void tagAsNeedCheckCast() {

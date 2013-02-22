@@ -423,11 +423,19 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 		if (this.valueIfTrue instanceof CastExpression) this.valueIfTrue.bits |= DisableUnnecessaryCastCheck; // will check later on
 		
-		if (use18specifics) { 
-			if (this.valueIfTrue.isPolyExpression()) // context propagated already.
+		if (use18specifics) {
+			if (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) {
+				/* 15.25.3 : Where a poly reference conditional expression appears in a context of a particular kind with target 
+				   type T (5), its second and third operand expressions similarly appear in a context of the same kind with target
+				   type T. We eagerly propagate the context and target type here, but that should be harmless. Nonpoly expressions
+				   won't respond to it at all. If someone down below does get influenced, then the conditional is poly.
+				*/
+				this.valueIfTrue.setExpressionContext(this.expressionContext);
 				this.valueIfTrue.setExpectedType(this.expectedType);
-			if (this.valueIfFalse.isPolyExpression())
+
+				this.valueIfFalse.setExpressionContext(this.expressionContext);
 				this.valueIfFalse.setExpectedType(this.expectedType);
+			}
 		}
 		
 		TypeBinding originalValueIfTrueType = this.valueIfTrue.resolveType(scope);
@@ -438,6 +446,40 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		if (conditionType == null || originalValueIfTrueType == null || originalValueIfFalseType == null)
 			return null;
 
+		if (use18specifics && this.expectedType != null) { // so the story is still untold for invocations.
+			
+			    TypeBinding trueType = originalValueIfTrueType;
+			    TypeBinding falseType = originalValueIfFalseType;
+			    if (this.valueIfTrue instanceof MessageSend) {
+			    	MessageSend message = (MessageSend) this.valueIfTrue;
+			    	if (message.binding instanceof ParameterizedGenericMethodBinding) {
+			    		ParameterizedGenericMethodBinding pgmb = (ParameterizedGenericMethodBinding) message.binding;
+			    		if (pgmb.inferredReturnType) {
+			    			trueType = pgmb.original().returnType;
+			    		}
+			    	}
+			    }
+			    if (this.valueIfFalse instanceof MessageSend) {
+			    	MessageSend message = (MessageSend) this.valueIfFalse;
+			    	if (message.binding instanceof ParameterizedGenericMethodBinding) {
+			    		ParameterizedGenericMethodBinding pgmb = (ParameterizedGenericMethodBinding) message.binding;
+			    		if (pgmb.inferredReturnType) {
+			    			falseType = pgmb.original().returnType;
+			    		}
+			    	}
+			    }
+			    
+			    if (!trueType.isPrimitiveOrBoxedPrimitiveType() || !falseType.isPrimitiveOrBoxedPrimitiveType()) { // reference conditional ==> poly expression.
+			    	if (!originalValueIfTrueType.isCompatibleWith(this.expectedType, scope))
+			    		scope.problemReporter().typeMismatchError(originalValueIfTrueType, this.expectedType, this.valueIfTrue, null);
+			    	if (!originalValueIfFalseType.isCompatibleWith(this.expectedType, scope))
+			    		scope.problemReporter().typeMismatchError(originalValueIfFalseType, this.expectedType, this.valueIfFalse, null);
+			    	// 15.25.3: The type of a poly reference conditional expression is the same as its target type.
+			    	return this.resolvedType = this.expectedType;
+			    }
+			
+		}
+		
 		TypeBinding valueIfTrueType = originalValueIfTrueType;
 		TypeBinding valueIfFalseType = originalValueIfFalseType;
 		if (use15specifics && valueIfTrueType != valueIfFalseType) {
@@ -615,13 +657,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	
 	public void setExpressionContext(ExpressionContext context) {
 		this.expressionContext = context;
-		this.valueIfTrue.setExpressionContext(context);
-		this.valueIfFalse.setExpressionContext(context);
 	}
 	
-	public boolean isPolyExpression() {
-		return (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) &&
-				this.valueIfTrue.isPolyExpression() && this.valueIfFalse.isPolyExpression();
+	public boolean isPolyExpression() throws UnsupportedOperationException {
+		if (this.expressionContext != ASSIGNMENT_CONTEXT && this.expressionContext != INVOCATION_CONTEXT)
+			return false;
+		
+		return this.valueIfTrue.isPolyExpression() || this.valueIfFalse.isPolyExpression();
+	
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
