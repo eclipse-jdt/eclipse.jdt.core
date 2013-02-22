@@ -38788,8 +38788,7 @@ public void test1132() {
 			"		X myThing = new X<Object>();\n" +
 			"		Integer i = myThing.getList().get(0); // Type Mismatch error - Since\n" +
 			"												// myThing is unbounded, return\n" +
-			"												// type List<Integer>\n" +
-			"												// incorrectly becomes unbounded\n" +
+			"												// type List<Integer> becomes unbounded\n" +
 			"	}\n" +
 			"\n" +
 			"	public List<Integer> getList() {\n" +
@@ -38821,12 +38820,12 @@ public void test1132() {
 		"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from Object to Integer\n" +
 		"----------\n" +
-		"3. WARNING in X.java (at line 25)\n" +
+		"3. WARNING in X.java (at line 24)\n" +
 		"	X myThing = new X<Object>();\n" +
 		"	^\n" +
 		"X is a raw type. References to generic type X<T> should be parameterized\n" +
 		"----------\n" +
-		"4. WARNING in X.java (at line 26)\n" +
+		"4. WARNING in X.java (at line 25)\n" +
 		"	List<Integer> l = myThing.getList();\n" +
 		"	                  ^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: The expression of type List needs unchecked conversion to conform to List<Integer>\n" +
