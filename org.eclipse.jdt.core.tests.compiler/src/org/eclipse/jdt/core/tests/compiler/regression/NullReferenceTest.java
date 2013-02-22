@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@
  *							bug 376263 - Bogus "Potential null pointer access" warning
  *							bug 331649 - [compiler][null] consider null annotations for fields
  *							bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
+ *							bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -16209,5 +16210,94 @@ public void testBug345305_14() {
 		"	^\n" + 
 		"Potential null pointer access: The variable s may be null at this location\n" + 
 		"----------\n");
+}
+// Bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
+public void testBug401088() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"	private static void occasionallyThrowException() throws Exception {\n" + 
+			"		throw new Exception();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static void open() throws Exception {\n" + 
+			"		occasionallyThrowException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static void close() throws Exception {\n" + 
+			"		occasionallyThrowException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String s[]) {\n" + 
+			"		Exception exc = null;\n" + 
+			"		try {\n" + 
+			"			open();\n" + 
+			"			// do more things\n" + 
+			"		}\n" + 
+			"		catch (Exception e) {\n" + 
+			"			exc = e;\n" + 
+			"		}\n" + 
+			"		finally {\n" + 
+			"			try {\n" + 
+			"				close();\n" + 
+			"			}\n" + 
+			"			catch (Exception e) {\n" + 
+			"				if (exc == null) // should not warn on this line\n" + 
+			"					exc = e;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		if (exc != null)\n" + 
+			"			System.out.println(exc);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"java.lang.Exception");
+}
+// Bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
+public void testBug401088a() {
+ runConformTest(
+     new String[] {
+         "X.java",
+         "public class X {\n" + 
+         "\n" + 
+         "   private static void occasionallyThrowException() throws Exception {\n" + 
+         "       throw new Exception();\n" + 
+         "   }\n" + 
+         "\n" + 
+         "   private static void open() throws Exception {\n" + 
+         "       occasionallyThrowException();\n" + 
+         "   }\n" + 
+         "\n" + 
+         "   private static void close() throws Exception {\n" + 
+         "       occasionallyThrowException();\n" + 
+         "   }\n" + 
+         "\n" + 
+         "   public static void main(String s[]) {\n" + 
+         "       Exception exc = null;\n" + 
+         "       try {\n" + 
+         "           open();\n" + 
+         "           // do more things\n" + 
+         "       }\n" + 
+         "       catch (Exception e) {\n" + 
+         "           exc = e;\n" + 
+         "       }\n" + 
+         "       finally {\n" + 
+         "           try {\n" + 
+         "               close();\n" + 
+         "           }\n" + 
+         "           catch (Exception e) {\n" + 
+         "               if (exc == null) // should not warn on this line\n" + 
+         "                   exc = e;\n" + 
+         "           }\n" + 
+         "           finally { System.out.print(1); }\n" + 
+         "       }\n" + 
+         "       if (exc != null)\n" + 
+         "           System.out.println(exc);\n" + 
+         "   }\n" + 
+         "}\n"
+     },
+     "1java.lang.Exception");
 }
 }
