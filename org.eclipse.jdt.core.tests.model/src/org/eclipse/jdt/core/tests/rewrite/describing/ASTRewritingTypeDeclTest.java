@@ -1830,7 +1830,6 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
 		buf.append("@interface Annot2 {}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
-		System.out.println(buf.toString());
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		AST ast= astRoot.getAST();
