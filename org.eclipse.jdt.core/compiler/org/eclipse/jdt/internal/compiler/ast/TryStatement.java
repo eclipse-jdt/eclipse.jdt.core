@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
+ *								bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -113,6 +114,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	if (this.subRoutineStartLabel == null) {
 		// no finally block -- this is a simplified copy of the else part
+		if (flowContext instanceof FinallyFlowContext) {
+			// if this TryStatement sits inside another TryStatement,
+			// report into the initsOnFinally of the outer try-block.
+			flowContext.initsOnFinally = ((FinallyFlowContext)flowContext).tryContext.initsOnFinally;
+		}
 		// process the try block in a context handling the local exceptions.
 		ExceptionHandlingFlowContext handlingContext =
 			new ExceptionHandlingFlowContext(
@@ -253,6 +259,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		UnconditionalFlowInfo subInfo;
 		// analyse finally block first
 		insideSubContext = new InsideSubRoutineFlowContext(flowContext, this);
+		if (flowContext instanceof FinallyFlowContext) {
+			// if this TryStatement sits inside another TryStatement,
+			// let the nested context report into the initsOnFinally of the outer try-block.
+			insideSubContext.initsOnFinally = ((FinallyFlowContext)flowContext).tryContext.initsOnFinally;
+		}
 
 		// process the try block in a context handling the local exceptions.
 		// (advance instantiation so we can wire this into the FinallyFlowContext)
