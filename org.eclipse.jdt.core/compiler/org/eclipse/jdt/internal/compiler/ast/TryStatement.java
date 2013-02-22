@@ -16,6 +16,7 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
+ *								bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -249,7 +250,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		// chain up null info registry
 		if (flowContext.initsOnFinally != null) {
-			flowContext.initsOnFinally.addNullInfoFrom(handlingContext.initsOnFinally);
+			flowContext.mergeFinallyNullInfo(handlingContext.initsOnFinally);
 		}
 
 		return tryInfo;
@@ -428,7 +429,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		// chain up null info registry
 		if (flowContext.initsOnFinally != null) {
-			flowContext.initsOnFinally.addNullInfoFrom(handlingContext.initsOnFinally);
+			flowContext.mergeFinallyNullInfo(handlingContext.initsOnFinally);
 		}
 
 		this.naturalExitMergeInitStateIndex =
