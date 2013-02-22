@@ -28,6 +28,7 @@
  *							bug 331649 - [compiler][null] consider null annotations for fields
  *							bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
  *							bug 401088 - [compiler][null] Wrong warning "Redundant null check" inside nested try statement
+ *							bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -16299,5 +16300,81 @@ public void testBug401088a() {
          "}\n"
      },
      "1java.lang.Exception");
+}
+// Bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
+public void test401092() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Date;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"    private static void occasionallyThrowException() throws Exception {\n" + 
+			"        throw new Exception();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private static Date createDate() throws Exception {\n" + 
+			"        occasionallyThrowException();\n" + 
+			"        return new Date();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static void main(String s[]) {\n" + 
+			"        Date d = null;\n" + 
+			"        try {\n" + 
+			"            d = createDate();\n" + 
+			"            System.out.println(d.toString());\n" + 
+			"            try {\n" + 
+			"                occasionallyThrowException();\n" + 
+			"            }\n" + 
+			"            catch (Exception exc) {\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"        catch (Exception exc) {\n" + 
+			"            if (d != null) // should not warn in this line\n" + 
+			"                System.out.println(d.toString());\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+// Bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
+public void test401092a() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Date;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"    private static void occasionallyThrowException() throws Exception {\n" + 
+			"        throw new Exception();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private static Date createDate() throws Exception {\n" + 
+			"        occasionallyThrowException();\n" + 
+			"        return new Date();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static void main(String s[]) {\n" + 
+			"        Date d = null;\n" + 
+			"        try {\n" + 
+			"            d = createDate();\n" + 
+			"            System.out.println(d.toString());\n" + 
+			"            try {\n" + 
+			"                occasionallyThrowException();\n" + 
+			"            }\n" + 
+			"            catch (Exception exc) {\n" + 
+			"            }\n" +
+			"            finally { System.out.println(1); }\n" + 
+			"        }\n" + 
+			"        catch (Exception exc) {\n" + 
+			"            if (d != null) // should not warn in this line\n" + 
+			"                System.out.println(d.toString());\n" + 
+			"        }\n" +
+			"        finally { System.out.println(2); }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
 }
 }
