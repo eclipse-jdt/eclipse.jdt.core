@@ -648,13 +648,13 @@ public void test022() {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	List<String> l = x == 2 ? (List<String>)(null) : 1;\n" + 
-			"	                                                 ^\n" + 
-			"Type mismatch: cannot convert from int to List<String>\n" + 
+			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to List<String>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	List<String> m = x == 2 ? 1 : (List<String>)(null);\n" + 
-			"	                          ^\n" + 
-			"Type mismatch: cannot convert from int to List<String>\n" + 
+			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to List<String>\n" + 
 			"----------\n");
 }
 public static Class testClass() {
