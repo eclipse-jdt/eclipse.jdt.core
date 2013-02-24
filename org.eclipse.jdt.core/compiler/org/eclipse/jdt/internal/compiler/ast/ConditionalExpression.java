@@ -45,6 +45,7 @@ public class ConditionalExpression extends OperatorExpression {
 	private int nullStatus = FlowInfo.UNKNOWN;
 	private TypeBinding expectedType;
 	private ExpressionContext expressionContext = VANILLA_CONTEXT;
+	private boolean isPolyExpression = false;
 
 	public ConditionalExpression(
 		Expression condition,
@@ -469,15 +470,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			    	}
 			    }
 			    
-			    if (!trueType.isPrimitiveOrBoxedPrimitiveType() || !falseType.isPrimitiveOrBoxedPrimitiveType()) { // reference conditional ==> poly expression.
-			    	if (!originalValueIfTrueType.isCompatibleWith(this.expectedType, scope))
-			    		scope.problemReporter().typeMismatchError(originalValueIfTrueType, this.expectedType, this.valueIfTrue, null);
-			    	if (!originalValueIfFalseType.isCompatibleWith(this.expectedType, scope))
-			    		scope.problemReporter().typeMismatchError(originalValueIfFalseType, this.expectedType, this.valueIfFalse, null);
-			    	// 15.25.3: The type of a poly reference conditional expression is the same as its target type.
-			    	return this.resolvedType = this.expectedType;
-			    }
-			
+			    if (!trueType.isPrimitiveOrBoxedPrimitiveType() || !falseType.isPrimitiveOrBoxedPrimitiveType()) // reference conditional ==> poly expression.
+			    	this.isPolyExpression = true;
 		}
 		
 		TypeBinding valueIfTrueType = originalValueIfTrueType;
@@ -663,7 +657,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		if (this.expressionContext != ASSIGNMENT_CONTEXT && this.expressionContext != INVOCATION_CONTEXT)
 			return false;
 		
-		return this.valueIfTrue.isPolyExpression() || this.valueIfFalse.isPolyExpression();
+		return this.isPolyExpression;
 	
 	}
 

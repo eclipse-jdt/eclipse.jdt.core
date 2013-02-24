@@ -442,8 +442,6 @@ public final boolean isBaseType() {
 /* Answer true if the receiver is a primitive type or a boxed primitive type
  */
 public final boolean isPrimitiveOrBoxedPrimitiveType() {
-	if (this == TypeBinding.NULL)
-		return false;
 	if ((this.tagBits & TagBits.IsBaseType) != 0)
 		return true;
 	switch (this.id) {
