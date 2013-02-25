@@ -19,6 +19,7 @@
  *								bug 382353 - [1.8][compiler] Implementation property modifiers should be accepted on default methods.
  *								bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
+ *								bug 401030 - [1.8][null] Null analysis support for lambda methods.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -89,10 +90,14 @@ public abstract class AbstractMethodDeclaration
 	 * we create the argument binding and resolve annotations in order to compute null annotation tagbits.
 	 */
 	public void createArgumentBindings() {
-		if (this.arguments != null && this.binding != null) {
-			for (int i = 0, length = this.arguments.length; i < length; i++) {
-				Argument argument = this.arguments[i];
-				argument.createBinding(this.scope, this.binding.parameters[i]);
+		createArgumentBindings(this.arguments, this.binding, this.scope);
+	}
+	// version for invocation from LambdaExpression:
+	static void createArgumentBindings(Argument[] arguments, MethodBinding binding, MethodScope scope) {
+		if (arguments != null && binding != null) {
+			for (int i = 0, length = arguments.length; i < length; i++) {
+				Argument argument = arguments[i];
+				argument.createBinding(scope, binding.parameters[i]);
 				// createBinding() has resolved annotations, now transfer nullness info from the argument to the method:
 				// prefer type annotation:
 				long argTypeTagBits = (argument.type.resolvedType.tagBits & TagBits.AnnotationNullMASK);
@@ -101,11 +106,11 @@ public abstract class AbstractMethodDeclaration
 					argTypeTagBits = (argument.binding.tagBits & TagBits.AnnotationNullMASK);
 				}
 				if (argTypeTagBits != 0) {
-					if (this.binding.parameterNonNullness == null) {
-						this.binding.parameterNonNullness = new Boolean[this.arguments.length];
-						this.binding.tagBits |= TagBits.IsNullnessKnown;
+					if (binding.parameterNonNullness == null) {
+						binding.parameterNonNullness = new Boolean[arguments.length];
+						binding.tagBits |= TagBits.IsNullnessKnown;
 					}
-					this.binding.parameterNonNullness[i] = Boolean.valueOf(argTypeTagBits == TagBits.AnnotationNonNull);
+					binding.parameterNonNullness[i] = Boolean.valueOf(argTypeTagBits == TagBits.AnnotationNonNull);
 				}
 			}
 		}

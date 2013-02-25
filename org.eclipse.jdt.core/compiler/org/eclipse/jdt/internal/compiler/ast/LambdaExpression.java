@@ -14,6 +14,8 @@
  *     Jesper S Moller - Contributions for
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *							bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
+ *     Stephan Herrmann - Contribution for
+ *							bug 401030 - [1.8][null] Null analysis support for lambda methods.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -30,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -197,6 +200,13 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 			TypeBinding leafType = returnType.leafComponentType();
 			if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 				this.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+		} // TODO (stephan): else? (can that happen?)
+
+		if (!argumentsTypeElided && blockScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+			AbstractMethodDeclaration.createArgumentBindings(this.arguments, this.binding, this.scope);
+			validateNullAnnotations();
+			// no application of null-ness default, hence also no warning regarding redundant null annotation
+			mergeParameterNullAnnotations(blockScope);
 		}
 
 		this.binding.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
@@ -230,7 +240,8 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 						FlowInfo.DEAD_END);
 
 		// nullity and mark as assigned
-		AbstractMethodDeclaration.analyseArguments(lambdaInfo, this.arguments, this.binding);
+		MethodBinding methodWithParameterDeclaration = argumentsTypeElided() ? this.descriptor : this.binding;
+		AbstractMethodDeclaration.analyseArguments(lambdaInfo, this.arguments, methodWithParameterDeclaration);
 
 		if (this.arguments != null) {
 			for (int i = 0, count = this.arguments.length; i < count; i++) {
@@ -252,8 +263,69 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 					this.scope.problemReporter().shouldReturn(returnTypeBinding, this);
 				}
 			}
+		} else { // Expression
+			if (currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled 
+					&& flowInfo.reachMode() == FlowInfo.REACHABLE)
+			{
+				Expression expression = (Expression)this.body;
+				checkAgainstNullAnnotation(flowContext, expression, expression.nullStatus(flowInfo, flowContext));
+			}
 		}
 		return flowInfo;
+	}
+
+	// cf. AbstractMethodDeclaration.validateNullAnnotations()
+	// pre: !argumentTypeElided()
+	void validateNullAnnotations() {
+		// null annotations on parameters?
+		if (this.binding != null && this.binding.parameterNonNullness != null) {
+			int length = this.binding.parameters.length;
+			for (int i=0; i<length; i++) {
+				if (this.binding.parameterNonNullness[i] != null) {
+					long nullAnnotationTagBit =  this.binding.parameterNonNullness[i].booleanValue()
+							? TagBits.AnnotationNonNull : TagBits.AnnotationNullable;
+					this.scope.validateNullAnnotation(nullAnnotationTagBit, this.arguments[i].type, this.arguments[i].annotations);
+				}
+			}
+		}
+	}
+
+	// pre: !argumentTypeElided()
+	// try to merge null annotations from descriptor into binding, complaining about any incompatibilities found
+	private void mergeParameterNullAnnotations(BlockScope currentScope) {
+		if (this.descriptor.parameterNonNullness == null)
+			return;
+		if (this.binding.parameterNonNullness == null) {
+			this.binding.parameterNonNullness = this.descriptor.parameterNonNullness;
+			return;
+		}
+		LookupEnvironment env = currentScope.environment();
+		Boolean[] ourNonNullness = this.binding.parameterNonNullness;
+		Boolean[] descNonNullness = this.descriptor.parameterNonNullness;
+		int len = Math.min(ourNonNullness.length, descNonNullness.length);
+		for (int i = 0; i < len; i++) {
+			if (ourNonNullness[i] == null) {
+				ourNonNullness[i] = descNonNullness[i];
+			} else if (ourNonNullness[i] != descNonNullness[i]) {
+				if (ourNonNullness[i] == Boolean.TRUE) { // requested @NonNull not provided
+					char[][] inheritedAnnotationName = null;
+					if (descNonNullness[i] == Boolean.FALSE)
+						inheritedAnnotationName = env.getNullableAnnotationName();
+					currentScope.problemReporter().illegalRedefinitionToNonNullParameter(this.arguments[i], this.descriptor.declaringClass, inheritedAnnotationName);
+				}
+			}			
+		}
+	}
+
+	// simplified version of ReturnStatement.checkAgainstNullAnnotation()
+	void checkAgainstNullAnnotation(FlowContext flowContext, Expression expression, int nullStatus) {
+		if (nullStatus != FlowInfo.NON_NULL) {
+			// if we can't prove non-null check against declared null-ness of the descriptor method:
+			// Note that this.binding never has a return type declaration, always inherit null-ness from the descriptor
+			if ((this.descriptor.tagBits & TagBits.AnnotationNonNull) != 0) {
+				flowContext.recordNullityMismatch(this.scope, expression, expression.resolvedType, this.descriptor.returnType, nullStatus);
+			}
+		}
 	}
 
 	public StringBuffer printExpression(int tab, StringBuffer output) {
