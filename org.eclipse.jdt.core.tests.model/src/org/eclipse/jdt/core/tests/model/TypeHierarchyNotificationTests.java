@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -102,7 +102,7 @@ private void reset() {
 protected void setUp() throws Exception {
 	super.setUp();
 	reset();
-	this.setUpJavaProject("TypeHierarchyNotification");
+	this.setUpJavaProject("TypeHierarchyNotification", "1.5");
 }
 static {
 //	TESTS_NAMES= new String[] { "testAddExtendsSourceType3" };
@@ -258,6 +258,39 @@ public void testAddCompilationUnit3() throws CoreException {
 	}
 }
 /**
+ * When a CU is added the type hierarchy should change
+ * only if one of the types of the CU is part of the
+ * type hierarchy. Tests parameterized supertype, see https://bugs.eclipse.org/401726
+ */
+public void testAddCompilationUnit4() throws CoreException {
+	IJavaProject javaProject = getJavaProject("TypeHierarchyNotification");
+	IType collection= javaProject.findType("java.util.Collection");
+	ITypeHierarchy h = collection.newTypeHierarchy(javaProject, null);
+	h.addTypeHierarchyChangedListener(this);
+
+	// a cu with a top level type which is part of the hierarchy
+	IPackageFragment pkg = getPackageFragment("TypeHierarchyNotification", "src", "p");
+	ICompilationUnit newCU2 = pkg.createCompilationUnit(
+		"Z2.java",
+		"package p;\n" +
+		"\n" +
+		"public abstract class Z2 extends java.util.Collection<java.lang.String> {\n" +
+		"}\n",
+		false,
+		null);
+	try {
+		assertCreation(newCU2);
+		assertOneChange(h);
+		h.refresh(null);
+		IType[] subtypes = h.getSubtypes(collection);
+		assertTrue("Should be one subtype of Collection", subtypes.length == 1);
+		assertEquals("Subtype of Collection should be p.Z2", newCU2.getType("Z2"), subtypes[0]);
+	} finally {
+		// cleanup
+		h.removeTypeHierarchyChangedListener(this);
+	}
+}
+/**
  * When a CU is added, if the type hierarchy doesn't have a focus, it should change
  * only if one of the types of the CU is part of the region.
  */
@@ -330,7 +363,7 @@ public void testAddCompilationUnitInRegion() throws CoreException, IOException {
 			assertCreation(newCU3);
 			assertOneChange(h);
 			h.refresh(null);
-			IType throwableClass = getClassFile("TypeHierarchyNotification", getExternalJCLPathString(), "java.lang", "Throwable.class").getType();
+			IType throwableClass = getClassFile("TypeHierarchyNotification", getExternalJCLPathString("1.5"), "java.lang", "Throwable.class").getType();
 			assertEquals("Superclass of Z3 should be java.lang.Throwable", throwableClass, h.getSuperclass(newCU3.getType("Z3")));
 		} finally {
 			// cleanup
@@ -1394,11 +1427,12 @@ public void testBug316654_a() throws CoreException {
 public void testBug316654_b() throws CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
 	refreshExternalArchives(project);
-	File jarFile = new File(getExternalJCLPathString());
+	String externalJCLPathString = getExternalJCLPathString("1.5");
+	File jarFile = new File(externalJCLPathString);
 	long oldTimestamp = jarFile.lastModified();
 	assertTrue("File does not exist", jarFile.exists());
 
-	IType throwableClass = getClassFile("TypeHierarchyNotification", getExternalJCLPathString(), "java.lang", "Throwable.class").getType();
+	IType throwableClass = getClassFile("TypeHierarchyNotification", externalJCLPathString, "java.lang", "Throwable.class").getType();
 	ITypeHierarchy h = throwableClass.newTypeHierarchy(project, null);
 	h.addTypeHierarchyChangedListener(this);
 	reset();
