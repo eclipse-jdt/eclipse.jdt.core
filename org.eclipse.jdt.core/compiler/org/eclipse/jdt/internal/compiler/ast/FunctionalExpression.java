@@ -34,7 +34,7 @@ public abstract class FunctionalExpression extends Expression {
 	TypeBinding expectedType;
 	MethodBinding descriptor;
 	public MethodBinding binding;
-	private ExpressionContext expressionContext = VANILLA_CONTEXT;
+	protected ExpressionContext expressionContext = VANILLA_CONTEXT;
 	
 	public FunctionalExpression() {
 		super();
