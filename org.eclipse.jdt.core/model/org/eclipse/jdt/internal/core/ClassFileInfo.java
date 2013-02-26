@@ -314,8 +314,21 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 				argumentNames[j] = ("arg" + j).toCharArray(); //$NON-NLS-1$
 			}
 		}
-		for (int j = 0; j < max; j++) {
-			IBinaryAnnotation[] parameterAnnotations = methodInfo.getParameterAnnotations(j);
+		int startIndex = 0;
+		try {
+			if (isConstructor) {
+				if (type.isEnum()) {
+					startIndex = 2;
+				} else if (type.isMember()
+						&& !Flags.isStatic(type.getFlags())) {
+					startIndex = 1;
+				}
+			}
+		} catch(JavaModelException e) {
+			// ignore
+		}
+		for (int j = startIndex; j < max; j++) {
+			IBinaryAnnotation[] parameterAnnotations = methodInfo.getParameterAnnotations(j - startIndex);
 			if (parameterAnnotations != null) {
 				LocalVariable localVariable = new LocalVariable(
 						method,
