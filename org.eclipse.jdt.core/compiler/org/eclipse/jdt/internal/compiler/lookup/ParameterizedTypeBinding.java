@@ -165,7 +165,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			}
 			return;
 		}
-		if (actualType == TypeBinding.NULL) return;
+		if (actualType == TypeBinding.NULL || actualType.kind() == POLY_TYPE) return;
 
 		if (!(actualType instanceof ReferenceBinding)) return;
 		TypeBinding formalEquivalent, actualEquivalent;

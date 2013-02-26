@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,7 +90,7 @@ public List collectMissingTypes(List missingTypes) {
 public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
 
 	if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
-	if (actualType == TypeBinding.NULL) return;
+	if (actualType == TypeBinding.NULL || actualType.kind() == POLY_TYPE) return;
 
 	switch(actualType.kind()) {
 		case Binding.ARRAY_TYPE :
