@@ -782,12 +782,13 @@ private ReferenceBinding typeToRecord(TypeBinding type) {
 		case Binding.TYPE_PARAMETER :
 		case Binding.WILDCARD_TYPE :
 		case Binding.INTERSECTION_TYPE :
+		case Binding.INTERSECTION_CAST_TYPE: // constituents would have been recorded.
+		case Binding.POLY_TYPE: // not a real type, will mutate into one, hopefully soon.
 			return null;
 		case Binding.PARAMETERIZED_TYPE :
 		case Binding.RAW_TYPE :
 			type = type.erasure();
 	}
-	if (type.isIntersectionCastType()) return null;  // constituents would have been recorded. 
 	ReferenceBinding refType = (ReferenceBinding) type;
 	if (refType.isLocalType()) return null;
 	return refType;

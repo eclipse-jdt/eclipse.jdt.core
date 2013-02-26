@@ -35,23 +35,30 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-public class LambdaExpression extends FunctionalExpression implements ProblemSeverities, ReferenceContext {
+public class LambdaExpression extends FunctionalExpression implements ProblemSeverities, ReferenceContext, PolyExpression {
 	public Argument [] arguments;
 	public Statement body;
 	private MethodScope scope;
 	private CompilationResult compilationResult;
 	private boolean ignoreFurtherInvestigation;
+	private BlockScope parentScope;
+	private static CompilationResult devNullCompilationResult;
+	protected boolean voidCompatible = true;
+	protected boolean valueCompatible = false;
 	
 	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
 		this.compilationResult = compilationResult;
@@ -84,6 +91,36 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 	 */
 	public TypeBinding resolveType(BlockScope blockScope) {
 		
+		this.parentScope = blockScope;
+		if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
+			if (this.body instanceof Block) {
+				// Gather shape information for potential applicability analysis.
+				ASTVisitor visitor = new ASTVisitor() {
+					boolean valueReturnSeen = false;
+					boolean voidReturnSeen = false;
+					public boolean visit(ReturnStatement returnStatement, BlockScope dontCare) {
+						if (returnStatement.expression != null) {
+							this.valueReturnSeen = true;
+							LambdaExpression.this.voidCompatible = false;
+							LambdaExpression.this.valueCompatible = !this.voidReturnSeen;
+						} else {
+							this.voidReturnSeen = true;
+							LambdaExpression.this.valueCompatible = false;
+							LambdaExpression.this.voidCompatible = !this.valueReturnSeen;
+						}
+						return false;
+					}
+				};
+				this.traverse(visitor, blockScope);
+			} else {
+				Expression expression = (Expression) this.body;
+				this.voidCompatible = expression.statementExpression();
+				this.valueCompatible = true;
+			}	
+			if (devNullCompilationResult == null)
+				devNullCompilationResult = new CompilationResult(this.compilationResult.getCompilationUnit(), 0, 0, blockScope.compilerOptions().maxProblemsPerUnit);
+			return new PolyTypeBinding(this);
+		}
 		super.resolveType(blockScope); // compute & capture interface function descriptor in singleAbstractMethod.
 		
 		final boolean argumentsTypeElided = argumentsTypeElided();
@@ -373,7 +410,12 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 		return this.ignoreFurtherInvestigation;
 	}
 
+	private boolean shouldShutup() {
+		return this.compilationResult == devNullCompilationResult;
+	}
+	
 	public void tagAsHavingErrors() {
+		if (shouldShutup()) return;
 		this.ignoreFurtherInvestigation = true;
 		Scope parent = this.scope.parent;
 		while (parent != null) {
@@ -408,4 +450,80 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 			}
 			visitor.endVisit(this, blockScope);
 	}
+	
+	public boolean isCompatibleWith(TypeBinding left, Scope someScope) {
+		
+		final MethodBinding sam = left.getSingleAbstractMethod(this.parentScope);
+		
+		if (sam == null || !sam.isValidBinding())
+			return false;
+		if (sam.parameters.length != this.arguments.length)
+			return false;
+		
+		if (sam.returnType.id == TypeIds.T_void) {
+			if (!this.voidCompatible)
+				return false;
+		} else {
+			if (!this.valueCompatible)
+				return false;
+		}
+		
+		LambdaExpression copy = copy();
+		copy.setExpressionContext(this.expressionContext);
+		copy.setExpectedType(left);
+		copy.resolveType(this.parentScope);
+		
+		if (!argumentsTypeElided()) {
+			for (int i = 0, length = sam.parameters.length; i < length; i++) {
+				TypeBinding argumentType = copy.arguments[i].binding.type;
+				if (sam.parameters[i] != argumentType)
+					return false;
+			}
+		}
+
+		try {
+			final TypeBinding returnType = sam.returnType;
+			if (this.body instanceof Block) {
+				ASTVisitor visitor = new ASTVisitor() {
+					public boolean visit(ReturnStatement returnStatement, BlockScope blockScope) {
+						Expression expression = returnStatement.expression;
+						if (expression != null && !expression.isAssignmentCompatible(returnType, blockScope))
+							throw new NoncongruentLambdaException();
+						return false;
+					}
+				};
+				copy.body.traverse(visitor, copy.scope);
+			} else {
+				Expression expression = (Expression) copy.body;
+				if (!expression.isAssignmentCompatible(returnType, copy.scope))
+					throw new NoncongruentLambdaException();
+			}
+		} catch (NoncongruentLambdaException e) {
+			return false;
+		}
+		return true;
+	}
+
+	LambdaExpression copy() {
+		final Parser parser = new Parser(this.parentScope.problemReporter(), false);
+		final char[] source = this.compilationResult.getCompilationUnit().getContents();
+		LambdaExpression copy;
+		
+		CompilationUnitDeclaration unit = this.parentScope.referenceCompilationUnit();
+		CompilationResult original = unit.compilationResult;
+		unit.compilationResult = devNullCompilationResult;
+		
+		try {
+			copy =  (LambdaExpression) parser.parseExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1, unit);
+		} finally {
+			unit.compilationResult = original;
+		}
+		copy.compilationResult = devNullCompilationResult;
+		return copy;
+	}
 }
+
+class NoncongruentLambdaException extends RuntimeException {
+	private static final long serialVersionUID = 4145723509219836114L;
+}
+

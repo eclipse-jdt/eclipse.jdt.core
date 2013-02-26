@@ -886,6 +886,14 @@ public boolean isConstantValueOfTypeAssignableToType(TypeBinding constantType, T
 	return false;
 }
 
+public boolean isAssignmentCompatible (TypeBinding left, Scope scope) {
+	if (this.resolvedType == null)
+		return false;
+	return isConstantValueOfTypeAssignableToType(this.resolvedType, left) || 
+				this.resolvedType.isCompatibleWith(left) || 
+				isBoxingCompatible(this.resolvedType, left, this, scope);
+}
+
 public boolean isTypeReference() {
 	return false;
 }

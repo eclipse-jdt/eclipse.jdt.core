@@ -51,6 +51,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -573,6 +574,14 @@ public TypeBinding resolveType(BlockScope scope) {
 		return (this.resolvedType != null && (this.resolvedType.tagBits & TagBits.HasMissingType) == 0)
 						? this.resolvedType
 						: null;
+	}
+	for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
+		Expression argument = this.arguments[i];
+		if (argumentTypes[i] instanceof PolyTypeBinding) {
+			argument.setExpressionContext(INVOCATION_CONTEXT);
+			argument.setExpectedType(this.binding.parameters[i]);
+			argumentTypes[i] = argument.resolveType(scope);
+		}
 	}
 	final CompilerOptions compilerOptions = scope.compilerOptions();
 	if (compilerOptions.complianceLevel <= ClassFileConstants.JDK1_6

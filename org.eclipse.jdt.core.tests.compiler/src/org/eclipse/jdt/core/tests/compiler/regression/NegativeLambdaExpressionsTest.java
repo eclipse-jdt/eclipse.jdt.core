@@ -4976,6 +4976,165 @@ this.runNegativeTest(
 				"The type of foo() from the type X is Zork, this is incompatible with the descriptor\'s return type: int[]\n" + 
 				"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+public void test401610() {
+this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    void foo();\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void foo(I i) {\n" +
+				"		System.out.println(\"foo\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().foo(()->{});\n" +
+				"	}\n" +
+				"}\n",
+				},
+				"foo");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+public void test401610a() {
+this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"    void foo(int x, int y);\n" +
+				"}\n" +
+				"interface K {\n" +
+				"    void foo(String s);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void foo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	void foo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	void foo(K k) {\n" +
+				"		System.out.println(\"foo(K)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().foo(()->{});\n" +
+				"		new X().foo((x, y)->{});\n" +
+				"		new X().foo((s)->{});\n" +
+				"	}\n" +
+				"}\n",
+				},
+				"foo(I)\n" + 
+				"foo(J)\n" + 
+				"foo(K)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+public void test401610b() {
+this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    void foo();\n" +
+				"}\n" +
+				"interface J {\n" +
+				"    void foo(int x, int y);\n" +
+				"}\n" +
+				"interface K {\n" +
+				"    void foo(String s);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void foo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	void foo(J j) {\n" +
+				"		System.out.println(\"foo(J)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().foo(()->{});\n" +
+				"		new X().foo((x, y)->{});\n" +
+				"		new X().foo((s)->{});\n" +
+				"	}\n" +
+				"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 20)\n" + 
+				"	new X().foo((s)->{});\n" + 
+				"	        ^^^\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments ((<no type> s) -> {\n" + 
+				"})\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+public void test401610c() {
+this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"    void foo();\n" +
+				"}\n" +
+				"interface K {\n" +
+				"    String foo(String s);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void foo(I i) {\n" +
+				"		System.out.println(\"foo(I)\");\n" +
+				"	}\n" +
+				"	void foo(K k) {\n" +
+				"		System.out.println(\"foo(K)\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().foo(()->{ return \"\";});\n" +
+				"		new X().foo(()-> 10);\n" +
+				"		new X().foo((s)->{});\n" +
+				"		new X().foo((s)->{ return;});\n" +
+				"		new X().foo((s)->{ return \"\";});\n" +
+				"		new X().foo((s)-> \"hello\");\n" +
+				"		new X().foo(()->{ return;});\n" +
+				"		new X().foo(()-> System.out.println());\n" +
+				"	}\n" +
+				"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 15)\n" + 
+				"	new X().foo(()->{ return \"\";});\n" + 
+				"	        ^^^\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments (() -> {\n" + 
+				"  return \"\";\n" + 
+				"})\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 16)\n" + 
+				"	new X().foo(()-> 10);\n" + 
+				"	        ^^^\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments (() -> 10)\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 17)\n" + 
+				"	new X().foo((s)->{});\n" + 
+				"	        ^^^\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments ((<no type> s) -> {\n" + 
+				"})\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 18)\n" + 
+				"	new X().foo((s)->{ return;});\n" + 
+				"	        ^^^\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments ((<no type> s) -> {\n" + 
+				"  return ;\n" + 
+				"})\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
+public void test401610d() {
+this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    <T> T id(T arg) { return arg; }\n" +
+				"    Runnable r = id(() -> { System.out.println(); });\n" +
+				"}\n",
+				},
+				"");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
