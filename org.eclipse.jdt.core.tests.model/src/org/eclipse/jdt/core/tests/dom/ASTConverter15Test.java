@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11451,6 +11451,33 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		} finally {
 			deleteProject(jp);
 		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376440
+	public void testBug376440() throws JavaModelException {
+		String str =
+				"package p;\n" +
+				 "class X extends p.Z<String>{}\n" +
+				 "class X extends  p.Z<String> {}\n" +
+				 "class Z<T> {}\n";
+		this.workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+		ASTNode node = buildAST(str,this.workingCopy, false);
+
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertEquals("Invaid no of types", 3, compilationUnit.types().size());
+		TypeDeclaration typeDecl = (TypeDeclaration) compilationUnit.types().get(0);
+		Type type = typeDecl.getSuperclassType();
+		ITypeBinding bindingFromAST = type.resolveBinding();
+		assertNotNull("Binding should not be null", bindingFromAST);
+		typeDecl = (TypeDeclaration) compilationUnit.types().get(1);
+		type = typeDecl.getSuperclassType();
+		try {
+			bindingFromAST = type.resolveBinding();
+		} catch(Exception e) {
+			fail("Should not throw exception, should just return null binding");
+		}
+		assertNull("Binding should be null", bindingFromAST);
 	}
 
 }

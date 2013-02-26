@@ -1563,6 +1563,8 @@ class DefaultBindingResolver extends BindingResolver {
 			if (node instanceof ParameterizedQualifiedTypeReference) {
  				ParameterizedQualifiedTypeReference typeReference = (ParameterizedQualifiedTypeReference) node;
 				org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = typeReference.resolvedType;
+				// This unlikely case is possible when for some reason binding resolution has been stopped, like duplicate type declaration (bug 376440)
+				if (typeBinding == null) return null;
 				if (type.isArrayType()) {
 					if (this.scope == null) {
 						return null;
