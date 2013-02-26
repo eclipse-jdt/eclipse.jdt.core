@@ -7989,9 +7989,9 @@ protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) { // actu
 			pushOnGenericsLengthStack(0);
 			pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 		}
-		referenceExpression = new ReferenceExpression(getTypeReference(dimension), typeArguments, method, sourceEnd);
+		referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, getTypeReference(dimension), typeArguments, method, sourceEnd);
 	} else {
-		referenceExpression = new ReferenceExpression(getUnspecifiedReference(), typeArguments, method, sourceEnd);
+		referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, getUnspecifiedReference(), typeArguments, method, sourceEnd);
 	}
 	pushOnExpressionStack(referenceExpression);
 
@@ -8016,7 +8016,7 @@ protected void consumeReferenceExpressionPrimaryForm() {
 	
 	Expression primary = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
-	referenceExpression = new ReferenceExpression(primary, typeArguments, method, method.sourceEnd);
+	referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, primary, typeArguments, method, method.sourceEnd);
 	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {
 		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
@@ -8038,7 +8038,7 @@ protected void consumeReferenceExpressionSuperForm() {
 	}
 	
 	SuperReference superReference = new SuperReference(this.intStack[this.intPtr--], this.endPosition);
-	referenceExpression = new ReferenceExpression(superReference, typeArguments, method, method.sourceEnd);
+	referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, superReference, typeArguments, method, method.sourceEnd);
 	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {
 		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
@@ -8084,7 +8084,7 @@ protected void consumeReferenceExpressionGenericTypeForm() {
 	this.intPtr--; // pop '<' position
 	type.sourceEnd = typeSourceEnd;
 	
-	referenceExpression = new ReferenceExpression(type, typeArguments, method, sourceEnd);
+	referenceExpression = new ReferenceExpression(this.compilationUnit.compilationResult, type, typeArguments, method, sourceEnd);
 
 	pushOnExpressionStack(referenceExpression);
 	if (!this.parsingJava8Plus) {

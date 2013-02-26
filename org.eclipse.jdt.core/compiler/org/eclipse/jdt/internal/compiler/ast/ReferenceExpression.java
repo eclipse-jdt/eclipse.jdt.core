@@ -20,13 +20,16 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -43,8 +46,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 	private TypeBinding receiverType;
 	private boolean haveReceiver;
 	public TypeBinding[] resolvedTypeArguments;
+	private boolean typeArgumentsHaveErrors;
 	
-	public ReferenceExpression(Expression lhs, TypeReference [] typeArguments, SingleNameReference method, int sourceEnd) {
+	public ReferenceExpression(CompilationResult compilationResult, Expression lhs, TypeReference [] typeArguments, SingleNameReference method, int sourceEnd) {
+		super(compilationResult);
 		this.lhs = lhs;
 		this.typeArguments = typeArguments;
 		this.method = method;
@@ -54,31 +59,43 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 
 	public TypeBinding resolveType(BlockScope scope) {
 		
+		final CompilerOptions compilerOptions = scope.compilerOptions();
+		TypeBinding lhsType;
+    	if (this.constant != Constant.NotAConstant) {
+    		this.constant = Constant.NotAConstant;
+    		this.enclosingScope = scope;
+    		if (isConstructorReference())
+    			this.lhs.bits |= ASTNode.IgnoreRawTypeCheck; // raw types in constructor references are to be treated as though <> were specified.
+
+    		lhsType = this.lhs.resolveType(scope);
+    		if (this.typeArguments != null) {
+    			int length = this.typeArguments.length;
+    			this.typeArgumentsHaveErrors = compilerOptions.sourceLevel < ClassFileConstants.JDK1_5;
+    			this.resolvedTypeArguments = new TypeBinding[length];
+    			for (int i = 0; i < length; i++) {
+    				TypeReference typeReference = this.typeArguments[i];
+    				if ((this.resolvedTypeArguments[i] = typeReference.resolveType(scope, true /* check bounds*/)) == null) {
+    					this.typeArgumentsHaveErrors = true;
+    				}
+    				if (this.typeArgumentsHaveErrors && typeReference instanceof Wildcard) { // resolveType on wildcard always return null above, resolveTypeArgument is the real workhorse.
+    					scope.problemReporter().illegalUsageOfWildcard(typeReference);
+    				}
+    			}
+    			if (this.typeArgumentsHaveErrors)
+    				return this.resolvedType;
+    		}
+    	} else {
+    		if (this.typeArgumentsHaveErrors)
+				return this.resolvedType;
+    		lhsType = this.lhs.resolvedType;
+    	}
+
+    	if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
+			return new PolyTypeBinding(this);
+		}
 		super.resolveType(scope);
 		
-		final CompilerOptions compilerOptions = scope.compilerOptions();
-    	if (isConstructorReference())
-			this.lhs.bits |= ASTNode.IgnoreRawTypeCheck; // raw types in constructor references are to be treated as though <> were specified.
-		
-		TypeBinding lhsType = this.lhs.resolveType(scope);
-		if (this.typeArguments != null) {
-			int length = this.typeArguments.length;
-			boolean argHasError = compilerOptions.sourceLevel < ClassFileConstants.JDK1_5;
-			this.resolvedTypeArguments = new TypeBinding[length];
-			for (int i = 0; i < length; i++) {
-				TypeReference typeReference = this.typeArguments[i];
-				if ((this.resolvedTypeArguments[i] = typeReference.resolveType(scope, true /* check bounds*/)) == null) {
-					argHasError = true;
-				}
-				if (argHasError && typeReference instanceof Wildcard) { // resolveType on wildcard always return null above, resolveTypeArgument is the real workhorse.
-					scope.problemReporter().illegalUsageOfWildcard(typeReference);
-				}
-			}
-			if (argHasError)
-				return this.resolvedType;
-		}
-		
-		if (lhsType == null || !lhsType.isValidBinding()) 
+    	if (lhsType == null || !lhsType.isValidBinding()) 
 			return null;
 		
 		final TypeBinding[] descriptorParameters = this.descriptor != null ? this.descriptor.parameters : Binding.NO_PARAMETERS;
@@ -192,8 +209,9 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         	return null;
         }
 
-        this.binding = someMethod != null && someMethod.isValidBinding() ? someMethod : anotherMethod != null && anotherMethod.isValidBinding() ? anotherMethod : null;
-        this.method.binding = this.binding;
+        this.method.binding = this.binding = someMethod != null && someMethod.isValidBinding() ? someMethod : 
+        											anotherMethod != null && anotherMethod.isValidBinding() ? anotherMethod : null;
+
         if (this.binding == null) {
         	char [] visibleName = isConstructorReference() ? this.receiverType.sourceName() : selector;
         	scope.problemReporter().danglingReference(this, this.receiverType, visibleName, descriptorParameters);
@@ -250,8 +268,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
     				}
     			}
     		}
-    		if (!returnType.isCompatibleWith(this.descriptor.returnType, scope))
+    		if (!returnType.isCompatibleWith(this.descriptor.returnType, scope) && !isBoxingCompatible(returnType, this.descriptor.returnType, this, scope)) {
     			scope.problemReporter().incompatibleReturnType(this, this.binding, this.descriptor.returnType);
+    			this.method.binding = this.binding = null;
+    		}
     	}
 
     	return this.resolvedType; // Phew !
@@ -326,5 +346,24 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 
 		}
 		visitor.endVisit(this, blockScope);
+	}
+
+	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
+		// 15.28.1
+		final MethodBinding sam = left.getSingleAbstractMethod(scope);
+		if (sam == null || !sam.isValidBinding())
+			return false;
+		this.method.binding = this.binding = null;
+		setExpectedType(left);
+		CompilationResult original = this.compilationResult;
+		try {
+			this.compilationResult = devNullCompilationResult;
+			resolveType(this.enclosingScope);
+		} finally {
+			this.compilationResult = original;
+		}
+		boolean isCompatible = this.binding != null && this.binding.isValidBinding();
+		this.method.binding = this.binding = null;
+		return isCompatible;
 	}
 }

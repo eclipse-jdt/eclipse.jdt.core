@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
@@ -445,6 +446,14 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			}
 			ReferenceBinding allocationType = (ReferenceBinding) receiverType;
 			if ((this.binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
+				for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
+					Expression argument = this.arguments[i];
+					if (argumentTypes[i] instanceof PolyTypeBinding) {
+						argument.setExpressionContext(INVOCATION_CONTEXT);
+						argument.setExpectedType(this.binding.parameters[i]);
+						argumentTypes[i] = argument.resolveType(scope);
+					}
+				}
 				if (isMethodUseDeprecated(this.binding, scope, true)) {
 					scope.problemReporter().deprecatedMethod(this.binding, this);
 				}
@@ -519,6 +528,14 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			}
 			scope.problemReporter().invalidConstructor(this, inheritedBinding);
 			return this.resolvedType;
+		}
+		for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
+			Expression argument = this.arguments[i];
+			if (argumentTypes[i] instanceof PolyTypeBinding) {
+				argument.setExpressionContext(INVOCATION_CONTEXT);
+				argument.setExpectedType(inheritedBinding.parameters[i]);
+				argumentTypes[i] = argument.resolveType(scope);
+			}
 		}
 		if ((inheritedBinding.tagBits & TagBits.HasMissingType) != 0) {
 			scope.problemReporter().missingTypeInConstructor(this, inheritedBinding);

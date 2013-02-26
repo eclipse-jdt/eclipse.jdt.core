@@ -5284,6 +5284,168 @@ this.runNegativeTest(
 				"})\n" + 
 				"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401789, [1.8][compiler] Enable support for method/constructor references in non-overloaded method calls.
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401790, Follow up of bug 401610, explicit constructor calls and allocation expressions needs updates too.
+public void test401789_401790() {
+this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	Integer foo(X x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	int foo(I i) { return 10;}\n" +
+				"	class Y {\n" +
+				"		Y (I i) {}\n" +
+				"		Y() {\n" +
+				"			this(X::goo);\n" +
+				"		}\n" +
+				"	}\n" +
+				"	X(I i) {}\n" +
+				"	X() {\n" +
+				"		this((x) -> { return 10;});\n" +
+				"	}\n" +
+				"	int goo() { return 0;}\n" +
+				"	{\n" +
+				"		foo(X::goo);\n" +
+				"		new X((x)->{ return 10;});\n" +
+				"		new X((x)->{ return 10;}).new Y((x) -> { return 0;});\n" +
+				"		new X((x)->{ return 10;}) {};\n" +
+				"	}\n" +
+				"}\n" +
+				"class Z extends X {\n" +
+				"	Z() {\n" +
+				"		super(X::goo);\n" +
+				"	}\n" +
+				"	Z(int i) {\n" +
+				"		super (x -> 10);\n" +
+				"	}\n" +
+				"   Zork z;\n" +
+				"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 31)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401789, [1.8][compiler] Enable support for method/constructor references in non-overloaded method calls.
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401790, Follow up of bug 401610, explicit constructor calls and allocation expressions needs updates too.
+public void test401789_401790a() {
+this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	String foo(X x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	int foo(I i) { return 10;}\n" +
+				"	class Y {\n" +
+				"		Y (I i) {}\n" +
+				"		Y() {\n" +
+				"			this(X::goo);\n" +
+				"		}\n" +
+				"	}\n" +
+				"	X(I i) {}\n" +
+				"	X() {\n" +
+				"		this((x) -> { return 10;});\n" +
+				"	}\n" +
+				"	int goo() { return 0;}\n" +
+				"	{\n" +
+				"		foo(X::goo);\n" +
+				"		new X((x)->{ return 10;});\n" +
+				"		new X((x)->{ return 10;}).new Y((x) -> { return 0;});\n" +
+				"		new X((x)->{ return 10;}) {};\n" +
+				"	}\n" +
+				"}\n" +
+				"class Z extends X {\n" +
+				"	Z() {\n" +
+				"		super(X::goo);\n" +
+				"	}\n" +
+				"	Z(int i) {\n" +
+				"		super (x -> 10);\n" +
+				"	}\n" +
+				"   Zork z;\n" +
+				"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 9)\n" + 
+				"	this(X::goo);\n" + 
+				"	^^^^^^^^^^^^^\n" + 
+				"The constructor X.Y(X::goo) is undefined\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 9)\n" + 
+				"	this(X::goo);\n" + 
+				"	     ^^^^^^\n" + 
+				"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 14)\n" + 
+				"	this((x) -> { return 10;});\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The constructor X((<no type> x) -> {\n" + 
+				"  return 10;\n" + 
+				"}) is undefined\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 18)\n" + 
+				"	foo(X::goo);\n" + 
+				"	^^^\n" + 
+				"The method foo(I) in the type X is not applicable for the arguments (X::goo)\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 18)\n" + 
+				"	foo(X::goo);\n" + 
+				"	    ^^^^^^\n" + 
+				"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
+				"----------\n" + 
+				"6. ERROR in X.java (at line 19)\n" + 
+				"	new X((x)->{ return 10;});\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The constructor X((<no type> x) -> {\n" + 
+				"  return 10;\n" + 
+				"}) is undefined\n" + 
+				"----------\n" + 
+				"7. ERROR in X.java (at line 20)\n" + 
+				"	new X((x)->{ return 10;}).new Y((x) -> { return 0;});\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The constructor X((<no type> x) -> {\n" + 
+				"  return 10;\n" + 
+				"}) is undefined\n" + 
+				"----------\n" + 
+				"8. ERROR in X.java (at line 20)\n" + 
+				"	new X((x)->{ return 10;}).new Y((x) -> { return 0;});\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The constructor X.Y((<no type> x) -> {\n" + 
+				"  return 0;\n" + 
+				"}) is undefined\n" + 
+				"----------\n" + 
+				"9. ERROR in X.java (at line 21)\n" + 
+				"	new X((x)->{ return 10;}) {};\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The constructor X((<no type> x) -> {\n" + 
+				"  return 10;\n" + 
+				"}) is undefined\n" + 
+				"----------\n" + 
+				"10. ERROR in X.java (at line 26)\n" + 
+				"	super(X::goo);\n" + 
+				"	^^^^^^^^^^^^^^\n" + 
+				"The constructor X(X::goo) is undefined\n" + 
+				"----------\n" + 
+				"11. ERROR in X.java (at line 26)\n" + 
+				"	super(X::goo);\n" + 
+				"	      ^^^^^^\n" + 
+				"The type of goo() from the type X is int, this is incompatible with the descriptor\'s return type: String\n" + 
+				"----------\n" + 
+				"12. ERROR in X.java (at line 29)\n" + 
+				"	super (x -> 10);\n" + 
+				"	^^^^^^^^^^^^^^^^\n" + 
+				"The constructor X((<no type> x) -> 10) is undefined\n" + 
+				"----------\n" + 
+				"13. ERROR in X.java (at line 31)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

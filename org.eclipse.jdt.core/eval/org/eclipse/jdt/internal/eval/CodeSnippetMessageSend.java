@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -299,6 +300,14 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 			scope.problemReporter().invalidMethod(this, this.binding);
 			return null;
+		}
+	}
+	for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
+		Expression argument = this.arguments[i];
+		if (argumentTypes[i] instanceof PolyTypeBinding) {
+			argument.setExpressionContext(INVOCATION_CONTEXT);
+			argument.setExpectedType(this.binding.parameters[i]);
+			argumentTypes[i] = argument.resolveType(scope);
 		}
 	}
 	if (!this.binding.isStatic()) {

@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -409,6 +410,14 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				return;
 			}
 			if ((this.binding = scope.getConstructor(receiverType, argumentTypes, this)).isValidBinding()) {
+				for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
+					Expression argument = this.arguments[i];
+					if (argumentTypes[i] instanceof PolyTypeBinding) {
+						argument.setExpressionContext(INVOCATION_CONTEXT);
+						argument.setExpectedType(this.binding.parameters[i]);
+						argumentTypes[i] = argument.resolveType(scope);
+					}
+				}
 				if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 					if (!methodScope.enclosingSourceType().isAnonymousType()) {
 						scope.problemReporter().missingTypeInConstructor(this, this.binding);

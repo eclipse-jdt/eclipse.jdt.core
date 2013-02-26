@@ -424,6 +424,14 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().invalidConstructor(this, this.binding);
 		return this.resolvedType;
 	}
+	for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
+		Expression argument = this.arguments[i];
+		if (argumentTypes[i] instanceof PolyTypeBinding) {
+			argument.setExpressionContext(INVOCATION_CONTEXT);
+			argument.setExpectedType(this.binding.parameters[i]);
+			argumentTypes[i] = argument.resolveType(scope);
+		}
+	}
 	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 		scope.problemReporter().missingTypeInConstructor(this, this.binding);
 	}

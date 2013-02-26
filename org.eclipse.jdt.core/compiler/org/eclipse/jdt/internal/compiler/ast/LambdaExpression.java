@@ -19,7 +19,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -27,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -43,25 +42,16 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
-import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
-import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
-import org.eclipse.jdt.internal.compiler.problem.AbortType;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-public class LambdaExpression extends FunctionalExpression implements ProblemSeverities, ReferenceContext, PolyExpression {
+public class LambdaExpression extends FunctionalExpression {
 	public Argument [] arguments;
 	public Statement body;
-	private MethodScope scope;
-	private CompilationResult compilationResult;
-	private boolean ignoreFurtherInvestigation;
-	private BlockScope parentScope;
-	private static CompilationResult devNullCompilationResult;
+	MethodScope scope;
 	protected boolean voidCompatible = true;
 	protected boolean valueCompatible = false;
 	
 	public LambdaExpression(CompilationResult compilationResult, Argument [] arguments, Statement body) {
-		this.compilationResult = compilationResult;
+		super(compilationResult);
 		this.arguments = arguments != null ? arguments : ASTNode.NO_ARGUMENTS;
 		this.body = body;
 	}
@@ -90,8 +80,8 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 	 * @see org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration.resolve(ClassScope)
 	 */
 	public TypeBinding resolveType(BlockScope blockScope) {
-		
-		this.parentScope = blockScope;
+		this.constant = Constant.NotAConstant;
+		this.enclosingScope = blockScope;
 		if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
 			if (this.body instanceof Block) {
 				// Gather shape information for potential applicability analysis.
@@ -117,8 +107,6 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 				this.voidCompatible = expression.statementExpression();
 				this.valueCompatible = true;
 			}	
-			if (devNullCompilationResult == null)
-				devNullCompilationResult = new CompilationResult(this.compilationResult.getCompilationUnit(), 0, 0, blockScope.compilerOptions().maxProblemsPerUnit);
 			return new PolyTypeBinding(this);
 		}
 		super.resolveType(blockScope); // compute & capture interface function descriptor in singleAbstractMethod.
@@ -384,53 +372,6 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 		return output.append(suffix);
 	}
 
-	public CompilationResult compilationResult() {
-		return this.compilationResult;
-	}
-	
-	public void abort(int abortLevel, CategorizedProblem problem) {
-
-		switch (abortLevel) {
-			case AbortCompilation :
-				throw new AbortCompilation(this.compilationResult, problem);
-			case AbortCompilationUnit :
-				throw new AbortCompilationUnit(this.compilationResult, problem);
-			case AbortType :
-				throw new AbortType(this.compilationResult, problem);
-			default :
-				throw new AbortMethod(this.compilationResult, problem);
-		}
-	}
-
-	public CompilationUnitDeclaration getCompilationUnitDeclaration() {
-		return this.scope == null ? null : this.scope.compilationUnitScope().referenceContext;
-	}
-
-	public boolean hasErrors() {
-		return this.ignoreFurtherInvestigation;
-	}
-
-	private boolean shouldShutup() {
-		return this.compilationResult == devNullCompilationResult;
-	}
-	
-	public void tagAsHavingErrors() {
-		if (shouldShutup()) return;
-		this.ignoreFurtherInvestigation = true;
-		Scope parent = this.scope.parent;
-		while (parent != null) {
-			switch(parent.kind) {
-				case Scope.CLASS_SCOPE:
-				case Scope.METHOD_SCOPE:
-					parent.referenceContext().tagAsHavingErrors();
-					return;
-				default:
-					parent = parent.parent;
-					break;
-			}
-		}
-	}
-
 	public TypeBinding expectedResultType() {
 		return this.descriptor != null && this.descriptor.isValidBinding() ? this.descriptor.returnType : null;
 	}
@@ -453,7 +394,7 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 	
 	public boolean isCompatibleWith(TypeBinding left, Scope someScope) {
 		
-		final MethodBinding sam = left.getSingleAbstractMethod(this.parentScope);
+		final MethodBinding sam = left.getSingleAbstractMethod(this.enclosingScope);
 		
 		if (sam == null || !sam.isValidBinding())
 			return false;
@@ -471,7 +412,7 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 		LambdaExpression copy = copy();
 		copy.setExpressionContext(this.expressionContext);
 		copy.setExpectedType(left);
-		copy.resolveType(this.parentScope);
+		copy.resolveType(this.enclosingScope);
 		
 		if (!argumentsTypeElided()) {
 			for (int i = 0, length = sam.parameters.length; i < length; i++) {
@@ -505,11 +446,11 @@ public class LambdaExpression extends FunctionalExpression implements ProblemSev
 	}
 
 	LambdaExpression copy() {
-		final Parser parser = new Parser(this.parentScope.problemReporter(), false);
+		final Parser parser = new Parser(this.enclosingScope.problemReporter(), false);
 		final char[] source = this.compilationResult.getCompilationUnit().getContents();
 		LambdaExpression copy;
 		
-		CompilationUnitDeclaration unit = this.parentScope.referenceCompilationUnit();
+		CompilationUnitDeclaration unit = this.enclosingScope.referenceCompilationUnit();
 		CompilationResult original = unit.compilationResult;
 		unit.compilationResult = devNullCompilationResult;
 		

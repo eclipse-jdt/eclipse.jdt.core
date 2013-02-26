@@ -16,9 +16,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -28,16 +31,28 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+import org.eclipse.jdt.internal.compiler.problem.AbortType;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-public abstract class FunctionalExpression extends Expression {
+public abstract class FunctionalExpression extends Expression implements ProblemSeverities, ReferenceContext, PolyExpression {
 	
 	TypeBinding expectedType;
 	MethodBinding descriptor;
 	public MethodBinding binding;
+	boolean ignoreFurtherInvestigation;
 	protected ExpressionContext expressionContext = VANILLA_CONTEXT;
+	protected CompilationResult compilationResult;
+	protected BlockScope enclosingScope;
+	protected static CompilationResult devNullCompilationResult;
 	
-	public FunctionalExpression() {
-		super();
+	public FunctionalExpression(CompilationResult compilationResult) {
+		this.compilationResult = compilationResult;
+		if (devNullCompilationResult == null) {
+			devNullCompilationResult = new CompilationResult(this.compilationResult.getCompilationUnit(), 0, 0, Integer.MAX_VALUE /* maximum problems per unit */);
+		}
 	}
 
 	public void setExpectedType(TypeBinding expectedType) {
@@ -161,5 +176,52 @@ public abstract class FunctionalExpression extends Expression {
 			codeStream.aconst_null(); // TODO: Real code
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
+	}
+
+	public CompilationResult compilationResult() {
+		return this.compilationResult;
+	}
+
+	public void abort(int abortLevel, CategorizedProblem problem) {
+	
+		switch (abortLevel) {
+			case AbortCompilation :
+				throw new AbortCompilation(this.compilationResult, problem);
+			case AbortCompilationUnit :
+				throw new AbortCompilationUnit(this.compilationResult, problem);
+			case AbortType :
+				throw new AbortType(this.compilationResult, problem);
+			default :
+				throw new AbortMethod(this.compilationResult, problem);
+		}
+	}
+
+	public CompilationUnitDeclaration getCompilationUnitDeclaration() {
+		return this.enclosingScope == null ? null : this.enclosingScope.compilationUnitScope().referenceContext;
+	}
+
+	public boolean hasErrors() {
+		return this.ignoreFurtherInvestigation;
+	}
+
+	private boolean shouldShutup() {
+		return this.compilationResult == devNullCompilationResult;
+	}
+
+	public void tagAsHavingErrors() {
+		if (shouldShutup()) return;
+		this.ignoreFurtherInvestigation = true;
+		Scope parent = this.enclosingScope.parent;
+		while (parent != null) {
+			switch(parent.kind) {
+				case Scope.CLASS_SCOPE:
+				case Scope.METHOD_SCOPE:
+					parent.referenceContext().tagAsHavingErrors();
+					return;
+				default:
+					parent = parent.parent;
+					break;
+			}
+		}
 	}
 }
