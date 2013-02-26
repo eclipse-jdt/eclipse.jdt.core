@@ -66,6 +66,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy = null;
 		}
 	}
+	private void assertArrayEquals(int[] expectedAnnotationsSize,
+			int[] actualAnnotationsSize) {
+		assertEquals("wrong array size", expectedAnnotationsSize.length, actualAnnotationsSize.length);
+		for (int i = 0, max = expectedAnnotationsSize.length; i < max; i++) {
+			assertEquals("Wrong element at " + i, expectedAnnotationsSize[i], actualAnnotationsSize[i]);
+		}
+	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=234609 BindingKey#toSignature() fails with key from createWilcardTypeBindingKey(..)
 	public void test234609() throws JavaModelException {
@@ -11479,5 +11486,45 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		}
 		assertNull("Binding should be null", bindingFromAST);
 	}
-
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=398520
+	 */
+	public void testBug398520() throws CoreException {
+		String jarLocation = getWorkspacePath()+"Converter15/bins/bug398520.jar";
+		IJavaProject jp = createJavaProject("Bug398520", new String[]{"src"}, new String[]{"CONVERTER_JCL15_LIB", jarLocation}, "bin", "1.5");
+		try {
+			this.workingCopy = getWorkingCopy("/Bug398520/src/testBug398520/C.java", true/*resolve*/);
+			String contents =
+				"package testBug398520;\n" +
+				"import pack.*;\n" +
+				"public class C {\n" +
+				"	 public Object foo() {\n" +
+				"        return new T<String, String>().new C().new Iter(\"\", 0, null);\n" +
+				"    }\n" +
+				"}\n";
+			ASTNode node = buildAST(
+					contents,
+					this.workingCopy,
+					true);
+			assertNotNull("No node", node);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertEquals("Got problems", 0, compilationUnit.getProblems().length);
+			ASTNode astNode = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("Not a return statement", ASTNode.RETURN_STATEMENT, astNode.getNodeType());
+			ReturnStatement statement = (ReturnStatement) astNode;
+			Expression expression = statement.getExpression();
+			ClassInstanceCreation creation = (ClassInstanceCreation) expression;
+			IMethodBinding methodBinding = creation.resolveConstructorBinding();
+			int[] expectedAnnotationsSize = new int[] { 1, 0, 1};
+			int[] actualAnnotationsSize = new int[] {
+					methodBinding.getParameterAnnotations(0).length,
+					methodBinding.getParameterAnnotations(1).length,
+					methodBinding.getParameterAnnotations(2).length
+			};
+			assertArrayEquals(expectedAnnotationsSize, actualAnnotationsSize);
+		} finally {
+			deleteProject(jp);
+		}
+	}
 }
