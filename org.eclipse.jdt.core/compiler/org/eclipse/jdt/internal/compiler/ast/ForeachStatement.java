@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 393719 - [compiler] inconsistent warnings on iteration variables
+ *     Jesper S Moller -  Contribution for
+ *								bug 401853 - Eclipse Java compiler creates invalid bytecode (java.lang.VerifyError)
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -33,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class ForeachStatement extends Statement {
 
@@ -304,7 +307,15 @@ public class ForeachStatement extends Statement {
 					}
 				}
 				if (this.elementVariable.binding.resolvedPosition == -1) {
-					codeStream.pop();
+					switch (this.elementVariable.binding.type.id) {
+						case TypeIds.T_long :
+						case TypeIds.T_double :
+							codeStream.pop2();
+							break;
+						default:
+							codeStream.pop();
+							break;
+					}
 				} else {
 					codeStream.store(this.elementVariable.binding, false);
 					codeStream.addVisibleLocalVariable(this.elementVariable.binding);

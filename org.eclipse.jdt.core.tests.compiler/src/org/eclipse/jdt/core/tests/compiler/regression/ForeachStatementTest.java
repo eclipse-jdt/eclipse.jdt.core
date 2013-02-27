@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								bug 393719 - [compiler] inconsistent warnings on iteration variables
+ *     Jesper S Moller -  Contribution for
+ *								bug 401853 - Eclipse Java compiler creates invalid bytecode (java.lang.VerifyError)
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2906,6 +2908,81 @@ public void test056() throws Exception {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=401853
+// Eclipse Java compiler creates invalid bytecode (java.lang.VerifyError)
+public void test057() throws Exception {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] argv) {\n" + 
+			"		for (long l : new ArrayList<Long>()) {}\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"",
+		null,
+		true,
+		null,
+		options,
+		null);
+
+	String expectedOutput =
+		"public class X {\n" + 
+		"  \n" + 
+		"  // Method descriptor #6 ()V\n" + 
+		"  // Stack: 1, Locals: 1\n" + 
+		"  public X();\n" + 
+		"    0  aload_0 [this]\n" + 
+		"    1  invokespecial java.lang.Object() [8]\n" + 
+		"    4  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+		"  \n" + 
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  public static void main(java.lang.String[] argv);\n" + 
+		"     0  new java.util.ArrayList [16]\n" + 
+		"     3  dup\n" + 
+		"     4  invokespecial java.util.ArrayList() [18]\n" + 
+		"     7  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator [19]\n" + 
+		"    10  astore_1\n" + 
+		"    11  goto 27\n" + 
+		"    14  aload_1\n" + 
+		"    15  invokeinterface java.util.Iterator.next() : java.lang.Object [23] [nargs: 1]\n" + 
+		"    20  checkcast java.lang.Long [29]\n" + 
+		"    23  invokevirtual java.lang.Long.longValue() : long [31]\n" + 
+		"    26  pop2\n" + 
+		"    27  aload_1\n" + 
+		"    28  invokeinterface java.util.Iterator.hasNext() : boolean [35] [nargs: 1]\n" + 
+		"    33  ifne 14\n" + 
+		"    36  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 5]\n" + 
+		"        [pc: 36, line: 6]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 37] local: argv index: 0 type: java.lang.String[]\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }
