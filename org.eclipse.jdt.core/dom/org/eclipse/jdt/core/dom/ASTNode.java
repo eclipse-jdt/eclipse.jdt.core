@@ -1031,7 +1031,7 @@ public abstract class ASTNode {
 	/**
 	 * Owning AST.
      * <p>
-     * N.B. This ia a private field, but declared as package-visible
+     * N.B. This is a private field, but declared as package-visible
      * for more efficient access from inner classes.
      * </p>
 	 */
@@ -1064,7 +1064,7 @@ public abstract class ASTNode {
 	private Object property1 = null;
 
 	/**
-	 * Auxillary field used in representing node properties efficiently.
+	 * Auxiliary field used in representing node properties efficiently.
 	 *
 	 * @see #property1
 	 */
@@ -1240,7 +1240,7 @@ public abstract class ASTNode {
 			}
 
 			/**
-			 * Adjusts this cursor to accomodate an add/remove at the given
+			 * Adjusts this cursor to accommodate an add/remove at the given
 			 * index.
 			 *
 			 * @param index the position at which the element was added
@@ -1424,7 +1424,7 @@ public abstract class ASTNode {
 		}
 
 		/**
-		 * Adjusts all cursors to accomodate an add/remove at the given
+		 * Adjusts all cursors to accommodate an add/remove at the given
 		 * index.
 		 * <p>
 		 * This method is only used when the list is being modified.
@@ -1673,7 +1673,7 @@ public abstract class ASTNode {
 	 * Sets the value of the given int-valued property for this node.
 	 * The default implementation of this method throws an exception explaining
 	 * that this node does not have such a property. This method should be
-	 * extended in subclasses that have at leasy one simple property whose value
+	 * extended in subclasses that have at least one simple property whose value
 	 * type is int.
 	 *
 	 * @param property the property
@@ -1694,7 +1694,7 @@ public abstract class ASTNode {
 	 * Sets the value of the given boolean-valued property for this node.
 	 * The default implementation of this method throws an exception explaining
 	 * that this node does not have such a property. This method should be
-	 * extended in subclasses that have at leasy one simple property whose value
+	 * extended in subclasses that have at least one simple property whose value
 	 * type is boolean.
 	 *
 	 * @param property the property
@@ -1715,7 +1715,7 @@ public abstract class ASTNode {
 	 * Sets the value of the given property for this node.
 	 * The default implementation of this method throws an exception explaining
 	 * that this node does not have such a property. This method should be
-	 * extended in subclasses that have at leasy one simple property whose value
+	 * extended in subclasses that have at least one simple property whose value
 	 * type is a reference type.
 	 *
 	 * @param property the property
@@ -1737,7 +1737,7 @@ public abstract class ASTNode {
 	 * Sets the child value of the given property for this node.
 	 * The default implementation of this method throws an exception explaining
 	 * that this node does not have such a property. This method should be
-	 * extended in subclasses that have at leasy one child property.
+	 * extended in subclasses that have at least one child property.
 	 *
 	 * @param property the property
 	 * @param get <code>true</code> for a get operation, and
@@ -1757,8 +1757,8 @@ public abstract class ASTNode {
 	/**
 	 * Returns the list value of the given property for this node.
 	 * The default implementation of this method throws an exception explaining
-	 * that this noed does not have such a property. This method should be
-	 * extended in subclasses that have at leasy one child list property.
+	 * that this node does not have such a property. This method should be
+	 * extended in subclasses that have at least one child list property.
 	 *
 	 * @param property the property
 	 * @return the list (element type: {@link ASTNode})
@@ -2146,7 +2146,7 @@ public abstract class ASTNode {
 	 */
 	final void preValueChange(SimplePropertyDescriptor property) {
 		if ((this.typeAndFlags & PROTECT) != 0) {
-			// this node is protected => cannot change valure of properties
+			// this node is protected => cannot change value of properties
 			throw new IllegalArgumentException("AST node cannot be modified"); //$NON-NLS-1$
 		}
 		this.ast.preValueChangeEvent(this, property);
