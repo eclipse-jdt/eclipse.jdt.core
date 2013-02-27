@@ -1167,7 +1167,9 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			String javadoc = packageFragment.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
 			assertNull("Javadoc should be null", javadoc); //$NON-NLS-1$
 		} catch(JavaModelException jme) {
-			fail("Should not throw Java Model Exception");
+			if (!(jme.getCause() instanceof FileNotFoundException)) {
+				fail("Should not throw Java Model Exception");
+			}
 		}
 	}
 }
