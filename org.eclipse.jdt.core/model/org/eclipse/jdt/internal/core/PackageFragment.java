@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -481,7 +482,14 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 	pathBuffer.append(packPath).append('/').append(JavadocConstants.PACKAGE_FILE_NAME);
 
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
-	String contents = getURLContents(String.valueOf(pathBuffer));
+	String contents = null;
+	try {
+		contents = getURLContents(String.valueOf(pathBuffer));
+	} catch(JavaModelException jme) {
+		if (!(jme.getCause() instanceof FileNotFoundException)) {
+			throw jme;
+		}
+	}
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	if (contents == null) return null;
 	

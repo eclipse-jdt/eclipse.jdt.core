@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -369,7 +370,14 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		assertNotNull("Should not be null", packageFragment); //$NON-NLS-1$
 		IClassFile classFile = packageFragment.getClassFile("W.class"); //$NON-NLS-1$
 		assertNotNull(classFile);
-		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+		String javadoc = null;
+		try {
+			javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+		} catch(JavaModelException jme) {
+			if (!(jme.getCause() instanceof FileNotFoundException)) {
+				fail("Can only throw a FileNotFoundException");
+			}
+		}
 		assertNull("Should not have a javadoc", javadoc); //$NON-NLS-1$
 	}
 
